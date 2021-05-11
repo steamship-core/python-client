@@ -1,21 +1,14 @@
-===============
-nludb_client_py
-===============
+=====
+nludb
+=====
 
 
-Add a short description here!
+Python client library for NLUDB: the database for Natural Langauge Understanding.
 
 
 Description
 ===========
 
-A longer description of your project goes here...
+NLUDB is a cloud-hosted database that helps developers get work done with natural language content.
 
 
-.. _pyscaffold-notes:
-
-Note
-====
-
-This project has been set up using PyScaffold 4.0.1. For details and usage
-information on PyScaffold see https://pyscaffold.org/.

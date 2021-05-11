@@ -1,8 +1,8 @@
 ===============
-nludb_client_py
+nludb
 ===============
 
-This is the documentation of **nludb_client_py**.
+This is the documentation of **nludb**.
 
 .. note::
 

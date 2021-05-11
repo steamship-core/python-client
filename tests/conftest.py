@@ -1,5 +1,5 @@
 """
-    Dummy conftest.py for nludb_client_py.
+    Dummy conftest.py for nludb.
 
     If you don't know what this is for, just leave it empty.
     Read more about conftest.py under:

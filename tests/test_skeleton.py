@@ -1,6 +1,6 @@
 import pytest
 
-from nludb_client_py.skeleton import fib, main
+from nludb.skeleton import fib, main
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"

@@ -1,5 +1,5 @@
 """
-    Setup file for nludb_client_py.
+    Setup file for nludb.
     Use setup.cfg to configure your project.
 
     This file was generated with PyScaffold 4.0.1.
