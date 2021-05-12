@@ -1,99 +1,100 @@
+import re
+import os
+
+from nludb import NLUDB, EmbeddingIndexModels
+
+FACT_TRIGGERS = [
+  "fact", "rem", "remember", "learn", "true story"
+]
+
+FACT_PUNCT = [
+  ":", " -- ", " that ", " - ", "--", "-", " "
+]
+
 class NludbChatbotBase:
-  def __init__(self, api_key: str, server_name: str, min_confidence: float = 0.4):
+  def __init__(
+    self, 
+    api_key: str, 
+    index_name: str, 
+    min_confidence: float = 0.4):
     self.nludb = NLUDB(api_key)
-    self.server_name = server_name
+    self.index_name = index_name
     self.min_confidence = min_confidence
     self.index = self.nludb.create_index(
-        server_name, 
-        MODELS.QA, 
+        index_name, 
+        EmbeddingIndexModels.DEFAULT_QA, 
         upsert=True
     )
 
-  def get_fact(self, message: str) -> str:
-    words = re.sub("\s\s+" , " ", message).split(' ')
-    if len(words) == 0:
+  def learn_fact(self, fact: str, externalId: str = None, externalType: str = None, metadata: dict = None):
+    if fact is None:
       return None
-    first = words[0].lower()
-    if first in ['fact', 'fact:', 'learn', 'learn:']:
-      return " ".join(words[1:])
-    return None
+    return self.index.insert(
+      fact,
+      externalId=externalId,
+      externalType=externalType,
+      metadata=metadata
+    )
+
+  def search_facts(self, query:  str) -> str:
+    res = self.index.search(query)
+    if res is None or res.hits is None or len(res.hits) == 0:
+      return None
+    hit = res.hits[0]
+    if hit.score is None or hit.score < self.min_confidence:
+      return None
+    return hit.value 
+
+  def extract_fact(self, input: str) -> str:
+    input = re.sub("\s\s+" , " ", input)
+    triggered = False
+    for trigger in FACT_TRIGGERS:
+      if input.find(trigger) == 0:
+        input = input[len(trigger):]
+        triggered = True
+        break
+    if not triggered:
+      return None
     
-  def dispatch(self, message: str, username: str = None, roomname: str = None) -> str:
-    """
-    Todo: add a "forget" feature
-    """
-    maybe_fact = self.get_fact(message)
-    if maybe_fact is not None:
-      return self.add_fact(maybe_fact, username, roomname)
-    return self.answer_question(message, username, roomname)
-
-  def add_fact(self, fact: str, username: str = None, roomname: str = None) -> str:
-    self.index.insert(fact)
-    self.index.embed()
-    return None
-
-  def answer_question(self, question: str, username: str = None, roomname: str = None) -> Tuple[float, str]:
-    resp = self.index.search(question)
-    if 'hits' not in resp or len(resp['hits']) == 0:
-      return None
-    
-    confidence = resp['hits'][0]['score']
-    text = resp['hits'][0]['text']
-
-    if confidence < self.min_confidence:
-      return None
-    return (confidence, text) 
-
-class NludbChatbot(NludbChatbotBase):
-  """
-  This class is intended to wrap the core functionality with
-  any extra personality, error messages, etc.
-
-  Also can provide a threshold here below which either no fact is
-  returned or the bot humorously tries to hedge its answer..
-  """
-  def __init__(self, api_key: str, server_name: str):
-    super().__init__(api_key, server_name)
+    # Now we strip the punctuation
+    for punct in FACT_PUNCT:
+      if input.find(punct) == 0:
+        input = input[len(punct):]
+        return input
+    return input
   
-  def dispatch(self, message: str, username: str = None, roomname: str = None) -> str:
-    message = message.strip()
-    words = re.split('\s+', message)
-    if len(message) == 0 or len(words) == 0:
-      return """QQ can learn to answer questions.
- 
- Learn something:
- `qq fact: Bob's birthday is in January.`
- `qq fact: See Jamie about new account setups.`
- 
- Ask something:
- `qq when is Bob's birthday?`
- `qq who do I see about creating a new account?"""
-    elif bot.arguments == 'forget everything you know':
-      return "I don't yet know how to forget"
-
-    maybe_fact = self.get_fact(message)
+  def dispatch(self, message: str, externalId: str = None, externalType: str = None, metadata: dict = None) -> str:
+    maybe_fact = self.extract_fact(message)
     if maybe_fact is not None:
-      if len(maybe_fact.strip()) == 0:
-        return "Say `qq fact Some fact: goes here` to learn something"  
-      super().dispatch(message, username, roomname)
-      return "{}... got it!".format(maybe_fact)
+      self.learn_fact(maybe_fact, externalId=externalId, externalType=externalType, metadata=metadata)
+      return "{}... OK, I got it!".format(maybe_fact)
     
-    # It's a question
-    resp = super().dispatch(message, username, roomname)
-    if resp is None:
-      return "I'm not really sure how to answer that..\n\nAdd new facts with `qq fact: Some fact goes here`."
-    
-    score, text = resp
-    return text
+    # Assume it's a question
+    return self.search_facts(message)
 
-secret = bot.secrets.read("nludbapikey")
-if secret is None:
-  bot.reply("Please set the `nludbapikey` secret in https://Ab.Bot")
-else:
-  # if docs is None:
-  # bot.reply("I haven't learned anything yet! Say `qq fact Some fact goes here` to teach me")
-  user = bot.from_user['UserName']
-  #bot.reply("{}".format(bot.conversation_reference))
-  chatbot = NludbChatbot(secret, "AbbotDemo1")
-  reply = chatbot.dispatch(bot.arguments.strip())
-  bot.reply(reply)
+
+def main():
+  nludb_key = os.environ['NLUDB_KEY']
+  if nludb_key is None:
+    print("Please set the NLUDB_KEY environment variable")
+    return
+
+  index_name = os.environ.get('NLUDB_INDEX', "NludbChatbotBase Demo")
+  bot = NludbChatbotBase(api_key=nludb_key, index_name=index_name)
+
+  print('''NLUDB QA Bot Demonstration
+  
+Type "fact: <some fact>" to learn something new.
+Type a question to retrieve knowledge.
+  ''')
+  while True:
+    message = input("> ")   # Python 3
+    response = bot.dispatch(message)
+    if response:
+      print(response)
+    else:
+      print("Unsure how to respond..")
+    print("")
+
+if __name__ == "__main__":
+  main()
