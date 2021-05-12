@@ -14,3 +14,6 @@ except PackageNotFoundError:  # pragma: no cover
     __version__ = "unknown"
 finally:
     del version, PackageNotFoundError
+
+from .nludb import NLUDB
+from .embedding_index import EmbeddingIndex, EmbeddingIndexModels

@@ -3,7 +3,7 @@ import os
 import random
 import string
 
-from nludb.nludb import NLUDB
+from nludb import NLUDB
 from nludb.types.embedding_index import EmbeddingIndexModels
 
 __author__ = "Edward Benson"
