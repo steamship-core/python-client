@@ -2,13 +2,6 @@ from typing import List
 from dataclasses import dataclass
 from nludb.types.base import NludbRequest, NludbResponse
 from nludb.types.search import Hit
-class EmbeddingModels:
-  QA = "st_msmarco_distilbert_base_v3"
-  SIMILARITY = "st_paraphrase_distilroberta_base_v1"
-
-  DEFAULT_QA = "st_msmarco_distilbert_base_v3"
-  DEFAULT_SIMILARITY = "st_paraphrase_distilroberta_base_v1"
-
 @dataclass
 class IndexCreateRequest(NludbRequest):
   name: str

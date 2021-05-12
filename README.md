@@ -39,7 +39,7 @@ An Embedding Index is a persistent, read-optimized index over an embedded space.
 ```python
 index = nludb.create_index(
   "Question Answering Index", 
-  EmbeddingModels.DEFAULT_QA
+  EmbeddingModels.QA
 )
 
 index.insert("Armadillo shells are bulletproof.")

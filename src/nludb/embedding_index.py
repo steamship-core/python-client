@@ -43,7 +43,7 @@ class EmbeddingIndex:
       reindex=reindex,
     )
     resp = self.nludb.post('embedding-index/insert', req)
-    return IndexInsertResponse.safely_from_dict(resp)
+    return IndexInsertResponse.safely_from_dict(resp[0])
 
   def embed(self) -> IndexEmbedResponse:
     req = IndexEmbedRequest(

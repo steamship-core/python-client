@@ -3,6 +3,7 @@ from typing import Tuple, List
 
 from nludb import __version__
 from nludb.api.base import ApiBase
+from nludb.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
 from nludb.types.embedding_index import IndexCreateRequest
 from nludb.embedding_index import EmbeddingIndex
 
@@ -46,3 +47,31 @@ class NLUDB(ApiBase):
       name=req.name,
       id=res.get("id", None)
     )
+
+  def embed(
+    self, 
+    texts: List[str],
+    model: str
+  ) -> EmbedResponse:
+    req = EmbedRequest(
+      texts=texts,
+      model=model
+    )
+    res = self.post('embedding/create', req)
+    return EmbedResponse.safely_from_dict(res)
+
+  def embed_and_search(
+    self, 
+    query: str,
+    docs: List[str],
+    model: str,
+    k: int = 1
+  ) -> EmbedAndSearchResponse:
+    req = EmbedAndSearchRequest(
+      query=query,
+      docs=docs,
+      model=model,
+      k=k      
+    )
+    res = self.post('embedding/search', req)
+    return EmbedAndSearchResponse.safely_from_dict(res)
