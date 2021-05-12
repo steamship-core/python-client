@@ -2,8 +2,10 @@
 Changelog
 =========
 
-Version 0.1
-===========
+Version 0.1.3
+=============
 
-- Initial release
-- FEATURE: Embedding Indices
+Initial release
+
+* FEATURE: Embedding Indices
+* DEMO: Chatbot Harness
