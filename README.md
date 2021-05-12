@@ -43,5 +43,10 @@ index = nludb.create_index(
 )
 
 index.insert("Armadillo shells are bulletproof.")
-results = index.search("What is something interesting about Armadillos?")    
+index.insert("Dolphins sleep with one eye open.")
+index.insert("Alfred Hitchcock was frightened of eggs.")
+index.insert("Jonathan can help you with new employee onboarding")
+index.insert("The code for the New York office is 1234")
+
+results = index.search("Who should I talk to about new employee setup?")    
 ```
