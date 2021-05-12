@@ -9,6 +9,17 @@ NLUDB is a cloud-hosted database that helps developers get work done with natura
 ```
 pip install nludb
 ```
+
+## Examples
+
+These examples illustrate simple ways to apply NLUDB in your project. To run these samples, make sure your API key is present in the `NLUDB_KEY` environment variable.
+
+* **Question Answering Bot** 
+  A simple chat bot that can learn facts and answer questions. View the source at [src/nludb/examples/chatbot.py](src/nludb/examples/chatbot.py) or run with: 
+
+  ```bash
+  python -m nludb.examples.chatbot
+  ```
 ## Using
 
 ### Initialization
