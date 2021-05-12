@@ -4,7 +4,7 @@ import random
 import string
 
 from nludb import NLUDB
-from nludb.types.embedding_index import EmbeddingIndexModels
+from nludb.types.embedding_index import EmbeddingModels
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -27,7 +27,7 @@ def test_index_create():
     # Should require name
     with pytest.raises(Exception):
         index = nludb.create_index(
-            model=EmbeddingIndexModels.DEFAULT_QA
+            model=EmbeddingModels.DEFAULT_QA
         )
 
     # Should require model
@@ -38,7 +38,7 @@ def test_index_create():
 
     index = nludb.create_index(
         name=name,
-        model=EmbeddingIndexModels.DEFAULT_QA,
+        model=EmbeddingModels.DEFAULT_QA,
         upsert=True
     )
     assert index is not None
@@ -47,7 +47,7 @@ def test_index_create():
     with pytest.raises(Exception, match=r".*already exists.*"):
         index = nludb.create_index(
             name="Test Index",
-            model=EmbeddingIndexModels.DEFAULT_QA,
+            model=EmbeddingModels.DEFAULT_QA,
             upsert=False
         )
 
@@ -57,7 +57,7 @@ def test_index_usage():
 
     index = nludb.create_index(
         name=name,
-        model=EmbeddingIndexModels.DEFAULT_QA,
+        model=EmbeddingModels.DEFAULT_QA,
         upsert=True
     )
 

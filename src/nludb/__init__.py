@@ -16,4 +16,4 @@ finally:
     del version, PackageNotFoundError
 
 from .nludb import NLUDB
-from .embedding_index import EmbeddingIndex, EmbeddingIndexModels
+from .embedding_index import EmbeddingIndex, EmbeddingModels

@@ -1,7 +1,7 @@
 import re
 import os
 
-from nludb import NLUDB, EmbeddingIndexModels
+from nludb import NLUDB, EmbeddingModels
 
 FACT_TRIGGERS = [
   "fact", "rem", "remember", "learn", "true story"
@@ -22,7 +22,7 @@ class NludbChatbotBase:
     self.min_confidence = min_confidence
     self.index = self.nludb.create_index(
         index_name, 
-        EmbeddingIndexModels.DEFAULT_QA, 
+        EmbeddingModels.DEFAULT_QA, 
         upsert=True
     )
 

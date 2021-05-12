@@ -2,7 +2,7 @@ from typing import List
 from dataclasses import dataclass
 from nludb.types.base import NludbRequest, NludbResponse
 from nludb.types.search import Hit
-class EmbeddingIndexModels:
+class EmbeddingModels:
   QA = "st_msmarco_distilbert_base_v3"
   SIMILARITY = "st_paraphrase_distilroberta_base_v1"
 
