@@ -1,4 +1,7 @@
 import logging
+import json
+from typing import Union, List, Dict
+
 from nludb import __version__
 from nludb.api.base import ApiBase
 from nludb.types.embedding_index import *
@@ -24,26 +27,30 @@ class EmbeddingIndex:
     value: str,
     externalId: str = None,
     externalType: str = None,
-    metadata: any = None,
+    metadata: Union[int, float, bool, str, List, Dict] = None,
     reindex: bool = True
   ) -> IndexInsertResponse:
+    
+    if isinstance(metadata, dict) or isinstance(metadata, list):
+      metadata = json.dumps(metadata)
+
     req = IndexInsertRequest(
-      indexId=self.id,
-      value=value,
+      self.id,
+      value,
       externalId=externalId,
       externalType=externalType,
       metadata=metadata,
       reindex=reindex,
     )
     resp = self.nludb.post('embedding-index/insert', req)
-    return IndexInsertResponse(**resp)
+    return IndexInsertResponse.safely_from_dict(resp)
 
   def embed(self) -> IndexEmbedResponse:
     req = IndexEmbedRequest(
-      indexId=self.id
+      self.id
     )
     resp = self.nludb.post('embedding-index/embed', req)
-    return IndexEmbedRequest(resp)
+    IndexEmbedResponse.safely_from_dict(resp)
 
   def search(
     self, 
@@ -52,10 +59,10 @@ class EmbeddingIndex:
     includeMetadata: bool = False
   ) -> IndexSearchResponse:
     req = IndexSearchRequest(
-      indexId=self.id,
-      query=query,
+      self.id,
+      query,
       k=k,
       includeMetadata=includeMetadata,
     )
     resp = self.nludb.post('embedding-index/search', req)
-    return IndexSearchResponse(resp)
+    return IndexSearchResponse.safely_from_dict(resp)

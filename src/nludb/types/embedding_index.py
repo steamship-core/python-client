@@ -1,6 +1,7 @@
+from typing import List
 from dataclasses import dataclass
 from nludb.types.base import NludbRequest, NludbResponse
-
+from nludb.types.search import Hit
 class EmbeddingIndexModels:
   QA = "st_msmarco_distilbert_base_v3"
   SIMILARITY = "st_paraphrase_distilroberta_base_v1"
@@ -32,7 +33,15 @@ class IndexInsertRequest(NludbRequest):
 
 @dataclass
 class IndexInsertResponse(NludbResponse):
-  id: str
+  indexId: str = None
+  id: str = None
+
+  @staticmethod
+  def safely_from_dict(d: any) -> "IndexInsertResponse":
+    return IndexInsertResponse(
+      indexId = d.get('indexId', None),
+      id = d.get('id', None)
+    )
 
 @dataclass
 class IndexEmbedRequest(NludbRequest):
@@ -40,7 +49,13 @@ class IndexEmbedRequest(NludbRequest):
 
 @dataclass
 class IndexEmbedResponse(NludbResponse):
-  id: str
+  indexId: str
+
+  @staticmethod
+  def safely_from_dict(d: any) -> "IndexEmbedResponse":
+    return IndexEmbedResponse(
+      indexId = d.get('indexId', None)
+    )
 
 @dataclass
 class IndexSearchRequest(NludbRequest):
@@ -51,4 +66,11 @@ class IndexSearchRequest(NludbRequest):
 
 @dataclass
 class IndexSearchResponse(NludbResponse):
-  hits: str
+  hits: List[Hit] = None
+
+  @staticmethod
+  def safely_from_dict(d: any) -> "IndexSearchResponse":
+    hits = [Hit.safely_from_dict(h) for h in d.get("hits", [])]
+    return IndexSearchResponse(
+      hits=hits
+    )

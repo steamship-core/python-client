@@ -3,8 +3,7 @@ from typing import Tuple, List
 
 from nludb import __version__
 from nludb.api.base import ApiBase
-from nludb.types.base import kwargs_to
-from nludb.types.embedding_index import CreateEmbeddingIndexRequest
+from nludb.types.embedding_index import IndexCreateRequest
 from nludb.embedding_index import EmbeddingIndex
 
 __author__ = "Edward Benson"
@@ -33,7 +32,7 @@ class NLUDB(ApiBase):
     externalType: str = None,
     metadata: any = None
   ) -> EmbeddingIndex:
-    req = CreateEmbeddingIndexRequest(
+    req = IndexCreateRequest(
       name=name,
       model=model,
       upsert=upsert,
@@ -42,5 +41,8 @@ class NLUDB(ApiBase):
       metadata=metadata,
     )
     res = self.post('embedding-index/create', req)
-    return EmbeddingIndex(nludb=self, name=req.name, id=res["id"])
-  
+    return EmbeddingIndex(
+      nludb=self,
+      name=req.name,
+      id=res.get("id", None)
+    )
