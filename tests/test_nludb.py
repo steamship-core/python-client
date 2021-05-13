@@ -15,14 +15,19 @@ def _random_name() -> str:
     return "test_{}".format(id)
 
 def _nludb() -> NLUDB:
-    assert os.environ['NLUDB_KEY'] is not None
+    assert('NLUDB_KEY' in os.environ)
     NLUDB_DOMAIN = None
-    if os.environ['NLUDB_DOMAIN'] is not None:
+    if 'NLUDB_DOMAIN' in os.environ:
         NLUDB_DOMAIN = os.environ['NLUDB_DOMAIN']
-    nludb = NLUDB(
-        api_key = os.environ['NLUDB_KEY'],
-        api_domain=NLUDB_DOMAIN
-    )
+    if NLUDB_DOMAIN is None:
+        nludb = NLUDB(
+            api_key = os.environ['NLUDB_KEY']
+        )
+    else:
+        nludb = NLUDB(
+            api_key = os.environ['NLUDB_KEY'],
+            api_domain=NLUDB_DOMAIN
+        )
     return nludb
 
 def test_connect():
