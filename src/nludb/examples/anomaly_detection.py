@@ -40,7 +40,10 @@ def main():
     print("Please set the NLUDB_KEY environment variable")
     return
 
-  detector = NludbAnomalyDetector(api_key=nludb_key, model=EmbeddingModels.QA)
+  def new_detector() -> NludbAnomalyDetector:
+    return NludbAnomalyDetector(api_key=nludb_key, model=EmbeddingModels.SIMILARITY)
+
+  detector = new_detector()
   print('''NLUDB Anomaly Detection Demonstration
   
 Enter a list of items to consider, pressing enter after each.
@@ -51,7 +54,7 @@ Enter a blank line to find the one most unlike the others.
     if len(message) == 0:
       print("Finding which one doesn't belong..")
       print("My guess: {}".format(detector.find_furthest()))
-      detector = NludbAnomalyDetector(api_key=nludb_key, model=EmbeddingModels.SIMILARITY)
+      detector = new_detector()
       print("")
     else:
       detector.add_datapoints([message])
