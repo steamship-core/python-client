@@ -57,8 +57,11 @@ class NLUDB(ApiBase):
       texts=texts,
       model=model
     )
-    res = self.post('embedding/create', req)
-    return EmbedResponse.safely_from_dict(res)
+    return self.post(
+      'embedding/create',
+      req,
+      EmbedResponse
+    )
 
   def embed_and_search(
     self, 
@@ -73,5 +76,8 @@ class NLUDB(ApiBase):
       model=model,
       k=k      
     )
-    res = self.post('embedding/search', req)
-    return EmbedAndSearchResponse.safely_from_dict(res)
+    return self.post(
+      'embedding/search',
+      req,
+      EmbedAndSearchResponse
+    )

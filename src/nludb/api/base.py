@@ -1,7 +1,94 @@
 import requests
-from nludb.types.base import NludbRequest
-from dataclasses import asdict
+import logging
+import time
 
+from nludb import __version__
+from nludb.types.base import NludbRequest, NludbResponse
+from dataclasses import asdict
+from typing import Type, TypeVar, Generic
+from nludb.types.async_task import *
+
+__author__ = "Edward Benson"
+__copyright__ = "Edward Benson"
+__license__ = "MIT"
+
+_logger = logging.getLogger(__name__)
+
+import typing
+
+T = typing.TypeVar('T', bound=NludbResponse)
+
+class AsyncTask(Generic[T]):
+  """Encapsulates a unit of asynchronously performed work."""
+  nludb: "ApiBase" = None
+  taskId: str = None
+  taskStatus: str = None
+  taskCreatedOn: str = None
+  taskLastModifiedOn: str = None
+
+  def __init__(
+    self, 
+    nludb: "ApiBase" = None, 
+    taskId: str = None, 
+    taskStatus: str = None, 
+    taskCreatedOn: str = None, 
+    taskLastModifiedOn: str = None,
+    eventualResultType: Type[NludbResponse] = None
+    ):
+    self.nludb =  nludb
+    self.taskId = taskId
+    self.taskStatus = taskStatus
+    self.taskCreatedOn = taskCreatedOn
+    self.taskLastModifiedOn = taskLastModifiedOn
+    self.eventualResultType = eventualResultType
+
+  def update(self, response: "AsyncTask"):
+    """Incorporates a `TaskStatusResponse` into this object."""
+    self.taskId = response.taskId
+    self.taskStatus = response.taskStatus
+    self.taskCreatedOn = response.taskCreatedOn
+    self.taskLastModifiedOn = response.taskLastModifiedOn
+
+  def check(self):
+    """Retrieves and incorporates a fresh status update."""
+    req = TaskStatusRequest(
+      self.taskId
+    )
+    resp = self.nludb.post(
+      'task/status',
+      req,
+      TaskStatusResponse,
+      asynchronous=True
+    )
+    self.update(resp)
+  
+  def _run_development_mode(self):
+    """Forces the task to run remotely (for unit testing; works only in development mode)."""
+    req = TaskRunRequest(
+      self.taskId
+    )
+    resp = self.nludb.post(
+      'task/next',
+      req,
+      TaskStatusResponse,
+      asynchronous=True
+    )
+    self.update(resp)
+
+  def wait(self, max_timeout_s: float=60, retry_delay_s: float=1):
+    """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
+    start = time.time()
+    self.check()
+    if self.taskStatus == NludbTaskStatus.succeeded or self.taskStatus == NludbTaskStatus.failed:
+      return
+    time.sleep(retry_delay_s)
+
+    while time.time() - start < max_timeout_s:
+      time.sleep(retry_delay_s)
+      self.check()
+      if self.taskStatus == NludbTaskStatus.succeeded or self.taskStatus == NludbTaskStatus.failed:
+        return
+    
 class ApiBase:
   """Base class for API connectivity. 
   
@@ -17,7 +104,15 @@ class ApiBase:
     self.api_version = api_version
     self.endpoint = "{}/api/v{}".format(api_domain, api_version)
   
-  def post(self, operation: str, payload: NludbRequest) -> any:
+  T = TypeVar('T', bound=NludbResponse)
+
+  def post(
+    self, 
+    operation: str, 
+    payload: NludbRequest,
+    expect: T = NludbResponse,
+    asynchronous: bool = False,
+  ) -> T:
     """Post to the NLUDB API.
 
     All responses have the format:
@@ -42,7 +137,25 @@ class ApiBase:
       headers = {"Authorization": "Bearer {}".format(self.api_key)}
     )
     j = resp.json()
-    if 'data' in j:
-      return j['data']
-    else:
+    
+    # Error response
+    if 'reason' in j:
       raise Exception(j['reason'])
+
+    # Non-asynchronous response
+    if not asynchronous:
+      if 'data' not in j:
+        raise Exception('No data property was present on response')
+      return expect.safely_from_dict(j['data'])
+
+    # Expect an asynchronous response
+    if 'status' not in j:
+      if 'data' not in j:
+        raise Exception('No data property was present on response')
+      return expect.safely_from_dict(j['data'])
+
+    # There is a status present
+    task_resp = TaskStatusResponse.safely_from_dict(j['status'])
+    task = AsyncTask(nludb=self)
+    task.update(task_resp)
+    return task

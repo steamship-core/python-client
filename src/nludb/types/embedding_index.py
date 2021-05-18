@@ -25,15 +25,25 @@ class IndexInsertRequest(NludbRequest):
   reindex: bool = True
 
 @dataclass
-class IndexInsertResponse(NludbResponse):
+class IndexItemId(NludbResponse):
   indexId: str = None
   id: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "IndexInsertResponse":
-    return IndexInsertResponse(
+  def safely_from_dict(d: any) -> "IndexItemId":
+    return IndexItemId(
       indexId = d.get('indexId', None),
       id = d.get('id', None)
+    )
+
+@dataclass
+class IndexInsertResponse(NludbResponse):
+  itemIds: List[IndexItemId] = None
+
+  @staticmethod
+  def safely_from_dict(d: any) -> "IndexInsertResponse":
+    return IndexInsertResponse(
+      itemIds = [IndexItemId.safely_from_dict(x) for x in d.get('itemIds', [])]
     )
 
 @dataclass
@@ -47,6 +57,21 @@ class IndexEmbedResponse(NludbResponse):
   @staticmethod
   def safely_from_dict(d: any) -> "IndexEmbedResponse":
     return IndexEmbedResponse(
+      indexId = d.get('indexId', None)
+    )
+
+
+@dataclass
+class IndexDeleteRequest(NludbRequest):
+  indexId: str
+
+@dataclass
+class IndexDeleteResponse(NludbResponse):
+  indexId: str
+
+  @staticmethod
+  def safely_from_dict(d: any) -> "IndexDeleteResponse":
+    return IndexDeleteResponse(
       indexId = d.get('indexId', None)
     )
 

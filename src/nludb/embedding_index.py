@@ -3,7 +3,7 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.api.base import ApiBase
+from nludb.api.base import ApiBase, AsyncTask
 from nludb.types.embedding_index import *
 
 __author__ = "Edward Benson"
@@ -11,7 +11,6 @@ __copyright__ = "Edward Benson"
 __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)
-
 
 class EmbeddingIndex:
   """A persistent, read-optimized index over embeddings.
@@ -42,15 +41,32 @@ class EmbeddingIndex:
       metadata=metadata,
       reindex=reindex,
     )
-    resp = self.nludb.post('embedding-index/insert', req)
-    return IndexInsertResponse.safely_from_dict(resp[0])
+    return self.nludb.post(
+      'embedding-index/insert',
+      req,
+      IndexInsertResponse
+    )
 
-  def embed(self) -> IndexEmbedResponse:
+  def embed(self) -> AsyncTask(IndexEmbedResponse):
     req = IndexEmbedRequest(
       self.id
     )
-    resp = self.nludb.post('embedding-index/embed', req)
-    IndexEmbedResponse.safely_from_dict(resp)
+    return self.nludb.post(
+      'embedding-index/embed',
+      req,
+      IndexEmbedRequest,
+      asynchronous=True
+    )
+
+  def delete(self) -> IndexDeleteResponse:
+    req = IndexDeleteRequest(
+      self.id
+    )
+    return self.nludb.post(
+      'embedding-index/delete',
+      req,
+      IndexDeleteResponse
+    )
 
   def search(
     self, 
@@ -64,5 +80,8 @@ class EmbeddingIndex:
       k=k,
       includeMetadata=includeMetadata,
     )
-    resp = self.nludb.post('embedding-index/search', req)
-    return IndexSearchResponse.safely_from_dict(resp)
+    return self.nludb.post(
+      'embedding-index/search',
+      req,
+      IndexSearchResponse
+    )
