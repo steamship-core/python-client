@@ -56,6 +56,17 @@ class NLUDB(ApiBase):
       content
     )
 
+  def scrape_file(
+    self,
+    name: str,
+    url: str
+  ) -> File:
+    return File.upload(
+      self,
+      name,
+      url
+    )
+
   def embed(
     self, 
     texts: List[str],

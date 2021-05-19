@@ -53,3 +53,49 @@ class File:
       name=req.name,
       id=res.fileId
     )
+
+  @staticmethod
+  def scrape(
+    nludb: ApiBase,
+    name: str,
+    url: str) -> "File":
+    req = FileUploadRequest(
+      type=FileUploadType.url,
+      name=name,
+      url=url
+    )
+
+    res = nludb.post(
+      'file/upload',
+      payload=req,
+      expect=FileUploadResponse
+    )
+
+    return File(
+      nludb=nludb,
+      name=req.name,
+      id=res.fileId
+    )
+
+  def convert(self):
+    req = FileConvertRequest(
+      fileId=self.id
+    )
+
+    return self.nludb.post(
+      'file/convert',
+      payload=req,
+      expect=FileConvertResponse,
+      asynchronous=True
+    )
+
+  def query(self):
+    req = FileQueryRequest(
+      fileId=self.id
+    )
+
+    return self.nludb.post(
+      'file/query',
+      payload=req,
+      expect=FileQueryResponse
+    )
