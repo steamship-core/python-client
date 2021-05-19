@@ -6,6 +6,8 @@ from nludb.api.base import ApiBase
 from nludb.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
 from nludb.types.embedding_index import IndexCreateRequest
 from nludb.embedding_index import EmbeddingIndex
+from nludb.file import File
+from nludb.types.file import FileUploadRequest, FileUploadResponse
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -33,19 +35,25 @@ class NLUDB(ApiBase):
     externalType: str = None,
     metadata: any = None
   ) -> EmbeddingIndex:
-    req = IndexCreateRequest(
+    return EmbeddingIndex.create(
+      nludb=self,
       name=name,
       model=model,
       upsert=upsert,
       externalId=externalId,
       externalType=externalType,
-      metadata=metadata,
+      metadata=metadata
     )
-    res = self.post('embedding-index/create', req)
-    return EmbeddingIndex(
-      nludb=self,
-      name=req.name,
-      id=res.get("id", None)
+
+  def upload_file(
+    self,
+    name: str,
+    content: str
+  ) -> File:
+    return File.upload(
+      self,
+      name,
+      content
     )
 
   def embed(
@@ -60,7 +68,7 @@ class NLUDB(ApiBase):
     return self.post(
       'embedding/create',
       req,
-      EmbedResponse
+      expect=EmbedResponse
     )
 
   def embed_and_search(
@@ -79,5 +87,5 @@ class NLUDB(ApiBase):
     return self.post(
       'embedding/search',
       req,
-      EmbedAndSearchResponse
+      expect=EmbedAndSearchResponse
     )

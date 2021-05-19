@@ -44,7 +44,7 @@ class EmbeddingIndex:
     return self.nludb.post(
       'embedding-index/insert',
       req,
-      IndexInsertResponse
+      expect=IndexInsertResponse
     )
 
   def embed(self) -> AsyncTask(IndexEmbedResponse):
@@ -54,7 +54,7 @@ class EmbeddingIndex:
     return self.nludb.post(
       'embedding-index/embed',
       req,
-      IndexEmbedRequest,
+      expect=IndexEmbedRequest,
       asynchronous=True
     )
 
@@ -65,7 +65,7 @@ class EmbeddingIndex:
     return self.nludb.post(
       'embedding-index/delete',
       req,
-      IndexDeleteResponse
+      expect=IndexDeleteResponse
     )
 
   def search(
@@ -83,5 +83,30 @@ class EmbeddingIndex:
     return self.nludb.post(
       'embedding-index/search',
       req,
-      IndexSearchResponse
+      expect=IndexSearchResponse
+    )
+
+  @staticmethod
+  def create(
+    nludb: ApiBase,
+    name: str,
+    model: str,
+    upsert: bool = True,
+    externalId: str = None,
+    externalType: str = None,
+    metadata: any = None
+  ) -> "EmbeddingIndex":
+    req = IndexCreateRequest(
+      name=name,
+      model=model,
+      upsert=upsert,
+      externalId=externalId,
+      externalType=externalType,
+      metadata=metadata,
+    )
+    res = nludb.post('embedding-index/create', req)
+    return EmbeddingIndex(
+      nludb=nludb,
+      name=req.name,
+      id=res.get("id", None)
     )

@@ -56,8 +56,8 @@ class AsyncTask(Generic[T]):
     )
     resp = self.nludb.post(
       'task/status',
-      req,
-      TaskStatusResponse,
+      payload=req,
+      expect=TaskStatusResponse,
       asynchronous=True
     )
     self.update(resp)
@@ -69,8 +69,8 @@ class AsyncTask(Generic[T]):
     )
     resp = self.nludb.post(
       'task/next',
-      req,
-      TaskStatusResponse,
+      payload=req,
+      expect=TaskStatusResponse,
       asynchronous=True
     )
     self.update(resp)
@@ -109,9 +109,10 @@ class ApiBase:
   def post(
     self, 
     operation: str, 
-    payload: NludbRequest,
+    payload: NludbRequest = None,
+    file: None = None,
     expect: T = NludbResponse,
-    asynchronous: bool = False,
+    asynchronous: bool = False
   ) -> T:
     """Post to the NLUDB API.
 
@@ -131,11 +132,32 @@ class ApiBase:
       raise Exception("Please set your NLUDB API key.")
 
     url = "{}/{}".format(self.endpoint, operation)
-    resp = requests.post(
-      url,
-      json=asdict(payload),
-      headers = {"Authorization": "Bearer {}".format(self.api_key)}
-    )
+    
+    if file is not None:
+      data = asdict(payload) if payload is not None else {}
+
+      # Note: requests seems to have a bug passing boolean (and maybe numeric?)
+      # values in the midst of multipart form data. You need to manually convert
+      # it to a string; otherwise it will pass as False or True (with the capital),
+      # which is not standard notation outside of Python.
+      for key in data:
+        if data[key] is False:
+          data[key] = 'false'
+        elif data[key] is True:
+          data[key] = 'true'
+
+      resp = requests.post(
+        url,
+        files={"file": file},
+        data=data,
+        headers = {"Authorization": "Bearer {}".format(self.api_key)}
+      )
+    else:
+      resp = requests.post(
+        url,
+        json=asdict(payload) if payload is not None else None,
+        headers = {"Authorization": "Bearer {}".format(self.api_key)}
+      )
     j = resp.json()
     
     # Error response
