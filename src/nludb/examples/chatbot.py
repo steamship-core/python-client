@@ -46,10 +46,10 @@ class NludbChatbotBase:
     return hit.value 
 
   def extract_fact(self, input: str) -> str:
-    input = re.sub("\s\s+" , " ", input)
+    lower = re.sub("\s\s+" , " ", input.lower())
     triggered = False
     for trigger in FACT_TRIGGERS:
-      if input.find(trigger) == 0:
+      if lower.find(trigger) == 0:
         input = input[len(trigger):]
         triggered = True
         break

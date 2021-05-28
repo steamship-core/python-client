@@ -52,3 +52,4 @@ MANIFEST
 .venv*/
 .conda*/
 test-local.sh
+test-remote.sh

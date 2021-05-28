@@ -64,16 +64,17 @@ class AsyncTask(Generic[T]):
   
   def _run_development_mode(self):
     """Forces the task to run remotely (for unit testing; works only in development mode)."""
-    req = TaskRunRequest(
-      self.taskId
-    )
-    resp = self.nludb.post(
-      'task/next',
-      payload=req,
-      expect=TaskStatusResponse,
-      asynchronous=True
-    )
-    self.update(resp)
+    return
+    # req = TaskRunRequest(
+    #   self.taskId
+    # )
+    # resp = self.nludb.post(
+    #   'task/next',
+    #   payload=req,
+    #   expect=TaskStatusResponse,
+    #   asynchronous=True
+    # )
+    # self.update(resp)
 
   def wait(self, max_timeout_s: float=60, retry_delay_s: float=1):
     """Polls and blocks until the task has succeeded or failed (or timeout reached)."""

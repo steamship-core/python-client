@@ -31,7 +31,8 @@ export NLUDB_KEY=(your key)
 tox
 ```
 
-
 ### Deploying
 
+git tag vXYZ
+git push origin --tags
 
