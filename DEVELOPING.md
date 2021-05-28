@@ -24,6 +24,21 @@ tox
 
 ### Testing
 
+First, run ngrok.
+
+```
+ngrok http 8080
+```
+
+Then, in the `.bmconfig` file on localhost, set this key to configure a locally-directe task callback:
+
+```
+  "googleTaskUrl": "https://a5c6eb28c411.ngrok.io/....",
+```
+
+Then, run the test:
+
+
 ```
 cd $PROJECT_DIR
 source .venv/bin/activate
