@@ -38,7 +38,7 @@ def test_index_create():
     # Duplicate creation should fail with upsert=False
     with pytest.raises(Exception, match=r".*already exists.*"):
         index = nludb.create_index(
-            name="Test Index",
+            name=name,
             model=EmbeddingModels.QA,
             upsert=False
         )
@@ -84,17 +84,8 @@ def test_embed_task():
         assert (task.taskCreatedOn is not None)
         assert (task.taskLastModifiedOn is not None)
         assert (task.taskStatus == NludbTaskStatus.waiting)
-
-        task.check()
-        assert (task.taskStatus == NludbTaskStatus.waiting)
-
-        task.wait(max_timeout_s=2)
-        assert (task.taskStatus == NludbTaskStatus.waiting)
-
         task._run_development_mode()
-        assert (task.taskStatus == NludbTaskStatus.succeeded)
-
-        task.check()
+        task.wait()
         assert (task.taskStatus == NludbTaskStatus.succeeded)
 
 
@@ -106,13 +97,15 @@ def test_index_usage():
         # Test for supressed reindexing
         A1 = "Ted can eat an entire block of cheese."
         Q1 = "Who can eat the most cheese"
-        insert_results = index.insert(A1, reindex=False )
+        insert_results = index.insert(A1)
         search_results = index.search(Q1)
 
         # Now embed
         task = index.embed()
         task._run_development_mode()
         task.wait()
+        task.check()
+        assert (task.taskStatus == NludbTaskStatus.succeeded)
 
         search_results = index.search(Q1)
         assert(len(search_results.hits) == 1)

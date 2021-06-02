@@ -8,7 +8,7 @@ from nludb.types.embedding_index import IndexCreateRequest
 from nludb.embedding_index import EmbeddingIndex
 from nludb.file import File
 from nludb.types.file import FileUploadRequest, FileUploadResponse
-from nludb.types.parsing import NamedMatchers, ParseRequest, ParseResponse
+from nludb.types.parsing import ParseRequest, ParseResponse, TokenMatcher, PhraseMatcher, DependencyMatcher
 from nludb.types.parsing_models import ParsingModels
 
 __author__ = "Edward Benson"
@@ -107,12 +107,16 @@ class NLUDB(ApiBase):
     self,
     docs: List[str],
     model: str = ParsingModels.EN_DEFAULT,
-    matchers: NamedMatchers = None
+    tokenMatchers: List[TokenMatcher] = None,
+    phraseMatchers: List[PhraseMatcher] = None,
+    dependencyMatchers: List[DependencyMatcher] = None,
   ) -> ParseResponse:
     req = ParseRequest(
       docs = docs,
       model = model,
-      matchers = matchers
+      tokenMatchers = tokenMatchers,
+      phraseMatchers = phraseMatchers,
+      dependencyMatchers = dependencyMatchers
     )
     return self.post(
       'parser/parse',
