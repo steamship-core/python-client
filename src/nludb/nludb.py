@@ -8,6 +8,8 @@ from nludb.types.embedding_index import IndexCreateRequest
 from nludb.embedding_index import EmbeddingIndex
 from nludb.file import File
 from nludb.types.file import FileUploadRequest, FileUploadResponse
+from nludb.types.parsing import NamedMatchers, ParseRequest, ParseResponse
+from nludb.types.parsing_models import ParsingModels
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -93,10 +95,27 @@ class NLUDB(ApiBase):
       query=query,
       docs=docs,
       model=model,
-      k=k      
+      k=k
     )
     return self.post(
       'embedding/search',
       req,
       expect=EmbedAndSearchResponse
+    )
+
+  def parse(
+    self,
+    docs: List[str],
+    model: str = ParsingModels.EN_DEFAULT,
+    matchers: NamedMatchers = None
+  ) -> ParseResponse:
+    req = ParseRequest(
+      docs = docs,
+      model = model,
+      matchers = matchers
+    )
+    return self.post(
+      'parser/parse',
+      req,
+      expect=ParseResponse
     )
