@@ -19,3 +19,4 @@ from .nludb import NLUDB
 from .embedding_index import EmbeddingIndex
 from .types.embedding_models import EmbeddingModels
 from .file import File
+from .types.model import ModelType, ModelAdapterType, LimitUnit, Model

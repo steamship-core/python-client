@@ -7,9 +7,11 @@ from nludb.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchReq
 from nludb.types.embedding_index import IndexCreateRequest
 from nludb.embedding_index import EmbeddingIndex
 from nludb.file import File
+from nludb.types.embedding_models import EmbeddingModels
 from nludb.types.file import FileUploadRequest, FileUploadResponse
 from nludb.types.parsing import ParseRequest, ParseResponse, TokenMatcher, PhraseMatcher, DependencyMatcher
 from nludb.types.parsing_models import ParsingModels
+from nludb.models import Models
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -27,6 +29,7 @@ class NLUDB(ApiBase):
     api_domain: str="https://api.nludb.com/",
     api_version: int=1):
     super().__init__(api_key, api_domain, api_version)
+    self.models = Models(self)
  
   def create_index(
     self, 
@@ -123,3 +126,4 @@ class NLUDB(ApiBase):
       req,
       expect=ParseResponse
     )
+
