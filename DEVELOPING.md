@@ -22,7 +22,7 @@ pip install -e .
 tox
 ```
 
-### Testing
+### Testing Locally
 
 First, run ngrok.
 
@@ -35,6 +35,11 @@ Then, in the `.bmconfig` file on localhost, set this key to configure a locally-
 ```
   "googleTaskUrl": "https://a5c6eb28c411.ngrok.io/....",
 ```
+
+Then set the domain to localhost
+
+export NLUDB_DOMAIN=http://localhost:8080/
+
 
 Then, run the test:
 

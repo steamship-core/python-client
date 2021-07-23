@@ -6,6 +6,7 @@ from nludb.api.base import ApiBase
 from nludb.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
 from nludb.types.embedding_index import IndexCreateRequest
 from nludb.embedding_index import EmbeddingIndex
+from nludb.classifier import Classifier
 from nludb.file import File
 from nludb.types.embedding_models import EmbeddingModels
 from nludb.types.file import FileUploadRequest, FileUploadResponse
@@ -21,7 +22,6 @@ _logger = logging.getLogger(__name__)
 
 class NLUDB(ApiBase):
   """NLUDB Client Library.
-
   """
   def __init__(
     self, 
@@ -48,6 +48,23 @@ class NLUDB(ApiBase):
       externalId=externalId,
       externalType=externalType,
       metadata=metadata
+    )
+
+  def create_classifier(
+    self, 
+    name: str,
+    model: str,
+    upsert: bool = True,
+    save: bool = None,
+    labels: List[str] = None
+  ) -> Classifier:
+    return Classifier.create(
+      nludb=self,
+      model=model,
+      name=name,
+      upsert=upsert,
+      save=save,
+      labels=labels
     )
 
   def upload_file(

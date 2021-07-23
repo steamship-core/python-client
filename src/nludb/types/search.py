@@ -3,7 +3,9 @@ from dataclasses import dataclass
 
 @dataclass
 class Hit:
+  id: str = None
   index: int = None
+  indexSource: str = None
   value: str = None
   score: float = None 
   externalId: str = None
@@ -20,7 +22,9 @@ class Hit:
         pass
 
     return Hit(
+      id=d.get("id", None),
       index=d.get("index", None),
+      indexSource=d.get("indexSource", None),
       value=d.get("value", d.get("text", None)),
       score=d.get("score", None),
       externalId=d.get("externalId", None),

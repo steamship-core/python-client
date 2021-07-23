@@ -50,3 +50,20 @@ index.insert("The code for the New York office is 1234")
 
 results = index.search("Who should I talk to about new employee setup?")    
 ```
+
+### Classifiers
+
+An Classifier encapsulates a ZeroShot or Pre-Trained classifier over some set of labels. Once a classifier is created, you can call it without providing that parameterization a second time.
+
+```python
+index = nludb.create_classifier(
+  "Email Intents", 
+  ClassifierModels.HF_ZERO_SHOT_LBART,
+  save=False, # Use it transiently
+  labels=["Account Opening", "Technical Support", "Complaint"]
+)
+
+classifier.classify(docs=[
+  "I was wondering if you could help me with a problem I've been having"
+])
+```

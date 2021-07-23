@@ -137,17 +137,18 @@ def test_index_usage():
         assert(search_results2.hits[0].externalType == None)
         assert(search_results2.hits[0].metadata == None)
 
-        search_results2 = index.search(Q2, includeMetadata=True)
-        assert(len(search_results2.hits) == 1)
-        assert(search_results2.hits[0].value == A2)
-        assert(search_results2.hits[0].externalId == A2id)
-        assert(search_results2.hits[0].externalType == A2type)
-        assert(search_results2.hits[0].metadata == A2metadata)
-        # Because I don't know pytest enough to fullly trust the dict comparison..
-        assert(search_results2.hits[0].metadata["id"] == A2id)
-        assert(search_results2.hits[0].metadata["idid"] == "{}{}".format(A2id, A2id))
+        search_results3 = index.search(Q2, includeMetadata=True)
+        assert(len(search_results3.hits) == 1)
+        assert(search_results3.hits[0].value == A2)
+        assert(search_results3.hits[0].externalId == A2id)
+        assert(search_results3.hits[0].externalType == A2type)
 
-        search_results2 = index.search(Q2, k=10)
-        assert(len(search_results2.hits) == 2)
-        assert(search_results2.hits[0].value == A2)
-        assert(search_results2.hits[1].value == A1)
+        assert(search_results3.hits[0].metadata == A2metadata)
+        # Because I don't know pytest enough to fullly trust the dict comparison..
+        assert(search_results3.hits[0].metadata["id"] == A2id)
+        assert(search_results3.hits[0].metadata["idid"] == "{}{}".format(A2id, A2id))
+
+        search_results4 = index.search(Q2, k=10)
+        assert(len(search_results4.hits) == 2)
+        assert(search_results4.hits[0].value == A2)
+        assert(search_results4.hits[1].value == A1)
