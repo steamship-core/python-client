@@ -23,3 +23,5 @@ from .types.classifier_models import ClassifierModels
 from .types.parsing_models import ParsingModels
 from .file import File
 from .types.model import ModelType, ModelAdapterType, LimitUnit, Model
+from .types.block_types import BlockTypes
+from .types.file_formats import FileFormats

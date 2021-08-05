@@ -10,16 +10,19 @@ class FileUploadType:
 class FileUploadRequest(NludbRequest):
   type: str
   name: str
+  fileFormat: str = None
   convert: bool = False
 
 @dataclass
 class FileUploadResponse(NludbResponse):
   fileId: str
+  fileFormat: str
 
   @staticmethod
   def safely_from_dict(d: any) -> "FileUploadResponse":
     return FileUploadResponse(
-      fileId = d.get('fileId', None)
+      fileId = d.get('fileId', None),
+      fileFormat = d.get('fileFormat', None)
     )
 
 @dataclass
@@ -67,6 +70,7 @@ class Block(NludbRequest):
 @dataclass
 class FileQueryRequest(NludbRequest):
   fileId: str
+  blockType: str = None
 
 @dataclass
 class FileQueryResponse(NludbResponse):

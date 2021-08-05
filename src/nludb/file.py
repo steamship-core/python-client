@@ -16,10 +16,11 @@ class File:
   """A file.
   """
 
-  def __init__(self, nludb: ApiBase, id: str, name: str):
+  def __init__(self, nludb: ApiBase, id: str, name: str, format: str = None):
     self.nludb = nludb
     self.name = name
     self.id = id
+    self.format = format
 
   def delete(self) -> FileDeleteResponse:
     req = FileDeleteRequest(
@@ -35,10 +36,15 @@ class File:
   def upload(
     nludb: ApiBase,
     name: str,
-    content: str) -> "File":
+    content: str,
+    format: str = None,
+    convert: bool = False
+    ) -> "File":
     req = FileUploadRequest(
       type=FileUploadType.file,
       name=name,
+      fileFormat=format,
+      convert=convert
     )
 
     res = nludb.post(
@@ -51,18 +57,21 @@ class File:
     return File(
       nludb=nludb,
       name=req.name,
-      id=res.fileId
+      id=res.fileId,
+      format=res.fileFormat
     )
 
   @staticmethod
   def scrape(
     nludb: ApiBase,
     name: str,
-    url: str) -> "File":
+    url: str,
+    convert: bool = False) -> "File":
     req = FileUploadRequest(
       type=FileUploadType.url,
       name=name,
-      url=url
+      url=url,
+      convert=convert
     )
 
     res = nludb.post(
@@ -89,9 +98,10 @@ class File:
       asynchronous=True
     )
 
-  def query(self):
+  def query(self, blockType:str = None):
     req = FileQueryRequest(
-      fileId=self.id
+      fileId=self.id,
+      blockType=blockType
     )
 
     return self.nludb.post(

@@ -60,7 +60,6 @@ class IndexEmbedResponse(NludbResponse):
       indexId = d.get('indexId', None)
     )
 
-
 @dataclass
 class IndexDeleteRequest(NludbRequest):
   indexId: str
@@ -92,3 +91,41 @@ class IndexSearchResponse(NludbResponse):
     return IndexSearchResponse(
       hits=hits
     )
+
+@dataclass
+class IndexSnapshotRequest(NludbRequest):
+  indexId: str
+
+@dataclass
+class IndexSnapshotResponse(NludbResponse):
+  indexId: str
+  snapshotId: str
+
+  @staticmethod
+  def safely_from_dict(d: any) -> "IndexSnapshotResponse":
+    return IndexSnapshotResponse(
+      indexId = d.get('indexId', None),
+      snapshotId = d.get('snapshotId', None)
+    )
+
+@dataclass
+class ListSnapshotsRequest(NludbRequest):
+  indexId: str = None
+
+@dataclass
+class ListSnapshotsResponse(NludbResponse):
+  snapshots: List[IndexSnapshotResponse]
+  
+  @staticmethod
+  def safely_from_dict(d: any) -> "IndexSnapshotResponse":
+    return IndexSnapshotResponse(
+      snapshots = [IndexSnapshotResponse.safely_from_dict(dd) for dd in d.get('snapshots', [])]
+    )
+
+@dataclass
+class DeleteSnapshotsRequest(NludbRequest):
+  snapshotId: str = None
+
+@dataclass
+class DeleteSnapshotsResponse(NludbRequest):
+  snapshotId: str = None

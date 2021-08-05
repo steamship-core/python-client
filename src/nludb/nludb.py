@@ -70,23 +70,29 @@ class NLUDB(ApiBase):
   def upload_file(
     self,
     name: str,
-    content: str
+    content: str,
+    format: str = None,
+    convert: bool = False
   ) -> File:
     return File.upload(
       self,
       name,
-      content
+      content,
+      format=format,
+      convert=convert
     )
 
   def scrape_file(
     self,
     name: str,
-    url: str
+    url: str,
+    convert: bool = False
   ) -> File:
     return File.upload(
       self,
       name,
-      url
+      url,
+      convert=convert
     )
 
   def embed(

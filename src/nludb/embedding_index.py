@@ -58,6 +58,37 @@ class EmbeddingIndex:
       asynchronous=True
     )
 
+  def create_snapshot(self) -> AsyncTask(IndexSnapshotResponse):
+    req = IndexSnapshotRequest(
+      self.id
+    )
+    return self.nludb.post(
+      'embedding-index/snapshot/create',
+      req,
+      expect=IndexSnapshotRequest,
+      asynchronous=True
+    )
+
+  def list_snapshots(self) -> AsyncTask(ListSnapshotsResponse):
+    req = ListSnapshotsRequest(
+      indexId = self.id
+    )
+    return self.nludb.post(
+      'embedding-index/snapshot/list',
+      req,
+      expect=ListSnapshotsResponse
+    )
+
+  def delete_snapshot(self, snapshot_id: str) -> AsyncTask(DeleteSnapshotsResponse):
+    req = DeleteSnapshotsRequest(
+      snapshotId = snapshot_id
+    )
+    return self.nludb.post(
+      'embedding-index/snapshot/delete',
+      req,
+      expect=DeleteSnapshotsResponse
+    )
+
   def delete(self) -> IndexDeleteResponse:
     req = IndexDeleteRequest(
       self.id
