@@ -20,7 +20,34 @@ class EmbeddingIndex:
     self.nludb = nludb
     self.name = name
     self.id = id
-  
+
+  def insert_file(
+    self, 
+    fileId: str,
+    blockType: str = None,
+    externalId: str = None,
+    externalType: str = None,
+    metadata: Union[int, float, bool, str, List, Dict] = None,
+    reindex: bool = True
+  ) -> IndexInsertResponse:    
+    if isinstance(metadata, dict) or isinstance(metadata, list):
+      metadata = json.dumps(metadata)
+
+    req = IndexInsertRequest(
+      self.id,
+      fileId=fileId,
+      blockType=blockType,
+      externalId=externalId,
+      externalType=externalType,
+      metadata=metadata,
+      reindex=reindex,
+    )
+    return self.nludb.post(
+      'embedding-index/insert',
+      req,
+      expect=IndexInsertResponse
+    )
+
   def insert(
     self, 
     value: str,

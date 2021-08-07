@@ -18,7 +18,9 @@ class IndexCreateResponse(NludbResponse):
 @dataclass
 class IndexInsertRequest(NludbRequest):
   indexId: str
-  value: str
+  value: str = None
+  fileId: str = None
+  blockType: str = None
   externalId: str = None
   externalType: str = None
   metadata: any = None

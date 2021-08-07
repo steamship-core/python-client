@@ -5,6 +5,7 @@ from typing import Union, List, Dict
 from nludb import __version__
 from nludb.api.base import ApiBase
 from nludb.types.file import *
+from nludb.types.parsing_models import ParsingModels
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -95,6 +96,28 @@ class File:
       'file/convert',
       payload=req,
       expect=FileConvertResponse,
+      asynchronous=True
+    )
+
+  def parse(
+    self,
+    model: str = ParsingModels.EN_DEFAULT,
+    tokenMatchers: List[TokenMatcher] = None,
+    phraseMatchers: List[PhraseMatcher] = None,
+    dependencyMatchers: List[DependencyMatcher] = None
+  ):
+    req = FileParseRequest(
+      fileId=self.id,
+      model = model,
+      tokenMatchers = tokenMatchers,
+      phraseMatchers = phraseMatchers,
+      dependencyMatchers = dependencyMatchers
+    )
+
+    return self.nludb.post(
+      'file/parse',
+      payload=req,
+      expect=FileParseResponse,
       asynchronous=True
     )
 
