@@ -1,6 +1,7 @@
 import requests
 import logging
 import time
+import os
 
 from nludb import __version__
 from nludb.types.base import NludbRequest, NludbResponse
@@ -98,11 +99,28 @@ class ApiBase:
   def __init__(
     self, 
     api_key: str=None, 
-    api_domain: str="https://api.nludb.com/",
-    api_version: int=1):
+    api_domain: str=None,
+    api_version: int=None):
+
     self.api_key = api_key
+    if self.api_key is None:
+      if 'NLUDB_KEY' in os.environ:
+        self.api_key = os.environ['NLUDB_KEY']
+
     self.api_domain = api_domain
+    if self.api_domain is None:
+      if 'NLUDB_DOMAIN' in os.environ:
+        self.api_domain = os.environ['NLUDB_DOMAIN']
+      else:
+        self.api_domain = "https://api.nludb.com/"
+
     self.api_version = api_version
+    if self.api_version is None:
+      if 'NLUDB_VERSION' in os.environ:
+        self.api_version = os.environ['NLUDB_VERSION']
+      else:
+        self.api_version = 1
+
     self.endpoint = "{}/api/v{}".format(api_domain, api_version)
   
   T = TypeVar('T', bound=NludbResponse)
