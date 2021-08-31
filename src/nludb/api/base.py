@@ -105,23 +105,30 @@ class ApiBase:
     self.api_key = api_key
     if self.api_key is None:
       if 'NLUDB_KEY' in os.environ:
-        self.api_key = os.environ['NLUDB_KEY']
+        self.api_key = os.getenv('NLUDB_KEY')
 
     self.api_domain = api_domain
     if self.api_domain is None:
       if 'NLUDB_DOMAIN' in os.environ:
-        self.api_domain = os.environ['NLUDB_DOMAIN']
+        self.api_domain = os.getenv('NLUDB_DOMAIN')
       else:
         self.api_domain = "https://api.nludb.com/"
 
     self.api_version = api_version
     if self.api_version is None:
       if 'NLUDB_VERSION' in os.environ:
-        self.api_version = os.environ['NLUDB_VERSION']
+        self.api_version = os.getenv('NLUDB_VERSION')
       else:
         self.api_version = 1
 
-    self.endpoint = "{}/api/v{}".format(api_domain, api_version)
+    separator = '/'
+    if self.api_domain.endswith('/'):
+      separator = ''
+    self.endpoint = "{}{}api/v{}".format(
+      self.api_domain, 
+      separator,
+      self.api_version
+    )
   
   T = TypeVar('T', bound=NludbResponse)
 
@@ -151,7 +158,6 @@ class ApiBase:
       raise Exception("Please set your NLUDB API key.")
 
     url = "{}/{}".format(self.endpoint, operation)
-    
     if file is not None:
       data = asdict(payload) if payload is not None else {}
 
@@ -164,7 +170,6 @@ class ApiBase:
           data[key] = 'false'
         elif data[key] is True:
           data[key] = 'true'
-
       resp = requests.post(
         url,
         files={"file": file},
