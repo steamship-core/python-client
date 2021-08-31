@@ -14,7 +14,7 @@ __license__ = "MIT"
 
 def _env_or(env_var: str, or_val: str) -> str:
     if env_var in os.environ:
-        return os.environ[env_var]
+        return os.getenv(env_var)
     return or_val
 
 def _random_name() -> str:
@@ -26,10 +26,10 @@ def qa_model() -> str:
     return _env_or('NLUDB_EMBEDDER_QA', EmbeddingModels.QA)
 
 def sim_model() -> str:
-    return _env_or('NLUDB_EMBEDDER_QA', EmbeddingModels.SIMILARITY)
+    return _env_or('NLUDB_EMBEDDER_SIM', EmbeddingModels.SIMILARITY)
 
 def parsing_model() -> str:
-    return _env_or('NLUDB_EMBEDDER_QA', ParsingModels.EN_DEFAULT)
+    return _env_or('NLUDB_PARSER_DEFAULT', ParsingModels.EN_DEFAULT)
 
 
 @contextlib.contextmanager
