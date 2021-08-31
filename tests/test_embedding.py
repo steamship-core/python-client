@@ -9,8 +9,6 @@ __license__ = "MIT"
 
 def test_basic_embeddings():
     nludb = _nludb()
-    
-    qa_model() = "st-msmarco-distilbert-base-v3"
 
     e1 = nludb.embed(["This is a test"], qa_model())
     e1b = nludb.embed(["Banana"], qa_model())
