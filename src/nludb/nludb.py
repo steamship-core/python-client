@@ -26,9 +26,12 @@ class NLUDB(ApiBase):
   def __init__(
     self, 
     api_key: str=None, 
-    api_domain: str="https://api.nludb.com/",
-    api_version: int=1):
+    api_domain: str=None,
+    api_version: int=None,):
     super().__init__(api_key, api_domain, api_version)
+    """
+    The base class will properly detect and set the defaults. They should be None here.
+    """
     self.models = Models(self)
  
   def create_index(
