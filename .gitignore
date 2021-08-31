@@ -53,3 +53,9 @@ MANIFEST
 .conda*/
 test-local.sh
 test-remote.sh
+
+# Pyenv
+lib/
+bin/
+include/
+dist/
