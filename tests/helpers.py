@@ -5,20 +5,35 @@ import random
 import string
 import contextlib
 
-from nludb import NLUDB, EmbeddingModels, EmbeddingIndex, File
+from nludb import NLUDB, ParsingModels, EmbeddingModels, EmbeddingIndex, File
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
 __license__ = "MIT"
 
 
+def _env_or(env_var: str, or_val: str) -> str:
+    if env_var in os.environ:
+        return os.environ[env_var]
+    return or_val
+
 def _random_name() -> str:
     letters = string.digits + string.ascii_letters
     id =''.join(random.choice(letters) for i in range(10))
     return "test_{}".format(id)
 
+def qa_model() -> str:
+    return _env_or('NLUDB_EMBEDDER_QA', EmbeddingModels.QA)
+
+def sim_model() -> str:
+    return _env_or('NLUDB_EMBEDDER_QA', EmbeddingModels.SIMILARITY)
+
+def parsing_model() -> str:
+    return _env_or('NLUDB_EMBEDDER_QA', ParsingModels.EN_DEFAULT)
+
+
 @contextlib.contextmanager
-def _random_index(nludb: NLUDB, model: str = EmbeddingModels.QA) -> EmbeddingIndex:
+def _random_index(nludb: NLUDB, model: str = qa_model()) -> EmbeddingIndex:
     index = nludb.create_index(
         name=_random_name(),
         model=model,
@@ -36,19 +51,6 @@ def _random_file(nludb: NLUDB, content: str = "") -> File:
     yield file
     file.delete()  # or whatever you need to do at exit
 
-
 def _nludb() -> NLUDB:
-    assert('NLUDB_KEY' in os.environ)
-    NLUDB_DOMAIN = None
-    if 'NLUDB_DOMAIN' in os.environ:
-        NLUDB_DOMAIN = os.environ['NLUDB_DOMAIN']
-    if NLUDB_DOMAIN is None:
-        nludb = NLUDB(
-            api_key = os.environ['NLUDB_KEY']
-        )
-    else:
-        nludb = NLUDB(
-            api_key = os.environ['NLUDB_KEY'],
-            api_domain=NLUDB_DOMAIN
-        )
-    return nludb
+    # This should automatically pick up variables from the environment.
+    return NLUDB()
