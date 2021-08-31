@@ -48,6 +48,23 @@ class EmbeddingIndex:
       expect=IndexInsertResponse
     )
 
+  def insert_many(
+    self,
+    items: List[IndexItem],
+    reindex: bool=True
+  ) -> IndexInsertResponse:
+    req = IndexInsertRequest(
+      indexId=self.id,
+      value=None,
+      items=[item.clone_for_insert() for item in items],
+      reindex=reindex,
+    )
+    return self.nludb.post(
+      'embedding-index/insert',
+      req,
+      expect=IndexInsertResponse
+    )
+
   def insert(
     self, 
     value: str,
@@ -61,8 +78,9 @@ class EmbeddingIndex:
       metadata = json.dumps(metadata)
 
     req = IndexInsertRequest(
-      self.id,
-      value,
+      indexId=self.id,
+      value=value,
+      items=None,
       externalId=externalId,
       externalType=externalType,
       metadata=metadata,
@@ -141,7 +159,8 @@ class EmbeddingIndex:
     return self.nludb.post(
       'embedding-index/search',
       req,
-      expect=IndexSearchResponse
+      expect=IndexSearchResponse,
+      debug=True
     )
 
   @staticmethod

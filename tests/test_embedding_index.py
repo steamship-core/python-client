@@ -1,4 +1,6 @@
+from typing import ItemsView
 from nludb.types.async_task import NludbTaskStatus
+from nludb.types.embedding_index import IndexItem
 import pytest
 
 from .helpers import _random_index, _random_name, _nludb, qa_model, sim_model
@@ -66,6 +68,46 @@ def test_index_delete():
     )
     assert(index.id != index3.id)
     index3.delete()
+
+def _list_equal(actual, expected):
+    assert len(actual) == len(expected)
+    assert all([a == b for a, b in zip(actual, expected)])
+
+def test_insert_many():
+    nludb = _nludb()
+    name = _random_name()
+    with _random_index(nludb) as index:
+        item1 = IndexItem(
+          value="Pizza",
+          externalId="pizza",
+          externalType="food",
+          metadata=[1,2,3]
+        )
+        item2 = IndexItem(
+          value="Rocket Ship",
+          externalId="space",
+          externalType="vehicle",
+          metadata="Foo"
+        )
+
+        index.insert_many([item1, item2])
+        index.embed().wait()
+        index.embed().wait()
+
+        res = index.search(item1.value, includeMetadata=True, k=100)
+        assert (res.hits is not None)
+        assert (len(res.hits) == 2)
+        assert (res.hits[0].value == item1.value)
+        assert (res.hits[0].externalId == item1.externalId)
+        assert (res.hits[0].externalType == item1.externalType)
+        _list_equal(res.hits[0].metadata, item1.metadata)
+
+        res = index.search(item2.value, includeMetadata=True)
+        assert (res.hits is not None)
+        assert (res.hits[0].value == item2.value)
+        assert (res.hits[0].externalId == item2.externalId)
+        assert (res.hits[0].externalType == item2.externalType)
+        assert (res.hits[0].metadata == item2.metadata)
 
 def test_embed_task():
     nludb = _nludb()

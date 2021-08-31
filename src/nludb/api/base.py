@@ -138,7 +138,8 @@ class ApiBase:
     payload: NludbRequest = None,
     file: None = None,
     expect: T = NludbResponse,
-    asynchronous: bool = False
+    asynchronous: bool = False,
+    debug: bool = False
   ) -> T:
     """Post to the NLUDB API.
 
@@ -182,10 +183,18 @@ class ApiBase:
         json=asdict(payload) if payload is not None else None,
         headers = {"Authorization": "Bearer {}".format(self.api_key)}
       )
+    if debug is True:
+      print("Response", resp)
     j = resp.json()
+    if debug is True:
+      print("Response JSON", j)
     
     # Error response
     if 'reason' in j:
+      import json
+      data = asdict(payload) if payload is not None else {}
+      print(data)
+      print(json.dumps(data))
       raise Exception(j['reason'])
 
     # Non-asynchronous response

@@ -1,4 +1,5 @@
 from typing import List
+import json
 from dataclasses import dataclass
 from nludb.types.base import NludbRequest, NludbResponse
 from nludb.types.search import Hit
@@ -15,9 +16,30 @@ class IndexCreateRequest(NludbRequest):
 class IndexCreateResponse(NludbResponse):
   id: str
 
+
+@dataclass
+class IndexItem:
+  value: str = None
+  externalId: str = None
+  externalType: str = None
+  metadata: any = None
+
+  def clone_for_insert(self) -> "IndexItem":
+    """Produces a clone with a string representation of the metadata"""
+    ret = IndexItem(
+      value=self.value,
+      externalId=self.externalId,
+      externalType=self.externalType,
+      metadata=self.metadata
+    )
+    if isinstance(ret.metadata, dict) or isinstance(ret.metadata, list):
+      ret.metadata = json.dumps(ret.metadata)
+    return ret
+
 @dataclass
 class IndexInsertRequest(NludbRequest):
   indexId: str
+  items: List[IndexItem] = None
   value: str = None
   fileId: str = None
   blockType: str = None
