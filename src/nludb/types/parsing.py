@@ -383,11 +383,11 @@ class ParseRequest(NludbResponse):
     if includeTokens is None:
       includeTokens = True
 
-    includeParseData = d.get("includeTokens", True)
+    includeParseData = d.get("includeParseData", True)
     if includeParseData is None:
       includeParseData = True
 
-    includeEntities = d.get("includeTokens", True)
+    includeEntities = d.get("includeEntities", True)
     if includeEntities is None:
       includeEntities = True
 
