@@ -1,5 +1,4 @@
 from typing import List, Dict
-import metadata
 from dataclasses import dataclass
 from nludb.types.base import NludbRequest, NludbResponse
 
