@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Callable
 from dataclasses import dataclass
 from nludb.types.base import NludbRequest, NludbResponse
 
@@ -279,8 +279,20 @@ class Doc:
     )
 
   @staticmethod
-  def from_spacy(text: str, model: str, d: any, includeTokens: bool=True, includeParseData: bool=True, includeEntities: bool=True) -> "Doc":
-    sentences = [Sentence.from_spacy(s, includeTokens=includeTokens, includeParseData=includeParseData, includeEntities=includeEntities) for s in d.sents]
+  def from_spacy(
+    text: str, 
+    model: str, 
+    d: any, 
+    includeTokens: bool=True, 
+    includeParseData: bool=True, 
+    includeEntities: bool=True, 
+    sentenceFilterFn: Callable[[any], bool]=None
+    ) -> "Doc":
+    sentences = [
+      Sentence.from_spacy(s, includeTokens=includeTokens, includeParseData=includeParseData, includeEntities=includeEntities) 
+      for s in d.sents
+      if sentence_filter is None or sentence_filter(s) is True
+    ]
     spans = []
     for label in d.spans:
       span_group = d.spans[label]
