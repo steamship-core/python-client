@@ -227,9 +227,9 @@ class Sentence:
 
   @staticmethod
   def safely_from_dict(d: any) -> "Sentence":
-    tokens = [Token.safely_from_dict(h) for h in d.get("tokens", [])]
-    entities = [Entity.safely_from_dict(h) for h in d.get("entities", [])]
-    spans = [Span.safely_from_dict(h) for h in d.get("spans", [])]
+    tokens = [Token.safely_from_dict(h) for h in (d.get("tokens", []) or [])]
+    entities = [Entity.safely_from_dict(h) for h in (d.get("entities", []) or [])]
+    spans = [Span.safely_from_dict(h) for h in (d.get("spans", []) or [])]
 
     return Sentence(
       text=d.get("text", None),
@@ -264,9 +264,9 @@ class Doc:
 
   @staticmethod
   def safely_from_dict(d: any) -> "Doc":
-    sentences = [Sentence.safely_from_dict(h) for h in d.get("sentences", [])]
-    spans = [Span.safely_from_dict(h) for h in d.get("spans", [])]
-    entities = [Entity.safely_from_dict(h) for h in d.get("entities", [])]
+    sentences = [Sentence.safely_from_dict(h) for h in (d.get("sentences", []) or [])]
+    spans = [Span.safely_from_dict(h) for h in (d.get("spans", []) or [])]
+    entities = [Entity.safely_from_dict(h) for h in (d.get("entities", []) or [])]
 
     return Doc(
       text=d.get("text", None),
@@ -311,7 +311,7 @@ class ParseResponse(NludbResponse):
 
   @staticmethod
   def safely_from_dict(d: any) -> "ParseResponse":
-    docs = [Doc.safely_from_dict(h) for h in d.get("docs", [])]
+    docs = [Doc.safely_from_dict(h) for h in (d.get("docs", []) or [])]
     return ParseResponse(
       docs=docs
     )
@@ -328,7 +328,7 @@ class TokenMatcher():
   def safely_from_dict(d: any) -> "TokenMatcher":
     return TokenMatcher(
       label=d.get("label", None),
-      patterns=d.get("patterns", [])
+      patterns=(d.get("patterns", []) or [])
     )
 
 @dataclass
@@ -341,7 +341,7 @@ class PhraseMatcher():
   def safely_from_dict(d: any) -> "PhraseMatcher":
     return PhraseMatcher(
       label=d.get("label", None),
-      phrases=d.get("phrases", []),
+      phrases=(d.get("phrases", []) or []),
       attr=d.get("attr", None)
     )
 
@@ -356,7 +356,7 @@ class DependencyMatcher():
   def safely_from_dict(d: any) -> "DependencyMatcher":
     return DependencyMatcher(
       label=d.get("label", None),
-      patterns=d.get("patterns", [])
+      patterns=(d.get("patterns", []) or [])
     )
 
 @dataclass
@@ -375,9 +375,9 @@ class ParseRequest(NludbResponse):
 
   @staticmethod
   def safely_from_dict(d: any) -> "ParseRequest":
-    token_matchers = [TokenMatcher.safely_from_dict(h) for h in d.get("tokenMatchers", [])]
-    phrase_matchers = [PhraseMatcher.safely_from_dict(h) for h in d.get("phraseMatchers", [])]
-    dependency_matchers = [DependencyMatcher.safely_from_dict(h) for h in d.get("dependencyMatchers", [])]
+    token_matchers = [TokenMatcher.safely_from_dict(h) for h in (d.get("tokenMatchers", []) or [])]
+    phrase_matchers = [PhraseMatcher.safely_from_dict(h) for h in (d.get("phraseMatchers", []) or [])]
+    dependency_matchers = [DependencyMatcher.safely_from_dict(h) for h in (d.get("dependencyMatchers", []) or [])]
 
     includeTokens = d.get("includeTokens", True)
     if includeTokens is None:
@@ -399,7 +399,7 @@ class ParseRequest(NludbResponse):
         pass
 
     return ParseRequest(
-      docs=d.get("docs", []),
+      docs=(d.get("docs", []) or []),
       model=d.get("model", None),
       tokenMatchers=token_matchers,
       phraseMatchers=phrase_matchers,

@@ -66,7 +66,7 @@ class IndexInsertResponse(NludbResponse):
   @staticmethod
   def safely_from_dict(d: any) -> "IndexInsertResponse":
     return IndexInsertResponse(
-      itemIds = [IndexItemId.safely_from_dict(x) for x in d.get('itemIds', [])]
+      itemIds = [IndexItemId.safely_from_dict(x) for x in (d.get('itemIds', []) or [])]
     )
 
 @dataclass
@@ -110,7 +110,7 @@ class IndexSearchResponse(NludbResponse):
 
   @staticmethod
   def safely_from_dict(d: any) -> "IndexSearchResponse":
-    hits = [Hit.safely_from_dict(h) for h in d.get("hits", [])]
+    hits = [Hit.safely_from_dict(h) for h in (d.get("hits", []) or [])]
     return IndexSearchResponse(
       hits=hits
     )
@@ -145,7 +145,7 @@ class ListSnapshotsResponse(NludbResponse):
   @staticmethod
   def safely_from_dict(d: any) -> "IndexSnapshotResponse":
     return IndexSnapshotResponse(
-      snapshots = [IndexSnapshotResponse.safely_from_dict(dd) for dd in d.get('snapshots', [])]
+      snapshots = [IndexSnapshotResponse.safely_from_dict(dd) for dd in (d.get('snapshots', []) or [])]
     )
 
 @dataclass

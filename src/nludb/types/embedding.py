@@ -31,7 +31,7 @@ class EmbedAndSearchResponse(NludbRequest):
 
   @staticmethod
   def safely_from_dict(d: any) -> "EmbedAndSearchResponse":
-    hits = [Hit.safely_from_dict(h) for h in d.get("hits", [])]
+    hits = [Hit.safely_from_dict(h) for h in (d.get("hits", []) or [])]
     return EmbedAndSearchResponse(
       hits=hits
     )

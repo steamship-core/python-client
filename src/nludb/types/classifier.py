@@ -37,7 +37,7 @@ class ClassifyResponse(NludbResponse):
 
   @staticmethod
   def safely_from_dict(d: any) -> "ClassifyResponse":
-    hits = [[Hit.safely_from_dict(h) for h in innerList] for innerList in d.get("hits", [])]
+    hits = [[Hit.safely_from_dict(h) for h in innerList] for innerList in (d.get("hits", []) or [])]
     return ClassifyResponse(
       classifierId = d.get('classifierId', None),
       model = d.get('model', None),

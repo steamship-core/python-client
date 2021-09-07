@@ -88,5 +88,5 @@ class ListModelsResponse(NludbRequest):
   @staticmethod
   def safely_from_dict(d: any) -> "ListModelsResponse":
     return ListModelsResponse(
-      models = [Model.safely_from_dict(x) for x in d.get("models", [])]
+      models = [Model.safely_from_dict(x) for x in (d.get("models", []) or [])]
     )
