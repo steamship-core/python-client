@@ -126,6 +126,18 @@ def test_embed_task():
         assert (task.taskStatus == NludbTaskStatus.succeeded)
 
 
+def test_duplicate_inserts():
+    nludb = _nludb()
+    name = _random_name()
+
+    with _random_index(nludb) as index:
+        # Test for supressed reindexing
+        A1 = "Ted can eat an entire block of cheese."
+        Q1 = "Who can eat the most cheese"
+        insert_results = index.insert(A1)
+        search_results = index.search(Q1)
+
+
 def test_index_usage():
     nludb = _nludb()
     name = _random_name()

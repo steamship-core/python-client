@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Any
 from dataclasses import dataclass
 from nludb.types.base import NludbRequest, NludbResponse
 
@@ -341,17 +341,40 @@ class ParseRequest(NludbResponse):
   phraseMatchers: List[PhraseMatcher] = None
   dependencyMatchers: List[DependencyMatcher] = None
 
+  includeTokens: bool = True
+  includeParseData: bool = True
+  includeEntities: bool = False
+
+  metadata: Dict[str, Any] = None
+
   @staticmethod
   def safely_from_dict(d: any) -> "ParseRequest":
     token_matchers = [TokenMatcher.safely_from_dict(h) for h in d.get("tokenMatchers", [])]
     phrase_matchers = [PhraseMatcher.safely_from_dict(h) for h in d.get("phraseMatchers", [])]
     dependency_matchers = [DependencyMatcher.safely_from_dict(h) for h in d.get("dependencyMatchers", [])]
 
+    includeTokens = d.get("includeTokens", True)
+    if includeTokens is None:
+      includeTokens = True
+
+    includeParseData = d.get("includeTokens", True)
+    if includeParseData is None:
+      includeParseData = True
+
+    includeEntities = d.get("includeTokens", True)
+    if includeEntities is None:
+      includeEntities = True
+
+
     return ParseRequest(
       docs=d.get("docs", []),
       model=d.get("model", None),
       tokenMatchers=token_matchers,
       phraseMatchers=phrase_matchers,
-      dependencyMatchers=dependency_matchers
+      dependencyMatchers=dependency_matchers,
+      includeTokens=includeTokens,
+      includeParseData=includeParseData,
+      includeEntities=includeEntities,
+      metadata=d.get("metadata", None)
     )
 

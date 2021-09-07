@@ -102,7 +102,7 @@ class IndexDeleteResponse(NludbResponse):
 class IndexSearchRequest(NludbRequest):
   indexId: str
   query: str
-  k: int = 1
+  k: int = 1  
   includeMetadata: bool = False
 
 @dataclass
@@ -119,6 +119,9 @@ class IndexSearchResponse(NludbResponse):
 @dataclass
 class IndexSnapshotRequest(NludbRequest):
   indexId: str
+  # This variable is intended only to support
+  # unit testing.
+  windowSize: int = None
 
 @dataclass
 class IndexSnapshotResponse(NludbResponse):

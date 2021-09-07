@@ -1,5 +1,5 @@
 import logging
-from typing import Tuple, List
+from typing import Tuple, List, Any
 
 from nludb import __version__
 from nludb.api.base import ApiBase
@@ -139,13 +139,21 @@ class NLUDB(ApiBase):
     tokenMatchers: List[TokenMatcher] = None,
     phraseMatchers: List[PhraseMatcher] = None,
     dependencyMatchers: List[DependencyMatcher] = None,
+    includeTokens: bool = True,
+    includeParseData: bool = True,
+    includeEntities: bool = False,
+    metadata: Dict[str, Any] = None
   ) -> ParseResponse:
     req = ParseRequest(
       docs = docs,
       model = model,
       tokenMatchers = tokenMatchers,
       phraseMatchers = phraseMatchers,
-      dependencyMatchers = dependencyMatchers
+      dependencyMatchers = dependencyMatchers,
+      includeTokens = includeTokens,
+      includeParseData = includeParseData,
+      includeEntities = includeEntities,
+      metadata = metadata
     )
     return self.post(
       'parser/parse',

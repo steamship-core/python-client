@@ -25,16 +25,22 @@ export NLUDB_DOMAIN=http://api.nludb.yourcompany.com/
 2. **Your NLUDB API key**.
 
 ```
-export NLUDB_EMBEDDER_QA=st_msmarco_distilbert_base_v3
+export NLUDB_KEY=
 ```
 
 3. **Your default QA Embedding Model name**. For private installations, this default model bay be custom. 
 
 ```
+export NLUDB_EMBEDDER_QA=st_msmarco_distilbert_base_v3
+```
+
+4. **Your default Similarity Embedding Model name**. For private installations, this default model bay be custom. 
+
+```
 export NLUDB_EMBEDDER_SIM=st_paraphrase_mpnet_base_v2
 ```
 
-4. **Your default Parsing Model name**. For private installations, this default model bay be custom. 
+5. **Your default Parsing Model name**. For private installations, this default model bay be custom. 
 
 ```
 export NLUDB_PARSER_DEFAULT=sp_en_core_web_trf
