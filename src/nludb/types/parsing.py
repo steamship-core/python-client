@@ -291,7 +291,7 @@ class Doc:
     sentences = [
       Sentence.from_spacy(s, includeTokens=includeTokens, includeParseData=includeParseData, includeEntities=includeEntities) 
       for s in d.sents
-      if sentence_filter is None or sentence_filter(s) is True
+      if sentenceFilterFn is None or sentenceFilterFn(s) is True
     ]
     spans = []
     for label in d.spans:
