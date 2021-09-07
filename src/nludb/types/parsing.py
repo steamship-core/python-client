@@ -1,4 +1,5 @@
-from typing import List, Dict, Any
+from typing import List, Dict
+import metadata
 from dataclasses import dataclass
 from nludb.types.base import NludbRequest, NludbResponse
 
@@ -371,7 +372,7 @@ class ParseRequest(NludbResponse):
   includeParseData: bool = True
   includeEntities: bool = False
 
-  metadata: Dict[str, Any] = None
+  metadata: any = None
 
   @staticmethod
   def safely_from_dict(d: any) -> "ParseRequest":
@@ -391,6 +392,12 @@ class ParseRequest(NludbResponse):
     if includeEntities is None:
       includeEntities = True
 
+    metadata = d.get("metadata", None)
+    if metadata is not None:
+      try:
+        metadata = json.loads(metadata)
+      except:
+        pass
 
     return ParseRequest(
       docs=d.get("docs", []),
@@ -401,6 +408,6 @@ class ParseRequest(NludbResponse):
       includeTokens=includeTokens,
       includeParseData=includeParseData,
       includeEntities=includeEntities,
-      metadata=d.get("metadata", None)
+      metadata=metadata
     )
 
