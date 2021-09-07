@@ -16,7 +16,6 @@ class IndexCreateRequest(NludbRequest):
 class IndexCreateResponse(NludbResponse):
   id: str
 
-
 @dataclass
 class IndexItem:
   value: str = None

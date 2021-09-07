@@ -85,7 +85,21 @@ class Token:
     )
 
   @staticmethod
-  def from_spacy(t: any) -> "Token":
+  def from_spacy(t: any, includeParseData: bool=True) -> "Token":
+    if includeParseData is False:
+      return Token(
+        text = t.text,
+        textWithWs = t.text_with_ws,
+        whitespace = t.whitespace_,
+        leftEdge = t.left_edge.text,
+        rightEdge = t.right_edge.text,
+        lemma = t.lemma_,
+        isOov = t.is_oov,
+        isStop = t.is_stop,
+        charIndex = t.idx,
+        tokenIndex = t.i,
+      )
+
     return Token(
       text = t.text,
       textWithWs = t.text_with_ws,
@@ -226,9 +240,9 @@ class Sentence:
     )
 
   @staticmethod
-  def from_spacy(d: any) -> "Sentence":
-    tokens = [Token.from_spacy(t) for t in d]
-    entities = [Entity.from_spacy(e) for e in d.ents]
+  def from_spacy(d: any, includeTokens: bool=True, includeParseData: bool=True, includeEntities: bool=True) -> "Sentence":
+    tokens = [Token.from_spacy(t, includeParseData=includeParseData) for t in d] if includeTokens is True else []
+    entities = [Entity.from_spacy(e) for e in d.ents] if includeEntities is True else []
 
     return Sentence(
       text=d.text,
@@ -246,28 +260,39 @@ class Doc:
   model: str
   lang: str
   sentiment: float
+  entities: List[Entity]
 
   @staticmethod
   def safely_from_dict(d: any) -> "Doc":
     sentences = [Sentence.safely_from_dict(h) for h in d.get("sentences", [])]
     spans = [Span.safely_from_dict(h) for h in d.get("spans", [])]
+    entities = [Entity.safely_from_dict(h) for h in d.get("entities", [])]
+
     return Doc(
       text=d.get("text", None),
       sentences=sentences,
       spans=spans,
       model=d.get("model", None),
       lang=d.get("lang", None),
-      sentiment = d.get("sentiment", None)
+      sentiment = d.get("sentiment", None),
+      entities = entities
     )
 
   @staticmethod
-  def from_spacy(text: str, model: str, d: any) -> "Doc":
-    sentences = [Sentence.from_spacy(s) for s in d.sents]
+  def from_spacy(text: str, model: str, d: any, includeTokens: bool=True, includeParseData: bool=True, includeEntities: bool=True) -> "Doc":
+    sentences = [Sentence.from_spacy(s, includeTokens=includeTokens, includeParseData=includeParseData, includeEntities=includeEntities) for s in d.sents]
     spans = []
     for label in d.spans:
       span_group = d.spans[label]
       for s in span_group:
         spans.append(Span.safely_from_dict(s))
+
+    entities = []
+    if includeEntities is True:
+      for ent in d.ents:
+        e = Entity.from_spacy(ent)
+        if e is not None:
+          entities.append(e)
 
     ret = Doc(
       text=text,
@@ -275,7 +300,8 @@ class Doc:
       spans=spans,
       model=model,
       lang=d.lang_,
-      sentiment=d.sentiment
+      sentiment=d.sentiment,
+      entities=entities
     )
     return ret
   
