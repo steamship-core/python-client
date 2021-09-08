@@ -4,43 +4,43 @@ from nludb.types.base import NludbRequest, NludbResponse
 
 @dataclass
 class Token:
-  text: str
-  textWithWs: str
-  whitespace: str
-  head: str
-  headI: int
-  leftEdge: str
-  rightEdge: str
-  entType: str
-  entIob: str
-  lemma: str
-  normalized: str
-  shape: str
-  prefix: str
-  suffix: str
-  isAlpha: bool
-  isAscii: bool
-  isDigit: bool
-  isTitle: bool
-  isPunct: bool
-  isLeftPunct: bool
-  isRightPunct: bool
-  isSpace: bool
-  isBracket: bool
-  isQuote: bool
-  isCurrency: bool
-  likeUrl: bool
-  likeNum: bool
-  likeEmail: bool
-  isOov: bool
-  isStop: bool
-  pos: str
-  tag: str
-  dep: str
-  lang: str
-  prob: float
-  charIndex: int
-  tokenIndex: int
+  text: str = None
+  textWithWs: str = None
+  whitespace: str = None
+  head: str = None
+  headI: int = None
+  leftEdge: str = None
+  rightEdge: str = None
+  entType: str = None
+  entIob: str = None
+  lemma: str = None
+  normalized: str = None
+  shape: str = None
+  prefix: str = None
+  suffix: str = None
+  isAlpha: bool = None
+  isAscii: bool = None
+  isDigit: bool = None
+  isTitle: bool = None
+  isPunct: bool = None
+  isLeftPunct: bool = None
+  isRightPunct: bool = None
+  isSpace: bool = None
+  isBracket: bool = None
+  isQuote: bool = None
+  isCurrency: bool = None
+  likeUrl: bool = None
+  likeNum: bool = None
+  likeEmail: bool = None
+  isOov: bool = None
+  isStop: bool = None
+  pos: str = None
+  tag: str = None
+  dep: str = None
+  lang: str = None
+  prob: float = None
+  charIndex: int = None
+  tokenIndex: int = None
 
   @staticmethod
   def safely_from_dict(d: any) -> "Token":
