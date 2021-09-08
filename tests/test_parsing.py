@@ -21,6 +21,41 @@ def test_parsing():
     t = s.tokens[0]
     assert(t.lemma == "this")
 
+def test_parsing_options():
+    nludb = _nludb()
+    resp = nludb.parse(["This is a test"], model=parsing_model(), includeTokens=False)
+    assert(len(resp.docs) == 1)
+    d = resp.docs[0]
+    assert(len(d.sentences) == 1)
+    s = d.sentences[0]
+
+    assert(s.text == "This is a test")
+    assert(len(s.tokens) == 0)
+
+    resp = nludb.parse(["This is a test"], model=parsing_model(), includeTokens=True, includeParseData=False)
+    assert(len(resp.docs) == 1)
+    d = resp.docs[0]
+    assert(len(d.sentences) == 1)
+    s = d.sentences[0]
+
+    assert(s.text == "This is a test")
+    assert(len(s.tokens) == 4)
+    assert(s.tokens[0].dep is None)
+
+def test_ner():
+    nludb = _nludb()
+    resp = nludb.parse(["I like Ted"], model=parsing_model(), includeEntities=True)
+    assert(len(resp.docs) == 1)
+    d = resp.docs[0]
+    assert(len(d.entities) == 1)
+    assert(d.entities[0].text == "Ted")
+
+    assert(len(d.sentences) == 1)
+    s = d.sentences[0]
+    assert(len(s.entities) == 1)
+    assert(s.entities[0].text == "Ted")
+
+
 def test_token_matcher():
     nludb = _nludb()
 
