@@ -63,7 +63,7 @@ class EmbeddingIndex:
     req = IndexInsertRequest(
       indexId=self.id,
       value=None,
-      items=[newItems.clone_for_insert() for item in items],
+      items=[item.clone_for_insert() for item in newItems],
       reindex=reindex,
     )
     return self.nludb.post(
