@@ -11,6 +11,7 @@ class Hit:
   externalId: str = None
   externalType: str = None
   metadata: any = None
+  query: str = None
 
   @staticmethod
   def safely_from_dict(d: any) -> "Hit":
@@ -29,5 +30,6 @@ class Hit:
       score=d.get("score", None),
       externalId=d.get("externalId", None),
       externalType=d.get("externalType", None),
-      metadata=metadata
+      metadata=metadata,
+      query=d.get("query", None)
     )
