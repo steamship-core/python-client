@@ -100,7 +100,8 @@ class IndexDeleteResponse(NludbResponse):
 @dataclass
 class IndexSearchRequest(NludbRequest):
   indexId: str
-  query: str
+  query: str = None
+  queries: List[str] = None
   k: int = 1  
   includeMetadata: bool = False
 
