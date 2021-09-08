@@ -50,13 +50,20 @@ class EmbeddingIndex:
 
   def insert_many(
     self,
-    items: List[IndexItem],
+    items: List[Union[IndexItem, str]],
     reindex: bool=True
   ) -> IndexInsertResponse:
+    newItems = []
+    for item in items:
+      if type(item) == str:
+        newItems.append(IndexItem(value=item))
+      else:
+        newItems.append(item)
+
     req = IndexInsertRequest(
       indexId=self.id,
       value=None,
-      items=[item.clone_for_insert() for item in items],
+      items=[newItems.clone_for_insert() for item in items],
       reindex=reindex,
     )
     return self.nludb.post(
@@ -146,16 +153,26 @@ class EmbeddingIndex:
 
   def search(
     self, 
-    query: str,
+    query: Union[str, List[str]],
     k: int = 1,
     includeMetadata: bool = False
   ) -> IndexSearchResponse:
-    req = IndexSearchRequest(
-      self.id,
-      query,
-      k=k,
-      includeMetadata=includeMetadata,
-    )
+    if type(query) == list:
+      req = IndexSearchRequest(
+        self.id,
+        query=None,
+        queries=query,
+        k=k,
+        includeMetadata=includeMetadata,
+      )
+    else:
+      req = IndexSearchRequest(
+        self.id,
+        query=query,
+        queries=None,
+        k=k,
+        includeMetadata=includeMetadata,
+      )
     return self.nludb.post(
       'embedding-index/search',
       req,
