@@ -201,3 +201,59 @@ def test_index_usage():
         assert(len(search_results4.hits) == 2)
         assert(search_results4.hits[0].value == A2)
         assert(search_results4.hits[1].value == A1)
+
+def test_multiple_queries():
+    nludb = _nludb()
+    name = _random_name()
+
+    with _random_index(nludb) as index:
+        # Test for supressed reindexing
+        A1 = "Ted can eat an entire block of cheese."
+        A2 = "Joe can drink an entire glass of water."
+        insert_results = index.insert_many([A1, A2])
+        index.embed().wait()
+
+        QS1 = ["Who can eat the most cheese", "Who can run the fastest?"]
+        search_results = index.search(QS1)
+        assert(len(search_results.hits) == 1)
+        assert(search_results.hits[0].value == A1)
+        assert(search_results.hits[0].query == QS1[0])
+
+        QS2 = ["Who can tie a shoe?", "Who can drink the most water?"]
+        search_results = index.search(QS2)
+        assert(len(search_results.hits) == 1)
+        assert(search_results.hits[0].value == A2)
+        assert(search_results.hits[0].query == QS2[1])
+
+        QS3 = ["What can Ted do?", "What can Sam do?", "What can Jerry do?"]
+        search_results = index.search(QS3)
+        assert(len(search_results.hits) == 1)
+        assert(search_results.hits[0].value == A1)
+        assert(search_results.hits[0].query == QS3[0])
+
+        QS3 = ["What can Sam do?", "What can Ted do?", "What can Jerry do?"]
+        search_results = index.search(QS3)
+        assert(len(search_results.hits) == 1)
+        assert(search_results.hits[0].value == A1)
+        assert(search_results.hits[0].query == QS3[1])
+
+        index.create_snapshot().wait()        
+        
+        A3 = "Susan can run very fast."
+        A4 = "Brenda can fight alligators."
+        insert_results = index.insert_many([A3, A4])
+        index.embed().wait()
+
+        QS4 = ["What can Brenda do?", "What can Ronaldo do?", "What can Jerry do?"]
+        search_results = index.search(QS4)
+        assert(len(search_results.hits) == 1)
+        assert(search_results.hits[0].value == A4)
+        assert(search_results.hits[0].query == QS4[0])
+
+        QS4 = ["What can Brenda do?", "Who should run a marathon?", "What can Jerry do?"]
+        search_results = index.search(QS4, k=2)
+        assert(len(search_results.hits) == 2)
+        assert(search_results.hits[0].value == A4)
+        assert(search_results.hits[0].query == QS4[0])
+        assert(search_results.hits[1].value == A3)
+        assert(search_results.hits[1].query == QS4[1])
