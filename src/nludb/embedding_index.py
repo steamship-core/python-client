@@ -176,8 +176,7 @@ class EmbeddingIndex:
     return self.nludb.post(
       'embedding-index/search',
       req,
-      expect=IndexSearchResponse,
-      debug=True
+      expect=IndexSearchResponse
     )
 
   @staticmethod
