@@ -54,6 +54,12 @@ With the virtual environment active and environment variables set, run:
 ./bin/tox
 ```
 
+Or run one test
+
+```
+./bin/tox -- tests/test_embedding_index.py::test_empty_queries
+```
+
 
 # Testing against NLUDB on Localhost
 

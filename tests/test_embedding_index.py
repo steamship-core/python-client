@@ -257,3 +257,25 @@ def test_multiple_queries():
         assert(search_results.hits[0].query == QS4[0])
         assert(search_results.hits[1].value == A3)
         assert(search_results.hits[1].query == QS4[1])
+
+def test_empty_queries():
+    nludb = _nludb()
+    name = _random_name()
+
+    with _random_index(nludb) as index:
+        # Test for supressed reindexing
+        A1 = "Ted can eat an entire block of cheese."
+        A2 = "Joe can drink an entire glass of water."
+        insert_results = index.insert_many([A1, A2])
+        index.embed().wait()
+
+        with pytest.raises(Exception):
+            search_results = index.search(None)    
+
+        # These technically don't count as empty. Leaving this test in here
+        # to encode and capture that in case we want to change it.
+        search_results = index.search([])
+        assert(len(search_results.hits) == 0)
+
+        search_results = index.search("")
+        assert(len(search_results.hits) == 1)

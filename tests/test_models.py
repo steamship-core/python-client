@@ -122,8 +122,10 @@ def test_model_create():
 
     my_models = nludb.models.listPrivate()
     assert(len(my_models.models) == orig_count+1)
-    assert(my_models.models[-1].id == model2.id)
-    assert(my_models.models[-1].description == model2.description)
+
+    assert(model2.id in [model.id for model in my_models.models])
+    assert(model2.description in [model.description for model in my_models.models])
+
     # assert(my_models.models[0].description != model.description)
 
     nludb.models.delete(model.id)
