@@ -3,7 +3,8 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.api.base import ApiBase, AsyncTask
+from nludb.api.base import ApiBase, AsyncTask, NludbResponse
+from nludb.types.base import Metadata
 from nludb.types.embedding_index import *
 
 __author__ = "Edward Benson"
@@ -29,7 +30,7 @@ class EmbeddingIndex:
     externalType: str = None,
     metadata: Union[int, float, bool, str, List, Dict] = None,
     reindex: bool = True
-  ) -> IndexInsertResponse:    
+  ) -> NludbResponse[IndexInsertResponse]:    
     if isinstance(metadata, dict) or isinstance(metadata, list):
       metadata = json.dumps(metadata)
 
@@ -52,7 +53,7 @@ class EmbeddingIndex:
     self,
     items: List[Union[IndexItem, str]],
     reindex: bool=True
-  ) -> IndexInsertResponse:
+  ) -> NludbResponse[IndexInsertResponse]:
     newItems = []
     for item in items:
       if type(item) == str:
@@ -79,18 +80,15 @@ class EmbeddingIndex:
     externalType: str = None,
     metadata: Union[int, float, bool, str, List, Dict] = None,
     reindex: bool = True
-  ) -> IndexInsertResponse:
+  ) -> NludbResponse[IndexInsertResponse]:
     
-    if isinstance(metadata, dict) or isinstance(metadata, list):
-      metadata = json.dumps(metadata)
-
     req = IndexInsertRequest(
       indexId=self.id,
       value=value,
       items=None,
       externalId=externalId,
       externalType=externalType,
-      metadata=metadata,
+      metadata=metadata_to_str(metadata),
       reindex=reindex,
     )
     return self.nludb.post(
@@ -99,7 +97,7 @@ class EmbeddingIndex:
       expect=IndexInsertResponse
     )
 
-  def embed(self) -> AsyncTask(IndexEmbedResponse):
+  def embed(self) -> NludbResponse[IndexEmbedResponse]:
     req = IndexEmbedRequest(
       self.id
     )
@@ -110,7 +108,7 @@ class EmbeddingIndex:
       asynchronous=True
     )
 
-  def create_snapshot(self) -> AsyncTask(IndexSnapshotResponse):
+  def create_snapshot(self) -> NludbResponse[IndexSnapshotResponse]:
     req = IndexSnapshotRequest(
       self.id
     )
@@ -121,7 +119,7 @@ class EmbeddingIndex:
       asynchronous=True
     )
 
-  def list_snapshots(self) -> AsyncTask(ListSnapshotsResponse):
+  def list_snapshots(self) -> NludbResponse[ListSnapshotsResponse]:
     req = ListSnapshotsRequest(
       indexId = self.id
     )
@@ -131,7 +129,7 @@ class EmbeddingIndex:
       expect=ListSnapshotsResponse
     )
 
-  def delete_snapshot(self, snapshot_id: str) -> AsyncTask(DeleteSnapshotsResponse):
+  def delete_snapshot(self, snapshot_id: str) -> NludbResponse[DeleteSnapshotsResponse]:
     req = DeleteSnapshotsRequest(
       snapshotId = snapshot_id
     )
@@ -141,7 +139,7 @@ class EmbeddingIndex:
       expect=DeleteSnapshotsResponse
     )
 
-  def delete(self) -> IndexDeleteResponse:
+  def delete(self) -> NludbResponse[IndexDeleteResponse]:
     req = IndexDeleteRequest(
       self.id
     )
@@ -156,7 +154,7 @@ class EmbeddingIndex:
     query: Union[str, List[str]],
     k: int = 1,
     includeMetadata: bool = False
-  ) -> IndexSearchResponse:
+  ) -> NludbResponse[IndexSearchResponse]:
     if type(query) == list:
       req = IndexSearchRequest(
         self.id,
@@ -201,5 +199,5 @@ class EmbeddingIndex:
     return EmbeddingIndex(
       nludb=nludb,
       name=req.name,
-      id=res.get("id", None)
+      id=res.data.get("id", None)
     )

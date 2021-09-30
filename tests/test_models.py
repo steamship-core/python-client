@@ -18,7 +18,7 @@ def test_model_create():
     nludb = _nludb()
     name = _random_name()
 
-    my_models = nludb.models.listPrivate()
+    my_models = nludb.models.listPrivate().data
     orig_count = len(my_models.models)
 
     # Should require name
@@ -81,7 +81,7 @@ def test_model_create():
             adapterType = ModelAdapterType.nludbDocker,
         )
 
-    my_models = nludb.models.listPrivate()
+    my_models = nludb.models.listPrivate().data
     assert(len(my_models.models) == orig_count)
 
     model = nludb.models.create(
@@ -91,9 +91,9 @@ def test_model_create():
         url = "http://foo",
         adapterType = ModelAdapterType.nludbDocker,
         isPublic = False
-    )
+    ).data
 
-    my_models = nludb.models.listPrivate()
+    my_models = nludb.models.listPrivate().data
     assert(len(my_models.models) == orig_count+1)
 
     # No upsert doesn't work
@@ -105,7 +105,7 @@ def test_model_create():
           url = "http://foo",
           adapterType = ModelAdapterType.nludbDocker,
           isPublic = False
-      )
+      ).data
 
     # Upsert does work
     model2 = nludb.models.create(
@@ -116,11 +116,11 @@ def test_model_create():
         adapterType = ModelAdapterType.nludbDocker,
         isPublic = False,
         upsert = True
-    )
+    ).data
 
     assert(model2.id == model.id)
 
-    my_models = nludb.models.listPrivate()
+    my_models = nludb.models.listPrivate().data
     assert(len(my_models.models) == orig_count+1)
 
     assert(model2.id in [model.id for model in my_models.models])
@@ -130,14 +130,14 @@ def test_model_create():
 
     nludb.models.delete(model.id)
 
-    my_models = nludb.models.listPrivate()
+    my_models = nludb.models.listPrivate().data
     assert(len(my_models.models) == orig_count)
 
 def test_model_public():
     nludb = _nludb()
     name = _random_name()
 
-    my_models = nludb.models.listPublic()
+    my_models = nludb.models.listPublic().data
     orig_count = len(my_models.models)
     assert(len(my_models.models) > 0, True)
 

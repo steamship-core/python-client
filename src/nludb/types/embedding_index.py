@@ -1,7 +1,7 @@
 from typing import List
 import json
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponse
+from nludb.types.base import NludbRequest, NludbResponseData, metadata_to_str
 from nludb.types.search import Hit
 @dataclass
 class IndexCreateRequest(NludbRequest):
@@ -13,7 +13,7 @@ class IndexCreateRequest(NludbRequest):
   metadata: any = None
 
 @dataclass
-class IndexCreateResponse(NludbResponse):
+class IndexCreateResponse(NludbResponseData):
   id: str
 
 @dataclass
@@ -48,7 +48,7 @@ class IndexInsertRequest(NludbRequest):
   reindex: bool = True
 
 @dataclass
-class IndexItemId(NludbResponse):
+class IndexItemId(NludbResponseData):
   indexId: str = None
   id: str = None
 
@@ -60,7 +60,7 @@ class IndexItemId(NludbResponse):
     )
 
 @dataclass
-class IndexInsertResponse(NludbResponse):
+class IndexInsertResponse(NludbResponseData):
   itemIds: List[IndexItemId] = None
 
   @staticmethod
@@ -74,7 +74,7 @@ class IndexEmbedRequest(NludbRequest):
   indexId: str
 
 @dataclass
-class IndexEmbedResponse(NludbResponse):
+class IndexEmbedResponse(NludbResponseData):
   indexId: str
 
   @staticmethod
@@ -88,7 +88,7 @@ class IndexDeleteRequest(NludbRequest):
   indexId: str
 
 @dataclass
-class IndexDeleteResponse(NludbResponse):
+class IndexDeleteResponse(NludbResponseData):
   indexId: str
 
   @staticmethod
@@ -106,7 +106,7 @@ class IndexSearchRequest(NludbRequest):
   includeMetadata: bool = False
 
 @dataclass
-class IndexSearchResponse(NludbResponse):
+class IndexSearchResponse(NludbResponseData):
   hits: List[Hit] = None
 
   @staticmethod
@@ -124,7 +124,7 @@ class IndexSnapshotRequest(NludbRequest):
   windowSize: int = None
 
 @dataclass
-class IndexSnapshotResponse(NludbResponse):
+class IndexSnapshotResponse(NludbResponseData):
   indexId: str
   snapshotId: str
 
@@ -140,7 +140,7 @@ class ListSnapshotsRequest(NludbRequest):
   indexId: str = None
 
 @dataclass
-class ListSnapshotsResponse(NludbResponse):
+class ListSnapshotsResponse(NludbResponseData):
   snapshots: List[IndexSnapshotResponse]
   
   @staticmethod

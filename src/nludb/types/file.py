@@ -1,6 +1,6 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponse
+from nludb.types.base import NludbRequest, NludbResponseData
 from nludb.types.parsing import DependencyMatcher, PhraseMatcher, TokenMatcher
 
 class FileUploadType:
@@ -15,7 +15,7 @@ class FileUploadRequest(NludbRequest):
   convert: bool = False
 
 @dataclass
-class FileUploadResponse(NludbResponse):
+class FileUploadResponse(NludbResponseData):
   fileId: str
   fileFormat: str
 
@@ -31,7 +31,7 @@ class FileDeleteRequest(NludbRequest):
   fileId: str
 
 @dataclass
-class FileDeleteResponse(NludbResponse):
+class FileDeleteResponse(NludbResponseData):
   fileId: str
 
   @staticmethod
@@ -45,7 +45,7 @@ class FileConvertRequest(NludbRequest):
   fileId: str
 
 @dataclass
-class FileConvertResponse(NludbResponse):
+class FileConvertResponse(NludbResponseData):
   fileId: str
 
   @staticmethod
@@ -63,7 +63,7 @@ class FileParseRequest(NludbRequest):
   dependencyMatchers: List[DependencyMatcher] = None
 
 @dataclass
-class FileParseResponse(NludbResponse):
+class FileParseResponse(NludbResponseData):
   fileId: str
 
   @staticmethod
@@ -92,7 +92,7 @@ class FileQueryRequest(NludbRequest):
   blockType: str = None
 
 @dataclass
-class FileQueryResponse(NludbResponse):
+class FileQueryResponse(NludbResponseData):
   fileId: str
   blocks: List[Block]
 

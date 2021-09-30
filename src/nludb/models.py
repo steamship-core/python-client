@@ -3,7 +3,7 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.api.base import ApiBase, AsyncTask
+from nludb.api.base import ApiBase, AsyncTask, NludbResponse
 from nludb.types.model import *
 
 __author__ = "Edward Benson"
@@ -34,7 +34,7 @@ class Models:
     apiKey: str = None,
     metadata: Union[str, Dict, List] = None,
     upsert: bool = None
-  ) -> Model:
+  ) -> NludbResponse[Model]:
     
     if isinstance(metadata, dict) or isinstance(metadata, list):
       metadata = json.dumps(metadata)
@@ -63,7 +63,7 @@ class Models:
   def listPublic(
     self,
     modelType: str = None
-  ) -> ListModelsResponse:
+  ) -> NludbResponse[ListModelsResponse]:
     return self.nludb.post(
       'model/public',
       ListPublicModelsRequest(modelType=modelType),
@@ -73,7 +73,7 @@ class Models:
   def listPrivate(
     self,
     modelType = None
-  ) -> ListModelsResponse:
+  ) -> NludbResponse[ListModelsResponse]:
     return self.nludb.post(
       'model/private',
       ListPrivateModelsRequest(modelType=modelType),
@@ -83,7 +83,7 @@ class Models:
   def delete(
     self,
     id
-  ) -> Model:
+  ) -> NludbResponse[Model]:
     return self.nludb.post(
       'model/delete',
       DeleteModelRequest(modelId=id),

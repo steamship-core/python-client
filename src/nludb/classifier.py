@@ -3,7 +3,7 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.api.base import ApiBase, AsyncTask
+from nludb.api.base import ApiBase, AsyncTask, NludbResponse
 from nludb.types.classifier import ClassifierCreateRequest, ClassifierCreateResponse, ClassifyRequest, ClassifyResponse
 from nludb.types.embedding_index import *
 
@@ -51,7 +51,7 @@ class Classifier:
       return ClassifierCreateResponse(
         nludb=nludb,
         name=req.name,
-        id=res.get("classifierId", None)
+        id=res.data.get("classifierId", None)
       )
 
   def classify(
@@ -60,7 +60,7 @@ class Classifier:
     model: str = None,
     labels: List[str] = None,
     k: int = None
-  ) -> ClassifyResponse:
+  ) -> NludbResponse[ClassifyResponse]:
     if self.id is None and self.model is None:
       raise Exception("Neither an ID nor a model was found on the classifier object. Please reinitialize with one or the other.")
 

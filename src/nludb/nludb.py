@@ -2,6 +2,7 @@ import logging
 from typing import Tuple, List
 
 from nludb import __version__
+from nludb.types.base import NludbResponse
 from nludb.api.base import ApiBase
 from nludb.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
 from nludb.types.embedding_index import IndexCreateRequest
@@ -9,10 +10,10 @@ from nludb.embedding_index import EmbeddingIndex
 from nludb.classifier import Classifier
 from nludb.file import File
 from nludb.types.embedding_models import EmbeddingModels
-from nludb.types.file import FileUploadRequest, FileUploadResponse
 from nludb.types.parsing import ParseRequest, ParseResponse, TokenMatcher, PhraseMatcher, DependencyMatcher
 from nludb.types.parsing_models import ParsingModels
 from nludb.models import Models
+from nludb.tasks import Tasks
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -33,6 +34,7 @@ class NLUDB(ApiBase):
     The base class will properly detect and set the defaults. They should be None here.
     """
     self.models = Models(self)
+    self.tasks = Tasks(self)
  
   def create_index(
     self, 
@@ -102,7 +104,7 @@ class NLUDB(ApiBase):
     self, 
     texts: List[str],
     model: str
-  ) -> EmbedResponse:
+  ) -> NludbResponse[EmbedResponse]:
     req = EmbedRequest(
       texts=texts,
       model=model
@@ -119,7 +121,7 @@ class NLUDB(ApiBase):
     docs: List[str],
     model: str,
     k: int = 1
-  ) -> EmbedAndSearchResponse:
+  ) -> NludbResponse[EmbedAndSearchResponse]:
     req = EmbedAndSearchRequest(
       query=query,
       docs=docs,
@@ -143,7 +145,7 @@ class NLUDB(ApiBase):
     includeParseData: bool = True,
     includeEntities: bool = False,
     metadata: any = None
-  ) -> ParseResponse:
+  ) -> NludbResponse[ParseResponse]:
     req = ParseRequest(
       docs = docs,
       model = model,

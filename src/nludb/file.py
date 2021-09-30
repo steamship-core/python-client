@@ -4,6 +4,7 @@ from typing import Union, List, Dict
 
 from nludb import __version__
 from nludb.api.base import ApiBase
+from nludb.types.base import NludbResponse
 from nludb.types.file import *
 from nludb.types.parsing_models import ParsingModels
 
@@ -23,7 +24,7 @@ class File:
     self.id = id
     self.format = format
 
-  def delete(self) -> FileDeleteResponse:
+  def delete(self) -> NludbResponse[FileDeleteResponse]:
     req = FileDeleteRequest(
       self.id
     )

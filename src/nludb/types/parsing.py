@@ -1,6 +1,6 @@
 from typing import List, Dict, Callable
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponse
+from nludb.types.base import NludbRequest, NludbResponseData
 
 @dataclass
 class Token:
@@ -318,7 +318,7 @@ class Doc:
     return ret
   
 @dataclass
-class ParseResponse(NludbResponse):
+class ParseResponse(NludbResponseData):
   docs: List[Doc] = None
 
   @staticmethod
@@ -372,7 +372,7 @@ class DependencyMatcher():
     )
 
 @dataclass
-class ParseRequest(NludbResponse):
+class ParseRequest(NludbResponseData):
   docs: List[str] = None
   model: str = None
   tokenMatchers: List[TokenMatcher] = None

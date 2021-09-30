@@ -1,6 +1,6 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponse
+from nludb.types.base import NludbRequest, NludbResponseData
 
 class ModelType:
   embedder = "embedder"
@@ -19,7 +19,7 @@ class LimitUnit:
   bytes = "bytes"
 
 @dataclass
-class Model(NludbResponse):
+class Model(NludbResponseData):
   id: str = None
   name: str = None
   modelType: str = None

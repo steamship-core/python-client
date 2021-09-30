@@ -1,6 +1,6 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponse
+from nludb.types.base import NludbRequest, NludbResponseData
 from nludb.types.search import Hit
 
 @dataclass
@@ -12,7 +12,7 @@ class ClassifierCreateRequest(NludbRequest):
   labels: List[str] = None
 
 @dataclass
-class ClassifierCreateResponse(NludbResponse):
+class ClassifierCreateResponse(NludbResponseData):
   classifierId: str = None
 
   @staticmethod
@@ -30,7 +30,7 @@ class ClassifyRequest(NludbRequest):
   k: int = None
 
 @dataclass
-class ClassifyResponse(NludbResponse):
+class ClassifyResponse(NludbResponseData):
   classifierId: str = None
   model: str = None
   hits: List[List[Hit]] = None
@@ -52,7 +52,7 @@ class LabelInsertRequest(NludbRequest):
   metadata: str = None
 
 @dataclass
-class LabelInsertResponse(NludbResponse):
+class LabelInsertResponse(NludbResponseData):
   labelId: str
   value: str
   externalId: str = None
@@ -70,7 +70,7 @@ class LabelInsertResponse(NludbResponse):
     )
 
 @dataclass
-class ClassifierDeleteResponse(NludbResponse):
+class ClassifierDeleteResponse(NludbResponseData):
   classifierId: str = None
 
   @staticmethod

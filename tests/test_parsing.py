@@ -10,7 +10,7 @@ __license__ = "MIT"
 
 def test_parsing():
     nludb = _nludb()
-    resp = nludb.parse(["This is a test"], model=parsing_model())
+    resp = nludb.parse(["This is a test"], model=parsing_model()).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -23,7 +23,7 @@ def test_parsing():
 
 def test_parsing_options():
     nludb = _nludb()
-    resp = nludb.parse(["This is a test"], model=parsing_model(), includeTokens=False)
+    resp = nludb.parse(["This is a test"], model=parsing_model(), includeTokens=False).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -32,7 +32,7 @@ def test_parsing_options():
     assert(s.text == "This is a test")
     assert(len(s.tokens) == 0)
 
-    resp = nludb.parse(["This is a test"], model=parsing_model(), includeTokens=True, includeParseData=False)
+    resp = nludb.parse(["This is a test"], model=parsing_model(), includeTokens=True, includeParseData=False).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -44,7 +44,7 @@ def test_parsing_options():
 
 def test_ner():
     nludb = _nludb()
-    resp = nludb.parse(["I like Ted"], model=parsing_model(), includeEntities=True)
+    resp = nludb.parse(["I like Ted"], model=parsing_model(), includeEntities=True).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.entities) == 1)
@@ -78,7 +78,7 @@ def test_token_matcher():
       ["Let's see if a matcher works."], 
       model=parsing_model(),      
       tokenMatchers=[a_matcher, b_matcher]
-    )
+    ).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -110,7 +110,7 @@ def test_phrase_matcher():
       ["Let's see if a matcher works."], 
       model=parsing_model(),      
       phraseMatchers=[a_matcher, b_matcher]
-    )
+    ).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -138,7 +138,7 @@ def test_phrase_matcher_attr():
       ["Often the router will have an IP address such as 192.168.1.1 or 192.168.2.1."],
       model=parsing_model(),      
       phraseMatchers=[a_matcher]
-    )
+    ).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -193,7 +193,7 @@ def test_token_phrase_matcher_combo():
       model=parsing_model(),      
       tokenMatchers=[d_matcher],
       phraseMatchers=[a_matcher, b_matcher, c_matcher, e_matcher, f_matcher]
-    )
+    ).data
 
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
@@ -234,7 +234,7 @@ def test_dependency_matcher():
       ["Smith founded two companies"],
       model=parsing_model(),      
       dependencyMatchers=[a_matcher]
-    )
+    ).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -264,7 +264,7 @@ def test_dependency_matcher():
       ["Smith founded two companies"],
       model=parsing_model(),      
       dependencyMatchers=[a_matcher]
-    )
+    ).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -315,7 +315,7 @@ def test_dependency_matcher():
       [sent],
       model=parsing_model(),      
       dependencyMatchers=[a_matcher]
-    )
+    ).data
 
     assert(len(resp.docs) == 1)
     d = resp.docs[0]

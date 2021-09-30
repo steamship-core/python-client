@@ -1,6 +1,6 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponse
+from nludb.types.base import NludbRequest, NludbResponseData
 from nludb.types.search import Hit
 
 @dataclass
@@ -9,7 +9,7 @@ class EmbedRequest(NludbRequest):
   model: str
 
 @dataclass
-class EmbedResponse(NludbResponse):
+class EmbedResponse(NludbResponseData):
   embeddings: List[List[float]]
 
   @staticmethod

@@ -4,7 +4,7 @@ import time
 import os
 
 from nludb import __version__
-from nludb.types.base import NludbRequest, NludbResponse
+from nludb.types.base import NludbRequest, NludbResponseData, TaskStatusResponse, metadata_to_str
 from dataclasses import asdict
 from typing import Type, TypeVar, Generic
 from nludb.types.async_task import *
@@ -17,7 +17,7 @@ _logger = logging.getLogger(__name__)
 
 import typing
 
-T = typing.TypeVar('T', bound=NludbResponse)
+T = typing.TypeVar('T', bound=NludbResponseData)
 
 class AsyncTask(Generic[T]):
   """Encapsulates a unit of asynchronously performed work."""
@@ -34,7 +34,7 @@ class AsyncTask(Generic[T]):
     taskStatus: str = None, 
     taskCreatedOn: str = None, 
     taskLastModifiedOn: str = None,
-    eventualResultType: Type[NludbResponse] = None
+    eventualResultType: Type[NludbResponseData] = None
     ):
     self.nludb =  nludb
     self.taskId = taskId
@@ -43,13 +43,16 @@ class AsyncTask(Generic[T]):
     self.taskLastModifiedOn = taskLastModifiedOn
     self.eventualResultType = eventualResultType
 
-  def update(self, response: "AsyncTask"):
+  def update(self, response: TaskStatusResponse):
     """Incorporates a `TaskStatusResponse` into this object."""
-    self.taskId = response.taskId
-    self.taskStatus = response.taskStatus
-    self.taskCreatedOn = response.taskCreatedOn
-    self.taskLastModifiedOn = response.taskLastModifiedOn
-
+    if response is not None:
+      self.taskId = response.taskId
+      self.taskStatus = response.taskStatus
+      self.taskCreatedOn = response.taskCreatedOn
+      self.taskLastModifiedOn = response.taskLastModifiedOn
+    else:
+      self.taskStatus = None
+      
   def check(self):
     """Retrieves and incorporates a fresh status update."""
     req = TaskStatusRequest(
@@ -61,8 +64,44 @@ class AsyncTask(Generic[T]):
       expect=TaskStatusResponse,
       asynchronous=True
     )
-    self.update(resp)
-  
+    self.update(resp.status)
+
+  def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None, upsert: bool = True) -> NludbResponse[TaskCommentResponse]:
+    req = AddTaskCommentRequest(
+      taskId=self.taskId,
+      externalId=externalId,
+      externalType=externalType,
+      externalGroup=externalGroup,
+      metadata=metadata_to_str(metadata),
+      upsert=upsert
+    )
+    return self.nludb.post(
+      'task/comment/create',
+      req,
+      expect=TaskCommentResponse,
+    )
+
+  def list_comments(self) -> NludbResponse[ListTaskCommentResponse]:
+    req = ListTaskCommentRequest(
+      taskId=self.taskId,
+    )
+    return self.nludb.post(
+      'task/comment/list',
+      req,
+      expect=ListTaskCommentResponse,
+    )
+
+  def delete_comment(self, taskCommentId: str = None) -> NludbResponse[TaskCommentResponse]:
+    req = DeleteTaskCommentRequest(
+      taskCommentId=taskCommentId
+    )
+    return self.nludb.post(
+      'task/comment/delete',
+      req,
+      expect=TaskCommentResponse,
+    )
+
+
   def _run_development_mode(self):
     """Forces the task to run remotely (for unit testing; works only in development mode)."""
     return
@@ -132,17 +171,17 @@ class ApiBase:
       self.api_version
     )
   
-  T = TypeVar('T', bound=NludbResponse)
+  T = TypeVar('T', bound=NludbResponseData)
 
   def post(
     self, 
     operation: str, 
     payload: NludbRequest = None,
     file: None = None,
-    expect: T = NludbResponse,
+    expect: T = NludbResponseData,
     asynchronous: bool = False,
     debug: bool = False
-  ) -> T:
+  ) -> NludbResponse[T]:
     """Post to the NLUDB API.
 
     All responses have the format:
@@ -195,24 +234,23 @@ class ApiBase:
     if 'reason' in j:
       import json
       data = asdict(payload) if payload is not None else {}
-      print(data)
-      print(json.dumps(data))
       raise Exception(j['reason'])
 
-    # Non-asynchronous response
-    if not asynchronous:
-      if 'data' not in j:
-        raise Exception('No data property was present on response')
-      return expect.safely_from_dict(j['data'])
+    if 'data' not in j and 'status' not in j:
+      raise Exception('No data or status property in response')
 
-    # Expect an asynchronous response
-    if 'status' not in j:
-      if 'data' not in j:
-        raise Exception('No data property was present on response')
-      return expect.safely_from_dict(j['data'])
+    task = None
+    if 'status' in j:
+      task_resp = TaskStatusResponse.safely_from_dict(j['status'])
+      if task_resp is not None and task_resp.taskId is not None:
+          task = AsyncTask(nludb=self)
+          task.update(task_resp)
 
-    # There is a status present
-    task_resp = TaskStatusResponse.safely_from_dict(j['status'])
-    task = AsyncTask(nludb=self)
-    task.update(task_resp)
-    return task
+    obj = None
+    if 'data' in j:
+      obj = expect.safely_from_dict(j['data'])
+
+    return NludbResponse[T](
+      status=task,
+      data=obj
+    )

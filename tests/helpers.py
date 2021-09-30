@@ -5,7 +5,7 @@ import random
 import string
 import contextlib
 
-from nludb import NLUDB, ParsingModels, EmbeddingModels, EmbeddingIndex, File
+from nludb import NLUDB, ParsingModels, EmbeddingModels, EmbeddingIndex, ClassifierModels, File
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -30,6 +30,9 @@ def sim_model() -> str:
 
 def parsing_model() -> str:
     return _env_or('NLUDB_PARSER_DEFAULT', ParsingModels.EN_DEFAULT)
+
+def zero_shot_model() -> str:
+    return _env_or('NLUDB_CLASSIFIER_DEFAULT', ClassifierModels.HF_ZERO_SHOT_LBART)
 
 
 @contextlib.contextmanager

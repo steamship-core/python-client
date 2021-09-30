@@ -20,10 +20,9 @@ def _insert(index, items):
 
   # Now embed
   task = index.embed()
-  task._run_development_mode()
   task.wait()
   task.check()
-  assert (task.taskStatus == NludbTaskStatus.succeeded)
+  assert (task.status.taskStatus == NludbTaskStatus.succeeded)
 
 def _snapshot(index, windowSize=None):
   if windowSize is None:
@@ -111,7 +110,7 @@ def test_snapshot_window():
   SENT = "Is orange number 13 any good?"  
   _insert(index, sentences)
 
-  search_results = index.search(SENT, includeMetadata=True)
+  search_results = index.search(SENT, includeMetadata=True).data
   assert(len(search_results.hits) == 1)
   assert(search_results.hits[0].indexSource == "index")
   assert(search_results.hits[0].value == "Orange number 13 is as good as the last")
@@ -120,7 +119,7 @@ def test_snapshot_window():
   assert(len(search_results.hits[0].metadata)  == 3)
 
   _snapshot(index, windowSize=2)
-  search_results = index.search(SENT, includeMetadata=True)
+  search_results = index.search(SENT, includeMetadata=True).data
   assert(len(search_results.hits) == 1)
   assert(search_results.hits[0].indexSource == "snapshot")
   assert(search_results.hits[0].value == "Orange number 13 is as good as the last")
