@@ -133,16 +133,16 @@ def test_task_comment_feedback_reporting():
     g2 = nludb.tasks.list_comments(externalGroup=G2)
     assert (len(g2.data.comments) == 1)
 
-    g1 = nludb.tasks.list_comments(taskId=res.status.taskId, externalGroup=G1)
+    g1 = nludb.tasks.list_comments(taskId=res.task.taskId, externalGroup=G1)
     assert (len(g1.data.comments) == 2)
 
-    g2 = nludb.tasks.list_comments(taskId=res.status.taskId, externalGroup=G2)
+    g2 = nludb.tasks.list_comments(taskId=res.task.taskId, externalGroup=G2)
     assert (len(g2.data.comments) == 1)
 
-    g1 = nludb.tasks.list_comments(taskId=res.status.taskId, externalId="Foo1", externalGroup=G1)
+    g1 = nludb.tasks.list_comments(taskId=res.task.taskId, externalId="Foo1", externalGroup=G1)
     assert (len(g1.data.comments) == 1)
 
-    g2 = nludb.tasks.list_comments(taskId=res.status.taskId, externalId="Foo1", externalGroup=G2)
+    g2 = nludb.tasks.list_comments(taskId=res.task.taskId, externalId="Foo1", externalGroup=G2)
     assert (len(g2.data.comments) == 0)
 
     res.delete_comment(comments.data.comments[0].taskCommentId)

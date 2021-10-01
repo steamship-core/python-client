@@ -64,7 +64,7 @@ class AsyncTask(Generic[T]):
       expect=TaskStatusResponse,
       asynchronous=True
     )
-    self.update(resp.status)
+    self.update(resp.task)
 
   def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None, upsert: bool = True) -> NludbResponse[TaskCommentResponse]:
     req = AddTaskCommentRequest(
@@ -100,21 +100,6 @@ class AsyncTask(Generic[T]):
       req,
       expect=TaskCommentResponse,
     )
-
-
-  def _run_development_mode(self):
-    """Forces the task to run remotely (for unit testing; works only in development mode)."""
-    return
-    # req = TaskRunRequest(
-    #   self.taskId
-    # )
-    # resp = self.nludb.post(
-    #   'task/next',
-    #   payload=req,
-    #   expect=TaskStatusResponse,
-    #   asynchronous=True
-    # )
-    # self.update(resp)
 
   def wait(self, max_timeout_s: float=60, retry_delay_s: float=1):
     """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
@@ -251,6 +236,6 @@ class ApiBase:
       obj = expect.safely_from_dict(j['data'])
 
     return NludbResponse[T](
-      status=task,
+      task=task,
       data=obj
     )

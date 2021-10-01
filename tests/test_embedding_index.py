@@ -116,13 +116,13 @@ def test_embed_task():
         insert_results = index.insert("test", reindex=False )
         res = index.embed()
 
-        assert (res.status.taskId is not None)
-        assert (res.status.taskStatus is not None)
-        assert (res.status.taskCreatedOn is not None)
-        assert (res.status.taskLastModifiedOn is not None)
-        assert (res.status.taskStatus == NludbTaskStatus.waiting)
+        assert (res.task.taskId is not None)
+        assert (res.task.taskStatus is not None)
+        assert (res.task.taskCreatedOn is not None)
+        assert (res.task.taskLastModifiedOn is not None)
+        assert (res.task.taskStatus == NludbTaskStatus.waiting)
         res.wait()
-        assert (res.status.taskStatus == NludbTaskStatus.succeeded)
+        assert (res.task.taskStatus == NludbTaskStatus.succeeded)
 
 
 def test_duplicate_inserts():
@@ -152,7 +152,7 @@ def test_index_usage():
         task = index.embed()
         task.wait()
         task.check()
-        assert (task.status.taskStatus == NludbTaskStatus.succeeded)
+        assert (task.task.taskStatus == NludbTaskStatus.succeeded)
 
         search_results = index.search(Q1)
         assert(len(search_results.data.hits) == 1)

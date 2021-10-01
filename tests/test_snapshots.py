@@ -22,7 +22,7 @@ def _insert(index, items):
   task = index.embed()
   task.wait()
   task.check()
-  assert (task.status.taskStatus == NludbTaskStatus.succeeded)
+  assert (task.task.taskStatus == NludbTaskStatus.succeeded)
 
 def _snapshot(index, windowSize=None):
   if windowSize is None:

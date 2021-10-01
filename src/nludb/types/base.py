@@ -35,33 +35,32 @@ T = TypeVar('T')      # Declare type variable
 
 @dataclass
 class NludbResponse(Generic[T]):
-  status: TaskStatusResponse
+  task: TaskStatusResponse
   data: T
 
   def update(self, response: "AsyncTask"):
-    if self.status is not None:
-      return self.status.update(response)
+    if self.task is not None:
+      return self.task.update(response)
 
   def wait(self, max_timeout_s: float=60, retry_delay_s: float=1):
-    if self.status is not None:
-      return self.status.wait(max_timeout_s=max_timeout_s, retry_delay_s=retry_delay_s)
+    if self.task is not None:
+      return self.task.wait(max_timeout_s=max_timeout_s, retry_delay_s=retry_delay_s)
 
   def check(self):
-    if self.status is not None:
-      return self.status.check()
+    if self.task is not None:
+      return self.task.check()
 
   def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None) -> "NludbResponse[TaskCommentResponse]":
-    if self.status is not None:
-      return self.status.add_comment(externalId = externalId, externalType = externalType, externalGroup = externalGroup, metadata = metadata)
+    if self.task is not None:
+      return self.task.add_comment(externalId = externalId, externalType = externalType, externalGroup = externalGroup, metadata = metadata)
 
   def list_comments(self) -> "NludbResponse[ListTaskCommentResponse]":
-    if self.status is not None:
-      return self.status.list_comments()
+    if self.task is not None:
+      return self.task.list_comments()
 
   def delete_comment(self, taskCommentId: str = None) -> "NludbResponse[TaskCommentResponse]":
-    if self.status is not None:
-      return self.status.delete_comment(taskCommentId=taskCommentId)
-
+    if self.task is not None:
+      return self.task.delete_comment(taskCommentId=taskCommentId)
 
 Metadata = Union[int, float, bool, str, List, Dict]
 
