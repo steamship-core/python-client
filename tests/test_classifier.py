@@ -54,15 +54,12 @@ def test_classifier_create():
   assert len(r.data.hits) == 1
   assert len(r.data.hits[0]) == 2
   assert r.data.hits[0][0].value == "Food"
-  assert r.data.hits[0][1].value == "City"
 
   r = classifier.classify(docs=["Banana"], labels=["Movie", "Food", "City"], k=3)
   
   assert len(r.data.hits) == 1
   assert len(r.data.hits[0]) == 3
   assert r.data.hits[0][0].value == "Food"
-  assert r.data.hits[0][1].value == "City"
-  assert r.data.hits[0][2].value == "Movie"
 
   r = classifier.classify(docs=["Banana", "Boston"], labels=["Movie", "Food", "City"], k=3)
   assert len(r.data.hits) == 2
