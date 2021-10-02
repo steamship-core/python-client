@@ -59,16 +59,18 @@ class File:
     return File(
       nludb=nludb,
       name=req.name,
-      id=res.fileId,
-      format=res.fileFormat
+      id=res.data.fileId,
+      format=res.data.fileFormat
     )
 
   @staticmethod
   def scrape(
     nludb: ApiBase,
-    name: str,
     url: str,
+    name: str = None,
     convert: bool = False) -> "File":
+    if name is None:
+      name = url
     req = FileUploadRequest(
       type=FileUploadType.url,
       name=name,
@@ -85,7 +87,7 @@ class File:
     return File(
       nludb=nludb,
       name=req.name,
-      id=res.fileId
+      id=res.data.fileId
     )
 
   def convert(self):

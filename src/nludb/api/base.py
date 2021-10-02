@@ -128,10 +128,8 @@ class ApiBase:
 
     self.api_key = api_key
     if self.api_key is None:
-      print("NONE")
       if 'NLUDB_KEY' in os.environ:
         self.api_key = os.getenv('NLUDB_KEY')
-        print("SET")
 
     self.api_domain = api_domain
     if self.api_domain is None:
@@ -211,6 +209,7 @@ class ApiBase:
       )
     if debug is True:
       print("Response", resp)
+
     j = resp.json()
     if debug is True:
       print("Response JSON", j)

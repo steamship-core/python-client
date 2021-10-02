@@ -72,7 +72,7 @@ class NLUDB(ApiBase):
       labels=labels
     )
 
-  def upload_file(
+  def upload(
     self,
     name: str,
     content: str,
@@ -87,16 +87,18 @@ class NLUDB(ApiBase):
       convert=convert
     )
 
-  def scrape_file(
+  def scrape(
     self,
-    name: str,
     url: str,
+    name: str = None,
     convert: bool = False
   ) -> File:
-    return File.upload(
+    if name is None:
+      name = url
+    return File.scrape(
       self,
-      name,
       url,
+      name,
       convert=convert
     )
 

@@ -10,7 +10,8 @@ class FileUploadType:
 @dataclass
 class FileUploadRequest(NludbRequest):
   type: str
-  name: str
+  name: str = None
+  url: str = None
   fileFormat: str = None
   convert: bool = False
 
