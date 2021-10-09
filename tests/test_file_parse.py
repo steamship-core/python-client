@@ -21,9 +21,11 @@ def test_file_parse():
   P2_1 = "This is the first sentence of paragraph 2."
   P2_2 = "This is the second sentence of paragraph 2."
 
-  a = nludb.upload_file(
+  CONTENT = "# {}\n\n{} {}\n\n{} {}".format(T, P1_1, P1_2, P2_1, P2_2)
+
+  a = nludb.upload(
     name=name_a,
-    content="# {}\n\n{} {}\n\n{} {}".format(T, P1_1, P1_2, P2_1, P2_2),
+    content=CONTENT,
     format=FileFormats.MKD
   )
   assert(a.id is not None)
@@ -31,6 +33,9 @@ def test_file_parse():
   assert(a.format == FileFormats.MKD)
 
   a.convert().wait()
+
+  raw = a.raw().data
+  assert(raw == CONTENT)
 
   q1 = a.query(blockType=BlockTypes.H1).data
   assert(len(q1.blocks) == 1)
@@ -52,6 +57,11 @@ def test_file_parse():
   # Now the sentences should be parsed!
   q2 = a.query(blockType=BlockTypes.Sentence).data
   assert(len(q2.blocks) == 5) # The 5th is inside the header!
+
+  a.clear()
+
+  q2 = a.query(blockType=BlockTypes.Sentence).data
+  assert(len(q2.blocks) == 0) # The 5th is inside the header!
 
   a.delete()
 

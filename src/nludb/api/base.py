@@ -124,7 +124,8 @@ class ApiBase:
     self, 
     api_key: str=None, 
     api_domain: str=None,
-    api_version: int=None):
+    api_version: int=None,
+    d_query: bool=False):
 
     self.api_key = api_key
     if self.api_key is None:
@@ -153,6 +154,8 @@ class ApiBase:
       separator,
       self.api_version
     )
+
+    self.d_query = d_query
   
   T = TypeVar('T', bound=NludbResponseData)
 
@@ -163,7 +166,8 @@ class ApiBase:
     file: None = None,
     expect: T = NludbResponseData,
     asynchronous: bool = False,
-    debug: bool = False
+    debug: bool = False,
+    if_d_query: bool = None
   ) -> NludbResponse[T]:
     """Post to the NLUDB API.
 
@@ -234,7 +238,13 @@ class ApiBase:
     if 'data' in j:
       obj = expect.safely_from_dict(j['data'])
 
-    return NludbResponse[T](
+    ret = NludbResponse[T](
       task=task,
       data=obj
     )
+
+    if self.d_query is True and if_d_query is not None:
+      # This is an experimental UI for jQuery-style chaining.
+      ret.wait()
+      return if_d_query
+    return ret

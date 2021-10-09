@@ -42,8 +42,25 @@ class FileDeleteResponse(NludbResponseData):
     )
 
 @dataclass
+class FileClearRequest(NludbRequest):
+  fileId: str
+
+@dataclass
+class FileClearResponse(NludbResponseData):
+  fileId: str
+
+  @staticmethod
+  def safely_from_dict(d: any) -> "FileDeleteResponse":
+    return FileDeleteResponse(
+      fileId = d.get('fileId', None)
+    )
+
+
+@dataclass
 class FileConvertRequest(NludbRequest):
   fileId: str
+  blockType: str = None
+  ocrModel: str = None
 
 @dataclass
 class FileConvertResponse(NludbResponseData):
@@ -103,3 +120,7 @@ class FileQueryResponse(NludbResponseData):
       fileId = d.get('fileId', None),
       blocks = [Block.safely_from_dict(block) for block in d.get('blocks', None)]
     )
+
+@dataclass
+class FileRawRequest(NludbRequest):
+  fileId: str

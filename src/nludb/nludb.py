@@ -28,10 +28,22 @@ class NLUDB(ApiBase):
     self, 
     api_key: str=None, 
     api_domain: str=None,
-    api_version: int=None,):
-    super().__init__(api_key, api_domain, api_version)
+    api_version: int=None,
+    d_query: bool=False):
+    super().__init__(api_key, api_domain, api_version, d_query)
     """
     The base class will properly detect and set the defaults. They should be None here.
+
+    d_query is a Beta option that will return chainable responses, like:
+      file.upload()
+          .convert()
+          .parse()
+          .embed()
+          .query()
+
+    It offers no new functionality -- in fact at the moment it's slightly less in that you 
+    are given the syntactically convenient response object for chaining rather than the actual
+    response object of the invocation.
     """
     self.models = Models(self)
     self.tasks = Tasks(self)

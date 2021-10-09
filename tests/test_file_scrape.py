@@ -19,7 +19,21 @@ def test_file_scrape():
 
     bio = nludb.scrape(VC_BIOS[0])
 
+    bio.convert().wait()
 
-    for file in files:
-      file.delete()
+    res = bio.query().data
+    assert(res == 0)
+    
+    
+
+    bio.delete()
+    # for file in files:
+    #   file.delete()
+
+    # contract.insert(file)
+    # index = contract.parse().embed()
+
+    # index.query("Who focuses on enterprise investments?")
+
+    
 

@@ -7,6 +7,9 @@ from nludb.api.base import ApiBase
 from nludb.types.base import NludbResponse
 from nludb.types.file import *
 from nludb.types.parsing_models import ParsingModels
+from nludb.types.embedding_models import EmbeddingModels
+from nludb.embedding_index import EmbeddingIndex
+from nludb.types.embedding_index import IndexItem
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -32,6 +35,17 @@ class File:
       'file/delete',
       req,
       expect=FileDeleteResponse
+    )
+
+  def clear(self) -> NludbResponse[FileClearResponse]:
+    req = FileClearRequest(
+      self.id
+    )
+    return self.nludb.post(
+      'file/clear',
+      req,
+      expect=FileClearResponse,
+      if_d_query=self
     )
 
   @staticmethod
@@ -90,16 +104,19 @@ class File:
       id=res.data.fileId
     )
 
-  def convert(self):
+  def convert(self, blockType: str = None, ocrModel: str = None):
     req = FileConvertRequest(
-      fileId=self.id
+      fileId=self.id,
+      blockType = blockType,
+      ocrModel = ocrModel
     )
 
     return self.nludb.post(
       'file/convert',
       payload=req,
       expect=FileConvertResponse,
-      asynchronous=True
+      asynchronous=True,
+      if_d_query=self
     )
 
   def parse(
@@ -121,7 +138,8 @@ class File:
       'file/parse',
       payload=req,
       expect=FileParseResponse,
-      asynchronous=True
+      asynchronous=True,
+      if_d_query=self
     )
 
   def query(self, blockType:str = None):
@@ -134,4 +152,55 @@ class File:
       'file/query',
       payload=req,
       expect=FileQueryResponse
+    )
+
+  def index(self, model:str = EmbeddingModels.QA, indexName: str = None, blockType: str = None, indexId: str = None, index: "EmbeddingIndex" = None, upsert: bool = True, reindex: bool = True) -> "EmbeddingIndex":
+    # TODO: This should really be done all on the server, but for now we'll do it in the client
+    # to facilitate demos.
+
+    if indexId is None and index is not None:
+      indexId = index.id
+    
+    if indexName is None:
+      indexName = "{}-{}".format(self.id, model)
+
+    if indexId is None and index is None:
+      index = self.nludb.create_index(
+        name=indexName,
+        model=model,
+        upsert=True,
+      )
+    elif index is None:
+      index = EmbeddingIndex(
+        nludb=self.nludb, 
+        indexId = indexId
+      )
+    
+    # We have an index available to us now. Perform the query.
+    blocks = self.query(blockType = blockType).data.blocks
+
+    items = []
+    for block in blocks:
+      item = IndexItem(
+        value=block.value,
+        externalId=block.blockId,
+        externalType="block"
+      )
+      items.append(item)
+    
+    insert_task = index.insert_many(items, reindex=reindex)
+
+    if self.nludb.d_query:
+      insert_task.wait()
+      return index
+    return insert_task
+
+  def raw(self):
+    req = FileRawRequest(
+      fileId=self.id,
+    )
+
+    return self.nludb.post(
+      'file/raw',
+      payload=req
     )

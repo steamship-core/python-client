@@ -25,3 +25,4 @@ from .file import File
 from .types.model import ModelType, ModelAdapterType, LimitUnit, Model
 from .types.block_types import BlockTypes
 from .types.file_formats import FileFormats
+from .types.ocr_models import OcrModels
