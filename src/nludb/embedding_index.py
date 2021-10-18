@@ -153,7 +153,8 @@ class EmbeddingIndex:
     self, 
     query: Union[str, List[str]],
     k: int = 1,
-    includeMetadata: bool = False
+    includeMetadata: bool = False,
+    pd = False
   ) -> NludbResponse[IndexSearchResponse]:
     if type(query) == list:
       req = IndexSearchRequest(
@@ -171,11 +172,17 @@ class EmbeddingIndex:
         k=k,
         includeMetadata=includeMetadata,
       )
-    return self.nludb.post(
+    ret = self.nludb.post(
       'embedding-index/search',
       req,
       expect=IndexSearchResponse
     )
+    
+    if pd is False:
+      return ret
+
+    import pandas as pd    
+    return pd.DataFrame([(hit.score, hit.value) for hit in ret.data.hits], columns =['Score', 'Value'])
 
   @staticmethod
   def create(

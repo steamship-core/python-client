@@ -59,7 +59,8 @@ class Classifier:
     docs: List[str],
     model: str = None,
     labels: List[str] = None,
-    k: int = None
+    k: int = None,
+    pd: bool = False
   ) -> NludbResponse[ClassifyResponse]:
     if self.id is None and self.model is None:
       raise Exception("Neither an ID nor a model was found on the classifier object. Please reinitialize with one or the other.")
@@ -77,8 +78,13 @@ class Classifier:
       labels=labels if (labels is not None and len(labels) > 0) else self.labels,
       k=k
     )
-    return self.nludb.post(
+    ret = self.nludb.post(
       'classifier/classify',
       req,
       expect=ClassifyResponse
     )
+    if pd is False:
+      return ret
+    
+    import pandas as pd
+    return pd.DataFrame([(hit.score, hit.value) for hit in ret.data.hits[0]], columns =['Score', 'Value'])

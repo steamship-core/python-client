@@ -1,6 +1,7 @@
 import logging
 import json
-from typing import Union, List, Dict
+import re
+from typing import Union, List, Dict, Tuple
 
 from nludb import __version__
 from nludb.api.base import ApiBase
@@ -16,6 +17,57 @@ __copyright__ = "Edward Benson"
 __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)
+
+
+def parseDquery(query: str) -> List[Tuple[str, str, str]]:
+  query = re.sub(' +', ' ', query.strip())
+  parts = re.split(r'\s*(?=[@#])', query)
+  ret = []
+
+  for s in parts:
+    s = s.strip()
+    if not s:
+      continue
+
+    command = ''
+    if s[0] in ['@', '#']:
+      command = s[0]
+      s = s[1:]
+    
+    if command == '':
+      ret.append((command, None, s))
+      continue
+
+    if '"' not in s and ":" not in s:
+      if command == '#':
+        ret.append((command, 'contains', s))
+      else:
+        ret.append((command, s, None))
+      continue
+
+    modifier = None
+    if ':' in s:
+      ss = s.split(':')
+      modifier = ss[0]
+      s = ss[1]
+    
+    content = s
+    if '"' in s:
+      i = s.index('"')
+      content = s[1+i:-1]
+      if modifier is None:
+        s = s[:i]
+        modifier = s
+        if modifier == '':
+          modifier = None
+    
+    ret.append((command, modifier, content))
+  return ret
+
+  
+
+  
+  
 
 class File:
   """A file.
@@ -104,11 +156,12 @@ class File:
       id=res.data.fileId
     )
 
-  def convert(self, blockType: str = None, ocrModel: str = None):
+  def convert(self, blockType: str = None, ocrModel: str = None, acrModel: str = None):
     req = FileConvertRequest(
       fileId=self.id,
       blockType = blockType,
-      ocrModel = ocrModel
+      ocrModel = ocrModel,
+      acrModel = acrModel
     )
 
     return self.nludb.post(
@@ -142,17 +195,66 @@ class File:
       if_d_query=self
     )
 
-  def query(self, blockType:str = None):
-    req = FileQueryRequest(
-      fileId=self.id,
-      blockType=blockType
+  def dquery(self, dQuery: str):
+    blockType = None
+    hasSpans = []
+    text = None
+    isQuote = None
+    textMode = None
+
+    for tup in parseDquery(dQuery):
+      (cmd, subcmd, content) = tup
+      if cmd == '':
+        blockType = content
+      elif cmd == '#':
+        text = content
+        textMode = subcmd
+      elif cmd == '@':
+        hasSpans.append(SpanQuery(text=content))
+
+    return self.query(
+      blockType=blockType, 
+      hasSpans=hasSpans,
+      text=text,
+      textMode=textMode,
+      isQuote=isQuote,
+      pd=True
     )
 
-    return self.nludb.post(
+  def query(
+    self, 
+    blockType:str = None, 
+    hasSpans: List[SpanQuery] = None,
+    text: str = None,
+    textMode: str = None,
+    isQuote: bool = None,
+    pd: bool = False
+    ):
+
+
+    req = FileQueryRequest(
+      fileId=self.id,
+      blockType=blockType,
+      hasSpans=hasSpans,
+      text=text,
+      textMode=textMode,
+      isQuote=isQuote
+    )
+
+    res = self.nludb.post(
       'file/query',
       payload=req,
       expect=FileQueryResponse
     )
+    if not self.nludb.d_query:
+      return res
+    else:
+      if pd is False:
+        return res.data.blocks
+      else:
+        import pandas as pd    
+        return pd.DataFrame([(block.type, block.value) for block in res.data.blocks], columns =['Type', 'Value'])
+
 
   def index(self, model:str = EmbeddingModels.QA, indexName: str = None, blockType: str = None, indexId: str = None, index: "EmbeddingIndex" = None, upsert: bool = True, reindex: bool = True) -> "EmbeddingIndex":
     # TODO: This should really be done all on the server, but for now we'll do it in the client
@@ -177,7 +279,9 @@ class File:
       )
     
     # We have an index available to us now. Perform the query.
-    blocks = self.query(blockType = blockType).data.blocks
+    blocks = self.query(blockType = blockType)
+    if not self.nludb.d_query:
+      blocks = blocks.data.blocks
 
     items = []
     for block in blocks:

@@ -61,6 +61,7 @@ class FileConvertRequest(NludbRequest):
   fileId: str
   blockType: str = None
   ocrModel: str = None
+  acrModel: str = None
 
 @dataclass
 class FileConvertResponse(NludbResponseData):
@@ -105,9 +106,19 @@ class Block(NludbRequest):
     )
 
 @dataclass
+class SpanQuery:
+  text: str = None
+  label: str = None
+  spanType: str = None
+
+@dataclass
 class FileQueryRequest(NludbRequest):
   fileId: str
   blockType: str = None
+  hasSpans: List[SpanQuery] = None
+  text: str = None
+  textMode: str = None
+  isQuote: bool = None
 
 @dataclass
 class FileQueryResponse(NludbResponseData):
