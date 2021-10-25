@@ -86,15 +86,17 @@ class NLUDB(ApiBase):
 
   def upload(
     self,
-    name: str,
-    content: str,
+    filename: str = None,
+    name: str = None,
+    content: str = None,
     format: str = None,
     convert: bool = False
   ) -> File:
     return File.upload(
       self,
-      name,
-      content,
+      filename=filename,
+      name=name,
+      content=content,
       format=format,
       convert=convert
     )

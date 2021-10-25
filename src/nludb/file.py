@@ -103,11 +103,21 @@ class File:
   @staticmethod
   def upload(
     nludb: ApiBase,
-    name: str,
-    content: str,
+    filename: str = None,
+    name: str = None,
+    content: str = None,
     format: str = None,
     convert: bool = False
     ) -> "File":
+
+    if filename is None and name is None and content is None:
+      raise Exception("Either filename or name + content must be provided.")
+    
+    if filename is not None:
+      with open(filename, 'rb') as f:
+        content = f.read()
+        name = filename
+
     req = FileUploadRequest(
       type=FileUploadType.file,
       name=name,
