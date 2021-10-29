@@ -12,6 +12,7 @@ from nludb.file import File
 from nludb.types.embedding_models import EmbeddingModels
 from nludb.types.parsing import ParseRequest, ParseResponse, TokenMatcher, PhraseMatcher, DependencyMatcher
 from nludb.types.parsing_models import ParsingModels
+from nludb.types.corpus import Corpus
 from nludb.models import Models
 from nludb.tasks import Tasks
 
@@ -47,7 +48,28 @@ class NLUDB(ApiBase):
     """
     self.models = Models(self)
     self.tasks = Tasks(self)
- 
+
+  def create_corpus(
+    self, 
+    name: str,
+    handle: str = None,
+    description: str = None,
+    externalId: str = None,
+    externalType: str = None,
+    metadata: any = None,
+    isPublic: bool = False,
+    upsert: bool = True,
+  ) -> Corpus:
+    return EmbeddingIndex.create(
+      nludb=self,
+      name=name,
+      model=model,
+      upsert=upsert,
+      externalId=externalId,
+      externalType=externalType,
+      metadata=metadata
+    )
+
   def create_index(
     self, 
     name: str,

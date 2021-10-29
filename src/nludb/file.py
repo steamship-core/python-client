@@ -73,11 +73,12 @@ class File:
   """A file.
   """
 
-  def __init__(self, nludb: ApiBase, id: str, name: str, format: str = None):
+  def __init__(self, nludb: ApiBase, id: str, name: str, format: str = None, corpusId: str = None):
     self.nludb = nludb
     self.name = name
     self.id = id
     self.format = format
+    self.corpusId = corpusId
 
   def delete(self) -> NludbResponse[FileDeleteResponse]:
     req = FileDeleteRequest(
@@ -107,6 +108,7 @@ class File:
     name: str = None,
     content: str = None,
     format: str = None,
+    corpusId: str = None,
     convert: bool = False
     ) -> "File":
 
@@ -120,6 +122,7 @@ class File:
 
     req = FileUploadRequest(
       type=FileUploadType.file,
+      corpusId=corpusId,
       name=name,
       fileFormat=format,
       convert=convert
@@ -136,7 +139,8 @@ class File:
       nludb=nludb,
       name=req.name,
       id=res.data.fileId,
-      format=res.data.fileFormat
+      format=res.data.fileFormat,
+      corpusId=res.data.corpusId
     )
 
   @staticmethod
@@ -144,6 +148,7 @@ class File:
     nludb: ApiBase,
     url: str,
     name: str = None,
+    corpusId: str = None,
     convert: bool = False) -> "File":
     if name is None:
       name = url
@@ -151,6 +156,7 @@ class File:
       type=FileUploadType.url,
       name=name,
       url=url,
+      corpusId=corpusId,
       convert=convert
     )
 
@@ -163,6 +169,7 @@ class File:
     return File(
       nludb=nludb,
       name=req.name,
+      corpusId=res.data.corpusId,
       id=res.data.fileId
     )
 

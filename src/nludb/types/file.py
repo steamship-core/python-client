@@ -10,6 +10,7 @@ class FileUploadType:
 @dataclass
 class FileUploadRequest(NludbRequest):
   type: str
+  corpusId: str = None
   name: str = None
   url: str = None
   fileFormat: str = None
@@ -19,12 +20,14 @@ class FileUploadRequest(NludbRequest):
 class FileUploadResponse(NludbResponseData):
   fileId: str
   fileFormat: str
+  corpusId: str = None
 
   @staticmethod
   def safely_from_dict(d: any) -> "FileUploadResponse":
     return FileUploadResponse(
       fileId = d.get('fileId', None),
-      fileFormat = d.get('fileFormat', None)
+      fileFormat = d.get('fileFormat', None),
+      corpusId = d.get('corpusId', None)
     )
 
 @dataclass
