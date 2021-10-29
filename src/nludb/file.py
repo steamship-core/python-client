@@ -66,9 +66,6 @@ def parseDquery(query: str) -> List[Tuple[str, str, str]]:
 
   
 
-  
-  
-
 class File:
   """A file.
   """
@@ -134,7 +131,6 @@ class File:
       file=(name, content, "multipart/form-data"),
       expect=FileUploadResponse
     )
-
     return File(
       nludb=nludb,
       name=req.name,
@@ -170,6 +166,7 @@ class File:
       nludb=nludb,
       name=req.name,
       corpusId=res.data.corpusId,
+      format=res.data.fileFormat,
       id=res.data.fileId
     )
 

@@ -12,7 +12,7 @@ __license__ = "MIT"
 def test_file_upload():
     nludb = _nludb()
     name_a = "{}.mkd".format(_random_name())
-    a = nludb.upload_file(
+    a = nludb.upload(
       name=name_a,
       content="A",
       format=FileFormats.MKD
@@ -22,7 +22,7 @@ def test_file_upload():
     assert(a.format == FileFormats.MKD)
 
     name_b = "{}.txt".format(_random_name())
-    b = nludb.upload_file(
+    b = nludb.upload(
         name=name_b,
         content="B",
         format=FileFormats.TXT
@@ -33,14 +33,14 @@ def test_file_upload():
     assert(a.id != b.id)
 
     name_c = "{}.txt".format(_random_name())
-    c = nludb.upload_file(
+    c = nludb.upload(
         name=name_c,
         content="B",
         format=FileFormats.MKD
     )
     assert(c.format == FileFormats.MKD) # The specified format gets precedence over filename
 
-    d = nludb.upload_file(
+    d = nludb.upload(
         name=name_c,
         content="B",
     )
@@ -56,7 +56,7 @@ def test_file_scrape():
     nludb = _nludb()
 
     name_a = "{}.html".format(_random_name())
-    a = nludb.scrape_file(
+    a = nludb.scrape(
         name=name_a,
         url="https://edwardbenson.com/2020/10/gpt3-travel-agent"
     )
@@ -65,7 +65,7 @@ def test_file_scrape():
     assert(a.format == FileFormats.HTML)
 
     name_b = "{}.html".format(_random_name())
-    b = nludb.scrape_file(
+    b = nludb.scrape(
         name=name_b,
         url="https://edwardbenson.com/2018/09/case-of-the-murderous-ai"
     )
@@ -81,7 +81,7 @@ def test_file_scrape():
 #     nludb = _nludb()
 
 #     name_a = "{}.txt".format(_random_name())
-#     a = nludb.upload_file(
+#     a = nludb.upload(
 #         name=name_a,
 #         content="This is a test."
 #     )
@@ -99,7 +99,7 @@ def test_file_upload_then_parse():
     nludb = _nludb()
 
     name_a = "{}.txt".format(_random_name())
-    a = nludb.upload_file(
+    a = nludb.upload(
         name=name_a,
         content="This is a test."
     )
@@ -118,7 +118,7 @@ def test_file_upload_then_parse():
     assert(q1.blocks[1].value == 'This is a test.')
 
     name_b = "{}.mkd".format(_random_name())
-    b = nludb.upload_file(
+    b = nludb.upload(
         name=name_b,
         content="""# Header
 
