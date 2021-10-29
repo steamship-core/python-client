@@ -20,6 +20,7 @@ Set the following environment variables for testing:
 
 ```
 export NLUDB_DOMAIN=http://api.nludb.yourcompany.com/
+export NLUDB_DOMAIN=http://localhost:8080
 ```
 
 2. **Your NLUDB API key**.
