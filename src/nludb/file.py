@@ -9,8 +9,10 @@ from nludb.types.base import NludbResponse
 from nludb.types.file import *
 from nludb.types.parsing_models import ParsingModels
 from nludb.types.embedding_models import EmbeddingModels
+from nludb.types.tag import *
 from nludb.embedding_index import EmbeddingIndex
 from nludb.types.embedding_index import IndexItem
+from nludb.types.tag import TagObjectRequest
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -321,4 +323,60 @@ class File:
     return self.nludb.post(
       'file/raw',
       payload=req
+    )
+
+  def add_tags(self, tags = List[Union[str, CreateTagRequest]]):
+    tagsNew = []
+    for tag in tags:
+      if type(tag) == str:
+        tagsNew.append(CreateTagRequest(name=tag, upsert=True))
+      elif type(tag) == CreateTagRequest:
+        tagsNew.append(tag)
+      else:
+        raise(Exception("Unable to add tag of type: {}".format(type(tag))))
+
+    req = TagObjectRequest(
+      tags = tagsNew,
+      objectType='File',
+      objectId = self.id
+    )
+
+    return self.nludb.post(
+      'tag/create',
+      payload=req,
+      expect=TagObjectRequest
+    )
+
+  def remove_tags(self, tags = List[Union[str, DeleteTagRequest]]):
+    tagsNew = []
+    for tag in tags:
+      if type(tag) == str:
+        tagsNew.append(DeleteTagRequest(name=tag))
+      elif type(tag) == DeleteTagRequest:
+        tagsNew.append(tag)
+      else:
+        raise(Exception("Unable to remove tag of type: {}".format(type(tag))))
+
+    req = TagObjectRequest(
+      tags = tagsNew,
+      objectType='File',
+      objectId = self.id
+    )
+
+    return self.nludb.post(
+      'tag/delete',
+      payload=req,
+      expect=TagObjectRequest
+    )
+
+  def list_tags(self):
+    req = ListTagsRequest(
+      objectType='File',
+      objectId = self.id
+    )
+
+    return self.nludb.post(
+      'tag/list',
+      payload=req,
+      expect=TagObjectRequest
     )
