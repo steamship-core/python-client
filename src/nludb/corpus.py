@@ -6,7 +6,7 @@ from typing import Union, List, Dict, Tuple
 from nludb import __version__
 from nludb.api.base import ApiBase
 from nludb.types.base import NludbResponse
-from nludb.types.file import File
+from nludb.file import File
 from nludb.types.corpus import *
 from nludb.types.parsing_models import ParsingModels
 from nludb.types.embedding_models import EmbeddingModels
@@ -27,12 +27,43 @@ class Corpus:
   def __init__(self, nludb: ApiBase, createCorpusResponse: CreateCorpusResponse):
     self.nludb = nludb
     self._createCorpusResponse = createCorpusResponse
-    self.id = createCorpusResponse.id
+    self.id = createCorpusResponse.corpusId
     self.name = createCorpusResponse.name
     self.handle = createCorpusResponse.handle
     self.isPublic = createCorpusResponse.isPublic
 
-  def delete(self) -> NludbResponse[FileDeleteResponse]:
+  @staticmethod
+  def create(
+    nludb: ApiBase,
+    name: str,
+    handle: str = None,
+    description: str = None,
+    externalId: str = None,
+    externalType: str = None,
+    metadata: any = None,
+    isPublic: bool = False,
+    upsert: bool = True
+  ) -> "Corpus":
+    if isinstance(metadata, dict) or isinstance(metadata, list):
+      metadata = json.dumps(metadata)
+
+    req = CreateCorpusRequest(
+      name=name,
+      handle=handle,
+      description=description,
+      isPublic=isPublic,
+      upsert=upsert,
+      externalId=externalId,
+      externalType=externalType,
+      metadata=metadata
+    )
+    res = nludb.post('corpus/create', req, expect=CreateCorpusResponse)
+    return Corpus(
+      nludb=nludb,
+      createCorpusResponse=res.data
+    )
+    
+  def delete(self) -> NludbResponse[CreateCorpusResponse]:
     req = DeleteCorpusRequest(
       corpusId=self.id
     )
@@ -44,7 +75,6 @@ class Corpus:
 
   def upload(
     self,
-    nludb: ApiBase,
     filename: str = None,
     name: str = None,
     content: str = None,
@@ -54,7 +84,7 @@ class Corpus:
 
     return File.upload(
       nludb=self.nludb,
-      corpus=self,
+      corpusId=self.id,
       filename=filename,
       name=name,
       content=content,
@@ -64,14 +94,13 @@ class Corpus:
 
   def scrape(
     self,
-    nludb: ApiBase,
     url: str,
     name: str = None,
     convert: bool = False) -> File:
 
     return File.scrape(
       nludb=self.nludb,
-      corpus=self,
+      corpusId=self.id,
       url=url,
       name=name,
       convert=convert

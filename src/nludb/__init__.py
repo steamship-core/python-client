@@ -18,6 +18,7 @@ finally:
 from .nludb import NLUDB
 from .embedding_index import EmbeddingIndex
 from .classifier import Classifier
+from .corpus import Corpus
 from .types.embedding_models import EmbeddingModels
 from .types.classifier_models import ClassifierModels
 from .types.parsing_models import ParsingModels

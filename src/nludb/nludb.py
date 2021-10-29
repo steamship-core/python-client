@@ -12,9 +12,9 @@ from nludb.file import File
 from nludb.types.embedding_models import EmbeddingModels
 from nludb.types.parsing import ParseRequest, ParseResponse, TokenMatcher, PhraseMatcher, DependencyMatcher
 from nludb.types.parsing_models import ParsingModels
-from nludb.types.corpus import Corpus
 from nludb.models import Models
 from nludb.tasks import Tasks
+from nludb.corpus import Corpus
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -58,12 +58,14 @@ class NLUDB(ApiBase):
     externalType: str = None,
     metadata: any = None,
     isPublic: bool = False,
-    upsert: bool = True,
+    upsert: bool = False,
   ) -> Corpus:
-    return EmbeddingIndex.create(
+    return Corpus.create(
       nludb=self,
       name=name,
-      model=model,
+      handle=handle,
+      description=description,
+      isPublic=isPublic,
       upsert=upsert,
       externalId=externalId,
       externalType=externalType,

@@ -12,10 +12,14 @@ __license__ = "MIT"
 def test_corpus_create():
     nludb = _nludb()
 
-    nludb.create_corpus()
+    # Should require name
+    with pytest.raises(Exception):
+      corpus = nludb.create_corpus()
+
+    corpus = nludb.create_corpus(name=_random_name())
 
     name_a = "{}.mkd".format(_random_name())
-    a = nludb.upload_file(
+    a = corpus.upload(
       name=name_a,
       content="A",
       format=FileFormats.MKD
@@ -23,130 +27,62 @@ def test_corpus_create():
     assert(a.id is not None)
     assert(a.name == name_a)
     assert(a.format == FileFormats.MKD)
-
-    name_b = "{}.txt".format(_random_name())
-    b = nludb.upload_file(
-        name=name_b,
-        content="B",
-        format=FileFormats.TXT
-    )
-    assert(b.id is not None)
-    assert(b.name == name_b)
-    assert(b.format == FileFormats.TXT)
-    assert(a.id != b.id)
-
-    name_c = "{}.txt".format(_random_name())
-    c = nludb.upload_file(
-        name=name_c,
-        content="B",
-        format=FileFormats.MKD
-    )
-    assert(c.format == FileFormats.MKD) # The specified format gets precedence over filename
-
-    d = nludb.upload_file(
-        name=name_c,
-        content="B",
-    )
-    assert(d.format == FileFormats.TXT) # The filename is used in a pinch.
-
-    a.delete()
-    b.delete()
-    c.delete()
-    d.delete()
-
-
-def test_file_scrape():
-    nludb = _nludb()
+    assert(a.corpusId == corpus.id)
 
     name_a = "{}.html".format(_random_name())
-    a = nludb.scrape_file(
+    a = corpus.scrape(
         name=name_a,
         url="https://edwardbenson.com/2020/10/gpt3-travel-agent"
     )
     assert(a.id is not None)
     assert(a.name == name_a)
-    assert(a.format == FileFormats.HTML)
+    assert(a.corpusId == corpus.id)
 
-    name_b = "{}.html".format(_random_name())
-    b = nludb.scrape_file(
-        name=name_b,
-        url="https://edwardbenson.com/2018/09/case-of-the-murderous-ai"
-    )
-    assert(b.id is not None)    
-    assert(a.id != b.id)
-    assert(b.name == name_b)
-    assert(b.format == FileFormats.HTML)
 
-    a.delete()
-    b.delete()
-
-# def test_file_add_bloc():
-#     nludb = _nludb()
-
-#     name_a = "{}.txt".format(_random_name())
-#     a = nludb.upload_file(
-#         name=name_a,
-#         content="This is a test."
-#     )
-#     assert(a.id is not None)
-#     task  = a.convert()
-#     task._run_development_mode()
-#     task.wait()
-#     q1 = a.query()
-#     assert(len(q1.blocks) == 2)
-
-#     # TODO: Append Content
-#     # TODO: Append Blocks
-
-def test_file_upload_then_parse():
+def test_corpus_upsert():
     nludb = _nludb()
+    name = _random_name()
+    corpus1 = nludb.create_corpus(name=name)
 
-    name_a = "{}.txt".format(_random_name())
-    a = nludb.upload_file(
+    with pytest.raises(Exception):
+      corpus2 = nludb.create_corpus(name=name)
+
+    corpus2 = nludb.create_corpus(name=name, handle=_random_name())
+    print(corpus1._createCorpusResponse)
+    assert(corpus1.id != corpus2.id)
+
+    corpus3 = nludb.create_corpus(name=name, upsert=True)
+    assert(corpus1.id == corpus3.id)
+
+def test_corpus_delete():
+    nludb = _nludb()
+    name = _random_name()
+    corpus1 = nludb.create_corpus(name=name)
+    corpus1.delete()
+
+    name_a = "{}.mkd".format(_random_name())
+    with pytest.raises(Exception):
+      a = corpus1.upload(
         name=name_a,
-        content="This is a test."
+        content="A",
+        format=FileFormats.MKD
+      )
+
+def test_corpus_delete_cascade():
+    nludb = _nludb()
+    name = _random_name()
+    corpus1 = nludb.create_corpus(name=name)
+
+    name_a = "{}.mkd".format(_random_name())
+    a = corpus1.upload(
+      name=name_a,
+      content="A",
+      format=FileFormats.MKD
     )
-    assert(a.id is not None)
 
-    q1 = a.query().data
-    assert(len(q1.blocks) == 0)
+    res = a.query()
 
-    task  = a.convert()
-    task.wait()
+    corpus1.delete()
+    with pytest.raises(Exception):
+      res = a.query()
 
-    q1 = a.query().data
-    assert(len(q1.blocks) == 2)
-    assert(q1.blocks[0].type == BlockTypes.Document)    
-    assert(q1.blocks[1].type == BlockTypes.Paragraph)    
-    assert(q1.blocks[1].value == 'This is a test.')
-
-    name_b = "{}.mkd".format(_random_name())
-    b = nludb.upload_file(
-        name=name_b,
-        content="""# Header
-
-This is a test."""
-    )
-    assert(b.id is not None)
-
-    q1 = b.query().data
-    assert(len(q1.blocks) == 0)
-
-    task  = b.convert()
-    task.wait()
-
-    q1 = b.query().data
-    assert(len(q1.blocks) == 3)
-    assert(q1.blocks[0].type == BlockTypes.Document)    
-    assert(q1.blocks[2].type == BlockTypes.Paragraph)
-    assert(q1.blocks[2].value == 'This is a test.')
-    assert(q1.blocks[1].type == BlockTypes.H1)    
-    assert(q1.blocks[1].value == 'Header')
-
-    q2 = b.query(blockType=BlockTypes.H1).data
-    assert(len(q2.blocks) == 1)
-    assert(q2.blocks[0].type == BlockTypes.H1)
-    assert(q2.blocks[0].value == 'Header')
-
-    a.delete()
-    b.delete()

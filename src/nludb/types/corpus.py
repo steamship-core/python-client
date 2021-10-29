@@ -4,8 +4,9 @@ from nludb.types.base import NludbRequest, NludbResponseData, str_to_metadata
 
 @dataclass
 class CreateCorpusResponse(NludbResponseData):
-  id: str = None
+  corpusId: str = None
   name: str = None
+  handle: str = None
   description: str = None
   externalId: str = None
   externalType: str = None
@@ -13,10 +14,11 @@ class CreateCorpusResponse(NludbResponseData):
   metadata: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "Corpus":
-    return Corpus(
-      corpusId = d.get('id', None),
+  def safely_from_dict(d: any) -> "CreateCorpusResponse":
+    return CreateCorpusResponse(
+      corpusId = d.get('corpusId', None),
       name = d.get('name', None),
+      handle = d.get('handle', None),
       description = d.get('description', None),
       externalId = d.get('externalId', None),
       externalType = d.get('externalType', None),
@@ -27,6 +29,7 @@ class CreateCorpusResponse(NludbResponseData):
 class CreateCorpusRequest(NludbRequest):
   corpusId: str = None
   name: str = None
+  handle: str = None
   description: str = None
   externalId: str = None
   externalType: str = None
@@ -48,10 +51,10 @@ class ListPrivateCorporaRequest(NludbRequest):
 
 @dataclass
 class ListCorporaResponse(NludbRequest):
-  corpora: List[Corpus]
+  corpora: List[CreateCorpusResponse]
 
   @staticmethod
   def safely_from_dict(d: any) -> "ListCorporaResponse":
     return ListCorporaResponse(
-      models = [Corpus.safely_from_dict(x) for x in (d.get("corpus", []) or [])]
+      models = [CreateCorpusResponse.safely_from_dict(x) for x in (d.get("corpus", []) or [])]
     )
