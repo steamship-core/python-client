@@ -17,7 +17,9 @@ class TagResponse(NludbResponseData):
 
 @dataclass
 class TagRequest(NludbRequest):
-  docs: List[Doc] = None
+  docs: List[str] = None
+  fileId: str = None
+  parsedDocs: List[Doc] = None
   model: str = None
   metadata: any = None
 
@@ -30,8 +32,12 @@ class TagRequest(NludbRequest):
       except:
         pass
 
+    parsedDocs = [Doc.safely_from_dict(dd) for dd in (d.get("parsedDocs", []) or [])]
+      
     return TagRequest(
       docs=(d.get("docs", []) or []),
+      fileId=d.get('fileId', None),
+      parsedDocs=parsedDocs,
       model=d.get("model", None),
       metadata=metadata
     )
