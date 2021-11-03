@@ -12,9 +12,12 @@ from nludb.file import File
 from nludb.types.embedding_models import EmbeddingModels
 from nludb.types.parsing import ParseRequest, ParseResponse, TokenMatcher, PhraseMatcher, DependencyMatcher
 from nludb.types.parsing_models import ParsingModels
+from nludb.types.tagging import TagRequest, TagResponse
+from nludb.types.tagging_models import TaggingModels
 from nludb.models import Models
 from nludb.tasks import Tasks
 from nludb.corpus import Corpus
+from nludb.types.parsing import Doc
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -203,3 +206,19 @@ class NLUDB(ApiBase):
       expect=ParseResponse
     )
 
+  def tag(
+    self,
+    docs: List[Doc],
+    model: str = ParsingModels.EN_DEFAULT,
+    metadata: any = None
+  ) -> NludbResponse[ParseResponse]:
+    req = TagRequest(
+      docs = docs,
+      model = model,
+      metadata = metadata
+    )
+    return self.post(
+      'tagger/tag',
+      req,
+      expect=TagResponse
+    )

@@ -1,5 +1,5 @@
-from typing import List, Dict, Callable
 from dataclasses import dataclass
+from typing import List, Dict, Callable
 from nludb.types.base import NludbRequest, NludbResponseData
 
 @dataclass
@@ -41,6 +41,7 @@ class Token:
   prob: float = None
   charIndex: int = None
   tokenIndex: int = None
+  blockId: bool = None
 
   @staticmethod
   def safely_from_dict(d: any) -> "Token":
@@ -81,8 +82,15 @@ class Token:
       lang = d.get("lang", None),
       prob = d.get("prob", None),
       charIndex = d.get("charIndex", None),
-      tokenIndex = d.get("tokenIndex", None)
+      tokenIndex = d.get("tokenIndex", None),
+      blockId = d.get("blockId", None)
     )
+
+  def __len__(self):
+    if self.text is None:
+      return None
+    return self.text.__len__
+
 
   @staticmethod
   def from_spacy(t: any, includeParseData: bool=True) -> "Token":
@@ -188,6 +196,7 @@ class Span:
   label: str
   lemma: str
   sentiment: float
+  score: float
 
   @staticmethod
   def safely_from_dict(d: any) -> "Span":
@@ -200,7 +209,8 @@ class Span:
       endToken = d.get("endToken", None),
       label = d.get("label", None),
       lemma = d.get("lemma", None),
-      sentiment = d.get("sentiment", None)
+      sentiment = d.get("sentiment", None),
+      score = d.get("score", None),
     )
 
   @staticmethod
@@ -223,7 +233,17 @@ class Sentence:
   tokens: List[Token]
   entities: List[Entity]
   spans: List[Span]
-  sentiment: float
+  sentiment: float = None
+  blockId: str = None
+
+  def tokens_for_char_span(self, startCharIndex: int, endCharIndex: int) -> List[Token]:
+    ret = []
+    if self.tokens:
+      for token in sorted(self.tokens, key=lambda t: t.charIndex):
+        endIndex = token.charIndex + len(token.text)
+        if token.charIndex >= startCharIndex and endIndex <= endCharIndex:
+          ret.append(token)
+    return ret
 
   @staticmethod
   def safely_from_dict(d: any) -> "Sentence":
@@ -236,7 +256,8 @@ class Sentence:
       tokens=tokens,
       entities=entities,
       spans=spans,
-      sentiment = d.get("sentiment", None)
+      sentiment = d.get("sentiment", None),
+      blockId=d.get('blockId', None)
     )
 
   @staticmethod
@@ -252,6 +273,21 @@ class Sentence:
       sentiment=d.sentiment
     )
 
+  def __iter__(self):
+    if self.tokens is None:
+      return None
+    return self.tokens.__iter__
+  
+  def __getitem__(self, index):
+    if self.tokens is None:
+      return None
+    return self.tokens.__getitem__(index)
+
+  def __next__(self):
+    if self.tokens is None:
+      return None
+    return self.tokens.__next__()
+
 @dataclass
 class Doc:
   text: str
@@ -261,6 +297,7 @@ class Doc:
   lang: str
   sentiment: float
   entities: List[Entity]
+  blockId: str = None
 
   @staticmethod
   def safely_from_dict(d: any) -> "Doc":
@@ -275,7 +312,8 @@ class Doc:
       model=d.get("model", None),
       lang=d.get("lang", None),
       sentiment = d.get("sentiment", None),
-      entities = entities
+      entities = entities,
+      blockId=d.get('blockId', None)
     )
 
   @staticmethod
@@ -316,6 +354,7 @@ class Doc:
       entities=entities
     )
     return ret
+
   
 @dataclass
 class ParseResponse(NludbResponseData):
@@ -372,7 +411,7 @@ class DependencyMatcher():
     )
 
 @dataclass
-class ParseRequest(NludbResponseData):
+class ParseRequest(NludbRequest):
   docs: List[str] = None
   model: str = None
   tokenMatchers: List[TokenMatcher] = None
