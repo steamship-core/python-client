@@ -211,6 +211,22 @@ class File:
       if_d_query=self
     )
 
+  def tag(
+    self,
+    model: str = ParsingModels.EN_DEFAULT
+  ):
+    req = FileTagRequest(
+      fileId=self.id,
+      model = model
+    )
+
+    return self.nludb.post(
+      'file/tag',
+      payload=req,
+      expect=FileTagResponse,
+      asynchronous=True
+    )
+
   def dquery(self, dQuery: str):
     blockType = None
     hasSpans = []
@@ -226,7 +242,7 @@ class File:
         text = content
         textMode = subcmd
       elif cmd == '@':
-        hasSpans.append(SpanQuery(text=content))
+        hasSpans.append(SpanQuery(label=subcmd, text=content))
 
     return self.query(
       blockType=blockType, 

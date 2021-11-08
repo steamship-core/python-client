@@ -1,7 +1,7 @@
 from typing import List
 from dataclasses import dataclass
 from nludb.types.base import NludbRequest, NludbResponseData
-from nludb.types.parsing import DependencyMatcher, PhraseMatcher, TokenMatcher
+from nludb.types.parsing import DependencyMatcher, PhraseMatcher, TokenMatcher, ParseResponse
 
 class FileUploadType:
   file = "file"
@@ -92,6 +92,23 @@ class FileParseResponse(NludbResponseData):
   def safely_from_dict(d: any) -> "FileParseResponse":
     return FileParseResponse(
       fileId = d.get('fileId', None)
+    )
+
+@dataclass
+class FileTagRequest(NludbRequest):
+  fileId: str
+  model: str = None
+
+@dataclass
+class FileTagResponse(NludbResponseData):
+  fileId: str
+  tagResult: ParseResponse
+
+  @staticmethod
+  def safely_from_dict(d: any) -> "FileTagResponse":
+    return FileTagResponse(
+      fileId = d.get('fileId', None),
+      tagResult = ParseResponse.safely_from_dict(d.get('tagResult', {}))
     )
 
 @dataclass
