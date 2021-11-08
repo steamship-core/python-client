@@ -9,6 +9,7 @@ from nludb.types.base import NludbResponse
 from nludb.file import File
 from nludb.types.corpus import *
 from nludb.types.parsing_models import ParsingModels
+from nludb.types.file import ListFilesResponse
 from nludb.types.embedding_models import EmbeddingModels
 from nludb.embedding_index import EmbeddingIndex
 from nludb.types.embedding_index import IndexItem
@@ -104,4 +105,10 @@ class Corpus:
       url=url,
       name=name,
       convert=convert
+    )
+
+  def list_files(self) -> ListFilesResponse:
+    return File.list(
+      nludb=self.nludb,
+      corpusId=self.id
     )

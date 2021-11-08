@@ -92,7 +92,11 @@ def test_insert_many():
 
         index.insert_many([item1, item2])
         index.embed().wait()
-        index.embed().wait()
+
+        indexItems = index.list_items().data
+        assert(len(indexItems.items) == 2)
+        assert(len(indexItems.items[0].embedding) == 768)
+        assert(len(indexItems.items[1].embedding) == 768)
 
         res = index.search(item1.value, includeMetadata=True, k=100)
         assert (res.data.hits is not None)

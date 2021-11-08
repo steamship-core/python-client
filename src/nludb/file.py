@@ -142,6 +142,21 @@ class File:
     )
 
   @staticmethod
+  def list(
+    nludb: ApiBase,
+    corpusId: str = None
+  ):
+    req = ListFilesRequest(
+      corpusId=corpusId
+    )
+    res = nludb.post(
+      'file/list',
+      payload=req,
+      expect=ListFilesResponse
+    ) 
+    return res
+
+  @staticmethod
   def scrape(
     nludb: ApiBase,
     url: str,

@@ -129,6 +129,19 @@ class EmbeddingIndex:
       expect=ListSnapshotsResponse
     )
 
+  def list_items(self, fileId: str = None, blockId: str = None, spanId: str = None) -> NludbResponse[ListItemsResponse]:
+    req = ListItemsRequest(
+      indexId = self.id,
+      fileId = fileId,
+      blockId = blockId,
+      spanId = spanId
+    )
+    return self.nludb.post(
+      'embedding-index/listItems',
+      req,
+      expect=ListItemsResponse
+    )
+
   def delete_snapshot(self, snapshot_id: str) -> NludbResponse[DeleteSnapshotsResponse]:
     req = DeleteSnapshotsRequest(
       snapshotId = snapshot_id

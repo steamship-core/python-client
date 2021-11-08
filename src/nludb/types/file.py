@@ -58,7 +58,6 @@ class FileClearResponse(NludbResponseData):
       fileId = d.get('fileId', None)
     )
 
-
 @dataclass
 class FileConvertRequest(NludbRequest):
   fileId: str
@@ -155,3 +154,17 @@ class FileQueryResponse(NludbResponseData):
 @dataclass
 class FileRawRequest(NludbRequest):
   fileId: str
+
+@dataclass
+class ListFilesRequest(NludbRequest):
+  corpusId: str = None
+
+@dataclass
+class ListFilesResponse(NludbResponseData):
+  files: List[FileUploadResponse]
+
+  @staticmethod
+  def safely_from_dict(d: any) -> "ListFilesResponse":
+    return ListFilesResponse(
+      files = [FileUploadResponse.safely_from_dict(f) for f in d.get('files', [])]
+    )

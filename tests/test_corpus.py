@@ -38,6 +38,9 @@ def test_corpus_create():
     assert(a.name == name_a)
     assert(a.corpusId == corpus.id)
 
+    resp = corpus.list_files()
+    assert(len(resp.data.files) == 2)
+
 
 def test_corpus_upsert():
     nludb = _nludb()

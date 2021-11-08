@@ -45,6 +45,7 @@ def test_file_parse():
   # Now we parse
   a.parse(model=ParsingModels.EN_DEFAULT).wait()
 
+
   # Now the sentences should be parsed!
   q2 = a.query(blockType=BlockTypes.Sentence).data
   assert(len(q2.blocks) == 10) # The 5th is inside the header!
@@ -60,4 +61,55 @@ def test_file_parse():
 
   a.delete()
 
+def test_file_embed_lookup():
+  nludb = _nludb()
+  name_a = "{}.mkd".format(_random_name())
+  name_b = "{}.mkd".format(_random_name())
+
+  content_a = "Ted likes to run."
+  content_b = "Grace likes to bike."
+
+  a = nludb.upload(
+    name=name_a,
+    content=content_a,
+    format=FileFormats.MKD
+  )
+  a.convert().wait()
+  a.parse(model=ParsingModels.EN_DEFAULT).wait()
+
+  b = nludb.upload(
+    name=name_b,
+    content=content_b,
+    format=FileFormats.MKD
+  )
+  b.convert().wait()
+  b.parse(model=ParsingModels.EN_DEFAULT).wait()
+
+  # Now we add the file to the index
+  with _random_index(nludb) as index:
+    index.insert_file(a.id, blockType='sentence', reindex=True)
+    index.insert_file(b.id, blockType='sentence', reindex=True)
+
+    res = index.search("What does Ted like to do?").data
+    assert(len(res.hits) == 1)
+    assert(res.hits[0].value == content_a)
+
+    res = index.search("What does Grace like to do?").data
+    assert(len(res.hits) == 1)
+    assert(res.hits[0].value == content_b)
+
+    # Now we list the items
+    items = index.list_items(fileId = a.id).data
+    for item in items.items:
+      print("File {} - Value {}".format(item.fileId, item.value))
+    assert(len(items.items) == 1)
+    assert(len(items.items[0].embedding) == 768)
+    assert(items.items[0].value == content_a)
+
+    items = index.list_items(fileId = b.id).data
+    assert(len(items.items) == 1)
+    assert(len(items.items[0].embedding) == 768)
+    assert(items.items[0].value == content_b)
+  
+  
   

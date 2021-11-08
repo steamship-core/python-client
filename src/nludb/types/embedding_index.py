@@ -18,22 +18,50 @@ class IndexCreateResponse(NludbResponseData):
 
 @dataclass
 class IndexItem:
+  itemId: str = None
+  indexId: str = None
+  fileId: str = None
+  blockId: str = None
+  spanId: str = None
   value: str = None
   externalId: str = None
   externalType: str = None
   metadata: any = None
+  embedding: List[float] = None
 
   def clone_for_insert(self) -> "IndexItem":
     """Produces a clone with a string representation of the metadata"""
     ret = IndexItem(
+      itemId=self.itemId,
+      indexId=self.indexId,
+      fileId=self.fileId,
+      blockId=self.blockId,
+      spanId=self.spanId,
       value=self.value,
       externalId=self.externalId,
       externalType=self.externalType,
-      metadata=self.metadata
+      metadata=self.metadata,
+      embedding=self.embedding
     )
     if isinstance(ret.metadata, dict) or isinstance(ret.metadata, list):
       ret.metadata = json.dumps(ret.metadata)
     return ret
+
+  @staticmethod
+  def safely_from_dict(d: any) -> "IndexItem":
+    return IndexItem(
+      itemId=d.get('itemId', None),
+      indexId=d.get('indexId', None),
+      fileId=d.get('fileId', None),
+      blockId=d.get('blockId', None),
+      spanId=d.get('spanId', None),
+      value=d.get('value', None),
+      externalId=d.get('externalId', None),
+      externalType=d.get('externalType', None),
+      metadata=d.get('metadata', None),
+      embedding=d.get('embedding', None),
+    )
+
 
 @dataclass
 class IndexInsertRequest(NludbRequest):
@@ -147,6 +175,23 @@ class ListSnapshotsResponse(NludbResponseData):
   def safely_from_dict(d: any) -> "IndexSnapshotResponse":
     return IndexSnapshotResponse(
       snapshots = [IndexSnapshotResponse.safely_from_dict(dd) for dd in (d.get('snapshots', []) or [])]
+    )
+
+@dataclass
+class ListItemsRequest(NludbRequest):
+  indexId: str = None
+  fileId: str = None
+  blockId: str = None
+  spanId: str = None
+
+@dataclass
+class ListItemsResponse(NludbResponseData):
+  items: List[IndexItem]
+  
+  @staticmethod
+  def safely_from_dict(d: any) -> "ListItemsResponse":
+    return ListItemsResponse(
+      items = [IndexItem.safely_from_dict(dd) for dd in (d.get('items', []) or [])]
     )
 
 @dataclass
