@@ -2,7 +2,6 @@
 
 The instructions below are only necessary for maintainers of this libary. 
 For information about *using* this library, please see README.md
-
 ## Basic Information
 
 * The project targets Python3
