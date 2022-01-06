@@ -18,13 +18,13 @@ finally:
 from .nludb import NLUDB
 from .embedding_index import EmbeddingIndex
 from .classifier import Classifier
-from .corpus import Corpus
+from .types.corpus import Corpus
 from .types.embedding_models import EmbeddingModels
 from .types.classifier_models import ClassifierModels
 from .types.parsing_models import ParsingModels
-from .file import File
+from .types.file import File
 from .types.model import ModelType, ModelAdapterType, LimitUnit, Model
-from .types.block_types import BlockTypes
+from .types.block import BlockTypes, Block
 from .types.file_formats import FileFormats
 from .types.ocr_models import OcrModels
 from .types.acr_models import AcrModels

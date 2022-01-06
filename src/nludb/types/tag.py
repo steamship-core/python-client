@@ -1,9 +1,9 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponseData
+from nludb.types.base import Request, Response
 
 @dataclass
-class Tag(NludbResponseData):
+class Tag(Response):
   tagId: str = None
   kind: str = None
   subKind: str = None
@@ -11,7 +11,7 @@ class Tag(NludbResponseData):
   handle: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "Model":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "Model":
     return Tag(
       tagId = d.get('tagId', None),
       kind = d.get('kind', None),
@@ -21,7 +21,7 @@ class Tag(NludbResponseData):
     )
 
 @dataclass
-class CreateTagRequest(NludbRequest):
+class CreateTagRequest(Request):
   tagId: str = None
   kind: str = None
   subKind: str = None
@@ -30,7 +30,7 @@ class CreateTagRequest(NludbRequest):
   upsert: bool = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "CreateTagRequest":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "CreateTagRequest":
     return CreateTagRequest(
       tagId = d.get('tagId', None),
       kind = d.get('kind', None),
@@ -41,12 +41,12 @@ class CreateTagRequest(NludbRequest):
     )
 
 @dataclass
-class ListTagsRequest(NludbRequest):
+class ListTagsRequest(Request):
   objectType: str = None
   objectId: str = None
 
 @dataclass
-class DeleteTagRequest(NludbRequest):
+class DeleteTagRequest(Request):
   tagId: str = None
   kind: str = None
   subKind: str = None
@@ -55,13 +55,13 @@ class DeleteTagRequest(NludbRequest):
   upsert: bool = None
 
 @dataclass
-class TagObjectRequest(NludbRequest):
+class TagObjectRequest(Request):
   tags: List[CreateTagRequest] = None
   objectType: str = None
   objectId: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "TagObjectRequest":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "TagObjectRequest":
     tags = [CreateTagRequest.safely_from_dict(dd) for dd in d.get('tags', [])]
     return TagObjectRequest(
       tags = tags,
@@ -70,7 +70,7 @@ class TagObjectRequest(NludbRequest):
     )
 
 @dataclass
-class UntagObjectRequest(NludbRequest):
+class UntagObjectRequest(Request):
   tags: List[CreateTagRequest] = None
   objectType: str = None
   objectId: str = None

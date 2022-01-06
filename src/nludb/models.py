@@ -16,8 +16,8 @@ class Models:
   """A persistent, read-optimized index over embeddings.
   """
 
-  def __init__(self, nludb: ApiBase):
-    self.nludb = nludb
+  def __init__(self, client: ApiBase):
+    self.client = client
   
   def create(
     self, 
@@ -56,7 +56,7 @@ class Models:
       metadata=metadata,
       upsert=upsert
     )
-    return self.nludb.post(
+    return self.client.post(
       'model/create',
       req,
       expect=Model,
@@ -70,7 +70,7 @@ class Models:
     spaceId: str = None,
     spaceHandle: str = None
   ) -> NludbResponse[ListModelsResponse]:
-    return self.nludb.post(
+    return self.client.post(
       'model/public',
       ListPublicModelsRequest(modelType=modelType),
       expect=ListModelsResponse,
@@ -84,7 +84,7 @@ class Models:
     spaceId: str = None,
     spaceHandle: str = None
   ) -> NludbResponse[ListModelsResponse]:
-    return self.nludb.post(
+    return self.client.post(
       'model/private',
       ListPrivateModelsRequest(modelType=modelType),
       expect=ListModelsResponse,
@@ -98,7 +98,7 @@ class Models:
     spaceId: str = None,
     spaceHandle: str = None
   ) -> NludbResponse[Model]:
-    return self.nludb.post(
+    return self.client.post(
       'model/delete',
       DeleteModelRequest(modelId=id),
       expect=Model,

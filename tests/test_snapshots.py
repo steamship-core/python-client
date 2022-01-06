@@ -36,7 +36,7 @@ def _snapshot(index, windowSize=None):
       index.id,
       windowSize=windowSize
     )
-    task = index.nludb.post(
+    task = index.client.post(
       'embedding-index/snapshot/create',
       req,
       expect=IndexSnapshotRequest,

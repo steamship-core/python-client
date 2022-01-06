@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from nludb.types.base import NludbResponse, NludbResponseData, NludbRequest, TaskStatusResponse, str_to_metadata
+from nludb.types.base import NludbResponse, Response, Request, TaskStatusResponse, str_to_metadata
 import json
 from typing import List
 
@@ -10,15 +10,15 @@ class NludbTaskStatus:
   failed = "failed"
 
 @dataclass
-class TaskRunRequest(NludbRequest):
+class TaskRunRequest(Request):
   taskId: str
 
 @dataclass
-class TaskStatusRequest(NludbRequest):
+class TaskStatusRequest(Request):
   taskId: str
 
 @dataclass
-class AddTaskCommentRequest(NludbRequest):
+class AddTaskCommentRequest(Request):
   taskId: str
   externalId: str = None
   externalType: str = None
@@ -27,11 +27,11 @@ class AddTaskCommentRequest(NludbRequest):
   upsert: bool = None
 
 @dataclass
-class DeleteTaskCommentRequest(NludbRequest):
+class DeleteTaskCommentRequest(Request):
   taskCommentId: str
 
 @dataclass
-class TaskCommentResponse(NludbRequest):
+class TaskCommentResponse(Request):
   userId: str = None
   taskId: str = None
   taskCommentId: str = None
@@ -42,7 +42,7 @@ class TaskCommentResponse(NludbRequest):
   createdAt: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "TaskCommentResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "TaskCommentResponse":
     return TaskCommentResponse(
       userId = d.get('userId', None),
       taskId = d.get('taskId', None),
@@ -55,18 +55,18 @@ class TaskCommentResponse(NludbRequest):
     )
 
 @dataclass
-class ListTaskCommentRequest(NludbRequest):
+class ListTaskCommentRequest(Request):
   taskId: str = None
   externalId: str = None
   externalType: str = None
   externalGroup: str = None
 
 @dataclass
-class ListTaskCommentResponse(NludbRequest):
+class ListTaskCommentResponse(Request):
   comments: List[TaskCommentResponse]
 
   @staticmethod
-  def safely_from_dict(d: any) -> "ListTaskCommentResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "ListTaskCommentResponse":
     return ListTaskCommentResponse(
       comments = [TaskCommentResponse.safely_from_dict(dd) for dd in d.get('comments', [])]
     )

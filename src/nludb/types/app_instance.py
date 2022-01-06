@@ -1,32 +1,35 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponseData
+from nludb.types.base import Request, Response
+from nludb.api.base import ApiBase
 
 @dataclass
-class AppInstance(NludbResponseData):
+class AppInstance(Response):
+  client: ApiBase = None
   id: str = None
   name: str = None
   handle: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "AppInstance":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "AppInstance":
     return AppInstance(
+      client = client,
       id = d.get('id', None),
       name = d.get('name', None),
       handle = d.get('handle', None)
     )
 
 @dataclass
-class CreateAppInstanceRequest(NludbRequest):
+class CreateAppInstanceRequest(Request):
   id: str = None
   name: str = None
   handle: str = None
   upsert: bool = None
 
 @dataclass
-class DeletAppInstanceRequest(NludbRequest):
+class DeletAppInstanceRequest(Request):
   appInstanceId: str
 
 @dataclass
-class ListPrivateAppInstancesRequest(NludbRequest):
+class ListPrivateAppInstancesRequest(Request):
   pass

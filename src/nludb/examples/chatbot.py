@@ -17,7 +17,7 @@ class NludbChatbotBase:
     api_key: str, 
     index_name: str, 
     min_confidence: float = 0.4):
-    self.nludb = NLUDB(api_key)
+    self.client = client(api_key)
     self.index_name = index_name
     self.min_confidence = min_confidence
     self.index = self.nludb.create_index(

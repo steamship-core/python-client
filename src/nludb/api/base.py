@@ -4,7 +4,7 @@ import time
 import os
 
 from nludb import __version__
-from nludb.types.base import NludbRequest, NludbResponseData, TaskStatusResponse, metadata_to_str
+from nludb.types.base import Request, Response, TaskStatusResponse, metadata_to_str
 from dataclasses import asdict
 from typing import Type, TypeVar, Generic
 from nludb.types.async_task import *
@@ -17,7 +17,7 @@ _logger = logging.getLogger(__name__)
 
 import typing
 
-T = typing.TypeVar('T', bound=NludbResponseData)
+T = typing.TypeVar('T', bound=Response)
 
 class AsyncTask(Generic[T]):
   """Encapsulates a unit of asynchronously performed work."""
@@ -34,7 +34,7 @@ class AsyncTask(Generic[T]):
     taskStatus: str = None, 
     taskCreatedOn: str = None, 
     taskLastModifiedOn: str = None,
-    eventualResultType: Type[NludbResponseData] = None
+    eventualResultType: Type[Response] = None
     ):
     self.nludb =  nludb
     self.taskId = taskId
@@ -58,7 +58,7 @@ class AsyncTask(Generic[T]):
     req = TaskStatusRequest(
       self.taskId
     )
-    resp = self.nludb.post(
+    resp = self.client.post(
       'task/status',
       payload=req,
       expect=TaskStatusResponse,
@@ -75,7 +75,7 @@ class AsyncTask(Generic[T]):
       metadata=metadata_to_str(metadata),
       upsert=upsert
     )
-    return self.nludb.post(
+    return self.client.post(
       'task/comment/create',
       req,
       expect=TaskCommentResponse,
@@ -85,7 +85,7 @@ class AsyncTask(Generic[T]):
     req = ListTaskCommentRequest(
       taskId=self.taskId,
     )
-    return self.nludb.post(
+    return self.client.post(
       'task/comment/list',
       req,
       expect=ListTaskCommentResponse,
@@ -95,7 +95,7 @@ class AsyncTask(Generic[T]):
     req = DeleteTaskCommentRequest(
       taskCommentId=taskCommentId
     )
-    return self.nludb.post(
+    return self.client.post(
       'task/comment/delete',
       req,
       expect=TaskCommentResponse,
@@ -182,21 +182,21 @@ class ApiBase:
 
     self.d_query = d_query
   
-  T = TypeVar('T', bound=NludbResponseData)
+  T = TypeVar('T', bound=Response)
 
   def _headers(
     self, 
-    space_id: str = None, 
-    space_handle: str = None
+    spaceId: str = None, 
+    spaceHandle: str = None
     ):
     ret = {
       "Authorization": "Bearer {}".format(self.api_key)
     }
 
-    if space_id is not None:
-      ret["X-Space-Id"] = space_id
-    elif space_handle is not None:
-      ret["X-Space-Handle"] = space_handle
+    if spaceId is not None:
+      ret["X-Space-Id"] = spaceId
+    elif spaceHandle is not None:
+      ret["X-Space-Handle"] = spaceHandle
     elif self.space_id is not None:
       ret["X-Space-Id"] = self.space_id
     elif self.space_handle is not None:
@@ -207,13 +207,13 @@ class ApiBase:
   def post(
     self, 
     operation: str, 
-    payload: NludbRequest = None,
+    payload: Request = None,
     file: None = None,
-    expect: T = NludbResponseData,
+    expect: T = Response,
     asynchronous: bool = False,
     debug: bool = False,
-    space_id: str = None,
-    space_handle: str = None,
+    spaceId: str = None,
+    spaceHandle: str = None,
     if_d_query: bool = None
   ) -> NludbResponse[T]:
     """Post to the NLUDB API.
@@ -251,8 +251,8 @@ class ApiBase:
         files={"file": file},
         data=data,
         headers=self._headers(
-          space_id=space_id, 
-          space_handle=space_handle
+          spaceId=spaceId, 
+          spaceHandle=spaceHandle
         )
       )
     else:
@@ -260,8 +260,8 @@ class ApiBase:
         url,
         json=asdict(payload) if payload is not None else None,
         headers=self._headers(
-          space_id=space_id, 
-          space_handle=space_handle
+          spaceId=spaceId, 
+          spaceHandle=spaceHandle
         )
       )
     if debug is True:
@@ -282,14 +282,14 @@ class ApiBase:
 
     task = None
     if 'status' in j:
-      task_resp = TaskStatusResponse.safely_from_dict(j['status'])
+      task_resp = TaskStatusResponse.safely_from_dict(j['status'], client=self)
       if task_resp is not None and task_resp.taskId is not None:
           task = AsyncTask(nludb=self)
           task.update(task_resp)
 
     obj = None
     if 'data' in j:
-      obj = expect.safely_from_dict(j['data'])
+      obj = expect.safely_from_dict(j['data'], client=self)
 
     ret = NludbResponse[T](
       task=task,

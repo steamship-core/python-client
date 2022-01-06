@@ -8,7 +8,7 @@ from nludb.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchReq
 from nludb.types.embedding_index import IndexCreateRequest
 from nludb.embedding_index import EmbeddingIndex
 from nludb.classifier import Classifier
-from nludb.file import File
+from nludb.types.file import File
 from nludb.types.embedding_models import EmbeddingModels
 from nludb.types.parsing import ParseRequest, ParseResponse, TokenMatcher, PhraseMatcher, DependencyMatcher
 from nludb.types.parsing_models import ParsingModels
@@ -16,7 +16,7 @@ from nludb.types.tagging import TagRequest, TagResponse
 from nludb.types.tagging_models import TaggingModels
 from nludb.models import Models
 from nludb.tasks import Tasks
-from nludb.corpus import Corpus
+from nludb.types.corpus import Corpus
 from nludb.types.parsing import Doc
 
 __author__ = "Edward Benson"

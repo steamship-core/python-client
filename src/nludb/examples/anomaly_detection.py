@@ -10,7 +10,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 class NludbAnomalyDetector:
   def __init__(self, api_key: str, model: str):
-    self.nludb = NLUDB(api_key)
+    self.client = client(api_key)
     self.model = model
     self.datapoints = []
     self.embeddings = []

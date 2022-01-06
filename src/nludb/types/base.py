@@ -1,16 +1,16 @@
 from dataclasses import dataclass
 from typing import Type, Dict, List, Union, TypeVar, Generic
+from nludb.api.base import ApiBase, AsyncTask
 import json
 
-
 @dataclass
-class NludbRequest():
+class Request():
   pass
 
 @dataclass
-class NludbResponseData():
+class Response():
   @staticmethod
-  def safely_from_dict(d: any) -> Dict:
+  def safely_from_dict(d: any, client: "ApiBase" = None) -> Dict:
     """Last resort if subclass doesn't override: pass through."""
     return d
 
@@ -22,7 +22,7 @@ class TaskStatusResponse:
   taskLastModifiedOn: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "TaskStatusResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "TaskStatusResponse":
     return TaskStatusResponse(
       taskId = d.get('taskId', None),
       taskStatus = d.get('taskStatus', None),

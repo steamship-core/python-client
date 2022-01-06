@@ -1,6 +1,7 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponseData
+from nludb.types.base import Request, Response
+from nludb.api.base import ApiBase
 
 class ModelType:
   embedder = "embedder"
@@ -13,13 +14,18 @@ class ModelAdapterType:
   huggingface = "huggingface"
   openai = "openai"
 
+class ModelTargetType:
+  file = "file"
+  corpus = "corpus"
+  space = "space"
+
 class LimitUnit:
   words = "words"
   characters = "characters"
   bytes = "bytes"
 
 @dataclass
-class Model(NludbResponseData):
+class Model(Response):
   id: str = None
   name: str = None
   modelType: str = None
@@ -35,7 +41,7 @@ class Model(NludbResponseData):
   metadata: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "Model":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "Model":
     return Model(
       id = d.get('id', None),
       name = d.get('name', None),
@@ -53,7 +59,7 @@ class Model(NludbResponseData):
     )
 
 @dataclass
-class CreateModelRequest(NludbRequest):
+class CreateModelRequest(Request):
   id: str = None
   name: str = None
   modelType: str = None
@@ -70,23 +76,23 @@ class CreateModelRequest(NludbRequest):
   upsert: bool = None
 
 @dataclass
-class DeleteModelRequest(NludbRequest):
+class DeleteModelRequest(Request):
   modelId: str
 
 @dataclass
-class ListPublicModelsRequest(NludbRequest):
+class ListPublicModelsRequest(Request):
   modelType: str
 
 @dataclass
-class ListPrivateModelsRequest(NludbRequest):
+class ListPrivateModelsRequest(Request):
   modelType: str
 
 @dataclass
-class ListModelsResponse(NludbRequest):
+class ListModelsResponse(Request):
   models: List[Model]
 
   @staticmethod
-  def safely_from_dict(d: any) -> "ListModelsResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "ListModelsResponse":
     return ListModelsResponse(
       models = [Model.safely_from_dict(x) for x in (d.get("models", []) or [])]
     )

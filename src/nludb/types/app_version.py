@@ -1,15 +1,15 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponseData
+from nludb.types.base import Request, Response
 
 @dataclass
-class AppVersion(NludbResponseData):
+class AppVersion(Response):
   id: str = None
   name: str = None
   handle: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "AppVersion":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "AppVersion":
     return AppVersion(
       id = d.get('id', None),
       name = d.get('name', None),
@@ -17,16 +17,16 @@ class AppVersion(NludbResponseData):
     )
 
 @dataclass
-class CreateAppVersionRequest(NludbRequest):
+class CreateAppVersionRequest(Request):
   id: str = None
   name: str = None
   handle: str = None
   upsert: bool = None
 
 @dataclass
-class DeleteAppVersionRequest(NludbRequest):
+class DeleteAppVersionRequest(Request):
   appVersionVersionId: str
 
 @dataclass
-class ListPrivateAppVersionsRequest(NludbRequest):
+class ListPrivateAppVersionsRequest(Request):
   pass

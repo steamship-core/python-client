@@ -17,8 +17,8 @@ class Tasks:
   """Asynchronous background task (and task feedback) management.
   """
 
-  def __init__(self, nludb: ApiBase):
-    self.nludb = nludb
+  def __init__(self, client: ApiBase):
+    self.client = client
 
   def list_comments(
     self,
@@ -27,7 +27,7 @@ class Tasks:
     externalType: str = None,
     externalGroup: str = None
   ) -> NludbResponse[ListTaskCommentResponse]:
-    return self.nludb.post(
+    return self.client.post(
       'task/comment/list',
       ListTaskCommentRequest(
         taskId=taskId,

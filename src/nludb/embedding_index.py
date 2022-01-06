@@ -17,8 +17,8 @@ class EmbeddingIndex:
   """A persistent, read-optimized index over embeddings.
   """
 
-  def __init__(self, nludb: ApiBase, id: str, name: str):
-    self.nludb = nludb
+  def __init__(self, client: ApiBase, id: str, name: str):
+    self.client = client
     self.name = name
     self.id = id
 
@@ -45,7 +45,7 @@ class EmbeddingIndex:
       metadata=metadata,
       reindex=reindex,
     )
-    return self.nludb.post(
+    return self.client.post(
       'embedding-index/insert',
       req,
       expect=IndexInsertResponse,
@@ -73,7 +73,7 @@ class EmbeddingIndex:
       items=[item.clone_for_insert() for item in newItems],
       reindex=reindex,
     )
-    return self.nludb.post(
+    return self.client.post(
       'embedding-index/insert',
       req,
       expect=IndexInsertResponse,
@@ -101,7 +101,7 @@ class EmbeddingIndex:
       metadata=metadata_to_str(metadata),
       reindex=reindex,
     )
-    return self.nludb.post(
+    return self.client.post(
       'embedding-index/insert',
       req,
       expect=IndexInsertResponse,
@@ -116,7 +116,7 @@ class EmbeddingIndex:
     req = IndexEmbedRequest(
       self.id
     )
-    return self.nludb.post(
+    return self.client.post(
       'embedding-index/embed',
       req,
       expect=IndexEmbedRequest,
@@ -132,7 +132,7 @@ class EmbeddingIndex:
     req = IndexSnapshotRequest(
       self.id
     )
-    return self.nludb.post(
+    return self.client.post(
       'embedding-index/snapshot/create',
       req,
       expect=IndexSnapshotRequest,
@@ -148,7 +148,7 @@ class EmbeddingIndex:
     req = ListSnapshotsRequest(
       indexId = self.id
     )
-    return self.nludb.post(
+    return self.client.post(
       'embedding-index/snapshot/list',
       req,
       expect=ListSnapshotsResponse,
@@ -169,7 +169,7 @@ class EmbeddingIndex:
       blockId = blockId,
       spanId = spanId
     )
-    return self.nludb.post(
+    return self.client.post(
       'embedding-index/listItems',
       req,
       expect=ListItemsResponse,
@@ -185,7 +185,7 @@ class EmbeddingIndex:
     req = DeleteSnapshotsRequest(
       snapshotId = snapshot_id
     )
-    return self.nludb.post(
+    return self.client.post(
       'embedding-index/snapshot/delete',
       req,
       expect=DeleteSnapshotsResponse,
@@ -200,7 +200,7 @@ class EmbeddingIndex:
     req = IndexDeleteRequest(
       self.id
     )
-    return self.nludb.post(
+    return self.client.post(
       'embedding-index/delete',
       req,
       expect=IndexDeleteResponse,
@@ -233,7 +233,7 @@ class EmbeddingIndex:
         k=k,
         includeMetadata=includeMetadata,
       )
-    ret = self.nludb.post(
+    ret = self.client.post(
       'embedding-index/search',
       req,
       expect=IndexSearchResponse,
@@ -249,7 +249,7 @@ class EmbeddingIndex:
 
   @staticmethod
   def create(
-    nludb: ApiBase,
+    client: ApiBase,
     name: str,
     model: str,
     upsert: bool = True,
@@ -267,14 +267,14 @@ class EmbeddingIndex:
       externalType=externalType,
       metadata=metadata,
     )
-    res = nludb.post(
+    res = client.post(
       'embedding-index/create', 
       req,
       spaceId=spaceId,
       spaceHandle=spaceHandle
     )
     return EmbeddingIndex(
-      nludb=nludb,
+      client=client,
       name=req.name,
       id=res.data.get("id", None)
     )

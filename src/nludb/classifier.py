@@ -17,11 +17,11 @@ class Classifier:
   """A persistent, read-optimized index over embeddings.
   """
 
-  def __init__(self, nludb: ApiBase, id: str = None, name: str = None, model: str = None, labels: List[str] = None):
+  def __init__(self, client: ApiBase, id: str = None, name: str = None, model: str = None, labels: List[str] = None):
     if id is None and model is None:
       raise Exception("Either an ID or a model must be provided")
 
-    self.nludb = nludb
+    self.client = client
     self.name = name
     self.id = id
     self.model = model
@@ -29,7 +29,7 @@ class Classifier:
 
   @staticmethod
   def create(
-    nludb: ApiBase,
+    client: ApiBase,
     model: str,
     name: str = None,
     upsert: bool = True,
@@ -39,7 +39,7 @@ class Classifier:
     spaceHandle: str = None
   ) -> "Classifier":
     if save == False:
-      return Classifier(nludb, id=None, model=model, name=name, labels=labels)
+      return Classifier(client, id=None, model=model, name=name, labels=labels)
     else:
       raise Exception("Persistent classifiers not yet supported.")
       req = ClassifierCreateRequest(
@@ -49,14 +49,14 @@ class Classifier:
         save=save,
         labels=labels
       )
-      res = nludb.post(
+      res = client.post(
         'classifier/create', 
         req,
         spaceId=spaceId,
         spaceHandle=spaceHandle
       )
       return ClassifierCreateResponse(
-        nludb=nludb,
+        client=client,
         name=req.name,
         id=res.data.get("classifierId", None)
       )
@@ -87,7 +87,7 @@ class Classifier:
       labels=labels if (labels is not None and len(labels) > 0) else self.labels,
       k=k
     )
-    ret = self.nludb.post(
+    ret = self.client.post(
       'classifier/classify',
       req,
       expect=ClassifyResponse,

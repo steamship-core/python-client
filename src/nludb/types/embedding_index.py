@@ -1,10 +1,10 @@
 from typing import List
 import json
 from dataclasses import dataclass
-from nludb.types.base import NludbRequest, NludbResponseData, metadata_to_str
+from nludb.types.base import Request, Response, metadata_to_str
 from nludb.types.search import Hit
 @dataclass
-class IndexCreateRequest(NludbRequest):
+class IndexCreateRequest(Request):
   name: str
   model: str
   upsert: bool = True
@@ -13,7 +13,7 @@ class IndexCreateRequest(NludbRequest):
   metadata: any = None
 
 @dataclass
-class IndexCreateResponse(NludbResponseData):
+class IndexCreateResponse(Response):
   id: str
 
 @dataclass
@@ -48,7 +48,7 @@ class IndexItem:
     return ret
 
   @staticmethod
-  def safely_from_dict(d: any) -> "IndexItem":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexItem":
     return IndexItem(
       itemId=d.get('itemId', None),
       indexId=d.get('indexId', None),
@@ -64,7 +64,7 @@ class IndexItem:
 
 
 @dataclass
-class IndexInsertRequest(NludbRequest):
+class IndexInsertRequest(Request):
   indexId: str
   items: List[IndexItem] = None
   value: str = None
@@ -76,57 +76,57 @@ class IndexInsertRequest(NludbRequest):
   reindex: bool = True
 
 @dataclass
-class IndexItemId(NludbResponseData):
+class IndexItemId(Response):
   indexId: str = None
   id: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "IndexItemId":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexItemId":
     return IndexItemId(
       indexId = d.get('indexId', None),
       id = d.get('id', None)
     )
 
 @dataclass
-class IndexInsertResponse(NludbResponseData):
+class IndexInsertResponse(Response):
   itemIds: List[IndexItemId] = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "IndexInsertResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexInsertResponse":
     return IndexInsertResponse(
       itemIds = [IndexItemId.safely_from_dict(x) for x in (d.get('itemIds', []) or [])]
     )
 
 @dataclass
-class IndexEmbedRequest(NludbRequest):
+class IndexEmbedRequest(Request):
   indexId: str
 
 @dataclass
-class IndexEmbedResponse(NludbResponseData):
+class IndexEmbedResponse(Response):
   indexId: str
 
   @staticmethod
-  def safely_from_dict(d: any) -> "IndexEmbedResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexEmbedResponse":
     return IndexEmbedResponse(
       indexId = d.get('indexId', None)
     )
 
 @dataclass
-class IndexDeleteRequest(NludbRequest):
+class IndexDeleteRequest(Request):
   indexId: str
 
 @dataclass
-class IndexDeleteResponse(NludbResponseData):
+class IndexDeleteResponse(Response):
   indexId: str
 
   @staticmethod
-  def safely_from_dict(d: any) -> "IndexDeleteResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexDeleteResponse":
     return IndexDeleteResponse(
       indexId = d.get('indexId', None)
     )
 
 @dataclass
-class IndexSearchRequest(NludbRequest):
+class IndexSearchRequest(Request):
   indexId: str
   query: str = None
   queries: List[str] = None
@@ -134,70 +134,70 @@ class IndexSearchRequest(NludbRequest):
   includeMetadata: bool = False
 
 @dataclass
-class IndexSearchResponse(NludbResponseData):
+class IndexSearchResponse(Response):
   hits: List[Hit] = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "IndexSearchResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexSearchResponse":
     hits = [Hit.safely_from_dict(h) for h in (d.get("hits", []) or [])]
     return IndexSearchResponse(
       hits=hits
     )
 
 @dataclass
-class IndexSnapshotRequest(NludbRequest):
+class IndexSnapshotRequest(Request):
   indexId: str
   # This variable is intended only to support
   # unit testing.
   windowSize: int = None
 
 @dataclass
-class IndexSnapshotResponse(NludbResponseData):
+class IndexSnapshotResponse(Response):
   indexId: str
   snapshotId: str
 
   @staticmethod
-  def safely_from_dict(d: any) -> "IndexSnapshotResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexSnapshotResponse":
     return IndexSnapshotResponse(
       indexId = d.get('indexId', None),
       snapshotId = d.get('snapshotId', None)
     )
 
 @dataclass
-class ListSnapshotsRequest(NludbRequest):
+class ListSnapshotsRequest(Request):
   indexId: str = None
 
 @dataclass
-class ListSnapshotsResponse(NludbResponseData):
+class ListSnapshotsResponse(Response):
   snapshots: List[IndexSnapshotResponse]
   
   @staticmethod
-  def safely_from_dict(d: any) -> "IndexSnapshotResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexSnapshotResponse":
     return IndexSnapshotResponse(
       snapshots = [IndexSnapshotResponse.safely_from_dict(dd) for dd in (d.get('snapshots', []) or [])]
     )
 
 @dataclass
-class ListItemsRequest(NludbRequest):
+class ListItemsRequest(Request):
   indexId: str = None
   fileId: str = None
   blockId: str = None
   spanId: str = None
 
 @dataclass
-class ListItemsResponse(NludbResponseData):
+class ListItemsResponse(Response):
   items: List[IndexItem]
   
   @staticmethod
-  def safely_from_dict(d: any) -> "ListItemsResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "ListItemsResponse":
     return ListItemsResponse(
       items = [IndexItem.safely_from_dict(dd) for dd in (d.get('items', []) or [])]
     )
 
 @dataclass
-class DeleteSnapshotsRequest(NludbRequest):
+class DeleteSnapshotsRequest(Request):
   snapshotId: str = None
 
 @dataclass
-class DeleteSnapshotsResponse(NludbRequest):
+class DeleteSnapshotsResponse(Request):
   snapshotId: str = None

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List, Dict, Callable
-from nludb.types.base import NludbRequest, NludbResponseData
+from nludb.types.base import Request, Response
+from nludb.api.base import ApiBase
+import json
 
 @dataclass
 class Token:
@@ -44,7 +46,7 @@ class Token:
   blockId: bool = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "Token":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "Token":
     return Token(
       text = d.get("text", None),
       textWithWs = d.get("textWithWs", None),
@@ -160,7 +162,7 @@ class Entity:
   lemma: str
 
   @staticmethod
-  def safely_from_dict(d: any) -> "Entity":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "Entity":
     return Entity(
       text = d.get("text", None),
       textWithWs = d.get("textWithWs", None),
@@ -199,7 +201,7 @@ class Span:
   score: float
 
   @staticmethod
-  def safely_from_dict(d: any) -> "Span":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "Span":
     return Span(
       text = d.get("text", None),
       textWithWs = d.get("textWithWs", None),
@@ -246,7 +248,7 @@ class Sentence:
     return ret
 
   @staticmethod
-  def safely_from_dict(d: any) -> "Sentence":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "Sentence":
     tokens = [Token.safely_from_dict(h) for h in (d.get("tokens", []) or [])]
     entities = [Entity.safely_from_dict(h) for h in (d.get("entities", []) or [])]
     spans = [Span.safely_from_dict(h) for h in (d.get("spans", []) or [])]
@@ -300,7 +302,7 @@ class Doc:
   blockId: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "Doc":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "Doc":
     sentences = [Sentence.safely_from_dict(h) for h in (d.get("sentences", []) or [])]
     spans = [Span.safely_from_dict(h) for h in (d.get("spans", []) or [])]
     entities = [Entity.safely_from_dict(h) for h in (d.get("entities", []) or [])]
@@ -357,11 +359,11 @@ class Doc:
 
   
 @dataclass
-class ParseResponse(NludbResponseData):
+class ParseResponse(Response):
   docs: List[Doc] = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "ParseResponse":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "ParseResponse":
     docs = [Doc.safely_from_dict(h) for h in (d.get("docs", []) or [])]
     return ParseResponse(
       docs=docs
@@ -376,7 +378,7 @@ class TokenMatcher():
   patterns: List[Matcher] = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "TokenMatcher":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "TokenMatcher":
     return TokenMatcher(
       label=d.get("label", None),
       patterns=(d.get("patterns", []) or [])
@@ -389,7 +391,7 @@ class PhraseMatcher():
   attr: str = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "PhraseMatcher":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "PhraseMatcher":
     return PhraseMatcher(
       label=d.get("label", None),
       phrases=(d.get("phrases", []) or []),
@@ -404,14 +406,14 @@ class DependencyMatcher():
   patterns: List[Matcher] = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "DependencyMatcher":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "DependencyMatcher":
     return DependencyMatcher(
       label=d.get("label", None),
       patterns=(d.get("patterns", []) or [])
     )
 
 @dataclass
-class ParseRequest(NludbRequest):
+class ParseRequest(Request):
   docs: List[str] = None
   model: str = None
   tokenMatchers: List[TokenMatcher] = None
@@ -425,7 +427,7 @@ class ParseRequest(NludbRequest):
   metadata: any = None
 
   @staticmethod
-  def safely_from_dict(d: any) -> "ParseRequest":
+  def safely_from_dict(d: any, client: ApiBase = None) -> "ParseRequest":
     token_matchers = [TokenMatcher.safely_from_dict(h) for h in (d.get("tokenMatchers", []) or [])]
     phrase_matchers = [PhraseMatcher.safely_from_dict(h) for h in (d.get("phraseMatchers", []) or [])]
     dependency_matchers = [DependencyMatcher.safely_from_dict(h) for h in (d.get("dependencyMatchers", []) or [])]
@@ -461,3 +463,25 @@ class ParseRequest(NludbRequest):
       metadata=metadata
     )
 
+
+
+# @dataclass
+# class ParseRequest(Request):
+#   type: str
+#   model: str = None
+#   id: str = None
+#   handle: str = None
+#   name: str = None
+#   tokenMatchers: List[TokenMatcher] = None
+#   phraseMatchers: List[PhraseMatcher] = None
+#   dependencyMatchers: List[DependencyMatcher] = None
+
+# @dataclass
+# class ParseResponse(Response):
+#   fileId: str
+
+#   @staticmethod
+#   def safely_from_dict(d: any, client: ApiBase = None) -> "ParseResponse":
+#     return ParseResponse(
+#       fileId = d.get('fileId', None)
+#     )
