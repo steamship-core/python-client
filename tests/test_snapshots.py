@@ -1,4 +1,4 @@
-from nludb.types.async_task import NludbTaskStatus
+from nludb.types.async_task import TaskStatus
 from nludb.types.embedding_index import IndexSnapshotRequest
 import pytest
 import os
@@ -22,7 +22,7 @@ def _insert(index, items):
   task = index.embed()
   task.wait()
   task.check()
-  assert (task.task.taskStatus == NludbTaskStatus.succeeded)
+  assert (task.task.taskStatus == TaskStatus.succeeded)
 
 def _snapshot(index, windowSize=None):
   if windowSize is None:

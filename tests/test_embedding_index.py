@@ -1,5 +1,5 @@
 from typing import ItemsView
-from nludb.types.async_task import NludbTaskStatus
+from nludb.types.async_task import TaskStatus
 from nludb.types.embedding_index import IndexItem
 import pytest
 
@@ -124,9 +124,9 @@ def test_embed_task():
         assert (res.task.taskStatus is not None)
         assert (res.task.taskCreatedOn is not None)
         assert (res.task.taskLastModifiedOn is not None)
-        assert (res.task.taskStatus == NludbTaskStatus.waiting)
+        assert (res.task.taskStatus == TaskStatus.waiting)
         res.wait()
-        assert (res.task.taskStatus == NludbTaskStatus.succeeded)
+        assert (res.task.taskStatus == TaskStatus.succeeded)
 
 
 def test_duplicate_inserts():
@@ -156,7 +156,7 @@ def test_index_usage():
         task = index.embed()
         task.wait()
         task.check()
-        assert (task.task.taskStatus == NludbTaskStatus.succeeded)
+        assert (task.task.taskStatus == TaskStatus.succeeded)
 
         search_results = index.search(Q1)
         assert(len(search_results.data.hits) == 1)

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from typing import List, Dict, Callable
-from nludb.types.base import Request, Response
+from nludb.types.base import Request, Model
 from nludb.api.base import ApiBase
 import json
 
@@ -359,7 +359,7 @@ class Doc:
 
   
 @dataclass
-class ParseResponse(Response):
+class ParseResponse(Model):
   docs: List[Doc] = None
 
   @staticmethod
@@ -477,7 +477,7 @@ class ParseRequest(Request):
 #   dependencyMatchers: List[DependencyMatcher] = None
 
 # @dataclass
-# class ParseResponse(Response):
+# class ParseResponse(Model):
 #   fileId: str
 
 #   @staticmethod

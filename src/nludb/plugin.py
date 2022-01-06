@@ -5,7 +5,7 @@ from typing import Union, List, Dict, Tuple
 
 from nludb import __version__
 from nludb.api.base import ApiBase
-from nludb.types.base import NludbResponse
+from nludb.types.base import Response
 from nludb.types.file import *
 from nludb.types.parsing_models import ParsingModels
 from nludb.types.tag import *

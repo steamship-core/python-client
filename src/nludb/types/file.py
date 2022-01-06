@@ -7,7 +7,7 @@ from typing import Union, List, Dict, Tuple
 from typing import List
 from dataclasses import dataclass
 from nludb.api.base import ApiBase
-from nludb.types.base import Request, NludbResponse, Response
+from nludb.types.base import Request, Response, Response
 from nludb.types.conversion import ConvertRequest, ConvertResponse
 from nludb.types.block import Block
 from nludb.types.model import ModelTargetType
@@ -86,7 +86,7 @@ class FileUploadRequest(Request):
 
 
 @dataclass
-class FileDeleteResponse(Response):
+class FileDeleteResponse(Model):
   fileId: str
 
   @staticmethod
@@ -100,7 +100,7 @@ class FileClearRequest(Request):
   fileId: str
 
 @dataclass
-class FileClearResponse(Response):
+class FileClearResponse(Model):
   fileId: str
 
   @staticmethod
@@ -115,7 +115,7 @@ class FileTagRequest(Request):
   model: str = None
 
 @dataclass
-class FileTagResponse(Response):
+class FileTagResponse(Model):
   fileId: str
   tagResult: ParseResponse
 
@@ -144,7 +144,7 @@ class FileQueryRequest(Request):
   isQuote: bool = None
 
 @dataclass
-class FileQueryResponse(Response):
+class FileQueryResponse(Model):
   fileId: str
   blocks: List[Block]
 
@@ -164,7 +164,7 @@ class ListFilesRequest(Request):
   corpusId: str = None
 
 @dataclass
-class ListFilesResponse(Response):
+class ListFilesResponse(Model):
   files: List["File"]
 
   @staticmethod
@@ -174,7 +174,7 @@ class ListFilesResponse(Response):
     )
 
 @dataclass
-class File(Response):
+class File(Model):
   """A file.
   """
 
@@ -209,7 +209,7 @@ class File(Response):
   def delete(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> NludbResponse[FileDeleteResponse]:
+    spaceHandle: str = None) -> Response[FileDeleteResponse]:
     req = FileDeleteRequest(
       self.id
     )
@@ -224,7 +224,7 @@ class File(Response):
   def clear(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> NludbResponse[FileClearResponse]:
+    spaceHandle: str = None) -> Response[FileClearResponse]:
     req = FileClearRequest(
       self.id
     )

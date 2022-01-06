@@ -1,6 +1,6 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import Request, Response
+from nludb.types.base import Request, Model
 from nludb.api.base import ApiBase
 
 class ModelType:
@@ -25,7 +25,7 @@ class LimitUnit:
   bytes = "bytes"
 
 @dataclass
-class Model(Response):
+class Model(Model):
   id: str = None
   name: str = None
   modelType: str = None

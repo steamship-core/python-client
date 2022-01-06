@@ -1,7 +1,7 @@
 import json
 from typing import Any, List
 from dataclasses import dataclass
-from nludb.types.base import Request, Response, str_to_metadata
+from nludb.types.base import Request, Model, str_to_metadata
 from nludb.api.base import ApiBase
 from nludb.types.file import File, ListFilesResponse
 
@@ -30,7 +30,7 @@ class ListPrivateCorporaRequest(Request):
   pass
 
 @dataclass
-class Corpus(Response):
+class Corpus(Model):
   """A corpus of files.
   """
   id: str = None
@@ -116,7 +116,7 @@ class Corpus(Response):
     ) -> File:
 
     return File.upload(
-      nludb=self.nludb,
+      client=self.client,
       corpusId=self.id,
       filename=filename,
       name=name,
@@ -136,7 +136,7 @@ class Corpus(Response):
     spaceHandle: str = None) -> File:
 
     return File.scrape(
-      nludb=self.nludb,
+      client=self.client,
       corpusId=self.id,
       url=url,
       name=name,
@@ -150,7 +150,7 @@ class Corpus(Response):
     spaceId: str = None,
     spaceHandle: str = None) -> ListFilesResponse:
     return File.list(
-      nludb=self.nludb,
+      client=self.client,
       corpusId=self.id,
       spaceId=spaceId,
       spaceHandle=spaceHandle

@@ -1,8 +1,10 @@
 from typing import List
 import json
 from dataclasses import dataclass
-from nludb.types.base import Request, Response, metadata_to_str
+from nludb.types.base import Request, Model, metadata_to_str
 from nludb.types.search import Hit
+from nludb.api.base import ApiBase 
+
 @dataclass
 class IndexCreateRequest(Request):
   name: str
@@ -13,7 +15,7 @@ class IndexCreateRequest(Request):
   metadata: any = None
 
 @dataclass
-class IndexCreateResponse(Response):
+class IndexCreateResponse(Model):
   id: str
 
 @dataclass
@@ -76,7 +78,7 @@ class IndexInsertRequest(Request):
   reindex: bool = True
 
 @dataclass
-class IndexItemId(Response):
+class IndexItemId(Model):
   indexId: str = None
   id: str = None
 
@@ -88,7 +90,7 @@ class IndexItemId(Response):
     )
 
 @dataclass
-class IndexInsertResponse(Response):
+class IndexInsertResponse(Model):
   itemIds: List[IndexItemId] = None
 
   @staticmethod
@@ -102,7 +104,7 @@ class IndexEmbedRequest(Request):
   indexId: str
 
 @dataclass
-class IndexEmbedResponse(Response):
+class IndexEmbedResponse(Model):
   indexId: str
 
   @staticmethod
@@ -116,7 +118,7 @@ class IndexDeleteRequest(Request):
   indexId: str
 
 @dataclass
-class IndexDeleteResponse(Response):
+class IndexDeleteResponse(Model):
   indexId: str
 
   @staticmethod
@@ -134,7 +136,7 @@ class IndexSearchRequest(Request):
   includeMetadata: bool = False
 
 @dataclass
-class IndexSearchResponse(Response):
+class IndexSearchResponse(Model):
   hits: List[Hit] = None
 
   @staticmethod
@@ -152,7 +154,7 @@ class IndexSnapshotRequest(Request):
   windowSize: int = None
 
 @dataclass
-class IndexSnapshotResponse(Response):
+class IndexSnapshotResponse(Model):
   indexId: str
   snapshotId: str
 
@@ -168,7 +170,7 @@ class ListSnapshotsRequest(Request):
   indexId: str = None
 
 @dataclass
-class ListSnapshotsResponse(Response):
+class ListSnapshotsResponse(Model):
   snapshots: List[IndexSnapshotResponse]
   
   @staticmethod
@@ -185,7 +187,7 @@ class ListItemsRequest(Request):
   spanId: str = None
 
 @dataclass
-class ListItemsResponse(Response):
+class ListItemsResponse(Model):
   items: List[IndexItem]
   
   @staticmethod

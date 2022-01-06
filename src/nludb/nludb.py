@@ -2,7 +2,7 @@ import logging
 from typing import Tuple, List
 
 from nludb import __version__
-from nludb.types.base import NludbResponse
+from nludb.types.base import Response
 from nludb.api.base import ApiBase
 from nludb.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
 from nludb.types.embedding_index import IndexCreateRequest
@@ -177,7 +177,7 @@ class NLUDB(ApiBase):
     model: str,
     spaceId: str = None,
     spaceHandle: str = None
-  ) -> NludbResponse[EmbedResponse]:
+  ) -> Response[EmbedResponse]:
     req = EmbedRequest(
       texts=texts,
       model=model
@@ -198,7 +198,7 @@ class NLUDB(ApiBase):
     k: int = 1,
     spaceId: str = None,
     spaceHandle: str = None
-  ) -> NludbResponse[EmbedAndSearchResponse]:
+  ) -> Response[EmbedAndSearchResponse]:
     req = EmbedAndSearchRequest(
       query=query,
       docs=docs,
@@ -226,7 +226,7 @@ class NLUDB(ApiBase):
     metadata: any = None,
     spaceId: str = None,
     spaceHandle: str = None
-  ) -> NludbResponse[ParseResponse]:
+  ) -> Response[ParseResponse]:
     req = ParseRequest(
       docs = docs,
       model = model,
@@ -253,7 +253,7 @@ class NLUDB(ApiBase):
     metadata: any = None,
     spaceId: str = None,
     spaceHandle: str = None
-  ) -> NludbResponse[ParseResponse]:
+  ) -> Response[ParseResponse]:
     req = TagRequest(
       docs = docs,
       model = model,

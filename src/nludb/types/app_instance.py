@@ -1,10 +1,10 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import Request, Response
+from nludb.types.base import Request, Model
 from nludb.api.base import ApiBase
 
 @dataclass
-class AppInstance(Response):
+class AppInstance(Model):
   client: ApiBase = None
   id: str = None
   name: str = None

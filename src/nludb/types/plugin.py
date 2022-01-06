@@ -1,10 +1,10 @@
 # from typing import List
 # from dataclasses import dataclass
-# from nludb.types.base import Request, Response, str_to_metadata
+# from nludb.types.base import Request, Model, str_to_metadata
 # from nludb.api.base import ApiBase
 
 # @dataclass
-# class Plugin(Response):
+# class Plugin(Model):
 #   client: ApiBase = None
 #   id: str = None
 #   userId: str = None

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from nludb.api.base import ApiBase
-from nludb.types.base import Response
 from typing import List
 
 class BlockTypes:
@@ -27,7 +26,7 @@ class BlockTypes:
   Span = "span"
 
 @dataclass
-class Block(Response):
+class Block(Model):
   client: ApiBase = None
   id: str = None
   type: str = None

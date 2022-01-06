@@ -3,7 +3,8 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.api.base import ApiBase, AsyncTask, NludbResponse
+from nludb.types.task import Task
+from nludb.api.base import ApiBase, Response
 from nludb.types.classifier import ClassifierCreateRequest, ClassifierCreateResponse, ClassifyRequest, ClassifyResponse
 from nludb.types.embedding_index import *
 
@@ -70,7 +71,7 @@ class Classifier:
     pd: bool = False,
     spaceId: str = None,
     spaceHandle: str = None
-  ) -> NludbResponse[ClassifyResponse]:
+  ) -> Response[ClassifyResponse]:
     if self.id is None and self.model is None:
       raise Exception("Neither an ID nor a model was found on the classifier object. Please reinitialize with one or the other.")
 

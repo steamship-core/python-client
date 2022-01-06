@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from nludb.types.base import Request, Response
+from nludb.types.base import Request, Model
 from nludb.types.block import Block
 from nludb.api.base import ApiBase
 
@@ -12,7 +12,7 @@ class ConvertRequest(Request):
   name: str = None
 
 @dataclass
-class ConvertResponse(Response):
+class ConvertResponse(Model):
   client: ApiBase = None
   root: Block = None
 

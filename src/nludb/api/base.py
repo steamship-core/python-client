@@ -4,7 +4,7 @@ import time
 import os
 
 from nludb import __version__
-from nludb.types.base import Request, Response, TaskStatusResponse, metadata_to_str
+from nludb.types.base import Request, Model, TaskStatusResponse, metadata_to_str
 from dataclasses import asdict
 from typing import Type, TypeVar, Generic
 from nludb.types.async_task import *
@@ -14,106 +14,6 @@ __copyright__ = "Edward Benson"
 __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)
-
-import typing
-
-T = typing.TypeVar('T', bound=Response)
-
-class AsyncTask(Generic[T]):
-  """Encapsulates a unit of asynchronously performed work."""
-  nludb: "ApiBase" = None
-  taskId: str = None
-  taskStatus: str = None
-  taskCreatedOn: str = None
-  taskLastModifiedOn: str = None
-
-  def __init__(
-    self, 
-    nludb: "ApiBase" = None, 
-    taskId: str = None, 
-    taskStatus: str = None, 
-    taskCreatedOn: str = None, 
-    taskLastModifiedOn: str = None,
-    eventualResultType: Type[Response] = None
-    ):
-    self.nludb =  nludb
-    self.taskId = taskId
-    self.taskStatus = taskStatus
-    self.taskCreatedOn = taskCreatedOn
-    self.taskLastModifiedOn = taskLastModifiedOn
-    self.eventualResultType = eventualResultType
-
-  def update(self, response: TaskStatusResponse):
-    """Incorporates a `TaskStatusResponse` into this object."""
-    if response is not None:
-      self.taskId = response.taskId
-      self.taskStatus = response.taskStatus
-      self.taskCreatedOn = response.taskCreatedOn
-      self.taskLastModifiedOn = response.taskLastModifiedOn
-    else:
-      self.taskStatus = None
-      
-  def check(self):
-    """Retrieves and incorporates a fresh status update."""
-    req = TaskStatusRequest(
-      self.taskId
-    )
-    resp = self.client.post(
-      'task/status',
-      payload=req,
-      expect=TaskStatusResponse,
-      asynchronous=True
-    )
-    self.update(resp.task)
-
-  def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None, upsert: bool = True) -> NludbResponse[TaskCommentResponse]:
-    req = AddTaskCommentRequest(
-      taskId=self.taskId,
-      externalId=externalId,
-      externalType=externalType,
-      externalGroup=externalGroup,
-      metadata=metadata_to_str(metadata),
-      upsert=upsert
-    )
-    return self.client.post(
-      'task/comment/create',
-      req,
-      expect=TaskCommentResponse,
-    )
-
-  def list_comments(self) -> NludbResponse[ListTaskCommentResponse]:
-    req = ListTaskCommentRequest(
-      taskId=self.taskId,
-    )
-    return self.client.post(
-      'task/comment/list',
-      req,
-      expect=ListTaskCommentResponse,
-    )
-
-  def delete_comment(self, taskCommentId: str = None) -> NludbResponse[TaskCommentResponse]:
-    req = DeleteTaskCommentRequest(
-      taskCommentId=taskCommentId
-    )
-    return self.client.post(
-      'task/comment/delete',
-      req,
-      expect=TaskCommentResponse,
-    )
-
-  def wait(self, max_timeout_s: float=60, retry_delay_s: float=1):
-    """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
-    start = time.time()
-    self.check()
-    if self.taskStatus == NludbTaskStatus.succeeded or self.taskStatus == NludbTaskStatus.failed:
-      return
-    time.sleep(retry_delay_s)
-
-    while time.time() - start < max_timeout_s:
-      time.sleep(retry_delay_s)
-      self.check()
-      if self.taskStatus == NludbTaskStatus.succeeded or self.taskStatus == NludbTaskStatus.failed:
-        return
     
 class ApiBase:
   """Base class for API connectivity. 
@@ -215,7 +115,7 @@ class ApiBase:
     spaceId: str = None,
     spaceHandle: str = None,
     if_d_query: bool = None
-  ) -> NludbResponse[T]:
+  ) -> Response[T]:
     """Post to the NLUDB API.
 
     All responses have the format:
@@ -284,14 +184,14 @@ class ApiBase:
     if 'status' in j:
       task_resp = TaskStatusResponse.safely_from_dict(j['status'], client=self)
       if task_resp is not None and task_resp.taskId is not None:
-          task = AsyncTask(nludb=self)
+          task = Task(client=self)
           task.update(task_resp)
 
     obj = None
     if 'data' in j:
       obj = expect.safely_from_dict(j['data'], client=self)
 
-    ret = NludbResponse[T](
+    ret = Response[T](
       task=task,
       data=obj
     )

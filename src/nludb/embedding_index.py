@@ -3,7 +3,7 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.api.base import ApiBase, AsyncTask, NludbResponse
+from nludb.api.base import ApiBase, Task, Response
 from nludb.types.base import Metadata
 from nludb.types.embedding_index import *
 
@@ -32,7 +32,7 @@ class EmbeddingIndex:
     reindex: bool = True,
     spaceId: str = None,
     spaceHandle: str = None
-  ) -> NludbResponse[IndexInsertResponse]:    
+  ) -> Response[IndexInsertResponse]:    
     if isinstance(metadata, dict) or isinstance(metadata, list):
       metadata = json.dumps(metadata)
 
@@ -59,7 +59,7 @@ class EmbeddingIndex:
     reindex: bool=True,
     spaceId: str = None,
     spaceHandle: str = None
-  ) -> NludbResponse[IndexInsertResponse]:
+  ) -> Response[IndexInsertResponse]:
     newItems = []
     for item in items:
       if type(item) == str:
@@ -90,7 +90,7 @@ class EmbeddingIndex:
     reindex: bool = True,
     spaceId: str = None,
     spaceHandle: str = None
-  ) -> NludbResponse[IndexInsertResponse]:
+  ) -> Response[IndexInsertResponse]:
     
     req = IndexInsertRequest(
       indexId=self.id,
@@ -112,7 +112,7 @@ class EmbeddingIndex:
   def embed(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> NludbResponse[IndexEmbedResponse]:
+    spaceHandle: str = None) -> Response[IndexEmbedResponse]:
     req = IndexEmbedRequest(
       self.id
     )
@@ -128,7 +128,7 @@ class EmbeddingIndex:
   def create_snapshot(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> NludbResponse[IndexSnapshotResponse]:
+    spaceHandle: str = None) -> Response[IndexSnapshotResponse]:
     req = IndexSnapshotRequest(
       self.id
     )
@@ -144,7 +144,7 @@ class EmbeddingIndex:
   def list_snapshots(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> NludbResponse[ListSnapshotsResponse]:
+    spaceHandle: str = None) -> Response[ListSnapshotsResponse]:
     req = ListSnapshotsRequest(
       indexId = self.id
     )
@@ -162,7 +162,7 @@ class EmbeddingIndex:
     blockId: str = None, 
     spanId: str = None,
     spaceId: str = None,
-    spaceHandle: str = None) -> NludbResponse[ListItemsResponse]:
+    spaceHandle: str = None) -> Response[ListItemsResponse]:
     req = ListItemsRequest(
       indexId = self.id,
       fileId = fileId,
@@ -181,7 +181,7 @@ class EmbeddingIndex:
     self, 
     snapshot_id: str,
     spaceId: str = None,
-    spaceHandle: str = None) -> NludbResponse[DeleteSnapshotsResponse]:
+    spaceHandle: str = None) -> Response[DeleteSnapshotsResponse]:
     req = DeleteSnapshotsRequest(
       snapshotId = snapshot_id
     )
@@ -196,7 +196,7 @@ class EmbeddingIndex:
   def delete(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> NludbResponse[IndexDeleteResponse]:
+    spaceHandle: str = None) -> Response[IndexDeleteResponse]:
     req = IndexDeleteRequest(
       self.id
     )
@@ -216,7 +216,7 @@ class EmbeddingIndex:
     pd = False,
     spaceId: str = None,
     spaceHandle: str = None
-  ) -> NludbResponse[IndexSearchResponse]:
+  ) -> Response[IndexSearchResponse]:
     if type(query) == list:
       req = IndexSearchRequest(
         self.id,

@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Type, Dict, List, Union, TypeVar, Generic
-from nludb.api.base import ApiBase, AsyncTask
+from nludb.api.base import ApiBase
+from nludb.types.task import Task
+
 import json
 
 @dataclass
@@ -8,37 +10,20 @@ class Request():
   pass
 
 @dataclass
-class Response():
+class Model():
   @staticmethod
   def safely_from_dict(d: any, client: "ApiBase" = None) -> Dict:
     """Last resort if subclass doesn't override: pass through."""
     return d
 
-@dataclass
-class TaskStatusResponse:
-  taskId: str = None
-  taskStatus: str = None
-  taskCreatedOn: str = None
-  taskLastModifiedOn: str = None
-
-  @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "TaskStatusResponse":
-    return TaskStatusResponse(
-      taskId = d.get('taskId', None),
-      taskStatus = d.get('taskStatus', None),
-      taskCreatedOn = d.get('taskCreatedOn', None),
-      taskLastModifiedOn = d.get('taskLastModifiedOn', None)
-    )
-
-
 T = TypeVar('T')      # Declare type variable
 
 @dataclass
-class NludbResponse(Generic[T]):
-  task: TaskStatusResponse
+class Response(Generic[T]):
+  task: Task
   data: T
 
-  def update(self, response: "AsyncTask"):
+  def update(self, response: "Task"):
     if self.task is not None:
       return self.task.update(response)
 
@@ -50,15 +35,15 @@ class NludbResponse(Generic[T]):
     if self.task is not None:
       return self.task.check()
 
-  def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None) -> "NludbResponse[TaskCommentResponse]":
+  def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None) -> "Response[TaskCommentResponse]":
     if self.task is not None:
       return self.task.add_comment(externalId = externalId, externalType = externalType, externalGroup = externalGroup, metadata = metadata)
 
-  def list_comments(self) -> "NludbResponse[ListTaskCommentResponse]":
+  def list_comments(self) -> "Response[ListTaskCommentResponse]":
     if self.task is not None:
       return self.task.list_comments()
 
-  def delete_comment(self, taskCommentId: str = None) -> "NludbResponse[TaskCommentResponse]":
+  def delete_comment(self, taskCommentId: str = None) -> "Response[TaskCommentResponse]":
     if self.task is not None:
       return self.task.delete_comment(taskCommentId=taskCommentId)
 

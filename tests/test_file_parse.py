@@ -1,4 +1,4 @@
-from nludb.types.async_task import NludbTaskStatus
+from nludb.types.async_task import TaskStatus
 from nludb.types.parsing_models import ParsingModels
 import pytest
 from os import path

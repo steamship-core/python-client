@@ -3,7 +3,7 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.api.base import ApiBase, AsyncTask, NludbResponse
+from nludb.api.base import ApiBase, Response
 from nludb.types.async_task import ListTaskCommentRequest, ListTaskCommentResponse
 from nludb.types.model import *
 
@@ -26,7 +26,7 @@ class Tasks:
     externalId: str = None,
     externalType: str = None,
     externalGroup: str = None
-  ) -> NludbResponse[ListTaskCommentResponse]:
+  ) -> Response[ListTaskCommentResponse]:
     return self.client.post(
       'task/comment/list',
       ListTaskCommentRequest(

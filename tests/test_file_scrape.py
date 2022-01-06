@@ -1,4 +1,4 @@
-from nludb.types.async_task import NludbTaskStatus
+from nludb.types.async_task import TaskStatus
 import pytest
 from os import path
 from .helpers import _random_name, _nludb

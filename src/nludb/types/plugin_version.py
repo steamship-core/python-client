@@ -1,9 +1,9 @@
 # from typing import List
 # from dataclasses import dataclass
-# from nludb.types.base import Request, Response, str_to_metadata
+# from nludb.types.base import Request, Model, str_to_metadata
 
 # @dataclass
-# class PluginVersion(Response):
+# class PluginVersion(Model):
 #   id: str = None
 #   userId: str = None
 #   appId: str = None

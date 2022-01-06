@@ -1,11 +1,12 @@
 import json
 from dataclasses import dataclass
 from typing import List, Dict, Callable
-from nludb.types.base import Request, Response
+from nludb.types.base import Request, Model
 from nludb.types.parsing import Doc
+from nludb.api.base import ApiBase
 
 @dataclass
-class TagResponse(Response):
+class TagResponse(Model):
   docs: List[Doc] = None
 
   @staticmethod
