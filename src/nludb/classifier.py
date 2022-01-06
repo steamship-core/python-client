@@ -34,7 +34,9 @@ class Classifier:
     name: str = None,
     upsert: bool = True,
     save: bool = None,
-    labels: List[str] = None
+    labels: List[str] = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> "Classifier":
     if save == False:
       return Classifier(nludb, id=None, model=model, name=name, labels=labels)
@@ -47,7 +49,12 @@ class Classifier:
         save=save,
         labels=labels
       )
-      res = nludb.post('classifier/create', req)
+      res = nludb.post(
+        'classifier/create', 
+        req,
+        spaceId=spaceId,
+        spaceHandle=spaceHandle
+      )
       return ClassifierCreateResponse(
         nludb=nludb,
         name=req.name,
@@ -60,7 +67,9 @@ class Classifier:
     model: str = None,
     labels: List[str] = None,
     k: int = None,
-    pd: bool = False
+    pd: bool = False,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[ClassifyResponse]:
     if self.id is None and self.model is None:
       raise Exception("Neither an ID nor a model was found on the classifier object. Please reinitialize with one or the other.")
@@ -81,7 +90,9 @@ class Classifier:
     ret = self.nludb.post(
       'classifier/classify',
       req,
-      expect=ClassifyResponse
+      expect=ClassifyResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
     if pd is False:
       return ret

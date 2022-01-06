@@ -26,15 +26,23 @@ __license__ = "MIT"
 _logger = logging.getLogger(__name__)
 
 class NLUDB(ApiBase):
-  """NLUDB Client Library.
-  """
+  """NLUDB Python Client."""
+
   def __init__(
     self, 
     api_key: str=None, 
     api_domain: str=None,
     api_version: int=None,
+    space_id: str=None,
+    space_handle: str=None,
     d_query: bool=False):
-    super().__init__(api_key, api_domain, api_version, d_query)
+    super().__init__(
+      api_key=api_key, 
+      api_domain=api_domain,
+      api_version=api_version,
+      space_id=space_id,
+      space_handle=space_handle,
+      d_query=d_query)
     """
     The base class will properly detect and set the defaults. They should be None here.
 
@@ -62,6 +70,8 @@ class NLUDB(ApiBase):
     metadata: any = None,
     isPublic: bool = False,
     upsert: bool = False,
+    spaceId: bool = False,
+    spaceHandle: bool = False
   ) -> Corpus:
     return Corpus.create(
       nludb=self,
@@ -72,7 +82,9 @@ class NLUDB(ApiBase):
       upsert=upsert,
       externalId=externalId,
       externalType=externalType,
-      metadata=metadata
+      metadata=metadata,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def create_index(
@@ -82,7 +94,9 @@ class NLUDB(ApiBase):
     upsert: bool = True,
     externalId: str = None,
     externalType: str = None,
-    metadata: any = None
+    metadata: any = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> EmbeddingIndex:
     return EmbeddingIndex.create(
       nludb=self,
@@ -91,7 +105,9 @@ class NLUDB(ApiBase):
       upsert=upsert,
       externalId=externalId,
       externalType=externalType,
-      metadata=metadata
+      metadata=metadata,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def create_classifier(
@@ -100,7 +116,9 @@ class NLUDB(ApiBase):
     model: str,
     upsert: bool = True,
     save: bool = None,
-    labels: List[str] = None
+    labels: List[str] = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> Classifier:
     return Classifier.create(
       nludb=self,
@@ -108,7 +126,9 @@ class NLUDB(ApiBase):
       name=name,
       upsert=upsert,
       save=save,
-      labels=labels
+      labels=labels,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def upload(
@@ -117,7 +137,9 @@ class NLUDB(ApiBase):
     name: str = None,
     content: str = None,
     format: str = None,
-    convert: bool = False
+    convert: bool = False,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> File:
     return File.upload(
       self,
@@ -125,14 +147,18 @@ class NLUDB(ApiBase):
       name=name,
       content=content,
       format=format,
-      convert=convert
+      convert=convert,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def scrape(
     self,
     url: str,
     name: str = None,
-    convert: bool = False
+    convert: bool = False,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> File:
     if name is None:
       name = url
@@ -140,13 +166,17 @@ class NLUDB(ApiBase):
       self,
       url,
       name,
-      convert=convert
+      convert=convert,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def embed(
     self, 
     texts: List[str],
-    model: str
+    model: str,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[EmbedResponse]:
     req = EmbedRequest(
       texts=texts,
@@ -155,7 +185,9 @@ class NLUDB(ApiBase):
     return self.post(
       'embedding/create',
       req,
-      expect=EmbedResponse
+      expect=EmbedResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def embed_and_search(
@@ -163,7 +195,9 @@ class NLUDB(ApiBase):
     query: str,
     docs: List[str],
     model: str,
-    k: int = 1
+    k: int = 1,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[EmbedAndSearchResponse]:
     req = EmbedAndSearchRequest(
       query=query,
@@ -174,7 +208,9 @@ class NLUDB(ApiBase):
     return self.post(
       'embedding/search',
       req,
-      expect=EmbedAndSearchResponse
+      expect=EmbedAndSearchResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def parse(
@@ -187,7 +223,9 @@ class NLUDB(ApiBase):
     includeTokens: bool = True,
     includeParseData: bool = True,
     includeEntities: bool = False,
-    metadata: any = None
+    metadata: any = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[ParseResponse]:
     req = ParseRequest(
       docs = docs,
@@ -203,14 +241,18 @@ class NLUDB(ApiBase):
     return self.post(
       'parser/parse',
       req,
-      expect=ParseResponse
+      expect=ParseResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def tag(
     self,
     docs: List[Doc],
     model: str = ParsingModels.EN_DEFAULT,
-    metadata: any = None
+    metadata: any = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[ParseResponse]:
     req = TagRequest(
       docs = docs,
@@ -220,5 +262,7 @@ class NLUDB(ApiBase):
     return self.post(
       'tagger/tag',
       req,
-      expect=TagResponse
+      expect=TagResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )

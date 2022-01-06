@@ -79,17 +79,25 @@ class File:
     self.format = format
     self.corpusId = corpusId
 
-  def delete(self) -> NludbResponse[FileDeleteResponse]:
+  def delete(
+    self,
+    spaceId: str = None,
+    spaceHandle: str = None) -> NludbResponse[FileDeleteResponse]:
     req = FileDeleteRequest(
       self.id
     )
     return self.nludb.post(
       'file/delete',
       req,
-      expect=FileDeleteResponse
+      expect=FileDeleteResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def clear(self) -> NludbResponse[FileClearResponse]:
+  def clear(
+    self,
+    spaceId: str = None,
+    spaceHandle: str = None) -> NludbResponse[FileClearResponse]:
     req = FileClearRequest(
       self.id
     )
@@ -97,7 +105,9 @@ class File:
       'file/clear',
       req,
       expect=FileClearResponse,
-      if_d_query=self
+      if_d_query=self,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   @staticmethod
@@ -108,7 +118,9 @@ class File:
     content: str = None,
     format: str = None,
     corpusId: str = None,
-    convert: bool = False
+    convert: bool = False,
+    spaceId: str = None,
+    spaceHandle: str = None
     ) -> "File":
 
     if filename is None and name is None and content is None:
@@ -131,7 +143,9 @@ class File:
       'file/upload',
       payload=req,
       file=(name, content, "multipart/form-data"),
-      expect=FileUploadResponse
+      expect=FileUploadResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
     return File(
       nludb=nludb,
@@ -144,7 +158,9 @@ class File:
   @staticmethod
   def list(
     nludb: ApiBase,
-    corpusId: str = None
+    corpusId: str = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ):
     req = ListFilesRequest(
       corpusId=corpusId
@@ -152,7 +168,9 @@ class File:
     res = nludb.post(
       'file/list',
       payload=req,
-      expect=ListFilesResponse
+      expect=ListFilesResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     ) 
     return res
 
@@ -162,7 +180,9 @@ class File:
     url: str,
     name: str = None,
     corpusId: str = None,
-    convert: bool = False) -> "File":
+    convert: bool = False,
+    spaceId: str = None,
+    spaceHandle: str = None) -> "File":
     if name is None:
       name = url
     req = FileUploadRequest(
@@ -176,7 +196,9 @@ class File:
     res = nludb.post(
       'file/upload',
       payload=req,
-      expect=FileUploadResponse
+      expect=FileUploadResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
     return File(
@@ -187,7 +209,13 @@ class File:
       id=res.data.fileId
     )
 
-  def convert(self, blockType: str = None, ocrModel: str = None, acrModel: str = None):
+  def convert(
+    self, 
+    blockType: str = None, 
+    ocrModel: str = None, 
+    acrModel: str = None,
+    spaceId: str = None,
+    spaceHandle: str = None):
     req = FileConvertRequest(
       fileId=self.id,
       blockType = blockType,
@@ -200,7 +228,9 @@ class File:
       payload=req,
       expect=FileConvertResponse,
       asynchronous=True,
-      if_d_query=self
+      if_d_query=self,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def parse(
@@ -208,7 +238,9 @@ class File:
     model: str = ParsingModels.EN_DEFAULT,
     tokenMatchers: List[TokenMatcher] = None,
     phraseMatchers: List[PhraseMatcher] = None,
-    dependencyMatchers: List[DependencyMatcher] = None
+    dependencyMatchers: List[DependencyMatcher] = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ):
     req = FileParseRequest(
       fileId=self.id,
@@ -223,12 +255,16 @@ class File:
       payload=req,
       expect=FileParseResponse,
       asynchronous=True,
-      if_d_query=self
+      if_d_query=self,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def tag(
     self,
-    model: str = ParsingModels.EN_DEFAULT
+    model: str = ParsingModels.EN_DEFAULT,
+    spaceId: str = None,
+    spaceHandle: str = None
   ):
     req = FileTagRequest(
       fileId=self.id,
@@ -239,10 +275,16 @@ class File:
       'file/tag',
       payload=req,
       expect=FileTagResponse,
-      asynchronous=True
+      asynchronous=True,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def dquery(self, dQuery: str):
+  def dquery(
+    self, 
+    dQuery: str,
+    spaceId: str = None,
+    spaceHandle: str = None):
     blockType = None
     hasSpans = []
     text = None
@@ -265,7 +307,9 @@ class File:
       text=text,
       textMode=textMode,
       isQuote=isQuote,
-      pd=True
+      pd=True,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def query(
@@ -275,7 +319,9 @@ class File:
     text: str = None,
     textMode: str = None,
     isQuote: bool = None,
-    pd: bool = False
+    pd: bool = False,
+    spaceId: str = None,
+    spaceHandle: str = None
     ):
 
 
@@ -291,7 +337,9 @@ class File:
     res = self.nludb.post(
       'file/query',
       payload=req,
-      expect=FileQueryResponse
+      expect=FileQueryResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
     if not self.nludb.d_query:
       return res
@@ -303,7 +351,17 @@ class File:
         return pd.DataFrame([(block.type, block.value) for block in res.data.blocks], columns =['Type', 'Value'])
 
 
-  def index(self, model:str = EmbeddingModels.QA, indexName: str = None, blockType: str = None, indexId: str = None, index: "EmbeddingIndex" = None, upsert: bool = True, reindex: bool = True) -> "EmbeddingIndex":
+  def index(
+    self, 
+    model:str = EmbeddingModels.QA, 
+    indexName: str = None, 
+    blockType: str = None, 
+    indexId: str = None, 
+    index: "EmbeddingIndex" = None, 
+    upsert: bool = True, 
+    reindex: bool = True,
+    spaceId: str = None,
+    spaceHandle: str = None) -> "EmbeddingIndex":
     # TODO: This should really be done all on the server, but for now we'll do it in the client
     # to facilitate demos.
 
@@ -318,6 +376,8 @@ class File:
         name=indexName,
         model=model,
         upsert=True,
+        spaceId=spaceId,
+        spaceHandle=spaceHandle
       )
     elif index is None:
       index = EmbeddingIndex(
@@ -326,7 +386,11 @@ class File:
       )
     
     # We have an index available to us now. Perform the query.
-    blocks = self.query(blockType = blockType)
+    blocks = self.query(
+      blockType = blockType,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle      
+    )
     if not self.nludb.d_query:
       blocks = blocks.data.blocks
 
@@ -339,24 +403,38 @@ class File:
       )
       items.append(item)
     
-    insert_task = index.insert_many(items, reindex=reindex)
+    insert_task = index.insert_many(
+      items, 
+      reindex=reindex,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
+    )
 
     if self.nludb.d_query:
       insert_task.wait()
       return index
     return insert_task
 
-  def raw(self):
+  def raw(
+    self,
+    spaceId: str = None,
+    spaceHandle: str = None):
     req = FileRawRequest(
       fileId=self.id,
     )
 
     return self.nludb.post(
       'file/raw',
-      payload=req
+      payload=req,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def add_tags(self, tags = List[Union[str, CreateTagRequest]]):
+  def add_tags(
+    self, 
+    tags = List[Union[str, CreateTagRequest]],
+    spaceId: str = None,
+    spaceHandle: str = None):
     tagsNew = []
     for tag in tags:
       if type(tag) == str:
@@ -375,10 +453,16 @@ class File:
     return self.nludb.post(
       'tag/create',
       payload=req,
-      expect=TagObjectRequest
+      expect=TagObjectRequest,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def remove_tags(self, tags = List[Union[str, DeleteTagRequest]]):
+  def remove_tags(
+    self, 
+    tags = List[Union[str, DeleteTagRequest]],
+    spaceId: str = None,
+    spaceHandle: str = None):
     tagsNew = []
     for tag in tags:
       if type(tag) == str:
@@ -397,10 +481,15 @@ class File:
     return self.nludb.post(
       'tag/delete',
       payload=req,
-      expect=TagObjectRequest
+      expect=TagObjectRequest,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def list_tags(self):
+  def list_tags(
+    self,
+    spaceId: str = None,
+    spaceHandle: str = None):
     req = ListTagsRequest(
       objectType='File',
       objectId = self.id
@@ -409,5 +498,7 @@ class File:
     return self.nludb.post(
       'tag/list',
       payload=req,
-      expect=TagObjectRequest
+      expect=TagObjectRequest,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )

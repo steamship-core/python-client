@@ -29,7 +29,9 @@ class EmbeddingIndex:
     externalId: str = None,
     externalType: str = None,
     metadata: Union[int, float, bool, str, List, Dict] = None,
-    reindex: bool = True
+    reindex: bool = True,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[IndexInsertResponse]:    
     if isinstance(metadata, dict) or isinstance(metadata, list):
       metadata = json.dumps(metadata)
@@ -46,13 +48,17 @@ class EmbeddingIndex:
     return self.nludb.post(
       'embedding-index/insert',
       req,
-      expect=IndexInsertResponse
+      expect=IndexInsertResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def insert_many(
     self,
     items: List[Union[IndexItem, str]],
-    reindex: bool=True
+    reindex: bool=True,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[IndexInsertResponse]:
     newItems = []
     for item in items:
@@ -70,7 +76,9 @@ class EmbeddingIndex:
     return self.nludb.post(
       'embedding-index/insert',
       req,
-      expect=IndexInsertResponse
+      expect=IndexInsertResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def insert(
@@ -79,7 +87,9 @@ class EmbeddingIndex:
     externalId: str = None,
     externalType: str = None,
     metadata: Union[int, float, bool, str, List, Dict] = None,
-    reindex: bool = True
+    reindex: bool = True,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[IndexInsertResponse]:
     
     req = IndexInsertRequest(
@@ -94,10 +104,15 @@ class EmbeddingIndex:
     return self.nludb.post(
       'embedding-index/insert',
       req,
-      expect=IndexInsertResponse
+      expect=IndexInsertResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def embed(self) -> NludbResponse[IndexEmbedResponse]:
+  def embed(
+    self,
+    spaceId: str = None,
+    spaceHandle: str = None) -> NludbResponse[IndexEmbedResponse]:
     req = IndexEmbedRequest(
       self.id
     )
@@ -105,10 +120,15 @@ class EmbeddingIndex:
       'embedding-index/embed',
       req,
       expect=IndexEmbedRequest,
-      asynchronous=True
+      asynchronous=True,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def create_snapshot(self) -> NludbResponse[IndexSnapshotResponse]:
+  def create_snapshot(
+    self,
+    spaceId: str = None,
+    spaceHandle: str = None) -> NludbResponse[IndexSnapshotResponse]:
     req = IndexSnapshotRequest(
       self.id
     )
@@ -116,20 +136,33 @@ class EmbeddingIndex:
       'embedding-index/snapshot/create',
       req,
       expect=IndexSnapshotRequest,
-      asynchronous=True
+      asynchronous=True,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def list_snapshots(self) -> NludbResponse[ListSnapshotsResponse]:
+  def list_snapshots(
+    self,
+    spaceId: str = None,
+    spaceHandle: str = None) -> NludbResponse[ListSnapshotsResponse]:
     req = ListSnapshotsRequest(
       indexId = self.id
     )
     return self.nludb.post(
       'embedding-index/snapshot/list',
       req,
-      expect=ListSnapshotsResponse
+      expect=ListSnapshotsResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def list_items(self, fileId: str = None, blockId: str = None, spanId: str = None) -> NludbResponse[ListItemsResponse]:
+  def list_items(
+    self, 
+    fileId: str = None, 
+    blockId: str = None, 
+    spanId: str = None,
+    spaceId: str = None,
+    spaceHandle: str = None) -> NludbResponse[ListItemsResponse]:
     req = ListItemsRequest(
       indexId = self.id,
       fileId = fileId,
@@ -139,27 +172,40 @@ class EmbeddingIndex:
     return self.nludb.post(
       'embedding-index/listItems',
       req,
-      expect=ListItemsResponse
+      expect=ListItemsResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def delete_snapshot(self, snapshot_id: str) -> NludbResponse[DeleteSnapshotsResponse]:
+  def delete_snapshot(
+    self, 
+    snapshot_id: str,
+    spaceId: str = None,
+    spaceHandle: str = None) -> NludbResponse[DeleteSnapshotsResponse]:
     req = DeleteSnapshotsRequest(
       snapshotId = snapshot_id
     )
     return self.nludb.post(
       'embedding-index/snapshot/delete',
       req,
-      expect=DeleteSnapshotsResponse
+      expect=DeleteSnapshotsResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def delete(self) -> NludbResponse[IndexDeleteResponse]:
+  def delete(
+    self,
+    spaceId: str = None,
+    spaceHandle: str = None) -> NludbResponse[IndexDeleteResponse]:
     req = IndexDeleteRequest(
       self.id
     )
     return self.nludb.post(
       'embedding-index/delete',
       req,
-      expect=IndexDeleteResponse
+      expect=IndexDeleteResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def search(
@@ -167,7 +213,9 @@ class EmbeddingIndex:
     query: Union[str, List[str]],
     k: int = 1,
     includeMetadata: bool = False,
-    pd = False
+    pd = False,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[IndexSearchResponse]:
     if type(query) == list:
       req = IndexSearchRequest(
@@ -188,7 +236,9 @@ class EmbeddingIndex:
     ret = self.nludb.post(
       'embedding-index/search',
       req,
-      expect=IndexSearchResponse
+      expect=IndexSearchResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
     
     if pd is False:
@@ -205,7 +255,9 @@ class EmbeddingIndex:
     upsert: bool = True,
     externalId: str = None,
     externalType: str = None,
-    metadata: any = None
+    metadata: any = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> "EmbeddingIndex":
     req = IndexCreateRequest(
       name=name,
@@ -215,7 +267,12 @@ class EmbeddingIndex:
       externalType=externalType,
       metadata=metadata,
     )
-    res = nludb.post('embedding-index/create', req)
+    res = nludb.post(
+      'embedding-index/create', 
+      req,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
+    )
     return EmbeddingIndex(
       nludb=nludb,
       name=req.name,

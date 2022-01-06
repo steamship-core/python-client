@@ -33,7 +33,9 @@ class Models:
     limitUnit: str = None,
     apiKey: str = None,
     metadata: Union[str, Dict, List] = None,
-    upsert: bool = None
+    upsert: bool = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[Model]:
     
     if isinstance(metadata, dict) or isinstance(metadata, list):
@@ -57,35 +59,49 @@ class Models:
     return self.nludb.post(
       'model/create',
       req,
-      expect=Model
+      expect=Model,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def listPublic(
     self,
-    modelType: str = None
+    modelType: str = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[ListModelsResponse]:
     return self.nludb.post(
       'model/public',
       ListPublicModelsRequest(modelType=modelType),
-      expect=ListModelsResponse
+      expect=ListModelsResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def listPrivate(
     self,
-    modelType = None
+    modelType = None,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[ListModelsResponse]:
     return self.nludb.post(
       'model/private',
       ListPrivateModelsRequest(modelType=modelType),
-      expect=ListModelsResponse
+      expect=ListModelsResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def delete(
     self,
-    id
+    id,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> NludbResponse[Model]:
     return self.nludb.post(
       'model/delete',
       DeleteModelRequest(modelId=id),
-      expect=Model
+      expect=Model,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )

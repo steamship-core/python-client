@@ -120,12 +120,37 @@ class ApiBase:
   
   Separated primarily as a hack to prevent ciruclar imports.
   """
+
+  # A client is always scoped by its space. A null space resolves to the
+  # default space on the
+  space_id: str = None
+  space_handle: str = None
+
+  api_key: str = None
+  api_domain: str = None
+  api_version: str = None
+
+  # Interaction prototype.
+  d_query: bool = False
+
   def __init__(
     self, 
     api_key: str=None, 
     api_domain: str=None,
     api_version: int=None,
+    space_id: str=None,
+    space_handle: str=None,
     d_query: bool=False):
+
+    self.space_id = space_id
+    if self.space_id is None:
+      if 'NLUDB_SPACE_ID' in os.environ:
+        self.space_id = os.getenv('NLUDB_SPACE_ID')
+
+    self.space_handle = space_handle
+    if self.space_handle is None:
+      if 'NLUDB_SPACE_HANDLE' in os.environ:
+        self.space_handle = os.getenv('NLUDB_SPACE_HANDLE')
 
     self.api_key = api_key
     if self.api_key is None:
@@ -159,6 +184,26 @@ class ApiBase:
   
   T = TypeVar('T', bound=NludbResponseData)
 
+  def _headers(
+    self, 
+    space_id: str = None, 
+    space_handle: str = None
+    ):
+    ret = {
+      "Authorization": "Bearer {}".format(self.api_key)
+    }
+
+    if space_id is not None:
+      ret["X-Space-Id"] = space_id
+    elif space_handle is not None:
+      ret["X-Space-Handle"] = space_handle
+    elif self.space_id is not None:
+      ret["X-Space-Id"] = self.space_id
+    elif self.space_handle is not None:
+      ret["X-Space-Handle"] = self.space_handle
+
+    return ret
+
   def post(
     self, 
     operation: str, 
@@ -167,6 +212,8 @@ class ApiBase:
     expect: T = NludbResponseData,
     asynchronous: bool = False,
     debug: bool = False,
+    space_id: str = None,
+    space_handle: str = None,
     if_d_query: bool = None
   ) -> NludbResponse[T]:
     """Post to the NLUDB API.
@@ -203,13 +250,19 @@ class ApiBase:
         url,
         files={"file": file},
         data=data,
-        headers = {"Authorization": "Bearer {}".format(self.api_key)}
+        headers=self._headers(
+          space_id=space_id, 
+          space_handle=space_handle
+        )
       )
     else:
       resp = requests.post(
         url,
         json=asdict(payload) if payload is not None else None,
-        headers = {"Authorization": "Bearer {}".format(self.api_key)}
+        headers=self._headers(
+          space_id=space_id, 
+          space_handle=space_handle
+        )
       )
     if debug is True:
       print("Response", resp)

@@ -43,7 +43,9 @@ class Corpus:
     externalType: str = None,
     metadata: any = None,
     isPublic: bool = False,
-    upsert: bool = True
+    upsert: bool = True,
+    spaceId: str = None,
+    spaceHandle: str = None
   ) -> "Corpus":
     if isinstance(metadata, dict) or isinstance(metadata, list):
       metadata = json.dumps(metadata)
@@ -58,20 +60,31 @@ class Corpus:
       externalType=externalType,
       metadata=metadata
     )
-    res = nludb.post('corpus/create', req, expect=CreateCorpusResponse)
+    res = nludb.post(
+      'corpus/create',
+      req, 
+      expect=CreateCorpusResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
+    )
     return Corpus(
       nludb=nludb,
       createCorpusResponse=res.data
     )
     
-  def delete(self) -> NludbResponse[CreateCorpusResponse]:
+  def delete(
+    self,
+    spaceId: str = None,
+    spaceHandle: str = None) -> NludbResponse[CreateCorpusResponse]:
     req = DeleteCorpusRequest(
       corpusId=self.id
     )
     return self.nludb.post(
       'corpus/delete',
       req,
-      expect=CreateCorpusResponse
+      expect=CreateCorpusResponse,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def upload(
@@ -80,7 +93,9 @@ class Corpus:
     name: str = None,
     content: str = None,
     format: str = None,
-    convert: bool = False
+    convert: bool = False,
+    spaceId: str = None,
+    spaceHandle: str = None
     ) -> File:
 
     return File.upload(
@@ -90,25 +105,36 @@ class Corpus:
       name=name,
       content=content,
       format=format,
-      convert=convert
+      convert=convert,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
   def scrape(
     self,
     url: str,
     name: str = None,
-    convert: bool = False) -> File:
+    convert: bool = False,
+    spaceId: str = None,
+    spaceHandle: str = None) -> File:
 
     return File.scrape(
       nludb=self.nludb,
       corpusId=self.id,
       url=url,
       name=name,
-      convert=convert
+      convert=convert,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
 
-  def list_files(self) -> ListFilesResponse:
+  def list_files(
+    self,
+    spaceId: str = None,
+    spaceHandle: str = None) -> ListFilesResponse:
     return File.list(
       nludb=self.nludb,
-      corpusId=self.id
+      corpusId=self.id,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle
     )
