@@ -3,8 +3,7 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.types.task import Task
-from nludb.api.base import ApiBase, Response
+from nludb.api.base import ApiBase, Response, Task
 from nludb.types.classifier import ClassifierCreateRequest, ClassifierCreateResponse, ClassifyRequest, ClassifyResponse
 from nludb.types.embedding_index import *
 
@@ -98,5 +97,5 @@ class Classifier:
     if pd is False:
       return ret
     
-    import pandas as pd
+    import pandas as pd # type: ignore 
     return pd.DataFrame([(hit.score, hit.value) for hit in ret.data.hits[0]], columns =['Score', 'Value'])

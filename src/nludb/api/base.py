@@ -1,13 +1,12 @@
-import requests
+import requests # type: ignore 
 import logging
 import time
 import os
 
 from nludb import __version__
-from nludb.types.base import Request, Model, TaskStatusResponse, metadata_to_str
+from nludb.types.base import Request, Response, Task
 from dataclasses import asdict
 from typing import Type, TypeVar, Generic
-from nludb.types.async_task import *
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -15,6 +14,8 @@ __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)
     
+T = TypeVar('T', bound=Response)
+
 class ApiBase:
   """Base class for API connectivity. 
   
@@ -82,8 +83,6 @@ class ApiBase:
 
     self.d_query = d_query
   
-  T = TypeVar('T', bound=Response)
-
   def _headers(
     self, 
     spaceId: str = None, 
@@ -182,7 +181,7 @@ class ApiBase:
 
     task = None
     if 'status' in j:
-      task_resp = TaskStatusResponse.safely_from_dict(j['status'], client=self)
+      task_resp = Task.safely_from_dict(j['status'], client=self)
       if task_resp is not None and task_resp.taskId is not None:
           task = Task(client=self)
           task.update(task_resp)

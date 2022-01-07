@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from nludb.api.base import ApiBase
+from nludb.types.base import Model
 from typing import List
 
 class BlockTypes:

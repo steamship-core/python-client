@@ -456,7 +456,7 @@ class File(Model):
       if pd is False:
         return res.data.blocks
       else:
-        import pandas as pd    
+        import pandas as pd # type: ignore   
         return pd.DataFrame([(block.type, block.value) for block in res.data.blocks], columns =['Type', 'Value'])
 
 

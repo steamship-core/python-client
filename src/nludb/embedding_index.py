@@ -244,7 +244,7 @@ class EmbeddingIndex:
     if pd is False:
       return ret
 
-    import pandas as pd    
+    import pandas as pd # type: ignore 
     return pd.DataFrame([(hit.score, hit.value) for hit in ret.data.hits], columns =['Score', 'Value'])
 
   @staticmethod

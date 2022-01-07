@@ -1,7 +1,7 @@
 import json
 from typing import Any, List
 from dataclasses import dataclass
-from nludb.types.base import Request, Model, str_to_metadata
+from nludb.types.base import Request, Model, Response, str_to_metadata
 from nludb.api.base import ApiBase
 from nludb.types.file import File, ListFilesResponse
 
