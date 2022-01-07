@@ -72,7 +72,7 @@ def parseDquery(query: str) -> List[Tuple[str, str, str]]:
   
 @dataclass
 class FileDeleteRequest(Request):
-  fileId: str
+  id: str
 
 @dataclass
 class FileUploadRequest(Request):
@@ -83,47 +83,45 @@ class FileUploadRequest(Request):
   fileFormat: str = None
   convert: bool = False
 
-
-
 @dataclass
 class FileDeleteResponse(Model):
-  fileId: str
+  id: str
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "FileDeleteResponse":
     return FileDeleteResponse(
-      fileId = d.get('fileId', None)
+      id = d.get('id', None)
     )
 
 @dataclass
 class FileClearRequest(Request):
-  fileId: str
+  id: str
 
 @dataclass
 class FileClearResponse(Model):
-  fileId: str
+  id: str
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "FileDeleteResponse":
     return FileDeleteResponse(
-      fileId = d.get('fileId', None)
+      id = d.get('id', None)
     )
 
 @dataclass
 class FileTagRequest(Request):
-  fileId: str
+  id: str
   model: str = None
 
 @dataclass
 class FileTagResponse(Model):
-  fileId: str
+  id: str
   tagResult: ParseResponse
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "FileTagResponse":
     return FileTagResponse(
-      fileId = d.get('fileId', None),
-      tagResult = ParseResponse.safely_from_dict(d.get('tagResult', {}))
+      id = d.get('id', None),
+      tagResult = ParseResponse.safely_from_dict(d.get('tagResult', {}), client=client)
     )
 
 
@@ -145,19 +143,19 @@ class FileQueryRequest(Request):
 
 @dataclass
 class FileQueryResponse(Model):
-  fileId: str
+  id: str
   blocks: List[Block]
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "FileQueryResponse":
     return FileQueryResponse(
-      fileId = d.get('fileId', None),
-      blocks = [Block.safely_from_dict(block) for block in d.get('blocks', None)]
+      id = d.get('id', None),
+      blocks = [Block.safely_from_dict(block, client=client) for block in d.get('blocks', None)]
     )
 
 @dataclass
 class FileRawRequest(Request):
-  fileId: str
+  id: str
 
 @dataclass
 class ListFilesRequest(Request):
@@ -352,7 +350,8 @@ class File(Model):
     spaceHandle: str = None
   ):
     req = ParseRequest(
-      fileId=self.id,
+      type=ModelTargetType.file,
+      id=self.id,
       model = model,
       tokenMatchers = tokenMatchers,
       phraseMatchers = phraseMatchers,
@@ -360,7 +359,7 @@ class File(Model):
     )
 
     return self.client.post(
-      'file/parse',
+      'model/parse',
       payload=req,
       expect=ParseResponse,
       asynchronous=True,
@@ -376,7 +375,7 @@ class File(Model):
     spaceHandle: str = None
   ):
     req = FileTagRequest(
-      fileId=self.id,
+      id=self.id,
       model = model
     )
 
@@ -432,7 +431,6 @@ class File(Model):
     spaceId: str = None,
     spaceHandle: str = None
     ):
-
 
     req = FileQueryRequest(
       fileId=self.id,
@@ -529,14 +527,15 @@ class File(Model):
     spaceId: str = None,
     spaceHandle: str = None):
     req = FileRawRequest(
-      fileId=self.id,
+      id=self.id,
     )
 
     return self.client.post(
       'file/raw',
       payload=req,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      rawResponse=True
     )
 
   def add_tags(

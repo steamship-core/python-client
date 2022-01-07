@@ -58,18 +58,54 @@ class ListTaskCommentResponse(Model):
 
 T = TypeVar('T')      # Declare type variable
 
+class RemoteError(Exception):
+  remoteMessage: str = None
+  suggestion: str = None
+  code: str = None
+
+  def __init__(self, remoteMessage: str = "Undefined remote error", suggestion: str = None, code: str = None):
+    self.remoteMessage = remoteMessage
+    self.suggestion = suggestion
+    self.code = code
+    
+    parts = [self.remoteMessage]
+    if suggestion is not None:
+      parts.append("Suggestion: {}".format(suggestion))
+    if code is not None:
+      parts.append("Code: {}".format(code))
+      super().__init__("\n".join(parts))
+
+  @staticmethod
+  def safely_from_dict(d: any, client: Any = None) -> "RemoteError":
+    """Last resort if subclass doesn't override: pass through."""
+    return RemoteError(
+      remoteMessage = d.get('message', None),
+      suggestion = d.get('suggestion', None),
+      code = d.get('code', None)
+    )
+
 @dataclass
 class Response(Generic[T]):
-  task: Task
-  data: T
+  task: Task = None
+  data: T = None
+  error: RemoteError = None
 
-  def update(self, response: Task):
+  def update(self, task: Task):
     if self.task is not None:
-      return self.task.update(response)
+      self.task.update(task)
+
+    if self.error is None and task is not None and task.taskStatus == TaskStatus.failed:
+      # Try to parse the error from the value
+      try:
+        d = json.loads(task.taskStatusMessage)
+        self.error = RemoteError.safely_from_dict(d, client=self)
+      except Exception as e:
+        print("Status parsing error", e)
 
   def wait(self, max_timeout_s: float=60, retry_delay_s: float=1):
     if self.task is not None:
-      return self.task.wait(max_timeout_s=max_timeout_s, retry_delay_s=retry_delay_s)
+      self.task.wait(max_timeout_s=max_timeout_s, retry_delay_s=retry_delay_s)
+      self.update(self.task)
 
   def check(self):
     if self.task is not None:
@@ -141,20 +177,34 @@ class Task(Generic[T]):
   client: Any = None
   taskId: str = None
   taskStatus: str = None
+  taskStatusMessage: str = None
   taskCreatedOn: str = None
   taskLastModifiedOn: str = None
   eventualResultType: Type[Model] = None
+
+  @staticmethod
+  def safely_from_dict(d: any, client: Any = None) -> "Task":
+    """Last resort if subclass doesn't override: pass through."""
+    return Task(
+      client = client,
+      taskId = d.get('taskId', None),
+      taskStatus = d.get('taskStatus', None),
+      taskStatusMessage = d.get('taskStatusMessage', None),
+      taskCreatedOn = d.get('taskCreatedOn', None),
+      taskLastModifiedOn = d.get('taskLastModifiedOn', None)
+    )
 
   def update(self, other: Task):
     """Incorporates a `Task` into this object."""
     if other is not None:
       self.taskId = other.taskId
       self.taskStatus = other.taskStatus
+      self.taskStatusMessage = other.taskStatusMessage
       self.taskCreatedOn = other.taskCreatedOn
       self.taskLastModifiedOn = other.taskLastModifiedOn
     else:
       self.taskStatus = None
-      
+          
   def check(self):
     """Retrieves and incorporates a fresh status update."""
     req = TaskStatusRequest(
@@ -163,8 +213,7 @@ class Task(Generic[T]):
     resp = self.client.post(
       'task/status',
       payload=req,
-      expect=Task,
-      asynchronous=True
+      expect=Task
     )
     self.update(resp.task)
 

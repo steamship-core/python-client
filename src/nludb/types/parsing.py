@@ -414,7 +414,11 @@ class DependencyMatcher():
 
 @dataclass
 class ParseRequest(Request):
-  docs: List[str] = None
+  type: str = None
+  id: str = None
+  name: str = None
+  handle: str = None
+
   model: str = None
   tokenMatchers: List[TokenMatcher] = None
   phraseMatchers: List[PhraseMatcher] = None

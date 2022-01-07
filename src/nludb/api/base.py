@@ -2,11 +2,12 @@ import requests # type: ignore
 import logging
 import time
 import os
+import json
 
 from nludb import __version__
-from nludb.types.base import Request, Response, Task
+from nludb.types.base import RemoteError, Request, Response, Task, TaskStatus
 from dataclasses import asdict
-from typing import Type, TypeVar, Generic
+from typing import Any, Type, TypeVar, Generic, Union
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -113,8 +114,9 @@ class ApiBase:
     debug: bool = False,
     spaceId: str = None,
     spaceHandle: str = None,
-    if_d_query: bool = None
-  ) -> Response[T]:
+    if_d_query: bool = None,
+    rawResponse: bool = False
+  ) -> Union[Any, Response[T]]:
     """Post to the NLUDB API.
 
     All responses have the format:
@@ -166,13 +168,15 @@ class ApiBase:
     if debug is True:
       print("Response", resp)
 
+    if rawResponse:
+      return resp.content
+
     j = resp.json()
     if debug is True:
       print("Response JSON", j)
     
     # Error response
     if 'reason' in j:
-      import json
       data = asdict(payload) if payload is not None else {}
       raise Exception(j['reason'])
 
@@ -181,22 +185,36 @@ class ApiBase:
 
     task = None
     if 'status' in j:
-      task_resp = Task.safely_from_dict(j['status'], client=self)
-      if task_resp is not None and task_resp.taskId is not None:
-          task = Task(client=self)
-          task.update(task_resp)
+      task = Task.safely_from_dict(j['status'], client=self)
+      # if task_resp is not None and task_resp.taskId is not None:
+      #     task = Task(client=self)
+      #     task.update(task_resp)
 
     obj = None
     if 'data' in j:
       obj = expect.safely_from_dict(j['data'], client=self)
 
+    error = None
+
+    if 'error' in j:
+      error = RemoteError.safely_from_dict(j['error'], client=self)
+      
     ret = Response[T](
       task=task,
-      data=obj
+      data=obj,
+      error=error
     )
 
-    if self.d_query is True and if_d_query is not None:
+    if self.d_query is True and asynchronous:
       # This is an experimental UI for jQuery-style chaining.
       ret.wait()
+      # In dQuery mode we throw an error to stop the chain
+      if ret.error is not None:
+        raise ret.error
+    
+    if self.d_query is True and if_d_query is not None:
+      if ret.error is not None:
+        raise ret.error
       return if_d_query
+
     return ret
