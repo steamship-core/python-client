@@ -1,4 +1,3 @@
-from nludb.types.base import TaskStatus
 from nludb.types.parsing_models import ParsingModels
 import pytest
 from os import path

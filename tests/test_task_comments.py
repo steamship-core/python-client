@@ -1,5 +1,4 @@
 from typing import ItemsView
-from nludb.types.async_task import TaskStatus
 from nludb.types.embedding_index import IndexItem
 import pytest
 

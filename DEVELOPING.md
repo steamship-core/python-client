@@ -15,8 +15,8 @@ Set up your virtual environment using the following commands:
 ```
 cd $PROJECT_DIR
 python3 -m venv .
-source ./bin/activate
-python -m pip install -U pip setuptools setuptools_scm tox
+source .venv/bin/activate
+python -m pip install -r requirements.dev.txt
 python -m pip install -e .
 ./bin/tox
 ```

@@ -1,4 +1,3 @@
-from nludb.types.async_task import TaskStatus
 import pytest
 import os
 import random

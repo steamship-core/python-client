@@ -9,7 +9,6 @@ __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
 __license__ = "MIT"
 
-
 def _env_or(env_var: str, or_val: str) -> str:
     if env_var in os.environ:
         return os.getenv(env_var)
@@ -54,4 +53,4 @@ def _random_file(nludb: NLUDB, content: str = "") -> File:
 
 def _nludb() -> NLUDB:
     # This should automatically pick up variables from the environment.
-    return NLUDB()
+    return NLUDB(profile="test")

@@ -1,11 +1,10 @@
 import requests # type: ignore 
 import logging
-import time
 import os
-import json
 
 from nludb import __version__
 from nludb.types.base import RemoteError, Request, Response, Task, TaskStatus
+from nludb.base.config import Configuration
 from dataclasses import asdict
 from typing import Any, Type, TypeVar, Generic, Union
 
@@ -25,12 +24,7 @@ class ApiBase:
 
   # A client is always scoped by its space. A null space resolves to the
   # default space on the
-  space_id: str = None
-  space_handle: str = None
-
-  api_key: str = None
-  api_domain: str = None
-  api_version: str = None
+  config: Configuration = None
 
   # Interaction prototype.
   d_query: bool = False
@@ -38,48 +32,17 @@ class ApiBase:
   def __init__(
     self, 
     api_key: str=None, 
-    api_domain: str=None,
-    api_version: int=None,
+    api_base: str=None,
+    app_base: str=None,
     space_id: str=None,
     space_handle: str=None,
     d_query: bool=False):
-
-    self.space_id = space_id
-    if self.space_id is None:
-      if 'NLUDB_SPACE_ID' in os.environ:
-        self.space_id = os.getenv('NLUDB_SPACE_ID')
-
-    self.space_handle = space_handle
-    if self.space_handle is None:
-      if 'NLUDB_SPACE_HANDLE' in os.environ:
-        self.space_handle = os.getenv('NLUDB_SPACE_HANDLE')
-
-    self.api_key = api_key
-    if self.api_key is None:
-      if 'NLUDB_KEY' in os.environ:
-        self.api_key = os.getenv('NLUDB_KEY')
-
-    self.api_domain = api_domain
-    if self.api_domain is None:
-      if 'NLUDB_DOMAIN' in os.environ:
-        self.api_domain = os.getenv('NLUDB_DOMAIN')
-      else:
-        self.api_domain = "https://api.nludb.com/"
-
-    self.api_version = api_version
-    if self.api_version is None:
-      if 'NLUDB_VERSION' in os.environ:
-        self.api_version = os.getenv('NLUDB_VERSION')
-      else:
-        self.api_version = 1
-
-    separator = '/'
-    if self.api_domain.endswith('/'):
-      separator = ''
-    self.endpoint = "{}{}api/v{}".format(
-      self.api_domain, 
-      separator,
-      self.api_version
+    self.config = Configuration(
+      apiKey = api_key,
+      apiBase = api_base,
+      appBase = app_base,
+      spaceId = space_id,
+      spaceHandle = space_handle
     )
 
     self.d_query = d_query
@@ -90,17 +53,16 @@ class ApiBase:
     spaceHandle: str = None
     ):
     ret = {
-      "Authorization": "Bearer {}".format(self.api_key)
+      "Authorization": "Bearer {}".format(self.config.apiKey)
     }
 
-    if spaceId is not None:
-      ret["X-Space-Id"] = spaceId
-    elif spaceHandle is not None:
-      ret["X-Space-Handle"] = spaceHandle
-    elif self.space_id is not None:
-      ret["X-Space-Id"] = self.space_id
-    elif self.space_handle is not None:
-      ret["X-Space-Handle"] = self.space_handle
+    sid = spaceId or self.config.spaceId
+    shandle = spaceHandle or self.config.spaceHandle
+
+    if sid:
+      ret["X-Space-Id"] = sid
+    elif shandle:
+      ret["X-Space-Handle"] = shandle
 
     return ret
 
@@ -131,10 +93,10 @@ class ApiBase:
     field if present, and we raise an exception if the `error`
     field is filled in.
     """
-    if self.api_key is None:
+    if self.config.apiKey is None:
       raise Exception("Please set your NLUDB API key.")
 
-    url = "{}/{}".format(self.endpoint, operation)
+    url = "{}{}".format(self.config.apiBase, operation)
     if file is not None:
       data = asdict(payload) if payload is not None else {}
 
