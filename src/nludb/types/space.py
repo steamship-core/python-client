@@ -30,14 +30,17 @@ class Space(Model):
     name: str = None,
     handle: str = None,
     upsert: bool = None,
+    spaceId: str = None,
+    spaceHandle: str = None,
+    space: 'Space' = None
   ) -> "Space":
     req = GetRequest(
       id=id,
       name=name,
       handle=handle,
-      upsert=upsert,
+      upsert=upsert
     )
-    return client.post('space/get', req, expect=Space)
+    return client.post('space/get', req, expect=Space, spaceId=spaceId, spaceHandle=spaceHandle, space=Space)
 
   @staticmethod
   def create(
@@ -57,11 +60,11 @@ class Space(Model):
       externalType=externalType,
       metadata=metadata,
     )
-    res = client.post(
+    return client.post(
       'space/create', 
-      req
+      req,
+      expect=Space
     )
-    return Space.safely_from_dict(res.data, client=client)
 
 @dataclass
 class CreateSpace(Request):
@@ -69,6 +72,9 @@ class CreateSpace(Request):
   name: str = None
   handle: str = None
   upsert: bool = None
+  externalId: str = None
+  externalType: str = None
+  metadata: str = None
 
 @dataclass
 class DeletSpaceRequest(Request):

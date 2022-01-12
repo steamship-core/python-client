@@ -80,6 +80,7 @@ class ApiBase:
     debug: bool = False,
     spaceId: str = None,
     spaceHandle: str = None,
+    space: any = None,
     if_d_query: bool = None,
     rawResponse: bool = False
   ) -> Union[Any, Response[T]]:
@@ -99,6 +100,13 @@ class ApiBase:
     """
     if self.config.apiKey is None:
       raise Exception("Please set your NLUDB API key.")
+
+    if spaceId is None and space is not None and hasattr(space, 'id'):
+      spaceId = getattr(space, 'id')
+
+    if spaceId is None and spaceHandle is None and space is not None and hasattr(space, 'handle'):
+      # Backup, if the spaceId transfer was None
+      spaceHandle = getattr(space, 'handle')
 
     url = "{}{}".format(self.config.apiBase, operation)
     if file is not None:
