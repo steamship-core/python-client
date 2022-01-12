@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from nludb.types.base import Request, Model
 from nludb.types.block import Block
-from nludb.api.base import ApiBase
+from nludb.base.base import ApiBase
 
 @dataclass
 class ConvertRequest(Request):

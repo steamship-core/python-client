@@ -13,4 +13,7 @@ __license__ = "MIT"
 
 def test_connect():
     """Test basic connection"""
-    nludb = _nludb()
+    client = _nludb()
+    assert(client.config is not None)
+    assert(client.config.profile == "test")
+    assert(client.config.apiKey is not None)

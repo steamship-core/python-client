@@ -6,7 +6,7 @@ from nludb import __version__
 from typing import Union, List, Dict, Tuple
 from typing import List
 from dataclasses import dataclass
-from nludb.api.base import ApiBase
+from nludb.base.base import ApiBase
 from nludb.types.base import Request, Response, Response
 from nludb.types.conversion import ConvertRequest, ConvertResponse
 from nludb.types.block import Block

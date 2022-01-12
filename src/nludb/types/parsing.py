@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Dict, Callable
 from nludb.types.base import Request, Model
-from nludb.api.base import ApiBase
+from nludb.base.base import ApiBase
 import json
 
 @dataclass

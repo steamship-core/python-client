@@ -3,7 +3,7 @@ import json
 from dataclasses import dataclass
 from nludb.types.base import Request, Model, metadata_to_str
 from nludb.types.search import Hit
-from nludb.api.base import ApiBase 
+from nludb.base.base import ApiBase 
 
 @dataclass
 class IndexCreateRequest(Request):

@@ -6,33 +6,37 @@ from pathlib import Path
 _CONFIG_FILE = '.nludb.json'
 
 class Configuration:
+  apiKey: str = None
+  apiBase: str = None
+  appBase: str = None
+  spaceId: str = None
+  spaceHandle: str = None
+
   def __init__(
     self, 
     apiKey: str = None, 
     apiBase: str = None, 
     appBase: str = None, 
-    profile: str = None, 
     spaceId: str = None,
     spaceHandle: str = None,
-    file: str = None
+    profile: str = None,
+    configFile: str = None
   ):
-    self.apiKey = apiKey
-    self.apiBase = apiBase
-    self.appBase = appBase
-    self.profile = profile
-    self.file = file
+    if "NLUDB_PROFILE" in os.environ:
+      self.profile = os.getenv('NLUDB_PROFILE')
+    if profile is not None:
+      self.profile = profile
 
-    if file is not None:
-      self.load_from_file(file)
+    if configFile is not None:
+      self.load_from_file(configFile, self.profile)
     else:
-      self.try_autofinding_files()
+      self.try_autofinding_files(self.profile)
 
     self.apply_env_var_overrides()
     self.apply_invocation_overrides(
       apiKey=apiKey,
       apiBase=apiBase,
       appBase=appBase,
-      profile=profile,
       spaceId=spaceId,
       spaceHandle=spaceHandle
     )
@@ -48,7 +52,7 @@ class Configuration:
     if self.appBase[len(self.appBase) - 1] != '/':
       self.appBase = "{}/".format(self.appBase)
 
-  def mergeDict(self, d: Dict[str, any]):
+  def merge_dict(self, d: Dict[str, any]):
     apiKey = d.get('apiKey', None);
     if apiKey is not None:
       self.apiKey = apiKey
@@ -73,7 +77,7 @@ class Configuration:
     if spaceHandle is not None:
       self.spaceHandle = spaceHandle
 
-  def load_from_file(self, filepath, throw_on_error=True):
+  def load_from_file(self, filepath: str, profile: str=None, throw_on_error=True):
     if not os.path.exists(filepath):
       if throw_on_error:
         raise Exception("Tried to load configuration file at {} but it did not exist.".format(filepath))
@@ -84,26 +88,34 @@ class Configuration:
       with open(filepath, 'r') as f:
         s = f.read()
         j = json.loads(s)
-        self.merge_dict(j)
 
-    except e:
+        if profile is None:
+          self.merge_dict(j)
+        else:
+          if "profiles" not in j:
+            raise Exception("Profile {} requested but not found in {}".format(profile, filepath))
+          if profile not in j["profiles"]:
+            raise Exception("Profile {} requested but not found in {}".format(profile, filepath))
+          self.merge_dict(j["profiles"][profile])
+            
+    except Exception as err:
       if throw_on_error:
-        raise e 
+        raise err 
       return
 
-  def try_autofinding_files(self):
+  def try_autofinding_files(self, profile: str = None):
     """
     Tries folders from cwd up to root.
     """
     paths = []
     cwd = Path(os.getcwd()).absolute()
-    while len(cwd) > 0 and str(cwd) != os.path.sep:
+    while len(str(cwd)) > 0 and str(cwd) != os.path.sep:
       paths.append(os.path.join(cwd, _CONFIG_FILE))
-      cwd = cwd.parent().absolute()
+      cwd = cwd.parent.absolute()
     paths.append(os.path.join(str(Path.home()), _CONFIG_FILE))
     for filepath in paths:
       if os.path.exists(filepath):
-        self.load_from_file(filepath, throw_on_error=True)
+        self.load_from_file(filepath, profile=profile, throw_on_error=True)
         break # Once we've found it; we're done.
     
   def apply_env_var_overrides(self):
@@ -114,8 +126,6 @@ class Configuration:
       self.apiBase = os.getenv('NLUDB_API_BASE')
     if "NLUDB_APP_BASE" in os.environ:
       self.appBase = os.getenv('NLUDB_APP_BASE')
-    if "NLUDB_PROFILE" in os.environ:
-      self.profile = os.getenv('NLUDB_PROFILE')
     if "NLUDB_SPACE_ID" in os.environ:
       self.spaceId = os.getenv('NLUDB_SPACE_ID')
     if "NLUDB_SPACE_HANDLE" in os.environ:
@@ -126,7 +136,6 @@ class Configuration:
     apiKey: str = None, 
     apiBase: str = None, 
     appBase: str = None, 
-    profile: str = None, 
     spaceId: str = None,
     spaceHandle: str = None):
     if apiKey is not None:
@@ -135,8 +144,6 @@ class Configuration:
       self.apiBase = apiBase
     if appBase is not None:
       self.appBase = appBase
-    if profile is not None:
-      self.profile = profile
     if spaceId is not None:
       self.spaceId = spaceId
     if spaceHandle is not None:

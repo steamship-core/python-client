@@ -1,7 +1,8 @@
 from typing import List
 from dataclasses import dataclass
 from nludb.types.base import Request, Model
-from nludb.api.base import ApiBase 
+from nludb.base.base import ApiBase 
+from nludb.base.requests import GetRequest
 
 @dataclass
 class Space(Model):
@@ -12,12 +13,31 @@ class Space(Model):
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase) -> "Space":
+    if 'space' in d:
+      d = d['space']
+
     return Space(
       client = client,
       id = d.get('id', None),
       name = d.get('name', None),
       handle = d.get('handle', None)
     )
+
+  @staticmethod
+  def get(
+    client: ApiBase,
+    id: str = None,
+    name: str = None,
+    handle: str = None,
+    upsert: bool = None,
+  ) -> "Space":
+    req = GetRequest(
+      id=id,
+      name=name,
+      handle=handle,
+      upsert=upsert,
+    )
+    return client.post('space/get', req, expect=Space)
 
   @staticmethod
   def create(

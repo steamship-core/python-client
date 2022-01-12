@@ -3,7 +3,7 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.api.base import ApiBase, Response, Task
+from nludb.base.base import ApiBase, Response, Task
 from nludb.types.classifier import ClassifierCreateRequest, ClassifierCreateResponse, ClassifyRequest, ClassifyResponse
 from nludb.types.embedding_index import *
 

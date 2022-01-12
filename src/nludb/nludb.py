@@ -3,7 +3,7 @@ from typing import Tuple, List
 
 from nludb import __version__
 from nludb.types.base import Response
-from nludb.api.base import ApiBase
+from nludb.base.base import ApiBase
 from nludb.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
 from nludb.types.embedding_index import IndexCreateRequest
 from nludb.embedding_index import EmbeddingIndex
@@ -31,17 +31,21 @@ class NLUDB(ApiBase):
   def __init__(
     self, 
     api_key: str=None, 
-    api_domain: str=None,
-    api_version: int=None,
+    api_base: str=None,
+    app_base: str=None,
     space_id: str=None,
     space_handle: str=None,
+    profile: str=None,
+    config_file: str=None,
     d_query: bool=False):
     super().__init__(
       api_key=api_key, 
-      api_domain=api_domain,
-      api_version=api_version,
+      api_base=api_base,
+      app_base=app_base,
       space_id=space_id,
       space_handle=space_handle,
+      profile=profile,
+      config_file=config_file,
       d_query=d_query)
     """
     The base class will properly detect and set the defaults. They should be None here.

@@ -3,7 +3,7 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.api.base import ApiBase, Response
+from nludb.base.base import ApiBase, Response
 from nludb.types.model import *
 
 __author__ = "Edward Benson"

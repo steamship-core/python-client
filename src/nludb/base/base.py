@@ -36,13 +36,17 @@ class ApiBase:
     app_base: str=None,
     space_id: str=None,
     space_handle: str=None,
+    profile: str = None,
+    config_file: str = None,
     d_query: bool=False):
     self.config = Configuration(
       apiKey = api_key,
       apiBase = api_base,
       appBase = app_base,
       spaceId = space_id,
-      spaceHandle = space_handle
+      spaceHandle = space_handle,
+      profile = profile,
+      configFile = config_file
     )
 
     self.d_query = d_query
