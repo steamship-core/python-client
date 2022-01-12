@@ -1,8 +1,8 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import Request, Model
+from nludb.types.base import Request, Model, Response
 from nludb.base.base import ApiBase 
-from nludb.base.requests import GetRequest
+from nludb.base.requests import GetRequest, DeleteRequest
 
 @dataclass
 class Space(Model):
@@ -10,6 +10,13 @@ class Space(Model):
   id: str = None
   name: str = None
   handle: str = None
+
+  def delete(self) -> "Response[Space]":
+    return self.client.post(
+      'space/delete', 
+      DeleteRequest(id=self.id),
+      expect=Space
+    )
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase) -> "Space":
@@ -33,14 +40,14 @@ class Space(Model):
     spaceId: str = None,
     spaceHandle: str = None,
     space: 'Space' = None
-  ) -> "Space":
+  ) -> "Response[Space]":
     req = GetRequest(
       id=id,
       name=name,
       handle=handle,
       upsert=upsert
     )
-    return client.post('space/get', req, expect=Space, spaceId=spaceId, spaceHandle=spaceHandle, space=Space)
+    return client.post('space/get', req, expect=Space, spaceId=spaceId, spaceHandle=spaceHandle, space=space)
 
   @staticmethod
   def create(
@@ -51,7 +58,7 @@ class Space(Model):
     externalType: str = None,
     metadata: any = None,
     upsert: bool = True
-  ) -> "Space":
+  ) -> "Response[Space]":
     req = CreateSpace(
       name=name,
       handle=handle,

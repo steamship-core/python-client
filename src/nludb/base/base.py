@@ -149,14 +149,6 @@ class ApiBase:
     if debug is True:
       print("Response JSON", j)
     
-    # Error response
-    if 'reason' in j:
-      data = asdict(payload) if payload is not None else {}
-      raise Exception(j['reason'])
-
-    if 'data' not in j and 'status' not in j:
-      raise Exception('No data or status property in response')
-
     task = None
     if 'status' in j:
       task = Task.safely_from_dict(j['status'], client=self)
@@ -168,16 +160,26 @@ class ApiBase:
     if 'data' in j:
       obj = expect.safely_from_dict(j['data'], client=self)
 
+    # Build the error object
+
     error = None
 
     if 'error' in j:
       error = RemoteError.safely_from_dict(j['error'], client=self)
       
+    if 'reason' in j:
+      # This is a legacy error reporting field. We should work toward being comfortable
+      # removing this handler.
+      error = RemoteError(remoteMessage = j['reason'])
+
     ret = Response[T](
       task=task,
       data=obj,
       error=error
     )
+
+    if ret.task is None and ret.data is None and ret.error is None:
+      raise Exception('No data, task status, or error found in response')
 
     if self.d_query is True and asynchronous:
       # This is an experimental UI for jQuery-style chaining.
