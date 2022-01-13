@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from nludb.types.base import Request, Model, Response, str_to_metadata
 from nludb.base.base import ApiBase
 from nludb.types.file import File, ListFilesResponse
-from nludb.base.requests import DeleteRequest
+from nludb.base.requests import IdentifierRequest
 
 @dataclass
 class CreateCorpusRequest(Request):
@@ -100,7 +100,7 @@ class Corpus(Model):
     space: any = None) -> Response["Corpus"]:
     return self.client.post(
       'corpus/delete',
-      DeleteRequest(id=self.id),
+      IdentifierRequest(id=self.id),
       expect=Corpus,
       spaceId=spaceId,
       spaceHandle=spaceHandle,

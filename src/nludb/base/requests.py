@@ -11,5 +11,5 @@ class GetRequest(Request):
   upsert: bool = None
 
 @dataclass
-class DeleteRequest(Request):
+class IdentifierRequest(Request):
   id: str

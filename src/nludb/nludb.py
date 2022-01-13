@@ -140,7 +140,7 @@ class NLUDB(ApiBase):
     filename: str = None,
     name: str = None,
     content: str = None,
-    format: str = None,
+    mimeType: str = None,
     convert: bool = False,
     spaceId: str = None,
     spaceHandle: str = None
@@ -150,7 +150,7 @@ class NLUDB(ApiBase):
       filename=filename,
       name=name,
       content=content,
-      format=format,
+      mimeType=mimeType,
       convert=convert,
       spaceId=spaceId,
       spaceHandle=spaceHandle

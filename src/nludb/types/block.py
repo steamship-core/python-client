@@ -31,7 +31,7 @@ class Block(Model):
   client: ApiBase = None
   id: str = None
   type: str = None
-  value: str = None
+  text: str = None
   children: List["Block"] = None
 
   @staticmethod
@@ -40,6 +40,6 @@ class Block(Model):
       client = client,
       id = d.get('id', None),
       type = d.get('type', None),
-      value = d.get('value', None),
+      text = d.get('text', None),
       children = map(lambda child: Block.safely_from_dict(child, client), d.get('children', []))
     )

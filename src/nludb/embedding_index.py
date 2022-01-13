@@ -3,7 +3,8 @@ import json
 from typing import Union, List, Dict
 
 from nludb import __version__
-from nludb.base.base import ApiBase, Task, Response
+from nludb.base.base import ApiBase, Response
+from nludb.base.requests import IdentifierRequest
 from nludb.types.base import Metadata
 from nludb.types.embedding_index import *
 
@@ -196,14 +197,11 @@ class EmbeddingIndex:
   def delete(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> Response[IndexDeleteResponse]:
-    req = IndexDeleteRequest(
-      self.id
-    )
+    spaceHandle: str = None) -> "Response[EmbeddingIndex]":
     return self.client.post(
       'embedding-index/delete',
-      req,
-      expect=IndexDeleteResponse,
+      IdentifierRequest(id=self.id),
+      expect=EmbeddingIndex,
       spaceId=spaceId,
       spaceHandle=spaceHandle
     )

@@ -7,6 +7,7 @@ from typing import Union, List, Dict, Tuple
 from typing import List
 from dataclasses import dataclass
 from nludb.base.base import ApiBase
+from nludb.base.requests import IdentifierRequest
 from nludb.types.base import Request, Response, Response
 from nludb.types.conversion import ConvertRequest, ConvertResponse
 from nludb.types.block import Block
@@ -71,41 +72,17 @@ def parseDquery(query: str) -> List[Tuple[str, str, str]]:
   return ret
   
 @dataclass
-class FileDeleteRequest(Request):
-  id: str
-
-@dataclass
 class FileUploadRequest(Request):
   type: str
   corpusId: str = None
   name: str = None
   url: str = None
-  fileFormat: str = None
+  mimeType: str = None
   convert: bool = False
-
-@dataclass
-class FileDeleteResponse(Model):
-  id: str
-
-  @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "FileDeleteResponse":
-    return FileDeleteResponse(
-      id = d.get('id', None)
-    )
-
-@dataclass
-class FileClearRequest(Request):
-  id: str
 
 @dataclass
 class FileClearResponse(Model):
   id: str
-
-  @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "FileDeleteResponse":
-    return FileDeleteResponse(
-      id = d.get('id', None)
-    )
 
 @dataclass
 class FileTagRequest(Request):
@@ -124,8 +101,6 @@ class FileTagResponse(Model):
       tagResult = ParseResponse.safely_from_dict(d.get('tagResult', {}), client=client)
     )
 
-
-
 @dataclass
 class SpanQuery:
   text: str = None
@@ -135,7 +110,7 @@ class SpanQuery:
 @dataclass
 class FileQueryRequest(Request):
   fileId: str
-  blockType: str = None
+  type: str = None
   hasSpans: List[SpanQuery] = None
   text: str = None
   textMode: str = None
@@ -200,14 +175,11 @@ class File(Model):
     self,
     spaceId: str = None,
     spaceHandle: str = None,
-    space: any = None) -> Response[FileDeleteResponse]:
-    req = FileDeleteRequest(
-      self.id
-    )
+    space: any = None) -> "Response[File]":
     return self.client.post(
       'file/delete',
-      req,
-      expect=FileDeleteResponse,
+      IdentifierRequest(id=self.id),
+      expect=File,
       spaceId=spaceId,
       spaceHandle=spaceHandle,
       space=space
@@ -218,12 +190,9 @@ class File(Model):
     spaceId: str = None,
     spaceHandle: str = None,
     space: any = None) -> Response[FileClearResponse]:
-    req = FileClearRequest(
-      self.id
-    )
     return self.client.post(
       'file/clear',
-      req,
+      IdentifierRequest(id=self.id),
       expect=FileClearResponse,
       if_d_query=self,
       spaceId=spaceId,
@@ -237,7 +206,7 @@ class File(Model):
     filename: str = None,
     name: str = None,
     content: str = None,
-    format: str = None,
+    mimeType: str = None,
     corpusId: str = None,
     convert: bool = False,
     spaceId: str = None,
@@ -257,7 +226,7 @@ class File(Model):
       type=FileUploadType.file,
       corpusId=corpusId,
       name=name,
-      fileFormat=format,
+      mimeType=mimeType,
       convert=convert
     )
 
@@ -330,7 +299,7 @@ class File(Model):
     req = ConvertRequest(
       id=self.id,
       type=ModelTargetType.file,
-      model = model
+      model=model
     )
 
     return self.client.post(
@@ -445,7 +414,7 @@ class File(Model):
 
     req = FileQueryRequest(
       fileId=self.id,
-      blockType=blockType,
+      type=blockType,
       hasSpans=hasSpans,
       text=text,
       textMode=textMode,

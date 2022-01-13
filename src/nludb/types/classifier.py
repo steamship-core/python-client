@@ -69,13 +69,3 @@ class LabelInsertResponse(Model):
       externalType = d.get('externalType', None),
       metadata = d.get('metadata', None),
     )
-
-@dataclass
-class ClassifierDeleteResponse(Model):
-  classifierId: str = None
-
-  @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "ClassifierDeleteResponse":
-    return ClassifierDeleteResponse(
-      classifierId = d.get('classifierId', None),
-    )

@@ -1,5 +1,7 @@
 import pytest
 from os import path
+
+from nludb.types.base import TaskStatus
 from .helpers import _random_name, _nludb
 from nludb import NLUDB, BlockTypes, FileFormats
 
@@ -14,36 +16,36 @@ def test_file_upload():
     a = nludb.upload(
       name=name_a,
       content="A",
-      format=FileFormats.MKD
-    )
+      mimeType=FileFormats.MKD
+    ).data
     assert(a.id is not None)
     assert(a.name == name_a)
-    assert(a.format == FileFormats.MKD)
+    assert(a.mimeType == FileFormats.MKD)
 
     name_b = "{}.txt".format(_random_name())
     b = nludb.upload(
         name=name_b,
         content="B",
-        format=FileFormats.TXT
-    )
+        mimeType=FileFormats.TXT
+    ).data
     assert(b.id is not None)
     assert(b.name == name_b)
-    assert(b.format == FileFormats.TXT)
+    assert(b.mimeType == FileFormats.TXT)
     assert(a.id != b.id)
 
     name_c = "{}.txt".format(_random_name())
     c = nludb.upload(
         name=name_c,
         content="B",
-        format=FileFormats.MKD
-    )
-    assert(c.format == FileFormats.MKD) # The specified format gets precedence over filename
+        mimeType=FileFormats.MKD
+    ).data
+    assert(c.mimeType == FileFormats.MKD) # The specified format gets precedence over filename
 
     d = nludb.upload(
         name=name_c,
         content="B",
-    )
-    assert(d.format == FileFormats.TXT) # The filename is used in a pinch.
+    ).data
+    assert(d.mimeType == FileFormats.TXT) # The filename is used in a pinch.
 
     a.delete()
     b.delete()
@@ -58,20 +60,20 @@ def test_file_scrape():
     a = nludb.scrape(
         name=name_a,
         url="https://edwardbenson.com/2020/10/gpt3-travel-agent"
-    )
+    ).data
     assert(a.id is not None)
     assert(a.name == name_a)
-    assert(a.format == FileFormats.HTML)
+    assert(a.mimeType == FileFormats.HTML)
 
     name_b = "{}.html".format(_random_name())
     b = nludb.scrape(
         name=name_b,
         url="https://edwardbenson.com/2018/09/case-of-the-murderous-ai"
-    )
+    ).data
     assert(b.id is not None)    
     assert(a.id != b.id)
     assert(b.name == name_b)
-    assert(b.format == FileFormats.HTML)
+    assert(b.mimeType == FileFormats.HTML)
 
     a.delete()
     b.delete()
@@ -101,20 +103,27 @@ def test_file_upload_then_parse():
     a = nludb.upload(
         name=name_a,
         content="This is a test."
-    )
+    ).data
     assert(a.id is not None)
 
     q1 = a.query().data
     assert(len(q1.blocks) == 0)
 
-    task  = a.convert()
+    task = a.convert()
+    assert(task.error is None)
+    assert(task.task is not None)
+    assert(task.task.taskStatus == TaskStatus.waiting)
+
     task.wait()
+    assert(task.error is None)
+    assert(task.task is not None)
+    assert(task.task.taskStatus == TaskStatus.succeeded)
 
     q1 = a.query().data
     assert(len(q1.blocks) == 2)
     assert(q1.blocks[0].type == BlockTypes.Document)    
     assert(q1.blocks[1].type == BlockTypes.Paragraph)    
-    assert(q1.blocks[1].value == 'This is a test.')
+    assert(q1.blocks[1].text == 'This is a test.')
 
     name_b = "{}.mkd".format(_random_name())
     b = nludb.upload(
@@ -122,7 +131,7 @@ def test_file_upload_then_parse():
         content="""# Header
 
 This is a test."""
-    )
+    ).data
     assert(b.id is not None)
 
     q1 = b.query().data
@@ -135,14 +144,14 @@ This is a test."""
     assert(len(q1.blocks) == 3)
     assert(q1.blocks[0].type == BlockTypes.Document)    
     assert(q1.blocks[2].type == BlockTypes.Paragraph)
-    assert(q1.blocks[2].value == 'This is a test.')
+    assert(q1.blocks[2].text == 'This is a test.')
     assert(q1.blocks[1].type == BlockTypes.H1)    
-    assert(q1.blocks[1].value == 'Header')
+    assert(q1.blocks[1].text == 'Header')
 
     q2 = b.query(blockType=BlockTypes.H1).data
     assert(len(q2.blocks) == 1)
     assert(q2.blocks[0].type == BlockTypes.H1)
-    assert(q2.blocks[0].value == 'Header')
+    assert(q2.blocks[0].text == 'Header')
 
     a.delete()
     b.delete()

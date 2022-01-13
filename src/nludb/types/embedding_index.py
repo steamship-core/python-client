@@ -114,20 +114,6 @@ class IndexEmbedResponse(Model):
     )
 
 @dataclass
-class IndexDeleteRequest(Request):
-  indexId: str
-
-@dataclass
-class IndexDeleteResponse(Model):
-  indexId: str
-
-  @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexDeleteResponse":
-    return IndexDeleteResponse(
-      indexId = d.get('indexId', None)
-    )
-
-@dataclass
 class IndexSearchRequest(Request):
   indexId: str
   query: str = None

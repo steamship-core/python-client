@@ -2,7 +2,7 @@ from typing import List
 from dataclasses import dataclass
 from nludb.types.base import Request, Model, Response
 from nludb.base.base import ApiBase 
-from nludb.base.requests import GetRequest, DeleteRequest
+from nludb.base.requests import GetRequest, IdentifierRequest
 
 @dataclass
 class Space(Model):
@@ -14,7 +14,7 @@ class Space(Model):
   def delete(self) -> "Response[Space]":
     return self.client.post(
       'space/delete', 
-      DeleteRequest(id=self.id),
+      IdentifierRequest(id=self.id),
       expect=Space
     )
 
