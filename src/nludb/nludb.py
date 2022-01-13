@@ -93,8 +93,9 @@ class NLUDB(ApiBase):
 
   def create_index(
     self, 
-    name: str,
-    model: str,
+    handle: str = None,
+    name: str = None,
+    model: str = None,
     upsert: bool = True,
     externalId: str = None,
     externalType: str = None,
@@ -104,6 +105,7 @@ class NLUDB(ApiBase):
   ) -> EmbeddingIndex:
     return EmbeddingIndex.create(
       client=self,
+      handle=handle,
       name=name,
       model=model,
       upsert=upsert,

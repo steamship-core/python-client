@@ -1,3 +1,4 @@
+from nludb.types.base import TaskStatus
 from nludb.types.embedding_index import IndexSnapshotRequest
 import pytest
 import os

@@ -12,6 +12,8 @@ __license__ = "MIT"
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
 
+_TEST_EMBEDDER = "test-embedder-v1"
+
 def test_file_parse():
   nludb = _nludb()
   name_a = "{}.mkd".format(_random_name())

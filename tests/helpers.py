@@ -32,13 +32,13 @@ def zero_shot_model() -> str:
     return _env_or('NLUDB_CLASSIFIER_DEFAULT', ClassifierModels.HF_ZERO_SHOT_LBART)
 
 
+_TEST_EMBEDDER = "test-embedder-v1"
+
 @contextlib.contextmanager
-def _random_index(nludb: NLUDB, model: str = qa_model()) -> EmbeddingIndex:
+def _random_index(nludb: NLUDB, model: str = _TEST_EMBEDDER) -> EmbeddingIndex:
     index = nludb.create_index(
-        name=_random_name(),
-        model=model,
-        upsert=True
-    )
+        model=model
+    ).data
     yield index
     index.delete()  # or whatever you need to do at exit
 
@@ -47,7 +47,7 @@ def _random_file(nludb: NLUDB, content: str = "") -> File:
     file = nludb.create_file(
       name=_random_name(),
       contents=content
-    )
+    ).data
     yield file
     file.delete()  # or whatever you need to do at exit
 

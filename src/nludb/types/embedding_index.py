@@ -7,16 +7,14 @@ from nludb.base.base import ApiBase
 
 @dataclass
 class IndexCreateRequest(Request):
-  name: str
-  model: str
+  handle: str = None
+  name: str = None
+  model: str = None
   upsert: bool = True
   externalId: str = None
   externalType: str = None
   metadata: any = None
 
-@dataclass
-class IndexCreateResponse(Model):
-  id: str
 
 @dataclass
 class IndexItem:

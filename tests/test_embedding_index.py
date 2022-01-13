@@ -8,36 +8,34 @@ __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
 __license__ = "MIT"
 
+_TEST_EMBEDDER = "test-embedder-v1"
+
 def test_index_create():
     nludb = _nludb()
     name = _random_name()
 
-    # Should require name
-    with pytest.raises(Exception):
-        index = nludb.create_index(
-            model=qa_model()
-        )
-
     # Should require model
-    with pytest.raises(Exception):
-        index = nludb.create_index(
-            name="Test Index"
-        )
+    task = nludb.create_index(
+        name="Test Index"
+    )
+    assert task.error is not None
+    assert task.data is None
 
     index = nludb.create_index(
         name=name,
-        model=qa_model(),
+        model=_TEST_EMBEDDER,
         upsert=True
-    )
+    ).data
     assert index is not None
 
     # Duplicate creation should fail with upsert=False
-    with pytest.raises(Exception, match=r".*already exists.*"):
-        index = nludb.create_index(
-            name=name,
-            model=qa_model(),
-            upsert=False
-        )
+    task = nludb.create_index(
+        handle=index.handle,
+        model=_TEST_EMBEDDER,
+        upsert=False
+    )
+    assert task.error is not None
+    assert task.data is None
 
     index.delete()
 
@@ -46,25 +44,30 @@ def test_index_delete():
     name = _random_name()
     index = nludb.create_index(
         name=name,
-        model=qa_model(),
+        model=_TEST_EMBEDDER,
         upsert=True
-    )
+    ).data
     assert(index.id is not None)
 
-    index2 = nludb.create_index(
-        name=name,
-        model=qa_model(),
+    task = nludb.create_index(
+        handle=index.handle,
+        model=_TEST_EMBEDDER,
         upsert=True
     )
+    assert task.error is None
+    index2 = task.data
     assert(index.id == index2.id)
     
     index.delete()
 
-    index3 = nludb.create_index(
+    task = nludb.create_index(
         name=name,
-        model=qa_model(),
+        model=_TEST_EMBEDDER,
         upsert=True
     )
+    assert task.error is None
+    assert task.data is not None
+    index3 = task.data
     assert(index.id != index3.id)
     index3.delete()
 
@@ -92,7 +95,9 @@ def test_insert_many():
         index.insert_many([item1, item2])
         index.embed().wait()
 
-        indexItems = index.list_items().data
+        task = index.list_items()
+        assert task.error is None
+        indexItems = task.data
         assert(len(indexItems.items) == 2)
         assert(len(indexItems.items[0].embedding) == 768)
         assert(len(indexItems.items[1].embedding) == 768)
