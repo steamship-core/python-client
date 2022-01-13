@@ -175,22 +175,14 @@ class ListFilesResponse(Model):
 class File(Model):
   """A file.
   """
-
+  client: ApiBase = None
   id: str = None
   name: str = None
   handle: str = None
-  format: str = None
+  mimeType: str = None
   spaceId: str = None
   corpusId: str = None
 
-  def __init__(self, client: ApiBase, id: str, name: str, handle: str = None, format: str = None, corpusId: str = None, spaceId: str = None):
-    self.client = client
-    self.name = name
-    self.handle = handle
-    self.id = id
-    self.format = format
-    self.corpusId = corpusId
-    self.spaceId = spaceId
   
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "File":
@@ -199,7 +191,7 @@ class File(Model):
       id=d.get('id', None),
       handle=d.get('handle', None),
       name=d.get('name', None),
-      format=d.get('format', None),
+      mimeType=d.get('mimeType', None),
       corpusId=d.get('corpusId', None),
       spaceId=d.get('spaceId', None)
     )
@@ -207,7 +199,8 @@ class File(Model):
   def delete(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> Response[FileDeleteResponse]:
+    spaceHandle: str = None,
+    space: any = None) -> Response[FileDeleteResponse]:
     req = FileDeleteRequest(
       self.id
     )
@@ -216,13 +209,15 @@ class File(Model):
       req,
       expect=FileDeleteResponse,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def clear(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> Response[FileClearResponse]:
+    spaceHandle: str = None,
+    space: any = None) -> Response[FileClearResponse]:
     req = FileClearRequest(
       self.id
     )
@@ -232,7 +227,8 @@ class File(Model):
       expect=FileClearResponse,
       if_d_query=self,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   @staticmethod
@@ -245,8 +241,9 @@ class File(Model):
     corpusId: str = None,
     convert: bool = False,
     spaceId: str = None,
-    spaceHandle: str = None
-    ) -> "File":
+    spaceHandle: str = None,
+    space: any = None
+    ) -> "Response[File]":
 
     if filename is None and name is None and content is None:
       raise Exception("Either filename or name + content must be provided.")
@@ -270,7 +267,8 @@ class File(Model):
       file=(name, content, "multipart/form-data"),
       expect=File,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   @staticmethod
@@ -278,7 +276,8 @@ class File(Model):
     client: ApiBase,
     corpusId: str = None,
     spaceId: str = None,
-    spaceHandle: str = None
+    spaceHandle: str = None,
+    space: any = None
   ):
     req = ListFilesRequest(
       corpusId=corpusId
@@ -288,7 +287,8 @@ class File(Model):
       payload=req,
       expect=ListFilesResponse,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     ) 
     return res
 
@@ -300,7 +300,8 @@ class File(Model):
     corpusId: str = None,
     convert: bool = False,
     spaceId: str = None,
-    spaceHandle: str = None) -> "File":
+    spaceHandle: str = None,
+    space: any = None) -> "File":
     if name is None:
       name = url
     req = FileUploadRequest(
@@ -316,14 +317,16 @@ class File(Model):
       payload=req,
       expect=File,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def convert(
     self, 
     model: str = None, 
     spaceId: str = None,
-    spaceHandle: str = None):
+    spaceHandle: str = None,
+    space: any = None):
     req = ConvertRequest(
       id=self.id,
       type=ModelTargetType.file,
@@ -337,7 +340,8 @@ class File(Model):
       asynchronous=True,
       if_d_query=self,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def parse(
@@ -347,7 +351,8 @@ class File(Model):
     phraseMatchers: List[PhraseMatcher] = None,
     dependencyMatchers: List[DependencyMatcher] = None,
     spaceId: str = None,
-    spaceHandle: str = None
+    spaceHandle: str = None,
+    space: any = None
   ):
     req = ParseRequest(
       type=ModelTargetType.file,
@@ -365,14 +370,16 @@ class File(Model):
       asynchronous=True,
       if_d_query=self,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def tag(
     self,
     model: str = ParsingModels.EN_DEFAULT,
     spaceId: str = None,
-    spaceHandle: str = None
+    spaceHandle: str = None,
+    space: any = None
   ):
     req = FileTagRequest(
       id=self.id,
@@ -385,14 +392,16 @@ class File(Model):
       expect=FileTagResponse,
       asynchronous=True,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def dquery(
     self, 
     dQuery: str,
     spaceId: str = None,
-    spaceHandle: str = None):
+    spaceHandle: str = None,
+    space: any = None):
     blockType = None
     hasSpans = []
     text = None
@@ -417,7 +426,8 @@ class File(Model):
       isQuote=isQuote,
       pd=True,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def query(
@@ -429,7 +439,8 @@ class File(Model):
     isQuote: bool = None,
     pd: bool = False,
     spaceId: str = None,
-    spaceHandle: str = None
+    spaceHandle: str = None,
+    space: any = None
     ):
 
     req = FileQueryRequest(
@@ -446,7 +457,8 @@ class File(Model):
       payload=req,
       expect=FileQueryResponse,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
     if not self.client.d_query:
       return res
@@ -468,7 +480,8 @@ class File(Model):
     upsert: bool = True, 
     reindex: bool = True,
     spaceId: str = None,
-    spaceHandle: str = None) -> "EmbeddingIndex":
+    spaceHandle: str = None,
+    space: any = None) -> "EmbeddingIndex":
     # TODO: This should really be done all on the server, but for now we'll do it in the client
     # to facilitate demos.
 
@@ -484,7 +497,8 @@ class File(Model):
         model=model,
         upsert=True,
         spaceId=spaceId,
-        spaceHandle=spaceHandle
+        spaceHandle=spaceHandle,
+        space=space
       )
     elif index is None:
       index = EmbeddingIndex(
@@ -496,7 +510,8 @@ class File(Model):
     blocks = self.query(
       blockType = blockType,
       spaceId=spaceId,
-      spaceHandle=spaceHandle      
+      spaceHandle=spaceHandle,
+      space=space      
     )
     if not self.client.d_query:
       blocks = blocks.data.blocks
@@ -514,7 +529,8 @@ class File(Model):
       items, 
       reindex=reindex,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
     if self.client.d_query:
@@ -525,7 +541,8 @@ class File(Model):
   def raw(
     self,
     spaceId: str = None,
-    spaceHandle: str = None):
+    spaceHandle: str = None,
+    space: any = None):
     req = FileRawRequest(
       id=self.id,
     )
@@ -535,6 +552,7 @@ class File(Model):
       payload=req,
       spaceId=spaceId,
       spaceHandle=spaceHandle,
+      space=space,
       rawResponse=True
     )
 
@@ -542,7 +560,8 @@ class File(Model):
     self, 
     tags = List[Union[str, CreateTagRequest]],
     spaceId: str = None,
-    spaceHandle: str = None):
+    spaceHandle: str = None,
+    space: any = None):
     tagsNew = []
     for tag in tags:
       if type(tag) == str:
@@ -563,14 +582,16 @@ class File(Model):
       payload=req,
       expect=TagObjectRequest,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def remove_tags(
     self, 
     tags = List[Union[str, DeleteTagRequest]],
     spaceId: str = None,
-    spaceHandle: str = None):
+    spaceHandle: str = None,
+    space: any = None):
     tagsNew = []
     for tag in tags:
       if type(tag) == str:
@@ -591,13 +612,15 @@ class File(Model):
       payload=req,
       expect=TagObjectRequest,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def list_tags(
     self,
     spaceId: str = None,
-    spaceHandle: str = None):
+    spaceHandle: str = None,
+    space: any = None):
     req = ListTagsRequest(
       objectType='File',
       objectId = self.id
@@ -608,5 +631,6 @@ class File(Model):
       payload=req,
       expect=TagObjectRequest,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )

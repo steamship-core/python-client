@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from nludb.types.base import Request, Model, Response, str_to_metadata
 from nludb.base.base import ApiBase
 from nludb.types.file import File, ListFilesResponse
+from nludb.base.requests import DeleteRequest
 
 @dataclass
 class CreateCorpusRequest(Request):
@@ -33,6 +34,7 @@ class ListPrivateCorporaRequest(Request):
 class Corpus(Model):
   """A corpus of files.
   """
+  client: ApiBase
   id: str = None
   name: str = None
   handle: str = None
@@ -66,7 +68,8 @@ class Corpus(Model):
     isPublic: bool = False,
     upsert: bool = True,
     spaceId: str = None,
-    spaceHandle: str = None
+    spaceHandle: str = None,
+    space: any = None
   ) -> "Corpus":
     if isinstance(metadata, dict) or isinstance(metadata, list):
       metadata = json.dumps(metadata)
@@ -86,22 +89,22 @@ class Corpus(Model):
       req, 
       expect=Corpus,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
     
   def delete(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> Response["Corpus"]:
-    req = DeleteCorpusRequest(
-      corpusId=self.id
-    )
+    spaceHandle: str = None,
+    space: any = None) -> Response["Corpus"]:
     return self.client.post(
       'corpus/delete',
-      req,
+      DeleteRequest(id=self.id),
       expect=Corpus,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def upload(
@@ -112,8 +115,9 @@ class Corpus(Model):
     format: str = None,
     convert: bool = False,
     spaceId: str = None,
-    spaceHandle: str = None
-    ) -> File:
+    spaceHandle: str = None,
+    space: any = None
+    ) -> Response[File]:
 
     return File.upload(
       client=self.client,
@@ -124,7 +128,8 @@ class Corpus(Model):
       format=format,
       convert=convert,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def scrape(
@@ -133,7 +138,8 @@ class Corpus(Model):
     name: str = None,
     convert: bool = False,
     spaceId: str = None,
-    spaceHandle: str = None) -> File:
+    spaceHandle: str = None,
+    space: any = None) -> File:
 
     return File.scrape(
       client=self.client,
@@ -142,18 +148,21 @@ class Corpus(Model):
       name=name,
       convert=convert,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
   def list_files(
     self,
     spaceId: str = None,
-    spaceHandle: str = None) -> ListFilesResponse:
+    spaceHandle: str = None,
+    space: any = None) -> ListFilesResponse:
     return File.list(
       client=self.client,
       corpusId=self.id,
       spaceId=spaceId,
-      spaceHandle=spaceHandle
+      spaceHandle=spaceHandle,
+      space=space
     )
 
 @dataclass

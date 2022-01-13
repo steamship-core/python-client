@@ -78,7 +78,7 @@ class NLUDB(ApiBase):
     spaceHandle: bool = False
   ) -> Corpus:
     return Corpus.create(
-      nludb=self,
+      client=self,
       name=name,
       handle=handle,
       description=description,
@@ -103,7 +103,7 @@ class NLUDB(ApiBase):
     spaceHandle: str = None
   ) -> EmbeddingIndex:
     return EmbeddingIndex.create(
-      nludb=self,
+      client=self,
       name=name,
       model=model,
       upsert=upsert,
@@ -125,7 +125,7 @@ class NLUDB(ApiBase):
     spaceHandle: str = None
   ) -> Classifier:
     return Classifier.create(
-      nludb=self,
+      client=self,
       model=model,
       name=name,
       upsert=upsert,

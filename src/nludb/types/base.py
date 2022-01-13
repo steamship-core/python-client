@@ -67,13 +67,16 @@ class RemoteError(Exception):
     self.remoteMessage = remoteMessage
     self.suggestion = suggestion
     self.code = code
-    
-    parts = [self.remoteMessage]
+
+    parts = []
+    if code is not None:
+      parts.append("[{}]".format(code))
+    if remoteMessage is not None:
+      parts.append(remoteMessage)
     if suggestion is not None:
       parts.append("Suggestion: {}".format(suggestion))
-    if code is not None:
-      parts.append("Code: {}".format(code))
-      super().__init__("\n".join(parts))
+      
+    super().__init__("\n".join(parts))
 
   @staticmethod
   def safely_from_dict(d: any, client: Any = None) -> "RemoteError":
