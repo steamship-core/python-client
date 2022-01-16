@@ -2,7 +2,7 @@ from typing import List
 from dataclasses import dataclass
 from nludb.types.base import Request, Model, Response
 from nludb.client.base import ApiBase 
-from nludb.base.requests import GetRequest, IdentifierRequest
+from nludb.client.requests import GetRequest, IdentifierRequest
 
 @dataclass
 class Space(Model):

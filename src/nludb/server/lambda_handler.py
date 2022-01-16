@@ -1,16 +1,15 @@
 from typing import Dict
-import json
 from nludb.server.app import App
-from nludb.server.invocation import Invocation
-from nludb.server.response import Response, Error
+from nludb.server.request import Request
+from nludb.server.response import Response, Error, Http
 
 def create_lambda_handler(app: App):
   """Wrapper function for an NLUDB app within an AWS Lambda function. 
   """
 
   def lambda_handler(event: Dict, context: Dict) -> Dict:
-    invocation = Invocation.safely_from_dict(event)
-    response = app(invocation)
+    request = Request.safely_from_dict(event)
+    response = app(request)
 
     lambda_response: Response = None
 
@@ -31,13 +30,13 @@ def create_lambda_handler(app: App):
         )
     else:
       lambda_response = Response(
-        error=Error(message="Handler provided unknown response type.")
+        error=Error(message="Handler provided unknown response type."),
         http=Http(statusCode=500)
       )
     
     if lambda_response is None:
       lambda_response = Response(
-        error=Error(message="Handler provided no response.")
+        error=Error(message="Handler provided no response."),
         http=Http(statusCode=500)
       )
 

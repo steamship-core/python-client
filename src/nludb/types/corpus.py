@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from nludb.types.base import Request, Model, Response, str_to_metadata
 from nludb.client.base import ApiBase
 from nludb.types.file import File, ListFilesResponse
-from nludb.base.requests import IdentifierRequest
+from nludb.client.requests import IdentifierRequest
 
 @dataclass
 class CreateCorpusRequest(Request):

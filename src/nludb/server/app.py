@@ -7,9 +7,9 @@ Please see https://docs.steamship.com/ for information about building a Steamshi
 import json
 from typing import Dict, Union
 from functools import wraps
-from nludb.server import Request, Response, Error
+from nludb.server.request import Request
+from nludb.server.response import Response, Error
 from functools import wraps
-from nludb.client import NLUDB
 
 def makeRegisteringDecorator(foreignDecorator):
     """
@@ -54,7 +54,6 @@ def get(path: str, **kwargs):
 def post(path: str, **kwargs):
   return endpoint(verb='POST', path=path, **kwargs)
 
-
 class App:
   """An NLUDB microservice.
 
@@ -64,9 +63,6 @@ class App:
     2. Provides a Lambda handler that routes to registered functions
     3. Provides useful methods connecting functions to the router.
   """
-
-  def __init__(self):
-    self.nludb = NLUDB()
     
   """Base class to expose instance methods"""
   def __init_subclass__(cls, **kwargs):
@@ -116,6 +112,8 @@ class App:
         httpStatus=500,
         message="Handler for {} {} not callable.".format(request.verb, request.method)
       )
-      
-    return getattr(self, method)(**request.arguments)
-    
+
+    if request.arguments is None:      
+      return getattr(self, method)()
+    else:
+      return getattr(self, method)(**request.arguments)

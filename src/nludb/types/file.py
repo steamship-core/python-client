@@ -7,7 +7,7 @@ from typing import Union, List, Dict, Tuple
 from typing import List
 from dataclasses import dataclass
 from nludb.client.base import ApiBase
-from nludb.base.requests import IdentifierRequest
+from nludb.client.requests import IdentifierRequest
 from nludb.types.base import Request, Response, Response
 from nludb.types.conversion import ConvertRequest, ConvertResponse
 from nludb.types.block import Block

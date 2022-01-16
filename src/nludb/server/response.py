@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict
+import json as jsonlib
 
 @dataclass
 class AppResponse:
@@ -23,6 +24,15 @@ class Response(AppResponse):
   error: Error = None
   http: Http = None
   body: any = None
+
+  def __init__(self, string=None, json=None):
+    self.http = Http(status=200, headers={})
+    if string is not None:
+      self.body = string
+      self.http.headers["Content-Type"] = "text/plain"
+    elif json is not None:
+      self.body = jsonlib.dumps(json)
+      self.http.headers["Content-Type"] = "application/json"
 
 def Error(
   httpStatus: int = 500, 

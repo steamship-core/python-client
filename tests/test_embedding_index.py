@@ -1,5 +1,6 @@
 from typing import ItemsView
 from nludb.types.embedding_index import IndexItem
+from nludb.types.base import TaskStatus
 import pytest
 
 from .helpers import _random_index, _random_name, _nludb, qa_model, sim_model
@@ -138,7 +139,7 @@ def test_duplicate_inserts():
     name = _random_name()
 
     with _random_index(nludb) as index:
-        # Test for supressed reindexing
+        # Test for suppressed re-indexing
         A1 = "Ted can eat an entire block of cheese."
         Q1 = "Who can eat the most cheese"
         insert_results = index.insert(A1)
@@ -150,7 +151,6 @@ def test_index_usage():
     name = _random_name()
 
     with _random_index(nludb) as index:
-        # Test for supressed reindexing
         A1 = "Ted can eat an entire block of cheese."
         Q1 = "Who can eat the most cheese"
         insert_results = index.insert(A1)
@@ -199,7 +199,7 @@ def test_index_usage():
         assert(search_results3.data.hits[0].externalType == A2type)
 
         assert(search_results3.data.hits[0].metadata == A2metadata)
-        # Because I don't know pytest enough to fullly trust the dict comparison..
+        # Because I don't know pytest enough to fully trust the dict comparison..
         assert(search_results3.data.hits[0].metadata["id"] == A2id)
         assert(search_results3.data.hits[0].metadata["idid"] == "{}{}".format(A2id, A2id))
 
@@ -213,7 +213,7 @@ def test_multiple_queries():
     name = _random_name()
 
     with _random_index(nludb) as index:
-        # Test for supressed reindexing
+        # Test for suppressed re-indexing
         A1 = "Ted can eat an entire block of cheese."
         A2 = "Joe can drink an entire glass of water."
         insert_results = index.insert_many([A1, A2])
@@ -269,7 +269,6 @@ def test_empty_queries():
     name = _random_name()
 
     with _random_index(nludb) as index:
-        # Test for supressed reindexing
         A1 = "Ted can eat an entire block of cheese."
         A2 = "Joe can drink an entire glass of water."
         insert_results = index.insert_many([A1, A2])
