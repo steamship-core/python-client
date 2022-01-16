@@ -1,7 +1,7 @@
 # from typing import List
 # from dataclasses import dataclass
 # from nludb.types.base import Request, Model, str_to_metadata
-# from nludb.base.base import ApiBase
+# from nludb.client.base import ApiBase
 
 # @dataclass
 # class Plugin(Model):
@@ -112,3 +112,10 @@
 #       id=res.data.id,
 #       appId=self.id,
 #     )
+
+class PluginVersion:
+  pass
+
+class Plugin:
+  """A service.
+  """

@@ -4,7 +4,7 @@ from typing import Union, List, Dict
 
 from nludb import __version__
 from nludb.types.base import Response, ListTaskCommentRequest, ListTaskCommentResponse
-from nludb.base.base import ApiBase
+from nludb.client.base import ApiBase
 from nludb.types.model import *
 
 __author__ = "Edward Benson"

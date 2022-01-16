@@ -3,19 +3,19 @@ from typing import Tuple, List
 
 from nludb import __version__
 from nludb.types.base import Response
-from nludb.base.base import ApiBase
+from nludb.client.base import ApiBase
 from nludb.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
 from nludb.types.embedding_index import IndexCreateRequest
-from nludb.embedding_index import EmbeddingIndex
-from nludb.classifier import Classifier
+from nludb.types.embedding_index import EmbeddingIndex
+from nludb.types.classifier import Classifier
 from nludb.types.file import File
 from nludb.types.embedding_models import EmbeddingModels
 from nludb.types.parsing import ParseRequest, ParseResponse, TokenMatcher, PhraseMatcher, DependencyMatcher
 from nludb.types.parsing_models import ParsingModels
 from nludb.types.tagging import TagRequest, TagResponse
 from nludb.types.tagging_models import TaggingModels
-from nludb.models import Models
-from nludb.tasks import Tasks
+from nludb.types.model import Models
+from nludb.types.tasks import Tasks
 from nludb.types.corpus import Corpus
 from nludb.types.parsing import Doc
 

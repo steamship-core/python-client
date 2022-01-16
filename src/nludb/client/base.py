@@ -4,7 +4,7 @@ import os
 
 from nludb import __version__
 from nludb.types.base import RemoteError, Request, Response, Task, TaskStatus
-from nludb.base.config import Configuration
+from nludb.client.config import Configuration
 from dataclasses import asdict
 from typing import Any, Type, TypeVar, Generic, Union
 
@@ -19,7 +19,7 @@ T = TypeVar('T', bound=Response)
 class ApiBase:
   """Base class for API connectivity. 
   
-  Separated primarily as a hack to prevent ciruclar imports.
+  Separated primarily as a hack to prevent circular imports.
   """
 
   # A client is always scoped by its space. A null space resolves to the

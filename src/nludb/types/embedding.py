@@ -2,7 +2,7 @@ from typing import List
 from dataclasses import dataclass
 from nludb.types.base import Request, Model
 from nludb.types.search import Hit
-from nludb.base.base import ApiBase 
+from nludb.client.base import ApiBase 
 
 @dataclass
 class EmbedRequest(Request):

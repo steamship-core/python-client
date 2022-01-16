@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Callable
 from nludb.types.base import Request, Model
 from nludb.types.parsing import Doc
-from nludb.base.base import ApiBase
+from nludb.client.base import ApiBase
 
 @dataclass
 class TagResponse(Model):

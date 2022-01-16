@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from nludb.base.base import ApiBase 
+from nludb.client.base import ApiBase 
 
 @dataclass
 class Hit:

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from nludb.types.base import Request, Model
-from nludb.base.base import ApiBase 
+from nludb.client.base import ApiBase 
 
 
 @dataclass

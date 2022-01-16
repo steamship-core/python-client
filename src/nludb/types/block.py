@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from nludb.base.base import ApiBase
+from nludb.client.base import ApiBase
 from nludb.types.base import Model
 from typing import List
 
