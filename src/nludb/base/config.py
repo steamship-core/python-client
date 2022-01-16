@@ -22,11 +22,13 @@ class Configuration:
     profile: str = None,
     configFile: str = None
   ):
+    # First set the profile
     if "NLUDB_PROFILE" in os.environ:
       self.profile = os.getenv('NLUDB_PROFILE')
     if profile is not None:
       self.profile = profile
 
+    # Then load from a file if provided
     if configFile is not None:
       self.load_from_file(configFile, self.profile)
     else:
