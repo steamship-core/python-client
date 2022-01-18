@@ -179,13 +179,13 @@ class NLUDB(ApiBase):
 
   def embed(
     self, 
-    texts: List[str],
+    docs: List[str],
     model: str,
     spaceId: str = None,
     spaceHandle: str = None
   ) -> Response[EmbedResponse]:
     req = EmbedRequest(
-      texts=texts,
+      docs=docs,
       model=model
     )
     return self.post(

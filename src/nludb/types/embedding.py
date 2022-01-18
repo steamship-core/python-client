@@ -6,7 +6,7 @@ from nludb.client.base import ApiBase
 
 @dataclass
 class EmbedRequest(Request):
-  texts: List[str]
+  docs: List[str]
   model: str
 
 @dataclass

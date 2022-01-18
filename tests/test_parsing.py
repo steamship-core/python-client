@@ -1,12 +1,14 @@
 import pytest
 from nludb import EmbeddingModels
-from .helpers import _random_index, _random_name, _nludb, parsing_model
+from .helpers import _random_index, _random_name, _nludb
 from nludb.types.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
 __license__ = "MIT"
 
+def parsing_model():
+  return "test-parser-v1"
 
 def test_parsing():
     nludb = _nludb()

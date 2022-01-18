@@ -100,21 +100,21 @@ class IndexInsertResponse(Model):
 
 @dataclass
 class IndexEmbedRequest(Request):
-  indexId: str
+  id: str
 
 @dataclass
 class IndexEmbedResponse(Model):
-  indexId: str
+  id: str
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "IndexEmbedResponse":
     return IndexEmbedResponse(
-      indexId = d.get('indexId', None)
+      id = d.get('id', None)
     )
 
 @dataclass
 class IndexSearchRequest(Request):
-  indexId: str
+  id: str
   query: str = None
   queries: List[str] = None
   k: int = 1  
@@ -133,26 +133,26 @@ class IndexSearchResponse(Model):
 
 @dataclass
 class IndexSnapshotRequest(Request):
-  indexId: str
+  id: str
   # This variable is intended only to support
   # unit testing.
   windowSize: int = None
 
 @dataclass
 class IndexSnapshotResponse(Model):
-  indexId: str
+  id: str
   snapshotId: str
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "IndexSnapshotResponse":
     return IndexSnapshotResponse(
-      indexId = d.get('indexId', None),
+      id = d.get('id', None),
       snapshotId = d.get('snapshotId', None)
     )
 
 @dataclass
 class ListSnapshotsRequest(Request):
-  indexId: str = None
+  id: str = None
 
 @dataclass
 class ListSnapshotsResponse(Model):
@@ -166,7 +166,7 @@ class ListSnapshotsResponse(Model):
 
 @dataclass
 class ListItemsRequest(Request):
-  indexId: str = None
+  id: str = None
   fileId: str = None
   blockId: str = None
   spanId: str = None
@@ -241,7 +241,7 @@ class EmbeddingIndex:
       reindex=reindex,
     )
     return self.client.post(
-      'embedding-index/insert',
+      'embedding-index/item/create',
       req,
       expect=IndexInsertResponse,
       spaceId=spaceId,
@@ -271,7 +271,7 @@ class EmbeddingIndex:
       reindex=reindex,
     )
     return self.client.post(
-      'embedding-index/insert',
+      'embedding-index/item/create',
       req,
       expect=IndexInsertResponse,
       spaceId=spaceId,
@@ -301,7 +301,7 @@ class EmbeddingIndex:
       reindex=reindex,
     )
     return self.client.post(
-      'embedding-index/insert',
+      'embedding-index/item/create',
       req,
       expect=IndexInsertResponse,
       spaceId=spaceId,
@@ -371,13 +371,13 @@ class EmbeddingIndex:
     spaceHandle: str = None,
     space: any = None) -> Response[ListItemsResponse]:
     req = ListItemsRequest(
-      indexId = self.id,
+      id = self.id,
       fileId = fileId,
       blockId = blockId,
       spanId = spanId
     )
     return self.client.post(
-      'embedding-index/listItems',
+      'embedding-index/item/list',
       req,
       expect=ListItemsResponse,
       spaceId=spaceId,

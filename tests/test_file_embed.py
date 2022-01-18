@@ -14,15 +14,18 @@ __license__ = "MIT"
 
 _TEST_EMBEDDER = "test-embedder-v1"
 
+def parsing_model():
+  return "test-parser-v1"
+
 def test_file_parse():
   nludb = _nludb()
   name_a = "{}.mkd".format(_random_name())
-  T = "A poem about roses"
+  T = "A nice poem"
   P1_1 = "Roses are red."
   P1_2 = "Violets are blue."
   P2_1 = "Sugar is sweet."
   P2_2 = "I love you."
-  T2 = "A story about cake"
+  T2 = "A flavorful story"
   P3_1 = "Cake is made of flour."
   P3_2 = "Cake tastes good with milk."
   P4_1 = "Cake comes in chocolate and vanilla flavors."
@@ -35,26 +38,31 @@ def test_file_parse():
   a = nludb.upload(
     name=name_a,
     content=content,
-    format=FileFormats.MKD
-  )
+    mimeType=FileFormats.MKD
+  ).data
   assert(a.id is not None)
   assert(a.name == name_a)
-  assert(a.format == FileFormats.MKD)
+  assert(a.mimeType == FileFormats.MKD)
 
-  a.convert().wait()
+  convertResp = a.convert()
+  assert(convertResp.error is None)
+  convertResp.wait()
 
   # Now we parse
-  a.parse(model=ParsingModels.EN_DEFAULT).wait()
-
+  parseResp = a.parse(model=parsing_model())
+  assert(parseResp.error is None)
+  parseResp.wait()
 
   # Now the sentences should be parsed!
   q2 = a.query(blockType=BlockTypes.Sentence).data
-  assert(len(q2.blocks) == 10) # The 5th is inside the header!
+  assert(len(q2.blocks) == 8) # The 5th is inside the header!
 
   # Now we add the file to the index
   with _random_index(nludb) as index:
     index.insert_file(a.id, reindex=False)
-    index.embed().wait()
+    embedResp = index.embed()
+    assert(embedResp.error is None)
+    embedResp.wait()
 
     res = index.search("What color are roses?").data
     assert(len(res.hits) == 1)
@@ -73,18 +81,29 @@ def test_file_embed_lookup():
   a = nludb.upload(
     name=name_a,
     content=content_a,
-    format=FileFormats.MKD
-  )
-  a.convert().wait()
-  a.parse(model=ParsingModels.EN_DEFAULT).wait()
+    mimeType=FileFormats.MKD
+  ).data
+
+  convertRes = a.convert()
+  assert(convertRes.error is None)
+  convertRes.wait()
+
+  parseRes = a.parse(model=parsing_model())
+  assert(parseRes.error is None)
+  parseRes.wait()
 
   b = nludb.upload(
     name=name_b,
     content=content_b,
-    format=FileFormats.MKD
-  )
-  b.convert().wait()
-  b.parse(model=ParsingModels.EN_DEFAULT).wait()
+    mimeType=FileFormats.MKD
+  ).data
+  convertRes = b.convert()
+  assert(convertRes.error is None)
+  convertRes.wait()
+
+  parseRes = b.parse(model=parsing_model())
+  assert(parseRes.error is None)
+  parseRes.wait()
 
   # Now we add the file to the index
   with _random_index(nludb) as index:
@@ -100,17 +119,18 @@ def test_file_embed_lookup():
     assert(res.hits[0].value == content_b)
 
     # Now we list the items
-    items = index.list_items(fileId = a.id).data
-    for item in items.items:
+    itemsa = index.list_items(fileId = a.id).data
+    for item in itemsa.items:
       print("File {} - Value {}".format(item.fileId, item.value))
-    assert(len(items.items) == 1)
-    assert(len(items.items[0].embedding) == 768)
-    assert(items.items[0].value == content_a)
+    assert(len(itemsa.items) == 1)
+    assert(len(itemsa.items[0].embedding) > 0)
+    assert(itemsa.items[0].value == content_a)
 
-    items = index.list_items(fileId = b.id).data
-    assert(len(items.items) == 1)
-    assert(len(items.items[0].embedding) == 768)
-    assert(items.items[0].value == content_b)
+    itemsb = index.list_items(fileId = b.id).data
+    assert(len(itemsb.items) == 1)
+    assert(len(itemsb.items[0].embedding) > 0)
+    assert(len(itemsb.items[0].embedding) == len(itemsa.items[0].embedding))
+    assert(itemsb.items[0].value == content_b)
   
   
   
