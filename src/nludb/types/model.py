@@ -78,7 +78,7 @@ class CreateModelRequest(Request):
 
 @dataclass
 class DeleteModelRequest(Request):
-  modelId: str
+  id: str
 
 @dataclass
 class ListPublicModelsRequest(Request):
@@ -186,7 +186,7 @@ class Models:
   ) -> Response[Model]:
     return self.client.post(
       'model/delete',
-      DeleteModelRequest(modelId=id),
+      DeleteModelRequest(id=id),
       expect=Model,
       spaceId=spaceId,
       spaceHandle=spaceHandle

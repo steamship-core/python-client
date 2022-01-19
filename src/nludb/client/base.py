@@ -175,7 +175,8 @@ class ApiBase:
     ret = Response[T](
       task=task,
       data=obj,
-      error=error
+      error=error,
+      client=self
     )
 
     if ret.task is None and ret.data is None and ret.error is None:

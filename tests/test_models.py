@@ -25,7 +25,7 @@ def test_model_create():
         index = nludb.models.create(
             description = "This is just for test",
             modelType = ModelType.embedder,
-            url = "http://foo",
+            url = "http://foo1",
             adapterType = ModelAdapterType.nludbDocker,
             isPublic = True
         )
@@ -35,7 +35,7 @@ def test_model_create():
         index = nludb.models.create(
             name = "Test Model",
             modelType = ModelType.embedder,
-            url = "http://foo",
+            url = "http://foo2",
             adapterType = ModelAdapterType.nludbDocker,
             isPublic = True
         )
@@ -45,7 +45,7 @@ def test_model_create():
         index = nludb.models.create(
             name = "Test Model",
             description = "This is just for test",
-            url = "http://foo",
+            url = "http://foo3",
             adapterType = ModelAdapterType.nludbDocker,
             isPublic = True
         )
@@ -66,7 +66,7 @@ def test_model_create():
             name = "Test Model",
             description = "This is just for test",
             modelType = ModelType.embedder,
-            url = "http://foo",
+            url = "http://foo4",
             isPublic = True
         )
 
@@ -76,7 +76,7 @@ def test_model_create():
             name = "Test Model",
             description = "This is just for test",
             modelType = ModelType.embedder,
-            url = "http://foo",
+            url = "http://foo5",
             adapterType = ModelAdapterType.nludbDocker,
         )
 
@@ -87,31 +87,32 @@ def test_model_create():
         name = _random_name(),
         description = "This is just for test",
         modelType = ModelType.embedder,
-        url = "http://foo",
+        url = "http://foo6",
         adapterType = ModelAdapterType.nludbDocker,
         isPublic = False
     ).data
-
     my_models = nludb.models.listPrivate().data
     assert(len(my_models.models) == orig_count+1)
 
     # No upsert doesn't work
-    with pytest.raises(Exception):
-      model = nludb.models.create(
-          name = model.name,
-          description = "This is just for test",
-          modelType = ModelType.embedder,
-          url = "http://foo",
-          adapterType = ModelAdapterType.nludbDocker,
-          isPublic = False
-      ).data
+    modelX = nludb.models.create(
+        handle = model.handle,
+        name = model.name,
+        description = "This is just for test",
+        modelType = ModelType.embedder,
+        url = "http://foo7",
+        adapterType = ModelAdapterType.nludbDocker,
+        isPublic = False
+    )
+    assert(modelX.error is not None)
+    assert(modelX.data is None)
 
     # Upsert does work
     model2 = nludb.models.create(
         name = model.name,
         description = "This is just for test 2",
         modelType = ModelType.embedder,
-        url = "http://foo",
+        url = "http://foo8",
         adapterType = ModelAdapterType.nludbDocker,
         isPublic = False,
         upsert = True
@@ -136,11 +137,14 @@ def test_model_public():
     nludb = _nludb()
     name = _random_name()
 
-    my_models = nludb.models.listPublic().data
-    orig_count = len(my_models.models)
-    assert(len(my_models.models) > 0, True)
+    resp = nludb.models.listPublic().data
+    assert(resp.models is not None)
+    models = resp.models
+
+    assert(len(models) > 0)
 
     # Make sure they can't be deleted.
-    with pytest.raises(Exception):    
-      nludb.models.delete(my_models.models[0].id)
+    res = nludb.models.delete(models[0].id)
+    assert(res.error is not None)
+    assert(res.data is None)
     

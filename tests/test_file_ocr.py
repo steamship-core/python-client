@@ -19,10 +19,18 @@ def test_image_upload():
       c = nludb.upload(
           name=name_c,
           content=f
-      )
+      ).data
       assert(c.id is not None)
       assert(c.name == name_c)
-      assert(c.format == FileFormats.PNG)
+      assert(c.mimeType == FileFormats.PNG)
 
-      c.convert(ocrModel = OcrModels.MS_VISION_DEFAULT)
+      convertResp = c.convert(model = OcrModels.MS_VISION_DEFAULT)
+      assert(convertResp.error is None)
+      convertResp.wait()
+      assert(convertResp.data is not None)
+
+      q1 = c.query().data
+      assert(len(q1.blocks) == 3)
+
+
       c.delete()

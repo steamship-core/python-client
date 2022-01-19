@@ -92,27 +92,43 @@ class Response(Generic[T]):
   task: Task = None
   data: T = None
   error: RemoteError = None
+  client: Any = None
 
-  def update(self, task: Task):
-    if self.task is not None:
-      self.task.update(task)
-
-    if self.error is None and task is not None and task.taskStatus == TaskStatus.failed:
-      # Try to parse the error from the value
-      try:
-        d = json.loads(task.taskStatusMessage)
-        self.error = RemoteError.safely_from_dict(d, client=self)
-      except Exception as e:
-        print("Status parsing error", e)
+  def update(self, response: "Response(Generic[T])"):
+    if self.task is not None and response.task is not None:
+      self.task.update(response.task)
+    if response.data is not None:
+      self.data = response.data
+    self.error = response.error
 
   def wait(self, max_timeout_s: float=60, retry_delay_s: float=1):
+    """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
+    start = time.time()
+    self.check()
     if self.task is not None:
-      self.task.wait(max_timeout_s=max_timeout_s, retry_delay_s=retry_delay_s)
-      self.update(self.task)
+      if self.task.taskStatus == TaskStatus.succeeded or self.task.taskStatus == TaskStatus.failed:
+        return
+    time.sleep(retry_delay_s)
+
+    while time.time() - start < max_timeout_s:
+      time.sleep(retry_delay_s)
+      self.check()
+      if self.task is not None:
+        if self.task.taskStatus == TaskStatus.succeeded or self.task.taskStatus == TaskStatus.failed:
+          return
 
   def check(self):
-    if self.task is not None:
-      return self.task.check()
+    if self.task is None:
+      return
+    req = TaskStatusRequest(
+      self.task.taskId
+    )
+    resp = self.client.post(
+      'task/status',
+      payload=req,
+      expect=Task
+    )
+    self.update(resp)
 
   def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None) -> "Response[TaskCommentResponse]":
     if self.task is not None:
@@ -208,18 +224,6 @@ class Task(Generic[T]):
     else:
       self.taskStatus = None
           
-  def check(self):
-    """Retrieves and incorporates a fresh status update."""
-    req = TaskStatusRequest(
-      self.taskId
-    )
-    resp = self.client.post(
-      'task/status',
-      payload=req,
-      expect=Task
-    )
-    self.update(resp.task)
-
   def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None, upsert: bool = True) -> Response[TaskCommentResponse]:
     req = AddTaskCommentRequest(
       taskId=self.taskId,
@@ -254,17 +258,3 @@ class Task(Generic[T]):
       req,
       expect=TaskCommentResponse,
     )
-
-  def wait(self, max_timeout_s: float=60, retry_delay_s: float=1):
-    """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
-    start = time.time()
-    self.check()
-    if self.taskStatus == TaskStatus.succeeded or self.taskStatus == TaskStatus.failed:
-      return
-    time.sleep(retry_delay_s)
-
-    while time.time() - start < max_timeout_s:
-      time.sleep(retry_delay_s)
-      self.check()
-      if self.taskStatus == TaskStatus.succeeded or self.taskStatus == TaskStatus.failed:
-        return

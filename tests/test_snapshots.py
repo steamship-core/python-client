@@ -14,6 +14,8 @@ __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
 __license__ = "MIT"
 
+_TEST_EMBEDDER = "test-embedder-v1"
+
 def _insert(index, items):
   for item in items:
     index.insert(item, "TestId", "TestType", [1,2,3])
@@ -51,9 +53,9 @@ def test_snapshot_create():
   name = _random_name()
   index = nludb.create_index(
       name=name,
-      model=qa_model(),
+      model=_TEST_EMBEDDER,
       upsert=True
-  )
+  ).data
 
   _insert(index, ["Oranges are orange."])
   search_results = index.search("What color are oranges?", includeMetadata=True)
@@ -99,7 +101,7 @@ def test_snapshot_window():
   name = _random_name()
   index = nludb.create_index(
       name=name,
-      model=qa_model(),
+      model=_TEST_EMBEDDER,
       upsert=True
   )
 

@@ -21,7 +21,7 @@ def test_corpus_create():
     a = corpus.upload(
       name=name_a,
       content="A",
-      format=FileFormats.MKD
+      mimeType=FileFormats.MKD
     ).data
     assert(a.id is not None)
     assert(a.name == name_a)
@@ -72,7 +72,7 @@ def test_corpus_delete():
     a = corpus1.upload(
       name=name_a,
       content="A",
-      format=FileFormats.MKD
+      mimeType=FileFormats.MKD
     )
     assert(a.data is None)
     assert(a.error is not None)
@@ -86,7 +86,7 @@ def test_corpus_delete_cascade():
     a = corpus1.upload(
       name=name_a,
       content="A",
-      format=FileFormats.MKD
+      mimeType=FileFormats.MKD
     ).data
 
     res = a.query()

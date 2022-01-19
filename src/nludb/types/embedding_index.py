@@ -265,7 +265,7 @@ class EmbeddingIndex:
         newItems.append(item)
 
     req = IndexInsertRequest(
-      indexId=self.id,
+      id=self.id,
       value=None,
       items=[item.clone_for_insert() for item in newItems],
       reindex=reindex,
@@ -292,7 +292,7 @@ class EmbeddingIndex:
   ) -> Response[IndexInsertResponse]:
     
     req = IndexInsertRequest(
-      indexId=self.id,
+      id=self.id,
       value=value,
       items=None,
       externalId=externalId,
@@ -351,7 +351,7 @@ class EmbeddingIndex:
     spaceHandle: str = None,
     space: any = None) -> Response[ListSnapshotsResponse]:
     req = ListSnapshotsRequest(
-      indexId = self.id
+      id = self.id
     )
     return self.client.post(
       'embedding-index/snapshot/list',

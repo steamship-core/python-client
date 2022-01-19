@@ -100,8 +100,9 @@ def test_insert_many():
         assert task.error is None
         indexItems = task.data
         assert(len(indexItems.items) == 2)
-        assert(len(indexItems.items[0].embedding) == 768)
-        assert(len(indexItems.items[1].embedding) == 768)
+        assert(len(indexItems.items[0].embedding) > 0)
+        assert(len(indexItems.items[1].embedding) > 0)
+        assert(len(indexItems.items[0].embedding) == len(indexItems.items[1].embedding))
 
         res = index.search(item1.value, includeMetadata=True, k=100)
         assert (res.data.hits is not None)
@@ -274,8 +275,9 @@ def test_empty_queries():
         insert_results = index.insert_many([A1, A2])
         index.embed().wait()
 
-        with pytest.raises(Exception):
-            search_results = index.search(None)    
+        search_results = index.search(None)    
+        assert(search_results.error is not None)
+        assert(search_results.data is None)
 
         # These technically don't count as empty. Leaving this test in here
         # to encode and capture that in case we want to change it.
