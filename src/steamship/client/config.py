@@ -20,7 +20,8 @@ class Configuration:
     spaceId: str = None,
     spaceHandle: str = None,
     profile: str = None,
-    configFile: str = None
+    configFile: str = None,
+    configDict: dict = None,
   ):
     # First set the profile
     if "STEAMSHIP_PROFILE" in os.environ:
@@ -35,6 +36,10 @@ class Configuration:
       self.try_autofinding_files(self.profile)
 
     self.apply_env_var_overrides()
+
+    if configDict is not None:
+      self.merge_dict(configDict)
+
     self.apply_invocation_overrides(
       apiKey=apiKey,
       apiBase=apiBase,

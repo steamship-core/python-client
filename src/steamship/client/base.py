@@ -37,7 +37,9 @@ class ApiBase:
     space_handle: str=None,
     profile: str = None,
     config_file: str = None,
+    config_dict: dict = None,
     d_query: bool=False):
+
     self.config = Configuration(
       apiKey = api_key,
       apiBase = api_base,
@@ -45,7 +47,8 @@ class ApiBase:
       spaceId = space_id,
       spaceHandle = space_handle,
       profile = profile,
-      configFile = config_file
+      configFile = config_file,
+      configDict = config_dict
     )
 
     self.d_query = d_query

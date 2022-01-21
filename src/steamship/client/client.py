@@ -1,6 +1,8 @@
 import logging
 from typing import Tuple, List
 
+from setuptools_scm import Configuration
+
 from steamship import __version__
 from steamship.types.base import Response
 from steamship.client.base import ApiBase
@@ -36,6 +38,7 @@ class Steamship(ApiBase):
     space_handle: str=None,
     profile: str=None,
     config_file: str=None,
+    config_dict: dict=None,
     d_query: bool=False):
     super().__init__(
       api_key=api_key, 
@@ -45,6 +48,7 @@ class Steamship(ApiBase):
       space_handle=space_handle,
       profile=profile,
       config_file=config_file,
+      config_dict=config_dict,
       d_query=d_query)
     """
     The base class will properly detect and set the defaults. They should be None here.

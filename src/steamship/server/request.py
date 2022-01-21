@@ -1,5 +1,15 @@
 from typing import Dict
 from dataclasses import dataclass
+from steamship.client.config import Configuration
+
+def event_to_config(event: dict) -> Configuration:
+  if event is None:
+    raise Exception("Null event provided")
+  if "invocationContext" not in event:
+    raise Exception("invocationContext not in event")
+
+  return Configuration(from_dict=event["invocationContext"])
+
 
 class Verb:
   GET = "GET"
