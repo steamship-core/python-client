@@ -9,6 +9,7 @@ from typing import Dict, Union
 from functools import wraps
 from steamship.server.request import Request
 from steamship.server.response import Response, Error
+from steamship.client.client import Steamship
 from functools import wraps
 
 def makeRegisteringDecorator(foreignDecorator):
@@ -63,6 +64,9 @@ class App:
     2. Provides a Lambda handler that routes to registered functions
     3. Provides useful methods connecting functions to the router.
   """
+
+  def __init__(self, client: Steamship = None):
+    self.client = client
     
   """Base class to expose instance methods"""
   def __init_subclass__(cls, **kwargs):

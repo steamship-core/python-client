@@ -1,10 +1,15 @@
 from typing import Dict
 from steamship.server import App, Response, Request, post, create_lambda_handler
+from steamship.server.app import get, post,  App
 
 class HelloWorld(App):
   @post('greet')
   def greet(self, name: str = "Person") -> Response:
     return Response(string='Hello, {}'.format(name))
+
+  @get('space')
+  def space(self) -> Response:
+    return Response(string=self.client.config.spaceId)
 
 NAME = "Ted"
 RES_EMPTY = "Hello, Person"
@@ -26,4 +31,3 @@ def test_invoke_app_with_request():
   req = Request(verb="POST", method="greet", arguments={"name": NAME})
   res = app(req)
   assert(res.body == RES_NAME)
-
