@@ -8,8 +8,7 @@ from steamship.client.config import Configuration
 from dataclasses import asdict
 from typing import Any, Type, TypeVar, Generic, Union
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)

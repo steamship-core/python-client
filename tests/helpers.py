@@ -5,8 +5,7 @@ import contextlib
 
 from steamship import Steamship, ParsingModels, EmbeddingModels, EmbeddingIndex, ClassifierModels, File
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 def _env_or(env_var: str, or_val: str) -> str:

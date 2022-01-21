@@ -5,8 +5,7 @@ from steamship.types.base import Response, ListTaskCommentRequest, ListTaskComme
 from steamship.client.base import ApiBase
 from steamship.types.model import *
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)

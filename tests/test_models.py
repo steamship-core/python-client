@@ -9,8 +9,7 @@ from steamship import Steamship, ModelType
 
 from .helpers import _random_index, _random_name, _steamship
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 def test_model_create():

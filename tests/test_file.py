@@ -5,8 +5,7 @@ from steamship.types.base import TaskStatus
 from .helpers import _random_name, _steamship
 from steamship import Steamship, BlockTypes, FileFormats
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 

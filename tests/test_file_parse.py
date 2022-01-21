@@ -5,8 +5,7 @@ from os import path
 from .helpers import _random_name, _steamship
 from steamship import Steamship, BlockTypes, FileFormats
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 # TODO: It should fail if the docs field is empty.

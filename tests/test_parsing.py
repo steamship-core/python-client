@@ -3,8 +3,7 @@ from steamship import EmbeddingModels
 from .helpers import _random_index, _random_name, _steamship
 from steamship.types.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 def parsing_model():

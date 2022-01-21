@@ -4,8 +4,7 @@ from .helpers import _random_index, _random_name, _steamship, qa_model, sim_mode
 from steamship import Space
 
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 

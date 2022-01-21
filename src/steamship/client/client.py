@@ -19,8 +19,7 @@ from steamship.types.tasks import Tasks
 from steamship.types.corpus import Corpus
 from steamship.types.parsing import Doc
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)

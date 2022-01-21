@@ -4,8 +4,7 @@ import pytest
 
 from .helpers import _random_index, _random_name, _steamship, qa_model, sim_model
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 def _list_equal(actual, expected):

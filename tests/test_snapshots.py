@@ -10,8 +10,7 @@ import time
 from steamship import Steamship, EmbeddingModels, EmbeddingIndex
 from .helpers import _random_index, _random_name, _steamship, qa_model
 
-__author__ = "Edward Benson"
-__copyright__ = "Edward Benson"
+__copyright__ = "Steamship"
 __license__ = "MIT"
 
 _TEST_EMBEDDER = "test-embedder-v1"
