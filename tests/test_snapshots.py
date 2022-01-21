@@ -93,8 +93,6 @@ def test_snapshot_create():
   assert(len(search_results.data.hits[0].metadata)  == 3)
 
   index.delete()
-
-def test_snapshot_window():
   steamship = _steamship()
 
   name = _random_name()
@@ -102,7 +100,7 @@ def test_snapshot_window():
       name=name,
       model=_TEST_EMBEDDER,
       upsert=True
-  )
+  ).data
 
   sentences = []
   for i in range(15):
@@ -111,7 +109,7 @@ def test_snapshot_window():
   SENT = "Is orange number 13 any good?"  
   _insert(index, sentences)
 
-  search_results = index.search(SENT, includeMetadata=True).data
+  search_results = index.search(SENT, includeMetadata=True)
   assert(len(search_results.data.hits) == 1)
   assert(search_results.data.hits[0].indexSource == "index")
   assert(search_results.data.hits[0].value == "Orange number 13 is as good as the last")
@@ -120,7 +118,7 @@ def test_snapshot_window():
   assert(len(search_results.data.hits[0].metadata)  == 3)
 
   _snapshot(index, windowSize=2)
-  search_results = index.search(SENT, includeMetadata=True).data
+  search_results = index.search(SENT, includeMetadata=True)
   assert(len(search_results.data.hits) == 1)
   assert(search_results.data.hits[0].indexSource == "snapshot")
   assert(search_results.data.hits[0].value == "Orange number 13 is as good as the last")
