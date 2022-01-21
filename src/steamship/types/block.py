@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from steamship.client.base import ApiBase
 from steamship.types.base import Model
+from steamship.types.token import Token
 from typing import List
 
 class BlockTypes:
@@ -33,13 +34,17 @@ class Block(Model):
   type: str = None
   text: str = None
   children: List["Block"] = None
+  tokens: List["Token"] = None
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase) -> "Block":
+    if d is None:
+      return None
     return Block(
       client = client,
       id = d.get('id', None),
       type = d.get('type', None),
       text = d.get('text', None),
-      children = map(lambda child: Block.safely_from_dict(child, client), d.get('children', []))
+      children = list(map(lambda child: Block.safely_from_dict(child, client), d.get('children', []))),
+      tokens = list(map(lambda token: Token.safely_from_dict(token, client), d.get('tokens', [])))
     )

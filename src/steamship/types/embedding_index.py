@@ -19,7 +19,7 @@ class IndexCreateRequest(Request):
 
 @dataclass
 class IndexItem:
-  itemId: str = None
+  id: str = None
   indexId: str = None
   fileId: str = None
   blockId: str = None
@@ -33,7 +33,7 @@ class IndexItem:
   def clone_for_insert(self) -> "IndexItem":
     """Produces a clone with a string representation of the metadata"""
     ret = IndexItem(
-      itemId=self.itemId,
+      id=self.id,
       indexId=self.indexId,
       fileId=self.fileId,
       blockId=self.blockId,
@@ -51,7 +51,7 @@ class IndexItem:
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "IndexItem":
     return IndexItem(
-      itemId=d.get('itemId', None),
+      id=d.get('id', None),
       indexId=d.get('indexId', None),
       fileId=d.get('fileId', None),
       blockId=d.get('blockId', None),
@@ -133,7 +133,7 @@ class IndexSearchResponse(Model):
 
 @dataclass
 class IndexSnapshotRequest(Request):
-  id: str
+  indexId: str
   # This variable is intended only to support
   # unit testing.
   windowSize: int = None
@@ -232,7 +232,7 @@ class EmbeddingIndex:
       metadata = json.dumps(metadata)
 
     req = IndexInsertRequest(
-      self.id,
+      indexId=self.id,
       fileId=fileId,
       blockType=blockType,
       externalId=externalId,
@@ -265,7 +265,7 @@ class EmbeddingIndex:
         newItems.append(item)
 
     req = IndexInsertRequest(
-      id=self.id,
+      indexId=self.id,
       value=None,
       items=[item.clone_for_insert() for item in newItems],
       reindex=reindex,
@@ -292,7 +292,7 @@ class EmbeddingIndex:
   ) -> Response[IndexInsertResponse]:
     
     req = IndexInsertRequest(
-      id=self.id,
+      indexId=self.id,
       value=value,
       items=None,
       externalId=externalId,
@@ -333,7 +333,7 @@ class EmbeddingIndex:
     spaceHandle: str = None,
     space: any = None) -> Response[IndexSnapshotResponse]:
     req = IndexSnapshotRequest(
-      self.id
+      indexId=self.id
     )
     return self.client.post(
       'embedding-index/snapshot/create',

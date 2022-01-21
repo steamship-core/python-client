@@ -2,7 +2,7 @@ from typing import ItemsView
 from steamship.types.embedding_index import IndexItem
 import pytest
 
-from .helpers import _random_index, _random_name, _steamship, qa_model, sim_model
+from .helpers import _random_index, _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -49,7 +49,7 @@ def test_basic_task_comment():
         assert (comment.externalType == "Bar")
         _list_equal(comment.metadata, [1, 2])
 
-        res.delete_comment(comment.taskCommentId)
+        res.delete_comment(comment)
 
         comments = res.list_comments()
         assert (len(comments.data.comments) == 0)
@@ -71,8 +71,8 @@ def test_basic_task_comment():
         assert (comment.externalType == "Bar2")
         _list_equal(comment.metadata, [1, 2, 3, 4])
 
-        res.delete_comment(comments.data.comments[0].taskCommentId)
-        res.delete_comment(comments.data.comments[1].taskCommentId)
+        res.delete_comment(comments.data.comments[0])
+        res.delete_comment(comments.data.comments[1])
 
         comments = res.list_comments()
         assert (len(comments.data.comments) == 0)
@@ -84,7 +84,7 @@ def test_basic_task_comment():
         assert (comment.externalId == "Foo")
         assert (comment.externalType == "Bar")
         _list_equal(comment.metadata, [1, 2])
-        res.delete_comment(comments.data.comments[0].taskCommentId)
+        res.delete_comment(comments.data.comments[0])
         comments = res.list_comments()
         assert (len(comments.data.comments) == 0)
 
@@ -143,9 +143,9 @@ def test_task_comment_feedback_reporting():
     g2 = steamship.tasks.list_comments(taskId=res.task.taskId, externalId="Foo1", externalGroup=G2)
     assert (len(g2.data.comments) == 0)
 
-    res.delete_comment(comments.data.comments[0].taskCommentId)
-    res.delete_comment(comments.data.comments[1].taskCommentId)
-    res.delete_comment(comments.data.comments[2].taskCommentId)
+    res.delete_comment(comments.data.comments[0])
+    res.delete_comment(comments.data.comments[1])
+    res.delete_comment(comments.data.comments[2])
 
     g1 = steamship.tasks.list_comments(externalGroup=G1)
     assert (len(g1.data.comments) == 0)

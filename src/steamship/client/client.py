@@ -233,6 +233,7 @@ class Steamship(ApiBase):
     spaceHandle: str = None
   ) -> Response[ParseResponse]:
     req = ParseRequest(
+      type = "inline",
       docs = docs,
       model = model,
       tokenMatchers = tokenMatchers,
@@ -244,7 +245,7 @@ class Steamship(ApiBase):
       metadata = metadata
     )
     return self.post(
-      'parser/parse',
+      'model/parse',
       req,
       expect=ParseResponse,
       spaceId=spaceId,

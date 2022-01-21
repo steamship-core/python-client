@@ -3,9 +3,11 @@ from typing import Any, Type, Dict, List, Union, TypeVar, Generic
 import json
 import time
 
+T = TypeVar('T')      # Declare type variable
+
 @dataclass
 class Request(): pass
-class Task: pass
+class Task(Generic[T]): pass
 
 @dataclass
 class Model():
@@ -14,49 +16,6 @@ class Model():
     """Last resort if subclass doesn't override: pass through."""
     return d
 
-@dataclass
-class TaskCommentResponse(Model):
-  userId: str = None
-  taskId: str = None
-  taskCommentId: str = None
-  externalId: str = None
-  externalType: str = None
-  externalGroup: str = None
-  metadata: any = None
-  createdAt: str = None
-
-  @staticmethod
-  def safely_from_dict(d: any, client: Any = None) -> "TaskCommentResponse":
-    return TaskCommentResponse(
-      userId = d.get('userId', None),
-      taskId = d.get('taskId', None),
-      taskCommentId = d.get('taskCommentId', None),
-      externalId = d.get('externalId', None),
-      externalType = d.get('externalType', None),
-      externalGroup = d.get('externalGroup', None),
-      metadata = str_to_metadata(d.get("metadata", None)),
-      createdAt = d.get('createdAt', None)
-    )
-
-@dataclass
-class ListTaskCommentRequest(Request):
-  taskId: str = None
-  externalId: str = None
-  externalType: str = None
-  externalGroup: str = None
-
-@dataclass
-class ListTaskCommentResponse(Model):
-  comments: List[TaskCommentResponse]
-
-  @staticmethod
-  def safely_from_dict(d: any, client: Any = None) -> "ListTaskCommentResponse":
-    return ListTaskCommentResponse(
-      comments = [TaskCommentResponse.safely_from_dict(dd) for dd in d.get('comments', [])]
-    )
-
-
-T = TypeVar('T')      # Declare type variable
 
 class RemoteError(Exception):
   remoteMessage: str = None
@@ -89,6 +48,7 @@ class RemoteError(Exception):
 
 @dataclass
 class Response(Generic[T]):
+  expect: Type[T] = None
   task: Task = None
   data: T = None
   error: RemoteError = None
@@ -126,21 +86,21 @@ class Response(Generic[T]):
     resp = self.client.post(
       'task/status',
       payload=req,
-      expect=Task
+      expect=self.expect
     )
     self.update(resp)
 
-  def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None) -> "Response[TaskCommentResponse]":
+  def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None) -> "Response[TaskComment]":
     if self.task is not None:
       return self.task.add_comment(externalId = externalId, externalType = externalType, externalGroup = externalGroup, metadata = metadata)
 
-  def list_comments(self) -> "Response[ListTaskCommentResponse]":
+  def list_comments(self) -> "Response[TaskCommentList]":
     if self.task is not None:
       return self.task.list_comments()
 
-  def delete_comment(self, taskCommentId: str = None) -> "Response[TaskCommentResponse]":
+  def delete_comment(self, comment: "TaskComment" = None) -> "Response[TaskComment]":
     if self.task is not None:
-      return self.task.delete_comment(taskCommentId=taskCommentId)
+      return self.task.delete_comment(comment=comment)
 
 Metadata = Union[int, float, bool, str, List, Dict]
 
@@ -163,6 +123,122 @@ def metadata_to_str(m: Metadata) -> str:
 
 T = TypeVar('T', bound=Response)
 
+######
+# 
+# Tasks
+######
+
+
+@dataclass
+class CreateTaskCommentRequest(Request):
+  taskId: str
+  externalId: str = None
+  externalType: str = None
+  externalGroup: str = None
+  metadata: str = None
+  upsert: bool = None
+
+@dataclass
+class ListTaskCommentRequest(Request):
+  taskId: str = None
+  externalId: str = None
+  externalType: str = None
+  externalGroup: str = None
+
+@dataclass
+class DeleteTaskCommentRequest(Request):
+  id: str = None
+
+@dataclass
+class TaskComment(Model):
+  client: any = None
+  id: str = None
+  userId: str = None
+  taskId: str = None
+  externalId: str = None
+  externalType: str = None
+  externalGroup: str = None
+  metadata: any = None
+  createdAt: str = None
+
+  @staticmethod
+  def create(
+    client: Any,
+    taskId: str = None, 
+    externalId: str = None, 
+    externalType: str = None, 
+    externalGroup: str = None, 
+    metadata: any = None, 
+    upsert: bool = True
+    ) -> "Response[TaskComment]":
+    req = CreateTaskCommentRequest(
+      taskId=taskId,
+      externalId=externalId,
+      externalType=externalType,
+      externalGroup=externalGroup,
+      metadata=metadata_to_str(metadata),
+      upsert=upsert
+    )
+    return client.post(
+      'task/comment/create',
+      req,
+      expect=TaskComment,
+    )
+
+  @staticmethod
+  def list(
+    client: Any,
+    taskId: str = None,
+    externalId: str = None,
+    externalType: str = None,
+    externalGroup: str = None
+  ) -> "Response[TaskCommentList]":
+    req = ListTaskCommentRequest(
+      taskId=taskId,
+      externalId=externalId,
+      externalType=externalType,
+      externalGroup=externalGroup
+    )
+    return client.post(
+    'task/comment/list',
+      req,
+      expect=TaskCommentList,
+    )
+
+  def delete(self) -> "Response[TaskComment]":
+    req = DeleteTaskCommentRequest(self.id)
+    return self.client.post(
+      'task/comment/delete',
+      req,
+      expect=TaskComment,
+    )
+
+  @staticmethod
+  def safely_from_dict(d: any, client: Any = None) -> "TaskComment":
+    return TaskComment(
+      client = client,
+      id = d.get('id', None),
+      userId = d.get('userId', None),
+      taskId = d.get('taskId', None),
+      externalId = d.get('externalId', None),
+      externalType = d.get('externalType', None),
+      externalGroup = d.get('externalGroup', None),
+      metadata = str_to_metadata(d.get("metadata", None)),
+      createdAt = d.get('createdAt', None)
+    )
+
+@dataclass
+class TaskCommentList(Model):
+  comments: List[TaskComment]
+
+  @staticmethod
+  def safely_from_dict(d: any, client: Any = None) -> "TaskCommentList":
+    return TaskCommentList(
+      comments = [TaskComment.safely_from_dict(dd, client) for dd in d.get('comments', [])]
+    )
+
+
+
 class TaskStatus:
   waiting = "waiting"
   running = "running"
@@ -177,18 +253,6 @@ class TaskRunRequest(Request):
 class TaskStatusRequest(Request):
   taskId: str
 
-@dataclass
-class AddTaskCommentRequest(Request):
-  taskId: str
-  externalId: str = None
-  externalType: str = None
-  externalGroup: str = None
-  metadata: str = None
-  upsert: bool = None
-
-@dataclass
-class DeleteTaskCommentRequest(Request):
-  taskCommentId: str
 
 @dataclass
 class Task(Generic[T]):
@@ -224,37 +288,19 @@ class Task(Generic[T]):
     else:
       self.taskStatus = None
           
-  def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None, upsert: bool = True) -> Response[TaskCommentResponse]:
-    req = AddTaskCommentRequest(
+  def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None, metadata: any = None, upsert: bool = True) -> Response[TaskComment]:
+    return TaskComment.create(
+      client=self.client,
       taskId=self.taskId,
       externalId=externalId,
       externalType=externalType,
       externalGroup=externalGroup,
-      metadata=metadata_to_str(metadata),
+      metadata=metadata,
       upsert=upsert
     )
-    return self.client.post(
-      'task/comment/create',
-      req,
-      expect=TaskCommentResponse,
-    )
 
-  def list_comments(self) -> Response[ListTaskCommentResponse]:
-    req = ListTaskCommentRequest(
-      taskId=self.taskId,
-    )
-    return self.client.post(
-      'task/comment/list',
-      req,
-      expect=ListTaskCommentResponse,
-    )
+  def list_comments(self) -> Response[TaskCommentList]:
+    return TaskComment.list(client=self.client, taskId=self.taskId)
 
-  def delete_comment(self, taskCommentId: str = None) -> Response[TaskCommentResponse]:
-    req = DeleteTaskCommentRequest(
-      taskCommentId=taskCommentId
-    )
-    return self.client.post(
-      'task/comment/delete',
-      req,
-      expect=TaskCommentResponse,
-    )
+  def delete_comment(self, comment: TaskComment = None) -> Response[TaskComment]:
+    return comment.delete()

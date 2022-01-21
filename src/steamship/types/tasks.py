@@ -1,7 +1,7 @@
 import logging
 
 from steamship import __version__
-from steamship.types.base import Response, ListTaskCommentRequest, ListTaskCommentResponse
+from steamship.types.base import Response, TaskCommentList, TaskComment
 from steamship.client.base import ApiBase
 from steamship.types.model import *
 
@@ -23,14 +23,11 @@ class Tasks:
     externalId: str = None,
     externalType: str = None,
     externalGroup: str = None
-  ) -> Response[ListTaskCommentResponse]:
-    return self.client.post(
-      'task/comment/list',
-      ListTaskCommentRequest(
-        taskId=taskId,
-        externalId=externalId,
-        externalType=externalType,
-        externalGroup=externalGroup
-      ),
-      expect=ListTaskCommentResponse
+  ) -> Response[TaskCommentList]:
+    return TaskComment.list(
+      client=self.client, 
+      taskId=taskId,
+      externalId=externalId,
+      externalType=externalType,
+      externalGroup=externalGroup
     )

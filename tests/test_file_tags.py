@@ -13,11 +13,11 @@ def test_file_tag():
     a = steamship.upload(
       name=name_a,
       content="A",
-      format=FileFormats.MKD
-    )
+      mimeType=FileFormats.MKD
+    ).data
     assert(a.id is not None)
     assert(a.name == name_a)
-    assert(a.format == FileFormats.MKD)
+    assert(a.mimeType == FileFormats.MKD)
 
     a.add_tags(['test1', 'test2'])
 
