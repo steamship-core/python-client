@@ -1,5 +1,5 @@
 from typing import Dict
-from nludb.server import App, Response, Request, post, create_lambda_handler
+from steamship.server import App, Response, Request, post, create_lambda_handler
 
 class HelloWorld(App):
   @post('greet')

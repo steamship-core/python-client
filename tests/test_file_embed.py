@@ -1,8 +1,8 @@
-from nludb.types.parsing_models import ParsingModels
+from steamship.types.parsing_models import ParsingModels
 import pytest
 from os import path
 from .helpers import _random_name, _nludb
-from nludb import NLUDB, BlockTypes, FileFormats
+from steamship import NLUDB, BlockTypes, FileFormats
 from .helpers import _random_index, _random_name, _nludb
 
 __author__ = "Edward Benson"

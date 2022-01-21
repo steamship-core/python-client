@@ -1,9 +1,9 @@
 import pytest
 from os import path
 
-from nludb.types.base import TaskStatus
+from steamship.types.base import TaskStatus
 from .helpers import _random_name, _nludb
-from nludb import NLUDB, BlockTypes, FileFormats
+from steamship import NLUDB, BlockTypes, FileFormats
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"

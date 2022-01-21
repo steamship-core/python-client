@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Dict, Callable
-from nludb.types.base import Request, Model
-from nludb.client.base import ApiBase
+from steamship.types.base import Request, Model
+from steamship.client.base import ApiBase
 import json
 
 @dataclass

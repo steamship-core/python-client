@@ -7,8 +7,8 @@ Please see https://docs.steamship.com/ for information about building a Steamshi
 import json
 from typing import Dict, Union
 from functools import wraps
-from nludb.server.request import Request
-from nludb.server.response import Response, Error
+from steamship.server.request import Request
+from steamship.server.response import Response, Error
 from functools import wraps
 
 def makeRegisteringDecorator(foreignDecorator):

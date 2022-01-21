@@ -4,7 +4,7 @@ import random
 import string
 import contextlib
 
-from nludb import NLUDB, EmbeddingModels, EmbeddingIndex
+from steamship import NLUDB, EmbeddingModels, EmbeddingIndex
 from .helpers import _random_index, _random_name, _nludb
 
 __author__ = "Edward Benson"

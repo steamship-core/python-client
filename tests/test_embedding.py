@@ -1,5 +1,5 @@
 import pytest
-from nludb import EmbeddingModels
+from steamship import EmbeddingModels
 from .helpers import _random_index, _random_name, _nludb, qa_model, sim_model
 
 __author__ = "Edward Benson"

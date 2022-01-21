@@ -1,8 +1,8 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import Request, Model, Response
-from nludb.client.base import ApiBase 
-from nludb.client.requests import GetRequest, IdentifierRequest
+from steamship.types.base import Request, Model, Response
+from steamship.client.base import ApiBase 
+from steamship.client.requests import GetRequest, IdentifierRequest
 
 @dataclass
 class Space(Model):

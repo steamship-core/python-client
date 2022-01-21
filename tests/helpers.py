@@ -3,7 +3,7 @@ import random
 import string
 import contextlib
 
-from nludb import NLUDB, ParsingModels, EmbeddingModels, EmbeddingIndex, ClassifierModels, File
+from steamship import NLUDB, ParsingModels, EmbeddingModels, EmbeddingIndex, ClassifierModels, File
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"

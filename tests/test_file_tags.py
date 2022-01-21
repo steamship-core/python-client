@@ -1,7 +1,7 @@
 import pytest
 from os import path
 from .helpers import _random_name, _nludb
-from nludb import NLUDB, BlockTypes, FileFormats
+from steamship import NLUDB, BlockTypes, FileFormats
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"

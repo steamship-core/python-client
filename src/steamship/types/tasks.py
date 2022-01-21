@@ -1,9 +1,9 @@
 import logging
 
-from nludb import __version__
-from nludb.types.base import Response, ListTaskCommentRequest, ListTaskCommentResponse
-from nludb.client.base import ApiBase
-from nludb.types.model import *
+from steamship import __version__
+from steamship.types.base import Response, ListTaskCommentRequest, ListTaskCommentResponse
+from steamship.client.base import ApiBase
+from steamship.types.model import *
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"

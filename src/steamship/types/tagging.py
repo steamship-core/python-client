@@ -1,9 +1,9 @@
 import json
 from dataclasses import dataclass
 from typing import List, Dict, Callable
-from nludb.types.base import Request, Model
-from nludb.types.parsing import Doc
-from nludb.client.base import ApiBase
+from steamship.types.base import Request, Model
+from steamship.types.parsing import Doc
+from steamship.client.base import ApiBase
 
 @dataclass
 class TagResponse(Model):

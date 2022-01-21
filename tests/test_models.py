@@ -1,11 +1,11 @@
-from nludb.types.model import ModelAdapterType
+from steamship.types.model import ModelAdapterType
 import pytest
 import os
 import random
 import string
 import contextlib
 
-from nludb import NLUDB, ModelType
+from steamship import NLUDB, ModelType
 
 from .helpers import _random_index, _random_name, _nludb
 

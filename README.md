@@ -28,7 +28,7 @@ These examples illustrate simple ways to apply NLUDB in your project. To run the
 Sign up for an account at https://www.nludb.com to get your API key. Then use it to initialize your client library:
 
 ```python
-from nludb import NLUDB, EmbeddingModels
+from steamship import NLUDB, EmbeddingModels
 nludb = NLUDB(api_key)
 ```
 

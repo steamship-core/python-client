@@ -1,6 +1,6 @@
 from typing import ItemsView
-from nludb.types.embedding_index import IndexItem
-from nludb.types.base import TaskStatus
+from steamship.types.embedding_index import IndexItem
+from steamship.types.base import TaskStatus
 import pytest
 
 from .helpers import _random_index, _random_name, _nludb, qa_model, sim_model

@@ -2,23 +2,23 @@ import logging
 import json
 import re
 
-from nludb import __version__
+from steamship import __version__
 from typing import Union, List, Dict, Tuple
 from typing import List
 from dataclasses import dataclass
-from nludb.client.base import ApiBase
-from nludb.client.requests import IdentifierRequest
-from nludb.types.base import Request, Response, Response
-from nludb.types.conversion import ConvertRequest, ConvertResponse
-from nludb.types.block import Block
-from nludb.types.model import ModelTargetType
-from nludb.types.parsing import DependencyMatcher, ParseRequest, PhraseMatcher, TokenMatcher, ParseResponse
-from nludb.types.parsing_models import ParsingModels
-from nludb.types.embedding_models import EmbeddingModels
-from nludb.types.tag import *
-from nludb.types.embedding_index import EmbeddingIndex
-from nludb.types.embedding_index import IndexItem
-from nludb.types.tag import TagObjectRequest
+from steamship.client.base import ApiBase
+from steamship.client.requests import IdentifierRequest
+from steamship.types.base import Request, Response, Response
+from steamship.types.conversion import ConvertRequest, ConvertResponse
+from steamship.types.block import Block
+from steamship.types.model import ModelTargetType
+from steamship.types.parsing import DependencyMatcher, ParseRequest, PhraseMatcher, TokenMatcher, ParseResponse
+from steamship.types.parsing_models import ParsingModels
+from steamship.types.embedding_models import EmbeddingModels
+from steamship.types.tag import *
+from steamship.types.embedding_index import EmbeddingIndex
+from steamship.types.embedding_index import IndexItem
+from steamship.types.tag import TagObjectRequest
 
 class FileUploadType:
   file = "file"

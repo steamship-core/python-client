@@ -4,7 +4,7 @@ import random
 import string
 import contextlib
 
-from nludb import NLUDB, ClassifierModels, Classifier
+from steamship import NLUDB, ClassifierModels, Classifier
 from .helpers import _random_index, _random_name, _nludb
 
 __author__ = "Edward Benson"

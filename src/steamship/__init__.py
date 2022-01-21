@@ -15,7 +15,7 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .client.nludb import NLUDB
+from .client.client import Steamship
 from .types.embedding_index import EmbeddingIndex
 from .types.classifier import Classifier
 from .types.corpus import Corpus

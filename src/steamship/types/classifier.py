@@ -1,8 +1,8 @@
 from typing import List
 from dataclasses import dataclass
-from nludb.types.base import Request, Response, Model
-from nludb.types.search import Hit
-from nludb.client.base import ApiBase 
+from steamship.types.base import Request, Response, Model
+from steamship.types.search import Hit
+from steamship.client.base import ApiBase 
 
 @dataclass
 class ClassifierCreateRequest(Request):

@@ -1,7 +1,7 @@
 from typing import Dict
-from nludb.server.app import App
-from nludb.server.request import Request
-from nludb.server.response import Response, Error, Http
+from steamship.server.app import App
+from steamship.server.request import Request
+from steamship.server.response import Response, Error, Http
 
 def create_lambda_handler(app: App):
   """Wrapper function for an NLUDB app within an AWS Lambda function. 

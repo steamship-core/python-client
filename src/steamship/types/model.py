@@ -1,8 +1,8 @@
 import json
 from typing import List, Dict, Union
 from dataclasses import dataclass
-from nludb.types.base import Request, Response, Model
-from nludb.client.base import ApiBase
+from steamship.types.base import Request, Response, Model
+from steamship.client.base import ApiBase
 
 class ModelType:
   embedder = "embedder"

@@ -1,10 +1,10 @@
 import json
 from typing import Any, List
 from dataclasses import dataclass
-from nludb.types.base import Request, Model, Response, str_to_metadata
-from nludb.client.base import ApiBase
-from nludb.types.file import File, ListFilesResponse
-from nludb.client.requests import IdentifierRequest
+from steamship.types.base import Request, Model, Response, str_to_metadata
+from steamship.client.base import ApiBase
+from steamship.types.file import File, ListFilesResponse
+from steamship.client.requests import IdentifierRequest
 
 @dataclass
 class CreateCorpusRequest(Request):

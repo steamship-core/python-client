@@ -1,10 +1,10 @@
 from typing import List, Union, Dict
 import json
 from dataclasses import dataclass
-from nludb.client.requests import IdentifierRequest
-from nludb.types.base import Response, Request, Model, metadata_to_str
-from nludb.types.search import Hit
-from nludb.client.base import ApiBase 
+from steamship.client.requests import IdentifierRequest
+from steamship.types.base import Response, Request, Model, metadata_to_str
+from steamship.types.search import Hit
+from steamship.client.base import ApiBase 
 
 @dataclass
 class IndexCreateRequest(Request):

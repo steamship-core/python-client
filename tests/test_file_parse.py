@@ -1,9 +1,9 @@
-from nludb.types.base import TaskStatus
-from nludb.types.parsing_models import ParsingModels
+from steamship.types.base import TaskStatus
+from steamship.types.parsing_models import ParsingModels
 import pytest
 from os import path
 from .helpers import _random_name, _nludb
-from nludb import NLUDB, BlockTypes, FileFormats
+from steamship import NLUDB, BlockTypes, FileFormats
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"

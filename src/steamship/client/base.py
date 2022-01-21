@@ -2,9 +2,9 @@ import requests # type: ignore
 import logging
 import os
 
-from nludb import __version__
-from nludb.types.base import RemoteError, Request, Response, Task, TaskStatus
-from nludb.client.config import Configuration
+from steamship import __version__
+from steamship.types.base import RemoteError, Request, Response, Task, TaskStatus
+from steamship.client.config import Configuration
 from dataclasses import asdict
 from typing import Any, Type, TypeVar, Generic, Union
 

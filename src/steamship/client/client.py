@@ -1,23 +1,23 @@
 import logging
 from typing import Tuple, List
 
-from nludb import __version__
-from nludb.types.base import Response
-from nludb.client.base import ApiBase
-from nludb.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
-from nludb.types.embedding_index import IndexCreateRequest
-from nludb.types.embedding_index import EmbeddingIndex
-from nludb.types.classifier import Classifier
-from nludb.types.file import File
-from nludb.types.embedding_models import EmbeddingModels
-from nludb.types.parsing import ParseRequest, ParseResponse, TokenMatcher, PhraseMatcher, DependencyMatcher
-from nludb.types.parsing_models import ParsingModels
-from nludb.types.tagging import TagRequest, TagResponse
-from nludb.types.tagging_models import TaggingModels
-from nludb.types.model import Models
-from nludb.types.tasks import Tasks
-from nludb.types.corpus import Corpus
-from nludb.types.parsing import Doc
+from steamship import __version__
+from steamship.types.base import Response
+from steamship.client.base import ApiBase
+from steamship.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
+from steamship.types.embedding_index import IndexCreateRequest
+from steamship.types.embedding_index import EmbeddingIndex
+from steamship.types.classifier import Classifier
+from steamship.types.file import File
+from steamship.types.embedding_models import EmbeddingModels
+from steamship.types.parsing import ParseRequest, ParseResponse, TokenMatcher, PhraseMatcher, DependencyMatcher
+from steamship.types.parsing_models import ParsingModels
+from steamship.types.tagging import TagRequest, TagResponse
+from steamship.types.tagging_models import TaggingModels
+from steamship.types.model import Models
+from steamship.types.tasks import Tasks
+from steamship.types.corpus import Corpus
+from steamship.types.parsing import Doc
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -25,8 +25,8 @@ __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)
 
-class NLUDB(ApiBase):
-  """NLUDB Python Client."""
+class Steamship(ApiBase):
+  """Steamship Python Client."""
 
   def __init__(
     self, 

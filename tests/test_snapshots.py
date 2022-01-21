@@ -1,5 +1,5 @@
-from nludb.types.base import TaskStatus
-from nludb.types.embedding_index import IndexSnapshotRequest
+from steamship.types.base import TaskStatus
+from steamship.types.embedding_index import IndexSnapshotRequest
 import pytest
 import os
 import random
@@ -7,7 +7,7 @@ import string
 import contextlib
 import time
 
-from nludb import NLUDB, EmbeddingModels, EmbeddingIndex
+from steamship import NLUDB, EmbeddingModels, EmbeddingIndex
 from .helpers import _random_index, _random_name, _nludb, qa_model
 
 __author__ = "Edward Benson"
