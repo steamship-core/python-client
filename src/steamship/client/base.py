@@ -84,7 +84,7 @@ class ApiBase:
     if_d_query: bool = None,
     rawResponse: bool = False
   ) -> Union[Any, Response[T]]:
-    """Post to the NLUDB API.
+    """Post to the Steamship API.
 
     All responses have the format:
        {
@@ -99,7 +99,7 @@ class ApiBase:
     field is filled in.
     """
     if self.config.apiKey is None:
-      raise Exception("Please set your NLUDB API key.")
+      raise Exception("Please set your Steamship API key.")
 
     if spaceId is None and space is not None and hasattr(space, 'id'):
       spaceId = getattr(space, 'id')

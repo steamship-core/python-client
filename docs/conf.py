@@ -37,7 +37,7 @@ except ImportError:
     from sphinx import apidoc
 
 output_dir = os.path.join(__location__, "api")
-module_dir = os.path.join(__location__, "../src/nludb")
+module_dir = os.path.join(__location__, "../src/steamship")
 try:
     shutil.rmtree(output_dir)
 except FileNotFoundError:
@@ -93,7 +93,7 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = "nludb"
+project = "steamship"
 copyright = "2021, Edward Benson"
 
 # The version info for the project you're documenting, acts as replacement for
@@ -228,7 +228,7 @@ html_static_path = ["_static"]
 # html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "nludb-doc"
+htmlhelp_basename = "steamship-doc"
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -245,7 +245,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", "nludb Documentation", "Edward Benson", "manual")
+    ("index", "user_guide.tex", "steamship Documentation", "Edward Benson", "manual")
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

@@ -55,11 +55,11 @@ def post(path: str, **kwargs):
   return endpoint(verb='POST', path=path, **kwargs)
 
 class App:
-  """An NLUDB microservice.
+  """An Steamship microservice.
 
   This base class:
 
-    1. Provide a pre-authenticated instance of the NLUDB client
+    1. Provide a pre-authenticated instance of the Steamship client
     2. Provides a Lambda handler that routes to registered functions
     3. Provides useful methods connecting functions to the router.
   """

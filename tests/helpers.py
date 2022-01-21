@@ -3,7 +3,7 @@ import random
 import string
 import contextlib
 
-from steamship import NLUDB, ParsingModels, EmbeddingModels, EmbeddingIndex, ClassifierModels, File
+from steamship import Steamship, ParsingModels, EmbeddingModels, EmbeddingIndex, ClassifierModels, File
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -20,37 +20,37 @@ def _random_name() -> str:
     return "test_{}".format(id)
 
 def qa_model() -> str:
-    return _env_or('NLUDB_EMBEDDER_QA', EmbeddingModels.QA)
+    return _env_or('STEAMSHIP_EMBEDDER_QA', EmbeddingModels.QA)
 
 def sim_model() -> str:
-    return _env_or('NLUDB_EMBEDDER_SIM', EmbeddingModels.SIMILARITY)
+    return _env_or('STEAMSHIP_EMBEDDER_SIM', EmbeddingModels.SIMILARITY)
 
 def parsing_model() -> str:
-    return _env_or('NLUDB_PARSER_DEFAULT', ParsingModels.EN_DEFAULT)
+    return _env_or('STEAMSHIP_PARSER_DEFAULT', ParsingModels.EN_DEFAULT)
 
 def zero_shot_model() -> str:
-    return _env_or('NLUDB_CLASSIFIER_DEFAULT', ClassifierModels.HF_ZERO_SHOT_LBART)
+    return _env_or('STEAMSHIP_CLASSIFIER_DEFAULT', ClassifierModels.HF_ZERO_SHOT_LBART)
 
 
 _TEST_EMBEDDER = "test-embedder-v1"
 
 @contextlib.contextmanager
-def _random_index(nludb: NLUDB, model: str = _TEST_EMBEDDER) -> EmbeddingIndex:
-    index = nludb.create_index(
+def _random_index(steamship: Steamship, model: str = _TEST_EMBEDDER) -> EmbeddingIndex:
+    index = steamship.create_index(
         model=model
     ).data
     yield index
     index.delete()  # or whatever you need to do at exit
 
 @contextlib.contextmanager
-def _random_file(nludb: NLUDB, content: str = "") -> File:
-    file = nludb.create_file(
+def _random_file(steamship: Steamship, content: str = "") -> File:
+    file = steamship.create_file(
       name=_random_name(),
       contents=content
     ).data
     yield file
     file.delete()  # or whatever you need to do at exit
 
-def _nludb() -> NLUDB:
+def _steamship() -> Steamship:
     # This should automatically pick up variables from the environment.
-    return NLUDB(profile="test")
+    return Steamship(profile="test")

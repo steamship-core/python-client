@@ -1,6 +1,6 @@
 import pytest
 from steamship import EmbeddingModels
-from .helpers import _random_index, _random_name, _nludb, qa_model, sim_model
+from .helpers import _random_index, _random_name, _steamship, qa_model, sim_model
 from steamship import Space
 
 
@@ -10,13 +10,13 @@ __license__ = "MIT"
 
 
 def test_default_space():
-  client = _nludb()
+  client = _steamship()
   space = Space.get(client=client).data
   assert(space is not None)
   assert(space.handle == 'default')
 
 def test_delete_space():
-  client = _nludb()
+  client = _steamship()
   default = Space.get(client=client).data
   space1 = Space.create(client=client, name="Test", handle="test").data
   assert(default.id is not None)
@@ -43,7 +43,7 @@ def test_delete_space():
   assert(space1a.error is not None)
 
 def test_get_space():
-  client = _nludb()
+  client = _steamship()
   default = Space.get(client=client).data
   space1 = Space.create(client=client, name="Test", handle="test").data
   space1a = Space.get(client=client, spaceId=space1.id).data
@@ -52,7 +52,7 @@ def test_get_space():
   assert(space1a.handle == space1.handle)
 
 def test_create_use_delete_space():
-  client = _nludb()
+  client = _steamship()
   default = Space.get(client=client).data
   space1 = Space.create(client=client, name="Test", handle="test").data
   space2 = Space.create(client=client, name="Test", handle="test2").data

@@ -4,30 +4,30 @@ import random
 import string
 import contextlib
 
-from steamship import NLUDB, ClassifierModels, Classifier
-from .helpers import _random_index, _random_name, _nludb
+from steamship import Steamship, ClassifierModels, Classifier
+from .helpers import _random_index, _random_name, _steamship
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
 __license__ = "MIT"
 
 def test_classifier_create():
-  nludb = _nludb()
+  steamship = _steamship()
   name = _random_name()
 
   # Should require name
   with pytest.raises(Exception):
-    index = nludb.create_classifier(
+    index = steamship.create_classifier(
       model=ClassifierModels.HF_ZERO_SHOT_LBART
     )
 
   # Should require model
   with pytest.raises(Exception):
-    index = nludb.create_classifier(
+    index = steamship.create_classifier(
       name="Test Index"
     )
 
-  classifier = nludb.create_classifier(
+  classifier = steamship.create_classifier(
     name="Test 2",
     model=ClassifierModels.HF_ZERO_SHOT_LBART,
     save=False
@@ -43,7 +43,7 @@ def test_classifier_create():
       results = classifier.classify(labels=["Jurassic Park"])
 
   # Create one and let's use it
-  classifier = nludb.create_classifier(
+  classifier = steamship.create_classifier(
     name="Fruits",
     model=ClassifierModels.HF_ZERO_SHOT_LBART,
     save=False

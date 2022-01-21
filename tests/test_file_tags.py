@@ -1,7 +1,7 @@
 import pytest
 from os import path
-from .helpers import _random_name, _nludb
-from steamship import NLUDB, BlockTypes, FileFormats
+from .helpers import _random_name, _steamship
+from steamship import Steamship, BlockTypes, FileFormats
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -9,9 +9,9 @@ __license__ = "MIT"
 
 
 def test_file_tag():
-    nludb = _nludb()
+    steamship = _steamship()
     name_a = "{}.mkd".format(_random_name())
-    a = nludb.upload(
+    a = steamship.upload(
       name=name_a,
       content="A",
       format=FileFormats.MKD

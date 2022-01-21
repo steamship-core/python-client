@@ -1,5 +1,5 @@
 {
-	"name": "NLUDB Python Client",
+	"name": "Steamship Python Client",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"context": "..",

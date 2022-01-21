@@ -2,4 +2,4 @@
 Contributors
 ============
 
-* Edward Benson <ted@nludb.com>
+* Edward Benson <ted@steamship.com>

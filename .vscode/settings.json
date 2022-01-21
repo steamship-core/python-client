@@ -12,8 +12,8 @@
     ".git/objects",
     ".vscode",
     ".vscode-insiders",
-    "~/.nludb-config.json",
-    "~/.nludb.json"
+    "~/.steamship-config.json",
+    "~/.steamship.json"
   ],
   "cSpell.words": [
     "amod",

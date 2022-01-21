@@ -1,8 +1,8 @@
 ===============
-NLUDB
+Steamship
 ===============
 
-This is the documentation of **NLUDB Python client library**.
+This is the documentation of **Steamship Python client library**.
 
 .. note::
 

@@ -7,8 +7,8 @@ import string
 import contextlib
 import time
 
-from steamship import NLUDB, EmbeddingModels, EmbeddingIndex
-from .helpers import _random_index, _random_name, _nludb, qa_model
+from steamship import Steamship, EmbeddingModels, EmbeddingIndex
+from .helpers import _random_index, _random_name, _steamship, qa_model
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -48,10 +48,10 @@ def _snapshot(index, windowSize=None):
     task.check()
 
 def test_snapshot_create():
-  nludb = _nludb()
+  steamship = _steamship()
 
   name = _random_name()
-  index = nludb.create_index(
+  index = steamship.create_index(
       name=name,
       model=_TEST_EMBEDDER,
       upsert=True
@@ -96,10 +96,10 @@ def test_snapshot_create():
   index.delete()
 
 def test_snapshot_window():
-  nludb = _nludb()
+  steamship = _steamship()
 
   name = _random_name()
-  index = nludb.create_index(
+  index = steamship.create_index(
       name=name,
       model=_TEST_EMBEDDER,
       upsert=True

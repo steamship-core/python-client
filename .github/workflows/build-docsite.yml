@@ -2,7 +2,7 @@
 
 # env:
 #   GITHUB_ACTOR: eob
-#   GITHUB_REPOSITORY: nludb/python-client
+#   GITHUB_REPOSITORY: steamship/python-client
 #   GITHUB_TOKEN: ${{ secrets.CREATE_DEMO_SECRET }}
 
 # on: 

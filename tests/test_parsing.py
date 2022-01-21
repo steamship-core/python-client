@@ -1,6 +1,6 @@
 import pytest
 from steamship import EmbeddingModels
-from .helpers import _random_index, _random_name, _nludb
+from .helpers import _random_index, _random_name, _steamship
 from steamship.types.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 
 __author__ = "Edward Benson"
@@ -11,8 +11,8 @@ def parsing_model():
   return "test-parser-v1"
 
 def test_parsing():
-    nludb = _nludb()
-    resp = nludb.parse(["This is a test"], model=parsing_model()).data
+    steamship = _steamship()
+    resp = steamship.parse(["This is a test"], model=parsing_model()).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -24,8 +24,8 @@ def test_parsing():
     assert(t.lemma == "this")
 
 def test_parsing_options():
-    nludb = _nludb()
-    resp = nludb.parse(["This is a test"], model=parsing_model(), includeTokens=False).data
+    steamship = _steamship()
+    resp = steamship.parse(["This is a test"], model=parsing_model(), includeTokens=False).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -34,7 +34,7 @@ def test_parsing_options():
     assert(s.text == "This is a test")
     assert(len(s.tokens) == 0)
 
-    resp = nludb.parse(["This is a test"], model=parsing_model(), includeTokens=True, includeParseData=False).data
+    resp = steamship.parse(["This is a test"], model=parsing_model(), includeTokens=True, includeParseData=False).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.sentences) == 1)
@@ -45,8 +45,8 @@ def test_parsing_options():
     assert(s.tokens[0].dep is None)
 
 def test_ner():
-    nludb = _nludb()
-    resp = nludb.parse(["I like Ted"], model=parsing_model(), includeEntities=True).data
+    steamship = _steamship()
+    resp = steamship.parse(["I like Ted"], model=parsing_model(), includeEntities=True).data
     assert(len(resp.docs) == 1)
     d = resp.docs[0]
     assert(len(d.entities) == 1)
@@ -59,7 +59,7 @@ def test_ner():
 
 
 def test_token_matcher():
-    nludb = _nludb()
+    steamship = _steamship()
 
     a_matcher = TokenMatcher(
       label="A_MATCHER",
@@ -76,7 +76,7 @@ def test_token_matcher():
       ]
     )
 
-    resp = nludb.parse(
+    resp = steamship.parse(
       ["Let's see if a matcher works."], 
       model=parsing_model(),      
       tokenMatchers=[a_matcher, b_matcher]
@@ -96,7 +96,7 @@ def test_token_matcher():
       assert(sp.label == ans[sp.text])
 
 def test_phrase_matcher():
-    nludb = _nludb()
+    steamship = _steamship()
 
     a_matcher = PhraseMatcher(
       label="A_MATCHER",
@@ -108,7 +108,7 @@ def test_phrase_matcher():
       phrases=["if a", "see"]
     )
 
-    resp = nludb.parse(
+    resp = steamship.parse(
       ["Let's see if a matcher works."], 
       model=parsing_model(),      
       phraseMatchers=[a_matcher, b_matcher]
@@ -128,7 +128,7 @@ def test_phrase_matcher():
       assert(sp.label == ans[sp.text])
 
 def test_phrase_matcher_attr():
-    nludb = _nludb()
+    steamship = _steamship()
 
     a_matcher = PhraseMatcher(
       label="IP_ADDR",
@@ -136,7 +136,7 @@ def test_phrase_matcher_attr():
       attr="SHAPE"
     )
 
-    resp = nludb.parse(
+    resp = steamship.parse(
       ["Often the router will have an IP address such as 192.168.1.1 or 192.168.2.1."],
       model=parsing_model(),      
       phraseMatchers=[a_matcher]
@@ -155,7 +155,7 @@ def test_phrase_matcher_attr():
       assert(sp.label == ans[sp.text])
 
 def test_token_phrase_matcher_combo():
-    nludb = _nludb()
+    steamship = _steamship()
 
     a_matcher = PhraseMatcher(
       label="A_MATCHER",
@@ -190,7 +190,7 @@ def test_token_phrase_matcher_combo():
       attr="LEMMA"
     )
 
-    resp = nludb.parse(
+    resp = steamship.parse(
       ["Let's see if a Matcher can match 44.33.22.11 accordingly."], 
       model=parsing_model(),      
       tokenMatchers=[d_matcher],
@@ -218,7 +218,7 @@ def test_token_phrase_matcher_combo():
       assert(sp.label == ans[sp.text])
 
 def test_dependency_matcher():
-    nludb = _nludb()
+    steamship = _steamship()
 
     a_matcher = DependencyMatcher(
       label="FOUNDED",
@@ -232,7 +232,7 @@ def test_dependency_matcher():
       ]
     )
 
-    resp = nludb.parse(
+    resp = steamship.parse(
       ["Smith founded two companies"],
       model=parsing_model(),      
       dependencyMatchers=[a_matcher]
@@ -262,7 +262,7 @@ def test_dependency_matcher():
       ]
     )
 
-    resp = nludb.parse(
+    resp = steamship.parse(
       ["Smith founded two companies"],
       model=parsing_model(),      
       dependencyMatchers=[a_matcher]
@@ -313,7 +313,7 @@ def test_dependency_matcher():
       label="FOUNDED",
       patterns=[pattern]
     )
-    resp = nludb.parse(
+    resp = steamship.parse(
       [sent],
       model=parsing_model(),      
       dependencyMatchers=[a_matcher]

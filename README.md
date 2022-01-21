@@ -1,35 +1,35 @@
-# NLUDB Python Client Library
+# Steamship Python Client Library
 
-NLUDB is a cloud-hosted database that helps developers get work done with natural language content.
+Steamship is a cloud-hosted database that helps developers get work done with natural language content.
 
-**NLUDB is currently in a closed beta.** If you are interested in joining, please sign up at https://www.nludb.com
+**Steamship is currently in a closed beta.** If you are interested in joining, please sign up at https://www.steamship.com
 
 ## Installing
 
 ```
-pip install nludb
+pip install steamship
 ```
 
 ## Examples
 
-These examples illustrate simple ways to apply NLUDB in your project. To run these samples, make sure your API key is present in the `NLUDB_KEY` environment variable.
+These examples illustrate simple ways to apply Steamship in your project. To run these samples, make sure your API key is present in the `STEAMSHIP_KEY` environment variable.
 
 * **Question Answering Bot**
 
-  A simple chat bot that can learn facts and answer questions. View the source at [src/nludb/examples/chatbot.py](src/nludb/examples/chatbot.py) or run with: 
+  A simple chat bot that can learn facts and answer questions. View the source at [src/steamship/examples/chatbot.py](src/steamship/examples/chatbot.py) or run with: 
 
   ```bash
-  python -m nludb.examples.chatbot
+  python -m steamship.examples.chatbot
   ```
 ## Using
 
 ### Initialization
 
-Sign up for an account at https://www.nludb.com to get your API key. Then use it to initialize your client library:
+Sign up for an account at https://www.steamship.com to get your API key. Then use it to initialize your client library:
 
 ```python
-from steamship import NLUDB, EmbeddingModels
-nludb = NLUDB(api_key)
+from steamship import Steamship, EmbeddingModels
+steamship = Steamship(api_key)
 ```
 
 ### Embedding Indices
@@ -37,7 +37,7 @@ nludb = NLUDB(api_key)
 An Embedding Index is a persistent, read-optimized index over an embedded space. Once an index is created, you can search for similar items within that embedding space.
 
 ```python
-index = nludb.create_index(
+index = steamship.create_index(
   "Question Answering Index", 
   EmbeddingModels.QA
 )
@@ -56,7 +56,7 @@ results = index.search("Who should I talk to about new employee setup?")
 An Classifier encapsulates a ZeroShot or Pre-Trained classifier over some set of labels. Once a classifier is created, you can call it without providing that parameterization a second time.
 
 ```python
-index = nludb.create_classifier(
+index = steamship.create_classifier(
   "Email Intents", 
   ClassifierModels.HF_ZERO_SHOT_LBART,
   save=False, # Use it transiently

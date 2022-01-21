@@ -18,7 +18,7 @@
 #   @staticmethod
 #   def safely_from_dict(d: any, client: ApiBase = None) -> "Plugin":
 #     return Plugin(
-#       nludb = nludb
+#       steamship = steamship
 #       id = d.get('id', None),
 #       userId = d.get('userId', None),
 #       appId = d.get('appId', None),
@@ -107,7 +107,7 @@
 #       expect=PluginVersionUploadResponse
 #     )
 #     return PluginVersion(
-#       nludb=self.nludb,
+#       steamship=self.steamship,
 #       name=req.name,
 #       id=res.data.id,
 #       appId=self.id,

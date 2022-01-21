@@ -2,7 +2,7 @@ from typing import ItemsView
 from steamship.types.embedding_index import IndexItem
 import pytest
 
-from .helpers import _random_index, _random_name, _nludb, qa_model, sim_model
+from .helpers import _random_index, _random_name, _steamship, qa_model, sim_model
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -13,9 +13,9 @@ def _list_equal(actual, expected):
     assert all([a == b for a, b in zip(actual, expected)])
 
 def test_basic_task_comment():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
-    with _random_index(nludb) as index:
+    with _random_index(steamship) as index:
         item1 = IndexItem(
           value="Pizza",
           externalId="pizza",
@@ -101,9 +101,9 @@ def test_task_comment_feedback_reporting():
 
   So really we just need to test the group aggregation
   """
-  nludb = _nludb()
+  steamship = _steamship()
   name = _random_name()
-  with _random_index(nludb) as index:
+  with _random_index(steamship) as index:
     item1 = IndexItem(
       value="Pizza",
       externalId="pizza",
@@ -126,30 +126,30 @@ def test_task_comment_feedback_reporting():
     comments = res.list_comments()
     assert (len(comments.data.comments) == 3)
 
-    g1 = nludb.tasks.list_comments(externalGroup=G1)
+    g1 = steamship.tasks.list_comments(externalGroup=G1)
     assert (len(g1.data.comments) == 2)
 
-    g2 = nludb.tasks.list_comments(externalGroup=G2)
+    g2 = steamship.tasks.list_comments(externalGroup=G2)
     assert (len(g2.data.comments) == 1)
 
-    g1 = nludb.tasks.list_comments(taskId=res.task.taskId, externalGroup=G1)
+    g1 = steamship.tasks.list_comments(taskId=res.task.taskId, externalGroup=G1)
     assert (len(g1.data.comments) == 2)
 
-    g2 = nludb.tasks.list_comments(taskId=res.task.taskId, externalGroup=G2)
+    g2 = steamship.tasks.list_comments(taskId=res.task.taskId, externalGroup=G2)
     assert (len(g2.data.comments) == 1)
 
-    g1 = nludb.tasks.list_comments(taskId=res.task.taskId, externalId="Foo1", externalGroup=G1)
+    g1 = steamship.tasks.list_comments(taskId=res.task.taskId, externalId="Foo1", externalGroup=G1)
     assert (len(g1.data.comments) == 1)
 
-    g2 = nludb.tasks.list_comments(taskId=res.task.taskId, externalId="Foo1", externalGroup=G2)
+    g2 = steamship.tasks.list_comments(taskId=res.task.taskId, externalId="Foo1", externalGroup=G2)
     assert (len(g2.data.comments) == 0)
 
     res.delete_comment(comments.data.comments[0].taskCommentId)
     res.delete_comment(comments.data.comments[1].taskCommentId)
     res.delete_comment(comments.data.comments[2].taskCommentId)
 
-    g1 = nludb.tasks.list_comments(externalGroup=G1)
+    g1 = steamship.tasks.list_comments(externalGroup=G1)
     assert (len(g1.data.comments) == 0)
 
-    g2 = nludb.tasks.list_comments(externalGroup=G2)
+    g2 = steamship.tasks.list_comments(externalGroup=G2)
     assert (len(g2.data.comments) == 0)

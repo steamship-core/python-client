@@ -4,7 +4,7 @@ from steamship.server.request import Request
 from steamship.server.response import Response, Error, Http
 
 def create_lambda_handler(app: App):
-  """Wrapper function for an NLUDB app within an AWS Lambda function. 
+  """Wrapper function for an Steamship app within an AWS Lambda function. 
   """
 
   def lambda_handler(event: Dict, context: Dict) -> Dict:

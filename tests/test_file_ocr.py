@@ -1,7 +1,7 @@
 import pytest
 from os import path
-from .helpers import _random_name, _nludb
-from steamship import NLUDB, BlockTypes, FileFormats, OcrModels
+from .helpers import _random_name, _steamship
+from steamship import Steamship, BlockTypes, FileFormats, OcrModels
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -9,14 +9,14 @@ __license__ = "MIT"
 
 
 def test_image_upload():
-    nludb = _nludb()
+    steamship = _steamship()
     test_filename = path.join(
       path.dirname(path.realpath(__file__)),
       'test_img.png'
     )
     with open(test_filename, "rb") as f:
       name_c = "{}.png".format(_random_name())
-      c = nludb.upload(
+      c = steamship.upload(
           name=name_c,
           content=f
       ).data

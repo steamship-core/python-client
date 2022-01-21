@@ -1,9 +1,9 @@
 from steamship.types.parsing_models import ParsingModels
 import pytest
 from os import path
-from .helpers import _random_name, _nludb
-from steamship import NLUDB, BlockTypes, FileFormats
-from .helpers import _random_index, _random_name, _nludb
+from .helpers import _random_name, _steamship
+from steamship import Steamship, BlockTypes, FileFormats
+from .helpers import _random_index, _random_name, _steamship
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -18,7 +18,7 @@ def parsing_model():
   return "test-parser-v1"
 
 def test_file_parse():
-  nludb = _nludb()
+  steamship = _steamship()
   name_a = "{}.mkd".format(_random_name())
   T = "A nice poem"
   P1_1 = "Roses are red."
@@ -35,7 +35,7 @@ def test_file_parse():
   content2 = "# {}\n\n{} {}\n\n{} {}".format(T2, P3_1, P3_2, P4_1, P4_2)
   content = "{}\n\n{}".format(content1, content2)
 
-  a = nludb.upload(
+  a = steamship.upload(
     name=name_a,
     content=content,
     mimeType=FileFormats.MKD
@@ -58,7 +58,7 @@ def test_file_parse():
   assert(len(q2.blocks) == 8) # The 5th is inside the header!
 
   # Now we add the file to the index
-  with _random_index(nludb) as index:
+  with _random_index(steamship) as index:
     index.insert_file(a.id, reindex=False)
     embedResp = index.embed()
     assert(embedResp.error is None)
@@ -71,14 +71,14 @@ def test_file_parse():
   a.delete()
 
 def test_file_embed_lookup():
-  nludb = _nludb()
+  steamship = _steamship()
   name_a = "{}.mkd".format(_random_name())
   name_b = "{}.mkd".format(_random_name())
 
   content_a = "Ted likes to run."
   content_b = "Grace likes to bike."
 
-  a = nludb.upload(
+  a = steamship.upload(
     name=name_a,
     content=content_a,
     mimeType=FileFormats.MKD
@@ -92,7 +92,7 @@ def test_file_embed_lookup():
   assert(parseRes.error is None)
   parseRes.wait()
 
-  b = nludb.upload(
+  b = steamship.upload(
     name=name_b,
     content=content_b,
     mimeType=FileFormats.MKD
@@ -106,7 +106,7 @@ def test_file_embed_lookup():
   parseRes.wait()
 
   # Now we add the file to the index
-  with _random_index(nludb) as index:
+  with _random_index(steamship) as index:
     index.insert_file(a.id, blockType='sentence', reindex=True)
     index.insert_file(b.id, blockType='sentence', reindex=True)
 

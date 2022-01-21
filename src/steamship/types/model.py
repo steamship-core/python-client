@@ -10,8 +10,8 @@ class ModelType:
   classifier = "classifier"
 
 class ModelAdapterType:
-  nludbDocker = "nludbDocker"
-  nludbSagemaker = "nludbSagemaker"
+  steamshipDocker = "steamshipDocker"
+  steamshipSagemaker = "steamshipSagemaker"
   huggingface = "huggingface"
   openai = "openai"
 

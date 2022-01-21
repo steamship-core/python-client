@@ -2,8 +2,8 @@ from steamship.types.base import TaskStatus
 from steamship.types.parsing_models import ParsingModels
 import pytest
 from os import path
-from .helpers import _random_name, _nludb
-from steamship import NLUDB, BlockTypes, FileFormats
+from .helpers import _random_name, _steamship
+from steamship import Steamship, BlockTypes, FileFormats
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -13,7 +13,7 @@ __license__ = "MIT"
 # TODO: It should fail if the file hasn't been converted.
 
 def test_file_parse():
-  nludb = _nludb()
+  steamship = _steamship()
   name_a = "{}.mkd".format(_random_name())
   T = "A Poem"
   P1_1 = "Roses are red."
@@ -22,7 +22,7 @@ def test_file_parse():
 
   CONTENT = "# {}\n\n{} {}\n\n{}".format(T, P1_1, P1_2, P2_1)
 
-  a = nludb.upload(
+  a = steamship.upload(
     name=name_a,
     content=CONTENT,
     mimeType=FileFormats.MKD

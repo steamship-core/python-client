@@ -22,7 +22,7 @@ class Request:
   private-facing app microservice.
   """
   appId: str = None                 # e.g. slack/room_search
-  instanceId: str = None            # e.g. @nludb/#main
+  instanceId: str = None            # e.g. @steamship/#main
   verb: str = None                  # e.g. POST
   method: str = None                # e.g. /predict
   arguments: Dict[str, any] = None  # e.g. { input: "foo" }

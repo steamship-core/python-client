@@ -1,8 +1,8 @@
-# NLUDB
+# Steamship
 
 We are excited to have you on board!
 
-These instructions contain the setup for contributors fo the NLUDB client library. 
+These instructions contain the setup for contributors fo the Steamship client library. 
 
 For information about *using* this library, please see README.md
 
@@ -27,15 +27,15 @@ python -m pip install -e .
 ./bin/tox
 ```
 
-This will install the required dependencies (runtime and development) and register the project source tree with your virtual environment so that `import nludb` statements will resolve correctly.
+This will install the required dependencies (runtime and development) and register the project source tree with your virtual environment so that `import steamship` statements will resolve correctly.
 
 ## Testing
 
 ### Configuring Test Credentials
 
-This project's unit tests are intended to be performed against a running NLUDB server. They all execute by loading the `test` profile from your NLUDB client configuration. 
+This project's unit tests are intended to be performed against a running Steamship server. They all execute by loading the `test` profile from your Steamship client configuration. 
 
-To establish this profile, edit your `~/.nludb.json` file to ensure it has the following:
+To establish this profile, edit your `~/.steamship.json` file to ensure it has the following:
 
 ```
 {
@@ -47,7 +47,7 @@ To establish this profile, edit your `~/.nludb.json` file to ensure it has the f
 }
 ```
 
-For NLUDB employees who may be testing against a server running on localhost, additionally add the following `apiBase` argument to your `test` profile:
+For Steamship employees who may be testing against a server running on localhost, additionally add the following `apiBase` argument to your `test` profile:
 
 ```
 {

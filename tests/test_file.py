@@ -2,8 +2,8 @@ import pytest
 from os import path
 
 from steamship.types.base import TaskStatus
-from .helpers import _random_name, _nludb
-from steamship import NLUDB, BlockTypes, FileFormats
+from .helpers import _random_name, _steamship
+from steamship import Steamship, BlockTypes, FileFormats
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -11,9 +11,9 @@ __license__ = "MIT"
 
 
 def test_file_upload():
-    nludb = _nludb()
+    steamship = _steamship()
     name_a = "{}.mkd".format(_random_name())
-    a = nludb.upload(
+    a = steamship.upload(
       name=name_a,
       content="A",
       mimeType=FileFormats.MKD
@@ -23,7 +23,7 @@ def test_file_upload():
     assert(a.mimeType == FileFormats.MKD)
 
     name_b = "{}.txt".format(_random_name())
-    b = nludb.upload(
+    b = steamship.upload(
         name=name_b,
         content="B",
         mimeType=FileFormats.TXT
@@ -34,14 +34,14 @@ def test_file_upload():
     assert(a.id != b.id)
 
     name_c = "{}.txt".format(_random_name())
-    c = nludb.upload(
+    c = steamship.upload(
         name=name_c,
         content="B",
         mimeType=FileFormats.MKD
     ).data
     assert(c.mimeType == FileFormats.MKD) # The specified format gets precedence over filename
 
-    d = nludb.upload(
+    d = steamship.upload(
         name=name_c,
         content="B",
     ).data
@@ -54,10 +54,10 @@ def test_file_upload():
 
 
 def test_file_scrape():
-    nludb = _nludb()
+    steamship = _steamship()
 
     name_a = "{}.html".format(_random_name())
-    a = nludb.scrape(
+    a = steamship.scrape(
         name=name_a,
         url="https://edwardbenson.com/2020/10/gpt3-travel-agent"
     ).data
@@ -66,7 +66,7 @@ def test_file_scrape():
     assert(a.mimeType == FileFormats.HTML)
 
     name_b = "{}.html".format(_random_name())
-    b = nludb.scrape(
+    b = steamship.scrape(
         name=name_b,
         url="https://edwardbenson.com/2018/09/case-of-the-murderous-ai"
     ).data
@@ -79,10 +79,10 @@ def test_file_scrape():
     b.delete()
 
 # def test_file_add_bloc():
-#     nludb = _nludb()
+#     steamship = _steamship()
 
 #     name_a = "{}.txt".format(_random_name())
-#     a = nludb.upload(
+#     a = steamship.upload(
 #         name=name_a,
 #         content="This is a test."
 #     )
@@ -97,10 +97,10 @@ def test_file_scrape():
 #     # TODO: Append Blocks
 
 def test_file_upload_then_parse():
-    nludb = _nludb()
+    steamship = _steamship()
 
     name_a = "{}.txt".format(_random_name())
-    a = nludb.upload(
+    a = steamship.upload(
         name=name_a,
         content="This is a test."
     ).data
@@ -126,7 +126,7 @@ def test_file_upload_then_parse():
     assert(q1.blocks[1].text == 'This is a test.')
 
     name_b = "{}.mkd".format(_random_name())
-    b = nludb.upload(
+    b = steamship.upload(
         name=name_b,
         content="""# Header
 

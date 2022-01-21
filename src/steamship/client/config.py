@@ -3,7 +3,7 @@ import json
 from typing import Dict
 from pathlib import Path
 
-_CONFIG_FILE = '.nludb.json'
+_CONFIG_FILE = '.steamship.json'
 
 class Configuration:
   apiKey: str = None
@@ -23,8 +23,8 @@ class Configuration:
     configFile: str = None
   ):
     # First set the profile
-    if "NLUDB_PROFILE" in os.environ:
-      self.profile = os.getenv('NLUDB_PROFILE')
+    if "STEAMSHIP_PROFILE" in os.environ:
+      self.profile = os.getenv('STEAMSHIP_PROFILE')
     if profile is not None:
       self.profile = profile
 
@@ -44,9 +44,9 @@ class Configuration:
     )
 
     if self.apiBase is None:
-      self.apiBase = 'https://api.nludb.com/api/v1/'
+      self.apiBase = 'https://api.steamship.com/api/v1/'
     if self.appBase is None:
-      self.appBase = 'https://nludb.run/'
+      self.appBase = 'https://steamship.run/'
     
     if self.apiBase[len(self.apiBase) - 1] != '/':
       self.apiBase = "{}/".format(self.apiBase)
@@ -122,16 +122,16 @@ class Configuration:
     
   def apply_env_var_overrides(self):
     """Overrides with env vars"""
-    if "NLUDB_API_KEY" in os.environ:
-      self.apiKey = os.getenv('NLUDB_API_KEY')
-    if "NLUDB_API_BASE" in os.environ:
-      self.apiBase = os.getenv('NLUDB_API_BASE')
-    if "NLUDB_APP_BASE" in os.environ:
-      self.appBase = os.getenv('NLUDB_APP_BASE')
-    if "NLUDB_SPACE_ID" in os.environ:
-      self.spaceId = os.getenv('NLUDB_SPACE_ID')
-    if "NLUDB_SPACE_HANDLE" in os.environ:
-      self.spaceHandle = os.getenv('NLUDB_SPACE_HANDLE')
+    if "STEAMSHIP_API_KEY" in os.environ:
+      self.apiKey = os.getenv('STEAMSHIP_API_KEY')
+    if "STEAMSHIP_API_BASE" in os.environ:
+      self.apiBase = os.getenv('STEAMSHIP_API_BASE')
+    if "STEAMSHIP_APP_BASE" in os.environ:
+      self.appBase = os.getenv('STEAMSHIP_APP_BASE')
+    if "STEAMSHIP_SPACE_ID" in os.environ:
+      self.spaceId = os.getenv('STEAMSHIP_SPACE_ID')
+    if "STEAMSHIP_SPACE_HANDLE" in os.environ:
+      self.spaceHandle = os.getenv('STEAMSHIP_SPACE_HANDLE')
 
   def apply_invocation_overrides(
     self,

@@ -4,8 +4,8 @@ import random
 import string
 import contextlib
 
-from steamship import NLUDB, EmbeddingModels, EmbeddingIndex
-from .helpers import _random_index, _random_name, _nludb
+from steamship import Steamship, EmbeddingModels, EmbeddingIndex
+from .helpers import _random_index, _random_name, _steamship
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -13,7 +13,7 @@ __license__ = "MIT"
 
 def test_connect():
     """Test basic connection"""
-    client = _nludb()
+    client = _steamship()
     assert(client.config is not None)
     assert(client.config.profile == "test")
     assert(client.config.apiKey is not None)

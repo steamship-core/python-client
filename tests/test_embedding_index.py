@@ -3,7 +3,7 @@ from steamship.types.embedding_index import IndexItem
 from steamship.types.base import TaskStatus
 import pytest
 
-from .helpers import _random_index, _random_name, _nludb, qa_model, sim_model
+from .helpers import _random_index, _random_name, _steamship, qa_model, sim_model
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -12,17 +12,17 @@ __license__ = "MIT"
 _TEST_EMBEDDER = "test-embedder-v1"
 
 def test_index_create():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
 
     # Should require model
-    task = nludb.create_index(
+    task = steamship.create_index(
         name="Test Index"
     )
     assert task.error is not None
     assert task.data is None
 
-    index = nludb.create_index(
+    index = steamship.create_index(
         name=name,
         model=_TEST_EMBEDDER,
         upsert=True
@@ -30,7 +30,7 @@ def test_index_create():
     assert index is not None
 
     # Duplicate creation should fail with upsert=False
-    task = nludb.create_index(
+    task = steamship.create_index(
         handle=index.handle,
         model=_TEST_EMBEDDER,
         upsert=False
@@ -41,16 +41,16 @@ def test_index_create():
     index.delete()
 
 def test_index_delete():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
-    index = nludb.create_index(
+    index = steamship.create_index(
         name=name,
         model=_TEST_EMBEDDER,
         upsert=True
     ).data
     assert(index.id is not None)
 
-    task = nludb.create_index(
+    task = steamship.create_index(
         handle=index.handle,
         model=_TEST_EMBEDDER,
         upsert=True
@@ -61,7 +61,7 @@ def test_index_delete():
     
     index.delete()
 
-    task = nludb.create_index(
+    task = steamship.create_index(
         name=name,
         model=_TEST_EMBEDDER,
         upsert=True
@@ -77,9 +77,9 @@ def _list_equal(actual, expected):
     assert all([a == b for a, b in zip(actual, expected)])
 
 def test_insert_many():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
-    with _random_index(nludb) as index:
+    with _random_index(steamship) as index:
         item1 = IndexItem(
           value="Pizza",
           externalId="pizza",
@@ -120,9 +120,9 @@ def test_insert_many():
         assert (res.data.hits[0].metadata == item2.metadata)
 
 def test_embed_task():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
-    with _random_index(nludb) as index:
+    with _random_index(steamship) as index:
         insert_results = index.insert("test", reindex=False )
         res = index.embed()
 
@@ -136,10 +136,10 @@ def test_embed_task():
 
 
 def test_duplicate_inserts():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
 
-    with _random_index(nludb) as index:
+    with _random_index(steamship) as index:
         # Test for suppressed re-indexing
         A1 = "Ted can eat an entire block of cheese."
         Q1 = "Who can eat the most cheese"
@@ -148,10 +148,10 @@ def test_duplicate_inserts():
 
 
 def test_index_usage():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
 
-    with _random_index(nludb) as index:
+    with _random_index(steamship) as index:
         A1 = "Ted can eat an entire block of cheese."
         Q1 = "Who can eat the most cheese"
         insert_results = index.insert(A1)
@@ -210,10 +210,10 @@ def test_index_usage():
         assert(search_results4.data.hits[1].value == A1)
 
 def test_multiple_queries():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
 
-    with _random_index(nludb) as index:
+    with _random_index(steamship) as index:
         # Test for suppressed re-indexing
         A1 = "Ted can eat an entire block of cheese."
         A2 = "Joe can drink an entire glass of water."
@@ -266,10 +266,10 @@ def test_multiple_queries():
         assert(search_results.data.hits[1].query == QS4[1])
 
 def test_empty_queries():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
 
-    with _random_index(nludb) as index:
+    with _random_index(steamship) as index:
         A1 = "Ted can eat an entire block of cheese."
         A2 = "Joe can drink an entire glass of water."
         insert_results = index.insert_many([A1, A2])

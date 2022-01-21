@@ -1,7 +1,7 @@
 import pytest
 from os import path
-from .helpers import _random_name, _nludb
-from steamship import NLUDB, BlockTypes, FileFormats
+from .helpers import _random_name, _steamship
+from steamship import Steamship, BlockTypes, FileFormats
 
 __author__ = "Edward Benson"
 __copyright__ = "Edward Benson"
@@ -9,13 +9,13 @@ __license__ = "MIT"
 
 
 def test_corpus_create():
-    nludb = _nludb()
+    steamship = _steamship()
 
     # Should require name
     with pytest.raises(Exception):
-      corpus = nludb.create_corpus()
+      corpus = steamship.create_corpus()
 
-    corpus = nludb.create_corpus(name=_random_name()).data
+    corpus = steamship.create_corpus(name=_random_name()).data
 
     name_a = "{}.mkd".format(_random_name())
     a = corpus.upload(
@@ -41,28 +41,28 @@ def test_corpus_create():
     assert(len(resp.files) == 2)
 
 def test_corpus_upsert():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
-    corpus1 = nludb.create_corpus(name=name).data
+    corpus1 = steamship.create_corpus(name=name).data
     assert(corpus1.id is not None)
 
-    corpus2 = nludb.create_corpus(name=name)
+    corpus2 = steamship.create_corpus(name=name)
     assert (corpus2.data is None)
     assert (corpus2.error is not None)
 
-    corpus2 = nludb.create_corpus(name=name, handle=_random_name()).data
+    corpus2 = steamship.create_corpus(name=name, handle=_random_name()).data
     assert(corpus1.id != corpus2.id)
     assert(corpus2.id is not None)
 
-    corpus3 = nludb.create_corpus(name=name, upsert=True)
+    corpus3 = steamship.create_corpus(name=name, upsert=True)
     assert(corpus3.error is None)
     assert(corpus3.data.id is not None)
     assert(corpus1.id == corpus3.data.id)
 
 def test_corpus_delete():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
-    corpus1 = nludb.create_corpus(name=name).data
+    corpus1 = steamship.create_corpus(name=name).data
     resp = corpus1.delete()
     assert(resp.error is None)
     assert(resp.data is not None)
@@ -78,9 +78,9 @@ def test_corpus_delete():
     assert(a.error is not None)
 
 def test_corpus_delete_cascade():
-    nludb = _nludb()
+    steamship = _steamship()
     name = _random_name()
-    corpus1 = nludb.create_corpus(name=name).data
+    corpus1 = steamship.create_corpus(name=name).data
 
     name_a = "{}.mkd".format(_random_name())
     a = corpus1.upload(
