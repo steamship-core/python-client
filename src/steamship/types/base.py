@@ -3,9 +3,11 @@ from typing import Any, Type, Dict, List, Union, TypeVar, Generic
 import json
 import time
 
+T = TypeVar('T')      # Declare type variable
+
 @dataclass
 class Request(): pass
-class Task: pass
+class Task(Generic[T]): pass
 
 @dataclass
 class Model():
@@ -14,7 +16,6 @@ class Model():
     """Last resort if subclass doesn't override: pass through."""
     return d
 
-T = TypeVar('T')      # Declare type variable
 
 class RemoteError(Exception):
   remoteMessage: str = None
@@ -47,6 +48,7 @@ class RemoteError(Exception):
 
 @dataclass
 class Response(Generic[T]):
+  expect: Type[T] = None
   task: Task = None
   data: T = None
   error: RemoteError = None
@@ -84,7 +86,7 @@ class Response(Generic[T]):
     resp = self.client.post(
       'task/status',
       payload=req,
-      expect=Task
+      expect=self.expect
     )
     self.update(resp)
 

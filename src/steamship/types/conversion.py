@@ -22,5 +22,5 @@ class ConvertResponse(Model):
         return None
     return ConvertResponse(
       client = client,
-      block = Block.safely_from_dict(d.get('block', None), client=client)
+      root = Block.safely_from_dict(d.get('root', None), client=client)
     )

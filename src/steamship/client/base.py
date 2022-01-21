@@ -3,7 +3,7 @@ import logging
 import os
 
 from steamship import __version__
-from steamship.types.base import RemoteError, Request, Response, Task, TaskStatus
+from steamship.types.base import RemoteError, Request, Response, Task, TaskStatus, Model
 from steamship.client.config import Configuration
 from dataclasses import asdict
 from typing import Any, Type, TypeVar, Generic, Union
@@ -74,7 +74,7 @@ class ApiBase:
     operation: str, 
     payload: Request = None,
     file: None = None,
-    expect: T = Response,
+    expect: Type[T] = Model,
     asynchronous: bool = False,
     debug: bool = False,
     spaceId: str = None,
@@ -172,6 +172,7 @@ class ApiBase:
       error = RemoteError(remoteMessage = j['reason'])
 
     ret = Response[T](
+      expect=expect,
       task=task,
       data=obj,
       error=error,
