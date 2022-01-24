@@ -4,6 +4,7 @@ import os
 
 from steamship import __version__
 from steamship.types.base import RemoteError, Request, Response, Task, TaskStatus, Model
+from steamship.types.file_formats import FileFormats
 from steamship.client.config import Configuration
 from dataclasses import asdict
 from typing import Any, Type, TypeVar, Generic, Union
@@ -155,6 +156,23 @@ class ApiBase:
     
     return data
 
+  def _response_data(self, resp, rawResponse: bool = False):
+    if resp is None:
+      return None
+
+    if rawResponse:
+      return resp.content
+    
+    if resp.headers and resp.headers['Content-Type']:
+      ct = resp.headers['Content-Type']
+      ct = ct.split(';')[0] # application/json; charset=utf-8
+      if ct in [FileFormats.TXT, FileFormats.MKD, FileFormats.HTML]:
+        return resp.text
+      elif ct == FileFormats.JSON:
+        return resp.json()
+      else:
+        return resp.content    
+
   def post(self, *args, **kwargs):
     return self.call('POST', *args, **kwargs)
 
@@ -233,35 +251,32 @@ class ApiBase:
     if debug is True:
       print("Response", resp)
 
-    if rawResponse:
-      return resp.content
+    responseData = self._response_data(resp, rawResponse=rawResponse)
 
-    j = resp.json()
     if debug is True:
-      print("Response JSON", j)
+      print("Response JSON", responseData)
     
     task = None
-    if 'status' in j:
-      task = Task.safely_from_dict(j['status'], client=self)
-      # if task_resp is not None and task_resp.taskId is not None:
-      #     task = Task(client=self)
-      #     task.update(task_resp)
-
-    obj = None
-    if 'data' in j:
-      obj = expect.safely_from_dict(j['data'], client=self)
-
-    # Build the error object
-
     error = None
+    obj = responseData
 
-    if 'error' in j:
-      error = RemoteError.safely_from_dict(j['error'], client=self)
+    if type(responseData) == dict:
+      if 'status' in responseData:
+        task = Task.safely_from_dict(responseData['status'], client=self)
+        # if task_resp is not None and task_resp.taskId is not None:
+        #     task = Task(client=self)
+        #     task.update(task_resp)
+
+      if 'data' in responseData:
+        obj = expect.safely_from_dict(responseData['data'], client=self)
+
+      if 'error' in responseData:
+        error = RemoteError.safely_from_dict(j['error'], client=self)
       
-    if 'reason' in j:
-      # This is a legacy error reporting field. We should work toward being comfortable
-      # removing this handler.
-      error = RemoteError(message = j['reason'])
+      if 'reason' in responseData:
+        # This is a legacy error reporting field. We should work toward being comfortable
+        # removing this handler.
+        error = RemoteError(message = responseData['reason'])
 
     ret = Response[T](
       expect=expect,

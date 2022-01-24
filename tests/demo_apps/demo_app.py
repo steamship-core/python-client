@@ -5,7 +5,7 @@ from steamship.server import get, post, App, Response, Error, Request, post, cre
 
 class TestApp(App):
   def __init__(self, client: Steamship):
-    # In production, the lambda handler will provide an NLUDB client:
+    # In production, the lambda handler will provide an Steamship client:
     # - Authenticated to the appropriate user
     # - Bound to the appropriate space
     self.client = client
@@ -16,25 +16,25 @@ class TestApp(App):
     # Note that the *scope* of this index is limited to the space
     # this app is executing within. Each new instance of the app
     # will resultingly have a fresh index.
-    self.index = self.nludb.create_index(
+    self.index = self.client.create_index(
       handle="qa-index",
       model="test-embedder-v1"     
     ).data
 
   @get('greet')
-  def greet(self, name: str = "Person") -> Response:
-    return Response(string='Hello, {}'.format(name))
+  def greet1(self, name: str = "Person") -> Response:
+    return Response(string='Hello, {}!'.format(name))
 
   @post('greet')
-  def greet(self, name: str = "Person") -> Response:
-    return Response(string='Hello, {}'.format(name))
+  def greet2(self, name: str = "Person") -> Response:
+    return Response(string='Hello, {}!'.format(name))
 
   @get('space')
   def space(self) -> Response:
     return Response(string=self.client.config.spaceId)    
 
   @get('config')
-  def space(self) -> Response:
+  def config(self) -> Response:
     return Response(json=dict(
       spaceId=self.client.config.spaceId,
       appBase=self.client.config.appBase,

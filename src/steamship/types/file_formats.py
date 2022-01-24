@@ -1,6 +1,7 @@
 class FileFormats:
   UNKNOWN = "unknown"
   TXT = "text/plain"
+  JSON = "application/json"
   MKD = "text/markdown"
   EPUB = "application/epub+zip"
   PDF = "application/pdf"

@@ -7,10 +7,11 @@ Please see https://docs.steamship.com/ for information about building a Steamshi
 import json
 from typing import Dict, Union
 from functools import wraps
-from steamship.server.request import Request
+from steamship.server.request import Request, Verb
 from steamship.server.response import Response, Error
 from steamship.client.client import Steamship
 from functools import wraps
+import logging
 
 def makeRegisteringDecorator(foreignDecorator):
     """
@@ -91,10 +92,11 @@ class App:
     elif path[0] != '/':
       path = '/{}'.format(path)
       
+    verb = Verb.safely_from_str(verb)
     if verb not in Self._method_mappings:
       Self._method_mappings[verb] = {}
     Self._method_mappings[verb][path] = name
-    print("[{}] {} {} => {}".format(Self.__name__, verb, path, name))   
+    logging.info("[{}] {} {} => {}".format(Self.__name__, verb, path, name))   
 
   def __call__(self, request: Request, context: any = None):
     """Invokes a method call if it is registered."""
@@ -110,7 +112,7 @@ class App:
         message="No invocation was found."
       )
 
-    verb = request.invocation.httpVerb
+    verb = Verb.safely_from_str(request.invocation.httpVerb)
     appPath = request.invocation.appPath
     arguments = request.invocation.arguments
     if appPath is None or appPath == '':

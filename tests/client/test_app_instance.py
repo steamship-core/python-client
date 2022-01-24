@@ -44,10 +44,16 @@ def test_instance_invoke():
   # Now let's invoke it!
   # Note: we're invoking the data at demo_app.py in the tests/demo_apps folder
 
-  res = instance.get('greet')
+  res = instance.get('greet').data
   assert(res == "Hello, Person!")
 
-  res = instance.post('greet', name="Ted")
+  res = instance.get('greet', name="Ted").data
+  assert(res == "Hello, Ted!")
+
+  res = instance.post('greet').data
+  assert(res == "Hello, Person!")
+
+  res = instance.post('greet', name="Ted").data
   assert(res == "Hello, Ted!")
 
   res = instance.delete()
