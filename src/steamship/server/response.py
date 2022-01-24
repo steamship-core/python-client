@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 import json as jsonlib
+import dataclasses
 
 @dataclass
 class AppResponse:
@@ -31,7 +32,10 @@ class Response(AppResponse):
       self.body = string
       self.http.headers["Content-Type"] = "text/plain"
     elif json is not None:
-      self.body = jsonlib.dumps(json)
+      if dataclasses.is_dataclass(json):
+        self.body = jsonlib.dumps(dataclasses.asdict(json))
+      else:
+        self.body = jsonlib.dumps(json)
       self.http.headers["Content-Type"] = "application/json"
 
 def Error(

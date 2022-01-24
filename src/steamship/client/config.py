@@ -11,6 +11,20 @@ class Configuration:
   appBase: str = None
   spaceId: str = None
   spaceHandle: str = None
+  profile: str = None
+
+  @staticmethod
+  def safely_from_dict(d: dict) -> "Configuration":
+    if d is None:
+      return Configuration()
+
+    return Configuration(
+      apiKey=d.get('apiKey', None),
+      apiBase=d.get('apiBase', None),
+      appBase=d.get('appBase', None),
+      spaceId=d.get('spaceId', None),
+      spaceHandle=d.get('spaceHandle', None)
+    )
 
   def __init__(
     self, 
@@ -116,9 +130,16 @@ class Configuration:
     """
     paths = []
     cwd = Path(os.getcwd()).absolute()
+    MAX_DEPTH = 40
+    i = 0
     while len(str(cwd)) > 0 and str(cwd) != os.path.sep:
       paths.append(os.path.join(cwd, _configFile))
       cwd = cwd.parent.absolute()
+      i += 1
+      if i > MAX_DEPTH:
+        print("ERROR: Max depth exceeded in config search recursion.")
+        break
+
     paths.append(os.path.join(str(Path.home()), _configFile))
     for filepath in paths:
       if os.path.exists(filepath):
