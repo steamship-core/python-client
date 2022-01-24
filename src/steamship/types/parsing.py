@@ -276,7 +276,8 @@ class ParseRequest(Request):
   id: str = None
   name: str = None
   handle: str = None
-  docs: str = None
+  docs: List[str] = None
+  blockIds: List[str] = None
 
   model: str = None
   tokenMatchers: List[TokenMatcher] = None
@@ -316,6 +317,7 @@ class ParseRequest(Request):
 
     return ParseRequest(
       docs=(d.get("docs", []) or []),
+      blockIds=(d.get("blockIds", []) or []),
       model=d.get("model", None),
       tokenMatchers=token_matchers,
       phraseMatchers=phrase_matchers,
