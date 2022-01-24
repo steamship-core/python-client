@@ -149,7 +149,8 @@ class Sentence:
 @dataclass
 class Doc:
   text: str
-  sentences: List[Sentence]
+  id: str
+  children: List[Sentence]
   spans: List[Span]
   model: str
   lang: str
@@ -164,8 +165,9 @@ class Doc:
     entities = [Entity.safely_from_dict(h) for h in (d.get("entities", []) or [])]
 
     return Doc(
+      id=d.get("id", None),
       text=d.get("text", None),
-      sentences=sentences,
+      children=sentences,
       spans=spans,
       model=d.get("model", None),
       lang=d.get("lang", None),
@@ -182,7 +184,8 @@ class Doc:
     includeTokens: bool=True, 
     includeParseData: bool=True, 
     includeEntities: bool=True, 
-    sentenceFilterFn: Callable[[any], bool]=None
+    sentenceFilterFn: Callable[[any], bool]=None,
+    id: str=None
     ) -> "Doc":
     sentences = [
       Sentence.from_spacy(s, includeTokens=includeTokens, includeParseData=includeParseData, includeEntities=includeEntities) 
@@ -203,8 +206,9 @@ class Doc:
           entities.append(e)
 
     ret = Doc(
+      id=id,
       text=text,
-      sentences=sentences,
+      children=sentences,
       spans=spans,
       model=model,
       lang=d.lang_,
