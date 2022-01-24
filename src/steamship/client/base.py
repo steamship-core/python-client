@@ -26,37 +26,89 @@ class ApiBase:
   config: Configuration = None
 
   # Interaction prototype.
-  d_query: bool = False
+  dQuery: bool = False
 
   def __init__(
     self, 
-    api_key: str=None, 
-    api_base: str=None,
-    app_base: str=None,
-    space_id: str=None,
-    space_handle: str=None,
+    apiKey: str=None, 
+    apiBase: str=None,
+    appBase: str=None,
+    spaceId: str=None,
+    spaceHandle: str=None,
     profile: str = None,
-    config_file: str = None,
-    config_dict: dict = None,
-    d_query: bool=False):
+    configFile: str = None,
+    configDict: dict = None,
+    dQuery: bool=False):
 
     self.config = Configuration(
-      apiKey = api_key,
-      apiBase = api_base,
-      appBase = app_base,
-      spaceId = space_id,
-      spaceHandle = space_handle,
+      apiKey = apiKey,
+      apiBase = apiBase,
+      appBase = appBase,
+      spaceId = spaceId,
+      spaceHandle = spaceHandle,
       profile = profile,
-      configFile = config_file,
-      configDict = config_dict
+      configFile = configFile,
+      configDict = configDict
     )
 
-    self.d_query = d_query
-  
+    self.dQuery = dQuery
+
+  def _url(
+    self,
+    appCall: bool = False,
+    appOwner: str = None,
+    operation: str = None,
+    config: Configuration = None
+  ):
+    if not appCall:
+      # Regular API call
+      base = None
+      if self.config and self.config.apiBase:
+        base = self.config.apiBase
+      if config and config.apiBase:
+        base = config.apiBase
+      if base is None:
+        return RemoteError(
+          code="EndpointMissing",
+          message="Can not invoke endpoint without the apiBase variable set.",
+          suggestion="This should automatically have a good default setting. Reach out to our NLUDB support."
+        )
+    else:
+      # Do the app version
+      if appOwner is None:
+        return RemoteError(
+          code="UserMissing",
+          message="Can not invoke an app endpoint without the app owner's user handle.",
+          suggestion="Provide the appOwner option, or initialize your app with a lookup."
+        )
+
+      base = None
+      if self.config and self.config.appBase:
+        base = self.config.appBase
+      if config and config.appBase:
+        base = config.appBase
+      if base is None:
+        return RemoteError(
+          code="EndpointMissing",
+          message="Can not invoke an app endpoint without the App Base variable set.",
+          suggestion="This should automatically have a good default setting. Reach out to our NLUDB support."
+        )
+
+    if base[len(base) - 1] == '/':
+      base = base[:-1]
+    if operation[0] == '/':
+      operation = operation[1:]        
+    return "{}/{}".format(base, operation)
+
+
   def _headers(
     self, 
     spaceId: str = None, 
-    spaceHandle: str = None
+    spaceHandle: str = None,
+    appCall: bool = False,
+    appOwner: str = None,
+    appId: str = None,
+    appInstanceId: str = None
     ):
     ret = {
       "Authorization": "Bearer {}".format(self.config.apiKey)
@@ -70,21 +122,63 @@ class ApiBase:
     elif shandle:
       ret["X-Space-Handle"] = shandle
 
+    if appCall:
+      if appOwner:
+        ret['X-App-Owner-Handle'] = appOwner
+      if appId:
+        ret['X-App-Id'] = appId
+      if appInstanceId:
+        ret['X-App-Instance-Id'] = appInstanceId      
     return ret
 
-  def post(
+  def _data(
+    self,
+    verb: str,
+    file: any,
+    payload: Union[Request, dict]
+  ):
+    if type(payload) == dict:
+      data = payload
+    else:
+      data = asdict(payload) if payload is not None else {}
+
+    if verb == 'POST' and file is not None:
+      # Note: requests seems to have a bug passing boolean (and maybe numeric?)
+      # values in the midst of multipart form data. You need to manually convert
+      # it to a string; otherwise it will pass as False or True (with the capital),
+      # which is not standard notation outside of Python.
+      for key in data:
+        if data[key] is False:
+          data[key] = 'false'
+        elif data[key] is True:
+          data[key] = 'true'
+    
+    return data
+
+  def post(self, *args, **kwargs):
+    return self.call('POST', *args, **kwargs)
+
+  def get(self, *args, **kwargs):
+    return self.call('GET', *args, **kwargs)
+
+  def call(
     self, 
+    verb: str,
     operation: str, 
-    payload: Request = None,
-    file: None = None,
+    payload: Union[Request, dict] = None,
+    file: any = None,
     expect: Type[T] = Model,
     asynchronous: bool = False,
     debug: bool = False,
     spaceId: str = None,
     spaceHandle: str = None,
     space: any = None,
-    if_d_query: bool = None,
-    rawResponse: bool = False
+    if_dQuery: bool = None,
+    rawResponse: bool = False,
+    appCall: bool = False,
+    appOwner: str = None,
+    appId: str = None,
+    appInstanceId: str = None
   ) -> Union[Any, Response[T]]:
     """Post to the Steamship API.
 
@@ -110,37 +204,32 @@ class ApiBase:
       # Backup, if the spaceId transfer was None
       spaceHandle = getattr(space, 'handle')
 
-    url = "{}{}".format(self.config.apiBase, operation)
-    if file is not None:
-      data = asdict(payload) if payload is not None else {}
+    url = self._url(
+      appCall=appCall,
+      appOwner=appOwner,
+      operation=operation
+    )
+    headers = self._headers(
+      spaceId=spaceId, 
+      spaceHandle=spaceHandle,
+      appCall=appCall,
+      appOwner=appOwner,
+      appId=appId,
+      appInstanceId=appInstanceId,
+    )
 
-      # Note: requests seems to have a bug passing boolean (and maybe numeric?)
-      # values in the midst of multipart form data. You need to manually convert
-      # it to a string; otherwise it will pass as False or True (with the capital),
-      # which is not standard notation outside of Python.
-      for key in data:
-        if data[key] is False:
-          data[key] = 'false'
-        elif data[key] is True:
-          data[key] = 'true'
-      resp = requests.post(
-        url,
-        files={"file": file},
-        data=data,
-        headers=self._headers(
-          spaceId=spaceId, 
-          spaceHandle=spaceHandle
-        )
-      )
+    data = self._data(verb=verb, file=file, payload=payload)
+          
+    if verb == 'POST':
+      if file is not None:
+        resp = requests.post(url, files={"file": file}, data=data, headers=headers)
+      else:
+        resp = requests.post(url, json=data, headers=headers)
+    elif verb == 'GET':
+      resp = requests.get(url, params=data, headers=headers)
     else:
-      resp = requests.post(
-        url,
-        json=asdict(payload) if payload is not None else None,
-        headers=self._headers(
-          spaceId=spaceId, 
-          spaceHandle=spaceHandle
-        )
-      )
+      raise Exception("Unsupported verb: {}".format(verb))
+
     if debug is True:
       print("Response", resp)
 
@@ -172,7 +261,7 @@ class ApiBase:
     if 'reason' in j:
       # This is a legacy error reporting field. We should work toward being comfortable
       # removing this handler.
-      error = RemoteError(remoteMessage = j['reason'])
+      error = RemoteError(message = j['reason'])
 
     ret = Response[T](
       expect=expect,
@@ -185,16 +274,16 @@ class ApiBase:
     if ret.task is None and ret.data is None and ret.error is None:
       raise Exception('No data, task status, or error found in response')
 
-    if self.d_query is True and asynchronous:
+    if self.dQuery is True and asynchronous:
       # This is an experimental UI for jQuery-style chaining.
       ret.wait()
       # In dQuery mode we throw an error to stop the chain
       if ret.error is not None:
         raise ret.error
     
-    if self.d_query is True and if_d_query is not None:
+    if self.dQuery is True and if_dQuery is not None:
       if ret.error is not None:
         raise ret.error
-      return if_d_query
+      return if_dQuery
 
     return ret

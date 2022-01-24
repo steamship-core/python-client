@@ -2,6 +2,10 @@ import os
 import random
 import string
 import contextlib
+import io
+import os
+import zipfile
+from glob import glob
 
 from steamship import Steamship, ParsingModels, EmbeddingModels, EmbeddingIndex, ClassifierModels, File
 
@@ -53,3 +57,49 @@ def _random_file(steamship: Steamship, content: str = "") -> File:
 def _steamship() -> Steamship:
     # This should automatically pick up variables from the environment.
     return Steamship(profile="test")
+
+def create_app_zip(filename) -> bytes:
+  full_path = os.path.join(os.path.dirname(__file__), '..', 'demo_apps', filename)
+  zip_buffer = io.BytesIO()
+
+  files = []
+  files.append(('api.py', io.BytesIO(open(full_path, 'rb').read())))
+
+  # steamship_files = glob(os.path.join(steamship_path, '**', '**'))
+  # for file in steamship_files:
+  #   if os.path.isfile(file):
+  #     new_path = "steamship{}".format(files[len(steamship_path):])
+  #     tup = (new_path, io.BytesIO(open(file, 'rb').read()))
+  #     files.append(tup)
+
+  # Now we have to include all the steamship files.
+
+  venv = os.path.join(os.path.dirname(__file__), '..', '..', '.venv', 'lib', 'python3.8', 'site-packages')
+
+  pypi_zips = [
+    os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'steamship'),
+    os.path.join(venv, 'setuptools_scm'),
+    os.path.join(venv, 'requests'),
+  ]
+
+  with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:    
+    for file_name, data in files:
+      zip_file.writestr(file_name, data.getvalue())
+
+    for pypi_zip in pypi_zips:
+      for root, dirs, files in os.walk(pypi_zip):
+        for file in files:
+          zip_file.write(
+            os.path.join(root, file), 
+            os.path.relpath(
+              os.path.join(root, file), 
+              os.path.join(pypi_zip, '..')
+            )
+          )
+
+  ret = zip_buffer.getvalue()
+  
+  with open("/tmp/foo.zip", "wb") as f: # use `wb` mode
+    f.write(ret)
+
+  return ret

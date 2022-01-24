@@ -43,6 +43,9 @@ class Model(Model):
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "Model":
+    if 'model' in d:
+      d = d['model']
+
     return Model(
       id = d.get('id', None),
       name = d.get('name', None),

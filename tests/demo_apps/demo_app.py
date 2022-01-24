@@ -1,7 +1,7 @@
 from dataclasses import asdict
 from typing import Dict
 from steamship import Steamship, EmbeddingIndex
-from setamship.server import get, post, App, Response, Error, Request, post, create_lambda_handler
+from steamship.server import get, post, App, Response, Error, Request, post, create_lambda_handler
 
 class TestApp(App):
   def __init__(self, client: Steamship):
