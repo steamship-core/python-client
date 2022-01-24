@@ -196,7 +196,7 @@ class File(Model):
       'file/clear',
       IdentifierRequest(id=self.id),
       expect=FileClearResponse,
-      if_dQuery=self,
+      ifdQuery=self,
       spaceId=spaceId,
       spaceHandle=spaceHandle,
       space=space
@@ -309,7 +309,7 @@ class File(Model):
       payload=req,
       expect=ConvertResponse,
       asynchronous=True,
-      if_dQuery=self,
+      ifdQuery=self,
       spaceId=spaceId,
       spaceHandle=spaceHandle,
       space=space
@@ -339,7 +339,7 @@ class File(Model):
       payload=req,
       expect=ParseResponse,
       asynchronous=True,
-      if_dQuery=self,
+      ifdQuery=self,
       spaceId=spaceId,
       spaceHandle=spaceHandle,
       space=space

@@ -65,15 +65,10 @@ def create_app_zip(filename) -> bytes:
   files = []
   files.append(('api.py', io.BytesIO(open(full_path, 'rb').read())))
 
-  # steamship_files = glob(os.path.join(steamship_path, '**', '**'))
-  # for file in steamship_files:
-  #   if os.path.isfile(file):
-  #     new_path = "steamship{}".format(files[len(steamship_path):])
-  #     tup = (new_path, io.BytesIO(open(file, 'rb').read()))
-  #     files.append(tup)
-
-  # Now we have to include all the steamship files.
-
+  # TODO: This is very dependent on the setup of the local machine.
+  # Might be good to find a more machine-invariant solution here.
+  # The goal is to copy in all the dependencies of the lambda package.
+  # Which are: steamship (current repo), setuptools_scm, requests
   venv = os.path.join(os.path.dirname(__file__), '..', '..', '.venv', 'lib', 'python3.8', 'site-packages')
 
   pypi_zips = [

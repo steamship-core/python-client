@@ -11,7 +11,7 @@ def create_lambda_handler(App: Type[App]):
   """
 
   def lambda_handler(event: Dict, context: Dict = None) -> Dict:
-    # Create a new NLUDB client
+    # Create a new Steamship client
     client = Steamship(
       configDict=event.get("clientConfig", None)
     )

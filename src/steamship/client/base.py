@@ -72,7 +72,7 @@ class ApiBase:
         return RemoteError(
           code="EndpointMissing",
           message="Can not invoke endpoint without the apiBase variable set.",
-          suggestion="This should automatically have a good default setting. Reach out to our NLUDB support."
+          suggestion="This should automatically have a good default setting. Reach out to our Steamship support."
         )
     else:
       # Do the app version
@@ -92,7 +92,7 @@ class ApiBase:
         return RemoteError(
           code="EndpointMissing",
           message="Can not invoke an app endpoint without the App Base variable set.",
-          suggestion="This should automatically have a good default setting. Reach out to our NLUDB support."
+          suggestion="This should automatically have a good default setting. Reach out to our Steamship support."
         )
 
     if base[len(base) - 1] == '/':
@@ -191,7 +191,7 @@ class ApiBase:
     spaceId: str = None,
     spaceHandle: str = None,
     space: any = None,
-    if_dQuery: bool = None,
+    ifdQuery: bool = None,
     rawResponse: bool = False,
     appCall: bool = False,
     appOwner: str = None,
@@ -296,9 +296,9 @@ class ApiBase:
       if ret.error is not None:
         raise ret.error
     
-    if self.dQuery is True and if_dQuery is not None:
+    if self.dQuery is True and ifdQuery is not None:
       if ret.error is not None:
         raise ret.error
-      return if_dQuery
+      return ifdQuery
 
     return ret
