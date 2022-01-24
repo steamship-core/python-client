@@ -45,6 +45,9 @@ class Corpus(Model):
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "Corpus":
+    if 'corpus' in d:
+      d = d['corpus']
+
     return Corpus(
       client = client,
       id = d.get('id', None),

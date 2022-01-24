@@ -29,7 +29,7 @@ Sign up for an account at https://www.steamship.com to get your API key. Then us
 
 ```python
 from steamship import Steamship, EmbeddingModels
-steamship = Steamship(api_key)
+steamship = Steamship(apiKey)
 ```
 
 ### Embedding Indices

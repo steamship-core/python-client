@@ -3,7 +3,7 @@ import json
 from typing import Dict
 from pathlib import Path
 
-_CONFIG_FILE = '.steamship.json'
+_configFile = '.steamship.json'
 
 class Configuration:
   apiKey: str = None
@@ -11,6 +11,20 @@ class Configuration:
   appBase: str = None
   spaceId: str = None
   spaceHandle: str = None
+  profile: str = None
+
+  @staticmethod
+  def safely_from_dict(d: dict) -> "Configuration":
+    if d is None:
+      return Configuration()
+
+    return Configuration(
+      apiKey=d.get('apiKey', None),
+      apiBase=d.get('apiBase', None),
+      appBase=d.get('appBase', None),
+      spaceId=d.get('spaceId', None),
+      spaceHandle=d.get('spaceHandle', None)
+    )
 
   def __init__(
     self, 
@@ -20,7 +34,8 @@ class Configuration:
     spaceId: str = None,
     spaceHandle: str = None,
     profile: str = None,
-    configFile: str = None
+    configFile: str = None,
+    configDict: dict = None,
   ):
     # First set the profile
     if "STEAMSHIP_PROFILE" in os.environ:
@@ -35,6 +50,10 @@ class Configuration:
       self.try_autofinding_files(self.profile)
 
     self.apply_env_var_overrides()
+
+    if configDict is not None:
+      self.merge_dict(configDict)
+
     self.apply_invocation_overrides(
       apiKey=apiKey,
       apiBase=apiBase,
@@ -111,10 +130,17 @@ class Configuration:
     """
     paths = []
     cwd = Path(os.getcwd()).absolute()
+    MAX_DEPTH = 40
+    i = 0
     while len(str(cwd)) > 0 and str(cwd) != os.path.sep:
-      paths.append(os.path.join(cwd, _CONFIG_FILE))
+      paths.append(os.path.join(cwd, _configFile))
       cwd = cwd.parent.absolute()
-    paths.append(os.path.join(str(Path.home()), _CONFIG_FILE))
+      i += 1
+      if i > MAX_DEPTH:
+        print("ERROR: Max depth exceeded in config search recursion.")
+        break
+
+    paths.append(os.path.join(str(Path.home()), _configFile))
     for filepath in paths:
       if os.path.exists(filepath):
         self.load_from_file(filepath, profile=profile, throw_on_error=True)
@@ -122,16 +148,16 @@ class Configuration:
     
   def apply_env_var_overrides(self):
     """Overrides with env vars"""
-    if "STEAMSHIP_API_KEY" in os.environ:
-      self.apiKey = os.getenv('STEAMSHIP_API_KEY')
-    if "STEAMSHIP_API_BASE" in os.environ:
-      self.apiBase = os.getenv('STEAMSHIP_API_BASE')
-    if "STEAMSHIP_APP_BASE" in os.environ:
-      self.appBase = os.getenv('STEAMSHIP_APP_BASE')
-    if "STEAMSHIP_SPACE_ID" in os.environ:
-      self.spaceId = os.getenv('STEAMSHIP_SPACE_ID')
-    if "STEAMSHIP_SPACE_HANDLE" in os.environ:
-      self.spaceHandle = os.getenv('STEAMSHIP_SPACE_HANDLE')
+    if "STEAMSHIP_apiKey" in os.environ:
+      self.apiKey = os.getenv('STEAMSHIP_apiKey')
+    if "STEAMSHIP_apiBase" in os.environ:
+      self.apiBase = os.getenv('STEAMSHIP_apiBase')
+    if "STEAMSHIP_appBase" in os.environ:
+      self.appBase = os.getenv('STEAMSHIP_appBase')
+    if "STEAMSHIP_spaceId" in os.environ:
+      self.spaceId = os.getenv('STEAMSHIP_spaceId')
+    if "STEAMSHIP_spaceHandle" in os.environ:
+      self.spaceHandle = os.getenv('STEAMSHIP_spaceHandle')
 
   def apply_invocation_overrides(
     self,

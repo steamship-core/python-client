@@ -96,6 +96,8 @@ class FileTagResponse(Model):
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "FileTagResponse":
+    if 'file' in d:
+      d = d['file']
     return FileTagResponse(
       id = d.get('id', None),
       tagResult = ParseResponse.safely_from_dict(d.get('tagResult', {}), client=client)
@@ -194,7 +196,7 @@ class File(Model):
       'file/clear',
       IdentifierRequest(id=self.id),
       expect=FileClearResponse,
-      if_d_query=self,
+      ifdQuery=self,
       spaceId=spaceId,
       spaceHandle=spaceHandle,
       space=space
@@ -307,7 +309,7 @@ class File(Model):
       payload=req,
       expect=ConvertResponse,
       asynchronous=True,
-      if_d_query=self,
+      ifdQuery=self,
       spaceId=spaceId,
       spaceHandle=spaceHandle,
       space=space
@@ -337,7 +339,7 @@ class File(Model):
       payload=req,
       expect=ParseResponse,
       asynchronous=True,
-      if_d_query=self,
+      ifdQuery=self,
       spaceId=spaceId,
       spaceHandle=spaceHandle,
       space=space
@@ -429,7 +431,7 @@ class File(Model):
       spaceHandle=spaceHandle,
       space=space
     )
-    if not self.client.d_query:
+    if not self.client.dQuery:
       return res
     else:
       if pd is False:
@@ -482,7 +484,7 @@ class File(Model):
       spaceHandle=spaceHandle,
       space=space      
     )
-    if not self.client.d_query:
+    if not self.client.dQuery:
       blocks = blocks.data.blocks
 
     items = []
@@ -502,7 +504,7 @@ class File(Model):
       space=space
     )
 
-    if self.client.d_query:
+    if self.client.dQuery:
       insert_task.wait()
       return index
     return insert_task
