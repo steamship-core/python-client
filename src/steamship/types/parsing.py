@@ -195,7 +195,7 @@ class ParseResponse(Model):
   def safely_to_dict(self) -> dict:
     blocks = None
     if self.blocks is not None:
-      blocks = [block.safely_to_dict() for block in blocks]
+      blocks = [block.safely_to_dict() for block in self.blocks]
 
     return dict(
       blocks = blocks
