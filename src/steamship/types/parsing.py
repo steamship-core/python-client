@@ -201,43 +201,6 @@ class ParseResponse(Model):
       blocks = blocks
     )
 
-  @staticmethod
-  def from_spacy(
-    spacyObj: any, 
-    includeTokens: bool=True, 
-    includeParseData: bool=True, 
-    includeEntities: bool=True,
-    id: str=None
-    ) -> "Block":
-
-    blocks = [
-      Block.from_spacy(
-        id=id,
-        spacyObj=spacySent, 
-        includeTokens=includeTokens, 
-        includeParseData=includeParseData, 
-        includeEntities=includeEntities
-      ) 
-      for spacySent in spacyObj.sents
-    ]
-    # spans = []
-    # for label in d.spans:
-    #   span_group = d.spans[label]
-    #   for s in span_group:
-    #     spans.append(Span.safely_from_dict(s))
-
-    # entities = []
-    # if includeEntities is True:
-    #   for ent in d.ents:
-    #     e = Entity.from_spacy(ent)
-    #     if e is not None:
-    #       entities.append(e)
-
-    ret = ParseResponse(
-      blocks=blocks,
-    )
-    return ret
-
 
 MatcherClause = Dict[str, any]
 Matcher = List[MatcherClause]

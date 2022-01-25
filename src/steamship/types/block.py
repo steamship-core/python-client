@@ -55,8 +55,49 @@ class Block(Model):
     )
 
   @staticmethod
+  def from_spacy_root(
+    id: str=None,
+    spacyObj: any=None, 
+    includeTokens: bool=True, 
+    includeParseData: bool=True, 
+    includeEntities: bool=True
+    ) -> "Block":
+    children = None
+    if spacyObj is not None:
+      children = [
+        Block.from_spacy(
+          type=BlockTypes.Sentence,
+          spacyObj=spacySent, 
+          includeTokens=includeTokens, 
+          includeParseData=includeParseData, 
+          includeEntities=includeEntities
+        ) 
+        for spacySent in spacyObj.sents
+      ]
+
+    # spans = []
+    # for label in d.spans:
+    #   span_group = d.spans[label]
+    #   for s in span_group:
+    #     spans.append(Span.safely_from_dict(s))
+
+    # entities = []
+    # if includeEntities is True:
+    #   for ent in d.ents:
+    #     e = Entity.from_spacy(ent)
+    #     if e is not None:
+    #       entities.append(e)
+    
+    return Block(
+      id=id,
+      type=BlockTypes.Document,
+      children=blocks
+    )
+
+  @staticmethod
   def from_spacy(
     spacyObj: any = None, 
+    type: any = None,
     includeTokens: bool=True, 
     includeParseData: bool=True, 
     includeEntities: bool=True
@@ -74,6 +115,7 @@ class Block(Model):
     # entities = [Entity.from_spacy(e) for e in d.ents] if includeEntities is True else []
 
     return Block(
+      type=type,
       text=spacyObj.text,
       tokens=tokens,
       spans=[]
