@@ -7,9 +7,11 @@ Please see https://docs.steamship.com/ for information about building a Steamshi
 import json
 from typing import Dict, Union
 from functools import wraps
-from steamship.server.request import Request
+from steamship.server.request import Request, Verb
 from steamship.server.response import Response, Error
+from steamship.client.client import Steamship
 from functools import wraps
+import logging
 
 def makeRegisteringDecorator(foreignDecorator):
     """
@@ -63,6 +65,9 @@ class App:
     2. Provides a Lambda handler that routes to registered functions
     3. Provides useful methods connecting functions to the router.
   """
+
+  def __init__(self, client: Steamship = None):
+    self.client = client
     
   """Base class to expose instance methods"""
   def __init_subclass__(cls, **kwargs):
@@ -82,10 +87,16 @@ class App:
     """Registering a mapping permits the method to be invoked via HTTP."""
     if getattr(Self, "_method_mappings") is None:
       setattr(Self, "_method_mappings", {})
+    if path is None or path == '':
+      path = '/'
+    elif path[0] != '/':
+      path = '/{}'.format(path)
+      
+    verb = Verb.safely_from_str(verb)
     if verb not in Self._method_mappings:
       Self._method_mappings[verb] = {}
     Self._method_mappings[verb][path] = name
-    print("[{}] {} {} => {}".format(Self.__name__, verb, path, name))   
+    logging.info("[{}] {} {} => {}".format(Self.__name__, verb, path, name))   
 
   def __call__(self, request: Request, context: any = None):
     """Invokes a method call if it is registered."""
@@ -95,25 +106,39 @@ class App:
         message="No mappings available for app."
       )
 
-    if request.verb not in self.__class__._method_mappings:
+    if request.invocation is None:
       return Error(
         httpStatus=404,
-        message="No methods for verb {} available.".format(request.verb)
+        message="No invocation was found."
       )
-    if request.method not in self.__class__._method_mappings[request.verb]:
+
+    verb = Verb.safely_from_str(request.invocation.httpVerb)
+    appPath = request.invocation.appPath
+    arguments = request.invocation.arguments
+    if appPath is None or appPath == '':
+      appPath = '/'
+    elif appPath[0] != '/':
+      appPath = '/{}'.format(appPath)
+
+    if verb not in self.__class__._method_mappings:
       return Error(
         httpStatus=404,
-        message="No handler for {} {} available.".format(request.verb, request.method)
+        message="No methods for verb {} available.".format(verb)
+      )
+    if appPath not in self.__class__._method_mappings[verb]:
+      return Error(
+        httpStatus=404,
+        message="No handler for {} {} available.".format(verb, appPath)
       )    
-    method = self.__class__._method_mappings[request.verb][request.method]
+    method = self.__class__._method_mappings[verb][appPath]
 
     if not (hasattr(self, method) and callable(getattr(self, method))):
       return Error(
         httpStatus=500,
-        message="Handler for {} {} not callable.".format(request.verb, request.method)
+        message="Handler for {} {} not callable.".format(verb, appPath)
       )
 
-    if request.arguments is None:      
+    if arguments is None:      
       return getattr(self, method)()
     else:
-      return getattr(self, method)(**request.arguments)
+      return getattr(self, method)(**arguments)

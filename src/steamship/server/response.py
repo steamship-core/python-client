@@ -1,18 +1,25 @@
 from dataclasses import dataclass
 from typing import Dict
 import json as jsonlib
+import dataclasses
+import logging
 
 @dataclass
 class AppResponse:
   pass
 
 @dataclass
-class Error():
+class ErrorResponse():
   message: str = None
   internalMessage: str = None
   error: str = None
   suggestion: str = None
   code: str = None
+  
+  def log(self):
+    logging.error("[{}] {}. [Internal: {}]".format(self.code, self.message, self.internalMessage))
+    if self.error:
+      logging.error(self.error)
 
 @dataclass
 class Http():
@@ -21,17 +28,26 @@ class Http():
 
 @dataclass
 class Response(AppResponse):
-  error: Error = None
+  error: ErrorResponse = None
   http: Http = None
   body: any = None
 
-  def __init__(self, string=None, json=None):
-    self.http = Http(status=200, headers={})
+  def __init__(self, error: ErrorResponse=None, http: Http=None, body: any = None, string=None, json=None):
+    if http is not None:
+      self.http = http
+    else:
+      self.http = Http(status=200, headers={})
+    self.body = body
+    self.error = error
+
     if string is not None:
       self.body = string
       self.http.headers["Content-Type"] = "text/plain"
     elif json is not None:
-      self.body = jsonlib.dumps(json)
+      if dataclasses.is_dataclass(json):
+        self.body = jsonlib.dumps(dataclasses.asdict(json))
+      else:
+        self.body = jsonlib.dumps(json)
       self.http.headers["Content-Type"] = "application/json"
 
 def Error(
@@ -42,17 +58,14 @@ def Error(
   suggestion: str = None, 
   error: Exception = None
   ) -> Response:
-  return Response(
-    error=Error(
-      message=message,
-      internalMessage=internalMessage,
-      error="{}".format(error),
-      suggestion=suggestion,
-      code=code
-    ),
-    http=Http(
-      status=httpStatus
-    )
+  err = ErrorResponse(
+    message=message,
+    internalMessage=internalMessage,
+    error="{}".format(error),
+    suggestion=suggestion,
+    code=code
   )
+  err.log()
+  return Response(error=err, http=Http(status=httpStatus))
 
   

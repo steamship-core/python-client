@@ -1,6 +1,8 @@
 import logging
 from typing import Tuple, List
 
+from setuptools_scm import Configuration
+
 from steamship import __version__
 from steamship.types.base import Response
 from steamship.client.base import ApiBase
@@ -29,27 +31,29 @@ class Steamship(ApiBase):
 
   def __init__(
     self, 
-    api_key: str=None, 
-    api_base: str=None,
-    app_base: str=None,
-    space_id: str=None,
-    space_handle: str=None,
+    apiKey: str=None, 
+    apiBase: str=None,
+    appBase: str=None,
+    spaceId: str=None,
+    spaceHandle: str=None,
     profile: str=None,
-    config_file: str=None,
-    d_query: bool=False):
+    configFile: str=None,
+    configDict: dict=None,
+    dQuery: bool=False):
     super().__init__(
-      api_key=api_key, 
-      api_base=api_base,
-      app_base=app_base,
-      space_id=space_id,
-      space_handle=space_handle,
+      apiKey=apiKey, 
+      apiBase=apiBase,
+      appBase=appBase,
+      spaceId=spaceId,
+      spaceHandle=spaceHandle,
       profile=profile,
-      config_file=config_file,
-      d_query=d_query)
+      configFile=configFile,
+      configDict=configDict,
+      dQuery=dQuery)
     """
     The base class will properly detect and set the defaults. They should be None here.
 
-    d_query is a Beta option that will return chainable responses, like:
+    dQuery is a Beta option that will return chainable responses, like:
       file.upload()
           .convert()
           .parse()

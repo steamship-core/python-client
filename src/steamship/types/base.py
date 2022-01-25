@@ -18,20 +18,20 @@ class Model():
 
 
 class RemoteError(Exception):
-  remoteMessage: str = None
+  message: str = None
   suggestion: str = None
   code: str = None
 
-  def __init__(self, remoteMessage: str = "Undefined remote error", suggestion: str = None, code: str = None):
-    self.remoteMessage = remoteMessage
+  def __init__(self, message: str = "Undefined remote error", suggestion: str = None, code: str = None):
+    self.message = message
     self.suggestion = suggestion
     self.code = code
 
     parts = []
     if code is not None:
       parts.append("[{}]".format(code))
-    if remoteMessage is not None:
-      parts.append(remoteMessage)
+    if message is not None:
+      parts.append(message)
     if suggestion is not None:
       parts.append("Suggestion: {}".format(suggestion))
       
@@ -41,7 +41,7 @@ class RemoteError(Exception):
   def safely_from_dict(d: any, client: Any = None) -> "RemoteError":
     """Last resort if subclass doesn't override: pass through."""
     return RemoteError(
-      remoteMessage = d.get('message', None),
+      message = d.get('message', None),
       suggestion = d.get('suggestion', None),
       code = d.get('code', None)
     )
@@ -64,10 +64,15 @@ class Response(Generic[T]):
   def wait(self, max_timeout_s: float=60, retry_delay_s: float=1):
     """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
     start = time.time()
+    if self.task is None:
+      return
+
     self.check()
     if self.task is not None:
       if self.task.taskStatus == TaskStatus.succeeded or self.task.taskStatus == TaskStatus.failed:
         return
+    else:
+      return
     time.sleep(retry_delay_s)
 
     while time.time() - start < max_timeout_s:
@@ -76,6 +81,8 @@ class Response(Generic[T]):
       if self.task is not None:
         if self.task.taskStatus == TaskStatus.succeeded or self.task.taskStatus == TaskStatus.failed:
           return
+      else:
+        return
 
   def check(self):
     if self.task is None:
