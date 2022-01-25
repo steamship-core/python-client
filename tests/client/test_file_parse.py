@@ -33,7 +33,7 @@ def test_file_parse():
   a.convert().wait()
 
   raw = a.raw()
-  assert(raw.decode('utf-8') == CONTENT)
+  assert(raw.data.decode('utf-8') == CONTENT)
 
   q1 = a.query(blockType=BlockTypes.H1).data
   assert(len(q1.blocks) == 1)

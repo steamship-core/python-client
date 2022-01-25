@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from steamship.client.base import ApiBase
 from steamship.types.base import Model
+from steamship.types.span import Span
 from steamship.types.token import Token
 from typing import List
 
@@ -35,16 +36,67 @@ class Block(Model):
   text: str = None
   children: List["Block"] = None
   tokens: List["Token"] = None
+  spans: List["Span"] = None
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase) -> "Block":
     if d is None:
       return None
+    if 'block' in d:
+      d = d['block']
     return Block(
       client = client,
       id = d.get('id', None),
       type = d.get('type', None),
       text = d.get('text', None),
       children = list(map(lambda child: Block.safely_from_dict(child, client), d.get('children', []))),
-      tokens = list(map(lambda token: Token.safely_from_dict(token, client), d.get('tokens', [])))
+      tokens = list(map(lambda token: Token.safely_from_dict(token, client), d.get('tokens', []))),
+      # spans = list(map(lambda span: Span.safely_from_dict(span, client), d.get('span', []))),
+    )
+
+  @staticmethod
+  def from_spacy(
+    spacyObj: any = None, 
+    includeTokens: bool=True, 
+    includeParseData: bool=True, 
+    includeEntities: bool=True
+    ) -> "Block":
+
+    if spacyObj is None:
+      return None
+    
+    tokens = [
+      Token.from_spacy(
+        token, 
+        includeParseData=includeParseData
+      ) for token in spacyObj] if includeTokens is True else []
+
+    # entities = [Entity.from_spacy(e) for e in d.ents] if includeEntities is True else []
+
+    return Block(
+      text=spacyObj.text,
+      tokens=tokens,
+      spans=[]
+    )    
+
+  def safely_to_dict(self) -> dict:
+    children = None
+    if self.children is not None:
+      children = [child.safely_to_dict() for child in self.children]
+
+    tokens = None
+    if self.tokens is not None:
+      tokens = [token.safely_to_dict() for token in self.tokens]
+
+    spans = None
+    if self.spans is not None:
+      spans = [span.safely_to_dict() for span in self.spans]
+
+    return dict(
+      id=self.id,
+      type=self.type,
+      text=self.text,
+      children=children,
+      tokens=tokens,
+      spans=spans
     )

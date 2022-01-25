@@ -6,6 +6,8 @@ from steamship.client.base import ApiBase
 @dataclass
 class Token(Model):
   client: ApiBase = None
+  id: str = None
+  blockId: bool = None
   text: str = None
   textWithWs: str = None
   whitespace: str = None
@@ -43,12 +45,13 @@ class Token(Model):
   prob: float = None
   charIndex: int = None
   tokenIndex: int = None
-  blockId: bool = None
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "Token":
     return Token(
       client = client,
+      id = d.get("id", None),
+      blockId = d.get("blockId", None),
       text = d.get("text", None),
       textWithWs = d.get("textWithWs", None),
       whitespace = d.get("whitespace", None),
@@ -86,7 +89,6 @@ class Token(Model):
       prob = d.get("prob", None),
       charIndex = d.get("charIndex", None),
       tokenIndex = d.get("tokenIndex", None),
-      blockId = d.get("blockId", None)
     )
 
   def __len__(self):
@@ -148,4 +150,47 @@ class Token(Model):
       prob = t.prob,
       charIndex = t.idx,
       tokenIndex = t.i,
+    )
+  
+  def safely_to_dict(self) -> dict:
+    return dict(
+      id=self.id,
+      blockId=self.blockId,
+      text=self.text,
+      textWithWs=self.textWithWs,
+      whitespace=self.whitespace,
+      head=self.head,
+      headI=self.headI,
+      leftEdge=self.leftEdge,
+      rightEdge=self.rightEdge,
+      entType=self.entType,
+      entIob=self.entIob,
+      lemma=self.lemma,
+      normalized=self.normalized,
+      shape=self.shape,
+      prefix=self.prefix,
+      suffix=self.suffix,
+      isAlpha=self.isAlpha,
+      isAscii=self.isAscii,
+      isDigit=self.isDigit,
+      isTitle=self.isTitle,
+      isPunct=self.isPunct,
+      isLeftPunct=self.isLeftPunct,
+      isRightPunct=self.isRightPunct,
+      isSpace=self.isSpace,
+      isBracket=self.isBracket,
+      isQuote=self.isQuote,
+      isCurrency=self.isCurrency,
+      likeUrl=self.likeUrl,
+      likeNum=self.likeNum,
+      likeEmail=self.likeEmail,
+      isOov=self.isOov,
+      isStop=self.isStop,
+      pos=self.pos,
+      tag=self.tag,
+      dep=self.dep,
+      lang=self.lang,
+      prob=self.prob,
+      charIndex=self.charIndex,
+      tokenIndex=self.tokenIndex
     )

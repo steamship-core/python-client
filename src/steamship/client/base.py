@@ -271,7 +271,7 @@ class ApiBase:
         obj = expect.safely_from_dict(responseData['data'], client=self)
 
       if 'error' in responseData:
-        error = RemoteError.safely_from_dict(j['error'], client=self)
+        error = RemoteError.safely_from_dict(responseData['error'], client=self)
       
       if 'reason' in responseData:
         # This is a legacy error reporting field. We should work toward being comfortable
@@ -281,7 +281,7 @@ class ApiBase:
     ret = Response[T](
       expect=expect,
       task=task,
-      data=obj,
+      data=obj if error is None else obj,
       error=error,
       client=self
     )

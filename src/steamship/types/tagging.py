@@ -2,25 +2,25 @@ import json
 from dataclasses import dataclass
 from typing import List, Dict, Callable
 from steamship.types.base import Request, Model
-from steamship.types.parsing import Doc
+from steamship.types.block import Block
 from steamship.client.base import ApiBase
 
 @dataclass
 class TagResponse(Model):
-  docs: List[Doc] = None
+  blocks: List[Block] = None
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "TagResponse":
-    docs = [Doc.safely_from_dict(h) for h in (d.get("docs", []) or [])]
+    blocks = [Block.safely_from_dict(h) for h in (d.get("blocks", []) or [])]
     return TagResponse(
-      docs=docs
+      blocks=blocks
     )
 
 @dataclass
 class TagRequest(Request):
-  docs: List[str] = None
+  blocks: List[str] = None
   fileId: str = None
-  parsedDocs: List[Doc] = None
+  parsedBlocks: List[Block] = None
   model: str = None
   metadata: any = None
 
@@ -33,12 +33,12 @@ class TagRequest(Request):
       except:
         pass
 
-    parsedDocs = [Doc.safely_from_dict(dd) for dd in (d.get("parsedDocs", []) or [])]
+    parsedBlocks = [Block.safely_from_dict(dd) for dd in (d.get("parsedBlocks", []) or [])]
       
     return TagRequest(
-      docs=(d.get("docs", []) or []),
+      blocks=(d.get("blocks", []) or []),
       fileId=d.get('fileId', None),
-      parsedDocs=parsedDocs,
+      parsedBlocks=parsedBlocks,
       model=d.get("model", None),
       metadata=metadata
     )

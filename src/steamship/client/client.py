@@ -18,8 +18,8 @@ from steamship.types.tagging import TagRequest, TagResponse
 from steamship.types.tagging_models import TaggingModels
 from steamship.types.model import Models
 from steamship.types.tasks import Tasks
+from steamship.types.block import Block
 from steamship.types.corpus import Corpus
-from steamship.types.parsing import Doc
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -258,14 +258,14 @@ class Steamship(ApiBase):
 
   def tag(
     self,
-    docs: List[Doc],
+    blocks: List[Block],
     model: str = ParsingModels.EN_DEFAULT,
     metadata: any = None,
     spaceId: str = None,
     spaceHandle: str = None
   ) -> Response[ParseResponse]:
     req = TagRequest(
-      docs = docs,
+      blocks = blocks,
       model = model,
       metadata = metadata
     )
