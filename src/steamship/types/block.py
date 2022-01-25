@@ -87,11 +87,11 @@ class Block(Model):
     #     e = Entity.from_spacy(ent)
     #     if e is not None:
     #       entities.append(e)
-    
+
     return Block(
       id=id,
       type=BlockTypes.Document,
-      children=blocks
+      children=children
     )
 
   @staticmethod
