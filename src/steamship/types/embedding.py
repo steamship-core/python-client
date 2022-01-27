@@ -9,6 +9,14 @@ class EmbedRequest(Request):
   docs: List[str]
   model: str
 
+  @staticmethod
+  def safely_from_dict(d: any, client: ApiBase = None) -> "EmbedRequest":
+    return EmbedRequest(
+      docs = d.get('docs', None),
+      model = d.get('model', None)
+    )
+
+
 @dataclass
 class EmbedResponse(Model):
   embeddings: List[List[float]]
@@ -17,6 +25,11 @@ class EmbedResponse(Model):
   def safely_from_dict(d: any, client: ApiBase = None) -> "EmbedResponse":
     return EmbedResponse(
       embeddings = d.get('embeddings', None),
+    )
+
+  def safely_to_dict(self) -> dict:
+    return dict(
+      embeddings=self.embeddings
     )
 
 @dataclass
