@@ -205,6 +205,10 @@ class EmbeddingIndex:
 
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "EmbeddingIndex":
+    if 'embeddingIndex' in d:
+      d = d['embeddingIndex']
+    elif 'index' in d:
+      d = d['index']
     return EmbeddingIndex(
       client = client,
       id = d.get('id', None),
@@ -320,7 +324,7 @@ class EmbeddingIndex:
     return self.client.post(
       'embedding-index/embed',
       req,
-      expect=IndexEmbedRequest,
+      expect=IndexEmbedResponse,
       asynchronous=True,
       spaceId=spaceId,
       spaceHandle=spaceHandle,
@@ -338,7 +342,7 @@ class EmbeddingIndex:
     return self.client.post(
       'embedding-index/snapshot/create',
       req,
-      expect=IndexSnapshotRequest,
+      expect=IndexSnapshotResponse,
       asynchronous=True,
       spaceId=spaceId,
       spaceHandle=spaceHandle,

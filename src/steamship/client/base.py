@@ -278,10 +278,14 @@ class ApiBase:
         # removing this handler.
         error = RemoteError(message = responseData['reason'])
 
+    ret_obj = None
+    if error is None:
+      ret_obj = obj
+
     ret = Response[T](
       expect=expect,
       task=task,
-      data=obj if error is None else obj,
+      data=ret_obj,
       error=error,
       client=self
     )

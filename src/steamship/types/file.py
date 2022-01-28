@@ -163,6 +163,8 @@ class File(Model):
   
   @staticmethod
   def safely_from_dict(d: any, client: ApiBase = None) -> "File":
+    if 'file' in d:
+      d = d['file']
     return File(
       client=client,
       id=d.get('id', None),
