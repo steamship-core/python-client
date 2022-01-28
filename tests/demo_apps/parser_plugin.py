@@ -1,18 +1,10 @@
 from typing import Dict
-from steamship import Steamship
 from steamship.server import post, App, post, create_lambda_handler
 from steamship.types.parsing import ParseRequest, ParseResponse
 from steamship.types.block import Block, BlockTypes
 from steamship.types.token import Token
-
 class TestParserPlugin(App):
-  def __init__(self, client: Steamship):
-    # In production, the lambda handler will provide an Steamship client:
-    # - Authenticated to the appropriate user
-    # - Bound to the appropriate space
-    self.client = client
-
-    # TODO: WARNING! Wwe will need to implement some logic that prevents 
+    # TODO: WARNING! We will need to implement some logic that prevents 
     # a distributed endless loop. E.g., a parser plugin returning the results
     # of using the Steamship client to call parse.. via itself!
 
