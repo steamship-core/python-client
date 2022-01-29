@@ -1,5 +1,4 @@
-from dataclasses import asdict
-from steamship.server import get, post, App, Response, post, create_lambda_handler
+from steamship.server import get, App, Response, post, create_lambda_handler
 class HelloWorld(App):
   @post('greet')
   def greet(self, name: str = "Person") -> Response:

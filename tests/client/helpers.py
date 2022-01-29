@@ -1,11 +1,9 @@
-import os
 import random
 import string
 import contextlib
 import io
 import os
 import zipfile
-from glob import glob
 
 from steamship import Steamship, ParsingModels, EmbeddingModels, EmbeddingIndex, ClassifierModels, File
 

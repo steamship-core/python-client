@@ -1,8 +1,6 @@
 import logging
 
-from steamship import __version__
-from steamship.types.base import Response, TaskCommentList, TaskComment
-from steamship.client.base import ApiBase
+from steamship.types.base import TaskCommentList, TaskComment
 from steamship.types.model import *
 
 __copyright__ = "Steamship"
@@ -10,24 +8,25 @@ __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)
 
+
 class Tasks:
-  """Asynchronous background task (and task feedback) management.
-  """
+    """Asynchronous background task (and task feedback) management.
+    """
 
-  def __init__(self, client: ApiBase):
-    self.client = client
+    def __init__(self, client: ApiBase):
+        self.client = client
 
-  def list_comments(
-    self,
-    taskId: str = None,
-    externalId: str = None,
-    externalType: str = None,
-    externalGroup: str = None
-  ) -> Response[TaskCommentList]:
-    return TaskComment.list(
-      client=self.client, 
-      taskId=taskId,
-      externalId=externalId,
-      externalType=externalType,
-      externalGroup=externalGroup
-    )
+    def list_comments(
+            self,
+            taskId: str = None,
+            externalId: str = None,
+            externalType: str = None,
+            externalGroup: str = None
+    ) -> Response[TaskCommentList]:
+        return TaskComment.list(
+            client=self.client,
+            taskId=taskId,
+            externalId=externalId,
+            externalType=externalType,
+            externalGroup=externalGroup
+        )

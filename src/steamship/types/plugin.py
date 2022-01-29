@@ -46,7 +46,7 @@
 
 #     if filename is None and name is None and content is None:
 #       raise Exception("Either filename or name + content must be provided.")
-    
+
 #     if filename is not None:
 #       with open(filename, 'rb') as f:
 #         content = f.read()
@@ -86,7 +86,7 @@
 
 #     if filename is None and name is None and content is None:
 #       raise Exception("Either filename or name + content must be provided.")
-    
+
 #     if filename is not None:
 #       with open(filename, 'rb') as f:
 #         content = f.read()
@@ -114,8 +114,9 @@
 #     )
 
 class PluginVersion:
-  pass
+    pass
+
 
 class Plugin:
-  """A service.
-  """
+    """A service.
+    """

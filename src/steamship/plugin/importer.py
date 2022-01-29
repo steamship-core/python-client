@@ -1,28 +1,33 @@
 from abc import abstractmethod
-from typing import Dict
 from dataclasses import dataclass
+from typing import Dict
+
 from steamship.plugin.base import Plugin, PluginRequest, PluginResponse
+
+
 @dataclass
 class ImportRequest:
-  metadata: Dict = None
+    metadata: Dict = None
 
-  @staticmethod
-  def from_dict(d: any) -> "ImportRequest":
-    return ImportRequest(
-      metadata = d.get('metadata', {})
-    )
+    @staticmethod
+    def from_dict(d: any) -> "ImportRequest":
+        return ImportRequest(
+            metadata=d.get('metadata', {})
+        )
+
 
 @dataclass
 class ImportResponse:
-  metadata: Dict = None
+    metadata: Dict = None
 
-  @staticmethod
-  def from_dict(d: any) -> "ImportRequest":
-    return ImportRequest(
-      metadata = d.get('metadata', {})
-    )
+    @staticmethod
+    def from_dict(d: any) -> "ImportRequest":
+        return ImportRequest(
+            metadata=d.get('metadata', {})
+        )
+
 
 class Importer(Plugin):
-  @abstractmethod
-  def _run(self, request: PluginRequest[ImportRequest]) -> PluginResponse[ImportResponse]:
-    pass
+    @abstractmethod
+    def _run(self, request: PluginRequest[ImportRequest]) -> PluginResponse[ImportResponse]:
+        pass

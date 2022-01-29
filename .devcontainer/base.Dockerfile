@@ -24,7 +24,7 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
 ENV PIPX_HOME=/usr/local/py-utils \
     PIPX_BIN_DIR=/usr/local/py-utils/bin
 ENV PATH=${PATH}:${PIPX_BIN_DIR}
-RUN bash /tmp/library-scripts/python-debian.sh "none" "/usr/local" "${PIPX_HOME}" "${USERNAME}" \ 
+RUN bash /tmp/library-scripts/python-debian.sh "none" "/usr/local" "${PIPX_HOME}" "${USERNAME}" \
     && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 # [Choice] Node.js version: none, lts/*, 16, 14, 12, 10
