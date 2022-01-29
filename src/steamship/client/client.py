@@ -6,7 +6,7 @@ from setuptools_scm import Configuration
 from steamship import __version__
 from steamship.types.base import Response
 from steamship.client.base import ApiBase
-from steamship.types.embedding import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
+from to_dict import EmbedRequest, EmbedResponse, EmbedAndSearchRequest, EmbedAndSearchResponse
 from steamship.types.embedding_index import IndexCreateRequest
 from steamship.types.embedding_index import EmbeddingIndex
 from steamship.types.classifier import Classifier
