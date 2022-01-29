@@ -1,4 +1,4 @@
-from steamship.server import get, App, Response, post, create_lambda_handler
+from steamship.app import get, App, Response, post, create_lambda_handler
 class HelloWorld(App):
   @post('greet')
   def greet(self, name: str = "Person") -> Response:

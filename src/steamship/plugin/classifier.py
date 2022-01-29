@@ -3,8 +3,8 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import List
 
-from steamship.client.base import ApiBase
-from steamship.plugin.base import Plugin, PluginRequest, PluginResponse
+from steamship.base.client import ApiBase
+from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
 
 
 @dataclass
@@ -72,7 +72,7 @@ class ClassifyResponse():
         )
 
 
-class Classifier(Plugin):
+class Classifier(PluginService):
     @abstractmethod
     def _run(self, request: PluginRequest[ClassifyRequest]) -> PluginResponse[ClassifyResponse]:
         pass

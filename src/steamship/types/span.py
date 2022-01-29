@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from steamship.client.base import ApiBase
-from steamship.types.base import Model
+from steamship.base.client import ApiBase
+from steamship.base.response import Model
 
 
 @dataclass

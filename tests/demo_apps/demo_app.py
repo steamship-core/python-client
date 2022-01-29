@@ -1,6 +1,6 @@
 from steamship import Steamship
-from steamship.server import get, App, Response, Error, post, create_lambda_handler
-from steamship.server import get, App, Response, Error, post, create_lambda_handler
+from steamship.app import get, App, Response, Error, post, create_lambda_handler
+from steamship.app import get, App, Response, Error, post, create_lambda_handler
 
 class TestApp(App):
   def __init__(self, client: Steamship):

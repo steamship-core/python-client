@@ -1,7 +1,7 @@
 import logging
 
-from steamship.types.base import TaskCommentList, TaskComment
-from steamship.types.model import *
+from steamship.base.response import TaskCommentList, TaskComment
+from steamship.plugin.plugin import *
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

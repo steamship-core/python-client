@@ -2,9 +2,9 @@ import dataclasses
 from typing import Dict, Type
 
 from steamship.client.client import Steamship
-from steamship.server.app import App
-from steamship.server.request import Request
-from steamship.server.response import Response, Error, Http
+from steamship.app.app import App
+from steamship.app.request import Request
+from steamship.app.response import Response, Error, Http
 
 
 def create_lambda_handler(App: Type[App]):

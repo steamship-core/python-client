@@ -2,7 +2,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict, List
 
-from steamship.plugin.base import Plugin, PluginRequest, PluginResponse
+from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
 
 
 @dataclass
@@ -36,7 +36,7 @@ class EmbedResponse:
         )
 
 
-class Embedder(Plugin):
+class Embedder(PluginService):
     @abstractmethod
     def _run(self, request: PluginRequest[EmbedRequest]) -> PluginResponse[EmbedResponse]:
         pass

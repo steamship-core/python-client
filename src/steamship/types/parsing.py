@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Dict
 
-from steamship.client.base import ApiBase
+from steamship.base.client import Client
 
 MatcherClause = Dict[str, any]
 Matcher = List[MatcherClause]
@@ -13,7 +13,7 @@ class TokenMatcher():
     patterns: List[Matcher] = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "TokenMatcher":
+    def from_dict(d: any, client: Client = None) -> "TokenMatcher":
         return TokenMatcher(
             label=d.get("label", None),
             patterns=(d.get("patterns", []) or [])
@@ -27,7 +27,7 @@ class PhraseMatcher():
     attr: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "PhraseMatcher":
+    def from_dict(d: any, client: Client = None) -> "PhraseMatcher":
         return PhraseMatcher(
             label=d.get("label", None),
             phrases=(d.get("phrases", []) or []),
@@ -43,7 +43,7 @@ class DependencyMatcher():
     patterns: List[Matcher] = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "DependencyMatcher":
+    def from_dict(d: any, client: Client = None) -> "DependencyMatcher":
         return DependencyMatcher(
             label=d.get("label", None),
             patterns=(d.get("patterns", []) or [])

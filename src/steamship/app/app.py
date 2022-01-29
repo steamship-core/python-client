@@ -8,8 +8,8 @@ import logging
 from functools import wraps
 
 from steamship.client.client import Steamship
-from steamship.server.request import Request, Verb
-from steamship.server.response import Error
+from steamship.app.request import Request, Verb
+from steamship.app.response import Error
 
 
 def makeRegisteringDecorator(foreignDecorator):

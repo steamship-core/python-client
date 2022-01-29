@@ -5,12 +5,12 @@ from typing import Union, Tuple
 from steamship.client.requests import IdentifierRequest
 from steamship.plugin.converter import ConvertRequest, ConvertResponse
 from steamship.plugin.parser import ParseRequest, ParseResponse
-from steamship.types.base import Response
+from steamship.base.response import Response
 from steamship.types.block import Block
 from steamship.types.embedding_index import EmbeddingIndex
 from steamship.types.embedding_index import IndexItem
 from steamship.types.embedding_models import EmbeddingModels
-from steamship.types.model import ModelTargetType
+from steamship.plugin.plugin import ModelTargetType
 from steamship.types.parsing import DependencyMatcher, PhraseMatcher, TokenMatcher
 from steamship.types.parsing_models import ParsingModels
 from steamship.types.tag import *
@@ -463,7 +463,7 @@ class File(Model):
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None) -> "EmbeddingIndex":
-        # TODO: This should really be done all on the server, but for now we'll do it in the client
+        # TODO: This should really be done all on the app, but for now we'll do it in the client
         # to facilitate demos.
 
         if indexId is None and index is not None:

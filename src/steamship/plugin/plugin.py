@@ -1,25 +1,32 @@
+# Plugin
+#
+# This file contains the abstractions for managing Steamship plugins.
+# To see how to implement a Steamship Plugin, see service.py in the same folder.
+#
+#
+
 import json
 from dataclasses import dataclass
 from typing import List, Dict, Union
 
-from steamship.client.base import ApiBase
-from steamship.types.base import Request, Response, Model
+from steamship.base.client import Client
+from steamship.base.response import Response
+from steamship.base.request import Request
 
-
-class ModelType:
+class PluginType:
     embedder = "embedder"
     parser = "parser"
     classifier = "classifier"
 
 
-class ModelAdapterType:
+class PluginAdapterType:
     steamshipDocker = "steamshipDocker"
     steamshipSagemaker = "steamshipSagemaker"
     huggingface = "huggingface"
     openai = "openai"
 
 
-class ModelTargetType:
+class PluginTargetType:
     file = "file"
     corpus = "corpus"
     space = "space"
@@ -32,7 +39,7 @@ class LimitUnit:
 
 
 @dataclass
-class Model(Model):
+class Plugin:
     id: str = None
     name: str = None
     modelType: str = None
@@ -48,11 +55,11 @@ class Model(Model):
     metadata: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "Model":
+    def from_dict(d: any, client: Client = None) -> "Plugin":
         if 'model' in d:
             d = d['model']
 
-        return Model(
+        return Plugin(
             id=d.get('id', None),
             name=d.get('name', None),
             modelType=d.get('modelType', None),
@@ -104,12 +111,12 @@ class ListPrivateModelsRequest(Request):
 
 @dataclass
 class ListModelsResponse(Request):
-    models: List[Model]
+    models: List[Plugin]
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "ListModelsResponse":
+    def from_dict(d: any, client: Client = None) -> "ListModelsResponse":
         return ListModelsResponse(
-            models=[Model.from_dict(x) for x in (d.get("models", []) or [])]
+            models=[Plugin.from_dict(x) for x in (d.get("models", []) or [])]
         )
 
 
@@ -117,7 +124,7 @@ class Models:
     """A persistent, read-optimized index over embeddings.
     """
 
-    def __init__(self, client: ApiBase):
+    def __init__(self, client: Client):
         self.client = client
 
     def create(
@@ -137,7 +144,7 @@ class Models:
             upsert: bool = None,
             spaceId: str = None,
             spaceHandle: str = None
-    ) -> Response[Model]:
+    ) -> Response[Plugin]:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
@@ -159,7 +166,7 @@ class Models:
         return self.client.post(
             'model/create',
             req,
-            expect=Model,
+            expect=Plugin,
             spaceId=spaceId,
             spaceHandle=spaceHandle
         )
@@ -197,11 +204,11 @@ class Models:
             id,
             spaceId: str = None,
             spaceHandle: str = None
-    ) -> Response[Model]:
+    ) -> Response[Plugin]:
         return self.client.post(
-            'model/delete',
+            'plugin/delete',
             DeleteModelRequest(id=id),
-            expect=Model,
+            expect=Plugin,
             spaceId=spaceId,
             spaceHandle=spaceHandle
         )

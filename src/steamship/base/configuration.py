@@ -5,7 +5,6 @@ from typing import Dict
 
 _configFile = '.steamship.json'
 
-
 class Configuration:
     apiKey: str = None
     apiBase: str = None

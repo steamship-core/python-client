@@ -2,7 +2,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict
 
-from steamship.plugin.base import Plugin, PluginRequest, PluginResponse
+from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
 
 
 @dataclass
@@ -27,7 +27,7 @@ class ImportResponse:
         )
 
 
-class Importer(Plugin):
+class Importer(PluginService):
     @abstractmethod
     def _run(self, request: PluginRequest[ImportRequest]) -> PluginResponse[ImportResponse]:
         pass

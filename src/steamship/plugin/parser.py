@@ -2,7 +2,7 @@ import json
 from abc import abstractmethod
 from dataclasses import dataclass
 from typing import List
-from steamship.plugin.base import Plugin, PluginRequest, PluginResponse
+from steamship.plugin.service import Plugin, PluginRequest, PluginResponse
 from steamship.types.block import Block
 from steamship.types.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 
@@ -84,7 +84,7 @@ class ParseResponse:
         )
 
 
-class Parser(Plugin):
+class Parser(PluginService):
     @abstractmethod
     def _run(self, request: PluginRequest[ParseRequest]) -> PluginResponse[ParseResponse]:
         pass

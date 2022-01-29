@@ -1,4 +1,4 @@
-class FileFormats:
+class MimeTypes:
     UNKNOWN = "unknown"
     TXT = "text/plain"
     JSON = "application/json"

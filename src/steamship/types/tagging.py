@@ -2,8 +2,8 @@ import json
 from dataclasses import dataclass
 from typing import List
 
-from steamship.client.base import ApiBase
-from steamship.types.base import Request, Model
+from steamship.base.client import ApiBase
+from steamship.base.response import Request, Model
 from steamship.types.block import Block
 
 

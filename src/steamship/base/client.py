@@ -1,12 +1,13 @@
 import logging
 from dataclasses import asdict
-from typing import Any, Type, TypeVar, Union
+from typing import Any, TypeVar, Union
 
 import requests  # type: ignore
 
-from steamship.client.config import Configuration
-from steamship.types.base import RemoteError, Request, Response, Task, Model
-from steamship.types.file_formats import FileFormats
+from steamship.base.configuration import Configuration
+from steamship.base.error import RemoteError
+from steamship.base.response import Response, Task
+from steamship.base.mime_types import FileFormats
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -15,9 +16,8 @@ _logger = logging.getLogger(__name__)
 
 T = TypeVar('T', bound=Response)
 
-
-class ApiBase:
-    """Base class for API connectivity.
+class Client:
+    """Client base class.
 
     Separated primarily as a hack to prevent circular imports.
     """
@@ -184,7 +184,7 @@ class ApiBase:
             operation: str,
             payload: Union[Request, dict] = None,
             file: any = None,
-            expect: Type[T] = Model,
+            expect: any = None,
             asynchronous: bool = False,
             debug: bool = False,
             spaceId: str = None,
@@ -267,7 +267,10 @@ class ApiBase:
                 #     task.update(task_resp)
 
             if 'data' in responseData:
-                obj = expect.from_dict(responseData['data'], client=self)
+                if expect is not None and hasattr(expect, 'from_dict'):
+                    obj = expect.from_dict(responseData['data'], client=self)
+                else:
+                    obj = responseData['data']
 
             if 'error' in responseData:
                 error = RemoteError.from_dict(responseData['error'], client=self)

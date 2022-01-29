@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
-from steamship.client.base import ApiBase
-from steamship.types.base import Request
+from steamship.base.client import ApiBase
+from steamship.base.response import Request
 from steamship.types.search import Hit
 
 

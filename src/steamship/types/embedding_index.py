@@ -2,9 +2,9 @@ import json
 from dataclasses import dataclass
 from typing import List, Union, Dict
 
-from steamship.client.base import ApiBase
+from steamship.base.client import ApiBase
 from steamship.client.requests import IdentifierRequest
-from steamship.types.base import Response, Request, Model, metadata_to_str
+from steamship.base.response import Response, Request, Model, metadata_to_str
 from steamship.types.search import Hit
 
 

@@ -2,7 +2,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict
 
-from steamship.plugin.base import Plugin, PluginRequest, PluginResponse
+from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
 from steamship.types.block import Block
 
 
@@ -43,7 +43,7 @@ class ConvertResponse():
         return dict(root=self.root.to_dict())
 
 
-class Converter(Plugin):
+class Converter(PluginService):
     @abstractmethod
     def _run(self, request: PluginRequest[ConvertRequest]) -> PluginResponse[ConvertResponse]:
         pass

@@ -1,21 +1,21 @@
 import logging
 from typing import List
 
-from steamship.client.base import ApiBase
+from steamship.base.client import Client
 from steamship.plugin.embedder import EmbedRequest, EmbedResponse
 from steamship.plugin.parser import ParseRequest, ParseResponse
-from steamship.types.base import Response
+from steamship.base.response import Response
 from steamship.types.block import Block
 from steamship.types.classifier import Classifier
 from steamship.types.corpus import Corpus
 from steamship.types.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse
 from steamship.types.embedding_index import EmbeddingIndex
 from steamship.types.file import File
-from steamship.types.model import Models
+from steamship.plugin.plugin import Models
 from steamship.types.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 from steamship.types.parsing_models import ParsingModels
 from steamship.types.tagging import TagRequest, TagResponse
-from steamship.types.tasks import Tasks
+from steamship.client.tasks import Tasks
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -23,7 +23,7 @@ __license__ = "MIT"
 _logger = logging.getLogger(__name__)
 
 
-class Steamship(ApiBase):
+class Steamship(Client):
     """Steamship Python Client."""
 
     def __init__(

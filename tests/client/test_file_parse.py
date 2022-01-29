@@ -1,9 +1,7 @@
-from steamship.types.base import TaskStatus
+from steamship.base.response import TaskStatus
 from steamship.types.parsing_models import ParsingModels
-import pytest
-from os import path
 from .helpers import _random_name, _steamship
-from steamship import Steamship, BlockTypes, FileFormats
+from steamship import BlockTypes, FileFormats
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

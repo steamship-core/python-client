@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from steamship.client.base import ApiBase
+from steamship.base.client import ApiBase
 from steamship.client.requests import GetRequest, IdentifierRequest
-from steamship.types.base import Request, Model, Response
+from steamship.base.response import Request, Model, Response
 
 
 @dataclass

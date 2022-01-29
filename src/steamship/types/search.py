@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 
-from steamship.client.base import ApiBase
+from steamship.base.client import Client
 
 
 @dataclass
@@ -17,7 +17,7 @@ class Hit:
     query: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "Hit":
+    def from_dict(d: any, client: Client = None) -> "Hit":
         metadata = d.get("metadata", None)
         if metadata is not None:
             try:

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TypeVar, Generic
 
-from steamship.types.base import RemoteError, Task
+from steamship.base.response import RemoteError, Task
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -20,7 +20,7 @@ class PluginResponse(Generic[U]):
     data: U = None
 
 
-class Plugin(ABC):
+class PluginService(ABC):
     @abstractmethod
     def _run_one(self, request: PluginRequest[T]) -> PluginResponse[U]:
         pass

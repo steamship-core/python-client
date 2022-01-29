@@ -1,13 +1,9 @@
-from steamship.types.model import ModelAdapterType
+from steamship.plugin.plugin import ModelAdapterType
 import pytest
-import os
-import random
-import string
-import contextlib
 
-from steamship import Steamship, ModelType
+from steamship import ModelType
 
-from .helpers import _random_index, _random_name, _steamship
+from .helpers import _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

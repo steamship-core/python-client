@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from steamship.client.config import Configuration
+from steamship.base.configuration import Configuration
 
 
 def event_to_config(event: dict) -> Configuration:

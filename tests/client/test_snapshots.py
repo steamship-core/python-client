@@ -1,14 +1,7 @@
-from steamship.types.base import TaskStatus
+from steamship.base.response import TaskStatus
 from steamship.types.embedding_index import IndexSnapshotRequest, IndexSnapshotResponse
-import pytest
-import os
-import random
-import string
-import contextlib
-import time
 
-from steamship import Steamship, EmbeddingModels, EmbeddingIndex
-from .helpers import _random_index, _random_name, _steamship, qa_model
+from .helpers import _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
