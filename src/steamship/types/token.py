@@ -47,7 +47,7 @@ class Token(Model):
   tokenIndex: int = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "Token":
+  def from_dict(d: any, client: ApiBase = None) -> "Token":
     return Token(
       client = client,
       id = d.get("id", None),
@@ -152,7 +152,7 @@ class Token(Model):
       tokenIndex = t.i,
     )
   
-  def safely_to_dict(self) -> dict:
+  def to_dict(self) -> dict:
     return dict(
       id=self.id,
       blockId=self.blockId,

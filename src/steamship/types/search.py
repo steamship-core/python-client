@@ -15,7 +15,7 @@ class Hit:
   query: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "Hit":
+  def from_dict(d: any, client: ApiBase = None) -> "Hit":
     metadata = d.get("metadata", None)
     if metadata is not None:
       try:

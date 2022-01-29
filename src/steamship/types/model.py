@@ -42,7 +42,7 @@ class Model(Model):
   metadata: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "Model":
+  def from_dict(d: any, client: ApiBase = None) -> "Model":
     if 'model' in d:
       d = d['model']
 
@@ -96,9 +96,9 @@ class ListModelsResponse(Request):
   models: List[Model]
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "ListModelsResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "ListModelsResponse":
     return ListModelsResponse(
-      models = [Model.safely_from_dict(x) for x in (d.get("models", []) or [])]
+      models = [Model.from_dict(x) for x in (d.get("models", []) or [])]
     )
 
 class Models:

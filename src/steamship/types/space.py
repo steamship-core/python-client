@@ -19,7 +19,7 @@ class Space(Model):
     )
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase) -> "Space":
+  def from_dict(d: any, client: ApiBase) -> "Space":
     if 'space' in d:
       d = d['space']
 

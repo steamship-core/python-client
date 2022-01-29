@@ -18,7 +18,7 @@ def create_lambda_handler(App: Type[App]):
 
     try:
       app = App(client=client)
-      request = Request.safely_from_dict(event)
+      request = Request.from_dict(event)
       response = app(request)
     except Exception as ex:
       response = Error(

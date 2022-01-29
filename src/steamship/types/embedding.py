@@ -10,7 +10,7 @@ class EmbedRequest(Request):
   model: str
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "EmbedRequest":
+  def from_dict(d: any, client: ApiBase = None) -> "EmbedRequest":
     return EmbedRequest(
       docs = d.get('docs', None),
       model = d.get('model', None)
@@ -22,12 +22,12 @@ class EmbedResponse(Model):
   embeddings: List[List[float]]
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "EmbedResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "EmbedResponse":
     return EmbedResponse(
       embeddings = d.get('embeddings', None),
     )
 
-  def safely_to_dict(self) -> dict:
+  def to_dict(self) -> dict:
     return dict(
       embeddings=self.embeddings
     )
@@ -44,8 +44,8 @@ class EmbedAndSearchResponse(Request):
   hits: List[Hit] = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "EmbedAndSearchResponse":
-    hits = [Hit.safely_from_dict(h) for h in (d.get("hits", []) or [])]
+  def from_dict(d: any, client: ApiBase = None) -> "EmbedAndSearchResponse":
+    hits = [Hit.from_dict(h) for h in (d.get("hits", []) or [])]
     return EmbedAndSearchResponse(
       hits=hits
     )

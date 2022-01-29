@@ -16,7 +16,7 @@
 #   metadata: str = None
 
 #   @staticmethod
-#   def safely_from_dict(d: any, client: ApiBase = None) -> "Plugin":
+#   def from_dict(d: any, client: ApiBase = None) -> "Plugin":
 #     return Plugin(
 #       steamship = steamship
 #       id = d.get('id', None),

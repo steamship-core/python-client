@@ -39,7 +39,7 @@ class Block(Model):
   spans: List["Span"] = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase) -> "Block":
+  def from_dict(d: any, client: ApiBase) -> "Block":
     if d is None:
       return None
     if 'block' in d:
@@ -49,9 +49,9 @@ class Block(Model):
       id = d.get('id', None),
       type = d.get('type', None),
       text = d.get('text', None),
-      children = list(map(lambda child: Block.safely_from_dict(child, client), d.get('children', []))),
-      tokens = list(map(lambda token: Token.safely_from_dict(token, client), d.get('tokens', []))),
-      # spans = list(map(lambda span: Span.safely_from_dict(span, client), d.get('span', []))),
+      children = list(map(lambda child: Block.from_dict(child, client), d.get('children', []))),
+      tokens = list(map(lambda token: Token.from_dict(token, client), d.get('tokens', []))),
+      # spans = list(map(lambda span: Span.from_dict(span, client), d.get('span', []))),
     )
 
   @staticmethod
@@ -79,7 +79,7 @@ class Block(Model):
     # for label in d.spans:
     #   span_group = d.spans[label]
     #   for s in span_group:
-    #     spans.append(Span.safely_from_dict(s))
+    #     spans.append(Span.from_dict(s))
 
     # entities = []
     # if includeEntities is True:
@@ -121,18 +121,18 @@ class Block(Model):
       spans=[]
     )    
 
-  def safely_to_dict(self) -> dict:
+  def to_dict(self) -> dict:
     children = None
     if self.children is not None:
-      children = [child.safely_to_dict() for child in self.children]
+      children = [child.to_dict() for child in self.children]
 
     tokens = None
     if self.tokens is not None:
-      tokens = [token.safely_to_dict() for token in self.tokens]
+      tokens = [token.to_dict() for token in self.tokens]
 
     spans = None
     if self.spans is not None:
-      spans = [span.safely_to_dict() for span in self.spans]
+      spans = [span.to_dict() for span in self.spans]
 
     return dict(
       id=self.id,

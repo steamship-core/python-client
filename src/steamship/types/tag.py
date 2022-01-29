@@ -12,7 +12,7 @@ class Tag(Model):
   handle: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "Model":
+  def from_dict(d: any, client: ApiBase = None) -> "Model":
     return Tag(
       tagId = d.get('tagId', None),
       kind = d.get('kind', None),
@@ -31,7 +31,7 @@ class CreateTagRequest(Request):
   upsert: bool = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "CreateTagRequest":
+  def from_dict(d: any, client: ApiBase = None) -> "CreateTagRequest":
     return CreateTagRequest(
       tagId = d.get('tagId', None),
       kind = d.get('kind', None),
@@ -62,8 +62,8 @@ class TagObjectRequest(Request):
   objectId: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "TagObjectRequest":
-    tags = [CreateTagRequest.safely_from_dict(dd) for dd in d.get('tags', [])]
+  def from_dict(d: any, client: ApiBase = None) -> "TagObjectRequest":
+    tags = [CreateTagRequest.from_dict(dd) for dd in d.get('tags', [])]
     return TagObjectRequest(
       tags = tags,
       objectType = d.get('objectType', None),

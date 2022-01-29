@@ -31,7 +31,7 @@ class Invocation:
   arguments: Dict[str, any] = None
 
   @staticmethod
-  def safely_from_dict(d: dict) -> "Invocation":
+  def from_dict(d: dict) -> "Invocation":
     return Invocation(
       httpVerb = d.get('httpVerb', None),
       appPath = d.get('appPath', None),
@@ -50,9 +50,9 @@ class Request:
   invocation: Invocation = None
 
   @staticmethod
-  def safely_from_dict(d: dict) -> "Request":
-    invocation = Invocation.safely_from_dict(d.get('invocation', dict()))
-    clientConfig = Configuration.safely_from_dict(d.get('clientConfig', dict()))
+  def from_dict(d: dict) -> "Request":
+    invocation = Invocation.from_dict(d.get('invocation', dict()))
+    clientConfig = Configuration.from_dict(d.get('clientConfig', dict()))
 
     return Request(
       clientConfig=clientConfig,

@@ -12,7 +12,7 @@ class Task(Generic[T]): pass
 @dataclass
 class Model():
   @staticmethod
-  def safely_from_dict(d: any, client: Any = None) -> Dict:
+  def from_dict(d: any, client: Any = None) -> Dict:
     """Last resort if subclass doesn't override: pass through."""
     return d
 
@@ -38,7 +38,7 @@ class RemoteError(Exception):
     super().__init__("\n".join(parts))
 
   @staticmethod
-  def safely_from_dict(d: any, client: Any = None) -> "RemoteError":
+  def from_dict(d: any, client: Any = None) -> "RemoteError":
     """Last resort if subclass doesn't override: pass through."""
     return RemoteError(
       message = d.get('message', None),
@@ -221,7 +221,7 @@ class TaskComment(Model):
     )
 
   @staticmethod
-  def safely_from_dict(d: any, client: Any = None) -> "TaskComment":
+  def from_dict(d: any, client: Any = None) -> "TaskComment":
     return TaskComment(
       client = client,
       id = d.get('id', None),
@@ -239,9 +239,9 @@ class TaskCommentList(Model):
   comments: List[TaskComment]
 
   @staticmethod
-  def safely_from_dict(d: any, client: Any = None) -> "TaskCommentList":
+  def from_dict(d: any, client: Any = None) -> "TaskCommentList":
     return TaskCommentList(
-      comments = [TaskComment.safely_from_dict(dd, client) for dd in d.get('comments', [])]
+      comments = [TaskComment.from_dict(dd, client) for dd in d.get('comments', [])]
     )
 
 
@@ -273,7 +273,7 @@ class Task(Generic[T]):
   eventualResultType: Type[Model] = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: Any = None) -> "Task":
+  def from_dict(d: any, client: Any = None) -> "Task":
     """Last resort if subclass doesn't override: pass through."""
     return Task(
       client = client,

@@ -10,8 +10,8 @@ class TagResponse(Model):
   blocks: List[Block] = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "TagResponse":
-    blocks = [Block.safely_from_dict(h) for h in (d.get("blocks", []) or [])]
+  def from_dict(d: any, client: ApiBase = None) -> "TagResponse":
+    blocks = [Block.from_dict(h) for h in (d.get("blocks", []) or [])]
     return TagResponse(
       blocks=blocks
     )
@@ -25,7 +25,7 @@ class TagRequest(Request):
   metadata: any = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "TagRequest":
+  def from_dict(d: any, client: ApiBase = None) -> "TagRequest":
     metadata = d.get("metadata", None)
     if metadata is not None:
       try:
@@ -33,7 +33,7 @@ class TagRequest(Request):
       except:
         pass
 
-    parsedBlocks = [Block.safely_from_dict(dd) for dd in (d.get("parsedBlocks", []) or [])]
+    parsedBlocks = [Block.from_dict(dd) for dd in (d.get("parsedBlocks", []) or [])]
       
     return TagRequest(
       blocks=(d.get("blocks", []) or []),

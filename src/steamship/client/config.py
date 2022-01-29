@@ -14,7 +14,7 @@ class Configuration:
   profile: str = None
 
   @staticmethod
-  def safely_from_dict(d: dict) -> "Configuration":
+  def from_dict(d: dict) -> "Configuration":
     if d is None:
       return Configuration()
 

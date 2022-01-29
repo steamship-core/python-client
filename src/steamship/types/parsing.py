@@ -19,7 +19,7 @@ import json
 #   lemma: str
 
 #   @staticmethod
-#   def safely_from_dict(d: any, client: ApiBase = None) -> "Entity":
+#   def from_dict(d: any, client: ApiBase = None) -> "Entity":
 #     return Entity(
 #       text = d.get("text", None),
 #       textWithWs = d.get("textWithWs", None),
@@ -58,7 +58,7 @@ import json
 #   score: float
 
 #   @staticmethod
-#   def safely_from_dict(d: any, client: ApiBase = None) -> "Span":
+#   def from_dict(d: any, client: ApiBase = None) -> "Span":
 #     return Span(
 #       text = d.get("text", None),
 #       textWithWs = d.get("textWithWs", None),
@@ -105,10 +105,10 @@ import json
 #     return ret
 
 #   @staticmethod
-#   def safely_from_dict(d: any, client: ApiBase = None) -> "Sentence":
-#     tokens = [Token.safely_from_dict(h) for h in (d.get("tokens", []) or [])]
-#     entities = [Entity.safely_from_dict(h) for h in (d.get("entities", []) or [])]
-#     spans = [Span.safely_from_dict(h) for h in (d.get("spans", []) or [])]
+#   def from_dict(d: any, client: ApiBase = None) -> "Sentence":
+#     tokens = [Token.from_dict(h) for h in (d.get("tokens", []) or [])]
+#     entities = [Entity.from_dict(h) for h in (d.get("entities", []) or [])]
+#     spans = [Span.from_dict(h) for h in (d.get("spans", []) or [])]
 
 #     return Sentence(
 #       text=d.get("text", None),
@@ -162,10 +162,10 @@ import json
 #   blockId: str = None
 
 #   @staticmethod
-#   def safely_from_dict(d: any, client: ApiBase = None) -> "Doc":
-#     sentences = [Sentence.safely_from_dict(h) for h in (d.get("sentences", []) or [])]
-#     spans = [Span.safely_from_dict(h) for h in (d.get("spans", []) or [])]
-#     entities = [Entity.safely_from_dict(h) for h in (d.get("entities", []) or [])]
+#   def from_dict(d: any, client: ApiBase = None) -> "Doc":
+#     sentences = [Sentence.from_dict(h) for h in (d.get("sentences", []) or [])]
+#     spans = [Span.from_dict(h) for h in (d.get("spans", []) or [])]
+#     entities = [Entity.from_dict(h) for h in (d.get("entities", []) or [])]
 
 #     return Doc(
 #       id=d.get("id", None),
@@ -185,17 +185,17 @@ class ParseResponse(Model):
   blocks: List[Block] = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "ParseResponse":
-    blocks = [Block.safely_from_dict(h, client) for h in (d.get("blocks", []) or [])]
+  def from_dict(d: any, client: ApiBase = None) -> "ParseResponse":
+    blocks = [Block.from_dict(h, client) for h in (d.get("blocks", []) or [])]
     return ParseResponse(
       client=client,
       blocks=blocks
     )
 
-  def safely_to_dict(self) -> dict:
+  def to_dict(self) -> dict:
     blocks = None
     if self.blocks is not None:
-      blocks = [block.safely_to_dict() for block in self.blocks]
+      blocks = [block.to_dict() for block in self.blocks]
 
     return dict(
       blocks = blocks
@@ -211,7 +211,7 @@ class TokenMatcher():
   patterns: List[Matcher] = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "TokenMatcher":
+  def from_dict(d: any, client: ApiBase = None) -> "TokenMatcher":
     return TokenMatcher(
       label=d.get("label", None),
       patterns=(d.get("patterns", []) or [])
@@ -224,7 +224,7 @@ class PhraseMatcher():
   attr: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "PhraseMatcher":
+  def from_dict(d: any, client: ApiBase = None) -> "PhraseMatcher":
     return PhraseMatcher(
       label=d.get("label", None),
       phrases=(d.get("phrases", []) or []),
@@ -239,7 +239,7 @@ class DependencyMatcher():
   patterns: List[Matcher] = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "DependencyMatcher":
+  def from_dict(d: any, client: ApiBase = None) -> "DependencyMatcher":
     return DependencyMatcher(
       label=d.get("label", None),
       patterns=(d.get("patterns", []) or [])
@@ -265,10 +265,10 @@ class ParseRequest(Request):
   metadata: any = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "ParseRequest":
-    token_matchers = [TokenMatcher.safely_from_dict(h) for h in (d.get("tokenMatchers", []) or [])]
-    phrase_matchers = [PhraseMatcher.safely_from_dict(h) for h in (d.get("phraseMatchers", []) or [])]
-    dependency_matchers = [DependencyMatcher.safely_from_dict(h) for h in (d.get("dependencyMatchers", []) or [])]
+  def from_dict(d: any, client: ApiBase = None) -> "ParseRequest":
+    token_matchers = [TokenMatcher.from_dict(h) for h in (d.get("tokenMatchers", []) or [])]
+    phrase_matchers = [PhraseMatcher.from_dict(h) for h in (d.get("phraseMatchers", []) or [])]
+    dependency_matchers = [DependencyMatcher.from_dict(h) for h in (d.get("dependencyMatchers", []) or [])]
 
     includeTokens = d.get("includeTokens", True)
     if includeTokens is None:
@@ -320,7 +320,7 @@ class ParseRequest(Request):
 #   fileId: str
 
 #   @staticmethod
-#   def safely_from_dict(d: any, client: ApiBase = None) -> "ParseResponse":
+#   def from_dict(d: any, client: ApiBase = None) -> "ParseResponse":
 #     return ParseResponse(
 #       fileId = d.get('fileId', None)
 #     )

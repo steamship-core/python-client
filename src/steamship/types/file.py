@@ -95,12 +95,12 @@ class FileTagResponse(Model):
   tagResult: ParseResponse
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "FileTagResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "FileTagResponse":
     if 'file' in d:
       d = d['file']
     return FileTagResponse(
       id = d.get('id', None),
-      tagResult = ParseResponse.safely_from_dict(d.get('tagResult', {}), client=client)
+      tagResult = ParseResponse.from_dict(d.get('tagResult', {}), client=client)
     )
 
 @dataclass
@@ -124,10 +124,10 @@ class FileQueryResponse(Model):
   blocks: List[Block]
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "FileQueryResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "FileQueryResponse":
     return FileQueryResponse(
       id = d.get('id', None),
-      blocks = [Block.safely_from_dict(block, client=client) for block in d.get('blocks', None)]
+      blocks = [Block.from_dict(block, client=client) for block in d.get('blocks', None)]
     )
 
 @dataclass
@@ -143,9 +143,9 @@ class ListFilesResponse(Model):
   files: List["File"]
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "ListFilesResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "ListFilesResponse":
     return ListFilesResponse(
-      files = [File.safely_from_dict(f, client = client) for f in d.get('files', [])]
+      files = [File.from_dict(f, client = client) for f in d.get('files', [])]
     )
 
 @dataclass
@@ -162,7 +162,7 @@ class File(Model):
 
   
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "File":
+  def from_dict(d: any, client: ApiBase = None) -> "File":
     if 'file' in d:
       d = d['file']
     return File(

@@ -262,16 +262,16 @@ class ApiBase:
 
     if type(responseData) == dict:
       if 'status' in responseData:
-        task = Task.safely_from_dict(responseData['status'], client=self)
+        task = Task.from_dict(responseData['status'], client=self)
         # if task_resp is not None and task_resp.taskId is not None:
         #     task = Task(client=self)
         #     task.update(task_resp)
 
       if 'data' in responseData:
-        obj = expect.safely_from_dict(responseData['data'], client=self)
+        obj = expect.from_dict(responseData['data'], client=self)
 
       if 'error' in responseData:
-        error = RemoteError.safely_from_dict(responseData['error'], client=self)
+        error = RemoteError.from_dict(responseData['error'], client=self)
       
       if 'reason' in responseData:
         # This is a legacy error reporting field. We should work toward being comfortable

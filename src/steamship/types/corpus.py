@@ -44,7 +44,7 @@ class Corpus(Model):
   metadata: Any = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "Corpus":
+  def from_dict(d: any, client: ApiBase = None) -> "Corpus":
     if 'corpus' in d:
       d = d['corpus']
 
@@ -173,7 +173,7 @@ class ListCorporaResponse(Request):
   corpora: List[Corpus]
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "ListCorporaResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "ListCorporaResponse":
     return ListCorporaResponse(
-      models = [Corpus.safely_from_dict(x) for x in (d.get("corpus", []) or [])]
+      models = [Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
     )

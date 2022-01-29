@@ -28,7 +28,7 @@ class AppInstance(Model):
   userId: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "AppInstance":
+  def from_dict(d: any, client: ApiBase = None) -> "AppInstance":
     if 'appInstance' in d:
       d = d['appInstance']
 

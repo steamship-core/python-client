@@ -49,7 +49,7 @@ class IndexItem:
     return ret
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexItem":
+  def from_dict(d: any, client: ApiBase = None) -> "IndexItem":
     return IndexItem(
       id=d.get('id', None),
       indexId=d.get('indexId', None),
@@ -82,7 +82,7 @@ class IndexItemId(Model):
   id: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexItemId":
+  def from_dict(d: any, client: ApiBase = None) -> "IndexItemId":
     return IndexItemId(
       indexId = d.get('indexId', None),
       id = d.get('id', None)
@@ -93,9 +93,9 @@ class IndexInsertResponse(Model):
   itemIds: List[IndexItemId] = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexInsertResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "IndexInsertResponse":
     return IndexInsertResponse(
-      itemIds = [IndexItemId.safely_from_dict(x) for x in (d.get('itemIds', []) or [])]
+      itemIds = [IndexItemId.from_dict(x) for x in (d.get('itemIds', []) or [])]
     )
 
 @dataclass
@@ -107,7 +107,7 @@ class IndexEmbedResponse(Model):
   id: str
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexEmbedResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "IndexEmbedResponse":
     return IndexEmbedResponse(
       id = d.get('id', None)
     )
@@ -125,8 +125,8 @@ class IndexSearchResponse(Model):
   hits: List[Hit] = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexSearchResponse":
-    hits = [Hit.safely_from_dict(h) for h in (d.get("hits", []) or [])]
+  def from_dict(d: any, client: ApiBase = None) -> "IndexSearchResponse":
+    hits = [Hit.from_dict(h) for h in (d.get("hits", []) or [])]
     return IndexSearchResponse(
       hits=hits
     )
@@ -144,7 +144,7 @@ class IndexSnapshotResponse(Model):
   snapshotId: str
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexSnapshotResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "IndexSnapshotResponse":
     return IndexSnapshotResponse(
       id = d.get('id', None),
       snapshotId = d.get('snapshotId', None)
@@ -159,9 +159,9 @@ class ListSnapshotsResponse(Model):
   snapshots: List[IndexSnapshotResponse]
   
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "IndexSnapshotResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "IndexSnapshotResponse":
     return IndexSnapshotResponse(
-      snapshots = [IndexSnapshotResponse.safely_from_dict(dd) for dd in (d.get('snapshots', []) or [])]
+      snapshots = [IndexSnapshotResponse.from_dict(dd) for dd in (d.get('snapshots', []) or [])]
     )
 
 @dataclass
@@ -176,9 +176,9 @@ class ListItemsResponse(Model):
   items: List[IndexItem]
   
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "ListItemsResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "ListItemsResponse":
     return ListItemsResponse(
-      items = [IndexItem.safely_from_dict(dd) for dd in (d.get('items', []) or [])]
+      items = [IndexItem.from_dict(dd) for dd in (d.get('items', []) or [])]
     )
 
 @dataclass
@@ -204,7 +204,7 @@ class EmbeddingIndex:
   metadata: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "EmbeddingIndex":
+  def from_dict(d: any, client: ApiBase = None) -> "EmbeddingIndex":
     if 'embeddingIndex' in d:
       d = d['embeddingIndex']
     elif 'index' in d:

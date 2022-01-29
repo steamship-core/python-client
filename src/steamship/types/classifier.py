@@ -17,7 +17,7 @@ class ClassifierCreateResponse(Model):
   classifierId: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "ClassifierCreateResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "ClassifierCreateResponse":
     return ClassifierCreateResponse(
       classifierId = d.get('classifierId', None),
     )
@@ -37,8 +37,8 @@ class ClassifyResponse(Model):
   hits: List[List[Hit]] = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "ClassifyResponse":
-    hits = [[Hit.safely_from_dict(h) for h in innerList] for innerList in (d.get("hits", []) or [])]
+  def from_dict(d: any, client: ApiBase = None) -> "ClassifyResponse":
+    hits = [[Hit.from_dict(h) for h in innerList] for innerList in (d.get("hits", []) or [])]
     return ClassifyResponse(
       classifierId = d.get('classifierId', None),
       model = d.get('model', None),
@@ -61,7 +61,7 @@ class LabelInsertResponse(Model):
   metadata: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "LabelInsertResponse":
+  def from_dict(d: any, client: ApiBase = None) -> "LabelInsertResponse":
     return LabelInsertResponse(
       labelId = d.get('labelId', None),
       value = d.get('value', None),

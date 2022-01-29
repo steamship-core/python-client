@@ -15,7 +15,7 @@
 #   metadata: str = None
 
 #   @staticmethod
-#   def safely_from_dict(d: any, client: ApiBase = None) -> "PluginVersion":
+#   def from_dict(d: any, client: ApiBase = None) -> "PluginVersion":
 #     return PluginVersion(
 #       id = d.get('id', None),
 #       userId = d.get('userId', None),

@@ -19,7 +19,7 @@ class Span(Model):
   endTokenIdx: int = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase) -> "Span":
+  def from_dict(d: any, client: ApiBase) -> "Span":
     if d is None:
       return None
     if 'span' in d:
@@ -37,7 +37,7 @@ class Span(Model):
       endTokenIdx = d.get('endTokenIdx', None)
     )
   
-  def safely_to_dict(self) -> dict:
+  def to_dict(self) -> dict:
     return dict(
       id=self.id,
       blockId=self.blockId,

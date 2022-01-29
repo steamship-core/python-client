@@ -28,7 +28,7 @@ class AppVersion(Model):
   handle: str = None
 
   @staticmethod
-  def safely_from_dict(d: any, client: ApiBase = None) -> "AppVersion":
+  def from_dict(d: any, client: ApiBase = None) -> "AppVersion":
     if 'appVersion' in d:
       d = d['appVersion']
 
