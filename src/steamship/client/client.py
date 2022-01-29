@@ -3,6 +3,7 @@ from typing import List
 
 from steamship.client.base import ApiBase
 from steamship.plugin.embedder import EmbedRequest, EmbedResponse
+from steamship.plugin.parser import ParseRequest, ParseResponse
 from steamship.types.base import Response
 from steamship.types.block import Block
 from steamship.types.classifier import Classifier

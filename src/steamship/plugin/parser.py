@@ -1,7 +1,7 @@
 import json
 from abc import abstractmethod
 from dataclasses import dataclass
-
+from typing import List
 from steamship.plugin.base import Plugin, PluginRequest, PluginResponse
 from steamship.types.block import Block
 from steamship.types.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
