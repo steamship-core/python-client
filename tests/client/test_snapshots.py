@@ -1,5 +1,5 @@
 from steamship.types.base import TaskStatus
-from steamship.types.embedding_index import IndexSnapshotRequest
+from steamship.types.embedding_index import IndexSnapshotRequest, IndexSnapshotResponse
 import pytest
 import os
 import random
@@ -40,7 +40,7 @@ def _snapshot(index, windowSize=None):
     task = index.client.post(
       'embedding-index/snapshot/create',
       req,
-      expect=IndexSnapshotRequest,
+      expect=IndexSnapshotResponse,
       asynchronous=True
     )
     task.wait()

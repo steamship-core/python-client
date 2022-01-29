@@ -94,9 +94,11 @@ class Classifier:
     labels: List[str] = None,
     spaceId: str = None,
     spaceHandle: str = None
-  ) -> "Classifier":
+  ) -> "Response[Classifier]":
     if save == False:
-      return Classifier(client, id=None, model=model, name=name, labels=labels)
+      return Response(
+        data=Classifier(client, id=None, model=model, name=name, labels=labels)
+      )
     else:
       raise Exception("Persistent classifiers not yet supported.")
       req = ClassifierCreateRequest(
