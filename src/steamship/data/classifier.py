@@ -3,7 +3,7 @@ from typing import List
 
 from steamship.base.client import ApiBase
 from steamship.base.response import Request, Response, Model
-from steamship.types.search import Hit
+from steamship.data.search import Hit
 
 
 @dataclass

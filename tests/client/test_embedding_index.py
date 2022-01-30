@@ -1,4 +1,4 @@
-from steamship.types.embedding_index import IndexItem
+from steamship.data.embedding_index import IndexItem
 from steamship.base.response import TaskStatus
 
 from .helpers import _random_index, _random_name, _steamship

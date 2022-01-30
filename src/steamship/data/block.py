@@ -3,8 +3,8 @@ from typing import List
 
 from steamship.base.client import ApiBase
 from steamship.base.response import Model
-from steamship.types.span import Span
-from steamship.types.token import Token
+from steamship.data.span import Span
+from steamship.data.token import Token
 
 
 class BlockTypes:

@@ -5,7 +5,7 @@ from typing import Any, List
 from steamship.base.client import ApiBase
 from steamship.client.requests import IdentifierRequest
 from steamship.base.response import Request, Model, Response, str_to_metadata
-from steamship.types.file import File, ListFilesResponse
+from steamship.data.file import File, ListFilesResponse
 
 
 @dataclass

@@ -1,7 +1,7 @@
 import pytest
 from steamship import EmbeddingModels
 from .helpers import _random_index, _random_name, _steamship
-from steamship.types.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
+from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

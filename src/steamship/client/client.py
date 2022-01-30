@@ -5,16 +5,16 @@ from steamship.base.client import Client
 from steamship.plugin.embedder import EmbedRequest, EmbedResponse
 from steamship.plugin.parser import ParseRequest, ParseResponse
 from steamship.base.response import Response
-from steamship.types.block import Block
-from steamship.types.classifier import Classifier
-from steamship.types.corpus import Corpus
-from steamship.types.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse
-from steamship.types.embedding_index import EmbeddingIndex
-from steamship.types.file import File
+from steamship.data.block import Block
+from steamship.data.classifier import Classifier
+from steamship.data.corpus import Corpus
+from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse
+from steamship.data.embedding_index import EmbeddingIndex
+from steamship.data.file import File
 from steamship.plugin.plugin import Models
-from steamship.types.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
-from steamship.types.parsing_models import ParsingModels
-from steamship.types.tagging import TagRequest, TagResponse
+from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
+from steamship.data.parsing_models import ParsingModels
+from steamship.data.tagging import TagRequest, TagResponse
 from steamship.client.tasks import Tasks
 
 __copyright__ = "Steamship"

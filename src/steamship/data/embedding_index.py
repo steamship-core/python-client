@@ -5,7 +5,7 @@ from typing import List, Union, Dict
 from steamship.base.client import ApiBase
 from steamship.client.requests import IdentifierRequest
 from steamship.base.response import Response, Request, Model, metadata_to_str
-from steamship.types.search import Hit
+from steamship.data.search import Hit
 
 
 @dataclass

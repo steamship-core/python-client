@@ -3,8 +3,8 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import List
 from steamship.plugin.service import Plugin, PluginRequest, PluginResponse
-from steamship.types.block import Block
-from steamship.types.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
+from steamship.data.block import Block
+from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 
 
 @dataclass

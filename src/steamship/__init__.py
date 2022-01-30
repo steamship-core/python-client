@@ -15,13 +15,7 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .client.client import Steamship
-from .types.embedding_index import EmbeddingIndex
-from .types.classifier import Classifier
-from .types.corpus import Corpus
-from .types.space import Space
-from .types.file import File
-from .types.block import BlockTypes, Block
-from .types.app import App
-from .types.app_instance import AppInstance
-from .types.app_version import AppVersion
+from .base import Configuration, RemoteError, MimeTypes
+from .client import *
+from .data import *
+from .app import App, AppVersion, AppInstance
