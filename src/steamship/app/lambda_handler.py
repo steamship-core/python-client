@@ -2,7 +2,7 @@ import dataclasses
 from typing import Dict, Type
 
 from steamship.client.client import Steamship
-from steamship.app.server.app import App
+from steamship.app.app import App
 from steamship.app.request import Request
 from steamship.app.response import Response, Error, Http
 

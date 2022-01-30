@@ -1,6 +1,6 @@
 from typing import Dict
 from steamship.app import App, Response, Invocation, Request, post, create_lambda_handler
-from steamship.app.server.app import get, post,  App
+from steamship.app.app import get, post,  App
 from ..demo_apps.hello_world import HelloWorld, handler
 
 NAME = "Ted"
