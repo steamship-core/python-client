@@ -1,7 +1,7 @@
-from steamship.data.plugin import ModelAdapterType
+from steamship.data.plugin import PluginAdapterType
 import pytest
 
-from steamship import ModelType
+from steamship.data.plugin import PluginType
 
 from .helpers import _random_name, _steamship
 
@@ -19,9 +19,9 @@ def test_model_create():
     with pytest.raises(Exception):
         index = steamship.models.create(
             description = "This is just for test",
-            modelType = ModelType.embedder,
+            modelType = PluginType.embedder,
             url = "http://foo1",
-            adapterType = ModelAdapterType.steamshipDocker,
+            adapterType = PluginAdapterType.steamshipDocker,
             isPublic = True
         )
 
@@ -29,9 +29,9 @@ def test_model_create():
     with pytest.raises(Exception):
         index = steamship.models.create(
             name = "Test Model",
-            modelType = ModelType.embedder,
+            modelType = PluginType.embedder,
             url = "http://foo2",
-            adapterType = ModelAdapterType.steamshipDocker,
+            adapterType = PluginAdapterType.steamshipDocker,
             isPublic = True
         )
 
@@ -41,7 +41,7 @@ def test_model_create():
             name = "Test Model",
             description = "This is just for test",
             url = "http://foo3",
-            adapterType = ModelAdapterType.steamshipDocker,
+            adapterType = PluginAdapterType.steamshipDocker,
             isPublic = True
         )
 
@@ -50,8 +50,8 @@ def test_model_create():
         index = steamship.models.create(
             name = "Test Model",
             description = "This is just for test",
-            modelType = ModelType.embedder,
-            adapterType = ModelAdapterType.steamshipDocker,
+            modelType = PluginType.embedder,
+            adapterType = PluginAdapterType.steamshipDocker,
             isPublic = True
         )
 
@@ -60,7 +60,7 @@ def test_model_create():
         index = steamship.models.create(
             name = "Test Model",
             description = "This is just for test",
-            modelType = ModelType.embedder,
+            modelType = PluginType.embedder,
             url = "http://foo4",
             isPublic = True
         )
@@ -70,9 +70,9 @@ def test_model_create():
         index = steamship.models.create(
             name = "Test Model",
             description = "This is just for test",
-            modelType = ModelType.embedder,
+            modelType = PluginType.embedder,
             url = "http://foo5",
-            adapterType = ModelAdapterType.steamshipDocker,
+            adapterType = PluginAdapterType.steamshipDocker,
         )
 
     my_models = steamship.models.listPrivate().data
@@ -81,9 +81,9 @@ def test_model_create():
     model = steamship.models.create(
         name = _random_name(),
         description = "This is just for test",
-        modelType = ModelType.embedder,
+        modelType = PluginType.embedder,
         url = "http://foo6",
-        adapterType = ModelAdapterType.steamshipDocker,
+        adapterType = PluginAdapterType.steamshipDocker,
         isPublic = False
     ).data
     my_models = steamship.models.listPrivate().data
@@ -94,9 +94,9 @@ def test_model_create():
         handle = model.handle,
         name = model.name,
         description = "This is just for test",
-        modelType = ModelType.embedder,
+        modelType = PluginType.embedder,
         url = "http://foo7",
-        adapterType = ModelAdapterType.steamshipDocker,
+        adapterType = PluginAdapterType.steamshipDocker,
         isPublic = False
     )
     assert(modelX.error is not None)
@@ -106,9 +106,9 @@ def test_model_create():
     model2 = steamship.models.create(
         name = model.name,
         description = "This is just for test 2",
-        modelType = ModelType.embedder,
+        modelType = PluginType.embedder,
         url = "http://foo8",
-        adapterType = ModelAdapterType.steamshipDocker,
+        adapterType = PluginAdapterType.steamshipDocker,
         isPublic = False,
         upsert = True
     ).data

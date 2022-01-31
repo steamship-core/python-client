@@ -4,7 +4,7 @@ import random
 import string
 import contextlib
 
-from steamship import Steamship, EmbeddingModels, EmbeddingIndex
+from steamship import Steamship, EmbeddingIndex
 from .helpers import _random_index, _random_name, _steamship
 
 __copyright__ = "Steamship"

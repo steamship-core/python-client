@@ -7,9 +7,9 @@ Please see https://docs.steamship.com/ for information about building a Steamshi
 import logging
 from functools import wraps
 
-from steamship.client.client import Steamship
 from steamship.app.request import Request, Verb
 from steamship.app.response import Error
+from steamship.client.client import Steamship
 
 
 def makeRegisteringDecorator(foreignDecorator):

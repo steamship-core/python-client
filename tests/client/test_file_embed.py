@@ -1,4 +1,3 @@
-from steamship.data.parsing_models import ParsingModels
 import pytest
 from os import path
 from .helpers import _random_name, _steamship

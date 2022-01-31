@@ -1,5 +1,4 @@
 from steamship.base.response import TaskStatus
-from steamship.data.parsing_models import ParsingModels
 from .helpers import _random_name, _steamship
 from steamship import BlockTypes, MimeTypes
 
@@ -48,7 +47,7 @@ def test_file_parse():
   assert(len(q2.blocks) == 0)
 
   # Now we parse
-  task = a.parse(model=ParsingModels.UNIT_TEST)
+  task = a.parse(model="test-parser-v1")
   assert(task.error is None)
   assert(task.task is not None)
   assert(task.task.taskStatus == TaskStatus.waiting)

@@ -1,5 +1,4 @@
 import pytest
-from steamship import EmbeddingModels
 from .helpers import _random_index, _random_name, _steamship
 from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 

@@ -18,4 +18,4 @@ finally:
 from .base import Configuration, RemoteError, MimeTypes
 from .client import *
 from .data import *
-from .app import App, AppVersion, AppInstance
+from .plugin import *
