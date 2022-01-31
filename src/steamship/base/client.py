@@ -5,7 +5,7 @@ from typing import Any, TypeVar, Union
 import requests  # type: ignore
 
 from steamship.base.configuration import Configuration
-from steamship.base.error import RemoteError
+from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes
 from steamship.base.request import Request
 from steamship.base.response import Response, Task
@@ -71,7 +71,7 @@ class Client:
             if config and config.apiBase:
                 base = config.apiBase
             if base is None:
-                return RemoteError(
+                return SteamshipError(
                     code="EndpointMissing",
                     message="Can not invoke endpoint without the Client variable set.",
                     suggestion="This should automatically have a good default setting. Reach out to our Steamship support."
@@ -79,7 +79,7 @@ class Client:
         else:
             # Do the app version
             if appOwner is None:
-                return RemoteError(
+                return SteamshipError(
                     code="UserMissing",
                     message="Can not invoke an app endpoint without the app owner's user handle.",
                     suggestion="Provide the appOwner option, or initialize your app with a lookup."
@@ -91,7 +91,7 @@ class Client:
             if config and config.appBase:
                 base = config.appBase
             if base is None:
-                return RemoteError(
+                return SteamshipError(
                     code="EndpointMissing",
                     message="Can not invoke an app endpoint without the App Base variable set.",
                     suggestion="This should automatically have a good default setting. Reach out to our Steamship support."
@@ -275,12 +275,12 @@ class Client:
                     obj = responseData['data']
 
             if 'error' in responseData:
-                error = RemoteError.from_dict(responseData['error'], client=self)
+                error = SteamshipError.from_dict(responseData['error'], client=self)
 
             if 'reason' in responseData:
                 # This is a legacy error reporting field. We should work toward being comfortable
                 # removing this handler.
-                error = RemoteError(message=responseData['reason'])
+                error = SteamshipError(message=responseData['reason'])
 
         ret_obj = None
         if error is None:

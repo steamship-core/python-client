@@ -1,6 +1,6 @@
 import time
 
-from steamship.base.error import RemoteError
+from steamship.base.error import SteamshipError
 from steamship.base.tasks import *
 
 T = TypeVar('T')  # Declare type variable
@@ -11,7 +11,7 @@ class Response(IResponse, Generic[T]):
     expect: Type[T] = None
     task: Task = None
     data: T = None
-    error: RemoteError = None
+    error: SteamshipError = None
     client: Any = None
 
     def update(self, response: "Response[T]"):

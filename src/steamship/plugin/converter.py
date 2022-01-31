@@ -1,10 +1,10 @@
-from abc import abstractmethod
+from abc import ABC
 from dataclasses import dataclass
 from typing import Dict
 
 from steamship.base import Client
 from steamship.data.block import Block
-from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
+from steamship.plugin.service import PluginService, PluginRequest
 
 
 @dataclass
@@ -16,7 +16,7 @@ class ConvertRequest:
     name: str = None
 
     @staticmethod
-    def from_dict(d: any) -> "ConvertRequest":
+    def from_dict(d: any, client: Client = None) -> "ConvertRequest":
         return ConvertRequest(
             type=d.get('type', None),
             model=d.get('model', None),
@@ -45,7 +45,7 @@ class ConvertResponse():
         return dict(root=self.root.to_dict())
 
 
-class Converter(PluginService):
-    @abstractmethod
-    def _run(self, request: PluginRequest[ConvertRequest]) -> PluginResponse[ConvertResponse]:
-        pass
+class Converter(PluginService[ConvertRequest, ConvertResponse], ABC):
+    @classmethod
+    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[ConvertRequest]:
+        return ConvertRequest.from_dict(d, client=client)
