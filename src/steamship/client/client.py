@@ -2,17 +2,14 @@ import logging
 from typing import List
 
 from steamship.base import Client, Response
-
-from steamship.plugin import EmbedRequest, EmbedResponse, ParseRequest, ParseResponse
-from steamship.plugin.plugin import Models
-
+from steamship.client.tasks import Tasks
 from steamship.data import Block, Classifier, Corpus, File
 from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 from steamship.data.tagging import TagRequest, TagResponse
-
-from steamship.client.tasks import Tasks
+from steamship.plugin import EmbedRequest, EmbedResponse, ParseRequest, ParseResponse
+from steamship.plugin.plugin import Models
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -219,7 +216,7 @@ class Steamship(Client):
     def parse(
             self,
             docs: List[str],
-            model: str = ParsingModels.EN_DEFAULT,
+            model: str = None,
             tokenMatchers: List[TokenMatcher] = None,
             phraseMatchers: List[PhraseMatcher] = None,
             dependencyMatchers: List[DependencyMatcher] = None,
@@ -253,7 +250,7 @@ class Steamship(Client):
     def tag(
             self,
             blocks: List[Block],
-            model: str = ParsingModels.EN_DEFAULT,
+            model: str = None,
             metadata: any = None,
             spaceId: str = None,
             spaceHandle: str = None
