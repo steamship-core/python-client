@@ -7,18 +7,8 @@ __license__ = "MIT"
 
 
 class TestParser(Parser):
-    def _run(self, request: PluginRequest[ParseRequest]) -> PluginResponse[ParseResponse]:
-        if type(request) == PluginRequest:
-            data = request.data
-            assert (len(data.docs) == 1)
-            assert (data.docs[0] == "Hi there.")
-            return PluginResponse(data=ParseResponse(blocks=[Block(text=data.docs[0])]))
-        else:
-            return PluginResponse(error=RemoteError(message="Bad type"))
-
-
-class TestParserBareResponse(Parser):
-    def _run(self, request: PluginRequest[ParseRequest]) -> PluginResponse[ParseResponse]:
+    def run(self, request: PluginRequest[ParseRequest]) -> PluginResponse[ParseResponse]:
+        request = self.__class__.request_from_dict(request)
         if type(request) == PluginRequest:
             data = request.data
             assert (len(data.docs) == 1)
@@ -51,17 +41,5 @@ def test_dict_req():
 
 def test_obj_req():
     parser = TestParser()
-    res = parser.run(TEST_PLUGIN_REQ)
-    _test_resp(res)
-
-
-def test_dict_req_bare_resp():
-    parser = TestParserBareResponse()
-    res = parser.run(TEST_REQ_DICT)
-    _test_resp(res)
-
-
-def test_obj_req_bare_resp():
-    parser = TestParserBareResponse()
     res = parser.run(TEST_PLUGIN_REQ)
     _test_resp(res)

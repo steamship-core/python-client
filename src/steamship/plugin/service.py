@@ -1,4 +1,3 @@
-import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TypeVar, Generic, Union, Callable
@@ -71,7 +70,7 @@ class PluginResponse(Generic[U]):
 
 class PluginService(ABC, Generic[T, U]):
     @abstractmethod
-    def _run(self, request: PluginRequest[T]) -> Union[U, PluginResponse[U]]:
+    def run(self, request: PluginRequest[T]) -> Union[U, PluginResponse[U]]:
         pass
 
     @classmethod
@@ -79,29 +78,30 @@ class PluginService(ABC, Generic[T, U]):
     def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[T]:
         pass
 
-    def run(self, request: Union[PluginRequest[T], dict]) -> PluginResponse[U]:
+    @classmethod
+    def request_from_dict(cls, request: Union[PluginRequest[T], dict]) -> PluginRequest[T]:
         if type(request) == dict:
             try:
                 request = PluginRequest[T].from_dict(
                     request,
-                    subclass_request_from_dict=self.__class__.subclass_request_from_dict
+                    subclass_request_from_dict=cls.subclass_request_from_dict
                 )
             except Exception as error:
-                return PluginResponse[U](error=RemoteError(
+                raise RemoteError(
                     message="Unable to parse input request.",
                     error=error
-                ))
+                )
+        return request
+
+    @classmethod
+    def response_do_dict(cls, response) -> PluginResponse[U]:
         try:
-            ret = self._run(request)
-            if type(ret) == PluginResponse:
-                return ret
-            elif type(ret) == U:
-                return PluginResponse(data=ret)
-            elif type(ret) == RemoteError:
-                return PluginResponse(error=ret)
+            if type(response) == PluginResponse:
+                return response
+            elif type(response) == RemoteError:
+                return PluginResponse(error=response)
             else:
-                logging.warning("An unexpected response type ({}) was found.".format(type(ret)))
-                return PluginResponse(data=ret)
+                return PluginResponse(data=response)
         except RemoteError as remote_error:
             return PluginResponse[U](error=remote_error)
         except Exception as error:
