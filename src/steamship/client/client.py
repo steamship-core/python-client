@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+from steamship.data.space import Space
 from steamship.base import Client, Response
 from steamship.client.tasks import Tasks
 from steamship.data import Block, Classifier, Corpus, File
@@ -69,7 +70,8 @@ class Steamship(Client):
             isPublic: bool = False,
             upsert: bool = False,
             spaceId: bool = False,
-            spaceHandle: bool = False
+            spaceHandle: bool = False,
+            space: Space = None
     ) -> Corpus:
         return Corpus.create(
             client=self,
@@ -82,7 +84,8 @@ class Steamship(Client):
             externalType=externalType,
             metadata=metadata,
             spaceId=spaceId,
-            spaceHandle=spaceHandle
+            spaceHandle=spaceHandle,
+            space=space
         )
 
     def create_index(
@@ -95,7 +98,8 @@ class Steamship(Client):
             externalType: str = None,
             metadata: any = None,
             spaceId: str = None,
-            spaceHandle: str = None
+            spaceHandle: str = None,
+            space: Space = None
     ) -> Response[EmbeddingIndex]:
         return EmbeddingIndex.create(
             client=self,
@@ -107,7 +111,8 @@ class Steamship(Client):
             externalType=externalType,
             metadata=metadata,
             spaceId=spaceId,
-            spaceHandle=spaceHandle
+            spaceHandle=spaceHandle,
+            space=space
         )
 
     def create_classifier(
@@ -118,7 +123,8 @@ class Steamship(Client):
             save: bool = None,
             labels: List[str] = None,
             spaceId: str = None,
-            spaceHandle: str = None
+            spaceHandle: str = None,
+            space: Space = None
     ) -> Classifier:
         return Classifier.create(
             client=self,
@@ -128,7 +134,8 @@ class Steamship(Client):
             save=save,
             labels=labels,
             spaceId=spaceId,
-            spaceHandle=spaceHandle
+            spaceHandle=spaceHandle,
+            space=space
         )
 
     def upload(
@@ -139,7 +146,8 @@ class Steamship(Client):
             mimeType: str = None,
             convert: bool = False,
             spaceId: str = None,
-            spaceHandle: str = None
+            spaceHandle: str = None,
+            space: Space = None
     ) -> File:
         return File.upload(
             self,
@@ -149,7 +157,8 @@ class Steamship(Client):
             mimeType=mimeType,
             convert=convert,
             spaceId=spaceId,
-            spaceHandle=spaceHandle
+            spaceHandle=spaceHandle,
+            space=space
         )
 
     def scrape(
@@ -158,7 +167,8 @@ class Steamship(Client):
             name: str = None,
             convert: bool = False,
             spaceId: str = None,
-            spaceHandle: str = None
+            spaceHandle: str = None,
+            space: Space = None,
     ) -> File:
         if name is None:
             name = url
@@ -168,7 +178,8 @@ class Steamship(Client):
             name,
             convert=convert,
             spaceId=spaceId,
-            spaceHandle=spaceHandle
+            spaceHandle=spaceHandle,
+            space=space
         )
 
     def embed(
@@ -176,7 +187,8 @@ class Steamship(Client):
             docs: List[str],
             model: str,
             spaceId: str = None,
-            spaceHandle: str = None
+            spaceHandle: str = None,
+            space: Space = None
     ) -> Response[EmbedResponse]:
         req = EmbedRequest(
             docs=docs,
@@ -187,7 +199,8 @@ class Steamship(Client):
             req,
             expect=EmbedResponse,
             spaceId=spaceId,
-            spaceHandle=spaceHandle
+            spaceHandle=spaceHandle,
+            space=space
         )
 
     def embed_and_search(
@@ -197,7 +210,8 @@ class Steamship(Client):
             model: str,
             k: int = 1,
             spaceId: str = None,
-            spaceHandle: str = None
+            spaceHandle: str = None,
+            space: Space = None
     ) -> Response[EmbedAndSearchResponse]:
         req = EmbedAndSearchRequest(
             query=query,
@@ -210,7 +224,8 @@ class Steamship(Client):
             req,
             expect=EmbedAndSearchResponse,
             spaceId=spaceId,
-            spaceHandle=spaceHandle
+            spaceHandle=spaceHandle,
+            space=space
         )
 
     def parse(
@@ -225,7 +240,8 @@ class Steamship(Client):
             includeEntities: bool = False,
             metadata: any = None,
             spaceId: str = None,
-            spaceHandle: str = None
+            spaceHandle: str = None,
+            space: Space = None
     ) -> Response[ParseResponse]:
         req = ParseRequest(
             type="inline",
@@ -244,7 +260,8 @@ class Steamship(Client):
             req,
             expect=ParseResponse,
             spaceId=spaceId,
-            spaceHandle=spaceHandle
+            spaceHandle=spaceHandle,
+            space=space
         )
 
     def tag(
@@ -253,7 +270,8 @@ class Steamship(Client):
             model: str = None,
             metadata: any = None,
             spaceId: str = None,
-            spaceHandle: str = None
+            spaceHandle: str = None,
+            space: Space = None
     ) -> Response[ParseResponse]:
         req = TagRequest(
             blocks=blocks,
@@ -265,5 +283,6 @@ class Steamship(Client):
             req,
             expect=TagResponse,
             spaceId=spaceId,
-            spaceHandle=spaceHandle
+            spaceHandle=spaceHandle,
+            space=Space
         )
