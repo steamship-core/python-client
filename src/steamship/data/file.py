@@ -499,7 +499,7 @@ class File:
         for block in blocks:
             item = IndexItem(
                 value=block.text,
-                externalId=block.blockId,
+                externalId=block.id,
                 externalType="block"
             )
             items.append(item)
