@@ -1,7 +1,5 @@
-from steamship.server import App, post, create_lambda_handler
-from steamship.types.block import Block, BlockTypes
-from steamship.types.parsing import ParseRequest, ParseResponse
-from steamship.types.token import Token
+from steamship import ParseRequest, ParseResponse, Block, BlockTypes, Token
+from steamship.app import App, post, create_lambda_handler
 
 
 class TestParserPlugin(App):
