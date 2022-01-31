@@ -447,7 +447,7 @@ class File:
                 return res.data.blocks
             else:
                 import pandas as pd  # type: ignore
-                return pd.DataFrame([(block.type, block.value) for block in res.data.blocks], columns=['Type', 'Value'])
+                return pd.DataFrame([(block.type, block.text) for block in res.data.blocks], columns=['Type', 'Value'])
 
     def index(
             self,
@@ -498,7 +498,7 @@ class File:
         items = []
         for block in blocks:
             item = IndexItem(
-                value=block.value,
+                value=block.text,
                 externalId=block.blockId,
                 externalType="block"
             )
