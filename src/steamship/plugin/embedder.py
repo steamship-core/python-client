@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Dict, List
 
 from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
-
+from steamship.base import Client
 
 @dataclass
 class EmbedRequest:
@@ -25,7 +25,7 @@ class EmbedResponse:
     embeddings: List[List[float]]
 
     @staticmethod
-    def from_dict(d: any) -> "EmbedResponse":
+    def from_dict(d: any, client: Client = None) -> "EmbedResponse":
         return EmbedResponse(
             embeddings=d.get('embeddings', None),
         )

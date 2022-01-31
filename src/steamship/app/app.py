@@ -65,7 +65,7 @@ def post(path: str, **kwargs):
 class App:
     """An Steamship microservice.
 
-  This base class:
+  This base.py class:
 
     1. Provide a pre-authenticated instance of the Steamship client
     2. Provides a Lambda handler that routes to registered functions

@@ -6,7 +6,7 @@ from typing import List
 from steamship.data.block import Block
 from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 from steamship.plugin.service import PluginRequest, PluginResponse, PluginService
-
+from steamship.base import Client
 
 @dataclass
 class ParseRequest:
@@ -69,8 +69,8 @@ class ParseResponse:
     blocks: List[Block] = None
 
     @staticmethod
-    def from_dict(d: any) -> "ParseResponse":
-        blocks = [Block.from_dict(h) for h in (d.get("blocks", []) or [])]
+    def from_dict(d: any, client: Client = None) -> "ParseResponse":
+        blocks = [Block.from_dict(h, client = Client) for h in (d.get("blocks", []) or [])]
         return ParseResponse(
             blocks=blocks
         )

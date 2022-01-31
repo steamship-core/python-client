@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Dict
 
 from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
-
+from steamship.base import Client
 
 @dataclass
 class ImportRequest:
@@ -21,7 +21,7 @@ class ImportResponse:
     metadata: Dict = None
 
     @staticmethod
-    def from_dict(d: any) -> "ImportRequest":
+    def from_dict(d: any, client: Client = None) -> "ImportRequest":
         return ImportRequest(
             metadata=d.get('metadata', {})
         )

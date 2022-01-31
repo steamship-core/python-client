@@ -4,7 +4,7 @@ from typing import Dict
 
 from steamship.data.block import Block
 from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
-
+from steamship.base import Client
 
 @dataclass
 class ConvertRequest:
@@ -30,11 +30,12 @@ class ConvertResponse():
     root: Block = None
 
     @staticmethod
-    def from_dict(d: any = None) -> "ConvertResponse":
+    def from_dict(d: any = None, client: Client = None) -> "ConvertResponse":
         if d is None:
             return None
+
         return ConvertResponse(
-            root=Block.from_dict(d.get('root', None))
+            root=Block.from_dict(d.get('root', None), client=client)
         )
 
     def to_dict(self) -> Dict:

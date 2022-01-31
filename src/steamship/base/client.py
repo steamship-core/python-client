@@ -19,7 +19,7 @@ T = TypeVar('T', bound=Response)
 
 
 class Client:
-    """Client base class.
+    """Client base.py class.
 
     Separated primarily as a hack to prevent circular imports.
     """
@@ -34,7 +34,7 @@ class Client:
     def __init__(
             self,
             apiKey: str = None,
-            Client: str = None,
+            apiBase: str = None,
             appBase: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -45,7 +45,7 @@ class Client:
 
         self.config = Configuration(
             apiKey=apiKey,
-            Client=Client,
+            apiBase=apiBase,
             appBase=appBase,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
@@ -66,10 +66,10 @@ class Client:
         if not appCall:
             # Regular API call
             base = None
-            if self.config and self.config.Client:
-                base = self.config.Client
-            if config and config.Client:
-                base = config.Client
+            if self.config and self.config.apiBase:
+                base = self.config.apiBase
+            if config and config.apiBase:
+                base = config.apiBase
             if base is None:
                 return RemoteError(
                     code="EndpointMissing",

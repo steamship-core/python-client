@@ -63,7 +63,7 @@ class ClassifyResponse():
     hits: List[List[ClassifierHit]] = None
 
     @staticmethod
-    def from_dict(d: any = None) -> "ClassifyResponse":
+    def from_dict(d: any = None, client: Client = None) -> "ClassifyResponse":
         hits = [[ClassifierHit.from_dict(h) for h in innerList] for innerList in (d.get("hits", []) or [])]
         return ClassifyResponse(
             classifierId=d.get('classifierId', None),

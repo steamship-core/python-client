@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 from typing import TypeVar, Any, List, Generic, Type
 
-from metadata import str_to_metadata, metadata_to_str
+from steamship.base.metadata import str_to_metadata, metadata_to_str
 from steamship.base.request import Request
-from steamship.base.response import Response
+from steamship.base.base import IResponse
 
-T = TypeVar('T', bound=Response)
-
+T = TypeVar('T')
 
 @dataclass
 class CreateTaskCommentRequest(Request):
@@ -52,7 +51,7 @@ class TaskComment:
             externalGroup: str = None,
             metadata: any = None,
             upsert: bool = True
-    ) -> "Response[TaskComment]":
+    ) -> "IResponse[TaskComment]":
         req = CreateTaskCommentRequest(
             taskId=taskId,
             externalId=externalId,
@@ -74,7 +73,7 @@ class TaskComment:
             externalId: str = None,
             externalType: str = None,
             externalGroup: str = None
-    ) -> "Response[TaskCommentList]":
+    ) -> "IResponse[TaskCommentList]":
         req = ListTaskCommentRequest(
             taskId=taskId,
             externalId=externalId,
@@ -87,7 +86,7 @@ class TaskComment:
             expect=TaskCommentList,
         )
 
-    def delete(self) -> "Response[TaskComment]":
+    def delete(self) -> "IResponse[TaskComment]":
         req = DeleteTaskCommentRequest(self.id)
         return self.client.post(
             'task/comment/delete',
@@ -174,7 +173,7 @@ class Task(Generic[T]):
             self.taskStatus = None
 
     def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None,
-                    metadata: any = None, upsert: bool = True) -> Response[TaskComment]:
+                    metadata: any = None, upsert: bool = True) -> IResponse[TaskComment]:
         return TaskComment.create(
             client=self.client,
             taskId=self.taskId,
@@ -185,8 +184,8 @@ class Task(Generic[T]):
             upsert=upsert
         )
 
-    def list_comments(self) -> Response[TaskCommentList]:
+    def list_comments(self) -> IResponse[TaskCommentList]:
         return TaskComment.list(client=self.client, taskId=self.taskId)
 
-    def delete_comment(self, comment: TaskComment = None) -> Response[TaskComment]:
+    def delete_comment(self, comment: TaskComment = None) -> IResponse[TaskComment]:
         return comment.delete()

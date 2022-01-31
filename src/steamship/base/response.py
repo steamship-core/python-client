@@ -1,14 +1,13 @@
 import time
-from typing import Type, Generic
 
 from steamship.base.error import RemoteError
 from steamship.base.tasks import *
+from steamship.base.base import IResponse
 
 T = TypeVar('T')  # Declare type variable
 
-
 @dataclass
-class Response(Generic[T]):
+class Response(IResponse, Generic[T]):
     expect: Type[T] = None
     task: Task = None
     data: T = None

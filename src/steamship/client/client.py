@@ -23,7 +23,7 @@ class Steamship(Client):
     def __init__(
             self,
             apiKey: str = None,
-            Client: str = None,
+            apiBase: str = None,
             appBase: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -33,7 +33,7 @@ class Steamship(Client):
             dQuery: bool = False):
         super().__init__(
             apiKey=apiKey,
-            Client=Client,
+            apiBase=apiBase,
             appBase=appBase,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
@@ -42,7 +42,7 @@ class Steamship(Client):
             configDict=configDict,
             dQuery=dQuery)
         """
-        The base class will properly detect and set the defaults. They should be None here.
+        The base.py class will properly detect and set the defaults. They should be None here.
     
         dQuery is a Beta option that will return chainable responses, like:
           file.upload()

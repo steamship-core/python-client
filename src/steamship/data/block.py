@@ -41,7 +41,7 @@ class Block:
     spans: List["Span"] = None
 
     @staticmethod
-    def from_dict(d: any, client: Client) -> Union["Block", None]:
+    def from_dict(d: any, client: Client = None) -> Union["Block", None]:
         if d is None:
             return None
         if 'block' in d:
@@ -51,9 +51,9 @@ class Block:
             id=d.get('id', None),
             type=d.get('type', None),
             text=d.get('text', None),
-            children=list(map(lambda child: Block.from_dict(child, client), d.get('children', []))),
-            tokens=list(map(lambda token: Token.from_dict(token, client), d.get('tokens', []))),
-            # spans = list(map(lambda span: Span.from_dict(span, client), d.get('span', []))),
+            children=list(map(lambda child: Block.from_dict(child, client=client), d.get('children', []))),
+            tokens=list(map(lambda token: Token.from_dict(token, client=client), d.get('tokens', []))),
+            # spans = list(map(lambda span: Span.from_dict(span, client=client), d.get('span', []))),
         )
 
     @staticmethod
