@@ -8,11 +8,11 @@ from steamship.data.block import Block
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.embedding_index import IndexItem
 from steamship.data.parsing import DependencyMatcher, PhraseMatcher, TokenMatcher
+from steamship.data.plugin import PluginTargetType
 from steamship.data.tag import *
 from steamship.data.tag import TagObjectRequest
 from steamship.plugin.converter import ConvertRequest, ConvertResponse
 from steamship.plugin.parser import ParseRequest, ParseResponse
-from steamship.data.plugin import PluginTargetType
 
 
 class FileUploadType:

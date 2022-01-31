@@ -1,49 +1,50 @@
-import pytest
-from .helpers import _random_index, _random_name, _steamship
-from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
+from .helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+
 def parsing_model():
-  return "test-parser-v1"
+    return "test-parser-v1"
+
 
 def test_parsing():
     steamship = _steamship()
     resp = steamship.parse(["This is a test"], model=parsing_model())
     resp.wait()
     resp = resp.data
-    assert(len(resp.blocks) == 1)
+    assert (len(resp.blocks) == 1)
     d = resp.blocks[0]
-    assert(len(d.children) == 1)
+    assert (len(d.children) == 1)
     s = d.children[0]
-    
-    assert(s.text == "This is a test")
-    assert(len(s.tokens) == 4)
+
+    assert (s.text == "This is a test")
+    assert (len(s.tokens) == 4)
     t = s.tokens[0]
+
 
 def test_parsing_options():
     steamship = _steamship()
     resp = steamship.parse(["This is a test"], model=parsing_model(), includeTokens=False)
     resp.wait()
-    assert(len(resp.data.blocks) == 1)
+    assert (len(resp.data.blocks) == 1)
     d = resp.data.blocks[0]
-    assert(len(d.children) == 1)
+    assert (len(d.children) == 1)
     s = d.children[0]
 
-    assert(s.text == "This is a test")
-    assert(len(s.tokens) == 0)
+    assert (s.text == "This is a test")
+    assert (len(s.tokens) == 0)
 
     resp = steamship.parse(["This is a test"], model=parsing_model(), includeTokens=True, includeParseData=False)
     resp.wait()
-    assert(len(resp.data.blocks) == 1)
+    assert (len(resp.data.blocks) == 1)
     d = resp.data.blocks[0]
-    assert(len(d.children) == 1)
+    assert (len(d.children) == 1)
     s = d.children[0]
 
-    assert(s.text == "This is a test")
-    assert(len(s.tokens) == 4)
-    assert(s.tokens[0].dep is None)
+    assert (s.text == "This is a test")
+    assert (len(s.tokens) == 4)
+    assert (s.tokens[0].dep is None)
 
 # def test_ner():
 #     steamship = _steamship()
@@ -249,7 +250,7 @@ def test_parsing_options():
 #     for sp in d.spans:
 #       assert(sp.text in ans)
 #       assert(sp.label == ans[sp.text])
-    
+
 #     a_matcher = DependencyMatcher(
 #       label="FOUNDED",
 #       patterns=[
@@ -336,5 +337,3 @@ def test_parsing_options():
 #     for sp in spans:
 #       assert(sp.text in ans)
 #       assert(sp.label == ans[sp.text])
-
-

@@ -32,7 +32,7 @@
 #     save=False
 #   ).data
 #   assert classifier is not None
-  
+
 #   # Missing labels as a zero shot
 #   with pytest.raises(Exception):
 #       results = classifier.classify(docs=["Jurassic Park"])
@@ -54,7 +54,7 @@
 #   assert r.data.hits[0][0].value == "Food"
 
 #   r = classifier.classify(docs=["Banana"], labels=["Movie", "Food", "City"], k=3)
-  
+
 #   assert len(r.data.hits) == 1
 #   assert len(r.data.hits[0]) == 3
 #   assert r.data.hits[0][0].value == "Food"
