@@ -8,7 +8,7 @@ __license__ = "MIT"
 
 class TestParser(Parser):
     def run(self, request: PluginRequest[ParseRequest]) -> PluginResponse[ParseResponse]:
-        request = self.__class__.request_from_dict(request)
+        request = TestParser.request_from_dict(request)
         if type(request) == PluginRequest:
             data = request.data
             assert (len(data.docs) == 1)
