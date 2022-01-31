@@ -1,8 +1,9 @@
 from dataclasses import dataclass
 from typing import List
 
-from steamship.base import Client, Response
+from steamship.base import Client, Response, Request
 from steamship.data.search import Hit
+
 
 @dataclass
 class ClassifierCreateRequest(Request):

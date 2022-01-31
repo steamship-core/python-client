@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from typing import List, Union, Dict
 
-from steamship.base import Client, Response, metadata_to_str
+from steamship.base import Client, Request, Response, metadata_to_str
 from steamship.base.request import IdentifierRequest
 from steamship.data.search import Hit
 

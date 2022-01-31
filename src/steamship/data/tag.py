@@ -3,6 +3,7 @@ from typing import List
 
 from steamship.base import Client, Request
 
+
 @dataclass
 class Tag:
     tagId: str = None

@@ -5,8 +5,8 @@
 #
 
 from dataclasses import dataclass
-from steamship.base import Client, Request, Response
 
+from steamship.base import Client, Request
 
 
 @dataclass

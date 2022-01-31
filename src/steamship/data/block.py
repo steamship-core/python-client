@@ -1,9 +1,10 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Union
 
 from steamship.base import Client
 from steamship.data.span import Span
 from steamship.data.token import Token
+
 
 class BlockTypes:
     Document = "doc"
@@ -40,7 +41,7 @@ class Block:
     spans: List["Span"] = None
 
     @staticmethod
-    def from_dict(d: any, client: Client) -> "Block":
+    def from_dict(d: any, client: Client) -> Union["Block", None]:
         if d is None:
             return None
         if 'block' in d:
@@ -102,7 +103,7 @@ class Block:
             includeTokens: bool = True,
             includeParseData: bool = True,
             includeEntities: bool = True
-    ) -> "Block":
+    ) -> Union["Block", None]:
 
         if spacyObj is None:
             return None

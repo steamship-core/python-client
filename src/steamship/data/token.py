@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from steamship.base import Client
 
+
 @dataclass
 class Token:
     client: Client = None

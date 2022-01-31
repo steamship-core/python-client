@@ -2,19 +2,17 @@ import logging
 import re
 from typing import Union, Tuple
 
+from steamship.base import Response
 from steamship.base.request import IdentifierRequest
-from steamship.base import Client, Response
-
-from steamship.plugin.converter import ConvertRequest, ConvertResponse
-from steamship.plugin.parser import ParseRequest, ParseResponse
-
 from steamship.data.block import Block
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.embedding_index import IndexItem
-from steamship.plugin.plugin import PluginTargetType
 from steamship.data.parsing import DependencyMatcher, PhraseMatcher, TokenMatcher
 from steamship.data.tag import *
 from steamship.data.tag import TagObjectRequest
+from steamship.plugin.converter import ConvertRequest, ConvertResponse
+from steamship.plugin.parser import ParseRequest, ParseResponse
+from steamship.plugin.plugin import PluginTargetType
 
 
 class FileUploadType:

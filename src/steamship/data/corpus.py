@@ -2,9 +2,10 @@ import json
 from dataclasses import dataclass
 from typing import Any, List
 
-from steamship.base import Client, Response, str_to_metadata
+from steamship.base import Client, Request, Response, str_to_metadata
 from steamship.base.request import IdentifierRequest
 from steamship.data.file import File, ListFilesResponse
+
 
 @dataclass
 class CreateCorpusRequest(Request):
