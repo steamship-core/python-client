@@ -1,9 +1,9 @@
-from abc import abstractmethod
+from abc import ABC
 from dataclasses import dataclass
 from typing import Dict, List
 
 from steamship.base import Client
-from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
+from steamship.plugin.service import PluginService, PluginRequest
 
 
 @dataclass
@@ -13,7 +13,7 @@ class EmbedRequest:
     metadata: Dict = None
 
     @staticmethod
-    def from_dict(d: any) -> "EmbedRequest":
+    def from_dict(d: any, client: Client = None) -> "EmbedRequest":
         return EmbedRequest(
             docs=d.get('docs', None),
             model=d.get('model', None),
@@ -37,7 +37,7 @@ class EmbedResponse:
         )
 
 
-class Embedder(PluginService):
-    @abstractmethod
-    def _run(self, request: PluginRequest[EmbedRequest]) -> PluginResponse[EmbedResponse]:
-        pass
+class Embedder(PluginService[EmbedRequest, EmbedResponse], ABC):
+    @classmethod
+    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[EmbedRequest]:
+        return EmbedRequest.from_dict(d, client=client)

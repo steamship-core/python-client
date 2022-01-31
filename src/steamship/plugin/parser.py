@@ -1,12 +1,12 @@
 import json
-from abc import abstractmethod
-from dataclasses import dataclass
+from abc import ABC
+from dataclasses import dataclass, asdict
 from typing import List
 
 from steamship.base import Client
 from steamship.data.block import Block
 from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
-from steamship.plugin.service import PluginRequest, PluginResponse, PluginService
+from steamship.plugin.service import PluginService, PluginRequest
 
 
 @dataclass
@@ -27,7 +27,7 @@ class ParseRequest:
     metadata: any = None
 
     @staticmethod
-    def from_dict(d: any) -> "ParseRequest":
+    def from_dict(d: any, client: Client = None) -> "ParseRequest":
         token_matchers = [TokenMatcher.from_dict(h) for h in (d.get("tokenMatchers", []) or [])]
         phrase_matchers = [PhraseMatcher.from_dict(h) for h in (d.get("phraseMatchers", []) or [])]
         dependency_matchers = [DependencyMatcher.from_dict(h) for h in (d.get("dependencyMatchers", []) or [])]
@@ -64,6 +64,9 @@ class ParseRequest:
             metadata=metadata
         )
 
+    def to_dict(self) -> dict:
+        return asdict(self)
+
 
 @dataclass
 class ParseResponse:
@@ -71,7 +74,7 @@ class ParseResponse:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "ParseResponse":
-        blocks = [Block.from_dict(h, client=Client) for h in (d.get("blocks", []) or [])]
+        blocks = [Block.from_dict(h, client=client) for h in (d.get("blocks", []) or [])]
         return ParseResponse(
             blocks=blocks
         )
@@ -86,7 +89,7 @@ class ParseResponse:
         )
 
 
-class Parser(PluginService):
-    @abstractmethod
-    def _run(self, request: PluginRequest[ParseRequest]) -> PluginResponse[ParseResponse]:
-        pass
+class Parser(PluginService[ParseRequest, ParseResponse], ABC):
+    @classmethod
+    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[ParseRequest]:
+        return ParseRequest.from_dict(d, client=client)

@@ -1,10 +1,10 @@
 import json
-from abc import abstractmethod
+from abc import ABC
 from dataclasses import dataclass
 from typing import List
 
 from steamship.base.client import Client
-from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
+from steamship.plugin.service import PluginService, PluginRequest
 
 
 @dataclass
@@ -46,7 +46,7 @@ class ClassifyRequest:
     k: int = None
 
     @staticmethod
-    def from_dict(d: any) -> "ClassifyRequest":
+    def from_dict(d: any, client: Client = None) -> "ClassifyRequest":
         return ClassifyRequest(
             type=d.get('type', None),
             model=d.get('model', None),
@@ -72,7 +72,7 @@ class ClassifyResponse():
         )
 
 
-class Classifier(PluginService):
-    @abstractmethod
-    def _run(self, request: PluginRequest[ClassifyRequest]) -> PluginResponse[ClassifyResponse]:
-        pass
+class Classifier(PluginService[ClassifyRequest, ClassifyResponse], ABC):
+    @classmethod
+    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[ClassifyRequest]:
+        return ClassifyRequest.from_dict(d, client=client)

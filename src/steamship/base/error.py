@@ -5,11 +5,15 @@ class RemoteError(Exception):
     message: str = None
     suggestion: str = None
     code: str = None
+    error: str = None
 
-    def __init__(self, message: str = "Undefined remote error", suggestion: str = None, code: str = None):
+    def __init__(self, message: str = "Undefined remote error", suggestion: str = None, code: str = None,
+                 error: Exception = None):
         self.message = message
         self.suggestion = suggestion
         self.code = code
+        if error is not None:
+            self.error = "{}".format(error)
 
         parts = []
         if code is not None:
