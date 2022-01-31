@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 from typing import List
 
-from steamship.base.client import ApiBase
-from steamship.base.response import Request, Model
-
+from steamship.base import Client, Request
 
 @dataclass
-class Tag(Model):
+class Tag:
     tagId: str = None
     kind: str = None
     subKind: str = None
@@ -14,7 +12,7 @@ class Tag(Model):
     handle: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "Model":
+    def from_dict(d: any, client: Client = None) -> "Model":
         return Tag(
             tagId=d.get('tagId', None),
             kind=d.get('kind', None),
@@ -34,7 +32,7 @@ class CreateTagRequest(Request):
     upsert: bool = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "CreateTagRequest":
+    def from_dict(d: any, client: Client = None) -> "CreateTagRequest":
         return CreateTagRequest(
             tagId=d.get('tagId', None),
             kind=d.get('kind', None),
@@ -68,7 +66,7 @@ class TagObjectRequest(Request):
     objectId: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "TagObjectRequest":
+    def from_dict(d: any, client: Client = None) -> "TagObjectRequest":
         tags = [CreateTagRequest.from_dict(dd) for dd in d.get('tags', [])]
         return TagObjectRequest(
             tags=tags,

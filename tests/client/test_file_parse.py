@@ -1,7 +1,7 @@
 from steamship.base.response import TaskStatus
 from steamship.data.parsing_models import ParsingModels
 from .helpers import _random_name, _steamship
-from steamship import BlockTypes, FileFormats
+from steamship import BlockTypes, MimeTypes
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -22,11 +22,11 @@ def test_file_parse():
   a = steamship.upload(
     name=name_a,
     content=CONTENT,
-    mimeType=FileFormats.MKD
+    mimeType=MimeTypes.MKD
   ).data
   assert(a.id is not None)
   assert(a.name == name_a)
-  assert(a.mimeType == FileFormats.MKD)
+  assert(a.mimeType == MimeTypes.MKD)
 
   a.convert().wait()
 

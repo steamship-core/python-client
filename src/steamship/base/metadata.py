@@ -3,6 +3,7 @@ from typing import Union, List, Dict
 
 Metadata = Union[int, float, bool, str, List, Dict]
 
+
 def str_to_metadata(s: str) -> Metadata:
     if s is None:
         return None

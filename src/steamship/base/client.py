@@ -6,8 +6,9 @@ import requests  # type: ignore
 
 from steamship.base.configuration import Configuration
 from steamship.base.error import RemoteError
+from steamship.base.mime_types import MimeTypes
+from steamship.base.request import Request
 from steamship.base.response import Response, Task
-from steamship.base.mime_types import FileFormats
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -15,6 +16,7 @@ __license__ = "MIT"
 _logger = logging.getLogger(__name__)
 
 T = TypeVar('T', bound=Response)
+
 
 class Client:
     """Client base class.
@@ -32,7 +34,7 @@ class Client:
     def __init__(
             self,
             apiKey: str = None,
-            apiBase: str = None,
+            Client: str = None,
             appBase: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -43,7 +45,7 @@ class Client:
 
         self.config = Configuration(
             apiKey=apiKey,
-            apiBase=apiBase,
+            Client=Client,
             appBase=appBase,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
@@ -64,14 +66,14 @@ class Client:
         if not appCall:
             # Regular API call
             base = None
-            if self.config and self.config.apiBase:
-                base = self.config.apiBase
-            if config and config.apiBase:
-                base = config.apiBase
+            if self.config and self.config.Client:
+                base = self.config.Client
+            if config and config.Client:
+                base = config.Client
             if base is None:
                 return RemoteError(
                     code="EndpointMissing",
-                    message="Can not invoke endpoint without the apiBase variable set.",
+                    message="Can not invoke endpoint without the Client variable set.",
                     suggestion="This should automatically have a good default setting. Reach out to our Steamship support."
                 )
         else:
@@ -165,9 +167,9 @@ class Client:
         if resp.headers and resp.headers['Content-Type']:
             ct = resp.headers['Content-Type']
             ct = ct.split(';')[0]  # application/json; charset=utf-8
-            if ct in [FileFormats.TXT, FileFormats.MKD, FileFormats.HTML]:
+            if ct in [MimeTypes.TXT, MimeTypes.MKD, MimeTypes.HTML]:
                 return resp.text
-            elif ct == FileFormats.JSON:
+            elif ct == MimeTypes.JSON:
                 return resp.json()
             else:
                 return resp.content

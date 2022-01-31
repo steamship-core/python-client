@@ -1,10 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 
-from steamship.base.client import ApiBase
-from steamship.base.response import Request, Response, Model
+from steamship.base import Client, Response
 from steamship.data.search import Hit
-
 
 @dataclass
 class ClassifierCreateRequest(Request):
@@ -16,11 +14,11 @@ class ClassifierCreateRequest(Request):
 
 
 @dataclass
-class ClassifierCreateResponse(Model):
+class ClassifierCreateResponse:
     classifierId: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "ClassifierCreateResponse":
+    def from_dict(d: any, client: Client = None) -> "ClassifierCreateResponse":
         return ClassifierCreateResponse(
             classifierId=d.get('classifierId', None),
         )
@@ -36,13 +34,13 @@ class ClassifyRequest(Request):
 
 
 @dataclass
-class ClassifyResponse(Model):
+class ClassifyResponse:
     classifierId: str = None
     model: str = None
     hits: List[List[Hit]] = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "ClassifyResponse":
+    def from_dict(d: any, client: Client = None) -> "ClassifyResponse":
         hits = [[Hit.from_dict(h) for h in innerList] for innerList in (d.get("hits", []) or [])]
         return ClassifyResponse(
             classifierId=d.get('classifierId', None),
@@ -60,7 +58,7 @@ class LabelInsertRequest(Request):
 
 
 @dataclass
-class LabelInsertResponse(Model):
+class LabelInsertResponse:
     labelId: str
     value: str
     externalId: str = None
@@ -68,7 +66,7 @@ class LabelInsertResponse(Model):
     metadata: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "LabelInsertResponse":
+    def from_dict(d: any, client: Client = None) -> "LabelInsertResponse":
         return LabelInsertResponse(
             labelId=d.get('labelId', None),
             value=d.get('value', None),
@@ -82,7 +80,7 @@ class Classifier:
     """A persistent, read-optimized index over embeddings.
     """
 
-    def __init__(self, client: ApiBase, id: str = None, name: str = None, model: str = None, labels: List[str] = None):
+    def __init__(self, client: Client, id: str = None, name: str = None, model: str = None, labels: List[str] = None):
         if id is None and model is None:
             raise Exception("Either an ID or a model must be provided")
 
@@ -94,7 +92,7 @@ class Classifier:
 
     @staticmethod
     def create(
-            client: ApiBase,
+            client: Client,
             model: str,
             name: str = None,
             upsert: bool = True,

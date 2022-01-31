@@ -5,6 +5,7 @@ from typing import Dict
 
 _configFile = '.steamship.json'
 
+
 class Configuration:
     apiKey: str = None
     apiBase: str = None
@@ -74,27 +75,27 @@ class Configuration:
             self.appBase = "{}/".format(self.appBase)
 
     def merge_dict(self, d: Dict[str, any]):
-        apiKey = d.get('apiKey', None);
+        apiKey = d.get('apiKey', None)
         if apiKey is not None:
             self.apiKey = apiKey
 
-        apiBase = d.get('apiBase', None);
+        apiBase = d.get('apiBase', None)
         if apiBase is not None:
             self.apiBase = apiBase
 
-        appBase = d.get('appBase', None);
+        appBase = d.get('appBase', None)
         if appBase is not None:
             self.appBase = appBase
 
-        profile = d.get('profile', None);
+        profile = d.get('profile', None)
         if profile is not None:
             self.profile = profile
 
-        spaceId = d.get('spaceId', None);
+        spaceId = d.get('spaceId', None)
         if spaceId is not None:
             self.spaceId = spaceId
 
-        spaceHandle = d.get('spaceHandle', None);
+        spaceHandle = d.get('spaceHandle', None)
         if spaceHandle is not None:
             self.spaceHandle = spaceHandle
 

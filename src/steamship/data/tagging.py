@@ -2,17 +2,16 @@ import json
 from dataclasses import dataclass
 from typing import List
 
-from steamship.base.client import ApiBase
-from steamship.base.response import Request, Model
+from steamship.base import Client, Request
 from steamship.data.block import Block
 
 
 @dataclass
-class TagResponse(Model):
+class TagResponse:
     blocks: List[Block] = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "TagResponse":
+    def from_dict(d: any, client: Client = None) -> "TagResponse":
         blocks = [Block.from_dict(h) for h in (d.get("blocks", []) or [])]
         return TagResponse(
             blocks=blocks
@@ -28,7 +27,7 @@ class TagRequest(Request):
     metadata: any = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "TagRequest":
+    def from_dict(d: any, client: Client = None) -> "TagRequest":
         metadata = d.get("metadata", None)
         if metadata is not None:
             try:

@@ -1,11 +1,11 @@
-import json
 import time
-from dataclasses import dataclass
-from typing import Any, Type, Dict, List, Union, TypeVar, Generic
+from typing import Type, Generic
+
 from steamship.base.error import RemoteError
 from steamship.base.tasks import *
 
 T = TypeVar('T')  # Declare type variable
+
 
 @dataclass
 class Response(Generic[T]):
@@ -15,7 +15,7 @@ class Response(Generic[T]):
     error: RemoteError = None
     client: Any = None
 
-    def update(self, response: "Response(Generic[T])"):
+    def update(self, response: "Response[T]"):
         if self.task is not None and response.task is not None:
             self.task.update(response.task)
         if response.data is not None:
@@ -71,4 +71,3 @@ class Response(Generic[T]):
     def delete_comment(self, comment: "TaskComment" = None) -> "Response[TaskComment]":
         if self.task is not None:
             return self.task.delete_comment(comment=comment)
-

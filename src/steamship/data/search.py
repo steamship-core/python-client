@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 
-from steamship.base.client import Client
+from steamship.base import Client
 
 
 @dataclass

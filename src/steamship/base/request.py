@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
+
 class Request:
     pass
+
 
 @dataclass
 class GetRequest(Request):
@@ -9,6 +11,7 @@ class GetRequest(Request):
     name: str = None
     handle: str = None
     upsert: bool = None
+
 
 @dataclass
 class IdentifierRequest(Request):

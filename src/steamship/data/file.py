@@ -2,17 +2,17 @@ import logging
 import re
 from typing import Union, Tuple
 
-from steamship.client.requests import IdentifierRequest
+from steamship.base.request import IdentifierRequest
+from steamship.base import Client, Response
+
 from steamship.plugin.converter import ConvertRequest, ConvertResponse
 from steamship.plugin.parser import ParseRequest, ParseResponse
-from steamship.base.response import Response
+
 from steamship.data.block import Block
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.embedding_index import IndexItem
-from steamship.data.embedding_models import EmbeddingModels
-from steamship.plugin.plugin import ModelTargetType
+from steamship.plugin.plugin import PluginTargetType
 from steamship.data.parsing import DependencyMatcher, PhraseMatcher, TokenMatcher
-from steamship.data.parsing_models import ParsingModels
 from steamship.data.tag import *
 from steamship.data.tag import TagObjectRequest
 
@@ -82,7 +82,7 @@ class FileUploadRequest(Request):
 
 
 @dataclass
-class FileClearResponse(Model):
+class FileClearResponse:
     id: str
 
 
@@ -93,12 +93,12 @@ class FileTagRequest(Request):
 
 
 @dataclass
-class FileTagResponse(Model):
+class FileTagResponse:
     id: str
     tagResult: ParseResponse
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "FileTagResponse":
+    def from_dict(d: any, client: Client = None) -> "FileTagResponse":
         if 'file' in d:
             d = d['file']
         return FileTagResponse(
@@ -125,12 +125,12 @@ class FileQueryRequest(Request):
 
 
 @dataclass
-class FileQueryResponse(Model):
+class FileQueryResponse:
     id: str
     blocks: List[Block]
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "FileQueryResponse":
+    def from_dict(d: any, client: Client = None) -> "FileQueryResponse":
         return FileQueryResponse(
             id=d.get('id', None),
             blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', None)]
@@ -148,21 +148,21 @@ class ListFilesRequest(Request):
 
 
 @dataclass
-class ListFilesResponse(Model):
+class ListFilesResponse:
     files: List["File"]
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "ListFilesResponse":
+    def from_dict(d: any, client: Client = None) -> "ListFilesResponse":
         return ListFilesResponse(
             files=[File.from_dict(f, client=client) for f in d.get('files', [])]
         )
 
 
 @dataclass
-class File(Model):
+class File:
     """A file.
     """
-    client: ApiBase = None
+    client: Client = None
     id: str = None
     name: str = None
     handle: str = None
@@ -171,7 +171,7 @@ class File(Model):
     corpusId: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "File":
+    def from_dict(d: any, client: Client = None) -> "File":
         if 'file' in d:
             d = d['file']
         return File(
@@ -215,7 +215,7 @@ class File(Model):
 
     @staticmethod
     def upload(
-            client: ApiBase,
+            client: Client,
             filename: str = None,
             name: str = None,
             content: str = None,
@@ -255,7 +255,7 @@ class File(Model):
 
     @staticmethod
     def list(
-            client: ApiBase,
+            client: Client,
             corpusId: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -276,7 +276,7 @@ class File(Model):
 
     @staticmethod
     def scrape(
-            client: ApiBase,
+            client: Client,
             url: str,
             name: str = None,
             corpusId: str = None,
@@ -311,7 +311,7 @@ class File(Model):
             space: any = None):
         req = ConvertRequest(
             id=self.id,
-            type=ModelTargetType.file,
+            type=PluginTargetType.file,
             model=model
         )
 
@@ -328,7 +328,7 @@ class File(Model):
 
     def parse(
             self,
-            model: str = ParsingModels.EN_DEFAULT,
+            model: str = None,
             tokenMatchers: List[TokenMatcher] = None,
             phraseMatchers: List[PhraseMatcher] = None,
             dependencyMatchers: List[DependencyMatcher] = None,
@@ -337,7 +337,7 @@ class File(Model):
             space: any = None
     ):
         req = ParseRequest(
-            type=ModelTargetType.file,
+            type=PluginTargetType.file,
             id=self.id,
             model=model,
             tokenMatchers=tokenMatchers,
@@ -358,7 +358,7 @@ class File(Model):
 
     def tag(
             self,
-            model: str = ParsingModels.EN_DEFAULT,
+            model: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
@@ -453,7 +453,7 @@ class File(Model):
 
     def index(
             self,
-            model: str = EmbeddingModels.QA,
+            model: str = None,
             indexName: str = None,
             blockType: str = None,
             indexId: str = None,

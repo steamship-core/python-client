@@ -37,7 +37,7 @@ class TestApp(App):
     return Response(json=dict(
       spaceId=self.client.config.spaceId,
       appBase=self.client.config.appBase,
-      apiBase=self.client.config.apiBase,
+      Client=self.client.config.Client,
       apiKey=self.client.config.apiKey
     ))
 

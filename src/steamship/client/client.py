@@ -1,20 +1,17 @@
 import logging
 from typing import List
 
-from steamship.base.client import Client
-from steamship.plugin.embedder import EmbedRequest, EmbedResponse
-from steamship.plugin.parser import ParseRequest, ParseResponse
-from steamship.base.response import Response
-from steamship.data.block import Block
-from steamship.data.classifier import Classifier
-from steamship.data.corpus import Corpus
+from steamship.base import Client, Response
+
+from steamship.plugin import EmbedRequest, EmbedResponse, ParseRequest, ParseResponse
+from steamship.plugin.plugin import Models
+
+from steamship.data import Block, Classifier, Corpus, File
 from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse
 from steamship.data.embedding_index import EmbeddingIndex
-from steamship.data.file import File
-from steamship.plugin.plugin import Models
 from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
-from steamship.data.parsing_models import ParsingModels
 from steamship.data.tagging import TagRequest, TagResponse
+
 from steamship.client.tasks import Tasks
 
 __copyright__ = "Steamship"
@@ -29,7 +26,7 @@ class Steamship(Client):
     def __init__(
             self,
             apiKey: str = None,
-            apiBase: str = None,
+            Client: str = None,
             appBase: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -39,7 +36,7 @@ class Steamship(Client):
             dQuery: bool = False):
         super().__init__(
             apiKey=apiKey,
-            apiBase=apiBase,
+            Client=Client,
             appBase=appBase,
             spaceId=spaceId,
             spaceHandle=spaceHandle,

@@ -1,7 +1,7 @@
 import pytest
 from os import path
 from .helpers import _random_name, _steamship
-from steamship import Steamship, BlockTypes, FileFormats, OcrModels
+from steamship import Steamship, BlockTypes, MimeTypes, OcrModels
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -21,7 +21,7 @@ def test_image_upload():
       ).data
       assert(c.id is not None)
       assert(c.name == name_c)
-      assert(c.mimeType == FileFormats.PNG)
+      assert(c.mimeType == MimeTypes.PNG)
 
       convertResp = c.convert(model = OcrModels.MS_VISION_DEFAULT)
       assert(convertResp.error is None)

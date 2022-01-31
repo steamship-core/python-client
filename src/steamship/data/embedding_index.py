@@ -2,9 +2,8 @@ import json
 from dataclasses import dataclass
 from typing import List, Union, Dict
 
-from steamship.base.client import ApiBase
-from steamship.client.requests import IdentifierRequest
-from steamship.base.response import Response, Request, Model, metadata_to_str
+from steamship.base import Client, Response, metadata_to_str
+from steamship.base.request import IdentifierRequest
 from steamship.data.search import Hit
 
 
@@ -51,7 +50,7 @@ class IndexItem:
         return ret
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "IndexItem":
+    def from_dict(d: any, client: Client = None) -> "IndexItem":
         return IndexItem(
             id=d.get('id', None),
             indexId=d.get('indexId', None),
@@ -80,12 +79,12 @@ class IndexInsertRequest(Request):
 
 
 @dataclass
-class IndexItemId(Model):
+class IndexItemId:
     indexId: str = None
     id: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "IndexItemId":
+    def from_dict(d: any, client: Client = None) -> "IndexItemId":
         return IndexItemId(
             indexId=d.get('indexId', None),
             id=d.get('id', None)
@@ -93,11 +92,11 @@ class IndexItemId(Model):
 
 
 @dataclass
-class IndexInsertResponse(Model):
+class IndexInsertResponse:
     itemIds: List[IndexItemId] = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "IndexInsertResponse":
+    def from_dict(d: any, client: Client = None) -> "IndexInsertResponse":
         return IndexInsertResponse(
             itemIds=[IndexItemId.from_dict(x) for x in (d.get('itemIds', []) or [])]
         )
@@ -109,11 +108,11 @@ class IndexEmbedRequest(Request):
 
 
 @dataclass
-class IndexEmbedResponse(Model):
+class IndexEmbedResponse:
     id: str
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "IndexEmbedResponse":
+    def from_dict(d: any, client: Client = None) -> "IndexEmbedResponse":
         return IndexEmbedResponse(
             id=d.get('id', None)
         )
@@ -129,11 +128,11 @@ class IndexSearchRequest(Request):
 
 
 @dataclass
-class IndexSearchResponse(Model):
+class IndexSearchResponse:
     hits: List[Hit] = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "IndexSearchResponse":
+    def from_dict(d: any, client: Client = None) -> "IndexSearchResponse":
         hits = [Hit.from_dict(h) for h in (d.get("hits", []) or [])]
         return IndexSearchResponse(
             hits=hits
@@ -149,12 +148,12 @@ class IndexSnapshotRequest(Request):
 
 
 @dataclass
-class IndexSnapshotResponse(Model):
+class IndexSnapshotResponse:
     id: str
     snapshotId: str
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "IndexSnapshotResponse":
+    def from_dict(d: any, client: Client = None) -> "IndexSnapshotResponse":
         return IndexSnapshotResponse(
             id=d.get('id', None),
             snapshotId=d.get('snapshotId', None)
@@ -167,11 +166,11 @@ class ListSnapshotsRequest(Request):
 
 
 @dataclass
-class ListSnapshotsResponse(Model):
+class ListSnapshotsResponse:
     snapshots: List[IndexSnapshotResponse]
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "IndexSnapshotResponse":
+    def from_dict(d: any, client: Client = None) -> "IndexSnapshotResponse":
         return IndexSnapshotResponse(
             snapshots=[IndexSnapshotResponse.from_dict(dd) for dd in (d.get('snapshots', []) or [])]
         )
@@ -186,11 +185,11 @@ class ListItemsRequest(Request):
 
 
 @dataclass
-class ListItemsResponse(Model):
+class ListItemsResponse:
     items: List[IndexItem]
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "ListItemsResponse":
+    def from_dict(d: any, client: Client = None) -> "ListItemsResponse":
         return ListItemsResponse(
             items=[IndexItem.from_dict(dd) for dd in (d.get('items', []) or [])]
         )
@@ -211,7 +210,7 @@ class EmbeddingIndex:
     """A persistent, read-optimized index over embeddings.
     """
 
-    client: ApiBase = None
+    client: Client = None
     id: str = None
     handle: str = None
     name: str = None
@@ -221,7 +220,7 @@ class EmbeddingIndex:
     metadata: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "EmbeddingIndex":
+    def from_dict(d: any, client: Client = None) -> "EmbeddingIndex":
         if 'embeddingIndex' in d:
             d = d['embeddingIndex']
         elif 'index' in d:
@@ -481,7 +480,7 @@ class EmbeddingIndex:
 
     @staticmethod
     def create(
-            client: ApiBase,
+            client: Client,
             handle: str = None,
             name: str = None,
             model: str = None,

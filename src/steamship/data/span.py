@@ -1,12 +1,11 @@
 from dataclasses import dataclass
 
-from steamship.base.client import ApiBase
-from steamship.base.response import Model
+from steamship.base import Client
 
 
 @dataclass
-class Span(Model):
-    client: ApiBase = None
+class Span:
+    client: Client = None
     id: str = None
     blockId: str = None
     type: str = None
@@ -18,7 +17,7 @@ class Span(Model):
     endTokenIdx: int = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase) -> "Span":
+    def from_dict(d: any, client: Client) -> "Span":
         if d is None:
             return None
         if 'span' in d:

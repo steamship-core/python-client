@@ -1,3 +1,9 @@
+from dataclasses import dataclass
+from typing import TypeVar, Any, List, Generic, Type
+
+from metadata import str_to_metadata, metadata_to_str
+from steamship.base.request import Request
+from steamship.base.response import Response
 
 T = TypeVar('T', bound=Response)
 
@@ -26,7 +32,7 @@ class DeleteTaskCommentRequest(Request):
 
 
 @dataclass
-class TaskComment(Model):
+class TaskComment:
     client: any = None
     id: str = None
     userId: str = None
@@ -105,7 +111,7 @@ class TaskComment(Model):
 
 
 @dataclass
-class TaskCommentList(Model):
+class TaskCommentList:
     comments: List[TaskComment]
 
     @staticmethod
@@ -141,7 +147,8 @@ class Task(Generic[T]):
     taskStatusMessage: str = None
     taskCreatedOn: str = None
     taskLastModifiedOn: str = None
-    eventualResultType: Type[Model] = None
+    # eob: This is typed wrong, but I'm not sure how to type it..
+    eventualResultType: Type[Any] = None
 
     @staticmethod
     def from_dict(d: any, client: Any = None) -> "Task":
@@ -155,7 +162,7 @@ class Task(Generic[T]):
             taskLastModifiedOn=d.get('taskLastModifiedOn', None)
         )
 
-    def update(self, other: Task):
+    def update(self, other: "Task"):
         """Incorporates a `Task` into this object."""
         if other is not None:
             self.taskId = other.taskId

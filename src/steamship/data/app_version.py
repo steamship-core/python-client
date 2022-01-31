@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 
-from steamship.base.client import ApiBase
-from steamship.base.response import Request, Model
-
+from steamship.base import Client, Request
 
 @dataclass
 class CreateAppVersionRequest(Request):
@@ -24,15 +22,15 @@ class ListPrivateAppVersionsRequest(Request):
 
 
 @dataclass
-class AppVersion(Model):
-    client: ApiBase = None
+class AppVersion:
+    client: Client = None
     id: str = None
     appId: str = None
     name: str = None
     handle: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "AppVersion":
+    def from_dict(d: any, client: Client = None) -> "AppVersion":
         if 'appVersion' in d:
             d = d['appVersion']
 
@@ -45,7 +43,7 @@ class AppVersion(Model):
 
     @staticmethod
     def create(
-            client: ApiBase,
+            client: Client,
             appId: str = None,
             name: str = None,
             handle: str = None,

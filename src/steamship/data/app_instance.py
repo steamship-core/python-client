@@ -1,8 +1,5 @@
 from dataclasses import dataclass
-
-from steamship.base.client import ApiBase
-from steamship.base.response import Request, Model
-
+from steamship.base import Client, Request
 
 @dataclass
 class CreateAppInstanceRequest(Request):
@@ -20,8 +17,8 @@ class DeleteAppInstanceRequest(Request):
 
 
 @dataclass
-class AppInstance(Model):
-    client: ApiBase = None
+class AppInstance:
+    client: Client = None
     id: str = None
     name: str = None
     handle: str = None
@@ -31,7 +28,7 @@ class AppInstance(Model):
     userId: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "AppInstance":
+    def from_dict(d: any, client: Client = None) -> "AppInstance":
         if 'appInstance' in d:
             d = d['appInstance']
 
@@ -48,7 +45,7 @@ class AppInstance(Model):
 
     @staticmethod
     def create(
-            client: ApiBase,
+            client: Client,
             appId: str = None,
             appVersionId: str = None,
             name: str = None,

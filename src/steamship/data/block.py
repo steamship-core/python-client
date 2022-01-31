@@ -1,11 +1,9 @@
 from dataclasses import dataclass
 from typing import List
 
-from steamship.base.client import ApiBase
-from steamship.base.response import Model
+from steamship.base import Client
 from steamship.data.span import Span
 from steamship.data.token import Token
-
 
 class BlockTypes:
     Document = "doc"
@@ -32,8 +30,8 @@ class BlockTypes:
 
 
 @dataclass
-class Block(Model):
-    client: ApiBase = None
+class Block:
+    client: Client = None
     id: str = None
     type: str = None
     text: str = None
@@ -42,7 +40,7 @@ class Block(Model):
     spans: List["Span"] = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase) -> "Block":
+    def from_dict(d: any, client: Client) -> "Block":
         if d is None:
             return None
         if 'block' in d:

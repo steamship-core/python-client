@@ -1,6 +1,6 @@
 from steamship.base.response import TaskStatus
 from .helpers import _random_name, _steamship
-from steamship import BlockTypes, FileFormats
+from steamship import BlockTypes, MimeTypes
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -12,36 +12,36 @@ def test_file_upload():
     a = steamship.upload(
       name=name_a,
       content="A",
-      mimeType=FileFormats.MKD
+      mimeType=MimeTypes.MKD
     ).data
     assert(a.id is not None)
     assert(a.name == name_a)
-    assert(a.mimeType == FileFormats.MKD)
+    assert(a.mimeType == MimeTypes.MKD)
 
     name_b = "{}.txt".format(_random_name())
     b = steamship.upload(
         name=name_b,
         content="B",
-        mimeType=FileFormats.TXT
+        mimeType=MimeTypes.TXT
     ).data
     assert(b.id is not None)
     assert(b.name == name_b)
-    assert(b.mimeType == FileFormats.TXT)
+    assert(b.mimeType == MimeTypes.TXT)
     assert(a.id != b.id)
 
     name_c = "{}.txt".format(_random_name())
     c = steamship.upload(
         name=name_c,
         content="B",
-        mimeType=FileFormats.MKD
+        mimeType=MimeTypes.MKD
     ).data
-    assert(c.mimeType == FileFormats.MKD) # The specified format gets precedence over filename
+    assert(c.mimeType == MimeTypes.MKD) # The specified format gets precedence over filename
 
     d = steamship.upload(
         name=name_c,
         content="B",
     ).data
-    assert(d.mimeType == FileFormats.TXT) # The filename is used in a pinch.
+    assert(d.mimeType == MimeTypes.TXT) # The filename is used in a pinch.
 
     a.delete()
     b.delete()
@@ -59,7 +59,7 @@ def test_file_scrape():
     ).data
     assert(a.id is not None)
     assert(a.name == name_a)
-    assert(a.mimeType == FileFormats.HTML)
+    assert(a.mimeType == MimeTypes.HTML)
 
     name_b = "{}.html".format(_random_name())
     b = steamship.scrape(
@@ -69,7 +69,7 @@ def test_file_scrape():
     assert(b.id is not None)    
     assert(a.id != b.id)
     assert(b.name == name_b)
-    assert(b.mimeType == FileFormats.HTML)
+    assert(b.mimeType == MimeTypes.HTML)
 
     a.delete()
     b.delete()

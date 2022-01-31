@@ -1,12 +1,10 @@
 from dataclasses import dataclass
 
-from steamship.base.client import ApiBase
-from steamship.base.response import Model
-
+from steamship.base import Client
 
 @dataclass
-class Token(Model):
-    client: ApiBase = None
+class Token:
+    client: Client = None
     id: str = None
     blockId: bool = None
     text: str = None
@@ -48,7 +46,7 @@ class Token(Model):
     tokenIndex: int = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "Token":
+    def from_dict(d: any, client: Client = None) -> "Token":
         return Token(
             client=client,
             id=d.get("id", None),

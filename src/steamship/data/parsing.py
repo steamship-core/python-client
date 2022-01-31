@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import List, Dict
 
-from steamship.base.client import Client
+from steamship.base import Client
 
 MatcherClause = Dict[str, any]
 Matcher = List[MatcherClause]

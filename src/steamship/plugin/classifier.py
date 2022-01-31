@@ -3,7 +3,7 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import List
 
-from steamship.base.client import ApiBase
+from steamship.base.client import Client
 from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
 
 
@@ -18,7 +18,7 @@ class ClassifierHit:
     query: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "ClassifierHit":
+    def from_dict(d: any, client: Client = None) -> "ClassifierHit":
         metadata = d.get("metadata", None)
         if metadata is not None:
             try:

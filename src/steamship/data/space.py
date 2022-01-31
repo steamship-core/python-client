@@ -1,13 +1,12 @@
 from dataclasses import dataclass
 
-from steamship.base.client import ApiBase
-from steamship.client.requests import GetRequest, IdentifierRequest
-from steamship.base.response import Request, Model, Response
+from steamship.base import Client, Request, Response
+from steamship.base.request import GetRequest, IdentifierRequest
 
 
 @dataclass
-class Space(Model):
-    client: ApiBase = None
+class Space:
+    client: Client = None
     id: str = None
     name: str = None
     handle: str = None
@@ -20,7 +19,7 @@ class Space(Model):
         )
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase) -> "Space":
+    def from_dict(d: any, client: Client) -> "Space":
         if 'space' in d:
             d = d['space']
 
@@ -33,7 +32,7 @@ class Space(Model):
 
     @staticmethod
     def get(
-            client: ApiBase,
+            client: Client,
             id: str = None,
             name: str = None,
             handle: str = None,
@@ -52,7 +51,7 @@ class Space(Model):
 
     @staticmethod
     def create(
-            client: ApiBase,
+            client: Client,
             name: str,
             handle: str,
             externalId: str = None,

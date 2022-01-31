@@ -61,14 +61,14 @@ To establish this profile, edit your `~/.steamship.json` file to ensure it has t
 }
 ```
 
-For Steamship employees who may be testing against a server running on localhost, additionally add the following `apiBase` argument to your `test` profile:
+For Steamship employees who may be testing against a server running on localhost, additionally add the following `Client` argument to your `test` profile:
 
 ```
 {
   "profiles": {
     "test": {
 			"apiKey": "your-testuser-key",
-		  "apiBase": "http://localhost:8080/api/v1"
+		  "Client": "http://localhost:8080/api/v1"
     }
   }
 }

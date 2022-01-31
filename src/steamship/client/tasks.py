@@ -1,7 +1,7 @@
 import logging
 
-from steamship.base.response import TaskCommentList, TaskComment
-from steamship.plugin.plugin import *
+from steamship.base import Response, TaskComment
+from steamship.base.tasks import TaskCommentList
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -13,7 +13,7 @@ class Tasks:
     """Asynchronous background task (and task feedback) management.
     """
 
-    def __init__(self, client: ApiBase):
+    def __init__(self, client: Client):
         self.client = client
 
     def list_comments(

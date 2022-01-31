@@ -5,8 +5,7 @@
 #
 
 from dataclasses import dataclass
-
-from steamship.base.client import Client, Request, Response
+from steamship.base import Client, Request, Response
 
 
 
@@ -29,14 +28,14 @@ class ListPrivateAppsRequest(Request):
 
 
 @dataclass
-class App(Model):
-    client: ApiBase = None
+class App:
+    client: Client = None
     id: str = None
     name: str = None
     handle: str = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "App":
+    def from_dict(d: any, client: Client = None) -> "App":
         if 'app' in d:
             d = d['app']
         return App(
@@ -48,7 +47,7 @@ class App(Model):
 
     @staticmethod
     def create(
-            client: ApiBase,
+            client: Client,
             name: str = None,
             handle: str = None,
             upsert: bool = None

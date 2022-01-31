@@ -2,11 +2,9 @@ import json
 from dataclasses import dataclass
 from typing import Any, List
 
-from steamship.base.client import ApiBase
-from steamship.client.requests import IdentifierRequest
-from steamship.base.response import Request, Model, Response, str_to_metadata
+from steamship.base import Client, Response, str_to_metadata
+from steamship.base.request import IdentifierRequest
 from steamship.data.file import File, ListFilesResponse
-
 
 @dataclass
 class CreateCorpusRequest(Request):
@@ -37,10 +35,10 @@ class ListPrivateCorporaRequest(Request):
 
 
 @dataclass
-class Corpus(Model):
+class Corpus:
     """A corpus of files.
     """
-    client: ApiBase
+    client: Client
     id: str = None
     name: str = None
     handle: str = None
@@ -50,7 +48,7 @@ class Corpus(Model):
     metadata: Any = None
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "Corpus":
+    def from_dict(d: any, client: Client = None) -> "Corpus":
         if 'corpus' in d:
             d = d['corpus']
 
@@ -67,7 +65,7 @@ class Corpus(Model):
 
     @staticmethod
     def create(
-            client: ApiBase,
+            client: Client,
             name: str,
             handle: str = None,
             description: str = None,
@@ -180,7 +178,7 @@ class ListCorporaResponse(Request):
     corpora: List[Corpus]
 
     @staticmethod
-    def from_dict(d: any, client: ApiBase = None) -> "ListCorporaResponse":
+    def from_dict(d: any, client: Client = None) -> "ListCorporaResponse":
         return ListCorporaResponse(
             models=[Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
         )
