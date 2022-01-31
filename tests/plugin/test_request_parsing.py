@@ -1,4 +1,4 @@
-from steamship import RemoteError, Block
+from steamship import SteamshipError, Block
 from steamship.plugin.parser import ParseRequest, ParseResponse, Parser
 from steamship.plugin.service import PluginRequest, PluginResponse
 
@@ -15,7 +15,7 @@ class TestParser(Parser):
             assert (data.docs[0] == "Hi there.")
             return PluginResponse(data=ParseResponse(blocks=[Block(text=data.docs[0])]))
         else:
-            return PluginResponse(error=RemoteError(message="Bad type"))
+            return PluginResponse(error=SteamshipError(message="Bad type"))
 
 
 TEST_REQ = ParseRequest(

@@ -1,7 +1,7 @@
 from typing import Any
 
 
-class RemoteError(Exception):
+class SteamshipError(Exception):
     message: str = None
     suggestion: str = None
     code: str = None
@@ -26,9 +26,9 @@ class RemoteError(Exception):
         super().__init__("\n".join(parts))
 
     @staticmethod
-    def from_dict(d: any, client: Any = None) -> "RemoteError":
+    def from_dict(d: any, client: Any = None) -> "SteamshipError":
         """Last resort if subclass doesn't override: pass through."""
-        return RemoteError(
+        return SteamshipError(
             message=d.get('message', None),
             suggestion=d.get('suggestion', None),
             code=d.get('code', None)

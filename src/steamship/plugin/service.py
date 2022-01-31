@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import TypeVar, Generic, Union, Callable
 
 from steamship.base import Client
-from steamship.base.response import RemoteError, Task
+from steamship.base.response import SteamshipError, Task
 
 T = TypeVar('T')
 U = TypeVar('U')
@@ -24,7 +24,7 @@ class PluginRequest(Generic[T]):
             if subclass_request_from_dict is not None:
                 data = subclass_request_from_dict(d["data"], client=client)
             else:
-                raise RemoteError(
+                raise SteamshipError(
                     message="No `subclass_request_from_dict` provided to parse inbound dict request."
                 )
         return PluginRequest(data=data)
@@ -38,7 +38,7 @@ class PluginRequest(Generic[T]):
 
 @dataclass
 class PluginResponse(Generic[U]):
-    error: RemoteError = None
+    error: SteamshipError = None
     task: Task[U] = None
     data: U = None
 
@@ -54,7 +54,7 @@ class PluginResponse(Generic[U]):
         if "data" in d:
             data = d["data"].to_dict()
         if "error" in d:
-            error = RemoteError.from_dict(d["error"], client=client)
+            error = SteamshipError.from_dict(d["error"], client=client)
         if "task" in d:
             task = Task[U].from_dict(d["task"], client=client)
 
@@ -87,25 +87,25 @@ class PluginService(ABC, Generic[T, U]):
                     subclass_request_from_dict=cls.subclass_request_from_dict
                 )
             except Exception as error:
-                raise RemoteError(
+                raise SteamshipError(
                     message="Unable to parse input request.",
                     error=error
                 )
         return request
 
     @classmethod
-    def response_to_dict(cls, response: Union[RemoteError, PluginResponse[U], U, dict]) -> PluginResponse[U]:
+    def response_to_dict(cls, response: Union[SteamshipError, PluginResponse[U], U, dict]) -> PluginResponse[U]:
         try:
             if type(response) == PluginResponse:
                 return response
-            elif type(response) == RemoteError:
+            elif type(response) == SteamshipError:
                 return PluginResponse(error=response)
             else:
                 return PluginResponse(data=response)
-        except RemoteError as remote_error:
+        except SteamshipError as remote_error:
             return PluginResponse[U](error=remote_error)
         except Exception as error:
-            return PluginResponse[U](error=RemoteError(
+            return PluginResponse[U](error=SteamshipError(
                 message="Unhandled exception completing your request",
                 error=error
             ))
