@@ -478,7 +478,7 @@ class File:
                 spaceId=spaceId,
                 spaceHandle=spaceHandle,
                 space=space
-            )
+            ).data
         elif index is None:
             index = EmbeddingIndex(
                 client=self.client,
@@ -512,10 +512,8 @@ class File:
             space=space
         )
 
-        if self.client.dQuery:
-            insert_task.wait()
-            return index
-        return insert_task
+        insert_task.wait()
+        return index
 
     def raw(
             self,
