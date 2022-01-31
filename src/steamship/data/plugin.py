@@ -10,8 +10,9 @@ from dataclasses import dataclass
 from typing import List, Dict, Union
 
 from steamship.base.client import Client
-from steamship.base.response import Response
 from steamship.base.request import Request
+from steamship.base.response import Response
+
 
 class PluginType:
     embedder = "embedder"

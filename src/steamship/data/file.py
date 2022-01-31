@@ -12,7 +12,7 @@ from steamship.data.tag import *
 from steamship.data.tag import TagObjectRequest
 from steamship.plugin.converter import ConvertRequest, ConvertResponse
 from steamship.plugin.parser import ParseRequest, ParseResponse
-from steamship.plugin.plugin import PluginTargetType
+from steamship.data.plugin import PluginTargetType
 
 
 class FileUploadType:

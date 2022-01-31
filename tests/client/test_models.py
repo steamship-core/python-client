@@ -1,4 +1,4 @@
-from steamship.plugin.plugin import ModelAdapterType
+from steamship.data.plugin import ModelAdapterType
 import pytest
 
 from steamship import ModelType

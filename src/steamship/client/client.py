@@ -9,7 +9,7 @@ from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
 from steamship.data.tagging import TagRequest, TagResponse
 from steamship.plugin import EmbedRequest, EmbedResponse, ParseRequest, ParseResponse
-from steamship.plugin.plugin import Models
+from steamship.data.plugin import Models
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

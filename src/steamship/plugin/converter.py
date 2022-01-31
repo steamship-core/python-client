@@ -2,8 +2,8 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict
 
-from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
 from steamship.data.block import Block
+from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
 
 
 @dataclass
