@@ -79,7 +79,7 @@ class PluginService(ABC, Generic[T, U]):
         pass
 
     @classmethod
-    def request_from_dict(cls, request: Union[PluginRequest[T], dict]) -> PluginRequest[T]:
+    def parse_request(cls, request: Union[PluginRequest[T], dict]) -> PluginRequest[T]:
         if type(request) == dict:
             try:
                 request = PluginRequest[T].from_dict(
@@ -94,7 +94,7 @@ class PluginService(ABC, Generic[T, U]):
         return request
 
     @classmethod
-    def response_do_dict(cls, response) -> PluginResponse[U]:
+    def response_to_dict(cls, response: Union[RemoteError, PluginResponse[U], U, dict]) -> PluginResponse[U]:
         try:
             if type(response) == PluginResponse:
                 return response
