@@ -1,8 +1,7 @@
-from steamship.types.parsing_models import ParsingModels
 import pytest
 from os import path
 from .helpers import _random_name, _steamship
-from steamship import Steamship, BlockTypes, FileFormats
+from steamship import Steamship, BlockTypes, MimeTypes
 from .helpers import _random_index, _random_name, _steamship
 
 __copyright__ = "Steamship"
@@ -37,11 +36,11 @@ def test_file_parse():
   a = steamship.upload(
     name=name_a,
     content=content,
-    mimeType=FileFormats.MKD
+    mimeType=MimeTypes.MKD
   ).data
   assert(a.id is not None)
   assert(a.name == name_a)
-  assert(a.mimeType == FileFormats.MKD)
+  assert(a.mimeType == MimeTypes.MKD)
 
   convertResp = a.convert()
   assert(convertResp.error is None)
@@ -80,7 +79,7 @@ def test_file_embed_lookup():
   a = steamship.upload(
     name=name_a,
     content=content_a,
-    mimeType=FileFormats.MKD
+    mimeType=MimeTypes.MKD
   ).data
 
   convertRes = a.convert()
@@ -94,7 +93,7 @@ def test_file_embed_lookup():
   b = steamship.upload(
     name=name_b,
     content=content_b,
-    mimeType=FileFormats.MKD
+    mimeType=MimeTypes.MKD
   ).data
   convertRes = b.convert()
   assert(convertRes.error is None)

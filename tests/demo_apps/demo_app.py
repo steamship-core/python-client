@@ -1,7 +1,6 @@
-from dataclasses import asdict
-from typing import Dict
-from steamship import Steamship, EmbeddingIndex
-from steamship.server import get, post, App, Response, Error, Request, post, create_lambda_handler
+from steamship import Steamship
+from steamship.app import get, App, Response, Error, post, create_lambda_handler
+from steamship.app import get, App, Response, Error, post, create_lambda_handler
 
 class TestApp(App):
   def __init__(self, client: Steamship):
@@ -38,7 +37,7 @@ class TestApp(App):
     return Response(json=dict(
       spaceId=self.client.config.spaceId,
       appBase=self.client.config.appBase,
-      apiBase=self.client.config.apiBase,
+      Client=self.client.config.apiBase,
       apiKey=self.client.config.apiKey
     ))
 

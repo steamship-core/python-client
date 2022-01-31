@@ -1,5 +1,5 @@
 from typing import ItemsView
-from steamship.types.embedding_index import IndexItem
+from steamship.data.embedding_index import IndexItem
 import pytest
 
 from .helpers import _random_index, _random_name, _steamship

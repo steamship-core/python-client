@@ -1,7 +1,7 @@
 import pytest
 from os import path
 from .helpers import _random_name, _steamship
-from steamship import Steamship, BlockTypes, FileFormats
+from steamship import Steamship, BlockTypes, MimeTypes
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -20,11 +20,11 @@ def test_corpus_create():
     a = corpus.upload(
       name=name_a,
       content="A",
-      mimeType=FileFormats.MKD
+      mimeType=MimeTypes.MKD
     ).data
     assert(a.id is not None)
     assert(a.name == name_a)
-    assert(a.mimeType == FileFormats.MKD)
+    assert(a.mimeType == MimeTypes.MKD)
     assert(a.corpusId == corpus.id)
 
     name_a = "{}.html".format(_random_name())
@@ -71,7 +71,7 @@ def test_corpus_delete():
     a = corpus1.upload(
       name=name_a,
       content="A",
-      mimeType=FileFormats.MKD
+      mimeType=MimeTypes.MKD
     )
     assert(a.data is None)
     assert(a.error is not None)
@@ -85,7 +85,7 @@ def test_corpus_delete_cascade():
     a = corpus1.upload(
       name=name_a,
       content="A",
-      mimeType=FileFormats.MKD
+      mimeType=MimeTypes.MKD
     ).data
 
     res = a.query()

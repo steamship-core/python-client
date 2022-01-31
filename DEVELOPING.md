@@ -29,6 +29,20 @@ python -m pip install -e .
 
 This will install the required dependencies (runtime and development) and register the project source tree with your virtual environment so that `import steamship` statements will resolve correctly.
 
+## Package Design
+
+* `base` depends on nothing.
+* `data` depends on `base`
+* `plugin` depends on `base`, `data`
+* `client` depends on `base`, `data`, `plugin`
+* `app` depends on `base`, `data`, `plugin`, `client`
+
+Developers who are:
+
+* Using Steamship need `client`
+* Writing a plugin need `plugin`
+* Writing an app need `app`
+
 ## Testing
 
 ### Configuring Test Credentials
@@ -47,14 +61,14 @@ To establish this profile, edit your `~/.steamship.json` file to ensure it has t
 }
 ```
 
-For Steamship employees who may be testing against a server running on localhost, additionally add the following `apiBase` argument to your `test` profile:
+For Steamship employees who may be testing against a server running on localhost, additionally add the following `Client` argument to your `test` profile:
 
 ```
 {
   "profiles": {
     "test": {
 			"apiKey": "your-testuser-key",
-		  "apiBase": "http://localhost:8080/api/v1"
+		  "Client": "http://localhost:8080/api/v1"
     }
   }
 }

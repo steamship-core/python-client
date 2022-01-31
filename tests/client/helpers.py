@@ -1,13 +1,11 @@
-import os
 import random
 import string
 import contextlib
 import io
 import os
 import zipfile
-from glob import glob
 
-from steamship import Steamship, ParsingModels, EmbeddingModels, EmbeddingIndex, ClassifierModels, File
+from steamship import Steamship, EmbeddingIndex, File
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -22,17 +20,6 @@ def _random_name() -> str:
     id =''.join(random.choice(letters) for i in range(10))
     return "test_{}".format(id)
 
-def qa_model() -> str:
-    return _env_or('STEAMSHIP_EMBEDDER_QA', EmbeddingModels.QA)
-
-def sim_model() -> str:
-    return _env_or('STEAMSHIP_EMBEDDER_SIM', EmbeddingModels.SIMILARITY)
-
-def parsing_model() -> str:
-    return _env_or('STEAMSHIP_PARSER_DEFAULT', ParsingModels.EN_DEFAULT)
-
-def zero_shot_model() -> str:
-    return _env_or('STEAMSHIP_CLASSIFIER_DEFAULT', ClassifierModels.HF_ZERO_SHOT_LBART)
 
 
 _TEST_EMBEDDER = "test-embedder-v1"

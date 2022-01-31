@@ -1,9 +1,7 @@
-from typing import ItemsView
-from steamship.types.embedding_index import IndexItem
-from steamship.types.base import TaskStatus
-import pytest
+from steamship.data.embedding_index import IndexItem
+from steamship.base.response import TaskStatus
 
-from .helpers import _random_index, _random_name, _steamship, qa_model, sim_model
+from .helpers import _random_index, _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

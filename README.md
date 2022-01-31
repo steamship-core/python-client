@@ -28,7 +28,7 @@ These examples illustrate simple ways to apply Steamship in your project. To run
 Sign up for an account at https://www.steamship.com to get your API key. Then use it to initialize your client library:
 
 ```python
-from steamship import Steamship, EmbeddingModels
+from steamship import Steamship
 steamship = Steamship(apiKey)
 ```
 

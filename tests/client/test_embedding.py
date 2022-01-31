@@ -1,6 +1,5 @@
 import pytest
-from steamship import EmbeddingModels
-from .helpers import _random_index, _random_name, _steamship, qa_model, sim_model
+from .helpers import _random_index, _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

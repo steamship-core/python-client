@@ -1,9 +1,6 @@
-from steamship.types.base import TaskStatus
-from steamship.types.parsing_models import ParsingModels
-import pytest
-from os import path
+from steamship.base.response import TaskStatus
 from .helpers import _random_name, _steamship
-from steamship import Steamship, BlockTypes, FileFormats
+from steamship import BlockTypes, MimeTypes
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -24,11 +21,11 @@ def test_file_parse():
   a = steamship.upload(
     name=name_a,
     content=CONTENT,
-    mimeType=FileFormats.MKD
+    mimeType=MimeTypes.MKD
   ).data
   assert(a.id is not None)
   assert(a.name == name_a)
-  assert(a.mimeType == FileFormats.MKD)
+  assert(a.mimeType == MimeTypes.MKD)
 
   a.convert().wait()
 
@@ -50,7 +47,7 @@ def test_file_parse():
   assert(len(q2.blocks) == 0)
 
   # Now we parse
-  task = a.parse(model=ParsingModels.UNIT_TEST)
+  task = a.parse(model="test-parser-v1")
   assert(task.error is None)
   assert(task.task is not None)
   assert(task.task.taskStatus == TaskStatus.waiting)
