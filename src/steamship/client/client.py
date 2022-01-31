@@ -7,9 +7,9 @@ from steamship.data import Block, Classifier, Corpus, File
 from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
+from steamship.data.plugin import Models
 from steamship.data.tagging import TagRequest, TagResponse
 from steamship.plugin import EmbedRequest, EmbedResponse, ParseRequest, ParseResponse
-from steamship.data.plugin import Models
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 
+
 class Request:
     pass
+
 
 @dataclass
 class GetRequest(Request):

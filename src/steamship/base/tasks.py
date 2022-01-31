@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from typing import TypeVar, Any, List, Generic, Type
 
+from steamship.base.base import IResponse
 from steamship.base.metadata import str_to_metadata, metadata_to_str
 from steamship.base.request import Request
-from steamship.base.base import IResponse
 
 T = TypeVar('T')
+
 
 @dataclass
 class CreateTaskCommentRequest(Request):

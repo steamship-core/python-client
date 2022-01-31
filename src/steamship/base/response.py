@@ -2,9 +2,9 @@ import time
 
 from steamship.base.error import RemoteError
 from steamship.base.tasks import *
-from steamship.base.base import IResponse
 
 T = TypeVar('T')  # Declare type variable
+
 
 @dataclass
 class Response(IResponse, Generic[T]):

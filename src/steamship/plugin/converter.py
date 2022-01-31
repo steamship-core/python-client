@@ -2,9 +2,10 @@ from abc import abstractmethod
 from dataclasses import dataclass
 from typing import Dict
 
+from steamship.base import Client
 from steamship.data.block import Block
 from steamship.plugin.service import PluginService, PluginRequest, PluginResponse
-from steamship.base import Client
+
 
 @dataclass
 class ConvertRequest:
