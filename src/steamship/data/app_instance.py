@@ -25,6 +25,7 @@ class AppInstance:
     name: str = None
     handle: str = None
     appId: str = None
+    appHandle: str = None
     userHandle: str = None
     appVersionId: str = None
     userId: str = None
@@ -40,6 +41,7 @@ class AppInstance:
             name=d.get('name', None),
             handle=d.get('handle', None),
             appId=d.get('appId', None),
+            appHandle=d.get('appHandle', None),
             userHandle=d.get('userHandle', None),
             appVersionId=d.get('appVersionId', None),
             userId=d.get('userId', None)
@@ -101,6 +103,28 @@ class AppInstance:
             appOwner=self.userHandle,
             appId=self.appId,
             appInstanceId=self.id
+        )
+
+    def full_url_for(self, path: str, appHandle: str = None, useSubdomain=True):
+        if useSubdomain:
+            parts = self.client.config.appBase.split("://")
+            if parts == 1:
+                parts = ["https", parts[0]]
+            base = "{}://{}.{}".format(parts[0], self.userHandle, parts[1])
+        else:
+            base = self.client.config.appBase
+
+        if base[-1] != "/":
+            base = "{}/".format(base)
+
+        if useSubdomain is False:
+            base = "{}@{}/".format(base, self.userHandle)
+
+        return "{}{}/{}/{}".format(
+            base,
+            appHandle if appHandle is not None else self.appHandle,
+            self.handle,
+            path
         )
 
 

@@ -4,6 +4,8 @@ import os
 import random
 import string
 import zipfile
+from steamship import App, AppVersion, AppInstance
+from steamship.data.user import User
 
 from steamship import Steamship, EmbeddingIndex, File
 
@@ -90,3 +92,52 @@ def create_app_zip(filename) -> bytes:
         f.write(ret)
 
     return ret
+
+@contextlib.contextmanager
+def deploy_app(py_name: str):
+    client = _steamship()
+    name = _random_name()
+    app = App.create(client, name=name)
+    assert (app.error is None)
+    assert (app.data is not None)
+    app = app.data
+
+    zip_bytes = create_app_zip(py_name)
+    version = AppVersion.create(
+        client,
+        appId=app.id,
+        filebytes=zip_bytes
+    )
+    version.wait()
+    assert (version.error is None)
+    assert (version.data is not None)
+    version = version.data
+
+    instance = AppInstance.create(
+        client,
+        appId=app.id,
+        appVersionId=version.id,
+    )
+    instance.wait()
+    assert (instance.error is None)
+    assert (instance.data is not None)
+    instance = instance.data
+
+    assert (instance.appId == app.id)
+    assert (instance.appVersionId == version.id)
+
+    user = User.current(client).data
+
+    assert (instance.userHandle == user.handle)
+    assert (instance.userId == user.id)
+
+    yield (app, version, instance)
+
+    res = instance.delete()
+    assert (res.error is None)
+
+    res = version.delete()
+    assert (res.error is None)
+
+    res = app.delete()
+    assert (res.error is None)
