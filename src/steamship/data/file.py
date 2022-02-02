@@ -134,6 +134,16 @@ class FileQueryResponse:
             blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', None)]
         )
 
+    def to_pandas(self):
+        if self.blocks is None:
+            return None
+        import pandas as pd
+        return pd.DataFrame(
+            [block.to_pandas() for block in self.blocks],
+            columns = ["Type", "Text"]
+        )
+
+
 
 @dataclass
 class FileRawRequest(Request):
@@ -421,7 +431,7 @@ class File:
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
-    ):
+    ) -> Response[FileQueryResponse]:
 
         req = FileQueryRequest(
             fileId=self.id,
@@ -431,7 +441,6 @@ class File:
             textMode=textMode,
             isQuote=isQuote
         )
-
         res = self.client.post(
             'file/query',
             payload=req,
@@ -440,14 +449,7 @@ class File:
             spaceHandle=spaceHandle,
             space=space
         )
-        if not self.client.dQuery:
-            return res
-        else:
-            if pd is False:
-                return res.data.blocks
-            else:
-                import pandas as pd  # type: ignore
-                return pd.DataFrame([(block.type, block.text) for block in res.data.blocks], columns=['Type', 'Value'])
+        return res
 
     def index(
             self,
@@ -491,9 +493,7 @@ class File:
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
-        )
-        if not self.client.dQuery:
-            blocks = blocks.data.blocks
+        ).data.blocks
 
         items = []
         for block in blocks:
