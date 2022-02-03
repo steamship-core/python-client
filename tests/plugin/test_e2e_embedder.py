@@ -6,6 +6,8 @@ from steamship import BlockTypes, File
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from ..client.test_embedding import basic_embeddings, basic_embedding_search
+from ..client.test_embedding_index import index_create
 
 def test_e2e_embedder():
     client = _steamship()
@@ -24,4 +26,10 @@ def test_e2e_embedder():
             e4 = client.embed(["This is a test"], model=plugin.handle)
             assert (e4.error is None)
             assert (len(e4.data.embeddings) == 1)
+
+            # Now lets run all the other embedding tests
+            basic_embeddings(client, plugin.handle)
+            basic_embedding_search(client, plugin.handle)
+
+            index_create(client, plugin.handle)
 

@@ -26,7 +26,7 @@ def _makeTestResponse(request: ParseRequest) -> ParseResponse:
         # the block ID below if possible... (Note: it's necessary for knowing
         # where in the DB to fold the results back into.)
         blockId = None
-        if request.blockIds is not None and i < request.blockIds:
+        if request.blockIds is not None and i < len(request.blockIds):
             i = request.blockIds[i]
         blocks.append(
             _makeDocBlock(
