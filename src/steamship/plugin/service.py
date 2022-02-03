@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+import logging
 from typing import TypeVar, Generic, Union, Callable
 
 from steamship.base import Client

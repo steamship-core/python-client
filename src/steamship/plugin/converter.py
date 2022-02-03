@@ -1,14 +1,17 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Any
+import base64
+import logging
 
 from steamship.base import Client
 from steamship.data.block import Block
 from steamship.plugin.service import PluginService, PluginRequest
+from steamship import MimeTypes
 
 
 @dataclass
-class ConvertRequest:
+class ClientsideConvertRequest:
     type: str = None
     model: str = None
     id: str = None
@@ -16,8 +19,8 @@ class ConvertRequest:
     name: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ConvertRequest":
-        return ConvertRequest(
+    def from_dict(d: any, client: Client = None) -> "ClientsideConvertRequest":
+        return ClientsideConvertRequest(
             type=d.get('type', None),
             model=d.get('model', None),
             id=d.get('id', None),
@@ -43,6 +46,42 @@ class ConvertResponse():
         if self.root is None:
             return dict()
         return dict(root=self.root.to_dict())
+
+
+TEXT_MIME_TYPES = [
+    MimeTypes.TXT,
+    MimeTypes.MKD,
+    MimeTypes.HTML,
+    MimeTypes.DOCX,
+    MimeTypes.PPTX
+]
+
+@dataclass
+class ConvertRequest:
+    model: str = None
+    data: Any = None
+    defaultMimeType: str = None
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "ConvertRequest":
+        logging.info("ConvertRequest.fromDict {} {}".format(type(d), d))
+        data = d.get('data', None)
+        print(data)
+        if data is not None and d.get('isBase64', False):
+            data_bytes = base64.b64decode(data)
+            if d.get('defaultMimeType', None) in TEXT_MIME_TYPES:
+                print("Text!")
+                data = data_bytes.decode('utf-8')
+                print(data)
+            else:
+                data = data_bytes
+                print("Bytes")
+
+        return ConvertRequest(
+            model=d.get('model', None),
+            data=data,
+            defaultMimeType=d.get('defaultMimeType', None)
+        )
 
 
 class Converter(PluginService[ConvertRequest, ConvertResponse], ABC):

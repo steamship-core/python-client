@@ -11,7 +11,7 @@ from steamship.data.parsing import DependencyMatcher, PhraseMatcher, TokenMatche
 from steamship.data.plugin import PluginTargetType
 from steamship.data.tag import *
 from steamship.data.tag import TagObjectRequest
-from steamship.plugin.converter import ConvertRequest, ConvertResponse
+from steamship.plugin.converter import ClientsideConvertRequest, ConvertResponse
 from steamship.plugin.parser import ParseRequest, ParseResponse
 
 
@@ -317,7 +317,7 @@ class File:
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None):
-        req = ConvertRequest(
+        req = ClientsideConvertRequest(
             id=self.id,
             type=PluginTargetType.file,
             model=model

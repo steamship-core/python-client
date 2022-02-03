@@ -22,8 +22,8 @@ class TestEmbedderPlugin(Embedder, App):
         return PluginResponse(EmbedResponse(embeddings=embeddings))
 
     @post('do_import')
-    def do_import(self, request: dict) -> dict:
-        embedRequest = self.__class__.parse_request(request)
+    def do_import(self, **kwargs) -> dict:
+        embedRequest = self.__class__.parse_request(request=kwargs)
         embedResponse = self.run(embedRequest)
         return self.__class__.response_to_dict(embedResponse)
 

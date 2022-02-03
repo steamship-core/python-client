@@ -17,8 +17,8 @@ class TestImporterPlugin(Importer, App):
         return
 
     @post('do_import')
-    def do_import(self, request: dict) -> any:
-        importRequest = self.__class__.parse_request(request)
+    def do_import(self, **kwargs) -> any:
+        importRequest = self.__class__.parse_request(request=kwargs)
         importResponse = self.run(importRequest)
         return self.__class__.response_to_dict(importResponse)
 

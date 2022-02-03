@@ -14,6 +14,53 @@ from steamship.base.request import Request
 from steamship.base.response import Response
 
 
+class Plugin:
+    pass
+
+@dataclass
+class CreatePluginRequest(Request):
+    id: str = None
+    name: str = None
+    modelType: str = None
+    url: str = None
+    adapterType: str = None
+    isPublic: bool = None
+    handle: str = None
+    description: str = None
+    dimensionality: int = None
+    limitAmount: int = None
+    limitUnit: str = None
+    apiKey: str = None
+    metadata: str = None
+    upsert: bool = None
+
+
+@dataclass
+class DeletePluginRequest(Request):
+    id: str
+
+
+@dataclass
+class ListPublicPluginsRequest(Request):
+    modelType: str
+
+
+@dataclass
+class ListPrivatePluginsRequest(Request):
+    modelType: str
+
+
+@dataclass
+class ListPluginsResponse(Request):
+    models: List[Plugin]
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "ListPluginsResponse":
+        return ListPluginsResponse(
+            models=[Plugin.from_dict(x) for x in (d.get("models", []) or [])]
+        )
+
+
 class PluginType:
     embedder = "embedder"
     parser = "parser"
@@ -41,6 +88,7 @@ class LimitUnit:
 
 @dataclass
 class Plugin:
+    client: Client = None
     id: str = None
     name: str = None
     modelType: str = None
@@ -61,6 +109,7 @@ class Plugin:
             d = d['model']
 
         return Plugin(
+            client=client,
             id=d.get('id', None),
             name=d.get('name', None),
             modelType=d.get('modelType', None),
@@ -76,60 +125,9 @@ class Plugin:
             metadata=d.get('metadata', None)
         )
 
-
-@dataclass
-class CreateModelRequest(Request):
-    id: str = None
-    name: str = None
-    modelType: str = None
-    url: str = None
-    adapterType: str = None
-    isPublic: bool = None
-    handle: str = None
-    description: str = None
-    dimensionality: int = None
-    limitAmount: int = None
-    limitUnit: str = None
-    apiKey: str = None
-    metadata: str = None
-    upsert: bool = None
-
-
-@dataclass
-class DeleteModelRequest(Request):
-    id: str
-
-
-@dataclass
-class ListPublicModelsRequest(Request):
-    modelType: str
-
-
-@dataclass
-class ListPrivateModelsRequest(Request):
-    modelType: str
-
-
-@dataclass
-class ListModelsResponse(Request):
-    models: List[Plugin]
-
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ListModelsResponse":
-        return ListModelsResponse(
-            models=[Plugin.from_dict(x) for x in (d.get("models", []) or [])]
-        )
-
-
-class Models:
-    """A persistent, read-optimized index over embeddings.
-    """
-
-    def __init__(self, client: Client):
-        self.client = client
-
     def create(
-            self,
+            client: Client,
             name: str,
             description: str,
             modelType: str,
@@ -149,7 +147,7 @@ class Models:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
-        req = CreateModelRequest(
+        req = CreatePluginRequest(
             name=name,
             modelType=modelType,
             url=url,
@@ -164,7 +162,7 @@ class Models:
             metadata=metadata,
             upsert=upsert
         )
-        return self.client.post(
+        return client.post(
             'model/create',
             req,
             expect=Plugin,
@@ -172,44 +170,40 @@ class Models:
             spaceHandle=spaceHandle
         )
 
+    @staticmethod
     def listPublic(
-            self,
+            client: Client,
             modelType: str = None,
             spaceId: str = None,
             spaceHandle: str = None
-    ) -> Response[ListModelsResponse]:
-        return self.client.post(
+    ) -> Response[ListPluginsResponse]:
+        return client.post(
             'model/public',
-            ListPublicModelsRequest(modelType=modelType),
-            expect=ListModelsResponse,
+            ListPublicPluginsRequest(modelType=modelType),
+            expect=ListPluginsResponse,
             spaceId=spaceId,
             spaceHandle=spaceHandle
         )
 
+    @staticmethod
     def listPrivate(
-            self,
+            client: Client,
             modelType=None,
             spaceId: str = None,
             spaceHandle: str = None
-    ) -> Response[ListModelsResponse]:
-        return self.client.post(
+    ) -> Response[ListPluginsResponse]:
+        return client.post(
             'model/private',
-            ListPrivateModelsRequest(modelType=modelType),
-            expect=ListModelsResponse,
+            ListPrivatePluginsRequest(modelType=modelType),
+            expect=ListPluginsResponse,
             spaceId=spaceId,
             spaceHandle=spaceHandle
         )
 
-    def delete(
-            self,
-            id,
-            spaceId: str = None,
-            spaceHandle: str = None
-    ) -> Response[Plugin]:
+    def delete(self) -> Response[Plugin]:
         return self.client.post(
-            'plugin/delete',
-            DeleteModelRequest(id=id),
+            'model/delete',
+            DeletePluginRequest(id=self.id),
             expect=Plugin,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle
         )
+

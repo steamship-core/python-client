@@ -1,4 +1,5 @@
 import dataclasses
+import logging
 from typing import Dict, Type
 
 from steamship.app.app import App
@@ -10,7 +11,6 @@ from steamship.client.client import Steamship
 def create_lambda_handler(App: Type[App]):
     """Wrapper function for an Steamship app within an AWS Lambda function.
     """
-
     def lambda_handler(event: Dict, context: Dict = None) -> Dict:
         # Create a new Steamship client
         client = Steamship(
@@ -19,9 +19,26 @@ def create_lambda_handler(App: Type[App]):
 
         try:
             app = App(client=client)
+        except Exception as ex:
+            logging.exception("Unable to initialize app.")
+            response = Error(
+                message="There was an exception thrown handling this request.",
+                error=ex
+            )
+
+        try:
             request = Request.from_dict(event)
+        except Exception as ex:
+            logging.exception("Unable to parse inbound request")
+            response = Error(
+                message="There was an exception thrown handling this request.",
+                error=ex
+            )
+
+        try:
             response = app(request)
         except Exception as ex:
+            logging.exception("Unable to run app method.")
             response = Error(
                 message="There was an exception thrown handling this request.",
                 error=ex

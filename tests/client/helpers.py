@@ -5,7 +5,9 @@ import random
 import string
 import zipfile
 from steamship import App, AppVersion, AppInstance
+from steamship.base import Client
 from steamship.data.user import User
+from steamship.data.plugin import Plugin
 
 from steamship import Steamship, EmbeddingIndex, File
 
@@ -140,4 +142,39 @@ def deploy_app(py_name: str):
     assert (res.error is None)
 
     res = app.delete()
+    assert (res.error is None)
+
+@contextlib.contextmanager
+def register_app_as_plugin(client: Client, type: string, path: str, app: App, instance: AppInstance) -> Plugin:
+    url = instance.full_url_for(
+        path=path,
+        appHandle=app.handle,
+        useSubdomain=False # In a test setting, the subdomain is hard to use
+    )
+    metadata = dict(
+        http=dict(
+            headers=dict(
+                Authorization="Bearer {}".format(client.config.apiKey)
+            )
+        )
+    )
+
+    plugin = Plugin.create(
+        client=client,
+        name=instance.name,
+        handle=instance.handle,
+        description="Auto-generated",
+        modelType=type,
+        url=url,
+        adapterType="jsonOverHttp",
+        isPublic=True,
+        metadata=metadata
+    )
+    assert (plugin.error is None)
+    assert (plugin.data is not None)
+    plugin = plugin.data
+
+    yield plugin
+
+    res = plugin.delete()
     assert (res.error is None)

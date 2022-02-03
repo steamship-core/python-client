@@ -8,7 +8,7 @@ from steamship.data import Block, Classifier, Corpus, File
 from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
-from steamship.data.plugin import Models
+from steamship.data.plugin import Plugin
 from steamship.data.tagging import TagRequest, TagResponse
 from steamship.plugin import EmbedRequest, EmbedResponse, ParseRequest, ParseResponse
 
@@ -56,7 +56,6 @@ class Steamship(Client):
         are given the syntactically convenient response object for chaining rather than the actual
         response object of the invocation.
         """
-        self.models = Models(self)
         self.tasks = Tasks(self)
 
     def create_corpus(

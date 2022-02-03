@@ -51,8 +51,8 @@ class TestParserPlugin(Parser, App):
             )
 
     @post('parse')
-    def parse(self, request: dict) -> dict:
-        parseRequest = self.__class__.parse_request(request)
+    def parse(self, **kwargs) -> dict:
+        parseRequest = self.__class__.parse_request(request=kwargs)
         parseResponse = self.run(parseRequest)
         return self.__class__.response_to_dict(parseResponse)
 

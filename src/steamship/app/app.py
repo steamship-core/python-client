@@ -87,11 +87,17 @@ class App:
                 if hasattr(decorator, '__is_endpoint__') and getattr(decorator, '__is_endpoint__') == True:
                     path = getattr(maybeDecorated, '__path__') if hasattr(maybeDecorated, '__path__') else None
                     verb = getattr(maybeDecorated, '__verb__') if hasattr(maybeDecorated, '__verb__') else None
-                    cls._register_mapping(verb, path, maybeDecorated.__name__)
+                    cls._register_mapping(maybeDecorated.__name__, verb, path)
 
     @classmethod
-    def _register_mapping(cls, verb: str, path: str, name: str):
+    def _register_mapping(cls, name: str, verb: str = None, path: str = None):
         """Registering a mapping permits the method to be invoked via HTTP."""
+
+        if verb is None:
+            verb = "get"
+        if path is None and name is not None:
+            path = "/{}".format(name)
+
         if getattr(cls, "_method_mappings") is None:
             setattr(cls, "_method_mappings", {})
         if path is None or path == '':
@@ -122,6 +128,7 @@ class App:
         verb = Verb.safely_from_str(request.invocation.httpVerb)
         appPath = request.invocation.appPath
         arguments = request.invocation.arguments
+
         if appPath is None or appPath == '':
             appPath = '/'
         elif appPath[0] != '/':
@@ -138,7 +145,6 @@ class App:
                 message="No handler for {} {} available.".format(verb, appPath)
             )
         method = self.__class__._method_mappings[verb][appPath]
-
         if not (hasattr(self, method) and callable(getattr(self, method))):
             return Error(
                 httpStatus=500,
