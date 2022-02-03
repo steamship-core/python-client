@@ -1,7 +1,8 @@
 from steamship.plugin.service import PluginResponse, PluginRequest
 from steamship.plugin.embedder import Embedder, EmbedResponse, EmbedRequest
-from steamship.app import App, post, create_lambda_handler
+from steamship.app import App, post, create_lambda_handler, Response
 from typing import List
+import logging
 
 FEATURES = ["employee", "roses", "run", "bike", "ted", "grace", "violets", "sugar", "sweet", "cake",
             "flour", "chocolate", "vanilla", "flavors", "flavor", "can", "armadillo", "pizza",
@@ -19,12 +20,14 @@ def embed(s: str) -> List[float]:
 class TestEmbedderPlugin(Embedder, App):
     def run(self, request: PluginRequest[EmbedRequest]) -> PluginResponse[EmbedResponse]:
         embeddings = list(map(lambda s: embed(s), request.data.docs))
-        return PluginResponse(EmbedResponse(embeddings=embeddings))
+        return PluginResponse(data=EmbedResponse(embeddings=embeddings))
 
-    @post('do_import')
-    def do_import(self, **kwargs) -> dict:
+    @post('embed')
+    def embed(self, **kwargs) -> Response:
         embedRequest = self.__class__.parse_request(request=kwargs)
-        embedResponse = self.run(embedRequest)
-        return self.__class__.response_to_dict(embedResponse)
+        objResponse = self.run(embedRequest)
+        dictResponse = self.__class__.response_to_dict(objResponse)
+        response = Response(json=dictResponse)
+        return response
 
 handler = create_lambda_handler(TestEmbedderPlugin)

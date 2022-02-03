@@ -7,7 +7,7 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 
-def test_instance_invoke():
+def test_e2e_converter():
     client = _steamship()
     with deploy_app("plugin_converter.py") as (app, version, instance):
         with register_app_as_plugin(client, "converter", "convert", app, instance) as plugin:
