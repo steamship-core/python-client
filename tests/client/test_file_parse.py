@@ -1,4 +1,5 @@
 from steamship import BlockTypes, MimeTypes
+from steamship.base import Client
 from steamship.base.response import TaskStatus
 from .helpers import _random_name, _steamship
 
@@ -9,8 +10,7 @@ __license__ = "MIT"
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
 
-def test_file_parse():
-    steamship = _steamship()
+def parse_file(client: Client, parserModel: str):
     name_a = "{}.mkd".format(_random_name())
     T = "A Poem"
     P1_1 = "Roses are red."
@@ -19,7 +19,7 @@ def test_file_parse():
 
     CONTENT = "# {}\n\n{} {}\n\n{}".format(T, P1_1, P1_2, P2_1)
 
-    a = steamship.upload(
+    a = client.upload(
         name=name_a,
         content=CONTENT,
         mimeType=MimeTypes.MKD
@@ -68,3 +68,8 @@ def test_file_parse():
     assert (len(q2.blocks) == 0)  # The 5th is inside the header!
 
     a.delete()
+
+
+def test_parse_file():
+    steamship = _steamship()
+    parse_file(steamship, "test-parser-v1")

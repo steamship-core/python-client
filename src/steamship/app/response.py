@@ -1,8 +1,9 @@
-import dataclasses
-import json as jsonlib
+import io
 import logging
 from dataclasses import dataclass
-from typing import Dict
+from typing import Dict, Any
+
+from steamship.base.binary_utils import flexi_create
 
 
 @dataclass
@@ -36,23 +37,33 @@ class Response(AppResponse):
     http: Http = None
     body: any = None
 
-    def __init__(self, error: ErrorResponse = None, http: Http = None, body: any = None, string=None, json=None):
+    def __init__(
+            self,
+            error: ErrorResponse = None,
+            http: Http = None,
+            body: any = None,
+            string: str = None,
+            json: Any = None,
+            bytes: io.BytesIO = None,
+            mimeType=None
+    ):
         if http is not None:
             self.http = http
         else:
             self.http = Http(status=200, headers={})
-        self.body = body
         self.error = error
 
-        if string is not None:
-            self.body = string
-            self.http.headers["Content-Type"] = "text/plain"
-        elif json is not None:
-            if dataclasses.is_dataclass(json):
-                self.body = jsonlib.dumps(dataclasses.asdict(json))
-            else:
-                self.body = jsonlib.dumps(json)
-            self.http.headers["Content-Type"] = "application/json"
+        body, mimeType = flexi_create(
+            body=body,
+            string=string,
+            json=json,
+            bytes=bytes,
+            mimeType=mimeType
+        )
+
+        self.body = body
+        if mimeType is not None:
+            self.http.headers["Content-Type"] = mimeType
 
 
 def Error(

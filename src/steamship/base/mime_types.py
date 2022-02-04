@@ -15,3 +15,4 @@ class MimeTypes:
     PPT = "applicatino/ms-powerpoint"
     PPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
     RTF = "application/rtf"
+    BINARY = "application/octet-stream"

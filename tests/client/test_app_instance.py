@@ -1,59 +1,42 @@
-from steamship import App, AppVersion, AppInstance
+import requests
 
-from .helpers import _random_name, _steamship, create_app_zip
+from steamship.data.user import User
+from .helpers import _steamship, deploy_app
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 
 def test_instance_invoke():
-    client = _steamship()
-    name = _random_name()
+    with deploy_app("demo_app.py") as (app, version, instance):
+        # Now let's invoke it!
+        # Note: we're invoking the data at demo_app.py in the tests/demo_apps folder
+        client = _steamship()
 
-    app = App.create(client, name=name).data
-    zip_bytes = create_app_zip('demo_app.py')
+        res = instance.get('greet').data
+        assert (res == "Hello, Person!")
 
-    version = AppVersion.create(
-        client,
-        appId=app.id,
-        filebytes=zip_bytes
-    )
+        # Also try with raw http
+        user = User.current(client).data
+        url = instance.full_url_for("greet", appHandle=app.handle, useSubdomain=False)
+        resp = requests.get(url, headers=dict(authorization="Bearer {}".format(client.config.apiKey)))
+        assert (resp.text == "Hello, Person!")
 
-    version.wait()
+        res = instance.get('greet', name="Ted").data
+        assert (res == "Hello, Ted!")
+        url = instance.full_url_for("greet?name=Ted", appHandle=app.handle, useSubdomain=False)
+        resp = requests.get(url, headers=dict(authorization="Bearer {}".format(client.config.apiKey)))
+        assert (resp.text == "Hello, Ted!")
 
-    instance = AppInstance.create(
-        client,
-        appId=app.id,
-        appVersionId=version.data.id,
-    )
-    instance.wait()
-    assert (instance.error is None)
-    assert (instance.data is not None)
-    instance = instance.data
-    assert (instance.appId == app.id)
-    assert (instance.userHandle is not None)
-    assert (instance.userId is not None)
+        res = instance.post('greet').data
+        assert (res == "Hello, Person!")
+        url = instance.full_url_for("greet", appHandle=app.handle, useSubdomain=False)
+        resp = requests.post(url, headers=dict(authorization="Bearer {}".format(client.config.apiKey)))
+        assert (resp.text == "Hello, Person!")
 
-    # Now let's invoke it!
-    # Note: we're invoking the data at demo_app.py in the tests/demo_apps folder
-
-    res = instance.get('greet').data
-    assert (res == "Hello, Person!")
-
-    res = instance.get('greet', name="Ted").data
-    assert (res == "Hello, Ted!")
-
-    res = instance.post('greet').data
-    assert (res == "Hello, Person!")
-
-    res = instance.post('greet', name="Ted").data
-    assert (res == "Hello, Ted!")
-
-    res = instance.delete()
-    assert (res.error is None)
-
-    res = version.data.delete()
-    assert (res.error is None)
-
-    res = app.delete()
-    assert (res.error is None)
+        res = instance.post('greet', name="Ted").data
+        assert (res == "Hello, Ted!")
+        url = instance.full_url_for("greet", appHandle=app.handle, useSubdomain=False)
+        resp = requests.post(url, json=dict(name="Ted"),
+                             headers=dict(authorization="Bearer {}".format(client.config.apiKey)))
+        assert (resp.text == "Hello, Ted!")

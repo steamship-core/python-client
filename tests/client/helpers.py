@@ -5,7 +5,11 @@ import random
 import string
 import zipfile
 
+from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
+from steamship.base import Client
+from steamship.data.plugin import Plugin
+from steamship.data.user import User
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -90,3 +94,89 @@ def create_app_zip(filename) -> bytes:
         f.write(ret)
 
     return ret
+
+
+@contextlib.contextmanager
+def deploy_app(py_name: str):
+    client = _steamship()
+    name = _random_name()
+    app = App.create(client, name=name)
+    assert (app.error is None)
+    assert (app.data is not None)
+    app = app.data
+
+    zip_bytes = create_app_zip(py_name)
+    version = AppVersion.create(
+        client,
+        appId=app.id,
+        filebytes=zip_bytes
+    )
+    version.wait()
+    assert (version.error is None)
+    assert (version.data is not None)
+    version = version.data
+
+    instance = AppInstance.create(
+        client,
+        appId=app.id,
+        appVersionId=version.id,
+    )
+    instance.wait()
+    assert (instance.error is None)
+    assert (instance.data is not None)
+    instance = instance.data
+
+    assert (instance.appId == app.id)
+    assert (instance.appVersionId == version.id)
+
+    user = User.current(client).data
+
+    assert (instance.userHandle == user.handle)
+    assert (instance.userId == user.id)
+
+    yield (app, version, instance)
+
+    res = instance.delete()
+    assert (res.error is None)
+
+    res = version.delete()
+    assert (res.error is None)
+
+    res = app.delete()
+    assert (res.error is None)
+
+
+@contextlib.contextmanager
+def register_app_as_plugin(client: Client, type: string, path: str, app: App, instance: AppInstance) -> Plugin:
+    url = instance.full_url_for(
+        path=path,
+        appHandle=app.handle,
+        useSubdomain=False  # In a test setting, the subdomain is hard to use
+    )
+    metadata = dict(
+        http=dict(
+            headers=dict(
+                Authorization="Bearer {}".format(client.config.apiKey)
+            )
+        )
+    )
+
+    plugin = Plugin.create(
+        client=client,
+        name=instance.name,
+        handle=instance.handle,
+        description="Auto-generated",
+        modelType=type,
+        url=url,
+        adapterType="jsonOverHttp",
+        isPublic=True,
+        metadata=metadata
+    )
+    assert (plugin.error is None)
+    assert (plugin.data is not None)
+    plugin = plugin.data
+
+    yield plugin
+
+    res = plugin.delete()
+    assert (res.error is None)

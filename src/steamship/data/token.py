@@ -12,7 +12,6 @@ class Token:
     textWithWs: str = None
     whitespace: str = None
     head: str = None
-    headI: int = None
     leftEdge: str = None
     rightEdge: str = None
     entType: str = None
@@ -45,6 +44,7 @@ class Token:
     prob: float = None
     charIndex: int = None
     tokenIndex: int = None
+    parentIndex: int = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "Token":
@@ -56,7 +56,6 @@ class Token:
             textWithWs=d.get("textWithWs", None),
             whitespace=d.get("whitespace", None),
             head=d.get("head", None),
-            headI=d.get("headI", None),
             leftEdge=d.get("leftEdge", None),
             rightEdge=d.get("rightEdge", None),
             entType=d.get("entType", None),
@@ -89,6 +88,7 @@ class Token:
             prob=d.get("prob", None),
             charIndex=d.get("charIndex", None),
             tokenIndex=d.get("tokenIndex", None),
+            parentIndex=d.get("parentIndex", None)
         )
 
     def __len__(self):
@@ -117,7 +117,6 @@ class Token:
             textWithWs=t.text_with_ws,
             whitespace=t.whitespace_,
             head=t.head.text,
-            headI=t.head.i,
             leftEdge=t.left_edge.text,
             rightEdge=t.right_edge.text,
             entType=t.ent_type_,
@@ -150,6 +149,7 @@ class Token:
             prob=t.prob,
             charIndex=t.idx,
             tokenIndex=t.i,
+            parentIndex=t.head.i
         )
 
     def to_dict(self) -> dict:
@@ -160,7 +160,7 @@ class Token:
             textWithWs=self.textWithWs,
             whitespace=self.whitespace,
             head=self.head,
-            headI=self.headI,
+            parentIndex=self.parentIndex,
             leftEdge=self.leftEdge,
             rightEdge=self.rightEdge,
             entType=self.entType,

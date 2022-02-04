@@ -11,13 +11,14 @@ from steamship.data.parsing import DependencyMatcher, PhraseMatcher, TokenMatche
 from steamship.data.plugin import PluginTargetType
 from steamship.data.tag import *
 from steamship.data.tag import TagObjectRequest
-from steamship.plugin.converter import ConvertRequest, ConvertResponse
+from steamship.plugin.converter import ClientsideConvertRequest, ConvertResponse
 from steamship.plugin.parser import ParseRequest, ParseResponse
 
 
 class FileUploadType:
     file = "file"
     url = "url"
+    importer = "importer"
 
 
 _logger = logging.getLogger(__name__)
@@ -75,6 +76,7 @@ class FileUploadRequest(Request):
     corpusId: str = None
     name: str = None
     url: str = None
+    model: str = None
     mimeType: str = None
     convert: bool = False
 
@@ -252,6 +254,50 @@ class File:
         )
 
     @staticmethod
+    def create(
+            client: Client,
+            filename: str = None,
+            name: str = None,
+            url: str = None,
+            content: str = None,
+            model: str = None,
+            mimeType: str = None,
+            corpusId: str = None,
+            convert: bool = False,
+            spaceId: str = None,
+            spaceHandle: str = None,
+            space: any = None
+    ) -> "Response[File]":
+
+        if filename is None and name is None and content is None and url is None and model is None:
+            raise Exception("Either filename, name + content, url, or model must be provided.")
+
+        if filename is not None:
+            with open(filename, 'rb') as f:
+                content = f.read()
+                name = filename
+
+        req = FileUploadRequest(
+            type=FileUploadType.importer if model is not None else FileUploadType.file,
+            corpusId=corpusId,
+            name=name,
+            url=url,
+            mimeType=mimeType,
+            model=model,
+            convert=convert
+        )
+
+        return client.post(
+            'file/create',
+            payload=req,
+            file=(name, content, "multipart/form-data"),
+            expect=File,
+            spaceId=spaceId,
+            spaceHandle=spaceHandle,
+            space=space
+        )
+
+    @staticmethod
     def list(
             client: Client,
             corpusId: str = None,
@@ -307,7 +353,7 @@ class File:
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None):
-        req = ConvertRequest(
+        req = ClientsideConvertRequest(
             id=self.id,
             type=PluginTargetType.file,
             model=model
@@ -421,7 +467,7 @@ class File:
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
-    ):
+    ) -> Response[FileQueryResponse]:
 
         req = FileQueryRequest(
             fileId=self.id,
@@ -431,7 +477,6 @@ class File:
             textMode=textMode,
             isQuote=isQuote
         )
-
         res = self.client.post(
             'file/query',
             payload=req,
@@ -440,14 +485,7 @@ class File:
             spaceHandle=spaceHandle,
             space=space
         )
-        if not self.client.dQuery:
-            return res
-        else:
-            if pd is False:
-                return res.data.blocks
-            else:
-                import pandas as pd  # type: ignore
-                return pd.DataFrame([(block.type, block.text) for block in res.data.blocks], columns=['Type', 'Value'])
+        return res
 
     def index(
             self,
@@ -491,9 +529,7 @@ class File:
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
-        )
-        if not self.client.dQuery:
-            blocks = blocks.data.blocks
+        ).data.blocks
 
         items = []
         for block in blocks:

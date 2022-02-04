@@ -1,3 +1,4 @@
+from steamship.base import Client
 from steamship.base.response import TaskStatus
 from steamship.data.embedding_index import IndexItem
 from .helpers import _random_index, _random_name, _steamship
@@ -8,7 +9,7 @@ __license__ = "MIT"
 _TEST_EMBEDDER = "test-embedder-v1"
 
 
-def test_index_create():
+def create_index(client: Client, model: str):
     steamship = _steamship()
     name = _random_name()
 
@@ -38,7 +39,11 @@ def test_index_create():
     index.delete()
 
 
-def test_index_delete():
+def test_create_index():
+    create_index(_steamship(), _TEST_EMBEDDER)
+
+
+def test_delete_index():
     steamship = _steamship()
     name = _random_name()
     index = steamship.create_index(
