@@ -1,5 +1,5 @@
 from steamship import Block, BlockTypes, Token
-from steamship.app import App, post, create_lambda_handler
+from steamship.app import App, post, create_handler
 from steamship.plugin.parser import Parser, ParseResponse, ParseRequest
 from steamship.plugin.service import PluginResponse, PluginRequest
 
@@ -54,9 +54,9 @@ class TestParserPlugin(Parser, App):
 
     @post('parse')
     def parse(self, **kwargs) -> dict:
-        parseRequest = self.__class__.parse_request(request=kwargs)
+        parseRequest = Parser.parse_request(request=kwargs)
         parseResponse = self.run(parseRequest)
-        return self.__class__.response_to_dict(parseResponse)
+        return Parser.response_to_dict(parseResponse)
 
 
-handler = create_lambda_handler(TestParserPlugin)
+handler = create_handler(TestParserPlugin)

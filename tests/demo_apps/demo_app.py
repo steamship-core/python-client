@@ -1,5 +1,5 @@
 from steamship import Steamship
-from steamship.app import get, App, Response, Error, post, create_lambda_handler
+from steamship.app import get, App, Response, Error, post, create_handler
 
 
 class TestApp(App):
@@ -86,4 +86,4 @@ class TestApp(App):
         return Response(json=res.data)
 
 
-handler = create_lambda_handler(TestApp)
+handler = create_handler(TestApp)

@@ -1,4 +1,4 @@
-from steamship.plugin.converter import ClientsideConvertRequest, ConvertRequest
+from steamship.plugin.converter import ConvertRequest
 from steamship.plugin.service import PluginRequest
 from ..demo_apps.plugin_converter import TestConverterPlugin
 

@@ -70,6 +70,6 @@ def parse_file(client: Client, parserModel: str):
     a.delete()
 
 
-def test_file_parse():
+def test_parse_file():
     steamship = _steamship()
     parse_file(steamship, "test-parser-v1")

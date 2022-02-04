@@ -1,4 +1,4 @@
-from steamship.app import get, App, Response, post, create_lambda_handler
+from steamship.app import get, App, Response, post, create_handler
 
 
 class HelloWorld(App):
@@ -11,4 +11,4 @@ class HelloWorld(App):
         return Response(string=self.client.config.spaceId)
 
 
-handler = create_lambda_handler(HelloWorld)
+handler = create_handler(HelloWorld)

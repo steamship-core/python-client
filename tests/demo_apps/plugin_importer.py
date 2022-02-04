@@ -1,4 +1,4 @@
-from steamship.app import App, post, create_lambda_handler
+from steamship.app import App, post, create_handler
 from steamship.plugin.importer import Importer, ImportResponse, ImportRequest
 from steamship.plugin.service import PluginResponse, PluginRequest
 
@@ -23,9 +23,9 @@ class TestImporterPlugin(Importer, App):
 
     @post('do_import')
     def do_import(self, **kwargs) -> any:
-        importRequest = self.__class__.parse_request(request=kwargs)
+        importRequest = Importer.parse_request(request=kwargs)
         importResponse = self.run(importRequest)
-        return self.__class__.response_to_dict(importResponse)
+        return Importer.response_to_dict(importResponse)
 
 
-handler = create_lambda_handler(TestImporterPlugin)
+handler = create_handler(TestImporterPlugin)

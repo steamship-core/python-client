@@ -1,6 +1,6 @@
 from typing import List
 
-from steamship.app import App, post, create_lambda_handler, Response
+from steamship.app import App, post, create_handler, Response
 from steamship.plugin.embedder import Embedder, EmbedResponse, EmbedRequest
 from steamship.plugin.service import PluginResponse, PluginRequest
 
@@ -26,11 +26,11 @@ class TestEmbedderPlugin(Embedder, App):
 
     @post('embed')
     def embed(self, **kwargs) -> Response:
-        embedRequest = self.__class__.parse_request(request=kwargs)
+        embedRequest = Embedder.parse_request(request=kwargs)
         objResponse = self.run(embedRequest)
-        dictResponse = self.__class__.response_to_dict(objResponse)
+        dictResponse = Embedder.response_to_dict(objResponse)
         response = Response(json=dictResponse)
         return response
 
 
-handler = create_lambda_handler(TestEmbedderPlugin)
+handler = create_handler(TestEmbedderPlugin)

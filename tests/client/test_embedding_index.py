@@ -9,7 +9,7 @@ __license__ = "MIT"
 _TEST_EMBEDDER = "test-embedder-v1"
 
 
-def index_create(client: Client, model: str):
+def create_index(client: Client, model: str):
     steamship = _steamship()
     name = _random_name()
 
@@ -39,11 +39,11 @@ def index_create(client: Client, model: str):
     index.delete()
 
 
-def test_index_create():
-    index_create(_steamship(), _TEST_EMBEDDER)
+def test_create_index():
+    create_index(_steamship(), _TEST_EMBEDDER)
 
 
-def test_index_delete():
+def test_delete_index():
     steamship = _steamship()
     name = _random_name()
     index = steamship.create_index(

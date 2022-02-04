@@ -1,5 +1,5 @@
 from steamship import Block, BlockTypes
-from steamship.app import App, post, create_lambda_handler, Response
+from steamship.app import App, post, create_handler, Response
 from steamship.plugin.converter import Converter, ConvertResponse, ConvertRequest
 from steamship.plugin.service import PluginResponse, PluginRequest
 
@@ -32,10 +32,10 @@ class TestConverterPlugin(Converter, App):
 
     @post('convert')
     def convert(self, **kwargs) -> Response:
-        convertRequest = self.__class__.parse_request(request=kwargs)
+        convertRequest = Converter.parse_request(request=kwargs)
         convertResponse = self.run(convertRequest)
-        ret = self.__class__.response_to_dict(convertResponse)
+        ret = Converter.response_to_dict(convertResponse)
         return Response(json=ret)
 
 
-handler = create_lambda_handler(TestConverterPlugin)
+handler = create_handler(TestConverterPlugin)

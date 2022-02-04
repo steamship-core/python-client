@@ -4,7 +4,7 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from ..client.test_embedding import basic_embeddings, basic_embedding_search
-from ..client.test_embedding_index import index_create
+from ..client.test_embedding_index import create_index
 
 
 def test_e2e_embedder():
@@ -29,4 +29,4 @@ def test_e2e_embedder():
             basic_embeddings(client, plugin.handle)
             basic_embedding_search(client, plugin.handle)
 
-            index_create(client, plugin.handle)
+            create_index(client, plugin.handle)
