@@ -17,6 +17,7 @@ from steamship.base.response import Response
 class Plugin:
     pass
 
+
 @dataclass
 class CreatePluginRequest(Request):
     id: str = None
@@ -206,4 +207,3 @@ class Plugin:
             DeletePluginRequest(id=self.id),
             expect=Plugin,
         )
-

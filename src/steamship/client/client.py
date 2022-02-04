@@ -1,13 +1,13 @@
 import logging
 from typing import List
 
-from steamship.data.space import Space
 from steamship.base import Client, Response
 from steamship.client.tasks import Tasks
 from steamship.data import Block, Classifier, Corpus, File
 from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
+from steamship.data.space import Space
 from steamship.data.tagging import TagRequest, TagResponse
 from steamship.plugin import EmbedRequest, EmbedResponse, ParseRequest, ParseResponse
 

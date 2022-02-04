@@ -136,16 +136,6 @@ class FileQueryResponse:
             blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', None)]
         )
 
-    def to_pandas(self):
-        if self.blocks is None:
-            return None
-        import pandas as pd
-        return pd.DataFrame(
-            [block.to_pandas() for block in self.blocks],
-            columns = ["Type", "Text"]
-        )
-
-
 
 @dataclass
 class FileRawRequest(Request):
@@ -278,7 +268,6 @@ class File:
             spaceHandle: str = None,
             space: any = None
     ) -> "Response[File]":
-
 
         if filename is None and name is None and content is None and url is None and model is None:
             raise Exception("Either filename, name + content, url, or model must be provided.")

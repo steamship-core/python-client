@@ -12,6 +12,7 @@ from steamship.client.client import Steamship
 def create_lambda_handler(App: Type[App]):
     """Wrapper function for an Steamship app within an AWS Lambda function.
     """
+
     def lambda_handler(event: Dict, context: Dict = None) -> Dict:
         # Create a new Steamship client
         client = Steamship(

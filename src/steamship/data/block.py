@@ -56,9 +56,6 @@ class Block:
             # spans = list(map(lambda span: Span.from_dict(span, client=client), d.get('span', []))),
         )
 
-    def to_pandas(self):
-        return [self.type, self.text]
-
     @staticmethod
     def from_spacy_root(
             id: str = None,

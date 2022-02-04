@@ -1,9 +1,11 @@
-from typing import Any, Tuple
-import io
-from steamship.base.mime_types import MimeTypes
-import dataclasses
-import json as jsonlib
 import base64
+import dataclasses
+import io
+import json as jsonlib
+from typing import Any, Tuple
+
+from steamship.base.mime_types import MimeTypes
+
 
 def guess_mime(obj: Any, provided_mime: str = None) -> str:
     if provided_mime is not None:
@@ -11,6 +13,7 @@ def guess_mime(obj: Any, provided_mime: str = None) -> str:
     if type(obj) in [str, int, float, bool]:
         return MimeTypes.TXT
     return MimeTypes.BINARY
+
 
 def flexi_create(
         body: any = None,

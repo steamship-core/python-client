@@ -36,6 +36,3 @@ class Hit:
             metadata=metadata,
             query=d.get("query", None)
         )
-
-    def to_pandas(self):
-        return [self.score, self.value, self.externalId, self.externalType]

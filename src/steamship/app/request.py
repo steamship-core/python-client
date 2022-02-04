@@ -1,6 +1,7 @@
+import logging
 from dataclasses import dataclass
 from typing import Dict
-import logging
+
 from steamship.base.configuration import Configuration
 
 

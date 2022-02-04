@@ -1,7 +1,7 @@
 import io
 from abc import ABC
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any
 
 from steamship.base import Client
 from steamship.base.binary_utils import flexi_create
@@ -39,12 +39,12 @@ class ImportResponse:
     mimeType: str = None
 
     def __init__(
-        self,
-        data: Any = None,
-        string: str = None,
-        bytes: io.BytesIO = None,
-        json: io.BytesIO = None,
-        mimeType: str = None
+            self,
+            data: Any = None,
+            string: str = None,
+            bytes: io.BytesIO = None,
+            json: io.BytesIO = None,
+            mimeType: str = None
     ):
         data, mimeType = flexi_create(
             body=data,
@@ -55,7 +55,6 @@ class ImportResponse:
         )
         self.data = data
         self.mimeType = mimeType
-
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "ImportResponse":

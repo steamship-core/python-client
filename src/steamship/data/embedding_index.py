@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import List, Union, Dict, Any
+from typing import List, Union, Dict
 
 from steamship.base import Client, Request, Response, metadata_to_str
 from steamship.base.request import IdentifierRequest
@@ -137,12 +137,6 @@ class IndexSearchResponse:
         return IndexSearchResponse(
             hits=hits
         )
-
-    def to_pandas(self) -> Any:
-        if self.hits is None:
-            return None
-        import pandas as pd
-        return pd.DataFrame([hit.to_pandas() for hit in self.hits], columns = ["Score", "Value", "External ID", "External Type"])
 
 
 @dataclass

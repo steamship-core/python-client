@@ -1,11 +1,8 @@
-import dataclasses
-import json as jsonlib
-import logging
 import io
+import logging
 from dataclasses import dataclass
 from typing import Dict, Any
-import base64
-from steamship import MimeTypes
+
 from steamship.base.binary_utils import flexi_create
 
 
@@ -45,11 +42,11 @@ class Response(AppResponse):
             error: ErrorResponse = None,
             http: Http = None,
             body: any = None,
-            string: str=None,
-            json: Any=None,
-            bytes: io.BytesIO=None,
+            string: str = None,
+            json: Any = None,
+            bytes: io.BytesIO = None,
             mimeType=None
-        ):
+    ):
         if http is not None:
             self.http = http
         else:

@@ -1,13 +1,13 @@
+import base64
+import logging
 from abc import ABC
 from dataclasses import dataclass
 from typing import Dict, Any
-import base64
-import logging
 
+from steamship import MimeTypes
 from steamship.base import Client
 from steamship.data.block import Block
 from steamship.plugin.service import PluginService, PluginRequest
-from steamship import MimeTypes
 
 
 @dataclass
@@ -56,6 +56,7 @@ TEXT_MIME_TYPES = [
     MimeTypes.PPTX
 ]
 
+
 @dataclass
 class ConvertRequest:
     model: str = None
@@ -66,16 +67,12 @@ class ConvertRequest:
     def from_dict(d: any, client: Client = None) -> "ConvertRequest":
         logging.info("ConvertRequest.fromDict {} {}".format(type(d), d))
         data = d.get('data', None)
-        print(data)
         if data is not None and d.get('isBase64', False):
             data_bytes = base64.b64decode(data)
             if d.get('defaultMimeType', None) in TEXT_MIME_TYPES:
-                print("Text!")
                 data = data_bytes.decode('utf-8')
-                print(data)
             else:
                 data = data_bytes
-                print("Bytes")
 
         return ConvertRequest(
             model=d.get('model', None),

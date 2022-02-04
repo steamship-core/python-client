@@ -1,6 +1,6 @@
 from abc import ABC
 from dataclasses import dataclass
-from typing import Dict, List, Any
+from typing import Dict, List
 
 from steamship.base import Client
 from steamship.plugin.service import PluginService, PluginRequest
@@ -36,9 +36,6 @@ class EmbedResponse:
             embeddings=self.embeddings
         )
 
-    def to_pandas(self) -> Any:
-        import pandas as pd
-        return pd.DataFrame(self.embeddings)
 
 class Embedder(PluginService[EmbedRequest, EmbedResponse], ABC):
     @classmethod
