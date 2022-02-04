@@ -1,7 +1,7 @@
 from steamship import Block, BlockTypes, Token
-from steamship.plugin.service import PluginResponse, PluginRequest
-from steamship.plugin.parser import Parser, ParseResponse, ParseRequest
 from steamship.app import App, post, create_lambda_handler
+from steamship.plugin.parser import Parser, ParseResponse, ParseRequest
+from steamship.plugin.service import PluginResponse, PluginRequest
 
 
 def _makeSentenceBlock(sentence: str, includeTokens: bool = True) -> Block:
@@ -12,12 +12,14 @@ def _makeSentenceBlock(sentence: str, includeTokens: bool = True) -> Block:
     else:
         return Block(type=BlockTypes.Sentence, text=sentence)
 
+
 def _makeDocBlock(text: str, blockId: str = None, includeTokens=True) -> Block:
     """Splits the document into sentences by assuming a period is a sentence divider."""
     # Add the period back
     sentences = list(map(lambda s: "{}.".format(s), text.split(".")))
     children = [_makeSentenceBlock(sentence, includeTokens=includeTokens) for sentence in sentences]
     return Block(id=blockId, text=text, type=BlockTypes.Document, children=children)
+
 
 def _makeTestResponse(request: ParseRequest) -> ParseResponse:
     blocks = []

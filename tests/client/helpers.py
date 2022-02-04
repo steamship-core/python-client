@@ -4,12 +4,12 @@ import os
 import random
 import string
 import zipfile
-from steamship import App, AppVersion, AppInstance
-from steamship.base import Client
-from steamship.data.user import User
-from steamship.data.plugin import Plugin
 
+from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
+from steamship.base import Client
+from steamship.data.plugin import Plugin
+from steamship.data.user import User
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -95,6 +95,7 @@ def create_app_zip(filename) -> bytes:
 
     return ret
 
+
 @contextlib.contextmanager
 def deploy_app(py_name: str):
     client = _steamship()
@@ -144,12 +145,13 @@ def deploy_app(py_name: str):
     res = app.delete()
     assert (res.error is None)
 
+
 @contextlib.contextmanager
 def register_app_as_plugin(client: Client, type: string, path: str, app: App, instance: AppInstance) -> Plugin:
     url = instance.full_url_for(
         path=path,
         appHandle=app.handle,
-        useSubdomain=False # In a test setting, the subdomain is hard to use
+        useSubdomain=False  # In a test setting, the subdomain is hard to use
     )
     metadata = dict(
         http=dict(

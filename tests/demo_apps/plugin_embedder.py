@@ -1,8 +1,8 @@
-from steamship.plugin.service import PluginResponse, PluginRequest
-from steamship.plugin.embedder import Embedder, EmbedResponse, EmbedRequest
-from steamship.app import App, post, create_lambda_handler, Response
 from typing import List
-import logging
+
+from steamship.app import App, post, create_lambda_handler, Response
+from steamship.plugin.embedder import Embedder, EmbedResponse, EmbedRequest
+from steamship.plugin.service import PluginResponse, PluginRequest
 
 FEATURES = ["employee", "roses", "run", "bike", "ted", "grace", "violets", "sugar", "sweet", "cake",
             "flour", "chocolate", "vanilla", "flavors", "flavor", "can", "armadillo", "pizza",
@@ -13,9 +13,11 @@ FEATURES = ["employee", "roses", "run", "bike", "ted", "grace", "violets", "suga
 
 DIMENSIONALITY = len(FEATURES)
 
+
 def embed(s: str) -> List[float]:
     s = s.lower()
     return list(map(lambda word: 1.0 if word in s else 0.0, FEATURES))
+
 
 class TestEmbedderPlugin(Embedder, App):
     def run(self, request: PluginRequest[EmbedRequest]) -> PluginResponse[EmbedResponse]:
@@ -29,5 +31,6 @@ class TestEmbedderPlugin(Embedder, App):
         dictResponse = self.__class__.response_to_dict(objResponse)
         response = Response(json=dictResponse)
         return response
+
 
 handler = create_lambda_handler(TestEmbedderPlugin)

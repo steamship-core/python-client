@@ -1,8 +1,7 @@
-from steamship.base.response import TaskStatus
 from steamship.base import Client
+from steamship.base.response import TaskStatus
 from steamship.data.embedding_index import IndexItem
 from .helpers import _random_index, _random_name, _steamship
-
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -39,8 +38,10 @@ def index_create(client: Client, model: str):
 
     index.delete()
 
+
 def test_index_create():
     index_create(_steamship(), _TEST_EMBEDDER)
+
 
 def test_index_delete():
     steamship = _steamship()

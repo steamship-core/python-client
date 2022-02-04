@@ -1,11 +1,10 @@
-from steamship.plugin.parser import ParseRequest, ParseResponse, Parser
+from steamship.plugin.parser import ParseRequest, ParseResponse
 from steamship.plugin.service import PluginRequest, PluginResponse
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from ..demo_apps.plugin_parser import TestParserPlugin
-
 
 TEST_REQ = ParseRequest(
     docs=["Hi there."],

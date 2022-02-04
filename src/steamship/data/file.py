@@ -18,6 +18,7 @@ from steamship.plugin.parser import ParseRequest, ParseResponse
 class FileUploadType:
     file = "file"
     url = "url"
+    importer = "importer"
 
 
 _logger = logging.getLogger(__name__)
@@ -75,6 +76,7 @@ class FileUploadRequest(Request):
     corpusId: str = None
     name: str = None
     url: str = None
+    model: str = None
     mimeType: str = None
     convert: bool = False
 
@@ -248,6 +250,51 @@ class File:
             corpusId=corpusId,
             name=name,
             mimeType=mimeType,
+            convert=convert
+        )
+
+        return client.post(
+            'file/create',
+            payload=req,
+            file=(name, content, "multipart/form-data"),
+            expect=File,
+            spaceId=spaceId,
+            spaceHandle=spaceHandle,
+            space=space
+        )
+
+    @staticmethod
+    def create(
+            client: Client,
+            filename: str = None,
+            name: str = None,
+            url: str = None,
+            content: str = None,
+            model: str = None,
+            mimeType: str = None,
+            corpusId: str = None,
+            convert: bool = False,
+            spaceId: str = None,
+            spaceHandle: str = None,
+            space: any = None
+    ) -> "Response[File]":
+
+
+        if filename is None and name is None and content is None and url is None and model is None:
+            raise Exception("Either filename, name + content, url, or model must be provided.")
+
+        if filename is not None:
+            with open(filename, 'rb') as f:
+                content = f.read()
+                name = filename
+
+        req = FileUploadRequest(
+            type=FileUploadType.importer if model is not None else FileUploadType.file,
+            corpusId=corpusId,
+            name=name,
+            url=url,
+            mimeType=mimeType,
+            model=model,
             convert=convert
         )
 

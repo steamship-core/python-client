@@ -1,13 +1,11 @@
-from steamship import App, AppVersion, AppInstance
-
-from ..client.helpers import deploy_app, register_app_as_plugin, _steamship, create_app_zip
-from steamship import BlockTypes, File
+from ..client.helpers import deploy_app, register_app_as_plugin, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from ..client.test_embedding import basic_embeddings, basic_embedding_search
 from ..client.test_embedding_index import index_create
+
 
 def test_e2e_embedder():
     client = _steamship()
@@ -32,4 +30,3 @@ def test_e2e_embedder():
             basic_embedding_search(client, plugin.handle)
 
             index_create(client, plugin.handle)
-

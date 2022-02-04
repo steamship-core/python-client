@@ -1,4 +1,4 @@
-from steamship import BlockTypes, MimeTypes, Steamship
+from steamship import BlockTypes, MimeTypes
 from .helpers import _random_index, _random_name, _steamship
 
 __copyright__ = "Steamship"
@@ -121,6 +121,7 @@ def test_file_index():
 
     index.delete()
     a.delete()
+
 
 def test_file_embed_lookup():
     steamship = _steamship()

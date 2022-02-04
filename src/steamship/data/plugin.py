@@ -57,7 +57,7 @@ class ListPluginsResponse(Request):
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "ListPluginsResponse":
         return ListPluginsResponse(
-            models=[Plugin.from_dict(x) for x in (d.get("models", []) or [])]
+            models=[Plugin.from_dict(x, client=client) for x in (d.get("models", []) or [])]
         )
 
 

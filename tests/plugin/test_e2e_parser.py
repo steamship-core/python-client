@@ -1,10 +1,8 @@
-from steamship import App, AppVersion, AppInstance
-from steamship.plugin.parser import ParseRequest, ParseResponse, Parser
-from steamship.plugin.service import PluginRequest, PluginResponse
+from steamship.plugin.parser import ParseRequest
+from steamship.plugin.service import PluginRequest
 
-from ..client.helpers import deploy_app, register_app_as_plugin, _steamship, create_app_zip
+from ..client.helpers import deploy_app, register_app_as_plugin, _steamship
 from ..client.test_file_parse import parse_file
-from steamship import BlockTypes, File
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -15,6 +13,7 @@ TEST_REQ = ParseRequest(
 )
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
 TEST_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+
 
 def test_e2e_embedder():
     client = _steamship()
@@ -30,4 +29,3 @@ def test_e2e_embedder():
             # Let's try it on a file. This is the same test we run on the Swift test parser.
             # Since the python test parser is implemented to behave the same, we can reuse it!
             parse_file(client, plugin.handle)
-

@@ -1,4 +1,5 @@
 import dataclasses
+import io
 import logging
 from typing import Dict, Type
 
@@ -48,6 +49,8 @@ def create_lambda_handler(App: Type[App]):
 
         if type(response) == Response:
             lambda_response = response
+        elif type(response) == io.BytesIO:
+            lambda_response = Response(bytes=response)
         elif type(response) == dict:
             lambda_response = Response(json=response)
         elif type(response) == str:
@@ -55,7 +58,7 @@ def create_lambda_handler(App: Type[App]):
         elif type(response) in [float, int, bool]:
             lambda_response = Response(json=response)
         elif dataclasses.is_dataclass(response):
-            lambda_response = Response(json=dataclasses.asdict(response))
+            lambda_response = Response(json=response)
         else:
             lambda_response = Response(
                 error=Error(message="Handler provided unknown response type."),

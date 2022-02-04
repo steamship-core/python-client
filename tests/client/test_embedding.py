@@ -1,5 +1,5 @@
-from .helpers import _steamship
 from steamship.base import Client
+from .helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -24,6 +24,7 @@ def basic_embeddings(steamship: Client, model: str):
 def test_basic_embeddings():
     basic_embeddings(_steamship(), _TEST_EMBEDDER)
 
+
 def basic_embedding_search(steamship: Client, model: str):
     steamship = _steamship()
     docs = [
@@ -37,6 +38,7 @@ def basic_embedding_search(steamship: Client, model: str):
     results = steamship.embed_and_search(query, docs, model=_TEST_EMBEDDER)
     assert (len(results.data.hits) == 1)
     assert (results.data.hits[0].value == "Jonathan can help you with new employee onboarding")
+
 
 def test_basic_embedding_search():
     basic_embeddings(_steamship(), _TEST_EMBEDDER)
