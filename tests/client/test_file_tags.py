@@ -43,13 +43,7 @@ def test_file_tag():
         must.remove(tag.name)
     assert (len(must) == 0)
 
-    # What happens when you move one that doesn't exist
-    with pytest.raises(Exception):
-        a.remove_tags(['test1'])
-
-    # Remove the last
     a.remove_tags(['test2'])
-
     tags = a.list_tags().data.tags
     print(tags)
     assert (len(tags) == 0)

@@ -586,7 +586,7 @@ class File:
 
         req = TagObjectRequest(
             tags=tagsNew,
-            objectType='File',
+            objectType='file',
             objectId=self.id
         )
 
@@ -616,14 +616,14 @@ class File:
 
         req = TagObjectRequest(
             tags=tagsNew,
-            objectType='File',
+            objectType='file',
             objectId=self.id
         )
 
         return self.client.post(
             'tag/delete',
             payload=req,
-            expect=TagObjectRequest,
+            expect=FileTagResponse,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
@@ -635,7 +635,7 @@ class File:
             spaceHandle: str = None,
             space: any = None):
         req = ListTagsRequest(
-            objectType='File',
+            objectType='file',
             objectId=self.id
         )
 
