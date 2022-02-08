@@ -9,7 +9,7 @@ from steamship.plugin.service import PluginService, PluginRequest
 
 
 @dataclass
-class FileFileImportRequest:
+class FileImportRequest:
     value: str = None
     data: str = None
     url: str = None

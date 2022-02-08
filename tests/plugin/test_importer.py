@@ -4,7 +4,7 @@ from steamship.plugin.service import PluginRequest, PluginResponse
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-from ..demo_apps.plugin_file_importer import TestImporterPlugin, TEST_DOC
+from ..demo_apps.plugin_file_importer import TestFileImporterPlugin, TEST_DOC
 
 TEST_REQ = FileImportRequest(
     value="Hi there."
@@ -20,6 +20,6 @@ def _test_resp(res):
 
 
 def test_importer():
-    importer = TestImporterPlugin()
+    importer = TestFileImporterPlugin()
     res = importer.run(TEST_PLUGIN_REQ)
     _test_resp(res)
