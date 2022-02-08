@@ -1,5 +1,5 @@
 from steamship.app import App, post, create_handler
-from steamship.plugin.importer import Importer, ImportResponse, ImportRequest
+from steamship.plugin.fileImporter import FileImporter, FileImportResponse, FileImportRequest
 from steamship.plugin.service import PluginResponse, PluginRequest
 
 # Note: this aligns with the same document in the internal Engine test.
@@ -13,19 +13,19 @@ TEST_S3 = "Sugar is sweet, and I love you."
 TEST_DOC = "# {}\n\n{} {}\n\n{}\n".format(TEST_H1, TEST_S1, TEST_S2, TEST_S3)
 
 
-class TestImporterPlugin(Importer, App):
-    def run(self, request: PluginRequest[ImportRequest]) -> PluginResponse[ImportResponse]:
+class TestFileImporterPlugin(FileImporter, App):
+    def run(self, request: PluginRequest[FileImportRequest]) -> PluginResponse[FileImportResponse]:
         return PluginResponse(
-            data=ImportResponse(
+            data=FileImportResponse(
                 string=TEST_DOC
             )
         )
 
     @post('do_import')
     def do_import(self, **kwargs) -> any:
-        importRequest = Importer.parse_request(request=kwargs)
+        importRequest = FileImporter.parse_request(request=kwargs)
         importResponse = self.run(importRequest)
-        return Importer.response_to_dict(importResponse)
+        return FileImporter.response_to_dict(importResponse)
 
 
-handler = create_handler(TestImporterPlugin)
+handler = create_handler(TestFileImporterPlugin)

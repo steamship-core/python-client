@@ -18,7 +18,7 @@ from steamship.plugin.parser import ParseRequest, ParseResponse
 class FileUploadType:
     file = "file"
     url = "url"
-    importer = "importer"
+    fileImporter = "fileImporter"
 
 
 _logger = logging.getLogger(__name__)
@@ -278,7 +278,7 @@ class File:
                 name = filename
 
         req = FileUploadRequest(
-            type=FileUploadType.importer if model is not None else FileUploadType.file,
+            type=FileUploadType.fileImporter if model is not None else FileUploadType.file,
             corpusId=corpusId,
             name=name,
             url=url,
