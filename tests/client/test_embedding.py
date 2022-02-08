@@ -35,7 +35,7 @@ def basic_embedding_search(steamship: Client, plugin: str):
         "The code for the New York office is 1234",
     ]
     query = "Who should I talk to about new employee setup?"
-    results = steamship.embed_and_search(query, docs, model=_TEST_EMBEDDER)
+    results = steamship.embed_and_search(query, docs, plugin=_TEST_EMBEDDER)
     assert (len(results.data.hits) == 1)
     assert (results.data.hits[0].value == "Jonathan can help you with new employee onboarding")
 

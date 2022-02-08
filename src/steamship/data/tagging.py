@@ -41,6 +41,6 @@ class TagRequest(Request):
             blocks=(d.get("blocks", []) or []),
             fileId=d.get('fileId', None),
             parsedBlocks=parsedBlocks,
-            plugin=d.get("model", None),
+            plugin=d.get("plugin", None),
             metadata=metadata
         )

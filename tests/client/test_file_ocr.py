@@ -23,7 +23,7 @@ def test_image_upload():
         assert (c.name == name_c)
         assert (c.mimeType == MimeTypes.PNG)
 
-        convertResp = c.convert(model="ocr_ms_vision_default")
+        convertResp = c.convert(plugin="ocr_ms_vision_default")
         assert (convertResp.error is None)
         convertResp.wait()
         assert (convertResp.data is not None)

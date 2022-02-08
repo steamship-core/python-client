@@ -82,13 +82,13 @@ class Classifier:
     """
 
     def __init__(self, client: Client, id: str = None, name: str = None, plugin: str = None, labels: List[str] = None):
-        if id is None and model is None:
-            raise Exception("Either an ID or a model must be provided")
+        if id is None and plugin is None:
+            raise Exception("Either an ID or a plugin must be provided")
 
         self.client = client
         self.name = name
         self.id = id
-        self.model = model
+        self.plugin = plugin
         self.labels = labels
 
     @staticmethod
@@ -137,9 +137,9 @@ class Classifier:
             spaceId: str = None,
             spaceHandle: str = None
     ) -> Response[ClassifyResponse]:
-        if self.id is None and self.model is None:
+        if self.id is None and self.plugin is None:
             raise Exception(
-                "Neither an ID nor a model was found on the classifier object. Please reinitialize with one or the other.")
+                "Neither an ID nor a plugin was found on the classifier object. Please reinitialize with one or the other.")
 
         if self.id is None and (labels is None or len(labels) == 0) and (self.labels is None or len(self.labels) == 0):
             raise Exception(
@@ -152,7 +152,7 @@ class Classifier:
         req = ClassifyRequest(
             docs=docs,
             classifierId=self.id,
-            plugin=plugin if model is not None else self.model,
+            plugin=plugin if plugin is not None else self.plugin,
             labels=labels if (labels is not None and len(labels) > 0) else self.labels,
             k=k
         )

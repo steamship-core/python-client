@@ -269,8 +269,8 @@ class File:
             space: any = None
     ) -> "Response[File]":
 
-        if filename is None and name is None and content is None and url is None and model is None:
-            raise Exception("Either filename, name + content, url, or model must be provided.")
+        if filename is None and name is None and content is None and url is None and plugin is None:
+            raise Exception("Either filename, name + content, url, or plugin must be provided.")
 
         if filename is not None:
             with open(filename, 'rb') as f:
@@ -278,7 +278,7 @@ class File:
                 name = filename
 
         req = FileUploadRequest(
-            type=FileUploadType.fileImporter if model is not None else FileUploadType.file,
+            type=FileUploadType.fileImporter if plugin is not None else FileUploadType.file,
             corpusId=corpusId,
             name=name,
             url=url,
@@ -360,7 +360,7 @@ class File:
         )
 
         return self.client.post(
-            'model/convert',
+            'plugin/convert',
             payload=req,
             expect=ConvertResponse,
             asynchronous=True,
@@ -390,7 +390,7 @@ class File:
         )
 
         return self.client.post(
-            'model/parse',
+            'plugin/parse',
             payload=req,
             expect=ParseResponse,
             asynchronous=True,
@@ -506,7 +506,7 @@ class File:
             indexId = index.id
 
         if indexName is None:
-            indexName = "{}-{}".format(self.id, model)
+            indexName = "{}-{}".format(self.id, plugin)
 
         if indexId is None and index is None:
             index = self.client.create_index(

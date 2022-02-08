@@ -14,7 +14,7 @@ def test_e2e_importer():
                 client=client,
                 name="Test.txt",
                 content="This is a test.",
-                model=plugin.handle
+                plugin=plugin.handle
             ).data
 
             data = file.raw().data

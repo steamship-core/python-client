@@ -37,7 +37,7 @@ def test_plugin_create():
             isPublic=True
         )
 
-    # Should require model type
+    # Should require plugin type
     with pytest.raises(Exception):
         index = Plugin.create(
             client=steamship,
@@ -84,7 +84,7 @@ def test_plugin_create():
     my_plugins = Plugin.listPrivate(steamship).data
     assert (len(my_plugins.plugins) == orig_count)
 
-    model = Plugin.create(
+    plugin = Plugin.create(
         client=steamship,
         name=_random_name(),
         description="This is just for test",
@@ -97,23 +97,23 @@ def test_plugin_create():
     assert (len(my_plugins.plugins) == orig_count + 1)
 
     # No upsert doesn't work
-    modelX = Plugin.create(
+    pluginX = Plugin.create(
         client=steamship,
-        handle=model.handle,
-        name=model.name,
+        handle=plugin.handle,
+        name=plugin.name,
         description="This is just for test",
         type=PluginType.embedder,
         url="http://foo7",
         transport=PluginAdapterType.steamshipDocker,
         isPublic=False
     )
-    assert (modelX.error is not None)
-    assert (modelX.data is None)
+    assert (pluginX.error is not None)
+    assert (pluginX.data is None)
 
     # Upsert does work
-    model2 = Plugin.create(
+    plugin2 = Plugin.create(
         client=steamship,
-        name=model.name,
+        name=plugin.name,
         description="This is just for test 2",
         type=PluginType.embedder,
         url="http://foo8",
@@ -122,17 +122,17 @@ def test_plugin_create():
         upsert=True
     ).data
 
-    assert (model2.id == model.id)
+    assert (plugin2.id == plugin.id)
 
     my_plugins = Plugin.listPrivate(steamship).data
     assert (len(my_plugins.plugins) == orig_count + 1)
 
-    assert (model2.id in [model.id for model in my_plugins.plugins])
-    assert (model2.description in [model.description for model in my_plugins.plugins])
+    assert (plugin2.id in [plugin.id for plugin in my_plugins.plugins])
+    assert (plugin2.description in [plugin.description for plugin in my_plugins.plugins])
 
-    # assert(my_plugins.plugins[0].description != model.description)
+    # assert(my_plugins.plugins[0].description != plugin.description)
 
-    model.delete()
+    plugin.delete()
 
     my_plugins = Plugin.listPrivate(steamship).data
     assert (len(my_plugins.plugins) == orig_count)

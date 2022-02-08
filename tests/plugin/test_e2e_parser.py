@@ -19,7 +19,7 @@ def test_e2e_embedder():
     client = _steamship()
     with deploy_app("plugin_parser.py") as (app, version, instance):
         with register_app_as_plugin(client, "parser", "parse", app, instance) as plugin:
-            res = client.parse(docs=TEST_REQ.docs, model=plugin.handle)
+            res = client.parse(docs=TEST_REQ.docs, plugin=plugin.handle)
             res.wait()
             assert (res.error is None)
             assert (res.data is not None)

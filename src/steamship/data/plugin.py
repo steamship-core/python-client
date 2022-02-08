@@ -106,8 +106,8 @@ class Plugin:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "Plugin":
-        if 'model' in d:
-            d = d['model']
+        if 'plugin' in d:
+            d = d['plugin']
 
         return Plugin(
             client=client,
@@ -164,7 +164,7 @@ class Plugin:
             upsert=upsert
         )
         return client.post(
-            'model/create',
+            'plugin/create',
             req,
             expect=Plugin,
             spaceId=spaceId,
@@ -179,7 +179,7 @@ class Plugin:
             spaceHandle: str = None
     ) -> Response[ListPluginsResponse]:
         return client.post(
-            'model/public',
+            'plugin/public',
             ListPublicPluginsRequest(type=type),
             expect=ListPluginsResponse,
             spaceId=spaceId,
@@ -194,7 +194,7 @@ class Plugin:
             spaceHandle: str = None
     ) -> Response[ListPluginsResponse]:
         return client.post(
-            'model/private',
+            'plugin/private',
             ListPrivatePluginsRequest(type=type),
             expect=ListPluginsResponse,
             spaceId=spaceId,
@@ -203,7 +203,7 @@ class Plugin:
 
     def delete(self) -> Response[Plugin]:
         return self.client.post(
-            'model/delete',
+            'plugin/delete',
             DeletePluginRequest(id=self.id),
             expect=Plugin,
         )

@@ -54,7 +54,7 @@ class ParseRequest:
         return ParseRequest(
             docs=(d.get("docs", []) or []),
             blockIds=(d.get("blockIds", []) or []),
-            plugin=d.get("model", None),
+            plugin=d.get("plugin", None),
             tokenMatchers=token_matchers,
             phraseMatchers=phrase_matchers,
             dependencyMatchers=dependency_matchers,

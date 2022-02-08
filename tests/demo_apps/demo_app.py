@@ -17,7 +17,7 @@ class TestApp(App):
         # will resultingly have a fresh index.
         self.index = self.client.create_index(
             handle="qa-index",
-            model="test-embedder-v1"
+            plugin="test-embedder-v1"
         ).data
 
     @get('greet')

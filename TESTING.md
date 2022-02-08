@@ -31,19 +31,19 @@ export STEAMSHIP_DOMAIN=http://api.staging.steamship.com/
 export STEAMSHIP_KEY=
 ```
 
-3. **Your default QA Embedding Model name**. For private installations, this default model bay be custom. 
+3. **Your default QA Embedding Model name**. For private installations, this default plugin may be custom. 
 
 ```
 export STEAMSHIP_EMBEDDER_QA=st_msmarco_distilbert_base_v3
 ```
 
-4. **Your default Similarity Embedding Model name**. For private installations, this default model bay be custom. 
+4. **Your default Similarity Embedding Model name**. For private installations, this default plugin may be custom. 
 
 ```
 export STEAMSHIP_EMBEDDER_SIM=st_paraphrase_mpnet_base_v2
 ```
 
-5. **Your default Parsing Model name**. For private installations, this default model bay be custom. 
+5. **Your default Parsing Model name**. For private installations, this default plugin may be custom. 
 
 ```
 export STEAMSHIP_PARSER_DEFAULT=sp_en_core_web_trf

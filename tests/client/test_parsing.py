@@ -4,13 +4,13 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 
-def parsing_model():
+def parsing_plugin():
     return "test-parser-v1"
 
 
 def test_parsing():
     steamship = _steamship()
-    resp = steamship.parse(["This is a test"], model=parsing_model())
+    resp = steamship.parse(["This is a test"], plugin=parsing_plugin())
     resp.wait()
     resp = resp.data
     assert (len(resp.blocks) == 1)
@@ -25,7 +25,7 @@ def test_parsing():
 
 def test_parsing_options():
     steamship = _steamship()
-    resp = steamship.parse(["This is a test"], model=parsing_model(), includeTokens=False)
+    resp = steamship.parse(["This is a test"], plugin=parsing_plugin(), includeTokens=False)
     resp.wait()
     assert (len(resp.data.blocks) == 1)
     d = resp.data.blocks[0]
@@ -35,7 +35,7 @@ def test_parsing_options():
     assert (s.text == "This is a test")
     assert (len(s.tokens) == 0)
 
-    resp = steamship.parse(["This is a test"], model=parsing_model(), includeTokens=True, includeParseData=False)
+    resp = steamship.parse(["This is a test"], plugin=parsing_plugin(), includeTokens=True, includeParseData=False)
     resp.wait()
     assert (len(resp.data.blocks) == 1)
     d = resp.data.blocks[0]
@@ -48,7 +48,7 @@ def test_parsing_options():
 
 # def test_ner():
 #     steamship = _steamship()
-#     resp = steamship.parse(["I like Ted"], model=parsing_model(), includeEntities=True).data
+#     resp = steamship.parse(["I like Ted"], plugin=parsing_plugin(), includeEntities=True).data
 #     assert(len(resp.docs) == 1)
 #     d = resp.docs[0]
 #     assert(len(d.entities) == 1)
@@ -80,7 +80,7 @@ def test_parsing_options():
 
 #     resp = steamship.parse(
 #       ["Let's see if a matcher works."], 
-#       model=parsing_model(),      
+#       plugin=parsing_plugin(),      
 #       tokenMatchers=[a_matcher, b_matcher]
 #     ).data
 #     assert(len(resp.docs) == 1)
@@ -112,7 +112,7 @@ def test_parsing_options():
 
 #     resp = steamship.parse(
 #       ["Let's see if a matcher works."], 
-#       model=parsing_model(),      
+#       plugin=parsing_plugin(),      
 #       phraseMatchers=[a_matcher, b_matcher]
 #     ).data
 #     assert(len(resp.docs) == 1)
@@ -140,7 +140,7 @@ def test_parsing_options():
 
 #     resp = steamship.parse(
 #       ["Often the router will have an IP address such as 192.168.1.1 or 192.168.2.1."],
-#       model=parsing_model(),      
+#       plugin=parsing_plugin(),      
 #       phraseMatchers=[a_matcher]
 #     ).data
 #     assert(len(resp.docs) == 1)
@@ -194,7 +194,7 @@ def test_parsing_options():
 
 #     resp = steamship.parse(
 #       ["Let's see if a Matcher can match 44.33.22.11 accordingly."], 
-#       model=parsing_model(),      
+#       plugin=parsing_plugin(),      
 #       tokenMatchers=[d_matcher],
 #       phraseMatchers=[a_matcher, b_matcher, c_matcher, e_matcher, f_matcher]
 #     ).data
@@ -236,7 +236,7 @@ def test_parsing_options():
 
 #     resp = steamship.parse(
 #       ["Smith founded two companies"],
-#       model=parsing_model(),      
+#       plugin=parsing_plugin(),      
 #       dependencyMatchers=[a_matcher]
 #     ).data
 #     assert(len(resp.docs) == 1)
@@ -266,7 +266,7 @@ def test_parsing_options():
 
 #     resp = steamship.parse(
 #       ["Smith founded two companies"],
-#       model=parsing_model(),      
+#       plugin=parsing_plugin(),      
 #       dependencyMatchers=[a_matcher]
 #     ).data
 #     assert(len(resp.docs) == 1)
@@ -317,7 +317,7 @@ def test_parsing_options():
 #     )
 #     resp = steamship.parse(
 #       [sent],
-#       model=parsing_model(),      
+#       plugin=parsing_plugin(),      
 #       dependencyMatchers=[a_matcher]
 #     ).data
 
