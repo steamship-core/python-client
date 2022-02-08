@@ -41,7 +41,7 @@ class ClassifierHit:
 class ClassifyRequest:
     docs: List[str]
     classifierId: str = None
-    model: str = None
+    plugin: str = None
     labels: List[str] = None
     k: int = None
 
@@ -49,7 +49,7 @@ class ClassifyRequest:
     def from_dict(d: any, client: Client = None) -> "ClassifyRequest":
         return ClassifyRequest(
             type=d.get('type', None),
-            model=d.get('model', None),
+            plugin=d.get('plugin', None),
             id=d.get('id', None),
             handle=d.get('handle', None),
             name=d.get('name', None)
@@ -59,7 +59,7 @@ class ClassifyRequest:
 @dataclass
 class ClassifyResponse():
     classifierId: str = None
-    model: str = None
+    plugin: str = None
     hits: List[List[ClassifierHit]] = None
 
     @staticmethod
@@ -67,7 +67,7 @@ class ClassifyResponse():
         hits = [[ClassifierHit.from_dict(h) for h in innerList] for innerList in (d.get("hits", []) or [])]
         return ClassifyResponse(
             classifierId=d.get('classifierId', None),
-            model=d.get('model', None),
+            plugin=d.get('plugin', None),
             hits=hits
         )
 

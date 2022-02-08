@@ -8,21 +8,21 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 
-def test_model_create():
+def test_plugin_create():
     steamship = _steamship()
     name = _random_name()
 
-    my_models = Plugin.listPrivate(steamship).data
-    orig_count = len(my_models.models)
+    my_plugins = Plugin.listPrivate(steamship).data
+    orig_count = len(my_plugins.plugins)
 
     # Should require name
     with pytest.raises(Exception):
         index = Plugin.create(
             client=steamship,
             description="This is just for test",
-            modelType=PluginType.embedder,
+            type=PluginType.embedder,
             url="http://foo1",
-            adapterType=PluginAdapterType.steamshipDocker,
+            transport=PluginAdapterType.steamshipDocker,
             isPublic=True
         )
 
@@ -31,9 +31,9 @@ def test_model_create():
         index = Plugin.create(
             client=steamship,
             name="Test Plugin",
-            modelType=PluginType.embedder,
+            type=PluginType.embedder,
             url="http://foo2",
-            adapterType=PluginAdapterType.steamshipDocker,
+            transport=PluginAdapterType.steamshipDocker,
             isPublic=True
         )
 
@@ -44,7 +44,7 @@ def test_model_create():
             name="Test Plugin",
             description="This is just for test",
             url="http://foo3",
-            adapterType=PluginAdapterType.steamshipDocker,
+            transport=PluginAdapterType.steamshipDocker,
             isPublic=True
         )
 
@@ -54,47 +54,47 @@ def test_model_create():
             client=steamship,
             name="Test Plugin",
             description="This is just for test",
-            modelType=PluginType.embedder,
-            adapterType=PluginAdapterType.steamshipDocker,
+            type=PluginType.embedder,
+            transport=PluginAdapterType.steamshipDocker,
             isPublic=True
         )
 
     # Should require adapter type
     with pytest.raises(Exception):
-        index = steamship.models.create(
+        index = steamship.plugins.create(
             client=steamship,
             name="Test Plugin",
             description="This is just for test",
-            modelType=PluginType.embedder,
+            type=PluginType.embedder,
             url="http://foo4",
             isPublic=True
         )
 
     # Should require is public
     with pytest.raises(Exception):
-        index = steamship.models.create(
+        index = steamship.plugins.create(
             client=steamship,
             name="Test Plugin",
             description="This is just for test",
-            modelType=PluginType.embedder,
+            type=PluginType.embedder,
             url="http://foo5",
-            adapterType=PluginAdapterType.steamshipDocker,
+            transport=PluginAdapterType.steamshipDocker,
         )
 
-    my_models = Plugin.listPrivate(steamship).data
-    assert (len(my_models.models) == orig_count)
+    my_plugins = Plugin.listPrivate(steamship).data
+    assert (len(my_plugins.plugins) == orig_count)
 
     model = Plugin.create(
         client=steamship,
         name=_random_name(),
         description="This is just for test",
-        modelType=PluginType.embedder,
+        type=PluginType.embedder,
         url="http://foo6",
-        adapterType=PluginAdapterType.steamshipDocker,
+        transport=PluginAdapterType.steamshipDocker,
         isPublic=False
     ).data
-    my_models = Plugin.listPrivate(steamship).data
-    assert (len(my_models.models) == orig_count + 1)
+    my_plugins = Plugin.listPrivate(steamship).data
+    assert (len(my_plugins.plugins) == orig_count + 1)
 
     # No upsert doesn't work
     modelX = Plugin.create(
@@ -102,9 +102,9 @@ def test_model_create():
         handle=model.handle,
         name=model.name,
         description="This is just for test",
-        modelType=PluginType.embedder,
+        type=PluginType.embedder,
         url="http://foo7",
-        adapterType=PluginAdapterType.steamshipDocker,
+        transport=PluginAdapterType.steamshipDocker,
         isPublic=False
     )
     assert (modelX.error is not None)
@@ -115,40 +115,40 @@ def test_model_create():
         client=steamship,
         name=model.name,
         description="This is just for test 2",
-        modelType=PluginType.embedder,
+        type=PluginType.embedder,
         url="http://foo8",
-        adapterType=PluginAdapterType.steamshipDocker,
+        transport=PluginAdapterType.steamshipDocker,
         isPublic=False,
         upsert=True
     ).data
 
     assert (model2.id == model.id)
 
-    my_models = Plugin.listPrivate(steamship).data
-    assert (len(my_models.models) == orig_count + 1)
+    my_plugins = Plugin.listPrivate(steamship).data
+    assert (len(my_plugins.plugins) == orig_count + 1)
 
-    assert (model2.id in [model.id for model in my_models.models])
-    assert (model2.description in [model.description for model in my_models.models])
+    assert (model2.id in [model.id for model in my_plugins.plugins])
+    assert (model2.description in [model.description for model in my_plugins.plugins])
 
-    # assert(my_models.models[0].description != model.description)
+    # assert(my_plugins.plugins[0].description != model.description)
 
     model.delete()
 
-    my_models = Plugin.listPrivate(steamship).data
-    assert (len(my_models.models) == orig_count)
+    my_plugins = Plugin.listPrivate(steamship).data
+    assert (len(my_plugins.plugins) == orig_count)
 
 
-def test_model_public():
+def test_plugin_public():
     steamship = _steamship()
     name = _random_name()
 
     resp = Plugin.listPublic(steamship).data
-    assert (resp.models is not None)
-    models = resp.models
+    assert (resp.plugins is not None)
+    plugins = resp.plugins
 
-    assert (len(models) > 0)
+    assert (len(plugins) > 0)
 
     # Make sure they can't be deleted.
-    res = models[0].delete()
+    res = plugins[0].delete()
     assert (res.error is not None)
     assert (res.data is None)

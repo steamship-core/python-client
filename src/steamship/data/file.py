@@ -76,7 +76,7 @@ class FileUploadRequest(Request):
     corpusId: str = None
     name: str = None
     url: str = None
-    model: str = None
+    plugin: str = None
     mimeType: str = None
     convert: bool = False
 
@@ -89,7 +89,7 @@ class FileClearResponse:
 @dataclass
 class FileTagRequest(Request):
     id: str
-    model: str = None
+    plugin: str = None
 
 
 @dataclass
@@ -260,7 +260,7 @@ class File:
             name: str = None,
             url: str = None,
             content: str = None,
-            model: str = None,
+            plugin: str = None,
             mimeType: str = None,
             corpusId: str = None,
             convert: bool = False,
@@ -283,7 +283,7 @@ class File:
             name=name,
             url=url,
             mimeType=mimeType,
-            model=model,
+            plugin=plugin,
             convert=convert
         )
 
@@ -349,14 +349,14 @@ class File:
 
     def convert(
             self,
-            model: str = None,
+            plugin: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None):
         req = ClientsideConvertRequest(
             id=self.id,
             type=PluginTargetType.file,
-            model=model
+            plugin=plugin
         )
 
         return self.client.post(
@@ -372,7 +372,7 @@ class File:
 
     def parse(
             self,
-            model: str = None,
+            plugin: str = None,
             tokenMatchers: List[TokenMatcher] = None,
             phraseMatchers: List[PhraseMatcher] = None,
             dependencyMatchers: List[DependencyMatcher] = None,
@@ -383,7 +383,7 @@ class File:
         req = ParseRequest(
             type=PluginTargetType.file,
             id=self.id,
-            model=model,
+            plugin=plugin,
             tokenMatchers=tokenMatchers,
             phraseMatchers=phraseMatchers,
             dependencyMatchers=dependencyMatchers
@@ -402,14 +402,14 @@ class File:
 
     def tag(
             self,
-            model: str = None,
+            plugin: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
     ):
         req = FileTagRequest(
             id=self.id,
-            model=model
+            plugin=plugin
         )
 
         return self.client.post(
@@ -489,7 +489,7 @@ class File:
 
     def index(
             self,
-            model: str = None,
+            plugin: str = None,
             indexName: str = None,
             blockType: str = None,
             indexId: str = None,
@@ -511,7 +511,7 @@ class File:
         if indexId is None and index is None:
             index = self.client.create_index(
                 name=indexName,
-                model=model,
+                plugin=plugin,
                 upsert=True,
                 spaceId=spaceId,
                 spaceHandle=spaceHandle,

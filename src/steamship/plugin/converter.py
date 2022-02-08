@@ -13,7 +13,7 @@ from steamship.plugin.service import PluginService, PluginRequest
 @dataclass
 class ClientsideConvertRequest:
     type: str = None
-    model: str = None
+    plugin: str = None
     id: str = None
     handle: str = None
     name: str = None
@@ -22,7 +22,7 @@ class ClientsideConvertRequest:
     def from_dict(d: any, client: Client = None) -> "ClientsideConvertRequest":
         return ClientsideConvertRequest(
             type=d.get('type', None),
-            model=d.get('model', None),
+            plugin=d.get('plugin', None),
             id=d.get('id', None),
             handle=d.get('handle', None),
             name=d.get('name', None)
@@ -59,7 +59,7 @@ TEXT_MIME_TYPES = [
 
 @dataclass
 class ConvertRequest:
-    model: str = None
+    plugin: str = None
     data: Any = None
     defaultMimeType: str = None
 
@@ -75,7 +75,7 @@ class ConvertRequest:
                 data = data_bytes
 
         return ConvertRequest(
-            model=d.get('model', None),
+            plugin=d.get('plugin', None),
             data=data,
             defaultMimeType=d.get('defaultMimeType', None)
         )

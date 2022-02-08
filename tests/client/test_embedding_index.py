@@ -9,7 +9,7 @@ __license__ = "MIT"
 _TEST_EMBEDDER = "test-embedder-v1"
 
 
-def create_index(client: Client, model: str):
+def create_index(client: Client, plugin: str):
     steamship = _steamship()
     name = _random_name()
 

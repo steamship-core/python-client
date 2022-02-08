@@ -31,9 +31,9 @@ _TEST_EMBEDDER = "test-embedder-v1"
 
 
 @contextlib.contextmanager
-def _random_index(steamship: Steamship, model: str = _TEST_EMBEDDER) -> EmbeddingIndex:
+def _random_index(steamship: Steamship, plugin: str = _TEST_EMBEDDER) -> EmbeddingIndex:
     index = steamship.create_index(
-        model=model
+        plugin=plugin
     ).data
     yield index
     index.delete()  # or whatever you need to do at exit
@@ -166,9 +166,9 @@ def register_app_as_plugin(client: Client, type: string, path: str, app: App, in
         name=instance.name,
         handle=instance.handle,
         description="Auto-generated",
-        modelType=type,
+        type=type,
         url=url,
-        adapterType="jsonOverHttp",
+        transport="jsonOverHttp",
         isPublic=True,
         metadata=metadata
     )

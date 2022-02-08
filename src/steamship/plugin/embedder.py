@@ -9,14 +9,14 @@ from steamship.plugin.service import PluginService, PluginRequest
 @dataclass
 class EmbedRequest:
     docs: List[str]
-    model: str
+    plugin: str
     metadata: Dict = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "EmbedRequest":
         return EmbedRequest(
             docs=d.get('docs', None),
-            model=d.get('model', None),
+            plugin=d.get('plugin', None),
             metadata=d.get('metadata', {})
         )
 

@@ -181,5 +181,5 @@ class ListCorporaResponse(Request):
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "ListCorporaResponse":
         return ListCorporaResponse(
-            models=[Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
+            plugins=[Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
         )
