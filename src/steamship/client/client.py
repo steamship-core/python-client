@@ -90,7 +90,7 @@ class Steamship(Client):
             self,
             handle: str = None,
             name: str = None,
-            model: str = None,
+            plugin: str = None,
             upsert: bool = True,
             externalId: str = None,
             externalType: str = None,
@@ -103,7 +103,7 @@ class Steamship(Client):
             client=self,
             handle=handle,
             name=name,
-            model=model,
+            plugin=plugin,
             upsert=upsert,
             externalId=externalId,
             externalType=externalType,
@@ -116,7 +116,7 @@ class Steamship(Client):
     def create_classifier(
             self,
             name: str,
-            model: str,
+            plugin: str,
             upsert: bool = True,
             save: bool = None,
             labels: List[str] = None,
@@ -126,7 +126,7 @@ class Steamship(Client):
     ) -> Classifier:
         return Classifier.create(
             client=self,
-            model=model,
+            plugin=plugin,
             name=name,
             upsert=upsert,
             save=save,
@@ -142,7 +142,7 @@ class Steamship(Client):
             name: str = None,
             content: str = None,
             mimeType: str = None,
-            model: str = None,
+            plugin: str = None,
             convert: bool = False,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -184,14 +184,14 @@ class Steamship(Client):
     def embed(
             self,
             docs: List[str],
-            model: str,
+            plugin: str,
             spaceId: str = None,
             spaceHandle: str = None,
             space: Space = None
     ) -> Response[EmbedResponse]:
         req = EmbedRequest(
             docs=docs,
-            model=model
+            plugin=plugin
         )
         return self.post(
             'embedding/create',
@@ -206,7 +206,7 @@ class Steamship(Client):
             self,
             query: str,
             docs: List[str],
-            model: str,
+            plugin: str,
             k: int = 1,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -215,7 +215,7 @@ class Steamship(Client):
         req = EmbedAndSearchRequest(
             query=query,
             docs=docs,
-            model=model,
+            plugin=plugin,
             k=k
         )
         return self.post(
@@ -230,7 +230,7 @@ class Steamship(Client):
     def parse(
             self,
             docs: List[str],
-            model: str = None,
+            plugin: str = None,
             tokenMatchers: List[TokenMatcher] = None,
             phraseMatchers: List[PhraseMatcher] = None,
             dependencyMatchers: List[DependencyMatcher] = None,
@@ -245,7 +245,7 @@ class Steamship(Client):
         req = ParseRequest(
             type="inline",
             docs=docs,
-            model=model,
+            plugin=plugin,
             tokenMatchers=tokenMatchers,
             phraseMatchers=phraseMatchers,
             dependencyMatchers=dependencyMatchers,
@@ -255,7 +255,7 @@ class Steamship(Client):
             metadata=metadata
         )
         return self.post(
-            'model/parse',
+            'plugin/parse',
             req,
             expect=ParseResponse,
             spaceId=spaceId,
@@ -266,7 +266,7 @@ class Steamship(Client):
     def tag(
             self,
             blocks: List[Block],
-            model: str = None,
+            plugin: str = None,
             metadata: any = None,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -274,7 +274,7 @@ class Steamship(Client):
     ) -> Response[ParseResponse]:
         req = TagRequest(
             blocks=blocks,
-            model=model,
+            plugin=plugin,
             metadata=metadata
         )
         return self.post(

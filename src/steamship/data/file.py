@@ -18,7 +18,7 @@ from steamship.plugin.parser import ParseRequest, ParseResponse
 class FileUploadType:
     file = "file"
     url = "url"
-    importer = "importer"
+    fileImporter = "fileImporter"
 
 
 _logger = logging.getLogger(__name__)
@@ -76,7 +76,7 @@ class FileUploadRequest(Request):
     corpusId: str = None
     name: str = None
     url: str = None
-    model: str = None
+    plugin: str = None
     mimeType: str = None
     convert: bool = False
 
@@ -89,7 +89,7 @@ class FileClearResponse:
 @dataclass
 class FileTagRequest(Request):
     id: str
-    model: str = None
+    plugin: str = None
 
 
 @dataclass
@@ -260,7 +260,7 @@ class File:
             name: str = None,
             url: str = None,
             content: str = None,
-            model: str = None,
+            plugin: str = None,
             mimeType: str = None,
             corpusId: str = None,
             convert: bool = False,
@@ -269,8 +269,8 @@ class File:
             space: any = None
     ) -> "Response[File]":
 
-        if filename is None and name is None and content is None and url is None and model is None:
-            raise Exception("Either filename, name + content, url, or model must be provided.")
+        if filename is None and name is None and content is None and url is None and plugin is None:
+            raise Exception("Either filename, name + content, url, or plugin must be provided.")
 
         if filename is not None:
             with open(filename, 'rb') as f:
@@ -278,12 +278,12 @@ class File:
                 name = filename
 
         req = FileUploadRequest(
-            type=FileUploadType.importer if model is not None else FileUploadType.file,
+            type=FileUploadType.fileImporter if plugin is not None else FileUploadType.file,
             corpusId=corpusId,
             name=name,
             url=url,
             mimeType=mimeType,
-            model=model,
+            plugin=plugin,
             convert=convert
         )
 
@@ -349,18 +349,18 @@ class File:
 
     def convert(
             self,
-            model: str = None,
+            plugin: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None):
         req = ClientsideConvertRequest(
             id=self.id,
             type=PluginTargetType.file,
-            model=model
+            plugin=plugin
         )
 
         return self.client.post(
-            'model/convert',
+            'plugin/convert',
             payload=req,
             expect=ConvertResponse,
             asynchronous=True,
@@ -372,7 +372,7 @@ class File:
 
     def parse(
             self,
-            model: str = None,
+            plugin: str = None,
             tokenMatchers: List[TokenMatcher] = None,
             phraseMatchers: List[PhraseMatcher] = None,
             dependencyMatchers: List[DependencyMatcher] = None,
@@ -383,14 +383,14 @@ class File:
         req = ParseRequest(
             type=PluginTargetType.file,
             id=self.id,
-            model=model,
+            plugin=plugin,
             tokenMatchers=tokenMatchers,
             phraseMatchers=phraseMatchers,
             dependencyMatchers=dependencyMatchers
         )
 
         return self.client.post(
-            'model/parse',
+            'plugin/parse',
             payload=req,
             expect=ParseResponse,
             asynchronous=True,
@@ -402,14 +402,14 @@ class File:
 
     def tag(
             self,
-            model: str = None,
+            plugin: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
     ):
         req = FileTagRequest(
             id=self.id,
-            model=model
+            plugin=plugin
         )
 
         return self.client.post(
@@ -489,7 +489,7 @@ class File:
 
     def index(
             self,
-            model: str = None,
+            plugin: str = None,
             indexName: str = None,
             blockType: str = None,
             indexId: str = None,
@@ -506,12 +506,12 @@ class File:
             indexId = index.id
 
         if indexName is None:
-            indexName = "{}-{}".format(self.id, model)
+            indexName = "{}-{}".format(self.id, plugin)
 
         if indexId is None and index is None:
             index = self.client.create_index(
                 name=indexName,
-                model=model,
+                plugin=plugin,
                 upsert=True,
                 spaceId=spaceId,
                 spaceHandle=spaceHandle,

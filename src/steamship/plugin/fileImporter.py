@@ -9,15 +9,15 @@ from steamship.plugin.service import PluginService, PluginRequest
 
 
 @dataclass
-class ImportRequest:
+class FileImportRequest:
     value: str = None
     data: str = None
     url: str = None
     mimeType: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ImportRequest":
-        return ImportRequest(
+    def from_dict(d: any, client: Client = None) -> "FileImportRequest":
+        return FileImportRequest(
             value=d.get('value', None),
             data=d.get('data', None),
             url=d.get('url', None),
@@ -34,7 +34,7 @@ class ImportRequest:
 
 
 @dataclass
-class ImportResponse:
+class FileImportResponse:
     data: Any = None
     mimeType: str = None
 
@@ -57,20 +57,20 @@ class ImportResponse:
         self.mimeType = mimeType
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ImportResponse":
-        return ImportRequest(
+    def from_dict(d: any, client: Client = None) -> "FileImportResponse":
+        return FileImportRequest(
             body=d.get('body', None),
             mimeType=d.get('mimeType', None)
         )
 
-    def to_dict(self) -> "ImportResponse":
+    def to_dict(self) -> "FileImportResponse":
         return dict(
             body=self.body,
             mimeType=self.mimeType
         )
 
 
-class Importer(PluginService[ImportRequest, ImportResponse], ABC):
+class FileImporter(PluginService[FileImportRequest, FileImportResponse], ABC):
     @classmethod
-    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[ImportRequest]:
-        return ImportRequest.from_dict(d, client=client)
+    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[FileImportRequest]:
+        return FileImportRequest.from_dict(d, client=client)

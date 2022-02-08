@@ -48,7 +48,7 @@ def test_snapshot_create():
     name = _random_name()
     index = steamship.create_index(
         name=name,
-        model=_TEST_EMBEDDER,
+        plugin=_TEST_EMBEDDER,
         upsert=True
     ).data
 
@@ -94,7 +94,7 @@ def test_snapshot_create():
     name = _random_name()
     index = steamship.create_index(
         name=name,
-        model=_TEST_EMBEDDER,
+        plugin=_TEST_EMBEDDER,
         upsert=True
     ).data
 

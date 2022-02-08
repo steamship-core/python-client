@@ -13,7 +13,7 @@ def test_e2e_converter():
             assert (len(file.query(blockType=BlockTypes.H1).data.blocks) == 0)
 
             # Use the plugin we just registered
-            file.convert(model=plugin.handle).wait()
+            file.convert(plugin=plugin.handle).wait()
             headers = file.query(blockType=BlockTypes.H1).data
             assert (len(file.query(blockType=BlockTypes.H1).data.blocks) == 1)
             assert (len(file.query(blockType=BlockTypes.Paragraph).data.blocks) == 2)

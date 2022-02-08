@@ -11,7 +11,7 @@ from steamship.data.search import Hit
 class IndexCreateRequest(Request):
     handle: str = None
     name: str = None
-    model: str = None
+    plugin: str = None
     upsert: bool = True
     externalId: str = None
     externalType: str = None
@@ -214,7 +214,7 @@ class EmbeddingIndex:
     id: str = None
     handle: str = None
     name: str = None
-    model: str = None
+    plugin: str = None
     externalId: str = None
     externalType: str = None
     metadata: str = None
@@ -230,7 +230,7 @@ class EmbeddingIndex:
             id=d.get('id', None),
             handle=d.get('handle', None),
             name=d.get('name', None),
-            model=d.get('model', None),
+            plugin=d.get('plugin', None),
             externalId=d.get('externalId', None),
             externalType=d.get('externalType', None),
             metadata=d.get('metadata', None)
@@ -483,7 +483,7 @@ class EmbeddingIndex:
             client: Client,
             handle: str = None,
             name: str = None,
-            model: str = None,
+            plugin: str = None,
             upsert: bool = True,
             externalId: str = None,
             externalType: str = None,
@@ -495,7 +495,7 @@ class EmbeddingIndex:
         req = IndexCreateRequest(
             handle=handle,
             name=name,
-            model=model,
+            plugin=plugin,
             upsert=upsert,
             externalId=externalId,
             externalType=externalType,

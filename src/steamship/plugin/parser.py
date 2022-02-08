@@ -17,7 +17,7 @@ class ParseRequest:
     handle: str = None
     docs: List[str] = None
     blockIds: List[str] = None
-    model: str = None
+    plugin: str = None
     tokenMatchers: List[TokenMatcher] = None
     phraseMatchers: List[PhraseMatcher] = None
     dependencyMatchers: List[DependencyMatcher] = None
@@ -54,7 +54,7 @@ class ParseRequest:
         return ParseRequest(
             docs=(d.get("docs", []) or []),
             blockIds=(d.get("blockIds", []) or []),
-            model=d.get("model", None),
+            plugin=d.get("plugin", None),
             tokenMatchers=token_matchers,
             phraseMatchers=phrase_matchers,
             dependencyMatchers=dependency_matchers,

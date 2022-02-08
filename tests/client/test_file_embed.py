@@ -10,7 +10,7 @@ __license__ = "MIT"
 _TEST_EMBEDDER = "test-embedder-v1"
 
 
-def parsing_model():
+def parsing_plugin():
     return "test-parser-v1"
 
 
@@ -46,7 +46,7 @@ def test_file_parse():
     convertResp.wait()
 
     # Now we parse
-    parseResp = a.parse(model=parsing_model())
+    parseResp = a.parse(plugin=parsing_plugin())
     assert (parseResp.error is None)
     parseResp.wait()
 
@@ -100,7 +100,7 @@ def test_file_index():
     convertResp.wait()
 
     # Now we parse
-    parseResp = a.parse(model=parsing_model())
+    parseResp = a.parse(plugin=parsing_plugin())
     assert (parseResp.error is None)
     parseResp.wait()
 
@@ -109,7 +109,7 @@ def test_file_index():
     assert (len(q2.blocks) == 8)  # The 5th is inside the header!
 
     # Now we add the file to the index via the shortcut.
-    index = a.index(model=_TEST_EMBEDDER)
+    index = a.index(plugin=_TEST_EMBEDDER)
 
     res = index.search("What color are roses?").data
     assert (len(res.hits) == 1)
@@ -141,7 +141,7 @@ def test_file_embed_lookup():
     assert (convertRes.error is None)
     convertRes.wait()
 
-    parseRes = a.parse(model=parsing_model())
+    parseRes = a.parse(plugin=parsing_plugin())
     assert (parseRes.error is None)
     parseRes.wait()
 
@@ -154,7 +154,7 @@ def test_file_embed_lookup():
     assert (convertRes.error is None)
     convertRes.wait()
 
-    parseRes = b.parse(model=parsing_model())
+    parseRes = b.parse(plugin=parsing_plugin())
     assert (parseRes.error is None)
     parseRes.wait()
 

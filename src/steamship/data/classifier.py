@@ -7,7 +7,7 @@ from steamship.data.search import Hit
 
 @dataclass
 class ClassifierCreateRequest(Request):
-    model: str
+    plugin: str
     name: str = None
     upsert: bool = True
     save: bool = True
@@ -29,7 +29,7 @@ class ClassifierCreateResponse:
 class ClassifyRequest(Request):
     docs: List[str]
     classifierId: str = None
-    model: str = None
+    plugin: str = None
     labels: List[str] = None
     k: int = None
 
@@ -37,7 +37,7 @@ class ClassifyRequest(Request):
 @dataclass
 class ClassifyResponse:
     classifierId: str = None
-    model: str = None
+    plugin: str = None
     hits: List[List[Hit]] = None
 
     @staticmethod
@@ -45,7 +45,7 @@ class ClassifyResponse:
         hits = [[Hit.from_dict(h) for h in innerList] for innerList in (d.get("hits", []) or [])]
         return ClassifyResponse(
             classifierId=d.get('classifierId', None),
-            model=d.get('model', None),
+            plugin=d.get('plugin', None),
             hits=hits
         )
 
@@ -81,20 +81,20 @@ class Classifier:
     """A persistent, read-optimized index over embeddings.
     """
 
-    def __init__(self, client: Client, id: str = None, name: str = None, model: str = None, labels: List[str] = None):
-        if id is None and model is None:
-            raise Exception("Either an ID or a model must be provided")
+    def __init__(self, client: Client, id: str = None, name: str = None, plugin: str = None, labels: List[str] = None):
+        if id is None and plugin is None:
+            raise Exception("Either an ID or a plugin must be provided")
 
         self.client = client
         self.name = name
         self.id = id
-        self.model = model
+        self.plugin = plugin
         self.labels = labels
 
     @staticmethod
     def create(
             client: Client,
-            model: str,
+            plugin: str,
             name: str = None,
             upsert: bool = True,
             save: bool = None,
@@ -104,12 +104,12 @@ class Classifier:
     ) -> "Response[Classifier]":
         if save == False:
             return Response(
-                data=Classifier(client, id=None, model=model, name=name, labels=labels)
+                data=Classifier(client, id=None, plugin=plugin, name=name, labels=labels)
             )
         else:
             raise Exception("Persistent classifiers not yet supported.")
             req = ClassifierCreateRequest(
-                model=model,
+                plugin=plugin,
                 name=name,
                 upsert=upsert,
                 save=save,
@@ -130,16 +130,16 @@ class Classifier:
     def classify(
             self,
             docs: List[str],
-            model: str = None,
+            plugin: str = None,
             labels: List[str] = None,
             k: int = None,
             pd: bool = False,
             spaceId: str = None,
             spaceHandle: str = None
     ) -> Response[ClassifyResponse]:
-        if self.id is None and self.model is None:
+        if self.id is None and self.plugin is None:
             raise Exception(
-                "Neither an ID nor a model was found on the classifier object. Please reinitialize with one or the other.")
+                "Neither an ID nor a plugin was found on the classifier object. Please reinitialize with one or the other.")
 
         if self.id is None and (labels is None or len(labels) == 0) and (self.labels is None or len(self.labels) == 0):
             raise Exception(
@@ -152,7 +152,7 @@ class Classifier:
         req = ClassifyRequest(
             docs=docs,
             classifierId=self.id,
-            model=model if model is not None else self.model,
+            plugin=plugin if plugin is not None else self.plugin,
             labels=labels if (labels is not None and len(labels) > 0) else self.labels,
             k=k
         )

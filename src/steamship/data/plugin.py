@@ -22,9 +22,9 @@ class Plugin:
 class CreatePluginRequest(Request):
     id: str = None
     name: str = None
-    modelType: str = None
+    type: str = None
     url: str = None
-    adapterType: str = None
+    transport: str = None
     isPublic: bool = None
     handle: str = None
     description: str = None
@@ -43,22 +43,22 @@ class DeletePluginRequest(Request):
 
 @dataclass
 class ListPublicPluginsRequest(Request):
-    modelType: str
+    type: str
 
 
 @dataclass
 class ListPrivatePluginsRequest(Request):
-    modelType: str
+    type: str
 
 
 @dataclass
 class ListPluginsResponse(Request):
-    models: List[Plugin]
+    plugins: List[Plugin]
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "ListPluginsResponse":
         return ListPluginsResponse(
-            models=[Plugin.from_dict(x, client=client) for x in (d.get("models", []) or [])]
+            plugins=[Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])]
         )
 
 
@@ -92,9 +92,9 @@ class Plugin:
     client: Client = None
     id: str = None
     name: str = None
-    modelType: str = None
+    type: str = None
     url: str = None
-    adapterType: str = None
+    transport: str = None
     isPublic: bool = None
     handle: str = None
     description: str = None
@@ -106,16 +106,16 @@ class Plugin:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "Plugin":
-        if 'model' in d:
-            d = d['model']
+        if 'plugin' in d:
+            d = d['plugin']
 
         return Plugin(
             client=client,
             id=d.get('id', None),
             name=d.get('name', None),
-            modelType=d.get('modelType', None),
+            type=d.get('type', None),
             url=d.get('url', None),
-            adapterType=d.get('adapterType', None),
+            transport=d.get('transport', None),
             isPublic=d.get('isPublic', None),
             handle=d.get('handle', None),
             description=d.get('description', None),
@@ -131,9 +131,9 @@ class Plugin:
             client: Client,
             name: str,
             description: str,
-            modelType: str,
+            type: str,
             url: str,
-            adapterType: str,
+            transport: str,
             isPublic: bool,
             handle: str = None,
             dimensionality: int = None,
@@ -150,9 +150,9 @@ class Plugin:
 
         req = CreatePluginRequest(
             name=name,
-            modelType=modelType,
+            type=type,
             url=url,
-            adapterType=adapterType,
+            transport=transport,
             isPublic=isPublic,
             handle=handle,
             description=description,
@@ -164,7 +164,7 @@ class Plugin:
             upsert=upsert
         )
         return client.post(
-            'model/create',
+            'plugin/create',
             req,
             expect=Plugin,
             spaceId=spaceId,
@@ -174,13 +174,13 @@ class Plugin:
     @staticmethod
     def listPublic(
             client: Client,
-            modelType: str = None,
+            type: str = None,
             spaceId: str = None,
             spaceHandle: str = None
     ) -> Response[ListPluginsResponse]:
         return client.post(
-            'model/public',
-            ListPublicPluginsRequest(modelType=modelType),
+            'plugin/public',
+            ListPublicPluginsRequest(type=type),
             expect=ListPluginsResponse,
             spaceId=spaceId,
             spaceHandle=spaceHandle
@@ -189,13 +189,13 @@ class Plugin:
     @staticmethod
     def listPrivate(
             client: Client,
-            modelType=None,
+            type=None,
             spaceId: str = None,
             spaceHandle: str = None
     ) -> Response[ListPluginsResponse]:
         return client.post(
-            'model/private',
-            ListPrivatePluginsRequest(modelType=modelType),
+            'plugin/private',
+            ListPrivatePluginsRequest(type=type),
             expect=ListPluginsResponse,
             spaceId=spaceId,
             spaceHandle=spaceHandle
@@ -203,7 +203,7 @@ class Plugin:
 
     def delete(self) -> Response[Plugin]:
         return self.client.post(
-            'model/delete',
+            'plugin/delete',
             DeletePluginRequest(id=self.id),
             expect=Plugin,
         )

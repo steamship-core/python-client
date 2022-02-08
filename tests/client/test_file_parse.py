@@ -48,7 +48,7 @@ def parse_file(client: Client, parserModel: str):
     assert (len(q2.blocks) == 0)
 
     # Now we parse
-    task = a.parse(model="test-parser-v1")
+    task = a.parse(plugin="test-parser-v1")
     assert (task.error is None)
     assert (task.task is not None)
     assert (task.task.taskStatus == TaskStatus.waiting)

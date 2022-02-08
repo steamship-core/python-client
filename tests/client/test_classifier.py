@@ -17,10 +17,10 @@
 #   # Should require name
 #   with pytest.raises(Exception):
 #     index = steamship.create_classifier(
-#       model=ClassifierModels.HF_ZERO_SHOT_LBART
+#       plugin=ClassifierModels.HF_ZERO_SHOT_LBART
 #     )
 
-#   # Should require model
+#   # Should require plugin
 #   with pytest.raises(Exception):
 #     index = steamship.create_classifier(
 #       name="Test Index"
@@ -28,7 +28,7 @@
 
 #   classifier = steamship.create_classifier(
 #     name="Test 2",
-#     model=ClassifierModels.HF_ZERO_SHOT_LBART,
+#     plugin=ClassifierModels.HF_ZERO_SHOT_LBART,
 #     save=False
 #   ).data
 #   assert classifier is not None
@@ -44,7 +44,7 @@
 #   # Create one and let's use it
 #   classifier = steamship.create_classifier(
 #     name="Fruits",
-#     model=ClassifierModels.HF_ZERO_SHOT_LBART,
+#     plugin=ClassifierModels.HF_ZERO_SHOT_LBART,
 #     save=False
 #   ).data
 #   assert classifier is not None
