@@ -30,7 +30,7 @@ def test_model_create():
     with pytest.raises(Exception):
         index = Plugin.create(
             client=steamship,
-            name="Test Model",
+            name="Test Plugin",
             modelType=PluginType.embedder,
             url="http://foo2",
             adapterType=PluginAdapterType.steamshipDocker,
@@ -41,7 +41,7 @@ def test_model_create():
     with pytest.raises(Exception):
         index = Plugin.create(
             client=steamship,
-            name="Test Model",
+            name="Test Plugin",
             description="This is just for test",
             url="http://foo3",
             adapterType=PluginAdapterType.steamshipDocker,
@@ -52,7 +52,7 @@ def test_model_create():
     with pytest.raises(Exception):
         index = Plugin.create(
             client=steamship,
-            name="Test Model",
+            name="Test Plugin",
             description="This is just for test",
             modelType=PluginType.embedder,
             adapterType=PluginAdapterType.steamshipDocker,
@@ -63,7 +63,7 @@ def test_model_create():
     with pytest.raises(Exception):
         index = steamship.models.create(
             client=steamship,
-            name="Test Model",
+            name="Test Plugin",
             description="This is just for test",
             modelType=PluginType.embedder,
             url="http://foo4",
@@ -74,7 +74,7 @@ def test_model_create():
     with pytest.raises(Exception):
         index = steamship.models.create(
             client=steamship,
-            name="Test Model",
+            name="Test Plugin",
             description="This is just for test",
             modelType=PluginType.embedder,
             url="http://foo5",

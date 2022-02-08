@@ -13,7 +13,7 @@ class Tag:
     handle: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "Model":
+    def from_dict(d: any, client: Client = None) -> "Tag":
         return Tag(
             tagId=d.get('tagId', None),
             kind=d.get('kind', None),
