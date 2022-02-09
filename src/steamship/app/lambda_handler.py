@@ -19,6 +19,8 @@ def create_handler(App: Type[App]):
             configDict=event.get("clientConfig", None)
         )
 
+        app = None
+
         try:
             app = App(client=client)
         except Exception as ex:
@@ -38,7 +40,8 @@ def create_handler(App: Type[App]):
             )
 
         try:
-            response = app(request)
+            if app is not None:
+                response = app(request)
         except Exception as ex:
             logging.exception("Unable to run app method.")
             response = Error(
@@ -73,5 +76,6 @@ def create_handler(App: Type[App]):
             )
 
         return dataclasses.asdict(lambda_response)
+
 
     return handler

@@ -164,15 +164,20 @@ class Client:
         if rawResponse:
             return resp.content
 
-        if resp.headers and resp.headers['Content-Type']:
-            ct = resp.headers['Content-Type']
-            ct = ct.split(';')[0]  # application/json; charset=utf-8
-            if ct in [MimeTypes.TXT, MimeTypes.MKD, MimeTypes.HTML]:
-                return resp.text
-            elif ct == MimeTypes.JSON:
-                return resp.json()
-            else:
-                return resp.content
+        if resp.headers:
+            ct = None
+            if 'Content-Type' in resp.headers:
+                ct = resp.headers['Content-Type']
+            if 'content-type' in resp.headers:
+                ct = resp.headers['content-type']
+            if ct is not None:
+                ct = ct.split(';')[0]  # application/json; charset=utf-8
+                if ct in [MimeTypes.TXT, MimeTypes.MKD, MimeTypes.HTML]:
+                    return resp.text
+                elif ct == MimeTypes.JSON:
+                    return resp.json()
+                else:
+                    return resp.content
 
     def post(self, *args, **kwargs):
         return self.call('POST', *args, **kwargs)
