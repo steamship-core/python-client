@@ -90,7 +90,7 @@ def create_app_zip(filename) -> bytes:
 
     ret = zip_buffer.getvalue()
 
-    with open("/tmp/foo.zip", "wb") as f:  # use `wb` mode
+    with open("/tmp/{}.zip".format(filename), "wb") as f:  # use `wb` mode
         f.write(ret)
 
     return ret
