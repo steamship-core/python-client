@@ -19,7 +19,7 @@ class Configuration:
         if d is None:
             return Configuration()
 
-        return Configuration(wa
+        return Configuration(
             apiKey=d.get('apiKey', None),
             apiBase=d.get('apiBase', None),
             appBase=d.get('appBase', None),
