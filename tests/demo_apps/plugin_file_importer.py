@@ -1,5 +1,5 @@
 from steamship.app import App, post, create_handler
-from steamship.plugin.fileImporter import FileImporter, FileImportResponse, FileImportRequest
+from steamship.plugin.file_importer import FileImporter, FileImportResponse, FileImportRequest
 from steamship.plugin.service import PluginResponse, PluginRequest
 
 # Note: this aligns with the same document in the internal Engine test.

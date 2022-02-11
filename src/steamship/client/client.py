@@ -6,7 +6,7 @@ from steamship.client.tasks import Tasks
 from steamship.data import Block, Classifier, Corpus, File
 from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse
 from steamship.data.embedding_index import EmbeddingIndex
-from steamship.data.parsing import TokenMatcher, PhraseMatcher, DependencyMatcher
+from steamship.data.parser import TokenMatcher, PhraseMatcher, DependencyMatcher
 from steamship.data.space import Space
 from steamship.data.tagging import TagRequest, TagResponse
 from steamship.plugin import EmbedRequest, EmbedResponse, ParseRequest, ParseResponse
@@ -143,7 +143,6 @@ class Steamship(Client):
             content: str = None,
             mimeType: str = None,
             plugin: str = None,
-            convert: bool = False,
             spaceId: str = None,
             spaceHandle: str = None,
             space: Space = None
@@ -154,7 +153,6 @@ class Steamship(Client):
             name=name,
             content=content,
             mimeType=mimeType,
-            convert=convert,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
@@ -164,7 +162,6 @@ class Steamship(Client):
             self,
             url: str,
             name: str = None,
-            convert: bool = False,
             spaceId: str = None,
             spaceHandle: str = None,
             space: Space = None,
@@ -175,7 +172,6 @@ class Steamship(Client):
             self,
             url,
             name,
-            convert=convert,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space

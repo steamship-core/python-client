@@ -16,6 +16,6 @@ finally:
     del version, PackageNotFoundError
 
 from .base import Configuration, SteamshipError, MimeTypes
-from .client import *
 from .data import *
+from .client import *
 from .plugin import *

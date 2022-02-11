@@ -4,37 +4,8 @@ from typing import Dict, List
 
 from steamship.base import Client
 from steamship.plugin.service import PluginService, PluginRequest
+from steamship.data.embedding import EmbedRequest, EmbedResponse
 
-
-@dataclass
-class EmbedRequest:
-    docs: List[str]
-    plugin: str
-    metadata: Dict = None
-
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> "EmbedRequest":
-        return EmbedRequest(
-            docs=d.get('docs', None),
-            plugin=d.get('plugin', None),
-            metadata=d.get('metadata', {})
-        )
-
-
-@dataclass
-class EmbedResponse:
-    embeddings: List[List[float]]
-
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> "EmbedResponse":
-        return EmbedResponse(
-            embeddings=d.get('embeddings', None),
-        )
-
-    def to_dict(self) -> dict:
-        return dict(
-            embeddings=self.embeddings
-        )
 
 
 class Embedder(PluginService[EmbedRequest, EmbedResponse], ABC):

@@ -4,7 +4,7 @@ from typing import Any, List
 
 from steamship.base import Client, Request, Response, str_to_metadata
 from steamship.base.request import IdentifierRequest
-from steamship.data.file import File, ListFilesResponse
+from steamship.data.file import File, FileImportRequest, ListFilesResponse
 
 
 @dataclass
@@ -33,6 +33,69 @@ class ListPublicCorporaRequest(Request):
 @dataclass
 class ListPrivateCorporaRequest(Request):
     pass
+
+
+@dataclass
+class CorpusImportRequest:
+    # The Corpus Identifiers
+    client: Client = None
+    id: str = None
+    handle: str = None
+    type: str = 'corpus'
+
+    # Data for the plugin
+    value: str = None
+    data: str = None
+    url: str = None
+    plugin: str = None
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "CorpusImportRequest":
+        return CorpusImportRequest(
+            client=client,
+            id=d.get('id', None),
+            handle=d.get('handle', None),
+            type='corpus',
+            value=d.get('value', None),
+            data=d.get('data', None),
+            url=d.get('url', None),
+            plugin=d.get('plugin', None)
+        )
+
+    def to_dict(self) -> dict:
+        return dict(
+            id=self.id,
+            handle=self.handle,
+            type=self.type,
+            value=self.value,
+            data=self.data,
+            url=self.url,
+            plugin=self.plugin
+        )
+
+
+@dataclass
+class CorpusImportResponse:
+    client: Client = None
+    fileImportRequests: List[FileImportRequest] = None
+
+    def __init__(
+            self,
+            fileImportRequests: List[FileImportRequest] = None
+    ):
+        self.fileImportRequests = fileImportRequests
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "CorpusImportResponse":
+        return CorpusImportRequest(
+            client=client,
+            fileImportRequests=[FileImportRequest.from_dict(req) for req in d.get('fileImportRequests', [])]
+        )
+
+    def to_dict(self) -> "CorpusImportResponse":
+        return dict(
+            fileImportRequests=self.fileImportRequests
+        )
 
 
 @dataclass
@@ -65,6 +128,48 @@ class Corpus:
         )
 
     @staticmethod
+    def default(
+            client: Client,
+            spaceId: str = None,
+            spaceHandle: str = None,
+            space: any = None
+    ) -> "Response[Corpus]":
+        req = IdentifierRequest()
+        return client.post(
+            'corpus/get',
+            req,
+            expect=Corpus,
+            spaceId=spaceId,
+            spaceHandle=spaceHandle,
+            space=space
+        )
+
+    def doImport(
+            self,
+            value: str = None,
+            url: str = None,
+            plugin: str = None,
+            spaceId: str = None,
+            spaceHandle: str = None,
+            space: any = None
+    ) -> "Response[CorpusImportResponse]":
+        req = CorpusImportRequest(
+            type="corpus",
+            id=self.id,
+            value=value,
+            url=url,
+            plugin=plugin
+        )
+        return self.client.post(
+            'plugin/importCorpus',
+            req,
+            expect=CorpusImportResponse,
+            spaceId=spaceId,
+            spaceHandle=spaceHandle,
+            space=space
+        )
+
+    @staticmethod
     def create(
             client: Client,
             name: str,
@@ -78,7 +183,7 @@ class Corpus:
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
-    ) -> "Corpus":
+    ) -> "Response[Corpus]":
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
@@ -121,7 +226,6 @@ class Corpus:
             name: str = None,
             content: str = None,
             mimeType: str = None,
-            convert: bool = False,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
@@ -134,7 +238,6 @@ class Corpus:
             name=name,
             content=content,
             mimeType=mimeType,
-            convert=convert,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
@@ -144,7 +247,6 @@ class Corpus:
             self,
             url: str,
             name: str = None,
-            convert: bool = False,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None) -> File:
@@ -154,7 +256,6 @@ class Corpus:
             corpusId=self.id,
             url=url,
             name=name,
-            convert=convert,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
