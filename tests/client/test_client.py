@@ -1,4 +1,5 @@
 from steamship.data.user import User
+
 from .helpers import _steamship
 
 __copyright__ = "Steamship"

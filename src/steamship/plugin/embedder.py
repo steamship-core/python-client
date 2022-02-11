@@ -1,11 +1,8 @@
 from abc import ABC
-from dataclasses import dataclass
-from typing import Dict, List
 
 from steamship.base import Client
-from steamship.plugin.service import PluginService, PluginRequest
 from steamship.data.embedding import EmbedRequest, EmbedResponse
-
+from steamship.plugin.service import PluginService, PluginRequest
 
 
 class Embedder(PluginService[EmbedRequest, EmbedResponse], ABC):

@@ -1,20 +1,20 @@
+import io
 import logging
 import re
-import io
 from typing import Union, Tuple, Any
 
 from steamship.base import Response
+from steamship.base.binary_utils import flexi_create
 from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
+from steamship.data.converter import ClientsideConvertRequest, ConvertResponse
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.embedding_index import IndexItem
 from steamship.data.parser import DependencyMatcher, PhraseMatcher, TokenMatcher
+from steamship.data.parser import ParseRequest, ParseResponse
 from steamship.data.plugin import PluginTargetType
 from steamship.data.tag import *
 from steamship.data.tag import TagObjectRequest
-from steamship.data.converter import ClientsideConvertRequest, ConvertResponse
-from steamship.data.parser import ParseRequest, ParseResponse
-from steamship.base.binary_utils import flexi_create
 
 
 class FileUploadType:
@@ -71,7 +71,6 @@ def parseDquery(query: str) -> List[Tuple[str, str, str]]:
 
         ret.append((command, modifier, content))
     return ret
-
 
 
 @dataclass
@@ -156,7 +155,7 @@ class FileImportRequest:
     value: str = None
     data: str = None
     url: str = None
-    type: str = None # FileUploadType: fileImporter | value | url | data
+    type: str = None  # FileUploadType: fileImporter | value | url | data
 
     mimeType: str = None
     corpusId: str = None

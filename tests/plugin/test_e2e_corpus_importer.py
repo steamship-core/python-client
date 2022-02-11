@@ -1,4 +1,5 @@
 from steamship import File, Corpus
+
 from ..client.helpers import deploy_app, register_app_as_plugin, _steamship
 from ..demo_apps.plugin_file_importer import TEST_DOC
 
@@ -19,8 +20,8 @@ def test_e2e_corpus_importer():
 
             # We should now have two files!
             files = File.list(client, corpusId=corpus.id).data
-            assert(files.files is not None)
-            assert(len(files.files) == 2)
+            assert (files.files is not None)
+            assert (len(files.files) == 2)
 
             for file in files.files:
                 data = file.raw().data

@@ -2,11 +2,10 @@ from dataclasses import dataclass, asdict
 from typing import List, Dict
 
 from steamship.base import Client
-from steamship.data.block import Block, Token
+from steamship.data.block import Block
 
 MatcherClause = Dict[str, any]
 Matcher = List[MatcherClause]
-
 
 
 @dataclass

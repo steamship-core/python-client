@@ -4,6 +4,7 @@ from typing import List, Dict
 from steamship.base import Client, Request
 from steamship.data.search import Hit
 
+
 @dataclass
 class EmbedRequest:
     docs: List[str]

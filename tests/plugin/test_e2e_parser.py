@@ -3,7 +3,6 @@ from steamship.plugin.service import PluginRequest
 
 from ..client.helpers import deploy_app, register_app_as_plugin, _steamship
 from ..client.test_file_parse import parse_file
-from dataclasses import asdict
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

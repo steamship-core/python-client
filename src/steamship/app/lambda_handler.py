@@ -77,5 +77,4 @@ def create_handler(App: Type[App]):
 
         return dataclasses.asdict(lambda_response)
 
-
     return handler

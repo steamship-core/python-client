@@ -1,12 +1,12 @@
 import base64
 import logging
-from abc import ABC
 from dataclasses import dataclass
 from typing import Dict, Any
 
 from steamship import MimeTypes
 from steamship.base import Client
 from steamship.data.block import Block
+
 
 @dataclass
 class ClientsideConvertRequest:
