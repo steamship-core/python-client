@@ -15,4 +15,5 @@ class GetRequest(Request):
 
 @dataclass
 class IdentifierRequest(Request):
-    id: str
+    id: str = None
+    handle: str = None

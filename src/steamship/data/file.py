@@ -1,23 +1,26 @@
+import io
 import logging
 import re
-from typing import Union, Tuple
+from typing import Union, Tuple, Any
 
 from steamship.base import Response
+from steamship.base.binary_utils import flexi_create
 from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
+from steamship.data.converter import ClientsideConvertRequest, ConvertResponse
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.embedding_index import IndexItem
-from steamship.data.parsing import DependencyMatcher, PhraseMatcher, TokenMatcher
+from steamship.data.parser import DependencyMatcher, PhraseMatcher, TokenMatcher
+from steamship.data.parser import ParseRequest, ParseResponse
 from steamship.data.plugin import PluginTargetType
 from steamship.data.tag import *
 from steamship.data.tag import TagObjectRequest
-from steamship.plugin.converter import ClientsideConvertRequest, ConvertResponse
-from steamship.plugin.parser import ParseRequest, ParseResponse
 
 
 class FileUploadType:
     file = "file"
     url = "url"
+    value = "value"
     fileImporter = "fileImporter"
 
 
@@ -68,17 +71,6 @@ def parseDquery(query: str) -> List[Tuple[str, str, str]]:
 
         ret.append((command, modifier, content))
     return ret
-
-
-@dataclass
-class FileUploadRequest(Request):
-    type: str
-    corpusId: str = None
-    name: str = None
-    url: str = None
-    plugin: str = None
-    mimeType: str = None
-    convert: bool = False
 
 
 @dataclass
@@ -159,6 +151,82 @@ class ListFilesResponse:
 
 
 @dataclass
+class FileImportRequest:
+    value: str = None
+    data: str = None
+    url: str = None
+    type: str = None  # FileUploadType: fileImporter | value | url | data
+
+    mimeType: str = None
+    corpusId: str = None
+    name: str = None
+
+    plugin: str = None
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "FileImportRequest":
+        return FileImportRequest(
+            value=d.get('value', None),
+            data=d.get('data', None),
+            url=d.get('url', None),
+            type=d.get('type', None),
+            mimeType=d.get('mimeType', None),
+            corpusId=d.get('corpusId', None),
+            plugin=d.get('plugin', None),
+            name=d.get('name', None)
+        )
+
+    def to_dict(self) -> dict:
+        return dict(
+            value=self.value,
+            data=self.data,
+            url=self.url,
+            type=self.type,
+            mimeType=self.mimeType,
+            corpusId=self.corpusId,
+            plugin=self.plugin,
+            name=self.name
+        )
+
+
+@dataclass
+class FileImportResponse:
+    data: Any = None
+    mimeType: str = None
+
+    def __init__(
+            self,
+            data: Any = None,
+            string: str = None,
+            bytes: io.BytesIO = None,
+            json: io.BytesIO = None,
+            mimeType: str = None
+    ):
+        data, mimeType = flexi_create(
+            body=data,
+            string=string,
+            json=json,
+            bytes=bytes,
+            mimeType=mimeType
+        )
+        self.data = data
+        self.mimeType = mimeType
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "FileImportResponse":
+        return FileImportRequest(
+            body=d.get('body', None),
+            mimeType=d.get('mimeType', None)
+        )
+
+    def to_dict(self) -> "FileImportResponse":
+        return dict(
+            body=self.body,
+            mimeType=self.mimeType
+        )
+
+
+@dataclass
 class File:
     """A file.
     """
@@ -221,7 +289,6 @@ class File:
             content: str = None,
             mimeType: str = None,
             corpusId: str = None,
-            convert: bool = False,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
@@ -235,12 +302,11 @@ class File:
                 content = f.read()
                 name = filename
 
-        req = FileUploadRequest(
+        req = FileImportRequest(
             type=FileUploadType.file,
             corpusId=corpusId,
             name=name,
-            mimeType=mimeType,
-            convert=convert
+            mimeType=mimeType
         )
 
         return client.post(
@@ -263,7 +329,6 @@ class File:
             plugin: str = None,
             mimeType: str = None,
             corpusId: str = None,
-            convert: bool = False,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
@@ -277,14 +342,13 @@ class File:
                 content = f.read()
                 name = filename
 
-        req = FileUploadRequest(
+        req = FileImportRequest(
             type=FileUploadType.fileImporter if plugin is not None else FileUploadType.file,
             corpusId=corpusId,
             name=name,
             url=url,
             mimeType=mimeType,
-            plugin=plugin,
-            convert=convert
+            plugin=plugin
         )
 
         return client.post(
@@ -324,18 +388,16 @@ class File:
             url: str,
             name: str = None,
             corpusId: str = None,
-            convert: bool = False,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None) -> "File":
         if name is None:
             name = url
-        req = FileUploadRequest(
+        req = FileImportRequest(
             type=FileUploadType.url,
             name=name,
             url=url,
-            corpusId=corpusId,
-            convert=convert
+            corpusId=corpusId
         )
 
         return client.post(

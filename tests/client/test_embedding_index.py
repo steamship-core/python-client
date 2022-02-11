@@ -1,6 +1,7 @@
 from steamship.base import Client
 from steamship.base.response import TaskStatus
 from steamship.data.embedding_index import IndexItem
+
 from .helpers import _random_index, _random_name, _steamship
 
 __copyright__ = "Steamship"
