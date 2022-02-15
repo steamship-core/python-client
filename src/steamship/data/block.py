@@ -53,7 +53,7 @@ class Block:
             text=d.get('text', None),
             children=list(map(lambda child: Block.from_dict(child, client=client), d.get('children', []))),
             tokens=list(map(lambda token: Token.from_dict(token, client=client), d.get('tokens', []))),
-            # spans = list(map(lambda span: Span.from_dict(span, client=client), d.get('span', []))),
+            spans = list(map(lambda span: Span.from_dict(span, client=client), d.get('spans', []))),
         )
 
     @staticmethod
