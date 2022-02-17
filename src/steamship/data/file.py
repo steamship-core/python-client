@@ -1,9 +1,9 @@
 import io
 import logging
 import re
-from typing import Union, Tuple, Any
+from typing import Union, Tuple, Any, List
 
-from steamship.base import Response
+from steamship.base import Client, Response, Request
 from steamship.base.binary_utils import flexi_create
 from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
@@ -13,8 +13,10 @@ from steamship.data.embedding_index import IndexItem
 from steamship.data.parser import DependencyMatcher, PhraseMatcher, TokenMatcher
 from steamship.data.parser import ParseRequest, ParseResponse
 from steamship.data.plugin import PluginTargetType
-from steamship.data.tag import *
+from steamship.data.tag import CreateTagRequest, DeleteTagRequest, ListTagsRequest
 from steamship.data.tag import TagObjectRequest
+
+from dataclasses import dataclass
 
 
 class FileUploadType:
@@ -214,14 +216,14 @@ class FileImportResponse:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "FileImportResponse":
-        return FileImportRequest(
-            body=d.get('body', None),
+        return FileImportResponse(
+            data=d.get('data', None),
             mimeType=d.get('mimeType', None)
         )
 
-    def to_dict(self) -> "FileImportResponse":
+    def to_dict(self) -> dict:
         return dict(
-            body=self.body,
+            data=self.data,
             mimeType=self.mimeType
         )
 

@@ -42,6 +42,6 @@ def flexi_create(
         return jsonlib.dumps(json), mimeType or MimeTypes.JSON
 
     if bytes is not None:
-        return base64.b64encode(bytes), mimeType or MimeTypes.BINARY
+        return base64.b64encode(bytes).decode('utf-8'), mimeType or MimeTypes.BINARY
 
     return None, None
