@@ -5,6 +5,8 @@ from steamship.data.file import FileImportResponse
 
 from .helpers import _random_name, _steamship
 
+import json
+
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
@@ -158,8 +160,16 @@ This is a test."""
 
 
 def test_file_import_response_dict():
-    resp = FileImportResponse(bytes=b'some bytes')
+    resp = FileImportResponse(bytes=b'some bytes', mimeType=MimeTypes.BINARY)
     to_dict = resp.to_dict()
     from_dict = FileImportResponse.from_dict(to_dict)
     assert (resp.data == from_dict.data)
     assert (resp.mimeType == from_dict.mimeType)
+
+
+def test_file_import_response_bytes_serialization():
+    file_resp = FileImportResponse(bytes=b'some bytes', mimeType=MimeTypes.BINARY)
+    to_dict = file_resp.to_dict()
+    as_json_string = json.dumps(to_dict)
+    as_dict_again = json.loads(as_json_string)
+    assert (as_dict_again == to_dict)
