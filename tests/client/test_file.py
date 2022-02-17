@@ -1,6 +1,8 @@
 from steamship import BlockTypes, MimeTypes
 from steamship.base.response import TaskStatus
 
+from steamship.data.file import FileImportResponse
+
 from .helpers import _random_name, _steamship
 
 __copyright__ = "Steamship"
@@ -153,3 +155,11 @@ This is a test."""
 
     a.delete()
     b.delete()
+
+
+def test_file_import_response_dict():
+    resp = FileImportResponse(bytes=b'some bytes')
+    to_dict = resp.to_dict()
+    from_dict = FileImportResponse.from_dict(to_dict)
+    assert (resp.data == from_dict.data)
+    assert (resp.mimeType == from_dict.mimeType)
