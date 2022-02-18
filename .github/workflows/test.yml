@@ -39,13 +39,13 @@ jobs:
         run: pytest
         if: ${{ github.ref == 'refs/heads/main' }}
         env:
-          STEAMSHIP_API_KEY: ${{ secrets.STEAMSHIP_PROD_TEST_API_KEY }}
+          STEAMSHIP_API_KEY: ${{ secrets.STEAMSHIP_PROD_TEST_KEY }}
           STEAMSHIP_API_BASE: ${{ secrets.STEAMSHIP_PROD_TEST_API_BASE }}
           STEAMSHIP_APP_BASE: ${{ secrets.STEAMSHIP_PROD_TEST_APP_BASE }}
       - name: Run test suite (Steamship Prod)
         run: pytest
         if: ${{ github.ref == 'refs/heads/staging' }}
         env:
-          STEAMSHIP_API_KEY: ${{ secrets.STEAMSHIP_STAGING_TEST_API_KEY }}
+          STEAMSHIP_API_KEY: ${{ secrets.STEAMSHIP_STAGING_TEST_KEY }}
           STEAMSHIP_API_BASE: ${{ secrets.STEAMSHIP_STAGING_TEST_API_BASE }}
           STEAMSHIP_APP_BASE: ${{ secrets.STEAMSHIP_STAGING_TEST_APP_BASE }}
