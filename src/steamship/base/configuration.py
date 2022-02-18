@@ -10,6 +10,7 @@ class Configuration:
     apiKey: str = None
     apiBase: str = None
     appBase: str = None
+    webBase: str = None
     spaceId: str = None
     spaceHandle: str = None
     profile: str = None
@@ -23,6 +24,7 @@ class Configuration:
             apiKey=d.get('apiKey', None),
             apiBase=d.get('apiBase', None),
             appBase=d.get('appBase', None),
+            webBase=d.get('webBase', None),
             spaceId=d.get('spaceId', None),
             spaceHandle=d.get('spaceHandle', None)
         )
@@ -32,6 +34,7 @@ class Configuration:
             apiKey: str = None,
             apiBase: str = None,
             appBase: str = None,
+            webBase: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
             profile: str = None,
@@ -59,6 +62,7 @@ class Configuration:
             apiKey=apiKey,
             apiBase=apiBase,
             appBase=appBase,
+            webBase=webBase,
             spaceId=spaceId,
             spaceHandle=spaceHandle
         )
@@ -67,12 +71,17 @@ class Configuration:
             self.apiBase = 'https://api.steamship.com/api/v1/'
         if self.appBase is None:
             self.appBase = 'https://steamship.run/'
+        if self.webBase is None:
+            self.webBase = 'https://app.steamship.com/'
 
         if self.apiBase[len(self.apiBase) - 1] != '/':
             self.apiBase = "{}/".format(self.apiBase)
 
         if self.appBase[len(self.appBase) - 1] != '/':
             self.appBase = "{}/".format(self.appBase)
+
+        if self.webBase[len(self.webBase) - 1] != '/':
+            self.webBase = "{}/".format(self.webBase)
 
     def merge_dict(self, d: Dict[str, any]):
         apiKey = d.get('apiKey', None)
@@ -86,6 +95,10 @@ class Configuration:
         appBase = d.get('appBase', None)
         if appBase is not None:
             self.appBase = appBase
+
+        webBase = d.get('webBase', None)
+        if webBase is not None:
+            self.webBase = webBase
 
         profile = d.get('profile', None)
         if profile is not None:
@@ -149,22 +162,25 @@ class Configuration:
 
     def apply_env_var_overrides(self):
         """Overrides with env vars"""
-        if "STEAMSHIP_apiKey" in os.environ:
-            self.apiKey = os.getenv('STEAMSHIP_apiKey')
-        if "STEAMSHIP_apiBase" in os.environ:
-            self.apiBase = os.getenv('STEAMSHIP_apiBase')
-        if "STEAMSHIP_appBase" in os.environ:
-            self.appBase = os.getenv('STEAMSHIP_appBase')
-        if "STEAMSHIP_spaceId" in os.environ:
-            self.spaceId = os.getenv('STEAMSHIP_spaceId')
-        if "STEAMSHIP_spaceHandle" in os.environ:
-            self.spaceHandle = os.getenv('STEAMSHIP_spaceHandle')
+        if "STEAMSHIP_API_KEY" in os.environ:
+            self.apiKey = os.getenv('STEAMSHIP_API_KEY')
+        if "STEAMSHIP_API_BASE" in os.environ:
+            self.apiBase = os.getenv('STEAMSHIP_API_BASE')
+        if "STEAMSHIP_APP_BASE" in os.environ:
+            self.appBase = os.getenv('STEAMSHIP_APP_BASE')
+        if "STEAMSHIP_WEB_BASE" in os.environ:
+            self.webBase = os.getenv('STEAMSHIP_WEB_BASE')
+        if "STEAMSHIP_SPACE_ID" in os.environ:
+            self.spaceId = os.getenv('STEAMSHIP_SPACE_ID')
+        if "STEAMSHIP_SPACE_HANDLE" in os.environ:
+            self.spaceHandle = os.getenv('STEAMSHIP_SPACE_HANDLE')
 
     def apply_invocation_overrides(
             self,
             apiKey: str = None,
             apiBase: str = None,
             appBase: str = None,
+            webBase: str = None,
             spaceId: str = None,
             spaceHandle: str = None):
         if apiKey is not None:
@@ -173,6 +189,8 @@ class Configuration:
             self.apiBase = apiBase
         if appBase is not None:
             self.appBase = appBase
+        if webBase is not None:
+            self.webBase = webBase
         if spaceId is not None:
             self.spaceId = spaceId
         if spaceHandle is not None:
