@@ -1,4 +1,4 @@
-from steamship import FileImportRequest, FileImportResponse
+from steamship.data.file import FileImportRequest, FileImportResponse
 from steamship.plugin.service import PluginRequest, PluginResponse
 
 __copyright__ = "Steamship"

@@ -10,6 +10,7 @@ from steamship import Steamship, EmbeddingIndex, File
 from steamship.base import Client
 from steamship.data.plugin import Plugin
 from steamship.data.user import User
+from steamship.data.corpus import Corpus
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -48,6 +49,11 @@ def _random_file(steamship: Steamship, content: str = "") -> File:
     yield file
     file.delete()  # or whatever you need to do at exit
 
+@contextlib.contextmanager
+def _random_corpus(client: Steamship) -> Corpus:
+    corpus = Corpus.create(client, name=_random_name()).data
+    yield corpus
+    corpus.delete()
 
 def _steamship() -> Steamship:
     # This should automatically pick up variables from the environment.
