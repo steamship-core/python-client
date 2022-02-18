@@ -2,4 +2,4 @@
 Contributors
 ============
 
-* Edward Benson <ted@steamship.com>
+* Steamship Team <contact@steamship.com>
