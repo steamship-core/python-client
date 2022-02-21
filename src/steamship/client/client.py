@@ -235,7 +235,8 @@ class Steamship(Client):
             metadata: any = None,
             spaceId: str = None,
             spaceHandle: str = None,
-            space: Space = None
+            space: Space = None,
+            params: any = None
     ) -> Response[ParseResponse]:
         req = ParseRequest(
             type="inline",
@@ -247,7 +248,8 @@ class Steamship(Client):
             includeTokens=includeTokens,
             includeParseData=includeParseData,
             includeEntities=includeEntities,
-            metadata=metadata
+            metadata=metadata,
+            params=params
         )
         return self.post(
             'plugin/parse',
