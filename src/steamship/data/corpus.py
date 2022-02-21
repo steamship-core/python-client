@@ -48,6 +48,7 @@ class CorpusImportRequest:
     data: str = None
     url: str = None
     plugin: str = None
+    params: dict = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "CorpusImportRequest":
@@ -59,7 +60,8 @@ class CorpusImportRequest:
             value=d.get('value', None),
             data=d.get('data', None),
             url=d.get('url', None),
-            plugin=d.get('plugin', None)
+            plugin=d.get('plugin', None),
+            params=d.get('params', None)
         )
 
     def to_dict(self) -> dict:
@@ -70,7 +72,8 @@ class CorpusImportRequest:
             value=self.value,
             data=self.data,
             url=self.url,
-            plugin=self.plugin
+            plugin=self.plugin,
+            params=self.params
         )
 
 
@@ -151,14 +154,16 @@ class Corpus:
             plugin: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
-            space: any = None
+            space: any = None,
+            params: any = None
     ) -> "Response[CorpusImportResponse]":
         req = CorpusImportRequest(
             type="corpus",
             id=self.id,
             value=value,
             url=url,
-            plugin=plugin
+            plugin=plugin,
+            params=params
         )
         return self.client.post(
             'plugin/importCorpus',

@@ -164,6 +164,7 @@ class FileImportRequest:
     name: str = None
 
     plugin: str = None
+    params: dict = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "FileImportRequest":
@@ -175,7 +176,8 @@ class FileImportRequest:
             mimeType=d.get('mimeType', None),
             corpusId=d.get('corpusId', None),
             plugin=d.get('plugin', None),
-            name=d.get('name', None)
+            name=d.get('name', None),
+            params=d.get('params', None)
         )
 
     def to_dict(self) -> dict:
@@ -187,7 +189,8 @@ class FileImportRequest:
             mimeType=self.mimeType,
             corpusId=self.corpusId,
             plugin=self.plugin,
-            name=self.name
+            name=self.name,
+            params=self.params
         )
 
 
@@ -293,7 +296,8 @@ class File:
             corpusId: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
-            space: any = None
+            space: any = None,
+            params: dict = None
     ) -> "Response[File]":
 
         if filename is None and name is None and content is None:
@@ -308,7 +312,8 @@ class File:
             type=FileUploadType.file,
             corpusId=corpusId,
             name=name,
-            mimeType=mimeType
+            mimeType=mimeType,
+            params=params
         )
 
         return client.post(
@@ -333,7 +338,8 @@ class File:
             corpusId: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
-            space: any = None
+            space: any = None,
+            params: dict = None
     ) -> "Response[File]":
 
         if filename is None and name is None and content is None and url is None and plugin is None:
@@ -350,7 +356,8 @@ class File:
             name=name,
             url=url,
             mimeType=mimeType,
-            plugin=plugin
+            plugin=plugin,
+            params=params
         )
 
         return client.post(
@@ -392,14 +399,16 @@ class File:
             corpusId: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
-            space: any = None) -> "File":
+            space: any = None,
+            params: dict = None) -> "File":
         if name is None:
             name = url
         req = FileImportRequest(
             type=FileUploadType.url,
             name=name,
             url=url,
-            corpusId=corpusId
+            corpusId=corpusId,
+            params=params
         )
 
         return client.post(

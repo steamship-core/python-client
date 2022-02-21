@@ -60,6 +60,7 @@ class ConvertRequest:
     plugin: str = None
     data: Any = None
     defaultMimeType: str = None
+    params: dict = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "ConvertRequest":
@@ -75,5 +76,6 @@ class ConvertRequest:
         return ConvertRequest(
             plugin=d.get('plugin', None),
             data=data,
-            defaultMimeType=d.get('defaultMimeType', None)
+            defaultMimeType=d.get('defaultMimeType', None),
+            params=d.get('params', None)
         )

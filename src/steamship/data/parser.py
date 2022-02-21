@@ -4,6 +4,8 @@ from typing import List, Dict
 from steamship.base import Client
 from steamship.data.block import Block
 
+import json
+
 MatcherClause = Dict[str, any]
 Matcher = List[MatcherClause]
 
@@ -67,6 +69,7 @@ class ParseRequest:
     includeParseData: bool = True
     includeEntities: bool = False
     metadata: any = None
+    params: dict = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "ParseRequest":
@@ -93,6 +96,8 @@ class ParseRequest:
             except:
                 pass
 
+        params = d.get("params", None)
+
         return ParseRequest(
             docs=(d.get("docs", []) or []),
             blockIds=(d.get("blockIds", []) or []),
@@ -103,7 +108,8 @@ class ParseRequest:
             includeTokens=includeTokens,
             includeParseData=includeParseData,
             includeEntities=includeEntities,
-            metadata=metadata
+            metadata=metadata,
+            params=params
         )
 
     def to_dict(self) -> dict:
