@@ -11,6 +11,9 @@ class User:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "User":
+        if d['user'] is not None:
+            d = d['user']
+
         return User(
             client=client,
             id=d.get("id", None),

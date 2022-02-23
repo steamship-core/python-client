@@ -93,9 +93,11 @@ That's it: you should see the output in your editing window.
 
 ## Deployment
 
-TODO: Document
+To deploy a new version, use the GitHub Release feature to create a release and tag it `v#.#.#`.  
+
+To release manually with only git & GitHub Actions, push a tag labeled `v#.#.#`:
 
 ```
-git tag vXYZ
+git tag vX.Y.Z
 git push origin --tags
 ```
