@@ -114,12 +114,12 @@ def test_file_upload_then_parse():
     task = a.convert(plugin="markdown-converter-default-v1")
     assert (task.error is None)
     assert (task.task is not None)
-    assert (task.task.taskStatus == TaskStatus.waiting)
+    assert (task.task.state == TaskStatus.waiting)
 
     task.wait()
     assert (task.error is None)
     assert (task.task is not None)
-    assert (task.task.taskStatus == TaskStatus.succeeded)
+    assert (task.task.state == TaskStatus.succeeded)
 
     q1 = a.query().data
     assert (len(q1.blocks) == 2)

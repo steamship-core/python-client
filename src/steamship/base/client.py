@@ -276,15 +276,15 @@ class Client:
                 # if task_resp is not None and task_resp.taskId is not None:
                 #     task = Task(client=self)
                 #     task.update(task_resp)
+                if 'state' in responseData['status']:
+                    if responseData['status']['state'] == 'failed':
+                        error = SteamshipError.from_dict(responseData['status'], client=self)
 
             if 'data' in responseData:
                 if expect is not None and hasattr(expect, 'from_dict'):
                     obj = expect.from_dict(responseData['data'], client=self)
                 else:
                     obj = responseData['data']
-
-            if 'error' in responseData:
-                error = SteamshipError.from_dict(responseData['error'], client=self)
 
             if 'reason' in responseData:
                 # This is a legacy error reporting field. We should work toward being comfortable

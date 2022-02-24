@@ -52,12 +52,12 @@ def parse_file(client: Client, parserModel: str):
     task = a.parse(plugin="test-parser-v1")
     assert (task.error is None)
     assert (task.task is not None)
-    assert (task.task.taskStatus == TaskStatus.waiting)
+    assert (task.task.state == TaskStatus.waiting)
 
     task.wait()
     assert (task.error is None)
     assert (task.task is not None)
-    assert (task.task.taskStatus == TaskStatus.succeeded)
+    assert (task.task.state == TaskStatus.succeeded)
 
     # Now the sentences should be parsed!
     q2 = a.query(blockType=BlockTypes.Sentence).data

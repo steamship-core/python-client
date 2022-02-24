@@ -29,7 +29,7 @@ class Response(IResponse, Generic[T]):
 
         self.check()
         if self.task is not None:
-            if self.task.taskStatus == TaskStatus.succeeded or self.task.taskStatus == TaskStatus.failed:
+            if self.task.state == TaskStatus.succeeded or self.task.state == TaskStatus.failed:
                 return
         else:
             return
@@ -39,7 +39,7 @@ class Response(IResponse, Generic[T]):
             time.sleep(retry_delay_s)
             self.check()
             if self.task is not None:
-                if self.task.taskStatus == TaskStatus.succeeded or self.task.taskStatus == TaskStatus.failed:
+                if self.task.state == TaskStatus.succeeded or self.task.state == TaskStatus.failed:
                     return
             else:
                 return

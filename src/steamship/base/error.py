@@ -2,16 +2,16 @@ from typing import Any
 
 
 class SteamshipError(Exception):
-    message: str = None
-    suggestion: str = None
-    code: str = None
+    statusMessage: str = None
+    statusSuggestion: str = None
+    statusCode: str = None
     error: str = None
 
     def __init__(self, message: str = "Undefined remote error", suggestion: str = None, code: str = None,
                  error: Exception = None):
-        self.message = message
-        self.suggestion = suggestion
-        self.code = code
+        self.statusMessage = message
+        self.statusSuggestion = suggestion
+        self.statusCode = code
         if error is not None:
             self.error = "{}".format(error)
 
@@ -29,7 +29,7 @@ class SteamshipError(Exception):
     def from_dict(d: any, client: Any = None) -> "SteamshipError":
         """Last resort if subclass doesn't override: pass through."""
         return SteamshipError(
-            message=d.get('message', None),
-            suggestion=d.get('suggestion', None),
-            code=d.get('code', None)
+            message=d.get('statusMessage', None),
+            suggestion=d.get('statusSuggestion', None),
+            code=d.get('statusCode', None)
         )
