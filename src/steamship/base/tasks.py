@@ -156,8 +156,8 @@ class Task(Generic[T]):
         return Task(
             client=client,
             taskId=d.get('taskId', None),
-            taskStatus=d.get('taskStatus', None),
-            taskStatusMessage=d.get('taskStatusMessage', None),
+            taskStatus=d.get('status', None),
+            taskStatusMessage=d.get('statusMessage', None),
             taskCreatedOn=d.get('taskCreatedOn', None),
             taskLastModifiedOn=d.get('taskLastModifiedOn', None)
         )

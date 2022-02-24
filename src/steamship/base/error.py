@@ -29,7 +29,7 @@ class SteamshipError(Exception):
     def from_dict(d: any, client: Any = None) -> "SteamshipError":
         """Last resort if subclass doesn't override: pass through."""
         return SteamshipError(
-            message=d.get('message', None),
-            suggestion=d.get('suggestion', None),
-            code=d.get('code', None)
+            message=d.get('statusMessage', None),
+            suggestion=d.get('statusSuggestion', None),
+            code=d.get('statusCode', None)
         )
