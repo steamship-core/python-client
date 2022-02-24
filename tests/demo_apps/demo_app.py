@@ -55,9 +55,9 @@ class TestApp(App):
             # Steamship error messages can be passed straight
             # back to the user
             return Error(
-                message=res.error.message,
-                suggestion=res.error.suggestion,
-                code=res.error.code
+                message=res.error.statusMessage,
+                suggestion=res.error.statusSuggestion,
+                code=res.error.statusCode
             )
 
         return Response(json=res.data)
@@ -77,9 +77,9 @@ class TestApp(App):
             # Steamship error messages can be passed straight
             # back to the user
             return Error(
-                message=res.error.message,
-                suggestion=res.error.suggestion,
-                code=res.error.code
+                message=res.error.statusMessage,
+                suggestion=res.error.statusSuggestion,
+                code=res.error.statusCode
             )
 
         return Response(json=res.data)

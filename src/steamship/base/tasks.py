@@ -143,8 +143,8 @@ class Task(Generic[T]):
     """Encapsulates a unit of asynchronously performed work."""
     client: Any = None
     taskId: str = None
-    taskStatus: str = None
-    taskStatusMessage: str = None
+    state: str = None
+    statusMessage: str = None
     taskCreatedOn: str = None
     taskLastModifiedOn: str = None
     # eob: This is typed wrong, but I'm not sure how to type it..
@@ -156,8 +156,8 @@ class Task(Generic[T]):
         return Task(
             client=client,
             taskId=d.get('taskId', None),
-            taskStatus=d.get('status', None),
-            taskStatusMessage=d.get('statusMessage', None),
+            state=d.get('state', None),
+            statusMessage=d.get('statusMessage', None),
             taskCreatedOn=d.get('taskCreatedOn', None),
             taskLastModifiedOn=d.get('taskLastModifiedOn', None)
         )
@@ -166,12 +166,12 @@ class Task(Generic[T]):
         """Incorporates a `Task` into this object."""
         if other is not None:
             self.taskId = other.taskId
-            self.taskStatus = other.taskStatus
-            self.taskStatusMessage = other.taskStatusMessage
+            self.state = other.state
+            self.statusMessage = other.statusMessage
             self.taskCreatedOn = other.taskCreatedOn
             self.taskLastModifiedOn = other.taskLastModifiedOn
         else:
-            self.taskStatus = None
+            self.state = None
 
     def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None,
                     metadata: any = None, upsert: bool = True) -> IResponse[TaskComment]:

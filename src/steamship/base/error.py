@@ -2,16 +2,16 @@ from typing import Any
 
 
 class SteamshipError(Exception):
-    message: str = None
-    suggestion: str = None
-    code: str = None
+    statusMessage: str = None
+    statusSuggestion: str = None
+    statusCode: str = None
     error: str = None
 
     def __init__(self, message: str = "Undefined remote error", suggestion: str = None, code: str = None,
                  error: Exception = None):
-        self.message = message
-        self.suggestion = suggestion
-        self.code = code
+        self.statusMessage = message
+        self.statusSuggestion = suggestion
+        self.statusCode = code
         if error is not None:
             self.error = "{}".format(error)
 

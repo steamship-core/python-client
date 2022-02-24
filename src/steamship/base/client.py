@@ -271,8 +271,8 @@ class Client:
                 # if task_resp is not None and task_resp.taskId is not None:
                 #     task = Task(client=self)
                 #     task.update(task_resp)
-                if 'status' in responseData['status']:
-                    if responseData['status']['status'] == 'failed':
+                if 'state' in responseData['status']:
+                    if responseData['status']['state'] == 'failed':
                         error = SteamshipError.from_dict(responseData['status'], client=self)
 
             if 'data' in responseData:
