@@ -29,7 +29,7 @@ def parse_file(client: Client, parserModel: str):
     assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
-    a.convert().wait()
+    a.convert(plugin="markdown-converter-default-v1").wait()
 
     raw = a.raw()
     assert (raw.data.decode('utf-8') == CONTENT)

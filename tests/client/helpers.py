@@ -4,6 +4,7 @@ import os
 import random
 import string
 import zipfile
+import time
 
 from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
@@ -77,6 +78,10 @@ def create_app_zip(filename) -> bytes:
         os.path.join(os.path.dirname(__file__), '..', '..', 'src', 'steamship'),
         os.path.join(venv, 'setuptools_scm'),
         os.path.join(venv, 'requests'),
+        os.path.join(venv, 'charset_normalizer'),
+        os.path.join(venv, 'certifi'),
+        os.path.join(venv, 'urllib3'),
+        os.path.join(venv, 'idna'),
     ]
 
     with zipfile.ZipFile(zip_buffer, "a", zipfile.ZIP_DEFLATED, False) as zip_file:
@@ -117,6 +122,9 @@ def deploy_app(py_name: str):
         appId=app.id,
         filebytes=zip_bytes
     )
+    # TODO: This is due to having to wait for the lambda to finish deploying.
+    # TODO: We should update the task system to allow its .wait() to depend on this.
+    time.sleep(15)
     version.wait()
     assert (version.error is None)
     assert (version.data is not None)
@@ -152,12 +160,20 @@ def deploy_app(py_name: str):
     assert (res.error is None)
 
 
+def shouldUseSubdomain(client: Client):
+    # We have to do a little switcheroo here depending on if we're hitting localhost or prod/staging.
+    if 'localhost' in client.config.appBase or '127.0.0.1' in client.config.appBase:
+        return False
+    return True
+
+
 @contextlib.contextmanager
 def register_app_as_plugin(client: Client, type: string, path: str, app: App, instance: AppInstance) -> Plugin:
+
     url = instance.full_url_for(
         path=path,
         appHandle=app.handle,
-        useSubdomain=False  # In a test setting, the subdomain is hard to use
+        useSubdomain=shouldUseSubdomain(client)  # In a test setting, the subdomain is hard to use
     )
     metadata = dict(
         http=dict(

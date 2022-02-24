@@ -42,7 +42,7 @@ def test_file_parse():
     assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
-    convertResp = a.convert()
+    convertResp = a.convert(plugin="markdown-converter-default-v1")
     assert (convertResp.error is None)
     convertResp.wait()
 
@@ -96,7 +96,7 @@ def test_file_index():
     assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
-    convertResp = a.convert()
+    convertResp = a.convert(plugin="markdown-converter-default-v1")
     assert (convertResp.error is None)
     convertResp.wait()
 
@@ -138,7 +138,7 @@ def test_file_embed_lookup():
         mimeType=MimeTypes.MKD
     ).data
 
-    convertRes = a.convert()
+    convertRes = a.convert(plugin="markdown-converter-default-v1")
     assert (convertRes.error is None)
     convertRes.wait()
 
@@ -151,7 +151,7 @@ def test_file_embed_lookup():
         content=content_b,
         mimeType=MimeTypes.MKD
     ).data
-    convertRes = b.convert()
+    convertRes = b.convert(plugin="markdown-converter-default-v1")
     assert (convertRes.error is None)
     convertRes.wait()
 

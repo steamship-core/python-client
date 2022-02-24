@@ -95,11 +95,16 @@ class Client:
                     message="Can not invoke an app endpoint without the App Base variable set.",
                     suggestion="This should automatically have a good default setting. Reach out to our Steamship support."
                 )
+            if 'localhost' not in base and '127.0.0.1' not in base and '0:0:0:0' not in base:
+                # We want to prepend the user handle
+                parts = base.split('//')
+                base = "{}//{}.{}".format(parts[0], appOwner, "//".join(parts[1:]))
 
         if base[len(base) - 1] == '/':
             base = base[:-1]
         if operation[0] == '/':
             operation = operation[1:]
+
         return "{}/{}".format(base, operation)
 
     def _headers(
