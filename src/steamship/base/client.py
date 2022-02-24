@@ -281,9 +281,6 @@ class Client:
                 else:
                     obj = responseData['data']
 
-            if 'error' in responseData:
-                error = SteamshipError.from_dict(responseData['error'], client=self)
-
             if 'reason' in responseData:
                 # This is a legacy error reporting field. We should work toward being comfortable
                 # removing this handler.
