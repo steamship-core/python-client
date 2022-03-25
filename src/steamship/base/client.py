@@ -206,7 +206,9 @@ class Client:
             appCall: bool = False,
             appOwner: str = None,
             appId: str = None,
-            appInstanceId: str = None
+            appInstanceId: str = None,
+            handle: str = None,
+
     ) -> Union[Any, Response[T]]:
         """Post to the Steamship API.
 

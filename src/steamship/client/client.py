@@ -225,7 +225,7 @@ class Steamship(Client):
     def parse(
             self,
             docs: List[str],
-            plugin: str = None,
+            pluginInstance: str = None,
             tokenMatchers: List[TokenMatcher] = None,
             phraseMatchers: List[PhraseMatcher] = None,
             dependencyMatchers: List[DependencyMatcher] = None,
@@ -240,7 +240,7 @@ class Steamship(Client):
         req = ParseRequest(
             type="inline",
             docs=docs,
-            plugin=plugin,
+            pluginInstance=pluginInstance,
             tokenMatchers=tokenMatchers,
             phraseMatchers=phraseMatchers,
             dependencyMatchers=dependencyMatchers,
@@ -250,7 +250,7 @@ class Steamship(Client):
             metadata=metadata
         )
         return self.post(
-            'plugin/parse',
+            'plugin/instance/parse',
             req,
             expect=ParseResponse,
             spaceId=spaceId,

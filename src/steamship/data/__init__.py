@@ -10,3 +10,6 @@ from .space import Space
 from .span import Span
 from .tag import Tag
 from .token import Token
+from .plugin import Plugin
+from .plugin_version import PluginVersion
+from .plugin_instance import PluginInstance

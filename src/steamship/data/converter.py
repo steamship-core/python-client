@@ -11,7 +11,7 @@ from steamship.data.block import Block
 @dataclass
 class ClientsideConvertRequest:
     type: str = None
-    plugin: str = None
+    pluginInstance: str = None
     id: str = None
     handle: str = None
     name: str = None
@@ -20,7 +20,7 @@ class ClientsideConvertRequest:
     def from_dict(d: any, client: Client = None) -> "ClientsideConvertRequest":
         return ClientsideConvertRequest(
             type=d.get('type', None),
-            plugin=d.get('plugin', None),
+            pluginInstance=d.get('pluginInstance', None),
             id=d.get('id', None),
             handle=d.get('handle', None),
             name=d.get('name', None)
@@ -57,7 +57,7 @@ TEXT_MIME_TYPES = [
 
 @dataclass
 class ConvertRequest:
-    plugin: str = None
+    pluginInstance: str = None
     data: Any = None
     defaultMimeType: str = None
 
@@ -73,7 +73,7 @@ class ConvertRequest:
                 data = data_bytes
 
         return ConvertRequest(
-            plugin=d.get('plugin', None),
+            pluginInstance=d.get('pluginInstance', None),
             data=data,
             defaultMimeType=d.get('defaultMimeType', None)
         )

@@ -47,7 +47,7 @@ def test_file_parse():
     convertResp.wait()
 
     # Now we parse
-    parseResp = a.parse(plugin=parsing_plugin())
+    parseResp = a.parse(pluginInstance=parsing_plugin())
     assert (parseResp.error is None)
     parseResp.wait()
 
@@ -101,7 +101,7 @@ def test_file_index():
     convertResp.wait()
 
     # Now we parse
-    parseResp = a.parse(plugin=parsing_plugin())
+    parseResp = a.parse(pluginInstance=parsing_plugin())
     assert (parseResp.error is None)
     parseResp.wait()
 
@@ -142,7 +142,7 @@ def test_file_embed_lookup():
     assert (convertRes.error is None)
     convertRes.wait()
 
-    parseRes = a.parse(plugin=parsing_plugin())
+    parseRes = a.parse(pluginInstance=parsing_plugin())
     assert (parseRes.error is None)
     parseRes.wait()
 
@@ -155,7 +155,7 @@ def test_file_embed_lookup():
     assert (convertRes.error is None)
     convertRes.wait()
 
-    parseRes = b.parse(plugin=parsing_plugin())
+    parseRes = b.parse(pluginInstance=parsing_plugin())
     assert (parseRes.error is None)
     parseRes.wait()
 

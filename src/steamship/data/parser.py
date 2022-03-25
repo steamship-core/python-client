@@ -59,7 +59,7 @@ class ParseRequest:
     handle: str = None
     docs: List[str] = None
     blockIds: List[str] = None
-    plugin: str = None
+    pluginInstance: str = None
     tokenMatchers: List[TokenMatcher] = None
     phraseMatchers: List[PhraseMatcher] = None
     dependencyMatchers: List[DependencyMatcher] = None

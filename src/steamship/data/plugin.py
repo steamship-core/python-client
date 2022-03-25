@@ -23,7 +23,6 @@ class CreatePluginRequest(Request):
     id: str = None
     name: str = None
     type: str = None
-    url: str = None
     transport: str = None
     isPublic: bool = None
     handle: str = None
@@ -61,6 +60,11 @@ class ListPluginsResponse(Request):
             plugins=[Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])]
         )
 
+@dataclass
+class GetPluginRequest(Request):
+    type: str = None
+    id: str = None
+    handle: str = None
 
 class PluginType:
     embedder = "embedder"
@@ -93,7 +97,6 @@ class Plugin:
     id: str = None
     name: str = None
     type: str = None
-    url: str = None
     transport: str = None
     isPublic: bool = None
     handle: str = None
@@ -114,7 +117,6 @@ class Plugin:
             id=d.get('id', None),
             name=d.get('name', None),
             type=d.get('type', None),
-            url=d.get('url', None),
             transport=d.get('transport', None),
             isPublic=d.get('isPublic', None),
             handle=d.get('handle', None),
@@ -132,7 +134,6 @@ class Plugin:
             name: str,
             description: str,
             type: str,
-            url: str,
             transport: str,
             isPublic: bool,
             handle: str = None,
@@ -151,7 +152,6 @@ class Plugin:
         req = CreatePluginRequest(
             name=name,
             type=type,
-            url=url,
             transport=transport,
             isPublic=isPublic,
             handle=handle,
@@ -200,6 +200,26 @@ class Plugin:
             spaceId=spaceId,
             spaceHandle=spaceHandle
         )
+
+
+
+    @staticmethod
+    def get(client: Client, handle: str):
+        return client.post(
+            'plugin/get',
+            GetPluginRequest(handle=handle),
+            expect=Plugin
+        )
+
+    @staticmethod
+    def getPublic(client: Client, handle: str):
+        publicPlugins = Plugin.listPublic(client=client).data.plugins
+        for plugin in publicPlugins:
+            if plugin.handle == handle:
+                return plugin
+        return None
+
+
 
     def delete(self) -> Response[Plugin]:
         return self.client.post(

@@ -10,6 +10,8 @@ from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
 from steamship.base import Client
 from steamship.data.plugin import Plugin
+from steamship.data.plugin_instance import PluginInstance
+from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
 from steamship.data.corpus import Corpus
 
@@ -157,6 +159,58 @@ def deploy_app(py_name: str):
     assert (res.error is None)
 
     res = app.delete()
+    assert (res.error is None)
+
+@contextlib.contextmanager
+def deploy_plugin(py_name: str, plugin_type: str):
+    client = _steamship()
+    name = _random_name()
+    plugin = Plugin.create(client, name=name, description='test', type=plugin_type, transport="jsonOverHttp", isPublic=False)
+    assert (plugin.error is None)
+    assert (plugin.data is not None)
+    plugin = plugin.data
+
+    zip_bytes = create_app_zip(py_name)
+    version = PluginVersion.create(
+        client,
+        "test-version",
+        pluginId=plugin.id,
+        filebytes=zip_bytes
+    )
+    # TODO: This is due to having to wait for the lambda to finish deploying.
+    # TODO: We should update the task system to allow its .wait() to depend on this.
+    time.sleep(15)
+    version.wait()
+    assert (version.error is None)
+    assert (version.data is not None)
+    version = version.data
+
+    instance = PluginInstance.create(
+        client,
+        pluginId=plugin.id,
+        pluginVersionId=version.id,
+    )
+    instance.wait()
+    assert (instance.error is None)
+    assert (instance.data is not None)
+    instance = instance.data
+
+    assert (instance.pluginId == plugin.id)
+    assert (instance.pluginVersionId == version.id)
+
+    user = User.current(client).data
+
+    assert (instance.userId == user.id)
+
+    yield (plugin, version, instance)
+
+    res = instance.delete()
+    assert (res.error is None)
+
+    res = version.delete()
+    assert (res.error is None)
+
+    res = plugin.delete()
     assert (res.error is None)
 
 

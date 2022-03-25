@@ -4,7 +4,7 @@ from typing import Any, List
 
 from steamship.base import Client, Request, Response, str_to_metadata
 from steamship.base.request import IdentifierRequest
-from steamship.data.file import File, FileImportRequest, ListFilesResponse
+from steamship.data.file import File, FileCreateRequest, ListFilesResponse
 
 
 @dataclass
@@ -47,7 +47,8 @@ class CorpusImportRequest:
     value: str = None
     data: str = None
     url: str = None
-    plugin: str = None
+    pluginInstance: str = None
+    fileImporterPluginInstance: str = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "CorpusImportRequest":
@@ -59,7 +60,8 @@ class CorpusImportRequest:
             value=d.get('value', None),
             data=d.get('data', None),
             url=d.get('url', None),
-            plugin=d.get('plugin', None)
+            pluginInstance=d.get('pluginInstance', None),
+            fileImporterPluginInstance=d.get('fileImporterPluginInstance', None)
         )
 
     def to_dict(self) -> dict:
@@ -70,18 +72,19 @@ class CorpusImportRequest:
             value=self.value,
             data=self.data,
             url=self.url,
-            plugin=self.plugin
+            pluginInstance=self.pluginInstance,
+            fileImporterPluginInstance=self.fileImporterPluginInstance
         )
 
 
 @dataclass
 class CorpusImportResponse:
     client: Client = None
-    fileImportRequests: List[FileImportRequest] = None
+    fileImportRequests: List[FileCreateRequest] = None
 
     def __init__(
             self,
-            fileImportRequests: List[FileImportRequest] = None
+            fileImportRequests: List[FileCreateRequest] = None
     ):
         self.fileImportRequests = fileImportRequests
 
@@ -89,7 +92,7 @@ class CorpusImportResponse:
     def from_dict(d: any, client: Client = None) -> "CorpusImportResponse":
         return CorpusImportRequest(
             client=client,
-            fileImportRequests=[FileImportRequest.from_dict(req) for req in d.get('fileImportRequests', [])]
+            fileImportRequests=[FileCreateRequest.from_dict(req) for req in d.get('fileImportRequests', [])]
         )
 
     def to_dict(self) -> "CorpusImportResponse":
@@ -148,20 +151,22 @@ class Corpus:
             self,
             value: str = None,
             url: str = None,
-            plugin: str = None,
+            pluginInstance: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
-            space: any = None
+            space: any = None,
+            fileImporterPluginInstance: str = None
     ) -> "Response[CorpusImportResponse]":
         req = CorpusImportRequest(
             type="corpus",
             id=self.id,
             value=value,
             url=url,
-            plugin=plugin
+            pluginInstance=pluginInstance,
+            fileImporterPluginInstance= fileImporterPluginInstance
         )
         return self.client.post(
-            'plugin/importCorpus',
+            'plugin/instance/importCorpus',
             req,
             expect=CorpusImportResponse,
             spaceId=spaceId,

@@ -153,7 +153,7 @@ class ListFilesResponse:
 
 
 @dataclass
-class FileImportRequest:
+class FileCreateRequest:
     value: str = None
     data: str = None
     url: str = None
@@ -163,18 +163,18 @@ class FileImportRequest:
     corpusId: str = None
     name: str = None
 
-    plugin: str = None
+    pluginInstance: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "FileImportRequest":
-        return FileImportRequest(
+    def from_dict(d: any, client: Client = None) -> "FileCreateRequest":
+        return FileCreateRequest(
             value=d.get('value', None),
             data=d.get('data', None),
             url=d.get('url', None),
             type=d.get('type', None),
             mimeType=d.get('mimeType', None),
             corpusId=d.get('corpusId', None),
-            plugin=d.get('plugin', None),
+            pluginInstance=d.get('pluginInstance', None),
             name=d.get('name', None)
         )
 
@@ -186,7 +186,7 @@ class FileImportRequest:
             type=self.type,
             mimeType=self.mimeType,
             corpusId=self.corpusId,
-            plugin=self.plugin,
+            pluginInstance=self.pluginInstance,
             name=self.name
         )
 
@@ -304,7 +304,7 @@ class File:
                 content = f.read()
                 name = filename
 
-        req = FileImportRequest(
+        req = FileCreateRequest(
             type=FileUploadType.file,
             corpusId=corpusId,
             name=name,
@@ -328,7 +328,7 @@ class File:
             name: str = None,
             url: str = None,
             content: str = None,
-            plugin: str = None,
+            pluginInstance: str = None,
             mimeType: str = None,
             corpusId: str = None,
             spaceId: str = None,
@@ -336,21 +336,21 @@ class File:
             space: any = None
     ) -> "Response[File]":
 
-        if filename is None and name is None and content is None and url is None and plugin is None:
-            raise Exception("Either filename, name + content, url, or plugin must be provided.")
+        if filename is None and name is None and content is None and url is None and pluginInstance is None:
+            raise Exception("Either filename, name + content, url, or plugin Instance must be provided.")
 
         if filename is not None:
             with open(filename, 'rb') as f:
                 content = f.read()
                 name = filename
 
-        req = FileImportRequest(
-            type=FileUploadType.fileImporter if plugin is not None else FileUploadType.file,
+        req = FileCreateRequest(
+            type=FileUploadType.fileImporter if pluginInstance is not None else FileUploadType.file,
             corpusId=corpusId,
             name=name,
             url=url,
             mimeType=mimeType,
-            plugin=plugin
+            pluginInstance=pluginInstance
         )
 
         return client.post(
@@ -395,7 +395,7 @@ class File:
             space: any = None) -> "File":
         if name is None:
             name = url
-        req = FileImportRequest(
+        req = FileCreateRequest(
             type=FileUploadType.url,
             name=name,
             url=url,
@@ -413,18 +413,18 @@ class File:
 
     def convert(
             self,
-            plugin: str = None,
+            pluginInstance: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None):
         req = ClientsideConvertRequest(
             id=self.id,
             type=PluginTargetType.file,
-            plugin=plugin
+            pluginInstance=pluginInstance
         )
 
         return self.client.post(
-            'plugin/convert',
+            'plugin/instance/convert',
             payload=req,
             expect=ConvertResponse,
             asynchronous=True,
@@ -436,7 +436,7 @@ class File:
 
     def parse(
             self,
-            plugin: str = None,
+            pluginInstance: str = None,
             tokenMatchers: List[TokenMatcher] = None,
             phraseMatchers: List[PhraseMatcher] = None,
             dependencyMatchers: List[DependencyMatcher] = None,
@@ -447,14 +447,14 @@ class File:
         req = ParseRequest(
             type=PluginTargetType.file,
             id=self.id,
-            plugin=plugin,
+            pluginInstance=pluginInstance,
             tokenMatchers=tokenMatchers,
             phraseMatchers=phraseMatchers,
             dependencyMatchers=dependencyMatchers
         )
 
         return self.client.post(
-            'plugin/parse',
+            'plugin/instance/parse',
             payload=req,
             expect=ParseResponse,
             asynchronous=True,
@@ -466,14 +466,14 @@ class File:
 
     def tag(
             self,
-            plugin: str = None,
+            pluginInstance: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
     ):
         req = FileTagRequest(
             id=self.id,
-            plugin=plugin
+            pluginInstance=pluginInstance
         )
 
         return self.client.post(
@@ -553,7 +553,7 @@ class File:
 
     def index(
             self,
-            plugin: str = None,
+            pluginInstance: str = None,
             indexName: str = None,
             blockType: str = None,
             indexId: str = None,
@@ -570,12 +570,12 @@ class File:
             indexId = index.id
 
         if indexName is None:
-            indexName = "{}-{}".format(self.id, plugin)
+            indexName = "{}-{}".format(self.id, pluginInstance)
 
         if indexId is None and index is None:
             index = self.client.create_index(
                 name=indexName,
-                plugin=plugin,
+                pluginInstance=pluginInstance,
                 upsert=True,
                 spaceId=spaceId,
                 spaceHandle=spaceHandle,

@@ -10,7 +10,7 @@ def parsing_plugin():
 
 def test_parsing():
     steamship = _steamship()
-    resp = steamship.parse(["This is a test"], plugin=parsing_plugin())
+    resp = steamship.parse(["This is a test"], pluginInstance=parsing_plugin())
     resp.wait()
     resp = resp.data
     assert (len(resp.blocks) == 1)
@@ -25,7 +25,7 @@ def test_parsing():
 
 def test_parsing_options():
     steamship = _steamship()
-    resp = steamship.parse(["This is a test"], plugin=parsing_plugin(), includeTokens=False)
+    resp = steamship.parse(["This is a test"], pluginInstance=parsing_plugin(), includeTokens=False)
     resp.wait()
     assert (len(resp.data.blocks) == 1)
     d = resp.data.blocks[0]
@@ -35,7 +35,7 @@ def test_parsing_options():
     assert (s.text == "This is a test")
     assert (len(s.tokens) == 0)
 
-    resp = steamship.parse(["This is a test"], plugin=parsing_plugin(), includeTokens=True, includeParseData=False)
+    resp = steamship.parse(["This is a test"], pluginInstance=parsing_plugin(), includeTokens=True, includeParseData=False)
     resp.wait()
     assert (len(resp.data.blocks) == 1)
     d = resp.data.blocks[0]
