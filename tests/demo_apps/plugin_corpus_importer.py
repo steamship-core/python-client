@@ -22,7 +22,7 @@ class TestCorpusImporterPlugin(CorpusImporter, App):
             )
         )
 
-    @post('do_import')
+    @post('import')
     def do_import(self, **kwargs) -> any:
         request = CorpusImporter.parse_request(request=kwargs)
         response = self.run(request)

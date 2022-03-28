@@ -21,7 +21,7 @@ class TestFileImporterPlugin(FileImporter, App):
             )
         )
 
-    @post('do_import')
+    @post('import')
     def do_import(self, **kwargs) -> any:
         importRequest = FileImporter.parse_request(request=kwargs)
         importResponse = self.run(importRequest)
