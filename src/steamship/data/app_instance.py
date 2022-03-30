@@ -29,6 +29,7 @@ class AppInstance:
     userHandle: str = None
     appVersionId: str = None
     userId: str = None
+    invocationURL: str = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "AppInstance":
@@ -44,7 +45,8 @@ class AppInstance:
             appHandle=d.get('appHandle', None),
             userHandle=d.get('userHandle', None),
             appVersionId=d.get('appVersionId', None),
-            userId=d.get('userId', None)
+            userId=d.get('userId', None),
+            invocationURL=d.get('invocationURL', None)
         )
 
     @staticmethod
@@ -103,6 +105,12 @@ class AppInstance:
             appOwner=self.userHandle,
             appId=self.appId,
             appInstanceId=self.id
+        )
+
+    def full_url_for(self, path: str):
+        return "{}{}".format(
+            self.invocationURL,
+            path
         )
 
 

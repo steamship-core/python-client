@@ -48,17 +48,6 @@ def test_plugin_create():
             isPublic=True
         )
 
-    # Should require url
-    with pytest.raises(Exception):
-        index = Plugin.create(
-            client=steamship,
-            name="Test Plugin",
-            description="This is just for test",
-            type=PluginType.embedder,
-            transport=PluginAdapterType.steamshipDocker,
-            isPublic=True
-        )
-
     # Should require adapter type
     with pytest.raises(Exception):
         index = steamship.plugins.create(

@@ -52,7 +52,7 @@ class TestParserPlugin(Parser, App):
                 data=_makeTestResponse(request.data)
             )
 
-    @post('parse')
+    @post('tag')
     def parse(self, **kwargs) -> dict:
         parseRequest = Parser.parse_request(request=kwargs)
         parseResponse = self.run(parseRequest)

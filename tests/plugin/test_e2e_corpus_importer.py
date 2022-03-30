@@ -9,9 +9,7 @@ __license__ = "MIT"
 
 def test_e2e_corpus_importer():
     client = _steamship()
-    fileImporterPlugin = Plugin.getPublic(client, handle='test-fileImporter-valueOrData')
-    fileImporterPluginVersion = PluginVersion.getPublic(client, pluginId=fileImporterPlugin.id, handle='1.0')
-    testFileImporterInstance = PluginInstance.create(client, fileImporterPlugin.id, fileImporterPluginVersion.id, handle='testFileImporter', upsert=True).data
+    testFileImporterInstance = PluginInstance.create(client, pluginHandle='test-fileImporter-valueOrData', upsert=True).data
     with deploy_plugin("plugin_corpus_importer.py", "corpusImporter") as (plugin, version, instance):
         #with PluginVersion.(client, "corpusImporter", "do_import", app, instance) as plugin:
         with _random_corpus(client) as corpus:

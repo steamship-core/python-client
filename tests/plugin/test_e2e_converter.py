@@ -1,4 +1,5 @@
-from steamship import BlockTypes, File
+from steamship import BlockTypes
+from steamship.extension.file import File
 
 from ..client.helpers import deploy_plugin, _steamship
 
@@ -14,8 +15,6 @@ def test_e2e_converter():
 
         # Use the plugin we just registered
         file.convert(pluginInstance=instance.handle).wait()
-        headers = file.query(blockType=BlockTypes.H1).data
-        assert (len(file.query(blockType=BlockTypes.H1).data.blocks) == 1)
-        assert (len(file.query(blockType=BlockTypes.Paragraph).data.blocks) == 2)
+        assert (len(file.query().data.blocks) == 5)
 
         file.delete()

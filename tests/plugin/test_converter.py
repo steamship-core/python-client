@@ -11,7 +11,7 @@ def test_resp():
     converter = TestConverterPlugin()
     request = PluginRequest(data=ConvertRequest(data="Hi there"))
     response = converter.run(request).data
-    assert (response.root is not None)
-    assert (len(response.root.children) == 3)
+    assert (response.file is not None)
+    assert (len(response.file.blocks) == 5)
 
     # Now test as an HTTP Call

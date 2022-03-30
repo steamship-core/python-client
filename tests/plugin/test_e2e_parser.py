@@ -17,7 +17,7 @@ TEST_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 
 def test_e2e_parser():
     client = _steamship()
-    with deploy_plugin("plugin_parser.py", "parser") as (plugin, version, instance):
+    with deploy_plugin("plugin_parser.py", "tagger") as (plugin, version, instance):
         res = client.parse(docs=TEST_REQ.docs, pluginInstance=plugin.handle)
         res.wait()
         assert (res.error is None)

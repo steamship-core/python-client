@@ -10,7 +10,9 @@ class PluginInstance:
 class CreatePluginInstanceRequest(Request):
     id: str = None
     pluginId: str = None
+    pluginHandle: str = None
     pluginVersionId: str = None
+    pluginVersionHandle: str = None
     name: str = None
     handle: str = None
     upsert: bool = None
@@ -51,7 +53,9 @@ class PluginInstance:
     def create(
             client: Client,
             pluginId: str = None,
+            pluginHandle: str = None,
             pluginVersionId: str = None,
+            pluginVersionHandle: str = None,
             name: str = None,
             handle: str = None,
             upsert: bool = None
@@ -61,7 +65,9 @@ class PluginInstance:
             name=name,
             handle=handle,
             pluginId=pluginId,
+            pluginHandle = pluginHandle,
             pluginVersionId=pluginVersionId,
+            pluginVersionHandle = pluginVersionHandle,
             upsert=upsert
         )
 
@@ -71,7 +77,7 @@ class PluginInstance:
             expect=PluginInstance
         )
 
-    def delete(self) -> "PluginInstance":
+    def delete(self) -> PluginInstance:
         req = DeletePluginInstanceRequest(
             id=self.id
         )

@@ -5,8 +5,7 @@ from typing import Dict, Any
 
 from steamship import MimeTypes
 from steamship.base import Client
-from steamship.data.block import Block
-
+from steamship.data.file import File
 
 @dataclass
 class ClientsideConvertRequest:
@@ -29,7 +28,7 @@ class ClientsideConvertRequest:
 
 @dataclass
 class ConvertResponse():
-    root: Block = None
+    file: File = None
 
     @staticmethod
     def from_dict(d: any = None, client: Client = None) -> "ConvertResponse":
@@ -37,13 +36,13 @@ class ConvertResponse():
             return None
 
         return ConvertResponse(
-            root=Block.from_dict(d.get('root', None), client=client)
+            file=File.from_dict(d.get('file', None), client=client)
         )
 
     def to_dict(self) -> Dict:
-        if self.root is None:
+        if self.file is None:
             return dict()
-        return dict(root=self.root.to_dict())
+        return dict(file=self.file.to_dict())
 
 
 TEXT_MIME_TYPES = [
@@ -77,3 +76,4 @@ class ConvertRequest:
             data=data,
             defaultMimeType=d.get('defaultMimeType', None)
         )
+

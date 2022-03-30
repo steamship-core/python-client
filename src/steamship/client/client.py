@@ -250,7 +250,7 @@ class Steamship(Client):
             metadata=metadata
         )
         return self.post(
-            'plugin/instance/parse',
+            'plugin/instance/tag',
             req,
             expect=ParseResponse,
             spaceId=spaceId,
