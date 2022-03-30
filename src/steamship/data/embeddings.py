@@ -1,11 +1,75 @@
 import json
 from dataclasses import dataclass
-from typing import List, Union, Dict
+from typing import List, Dict, Union
 
 from steamship.base import Client, Request, Response, metadata_to_str
-from steamship.base.request import IdentifierRequest
 from steamship.data.search import Hit
 
+
+@dataclass
+class EmbedAndSearchRequest(Request):
+    query: str
+    docs: List[str]
+    plugin: str
+    k: int = 1
+
+@dataclass
+class EmbedAndSearchResponse(Request):
+    hits: List[Hit] = None
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "EmbedAndSearchResponse":
+        hits = [Hit.from_dict(h) for h in (d.get("hits", []) or [])]
+        return EmbedAndSearchResponse(
+            hits=hits
+        )
+
+
+@dataclass
+class EmbeddedItem:
+    id: str = None
+    indexId: str = None
+    fileId: str = None
+    blockId: str = None
+    tagId: str = None
+    value: str = None
+    externalId: str = None
+    externalType: str = None
+    metadata: any = None
+    embedding: List[float] = None
+
+    def clone_for_insert(self) -> "EmbeddedItem":
+        """Produces a clone with a string representation of the metadata"""
+        ret = EmbeddedItem(
+            id=self.id,
+            indexId=self.indexId,
+            fileId=self.fileId,
+            blockId=self.blockId,
+            tagId=self.tagId,
+            value=self.value,
+            externalId=self.externalId,
+            externalType=self.externalType,
+            metadata=self.metadata,
+            embedding=self.embedding
+        )
+        if isinstance(ret.metadata, dict) or isinstance(ret.metadata, list):
+            ret.metadata = json.dumps(ret.metadata)
+        return ret
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "EmbeddedItem":
+        return EmbeddedItem(
+            id=d.get('id', None),
+            indexId=d.get('indexId', None),
+            fileId=d.get('fileId', None),
+            blockId=d.get('blockId', None),
+            tagId=d.get('tagId', None),
+            value=d.get('value', None),
+            externalId=d.get('externalId', None),
+            externalType=d.get('externalType', None),
+            metadata=d.get('metadata', None),
+            embedding=d.get('embedding', None),
+        )
 
 @dataclass
 class IndexCreateRequest(Request):
@@ -18,57 +82,11 @@ class IndexCreateRequest(Request):
     metadata: any = None
 
 
-@dataclass
-class IndexItem:
-    id: str = None
-    indexId: str = None
-    fileId: str = None
-    blockId: str = None
-    spanId: str = None
-    value: str = None
-    externalId: str = None
-    externalType: str = None
-    metadata: any = None
-    embedding: List[float] = None
-
-    def clone_for_insert(self) -> "IndexItem":
-        """Produces a clone with a string representation of the metadata"""
-        ret = IndexItem(
-            id=self.id,
-            indexId=self.indexId,
-            fileId=self.fileId,
-            blockId=self.blockId,
-            spanId=self.spanId,
-            value=self.value,
-            externalId=self.externalId,
-            externalType=self.externalType,
-            metadata=self.metadata,
-            embedding=self.embedding
-        )
-        if isinstance(ret.metadata, dict) or isinstance(ret.metadata, list):
-            ret.metadata = json.dumps(ret.metadata)
-        return ret
-
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexItem":
-        return IndexItem(
-            id=d.get('id', None),
-            indexId=d.get('indexId', None),
-            fileId=d.get('fileId', None),
-            blockId=d.get('blockId', None),
-            spanId=d.get('spanId', None),
-            value=d.get('value', None),
-            externalId=d.get('externalId', None),
-            externalType=d.get('externalType', None),
-            metadata=d.get('metadata', None),
-            embedding=d.get('embedding', None),
-        )
-
 
 @dataclass
 class IndexInsertRequest(Request):
     indexId: str
-    items: List[IndexItem] = None
+    items: List[EmbeddedItem] = None
     value: str = None
     fileId: str = None
     blockType: str = None
@@ -186,12 +204,12 @@ class ListItemsRequest(Request):
 
 @dataclass
 class ListItemsResponse:
-    items: List[IndexItem]
+    items: List[EmbeddedItem]
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "ListItemsResponse":
         return ListItemsResponse(
-            items=[IndexItem.from_dict(dd) for dd in (d.get('items', []) or [])]
+            items=[EmbeddedItem.from_dict(dd) for dd in (d.get('items', []) or [])]
         )
 
 
@@ -271,7 +289,7 @@ class EmbeddingIndex:
 
     def insert_many(
             self,
-            items: List[Union[IndexItem, str]],
+            items: List[Union[EmbeddedItem, str]],
             reindex: bool = True,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -280,7 +298,7 @@ class EmbeddingIndex:
         newItems = []
         for item in items:
             if type(item) == str:
-                newItems.append(IndexItem(value=item))
+                newItems.append(EmbeddedItem(value=item))
             else:
                 newItems.append(item)
 

@@ -1,6 +1,6 @@
 from steamship.base import Client
 from steamship.base.response import TaskStatus
-from steamship.data.embedding_index import IndexItem
+from steamship.data.embedding_index import EmbeddedItem
 
 from .helpers import _random_index, _random_name, _steamship
 
@@ -86,13 +86,13 @@ def test_insert_many():
     steamship = _steamship()
     name = _random_name()
     with _random_index(steamship) as index:
-        item1 = IndexItem(
+        item1 = EmbeddedItem(
             value="Pizza",
             externalId="pizza",
             externalType="food",
             metadata=[1, 2, 3]
         )
-        item2 = IndexItem(
+        item2 = EmbeddedItem(
             value="Rocket Ship",
             externalId="space",
             externalType="vehicle",

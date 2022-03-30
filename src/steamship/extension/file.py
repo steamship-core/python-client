@@ -1,6 +1,6 @@
 from steamship.base import Client, Response
 from steamship.data.embedding_index import EmbeddingIndex
-from steamship.data.embedding_index import IndexItem
+from steamship.data.embedding_index import EmbeddedItem
 from steamship.data.file import File, FileUploadType
 from steamship.data.plugin import PluginTargetType
 from steamship.plugin.converter import ConvertRequest
@@ -178,7 +178,7 @@ def index(
 
     items = []
     for block in blocks:
-        item = IndexItem(
+        item = EmbeddedItem(
             value=block.text,
             externalId=block.id,
             externalType="block"

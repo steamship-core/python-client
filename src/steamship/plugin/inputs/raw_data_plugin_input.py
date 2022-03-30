@@ -15,7 +15,8 @@ class RawDataPluginInput:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "RawDataPluginInput":
-        logging.info("RawDataPluginInput.fromDict {} {}".format(type(d), d))
+        if d is None:
+            return None
         data = d.get('data', None)
         if data is not None and d.get('isBase64', False):
             data_bytes = base64.b64decode(data)

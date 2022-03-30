@@ -1,4 +1,4 @@
-from steamship.data.embedding_index import IndexItem
+from steamship.data.embedding_index import EmbeddedItem
 
 from .helpers import _random_index, _random_name, _steamship
 
@@ -15,7 +15,7 @@ def test_basic_task_comment():
     steamship = _steamship()
     name = _random_name()
     with _random_index(steamship) as index:
-        item1 = IndexItem(
+        item1 = EmbeddedItem(
             value="Pizza",
             externalId="pizza",
             externalType="food",
@@ -103,7 +103,7 @@ def test_task_comment_feedback_reporting():
     steamship = _steamship()
     name = _random_name()
     with _random_index(steamship) as index:
-        item1 = IndexItem(
+        item1 = EmbeddedItem(
             value="Pizza",
             externalId="pizza",
             externalType="food",

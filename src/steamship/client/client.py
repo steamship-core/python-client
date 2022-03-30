@@ -4,7 +4,7 @@ from typing import List
 from steamship.base import Client, Response
 from steamship.client.tasks import Tasks
 from steamship.data import File
-from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse, EmbedRequest, EmbedResponse
+from steamship.data.embeddings import EmbedAndSearchRequest, EmbedAndSearchResponse, EmbedRequest, EmbedResponse
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.space import Space
 
