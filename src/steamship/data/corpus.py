@@ -85,7 +85,7 @@ class Corpus:
     @staticmethod
     def create(
             client: Client,
-            name: str,
+            name: str = None,
             handle: str = None,
             description: str = None,
             externalId: str = None,
