@@ -1,4 +1,4 @@
-from steamship.data.file import File.CreateRequest, FileImportResponse
+from steamship.data.file import File
 from steamship.plugin.service import PluginRequest, PluginResponse
 
 __copyright__ = "Steamship"
@@ -15,7 +15,7 @@ TEST_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 
 def _test_resp(res):
     assert (type(res) == PluginResponse)
-    assert (type(res.data) == FileImportResponse)
+    assert (type(res.data) == File.CreateResponse)
     assert (res.data.data == TEST_DOC)
 
 

@@ -3,6 +3,7 @@ from typing import List, Dict
 
 from steamship.base import Client
 from steamship.data.block import Block
+import json
 
 MatcherClause = Dict[str, any]
 Matcher = List[MatcherClause]

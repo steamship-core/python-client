@@ -6,8 +6,6 @@ from .corpus import Corpus
 from .embedding_index import EmbeddingIndex
 from .file import File
 from .space import Space
-from .span import Span
-from .token import Token
 from .plugin import Plugin
 from .plugin_version import PluginVersion
 from .plugin_instance import PluginInstance
@@ -15,3 +13,4 @@ from .tags import DocTag
 from .tags import TagKind
 from .tags import TextTag
 from .tags import Tag
+from .block import Block

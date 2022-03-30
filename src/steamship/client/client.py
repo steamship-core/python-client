@@ -3,7 +3,7 @@ from typing import List
 
 from steamship.base import Client, Response
 from steamship.client.tasks import Tasks
-from steamship.data import Block, Corpus, File
+from steamship.data import Corpus, File
 from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse, EmbedRequest, EmbedResponse
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.parser import TokenMatcher, PhraseMatcher, DependencyMatcher, ParseRequest, ParseResponse
@@ -111,28 +111,28 @@ class Steamship(Client):
             space=space
         )
 
-    def create_classifier(
-            self,
-            name: str,
-            plugin: str,
-            upsert: bool = True,
-            save: bool = None,
-            labels: List[str] = None,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: Space = None
-    ) -> Classifier:
-        return Classifier.create(
-            client=self,
-            plugin=plugin,
-            name=name,
-            upsert=upsert,
-            save=save,
-            labels=labels,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
-        )
+    # def create_classifier(
+    #         self,
+    #         name: str,
+    #         plugin: str,
+    #         upsert: bool = True,
+    #         save: bool = None,
+    #         labels: List[str] = None,
+    #         spaceId: str = None,
+    #         spaceHandle: str = None,
+    #         space: Space = None
+    # ) -> Classifier:
+    #     return Classifier.create(
+    #         client=self,
+    #         plugin=plugin,
+    #         name=name,
+    #         upsert=upsert,
+    #         save=save,
+    #         labels=labels,
+    #         spaceId=spaceId,
+    #         spaceHandle=spaceHandle,
+    #         space=space
+    #     )
 
     def upload(
             self,
@@ -145,7 +145,7 @@ class Steamship(Client):
             spaceHandle: str = None,
             space: Space = None
     ) -> File:
-        return File.upload(
+        return File.create(
             self,
             filename=filename,
             name=name,

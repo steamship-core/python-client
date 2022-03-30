@@ -107,29 +107,29 @@ def parse(
 
 File.parse = parse
 
-def tag(
-        self,
-        pluginInstance: str = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
-        space: any = None
-):
-    req = FileTagRequest(
-        id=self.id,
-        pluginInstance=pluginInstance
-    )
+# def tag(
+#         self,
+#         pluginInstance: str = None,
+#         spaceId: str = None,
+#         spaceHandle: str = None,
+#         space: any = None
+# ):
+#     req = FileTagRequest(
+#         id=self.id,
+#         pluginInstance=pluginInstance
+#     )
+#
+#     return self.client.post(
+#         'file/tag',
+#         payload=req,
+#         expect=FileTagResponse,
+#         asynchronous=True,
+#         spaceId=spaceId,
+#         spaceHandle=spaceHandle,
+#         space=space
+#     )
 
-    return self.client.post(
-        'file/tag',
-        payload=req,
-        expect=FileTagResponse,
-        asynchronous=True,
-        spaceId=spaceId,
-        spaceHandle=spaceHandle,
-        space=space
-    )
-
-File.tag = tag
+# File.tag = tag
 
 def index(
         self,

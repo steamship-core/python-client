@@ -1,4 +1,4 @@
-from steamship import Block, BlockTypes, Token
+from steamship import Block, DocTag
 from steamship.app import App, post, create_handler
 from steamship.plugin.parser import Parser, ParseResponse, ParseRequest
 from steamship.plugin.service import PluginResponse, PluginRequest
@@ -8,9 +8,9 @@ def _makeSentenceBlock(sentence: str, includeTokens: bool = True) -> Block:
     """Splits the sentence in tokens on space. Dep head of all is first token"""
     if includeTokens:
         tokens = [Token(text=word, parentIndex=0) for word in sentence.split(" ")]
-        return Block(type=BlockTypes.Sentence, text=sentence, tokens=tokens)
+        return Block(type=DocTag.sentence, text=sentence, tokens=tokens)
     else:
-        return Block(type=BlockTypes.Sentence, text=sentence)
+        return Block(type=DocTag.sentence, text=sentence)
 
 
 def _makeDocBlock(text: str, blockId: str = None, includeTokens=True) -> Block:
@@ -18,7 +18,7 @@ def _makeDocBlock(text: str, blockId: str = None, includeTokens=True) -> Block:
     # Add the period back
     sentences = list(map(lambda s: "{}.".format(s), text.split(".")))
     children = [_makeSentenceBlock(sentence, includeTokens=includeTokens) for sentence in sentences]
-    return Block(id=blockId, text=text, type=BlockTypes.Document, children=children)
+    return Block(id=blockId, text=text, type=DocTag.doc, children=children)
 
 
 def _makeTestResponse(request: ParseRequest) -> ParseResponse:

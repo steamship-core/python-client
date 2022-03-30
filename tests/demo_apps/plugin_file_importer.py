@@ -1,5 +1,5 @@
 from steamship.app import App, post, create_handler
-from steamship.plugin.file_importer import FileImporter, FileImportResponse, File.CreateRequest
+from steamship.plugin.file_importer import FileImporter, File
 from steamship.plugin.service import PluginResponse, PluginRequest
 
 # Note: this aligns with the same document in the internal Engine test.
@@ -14,9 +14,9 @@ TEST_DOC = "# {}\n\n{} {}\n\n{}\n".format(TEST_H1, TEST_S1, TEST_S2, TEST_S3)
 
 
 class TestFileImporterPlugin(FileImporter, App):
-    def run(self, request: PluginRequest[File.CreateRequest]) -> PluginResponse[FileImportResponse]:
+    def run(self, request: PluginRequest[File.CreateRequest]) -> PluginResponse[File.CreateResponse]:
         return PluginResponse(
-            data=FileImportResponse(
+            data=File.CreateResponse(
                 string=TEST_DOC
             )
         )

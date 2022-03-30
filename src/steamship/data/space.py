@@ -11,6 +11,20 @@ class Space:
     name: str = None
     handle: str = None
 
+    @dataclass
+    class CreateRequest(Request):
+        id: str = None
+        name: str = None
+        handle: str = None
+        upsert: bool = None
+        externalId: str = None
+        externalType: str = None
+        metadata: str = None
+
+    @dataclass
+    class ListRequest(Request):
+        pass
+
     def delete(self) -> "Response[Space]":
         return self.client.post(
             'space/delete',
@@ -59,7 +73,7 @@ class Space:
             metadata: any = None,
             upsert: bool = True
     ) -> "Response[Space]":
-        req = CreateSpace(
+        req = Space.CreateRequest(
             name=name,
             handle=handle,
             upsert=upsert,
@@ -73,23 +87,3 @@ class Space:
             expect=Space
         )
 
-
-@dataclass
-class CreateSpace(Request):
-    id: str = None
-    name: str = None
-    handle: str = None
-    upsert: bool = None
-    externalId: str = None
-    externalType: str = None
-    metadata: str = None
-
-
-@dataclass
-class DeletSpaceRequest(Request):
-    spaceId: str
-
-
-@dataclass
-class ListPrivateSpacesRequest(Request):
-    pass

@@ -1,7 +1,7 @@
-from steamship import MimeTypes
+from steamship import MimeTypes, DocTag
 from steamship.base.response import TaskStatus
 
-from steamship.data.file import FileImportResponse
+from steamship.data.file import File
 
 from .helpers import _random_name, _steamship
 
@@ -123,8 +123,8 @@ def test_file_upload_then_parse():
 
     q1 = a.query().data
     assert (len(q1.blocks) == 2)
-    assert (q1.blocks[0].type == BlockTypes.Document)
-    assert (q1.blocks[1].type == BlockTypes.Paragraph)
+    assert (q1.blocks[0].type == DocTag.doc)
+    assert (q1.blocks[1].type == DocTag.paragraph)
     assert (q1.blocks[1].text == 'This is a test.')
 
     name_b = "{}.mkd".format(_random_name())
@@ -146,15 +146,15 @@ This is a test."""
 
     q1 = b.query().data
     assert (len(q1.blocks) == 3)
-    assert (q1.blocks[0].type == BlockTypes.Document)
-    assert (q1.blocks[2].type == BlockTypes.Paragraph)
+    assert (q1.blocks[0].type == DocTag.doc)
+    assert (q1.blocks[2].type == DocTag.paragraph)
     assert (q1.blocks[2].text == 'This is a test.')
-    assert (q1.blocks[1].type == BlockTypes.H1)
+    assert (q1.blocks[1].type == DocTag.h1)
     assert (q1.blocks[1].text == 'Header')
 
-    q2 = b.query(blockType=BlockTypes.H1).data
+    q2 = b.query(blockType=DocTag.h1).data
     assert (len(q2.blocks) == 1)
-    assert (q2.blocks[0].type == BlockTypes.H1)
+    assert (q2.blocks[0].type == DocTag.he)
     assert (q2.blocks[0].text == 'Header')
 
     a.delete()
@@ -162,15 +162,15 @@ This is a test."""
 
 
 def test_file_import_response_dict():
-    resp = FileImportResponse(bytes=b'some bytes', mimeType=MimeTypes.BINARY)
+    resp = File.CreateResponse(bytes=b'some bytes', mimeType=MimeTypes.BINARY)
     to_dict = resp.to_dict()
-    from_dict = FileImportResponse.from_dict(to_dict)
+    from_dict = File.CreateResponse.from_dict(to_dict)
     assert (resp.data == from_dict.data)
     assert (resp.mimeType == from_dict.mimeType)
 
 
 def test_file_import_response_bytes_serialization():
-    file_resp = FileImportResponse(bytes=b'some bytes', mimeType=MimeTypes.BINARY)
+    file_resp = File.CreateResponse(bytes=b'some bytes', mimeType=MimeTypes.BINARY)
     to_dict = file_resp.to_dict()
     as_json_string = json.dumps(to_dict)
     as_dict_again = json.loads(as_json_string)

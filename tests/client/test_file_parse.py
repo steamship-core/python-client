@@ -1,4 +1,4 @@
-from steamship import MimeTypes
+from steamship import MimeTypes, DocTag
 from steamship.base import Client
 from steamship.base.response import TaskStatus
 
@@ -34,18 +34,18 @@ def parse_file(client: Client, parserModel: str):
     raw = a.raw()
     assert (raw.data.decode('utf-8') == CONTENT)
 
-    q1 = a.query(blockType=BlockTypes.H1).data
+    q1 = a.query(blockType=DocTag.h1).data
     assert (len(q1.blocks) == 1)
-    assert (q1.blocks[0].type == BlockTypes.H1)
+    assert (q1.blocks[0].type == DocTag.h1)
     assert (q1.blocks[0].text == T)
 
-    q2 = a.query(blockType=BlockTypes.Paragraph).data
+    q2 = a.query(blockType=DocTag.paragraph).data
     assert (len(q2.blocks) == 2)
-    assert (q2.blocks[0].type == BlockTypes.Paragraph)
+    assert (q2.blocks[0].type == DocTag.paragraph)
     assert (q2.blocks[0].text == "{} {}".format(P1_1, P1_2))
 
     # The sentences aren't yet parsed out!
-    q2 = a.query(blockType=BlockTypes.Sentence).data
+    q2 = a.query(blockType=DocTag.sentence).data
     assert (len(q2.blocks) == 0)
 
     # Now we parse
@@ -60,12 +60,12 @@ def parse_file(client: Client, parserModel: str):
     assert (task.task.state == TaskStatus.succeeded)
 
     # Now the sentences should be parsed!
-    q2 = a.query(blockType=BlockTypes.Sentence).data
+    q2 = a.query(blockType=DocTag.sentence).data
     assert (len(q2.blocks) == 2)  # The 5th is inside the header!
 
     a.clear()
 
-    q2 = a.query(blockType=BlockTypes.Sentence).data
+    q2 = a.query(blockType=DocTag.sentence).data
     assert (len(q2.blocks) == 0)  # The 5th is inside the header!
 
     a.delete()
