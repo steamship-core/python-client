@@ -69,6 +69,8 @@ class Tag:
         return Tag(
             client=client,
             id=d.get('id', None),
+            fileId=d.get('fileId', None),
+            blockId=d.get('blockId', None),
             kind=d.get('kind', None),
             name=d.get('name', None),
             startIdx=d.get('startIdx', None),
