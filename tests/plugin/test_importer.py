@@ -1,4 +1,4 @@
-from steamship.data.file import FileCreateRequest, FileImportResponse
+from steamship.data.file import File.CreateRequest, FileImportResponse
 from steamship.plugin.service import PluginRequest, PluginResponse
 
 __copyright__ = "Steamship"
@@ -6,7 +6,7 @@ __license__ = "MIT"
 
 from ..demo_apps.plugin_file_importer import TestFileImporterPlugin, TEST_DOC
 
-TEST_REQ = FileCreateRequest(
+TEST_REQ = File.CreateRequest(
     value="Hi there."
 )
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)

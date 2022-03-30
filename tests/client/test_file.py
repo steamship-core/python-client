@@ -1,4 +1,4 @@
-from steamship import BlockTypes, MimeTypes
+from steamship import MimeTypes
 from steamship.base.response import TaskStatus
 
 from steamship.data.file import FileImportResponse

@@ -1,4 +1,3 @@
-from steamship import BlockTypes
 from steamship.extension.file import File
 
 from ..client.helpers import deploy_plugin, _steamship

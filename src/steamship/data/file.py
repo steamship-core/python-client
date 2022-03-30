@@ -7,9 +7,7 @@ from steamship.base import Client, Response, Request
 from steamship.base.binary_utils import flexi_create
 from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
-from steamship.data.parser import ParseResponse
-from steamship.data.tag import CreateTagRequest, DeleteTagRequest, ListTagsRequest
-from steamship.data.tag import TagObjectRequest
+from steamship.data.tags import Tag
 
 from dataclasses import dataclass
 
@@ -17,10 +15,11 @@ class File:
     pass
 
 class FileUploadType:
-    file = "file"
-    url = "url"
-    value = "value"
-    fileImporter = "fileImporter"
+    file = "file" # The CreateRequest contains a file upload that should be used
+    url = "url" # The CreateRequest contains a url that should be scraped
+    value = "value" # The Create Request contains a `text` field that should be used
+    fileImporter = "fileImporter" # The CreateRequest contains a fileImporter handle that should be used
+    blocks = "blocks"  # The CreateRequest contains blocks and tags that should be read in directly
 
 
 _logger = logging.getLogger(__name__)
@@ -78,27 +77,6 @@ class FileClearResponse:
 
 
 @dataclass
-class FileTagRequest(Request):
-    id: str
-    plugin: str = None
-
-
-@dataclass
-class FileTagResponse:
-    id: str
-    tagResult: ParseResponse
-
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> "FileTagResponse":
-        if 'file' in d:
-            d = d['file']
-        return FileTagResponse(
-            id=d.get('id', None),
-            tagResult=ParseResponse.from_dict(d.get('tagResult', {}), client=client)
-        )
-
-
-@dataclass
 class SpanQuery:
     text: str = None
     label: str = None
@@ -128,103 +106,6 @@ class FileQueryResponse:
         )
 
 
-@dataclass
-class FileRawRequest(Request):
-    id: str
-
-
-@dataclass
-class ListFilesRequest(Request):
-    corpusId: str = None
-
-
-@dataclass
-class ListFilesResponse:
-    files: List["File"]
-
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ListFilesResponse":
-        return ListFilesResponse(
-            files=[File.from_dict(f, client=client) for f in d.get('files', [])]
-        )
-
-
-@dataclass
-class FileCreateRequest:
-    value: str = None
-    data: str = None
-    url: str = None
-    type: str = None  # FileUploadType: fileImporter | value | url | data
-
-    mimeType: str = None
-    corpusId: str = None
-    name: str = None
-    blocks: [Block] = None
-    pluginInstance: str = None
-
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> "FileCreateRequest":
-        return FileCreateRequest(
-            value=d.get('value', None),
-            data=d.get('data', None),
-            url=d.get('url', None),
-            type=d.get('type', None),
-            mimeType=d.get('mimeType', None),
-            corpusId=d.get('corpusId', None),
-            pluginInstance=d.get('pluginInstance', None),
-            name=d.get('name', None),
-            blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', [])]
-        )
-
-    def to_dict(self) -> dict:
-        return dict(
-            value=self.value,
-            data=self.data,
-            url=self.url,
-            type=self.type,
-            mimeType=self.mimeType,
-            corpusId=self.corpusId,
-            pluginInstance=self.pluginInstance,
-            name=self.name,
-            blocks=[block.to_dict() for block in self.blocks] if self.blocks else []
-        )
-
-
-@dataclass
-class FileImportResponse:
-    data: Any = None
-    mimeType: str = None
-
-    def __init__(
-            self,
-            data: Any = None,
-            string: str = None,
-            bytes: io.BytesIO = None,
-            json: io.BytesIO = None,
-            mimeType: str = None
-    ):
-        data, mimeType = flexi_create(
-            body=data,
-            string=string,
-            json=json,
-            bytes=bytes,
-            mimeType=mimeType
-        )
-        self.data = data
-        self.mimeType = mimeType
-
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> "FileImportResponse":
-        return FileImportResponse(
-            data=d.get('data', None),
-            mimeType=d.get('mimeType', None)
-        )
-
-    def to_dict(self) -> dict:
-        return dict(
-            data=self.data,
-            mimeType=self.mimeType
-        )
 
 
 @dataclass
@@ -239,9 +120,109 @@ class File:
     spaceId: str = None
     corpusId: str = None
     blocks: [Block] = None
+    blocks: [Tag] = None
+
+    @dataclass
+    class CreateRequest:
+        value: str = None
+        data: str = None
+        url: str = None
+        type: str = None  # FileUploadType: fileImporter | value | url | data
+
+        mimeType: str = None
+        corpusId: str = None
+        name: str = None
+        blocks: [Block.CreateRequest] = None
+        tags: [Tag.CreateRequest] = None
+
+        pluginInstance: str = None
+
+        @staticmethod
+        def from_dict(d: any, client: Client = None) -> "File.CreateRequest":
+            return File.CreateRequest(
+                value=d.get('value', None),
+                data=d.get('data', None),
+                url=d.get('url', None),
+                type=d.get('type', None),
+                mimeType=d.get('mimeType', None),
+                corpusId=d.get('corpusId', None),
+                pluginInstance=d.get('pluginInstance', None),
+                name=d.get('name', None),
+                blocks=[Block.CreateRequest.from_dict(block, client=client) for block in d.get('blocks', [])],
+                tags=[Tag.CreateRequest.from_dict(tag, client=client) for tag in d.get('tags', [])]
+            )
+
+        def to_dict(self) -> dict:
+            return dict(
+                value=self.value,
+                data=self.data,
+                url=self.url,
+                type=self.type,
+                mimeType=self.mimeType,
+                corpusId=self.corpusId,
+                pluginInstance=self.pluginInstance,
+                name=self.name,
+                blocks=[block.to_dict() for block in self.blocks] if self.blocks else []
+            )
+
+    @dataclass
+    class CreateResponse:
+        data: Any = None
+        mimeType: str = None
+
+        def __init__(
+                self,
+                data: Any = None,
+                string: str = None,
+                bytes: io.BytesIO = None,
+                json: io.BytesIO = None,
+                mimeType: str = None
+        ):
+            data, mimeType = flexi_create(
+                body=data,
+                string=string,
+                json=json,
+                bytes=bytes,
+                mimeType=mimeType
+            )
+            self.data = data
+            self.mimeType = mimeType
+
+        @staticmethod
+        def from_dict(d: any, client: Client = None) -> "File.CreateResponse":
+            return File.CreateResponse(
+                data=d.get('data', None),
+                mimeType=d.get('mimeType', None)
+            )
+
+        def to_dict(self) -> dict:
+            return dict(
+                data=self.data,
+                mimeType=self.mimeType
+            )
+
+    @dataclass
+    class ListRequest(Request):
+        corpusId: str = None
+
+    @dataclass
+    class ListResponse:
+        files: List["File"]
+
+        @staticmethod
+        def from_dict(d: any, client: Client = None) -> "File.ListResponse":
+            return File.ListResponse(
+                files=[File.from_dict(f, client=client) for f in d.get('files', [])]
+            )
+
+    @dataclass
+    class RawRequest(Request):
+        id: str
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "File":
+        if d is None:
+            return None
         if 'file' in d:
             d = d['file']
         return File(
@@ -252,7 +233,8 @@ class File:
             mimeType=d.get('mimeType', None),
             corpusId=d.get('corpusId', None),
             spaceId=d.get('spaceId', None),
-            blocks= [Block.from_dict(block, client=client) for block in d.get('blocks', [])]
+            blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', [])],
+            tags=[Tag.from_dict(tag, client=client) for tag in d.get('tags', [])]
         )
 
     def delete(
@@ -307,7 +289,7 @@ class File:
                 content = f.read()
                 name = filename
 
-        req = FileCreateRequest(
+        req = File.CreateRequest(
             type=FileUploadType.fileImporter if pluginInstance is not None else FileUploadType.file,
             corpusId=corpusId,
             name=name,
@@ -334,13 +316,13 @@ class File:
             spaceHandle: str = None,
             space: any = None
     ):
-        req = ListFilesRequest(
+        req = File.ListRequest(
             corpusId=corpusId
         )
         res = client.post(
             'file/list',
             payload=req,
-            expect=ListFilesResponse,
+            expect=File.ListResponse,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
@@ -358,7 +340,7 @@ class File:
             space: any = None) -> "File":
         if name is None:
             name = url
-        req = FileCreateRequest(
+        req = File.CreateRequest(
             type=FileUploadType.url,
             name=name,
             url=url,
@@ -444,7 +426,7 @@ class File:
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None):
-        req = FileRawRequest(
+        req = File.RawRequest(
             id=self.id,
         )
 
@@ -455,83 +437,4 @@ class File:
             spaceHandle=spaceHandle,
             space=space,
             rawResponse=True
-        )
-
-    def add_tags(
-            self,
-            tags=List[Union[str, CreateTagRequest]],
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None):
-        tagsNew = []
-        for tag in tags:
-            if type(tag) == str:
-                tagsNew.append(CreateTagRequest(name=tag, upsert=True))
-            elif type(tag) == CreateTagRequest:
-                tagsNew.append(tag)
-            else:
-                raise (Exception("Unable to add tag of type: {}".format(type(tag))))
-
-        req = TagObjectRequest(
-            tags=tagsNew,
-            objectType='file',
-            objectId=self.id
-        )
-
-        return self.client.post(
-            'tag/create',
-            payload=req,
-            expect=TagObjectRequest,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
-        )
-
-    def remove_tags(
-            self,
-            tags=List[Union[str, DeleteTagRequest]],
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None):
-        tagsNew = []
-        for tag in tags:
-            if type(tag) == str:
-                tagsNew.append(DeleteTagRequest(name=tag))
-            elif type(tag) == DeleteTagRequest:
-                tagsNew.append(tag)
-            else:
-                raise (Exception("Unable to remove tag of type: {}".format(type(tag))))
-
-        req = TagObjectRequest(
-            tags=tagsNew,
-            objectType='file',
-            objectId=self.id
-        )
-
-        return self.client.post(
-            'tag/delete',
-            payload=req,
-            expect=FileTagResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
-        )
-
-    def list_tags(
-            self,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None):
-        req = ListTagsRequest(
-            objectType='file',
-            objectId=self.id
-        )
-
-        return self.client.post(
-            'tag/list',
-            payload=req,
-            expect=TagObjectRequest,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
         )

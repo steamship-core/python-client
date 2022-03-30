@@ -4,35 +4,7 @@ from typing import Any, List
 
 from steamship.base import Client, Request, Response, str_to_metadata
 from steamship.base.request import IdentifierRequest
-from steamship.data.file import File, FileCreateRequest, ListFilesResponse
-
-
-@dataclass
-class CreateCorpusRequest(Request):
-    corpusId: str = None
-    name: str = None
-    handle: str = None
-    description: str = None
-    externalId: str = None
-    externalType: str = None
-    isPublic: bool = None
-    metadata: str = None
-    upsert: bool = None
-
-
-@dataclass
-class DeleteCorpusRequest(Request):
-    corpusId: str
-
-
-@dataclass
-class ListPublicCorporaRequest(Request):
-    pass
-
-
-@dataclass
-class ListPrivateCorporaRequest(Request):
-    pass
+from steamship.data.file import File
 
 
 @dataclass
@@ -80,22 +52,22 @@ class CorpusImportRequest:
 @dataclass
 class CorpusImportResponse:
     client: Client = None
-    fileImportRequests: List[FileCreateRequest] = None
+    fileImportRequests: List[File.CreateRequest] = None
 
     def __init__(
             self,
-            fileImportRequests: List[FileCreateRequest] = None
+            fileImportRequests: List[File.CreateRequest] = None
     ):
         self.fileImportRequests = fileImportRequests
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "CorpusImportResponse":
-        return CorpusImportRequest(
+        return CorpusImportResponse(
             client=client,
-            fileImportRequests=[FileCreateRequest.from_dict(req) for req in d.get('fileImportRequests', [])]
+            fileImportRequests=[File.CreateRequest.from_dict(req) for req in d.get('fileImportRequests', [])]
         )
 
-    def to_dict(self) -> "CorpusImportResponse":
+    def to_dict(self) -> dict:
         return dict(
             fileImportRequests=self.fileImportRequests
         )
@@ -113,6 +85,36 @@ class Corpus:
     externalId: str = None
     externalType: str = None
     metadata: Any = None
+
+    @dataclass
+    class CreateRequest(Request):
+        corpusId: str = None
+        name: str = None
+        handle: str = None
+        description: str = None
+        externalId: str = None
+        externalType: str = None
+        isPublic: bool = None
+        metadata: str = None
+        upsert: bool = None
+
+    @dataclass
+    class DeleteRequest(Request):
+        corpusId: str
+
+    @dataclass
+    class ListRequest(Request):
+        pass
+
+    @dataclass
+    class ListResponse(Request):
+        corpora: List["Corpus"]
+
+        @staticmethod
+        def from_dict(d: any, client: Client = None) -> "Corpus.ListResponse":
+            return Corpus.ListResponse(
+                plugins=[Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
+            )
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "Corpus":
@@ -192,7 +194,7 @@ class Corpus:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
-        req = CreateCorpusRequest(
+        req = Corpus.CreateRequest(
             name=name,
             handle=handle,
             description=description,
@@ -270,7 +272,7 @@ class Corpus:
             self,
             spaceId: str = None,
             spaceHandle: str = None,
-            space: any = None) -> ListFilesResponse:
+            space: any = None) -> File.ListResponse:
         return File.list(
             client=self.client,
             corpusId=self.id,
@@ -280,12 +282,3 @@ class Corpus:
         )
 
 
-@dataclass
-class ListCorporaResponse(Request):
-    corpora: List[Corpus]
-
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ListCorporaResponse":
-        return ListCorporaResponse(
-            plugins=[Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
-        )

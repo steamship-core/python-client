@@ -1,6 +1,5 @@
 from steamship.app import App, post, create_handler
 from steamship.plugin.corpus_importer import CorpusImporter, CorpusImportResponse, CorpusImportRequest
-from steamship.plugin.file_importer import FileCreateRequest
 from steamship.plugin.service import PluginResponse, PluginRequest
 
 
@@ -9,12 +8,12 @@ class TestCorpusImporterPlugin(CorpusImporter, App):
         return PluginResponse(
             data=CorpusImportResponse(
                 fileImportRequests=[
-                    FileCreateRequest(
+                    File.CreateRequest(
                         type="fileImporter",
                         pluginInstance=request.data.fileImporterPluginInstance
                         # This is a test importer built into the Steamship Engine
                     ),
-                    FileCreateRequest(
+                    File.CreateRequest(
                         type="fileImporter",
                         pluginInstance=request.data.fileImporterPluginInstance
                     )

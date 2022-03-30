@@ -1,26 +1,13 @@
-import io
-import logging
-import re
-from typing import Union, Tuple, Any, List
+from typing import List
 
-from steamship.base import Client, Response, Request
-from steamship.base.binary_utils import flexi_create
-from steamship.base.request import IdentifierRequest
-from steamship.data.block import Block
+from steamship.base import Client, Response
 from steamship.data.converter import ClientsideConvertRequest, ConvertResponse
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.embedding_index import IndexItem
 from steamship.data.parser import DependencyMatcher, PhraseMatcher, TokenMatcher
 from steamship.data.parser import ParseRequest, ParseResponse
 from steamship.data.plugin import PluginTargetType
-from steamship.data.tag import CreateTagRequest, DeleteTagRequest, ListTagsRequest
-from steamship.data.tag import TagObjectRequest
-from steamship.data.file import File, FileTagRequest, FileTagResponse, FileCreateRequest, FileUploadType
-
-from dataclasses import dataclass
-
-
-
+from steamship.data.file import File, FileUploadType
 
 
 @staticmethod
@@ -44,7 +31,7 @@ def upload(
             content = f.read()
             name = filename
 
-    req = FileCreateRequest(
+    req = File.CreateRequest(
         type=FileUploadType.file,
         corpusId=corpusId,
         name=name,

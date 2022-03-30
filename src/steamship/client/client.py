@@ -3,12 +3,11 @@ from typing import List
 
 from steamship.base import Client, Response
 from steamship.client.tasks import Tasks
-from steamship.data import Block, Classifier, Corpus, File
+from steamship.data import Block, Corpus, File
 from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse, EmbedRequest, EmbedResponse
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.parser import TokenMatcher, PhraseMatcher, DependencyMatcher, ParseRequest, ParseResponse
 from steamship.data.space import Space
-from steamship.data.tagging import TagRequest, TagResponse
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -256,27 +255,4 @@ class Steamship(Client):
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
-        )
-
-    def tag(
-            self,
-            blocks: List[Block],
-            plugin: str = None,
-            metadata: any = None,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: Space = None
-    ) -> Response[ParseResponse]:
-        req = TagRequest(
-            blocks=blocks,
-            plugin=plugin,
-            metadata=metadata
-        )
-        return self.post(
-            'tagger/tag',
-            req,
-            expect=TagResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=Space
         )
