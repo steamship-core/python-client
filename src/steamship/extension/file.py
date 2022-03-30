@@ -1,13 +1,13 @@
 from typing import List
 
 from steamship.base import Client, Response
-from steamship.data.converter import ClientsideConvertRequest
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.embedding_index import IndexItem
-from steamship.data.parser import DependencyMatcher, PhraseMatcher, TokenMatcher
-from steamship.data.parser import ParseRequest, ParseResponse
 from steamship.data.plugin import PluginTargetType
 from steamship.data.file import File, FileUploadType
+from steamship.plugin.converter import ConvertRequest
+from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
+from steamship.plugin.tagger import TagRequest
 
 
 @staticmethod
@@ -56,7 +56,7 @@ def convert(
         spaceId: str = None,
         spaceHandle: str = None,
         space: any = None):
-    req = ClientsideConvertRequest(
+    req = ConvertRequest(
         id=self.id,
         type=PluginTargetType.file,
         pluginInstance=pluginInstance
@@ -75,29 +75,28 @@ def convert(
 
 File.convert = convert
 
+
+class TagResponse:
+    pass
+
+
 def parse(
         self,
         pluginInstance: str = None,
-        tokenMatchers: List[TokenMatcher] = None,
-        phraseMatchers: List[PhraseMatcher] = None,
-        dependencyMatchers: List[DependencyMatcher] = None,
         spaceId: str = None,
         spaceHandle: str = None,
         space: any = None
 ):
-    req = ParseRequest(
+    req = TagRequest(
         type=PluginTargetType.file,
         id=self.id,
-        pluginInstance=pluginInstance,
-        tokenMatchers=tokenMatchers,
-        phraseMatchers=phraseMatchers,
-        dependencyMatchers=dependencyMatchers
+        pluginInstance=pluginInstance
     )
 
     return self.client.post(
         'plugin/instance/parse',
         payload=req,
-        expect=ParseResponse,
+        expect=TagResponse,
         asynchronous=True,
         ifdQuery=self,
         spaceId=spaceId,

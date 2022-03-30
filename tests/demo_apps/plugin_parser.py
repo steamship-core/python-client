@@ -1,6 +1,6 @@
 from steamship import Block, DocTag
 from steamship.app import App, post, create_handler
-from steamship.plugin.parser import Parser, ParseResponse, ParseRequest
+from steamship.plugin.tagger import Tagger, TagResponse, TagRequest
 from steamship.plugin.service import PluginResponse, PluginRequest
 
 
@@ -21,7 +21,7 @@ def _makeDocBlock(text: str, blockId: str = None, includeTokens=True) -> Block:
     return Block(id=blockId, text=text, type=DocTag.doc, children=children)
 
 
-def _makeTestResponse(request: ParseRequest) -> ParseResponse:
+def _makeTestResponse(request: TagRequest) -> TagResponse:
     blocks = []
     for i, doc in enumerate(request.docs):
         # This is awkward and we shouldn're require plugin authors to return
@@ -37,16 +37,16 @@ def _makeTestResponse(request: ParseRequest) -> ParseResponse:
                 includeTokens=request.includeTokens is None or request.includeTokens is True
             )
         )
-    response = ParseResponse(blocks=blocks)
+    response = TagResponse(blocks=blocks)
     return response
 
 
-class TestParserPlugin(Parser, App):
+class TestParserPlugin(Tagger, App):
     # TODO: WARNING! We will need to implement some logic that prevents 
     # a distributed endless loop. E.g., a parser plugin returning the results
     # of using the Steamship client to call parse.. via itself!
 
-    def run(self, request: PluginRequest[ParseRequest]) -> PluginResponse[ParseResponse]:
+    def run(self, request: PluginRequest[TagRequest]) -> PluginResponse[TagResponse]:
         if request.data is not None:
             return PluginResponse(
                 data=_makeTestResponse(request.data)
@@ -54,9 +54,9 @@ class TestParserPlugin(Parser, App):
 
     @post('tag')
     def parse(self, **kwargs) -> dict:
-        parseRequest = Parser.parse_request(request=kwargs)
+        parseRequest = Tagger.parse_request(request=kwargs)
         parseResponse = self.run(parseRequest)
-        return Parser.response_to_dict(parseResponse)
+        return Tagger.response_to_dict(parseResponse)
 
 
 handler = create_handler(TestParserPlugin)

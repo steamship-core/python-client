@@ -1,4 +1,4 @@
-from steamship.plugin.parser import ParseRequest
+from steamship.plugin.tagger import TagRequest
 from steamship.plugin.service import PluginRequest
 
 from ..client.helpers import deploy_plugin, _steamship
@@ -7,7 +7,7 @@ from ..client.test_file_parse import parse_file
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-TEST_REQ = ParseRequest(
+TEST_REQ = TagRequest(
     docs=["Hi there."],
     blockIds=["ABC"]
 )

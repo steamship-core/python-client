@@ -1,5 +1,5 @@
 import pytest
-from steamship import MimeTypes
+from steamship import MimeTypes, File, Corpus
 
 from .helpers import _random_name, _steamship
 
@@ -80,22 +80,26 @@ def test_corpus_delete():
 
 
 def test_corpus_delete_cascade():
-    steamship = _steamship()
+    client = _steamship()
     name = _random_name()
-    corpus1 = steamship.create_corpus(name=name).data
+
+    corpus1 = Corpus.create(client=client, name=name).data
 
     name_a = "{}.mkd".format(_random_name())
-    a = corpus1.upload(
+    a = File.create(
+        client=client,
+        corpusId=corpus1.id,
         name=name_a,
         content="A",
         mimeType=MimeTypes.MKD
     ).data
 
     res = a.query()
-
     corpus1.delete()
-    res = a.query()
-    assert (res.data is None)
-    assert (res.error is not None)
+
+    # Now verify the file isn't there!
+    aa = File.get(client, id=a.id)
+    assert (aa.data is None)
+    assert (aa.error is not None)
 
 # TODO: Add tests w/ operations in different spaces

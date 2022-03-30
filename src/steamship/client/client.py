@@ -6,7 +6,7 @@ from steamship.client.tasks import Tasks
 from steamship.data import Corpus, File
 from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse, EmbedRequest, EmbedResponse
 from steamship.data.embedding_index import EmbeddingIndex
-from steamship.data.parser import TokenMatcher, PhraseMatcher, DependencyMatcher, ParseRequest, ParseResponse
+from steamship.data.parser import TokenMatcher, PhraseMatcher, DependencyMatcher, TagRequest, TagResponse
 from steamship.data.space import Space
 
 __copyright__ = "Steamship"
@@ -54,35 +54,6 @@ class Steamship(Client):
         response object of the invocation.
         """
         self.tasks = Tasks(self)
-
-    def create_corpus(
-            self,
-            name: str,
-            handle: str = None,
-            description: str = None,
-            externalId: str = None,
-            externalType: str = None,
-            metadata: any = None,
-            isPublic: bool = False,
-            upsert: bool = False,
-            spaceId: bool = False,
-            spaceHandle: bool = False,
-            space: Space = None
-    ) -> Corpus:
-        return Corpus.create(
-            client=self,
-            name=name,
-            handle=handle,
-            description=description,
-            isPublic=isPublic,
-            upsert=upsert,
-            externalId=externalId,
-            externalType=externalType,
-            metadata=metadata,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
-        )
 
     def create_index(
             self,
@@ -235,8 +206,8 @@ class Steamship(Client):
             spaceId: str = None,
             spaceHandle: str = None,
             space: Space = None
-    ) -> Response[ParseResponse]:
-        req = ParseRequest(
+    ) -> Response[TagResponse]:
+        req = TagRequest(
             type="inline",
             docs=docs,
             pluginInstance=pluginInstance,
@@ -251,7 +222,7 @@ class Steamship(Client):
         return self.post(
             'plugin/instance/tag',
             req,
-            expect=ParseResponse,
+            expect=TagResponse,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
