@@ -1,6 +1,7 @@
 import io
 import logging
 import re
+from dataclasses import dataclass
 from typing import Union, Tuple, Any, List
 
 from steamship.base import Client, Response, Request
@@ -15,8 +16,6 @@ from steamship.data.parser import ParseRequest, ParseResponse
 from steamship.data.plugin import PluginTargetType
 from steamship.data.tag import CreateTagRequest, DeleteTagRequest, ListTagsRequest
 from steamship.data.tag import TagObjectRequest
-
-from dataclasses import dataclass
 
 
 class FileUploadType:
