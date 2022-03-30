@@ -44,6 +44,8 @@ class Tag:
     @dataclass
     class DeleteRequest(Request):
         id: str = None
+        fileId: str = None
+        blockId: str = None
 
     @dataclass
     class ListRequest(Request):
@@ -144,7 +146,7 @@ class Tag:
     def delete(self) -> Response["Tag"]:
         return self.client.post(
             'tag/delete',
-            Tag.DeleteRequest(id=self.id),
+            Tag.DeleteRequest(id=self.id, fileId=self.fileId, blockId=self.blockId),
             expect=Tag,
         )
 

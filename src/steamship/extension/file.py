@@ -1,7 +1,7 @@
 from typing import List
 
 from steamship.base import Client, Response
-from steamship.data.converter import ClientsideConvertRequest, ConvertResponse
+from steamship.data.converter import ClientsideConvertRequest
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.embedding_index import IndexItem
 from steamship.data.parser import DependencyMatcher, PhraseMatcher, TokenMatcher
@@ -65,7 +65,7 @@ def convert(
     return self.client.post(
         'plugin/instance/convert',
         payload=req,
-        expect=ConvertResponse,
+        expect=BlockAndTagPluginOutput,
         asynchronous=True,
         ifdQuery=self,
         spaceId=spaceId,

@@ -1,4 +1,5 @@
 from steamship import MimeTypes
+from steamship.data.tags import Tag
 
 from .helpers import _random_name, _steamship
 
@@ -18,33 +19,38 @@ def test_file_tag():
     assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
-    a.add_tags(['test1', 'test2'])
+    t1 = Tag.create(steamship, fileId=a.id, name="test1").data
+    t2 = Tag.create(steamship, fileId=a.id, name="test2").data
 
-    tags = a.list_tags().data.tags
-    print(tags)
-    assert (len(tags) == 2)
+    tags = Tag.listPublic(steamship, fileId=a.id)
+    assert (tags.data is not None)
+    assert (tags.data.tags is not None)
+    assert (len(tags.data.tags) == 2)
 
     must = ['test1', 'test2']
-    for tag in tags:
+    for tag in tags.data.tags:
         assert (tag.name in must)
         must.remove(tag.name)
     assert (len(must) == 0)
 
-    a.remove_tags(['test1'])
+    tags.data.tags[0].delete()
 
-    tags = a.list_tags().data.tags
-    print(tags)
-    assert (len(tags) == 1)
+    tags = Tag.listPublic(steamship, fileId=a.id)
+    assert (tags.data is not None)
+    assert (tags.data.tags is not None)
+    assert (len(tags.data.tags) == 1)
 
     must = ['test2']
-    for tag in tags:
+    for tag in tags.data.tags:
         assert (tag.name in must)
         must.remove(tag.name)
     assert (len(must) == 0)
 
-    a.remove_tags(['test2'])
-    tags = a.list_tags().data.tags
-    print(tags)
-    assert (len(tags) == 0)
+    tags.data.tags[0].delete()
+
+    tags = Tag.listPublic(steamship, fileId=a.id)
+    assert (tags.data is not None)
+    assert (tags.data.tags is not None)
+    assert (len(tags.data.tags) == 0)
 
     a.delete()
