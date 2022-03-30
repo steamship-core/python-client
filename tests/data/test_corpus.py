@@ -1,7 +1,7 @@
 import pytest
 
 from steamship import MimeTypes, File, Corpus
-from .helpers import _random_name, _steamship
+from tests.client.helpers import _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

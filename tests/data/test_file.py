@@ -5,7 +5,7 @@ from steamship.base.response import TaskStatus
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
-from .helpers import _random_name, _steamship
+from tests.client.helpers import _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

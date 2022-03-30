@@ -1,4 +1,4 @@
-from .helpers import _steamship
+from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

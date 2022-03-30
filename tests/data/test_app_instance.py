@@ -1,7 +1,7 @@
 import requests
 
 from steamship.data.user import User
-from .helpers import _steamship, deploy_app, shouldUseSubdomain
+from tests.client.helpers import _steamship, deploy_app, shouldUseSubdomain
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

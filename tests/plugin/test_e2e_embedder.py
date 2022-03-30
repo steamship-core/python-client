@@ -3,8 +3,8 @@ from ..client.helpers import deploy_app, register_app_as_plugin, _steamship
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-from ..client.test_embedding import basic_embeddings, basic_embedding_search
-from ..client.test_embedding_index import create_index
+from tests.client.operations.test_embedding import basic_embeddings, basic_embedding_search
+from tests.client.operations.test_embedding_index import create_index
 
 
 def test_e2e_embedder():

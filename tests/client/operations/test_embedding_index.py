@@ -2,7 +2,7 @@ from steamship.base import Client
 from steamship.base.response import TaskStatus
 from steamship.data.embedding_index import EmbeddedItem
 
-from .helpers import _random_index, _random_name, _steamship
+from tests.client.helpers import _random_index, _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

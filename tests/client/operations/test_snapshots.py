@@ -1,7 +1,7 @@
 from steamship.base.response import TaskStatus
 from steamship.data.embedding_index import IndexSnapshotRequest, IndexSnapshotResponse
 
-from .helpers import _random_name, _steamship
+from tests.client.helpers import _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
