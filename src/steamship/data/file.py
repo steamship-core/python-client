@@ -120,7 +120,7 @@ class File:
     spaceId: str = None
     corpusId: str = None
     blocks: [Block] = None
-    blocks: [Tag] = None
+    tags: [Tag] = None
 
     @dataclass
     class CreateRequest:
@@ -267,6 +267,23 @@ class File:
         )
 
     @staticmethod
+    def get(
+            client: Client,
+            id: str = None,
+            handle: str = None,
+            spaceId: str = None,
+            spaceHandle: str = None,
+            space: any = None) -> Response["File"]:
+        return client.post(
+            'file/get',
+            IdentifierRequest(id=id, handle=handle),
+            expect=File,
+            spaceId=spaceId,
+            spaceHandle=spaceHandle,
+            space=space
+        )
+
+    @staticmethod
     def create(
             client: Client,
             filename: str = None,
@@ -275,33 +292,51 @@ class File:
             content: str = None,
             pluginInstance: str = None,
             mimeType: str = None,
+            blocks: List[Block.CreateRequest] = None,
+            tags: List[Tag.CreateRequest] = None,
             corpusId: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
     ) -> "Response[File]":
 
-        if filename is None and name is None and content is None and url is None and pluginInstance is None:
+        if filename is None and name is None and content is None and url is None and pluginInstance is None and blocks is None:
             raise Exception("Either filename, name + content, url, or plugin Instance must be provided.")
 
-        if filename is not None:
+        uploadType = None
+        if blocks is not None:
+            uploadType = FileUploadType.blocks
+        elif pluginInstance is not None:
+            uploadType = FileUploadType.fileImporter
+        elif content is not None:
+            # We're still goign to use the file upload method for file uploads
+            uploadType = FileUploadType.file
+        elif filename is not None:
             with open(filename, 'rb') as f:
                 content = f.read()
                 name = filename
+            uploadType = FileUploadType.file
+        else:
+            if url is not None:
+                raise Exception("Unable to determine upload type. For scraping a URL, use the File.scrape method.")
+            else:
+                raise Exception("Unable to determine upload type.")
 
         req = File.CreateRequest(
-            type=FileUploadType.fileImporter if pluginInstance is not None else FileUploadType.file,
+            type=uploadType,
             corpusId=corpusId,
             name=name,
             url=url,
             mimeType=mimeType,
-            pluginInstance=pluginInstance
+            pluginInstance=pluginInstance,
+            blocks=blocks,
+            tags=tags
         )
 
         return client.post(
             'file/create',
             payload=req,
-            file=(name, content, "multipart/form-data"),
+            file=(name, content, "multipart/form-data") if uploadType != FileUploadType.blocks else None,
             expect=File,
             spaceId=spaceId,
             spaceHandle=spaceHandle,

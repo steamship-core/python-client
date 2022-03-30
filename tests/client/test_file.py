@@ -1,7 +1,8 @@
 from steamship import MimeTypes, DocTag
 from steamship.base.response import TaskStatus
-
 from steamship.data.file import File
+from steamship.data.block import Block
+from steamship.data.tags.tag import Tag
 
 from .helpers import _random_name, _steamship
 
@@ -9,7 +10,6 @@ import json
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
-
 
 def test_file_upload():
     steamship = _steamship()
@@ -175,3 +175,41 @@ def test_file_import_response_bytes_serialization():
     as_json_string = json.dumps(to_dict)
     as_dict_again = json.loads(as_json_string)
     assert (as_dict_again == to_dict)
+
+def test_file_upload_with_blocks():
+    client = _steamship()
+    name_a = "{}.mkd".format(_random_name())
+    a = File.create(
+        client=client,
+        name=name_a,
+        blocks=[
+            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
+            Block.CreateRequest(text="B")
+        ],
+        tags=[
+            Tag.CreateRequest(name="FileTag")
+        ]
+    ).data
+    assert (a.id is not None)
+    assert (a.name == name_a)
+
+    blocks = Block.listPublic(client, fileId=a.id)
+
+    def check_blocks(blocks):
+        assert (len(blocks) == 2)
+        assert (blocks[0].tags is not None)
+        assert (len(blocks[0].tags) == 1)
+        assert (blocks[0].tags[0].name == "BlockTag")
+        assert (blocks[0].text == "A")
+
+    assert (blocks.data.blocks is not None)
+    check_blocks(blocks.data.blocks)
+
+    # Let's get the file fresh
+    aa = File.get(client, id=a.id).data
+    check_blocks(aa.blocks)
+    assert (aa.tags is not None)
+    assert (len(aa.tags) == 1)
+    assert (aa.tags[0].name == "FileTag")
+
+    a.delete()

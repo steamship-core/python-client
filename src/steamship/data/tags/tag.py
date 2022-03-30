@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from typing import List, Any
 from steamship.base import Client, Request, Response
 
-
 @dataclass
 class Tag:
     client: Client = None
@@ -54,6 +53,14 @@ class Tag:
     @dataclass
     class ListResponse(Request):
         tags: List["Tag"] = None
+
+        @staticmethod
+        def from_dict(d: any, client: Client = None) -> "Tag.ListResponse":
+            if d is None:
+                return None
+            return Tag.ListResponse(
+                tags=[Tag.from_dict(x, client=client) for x in (d.get("tags", []) or [])]
+            )
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "Tag":
@@ -136,7 +143,7 @@ class Tag:
 
     def delete(self) -> Response["Tag"]:
         return self.client.post(
-            'plugin/delete',
+            'tag/delete',
             Tag.DeleteRequest(id=self.id),
             expect=Tag,
         )
