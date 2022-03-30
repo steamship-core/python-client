@@ -1,7 +1,8 @@
 import io
 import logging
 import re
-from typing import Union, Tuple, Any, List
+from dataclasses import dataclass
+from typing import Tuple, Any, List
 
 from steamship.base import Client, Response, Request
 from steamship.base.binary_utils import flexi_create
@@ -9,16 +10,16 @@ from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
 from steamship.data.tags import Tag
 
-from dataclasses import dataclass
 
 class File:
     pass
 
+
 class FileUploadType:
-    file = "file" # The CreateRequest contains a file upload that should be used
-    url = "url" # The CreateRequest contains a url that should be scraped
-    value = "value" # The Create Request contains a `text` field that should be used
-    fileImporter = "fileImporter" # The CreateRequest contains a fileImporter handle that should be used
+    file = "file"  # The CreateRequest contains a file upload that should be used
+    url = "url"  # The CreateRequest contains a url that should be scraped
+    value = "value"  # The Create Request contains a `text` field that should be used
+    fileImporter = "fileImporter"  # The CreateRequest contains a fileImporter handle that should be used
     blocks = "blocks"  # The CreateRequest contains blocks and tags that should be read in directly
 
 
@@ -104,8 +105,6 @@ class FileQueryResponse:
             id=d.get('id', None),
             blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', None)]
         )
-
-
 
 
 @dataclass

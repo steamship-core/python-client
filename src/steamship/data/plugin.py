@@ -60,11 +60,13 @@ class ListPluginsResponse(Request):
             plugins=[Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])]
         )
 
+
 @dataclass
 class GetPluginRequest(Request):
     type: str = None
     id: str = None
     handle: str = None
+
 
 class PluginType:
     embedder = "embedder"
@@ -201,8 +203,6 @@ class Plugin:
             spaceHandle=spaceHandle
         )
 
-
-
     @staticmethod
     def get(client: Client, handle: str):
         return client.post(
@@ -218,8 +218,6 @@ class Plugin:
             if plugin.handle == handle:
                 return plugin
         return None
-
-
 
     def delete(self) -> Response[Plugin]:
         return self.client.post(

@@ -1,10 +1,10 @@
 import base64
 import logging
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any
 
-from steamship.base.mime_types import TEXT_MIME_TYPES
 from steamship.base import Client
+from steamship.base.mime_types import TEXT_MIME_TYPES
 
 
 @dataclass

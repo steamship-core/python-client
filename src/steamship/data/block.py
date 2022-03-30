@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 from typing import List, Union
+
 from steamship.base import Client, Request, Response
 from steamship.base.request import IdentifierRequest
 from steamship.data.tags.tag import Tag
+
 
 @dataclass
 class Block:
@@ -92,13 +94,13 @@ class Block:
 
     @staticmethod
     def create(
-        client: Client,
-        fileId: str = None,
-        text: str = None,
-        tags: List[Tag.CreateRequest] = None,
-        upsert: bool = None,
-        spaceId: str = None,
-        spaceHandle: str = None
+            client: Client,
+            fileId: str = None,
+            text: str = None,
+            tags: List[Tag.CreateRequest] = None,
+            upsert: bool = None,
+            spaceId: str = None,
+            spaceHandle: str = None
     ) -> Response["Block"]:
         req = Block.CreateRequest(
             fileId=fileId,
@@ -137,5 +139,3 @@ class Block:
             Block.DeleteRequest(id=self.id),
             expect=Tag,
         )
-
-

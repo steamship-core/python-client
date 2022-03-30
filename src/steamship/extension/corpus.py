@@ -1,6 +1,7 @@
 from steamship import Corpus
 from steamship.plugin.corpus_importer import CorpusImportResponse, CorpusImportRequest
 
+
 def doImport(
         self,
         value: str = None,
@@ -27,5 +28,6 @@ def doImport(
         spaceHandle=spaceHandle,
         space=space
     )
+
 
 Corpus.doImport = doImport

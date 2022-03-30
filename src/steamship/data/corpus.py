@@ -5,6 +5,7 @@ from typing import Any, List
 from steamship.base import Client, Request, Response, str_to_metadata
 from steamship.base.request import IdentifierRequest
 
+
 @dataclass
 class Corpus:
     """A corpus of files.
@@ -131,5 +132,3 @@ class Corpus:
             spaceHandle=spaceHandle,
             space=space
         )
-
-

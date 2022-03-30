@@ -3,17 +3,17 @@ import io
 import os
 import random
 import string
-import zipfile
 import time
+import zipfile
 
 from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
 from steamship.base import Client
+from steamship.data.corpus import Corpus
 from steamship.data.plugin import Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
-from steamship.data.corpus import Corpus
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -52,11 +52,13 @@ def _random_file(steamship: Steamship, content: str = "") -> File:
     yield file
     file.delete()  # or whatever you need to do at exit
 
+
 @contextlib.contextmanager
 def _random_corpus(client: Steamship) -> Corpus:
     corpus = Corpus.create(client, name=_random_name()).data
     yield corpus
     corpus.delete()
+
 
 def _steamship() -> Steamship:
     # This should automatically pick up variables from the environment.
@@ -161,11 +163,13 @@ def deploy_app(py_name: str):
     res = app.delete()
     assert (res.error is None)
 
+
 @contextlib.contextmanager
 def deploy_plugin(py_name: str, plugin_type: str):
     client = _steamship()
     name = _random_name()
-    plugin = Plugin.create(client, name=name, description='test', type=plugin_type, transport="jsonOverHttp", isPublic=False)
+    plugin = Plugin.create(client, name=name, description='test', type=plugin_type, transport="jsonOverHttp",
+                           isPublic=False)
     assert (plugin.error is None)
     assert (plugin.data is not None)
     plugin = plugin.data
@@ -223,7 +227,6 @@ def shouldUseSubdomain(client: Client):
 
 @contextlib.contextmanager
 def register_app_as_plugin(client: Client, type: string, path: str, app: App, instance: AppInstance) -> Plugin:
-
     url = instance.full_url_for(
         path=path,
         appHandle=app.handle,

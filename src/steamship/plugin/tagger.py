@@ -1,15 +1,12 @@
+import json
 from abc import ABC
+from dataclasses import dataclass, asdict
+from typing import List
 
 from steamship.base import Client
-from steamship.data.parser import TagRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginService, PluginRequest
-
-class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
-    @classmethod
-    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[TagRequest]:
-        return TagRequest.from_dict(d, client=client)
 
 
 @dataclass
@@ -60,3 +57,8 @@ class TagRequest:
     def to_dict(self) -> dict:
         return asdict(self)
 
+
+class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
+    @classmethod
+    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[TagRequest]:
+        return TagRequest.from_dict(d, client=client)

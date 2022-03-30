@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 from typing import List
 
-from steamship.base.response import Response
 from steamship.base import Client, Request
+from steamship.base.response import Response
+
 
 class PluginVersion:
     pass
+
 
 @dataclass
 class CreatePluginVersionRequest(Request):
@@ -42,6 +44,7 @@ class ListPluginVersionsResponse(Request):
         return ListPluginVersionsResponse(
             plugins=[PluginVersion.from_dict(x, client=client) for x in (d.get("pluginVersions", []) or [])]
         )
+
 
 @dataclass
 class PluginVersion:
@@ -123,7 +126,7 @@ class PluginVersion:
     ) -> Response[ListPluginVersionsResponse]:
         return client.post(
             'plugin/version/public',
-            ListPublicPluginVersionsRequest(handle= handle, pluginId=pluginId),
+            ListPublicPluginVersionsRequest(handle=handle, pluginId=pluginId),
             expect=ListPluginVersionsResponse,
         )
 
@@ -136,7 +139,6 @@ class PluginVersion:
     ) -> Response[ListPluginVersionsResponse]:
         return client.post(
             'plugin/version/private',
-            ListPrivatePluginVersionsRequest(handle= handle, pluginId=pluginId),
+            ListPrivatePluginVersionsRequest(handle=handle, pluginId=pluginId),
             expect=ListPluginVersionsResponse,
         )
-

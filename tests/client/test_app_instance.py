@@ -1,10 +1,11 @@
 import requests
-from steamship.data.user import User
 
+from steamship.data.user import User
 from .helpers import _steamship, deploy_app, shouldUseSubdomain
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
+
 
 def test_instance_invoke():
     with deploy_app("demo_app.py") as (app, version, instance):

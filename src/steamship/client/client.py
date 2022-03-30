@@ -3,14 +3,16 @@ from typing import List
 
 from steamship.base import Client, Response
 from steamship.client.tasks import Tasks
-from steamship.data import Corpus, File
+from steamship.data import File
 from steamship.data.embedding import EmbedAndSearchRequest, EmbedAndSearchResponse, EmbedRequest, EmbedResponse
 from steamship.data.embedding_index import EmbeddingIndex
-from steamship.data.parser import TokenMatcher, PhraseMatcher, DependencyMatcher, TagRequest, TagResponse
 from steamship.data.space import Space
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
+
+from steamship.extension.file import TagResponse
+from steamship.plugin.tagger import TagRequest
 
 _logger = logging.getLogger(__name__)
 
@@ -196,9 +198,6 @@ class Steamship(Client):
             self,
             docs: List[str],
             pluginInstance: str = None,
-            tokenMatchers: List[TokenMatcher] = None,
-            phraseMatchers: List[PhraseMatcher] = None,
-            dependencyMatchers: List[DependencyMatcher] = None,
             includeTokens: bool = True,
             includeParseData: bool = True,
             includeEntities: bool = False,
@@ -211,9 +210,6 @@ class Steamship(Client):
             type="inline",
             docs=docs,
             pluginInstance=pluginInstance,
-            tokenMatchers=tokenMatchers,
-            phraseMatchers=phraseMatchers,
-            dependencyMatchers=dependencyMatchers,
             includeTokens=includeTokens,
             includeParseData=includeParseData,
             includeEntities=includeEntities,

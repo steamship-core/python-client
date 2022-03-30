@@ -1,7 +1,9 @@
 import json
 from dataclasses import dataclass
 from typing import List, Any
+
 from steamship.base import Client, Request, Response
+
 
 @dataclass
 class Tag:
@@ -9,11 +11,11 @@ class Tag:
     id: str = None
     fileId: str = None
     blockId: str = None
-    kind: str = None      # E.g. ner
-    name: str = None      # E.g. person
-    value: str = None     # JSON Metadata
+    kind: str = None  # E.g. ner
+    name: str = None  # E.g. person
+    value: str = None  # JSON Metadata
     startIdx: int = None  # w/r/t block.text. None means 0 if blockId is not None
-    endIdx: int = None    # w/r/t block.text. None means -1 if blockId is not None
+    endIdx: int = None  # w/r/t block.text. None means -1 if blockId is not None
 
     @dataclass
     class CreateRequest(Request):
@@ -144,12 +146,9 @@ class Tag:
             spaceHandle=spaceHandle
         )
 
-
     def delete(self) -> Response["Tag"]:
         return self.client.post(
             'tag/delete',
             Tag.DeleteRequest(id=self.id, fileId=self.fileId, blockId=self.blockId),
             expect=Tag,
         )
-
-

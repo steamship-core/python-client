@@ -1,10 +1,8 @@
-from typing import List
-
 from steamship.base import Client, Response
 from steamship.data.embedding_index import EmbeddingIndex
 from steamship.data.embedding_index import IndexItem
-from steamship.data.plugin import PluginTargetType
 from steamship.data.file import File, FileUploadType
+from steamship.data.plugin import PluginTargetType
 from steamship.plugin.converter import ConvertRequest
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.tagger import TagRequest
@@ -22,7 +20,6 @@ def upload(
         spaceHandle: str = None,
         space: any = None
 ) -> "Response[File]":
-
     if filename is None and name is None and content is None:
         raise Exception("Either filename or name + content must be provided.")
 
@@ -48,7 +45,9 @@ def upload(
         space=space
     )
 
+
 File.upload = upload
+
 
 def convert(
         self,
@@ -72,6 +71,7 @@ def convert(
         spaceHandle=spaceHandle,
         space=space
     )
+
 
 File.convert = convert
 
@@ -104,7 +104,9 @@ def parse(
         space=space
     )
 
+
 File.parse = parse
+
 
 # def tag(
 #         self,
@@ -194,8 +196,5 @@ def index(
     insert_task.wait()
     return index
 
+
 File.index = index
-
-
-
-

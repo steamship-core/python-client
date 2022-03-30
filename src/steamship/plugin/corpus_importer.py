@@ -10,6 +10,7 @@ class CorpusImporter(PluginService[CorpusImportRequest, CorpusImportResponse], A
     def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[CorpusImportRequest]:
         return CorpusImportRequest.from_dict(d, client=client)
 
+
 @dataclass
 class CorpusImportRequest:
     # The Corpus Identifiers
@@ -74,4 +75,3 @@ class CorpusImportResponse:
         return dict(
             fileImportRequests=self.fileImportRequests
         )
-

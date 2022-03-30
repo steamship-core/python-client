@@ -3,8 +3,10 @@ from dataclasses import dataclass
 from steamship.base import Client, Request
 from steamship.base.response import Response
 
+
 class PluginInstance:
     pass
+
 
 @dataclass
 class CreatePluginInstanceRequest(Request):
@@ -60,14 +62,13 @@ class PluginInstance:
             handle: str = None,
             upsert: bool = None
     ) -> Response[PluginInstance]:
-
         req = CreatePluginInstanceRequest(
             name=name,
             handle=handle,
             pluginId=pluginId,
-            pluginHandle = pluginHandle,
+            pluginHandle=pluginHandle,
             pluginVersionId=pluginVersionId,
-            pluginVersionHandle = pluginVersionHandle,
+            pluginVersionHandle=pluginVersionHandle,
             upsert=upsert
         )
 

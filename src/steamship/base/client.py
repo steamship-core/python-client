@@ -3,6 +3,7 @@ from dataclasses import asdict
 from typing import Any, TypeVar, Union
 
 import requests  # type: ignore
+
 from steamship.base.configuration import Configuration
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes

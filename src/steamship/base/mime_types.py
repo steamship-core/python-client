@@ -17,6 +17,7 @@ class MimeTypes:
     RTF = "application/rtf"
     BINARY = "application/octet-stream"
 
+
 TEXT_MIME_TYPES = [
     MimeTypes.TXT,
     MimeTypes.MKD,

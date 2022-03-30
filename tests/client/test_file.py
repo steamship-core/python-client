@@ -1,15 +1,15 @@
+import json
+
 from steamship import MimeTypes, DocTag
 from steamship.base.response import TaskStatus
-from steamship.data.file import File
 from steamship.data.block import Block
+from steamship.data.file import File
 from steamship.data.tags.tag import Tag
-
 from .helpers import _random_name, _steamship
-
-import json
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
+
 
 def test_file_upload():
     steamship = _steamship()
@@ -175,6 +175,7 @@ def test_file_import_response_bytes_serialization():
     as_json_string = json.dumps(to_dict)
     as_dict_again = json.loads(as_json_string)
     assert (as_dict_again == to_dict)
+
 
 def test_file_upload_with_blocks():
     client = _steamship()
