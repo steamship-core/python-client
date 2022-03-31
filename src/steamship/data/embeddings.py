@@ -501,7 +501,7 @@ class EmbeddingIndex:
             client: Client,
             handle: str = None,
             name: str = None,
-            plugin: str = None,
+            pluginInstance: str = None,
             upsert: bool = True,
             externalId: str = None,
             externalType: str = None,
@@ -513,7 +513,7 @@ class EmbeddingIndex:
         req = IndexCreateRequest(
             handle=handle,
             name=name,
-            plugin=plugin,
+            pluginInstance=pluginInstance,
             upsert=upsert,
             externalId=externalId,
             externalType=externalType,

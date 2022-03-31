@@ -1,7 +1,9 @@
 from steamship.base import Client, Response
+from steamship.client.operations.tagger import TagRequest
 from steamship.data.embeddings import EmbeddingIndex, EmbeddedItem
 from steamship.data.file import File, FileUploadType
 from steamship.data.plugin import PluginTargetType
+from steamship.client.operations.converter import ConvertRequest
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
 
@@ -46,15 +48,10 @@ def upload(
 File.upload = upload
 
 
-def convert(
-        self,
-        pluginInstance: str = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
-        space: any = None):
+def convert(self, pluginInstance: str = None ):
     req = ConvertRequest(
+        type='file',
         id=self.id,
-        type=PluginTargetType.file,
         pluginInstance=pluginInstance
     )
 
@@ -63,10 +60,7 @@ def convert(
         payload=req,
         expect=BlockAndTagPluginOutput,
         asynchronous=True,
-        ifdQuery=self,
-        spaceId=spaceId,
-        spaceHandle=spaceHandle,
-        space=space
+        ifdQuery=self
     )
 
 
@@ -77,7 +71,7 @@ class TagResponse:
     pass
 
 
-def parse(
+def tag(
         self,
         pluginInstance: str = None,
         spaceId: str = None,
@@ -91,7 +85,7 @@ def parse(
     )
 
     return self.client.post(
-        'plugin/instance/parse',
+        'plugin/instance/tag',
         payload=req,
         expect=TagResponse,
         asynchronous=True,
@@ -102,7 +96,7 @@ def parse(
     )
 
 
-File.parse = parse
+File.tag = tag
 
 
 # def tag(

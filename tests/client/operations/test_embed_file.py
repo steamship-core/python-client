@@ -1,4 +1,4 @@
-from steamship import MimeTypes, DocTag
+from steamship import MimeTypes, DocTag, PluginInstance
 
 from tests.client.helpers import _random_index, _random_name, _steamship
 
@@ -10,9 +10,6 @@ __license__ = "MIT"
 
 _TEST_EMBEDDER = "test-embedder-v1"
 
-
-def parsing_plugin():
-    return "test-parser-v1"
 
 
 def test_file_parse():
@@ -42,12 +39,13 @@ def test_file_parse():
     assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
-    convertResp = a.convert(plugin="markdown-converter-default-v1")
+    convertResp = a.convert(pluginInstance="markdown-converter-default-1.0")
     assert (convertResp.error is None)
     convertResp.wait()
 
     # Now we parse
-    parseResp = a.parse(pluginInstance=parsing_plugin())
+    parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
+    parseResp = a.tag(pluginInstance=parser.handle)
     assert (parseResp.error is None)
     parseResp.wait()
 
@@ -96,12 +94,13 @@ def test_file_index():
     assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
-    convertResp = a.convert(plugin="markdown-converter-default-v1")
+    convertResp = a.convert(pluginInstance="markdown-converter-default-1.0")
     assert (convertResp.error is None)
     convertResp.wait()
 
     # Now we parse
-    parseResp = a.parse(pluginInstance=parsing_plugin())
+    parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
+    parseResp = a.tag(pluginInstance=parser.handle)
     assert (parseResp.error is None)
     parseResp.wait()
 
@@ -138,11 +137,12 @@ def test_file_embed_lookup():
         mimeType=MimeTypes.MKD
     ).data
 
-    convertRes = a.convert(plugin="markdown-converter-default-v1")
+    convertRes = a.convert(pluginInstance="markdown-converter-default-1.0")
     assert (convertRes.error is None)
     convertRes.wait()
 
-    parseRes = a.parse(pluginInstance=parsing_plugin())
+    parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
+    parseRes = a.tag(pluginInstance=parser.handle)
     assert (parseRes.error is None)
     parseRes.wait()
 
@@ -151,11 +151,12 @@ def test_file_embed_lookup():
         content=content_b,
         mimeType=MimeTypes.MKD
     ).data
-    convertRes = b.convert(plugin="markdown-converter-default-v1")
+    convertRes = b.convert(pluginInstance="markdown-converter-default-1.0")
     assert (convertRes.error is None)
     convertRes.wait()
 
-    parseRes = b.parse(pluginInstance=parsing_plugin())
+    parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
+    parseRes = b.tag(pluginInstance=parser.handle)
     assert (parseRes.error is None)
     parseRes.wait()
 

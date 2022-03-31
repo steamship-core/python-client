@@ -19,7 +19,7 @@ def test_file_upload_then_parse():
     q1 = a.query().data
     assert (len(q1.blocks) == 0)
 
-    task = a.convert(plugin="markdown-converter-default-v1")
+    task = a.convert(pluginInstance="markdown-converter-default-1.0")
     assert (task.error is None)
     assert (task.task is not None)
     assert (task.task.state == TaskStatus.waiting)
@@ -47,7 +47,7 @@ This is a test."""
     q1 = b.query().data
     assert (len(q1.blocks) == 0)
 
-    task = b.convert(plugin="markdown-converter-default-v1")
+    task = b.convert(pluginInstance="markdown-converter-default-1.0")
     assert (task.error is None)
     assert (task.task is not None)
     task.wait()

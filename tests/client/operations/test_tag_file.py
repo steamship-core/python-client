@@ -1,4 +1,4 @@
-from steamship import MimeTypes, DocTag
+from steamship import MimeTypes, DocTag, PluginInstance
 from steamship.base import Client
 from steamship.base.response import TaskStatus
 
@@ -11,7 +11,7 @@ __license__ = "MIT"
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
 
-def parse_file(client: Client, parserModel: str):
+def parse_file(client: Client):
     name_a = "{}.mkd".format(_random_name())
     T = "A Poem"
     P1_1 = "Roses are red."
@@ -29,7 +29,7 @@ def parse_file(client: Client, parserModel: str):
     assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
-    a.convert(plugin="markdown-converter-default-v1").wait()
+    a.convert(pluginInstance="markdown-converter-default-1.0").wait()
 
     raw = a.raw()
     assert (raw.data.decode('utf-8') == CONTENT)
@@ -49,7 +49,8 @@ def parse_file(client: Client, parserModel: str):
     assert (len(q2.blocks) == 0)
 
     # Now we parse
-    task = a.parse(pluginInstance="test-parser-v1")
+    parser = PluginInstance.create(client, pluginHandle='test-tagger').data
+    task = a.tag(pluginInstance=parser.handle)
     assert (task.error is None)
     assert (task.task is not None)
     assert (task.task.state == TaskStatus.waiting)
@@ -73,4 +74,4 @@ def parse_file(client: Client, parserModel: str):
 
 def test_parse_file():
     steamship = _steamship()
-    parse_file(steamship, "test-parser-v1")
+    parse_file(steamship)
