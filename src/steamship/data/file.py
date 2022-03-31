@@ -236,6 +236,19 @@ class File:
             tags=[Tag.from_dict(tag, client=client) for tag in d.get('tags', [])]
         )
 
+    def to_dict(self) -> dict:
+        return dict(
+            id=self.id,
+            handle=self.handle,
+            name= self.name,
+            mimeType=self.mimeType,
+            corpusId=self.corpusId,
+            spaceId=self.spaceId,
+            blocks=[block.to_dict() for block in self.blocks] if self.blocks else [],
+            tags=[tag.to_dict() for tag in self.tags] if self.tags else []
+        )
+
+
     def delete(
             self,
             spaceId: str = None,

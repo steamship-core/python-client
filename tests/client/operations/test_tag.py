@@ -10,7 +10,7 @@ __license__ = "MIT"
 def test_parsing():
     steamship = _steamship()
     parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
-    resp = steamship.parse(["This is a test"], pluginInstance=parser.handle)
+    resp = steamship.tag(["This is a test"], pluginInstance=parser.handle)
     resp.wait()
     resp = resp.data
     assert (len(resp.blocks) == 1)
@@ -26,7 +26,7 @@ def test_parsing():
 def test_parsing_options():
     steamship = _steamship()
     parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
-    resp = steamship.parse(["This is a test"], pluginInstance=parser.handle, includeTokens=False)
+    resp = steamship.tag(["This is a test"], pluginInstance=parser.handle, includeTokens=False)
     resp.wait()
     assert (len(resp.data.blocks) == 1)
     d = resp.data.blocks[0]
@@ -36,8 +36,8 @@ def test_parsing_options():
     assert (s.text == "This is a test")
     assert (len(s.tokens) == 0)
 
-    resp = steamship.parse(["This is a test"], pluginInstance=parser.handle, includeTokens=True,
-                           includeParseData=False)
+    resp = steamship.tag(["This is a test"], pluginInstance=parser.handle, includeTokens=True,
+                         includeParseData=False)
     resp.wait()
     assert (len(resp.data.blocks) == 1)
     d = resp.data.blocks[0]

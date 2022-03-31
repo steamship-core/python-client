@@ -1,7 +1,7 @@
 from steamship.extension.file import File
 from steamship.data.block import Block
-from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.service import PluginRequest
+from steamship.client.operations.tagger import TagRequest
 
 from ..client.helpers import deploy_plugin, _steamship
 from tests.client.operations.test_tag_file import parse_file
@@ -9,13 +9,9 @@ from tests.client.operations.test_tag_file import parse_file
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-TEST_REQ = BlockAndTagPluginInput(
-    file=File.CreateRequest(
-        value="Hi there.",
-        blocks=[
-            Block.CreateRequest(id='ABC')
-        ]
-    )
+TEST_REQ = TagRequest(
+    docs=["Hi there."],
+    blockIds=["ABC"]
 )
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
 TEST_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
@@ -24,7 +20,7 @@ TEST_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 def test_e2e_parser():
     client = _steamship()
     with deploy_plugin("plugin_parser.py", "tagger") as (plugin, version, instance):
-        res = client.parse(docs=TEST_REQ.docs, pluginInstance=plugin.handle)
+        res = client.tag(doc=TEST_REQ.docs[0], pluginInstance=instance.handle)
         res.wait()
         assert (res.error is None)
         assert (res.data is not None)

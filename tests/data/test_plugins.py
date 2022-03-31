@@ -21,7 +21,6 @@ def test_plugin_create():
             client=steamship,
             description="This is just for test",
             type=PluginType.embedder,
-            url="http://foo1",
             transport=PluginAdapterType.steamshipDocker,
             isPublic=True
         )
@@ -32,7 +31,6 @@ def test_plugin_create():
             client=steamship,
             name="Test Plugin",
             type=PluginType.embedder,
-            url="http://foo2",
             transport=PluginAdapterType.steamshipDocker,
             isPublic=True
         )
@@ -43,7 +41,6 @@ def test_plugin_create():
             client=steamship,
             name="Test Plugin",
             description="This is just for test",
-            url="http://foo3",
             transport=PluginAdapterType.steamshipDocker,
             isPublic=True
         )
@@ -66,7 +63,6 @@ def test_plugin_create():
             name="Test Plugin",
             description="This is just for test",
             type=PluginType.embedder,
-            url="http://foo5",
             transport=PluginAdapterType.steamshipDocker,
         )
 
@@ -78,7 +74,6 @@ def test_plugin_create():
         name=_random_name(),
         description="This is just for test",
         type=PluginType.embedder,
-        url="http://foo6",
         transport=PluginAdapterType.steamshipDocker,
         isPublic=False
     ).data
@@ -92,7 +87,6 @@ def test_plugin_create():
         name=plugin.name,
         description="This is just for test",
         type=PluginType.embedder,
-        url="http://foo7",
         transport=PluginAdapterType.steamshipDocker,
         isPublic=False
     )
@@ -105,7 +99,6 @@ def test_plugin_create():
         name=plugin.name,
         description="This is just for test 2",
         type=PluginType.embedder,
-        url="http://foo8",
         transport=PluginAdapterType.steamshipDocker,
         isPublic=False,
         upsert=True

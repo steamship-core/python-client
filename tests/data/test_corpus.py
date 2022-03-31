@@ -51,10 +51,12 @@ def test_corpus_upsert():
     corpus1 = Corpus.create(client, name=name).data
     assert (corpus1.id is not None)
 
+    #This finds the same corpus as corpus1
     corpus2 = Corpus.create(client, name=name)
     assert (corpus2.data is not None)
     assert (corpus2.error is None)
-    corpus2.data.delete()
+    #Commenting out below, which deletes corpus1, which results in the corpus3 test failing
+    #corpus2.data.delete()
 
     corpus2 = Corpus.create(client, name=name, handle=_random_name()).data
     assert (corpus1.id != corpus2.id)

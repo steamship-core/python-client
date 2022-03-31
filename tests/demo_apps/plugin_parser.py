@@ -1,45 +1,30 @@
-from steamship import Block, DocTag
+from steamship import Block, DocTag, Tag
 from steamship.app import App, post, create_handler
 from steamship.plugin.tagger import Tagger
 from steamship.plugin.service import PluginResponse, PluginRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
+import re
 
 
-def _makeSentenceBlock(sentence: str, includeTokens: bool = True) -> Block:
-    """Splits the sentence in tokens on space. Dep head of all is first token"""
-    if includeTokens:
-        tokens = [Token(text=word, parentIndex=0) for word in sentence.split(" ")]
-        return Block(type=DocTag.sentence, text=sentence, tokens=tokens)
-    else:
-        return Block(type=DocTag.sentence, text=sentence)
 
-
-def _makeDocBlock(text: str, blockId: str = None, includeTokens=True) -> Block:
+def tagSentences(block: Block):
     """Splits the document into sentences by assuming a period is a sentence divider."""
     # Add the period back
-    sentences = list(map(lambda s: "{}.".format(s), text.split(".")))
-    children = [_makeSentenceBlock(sentence, includeTokens=includeTokens) for sentence in sentences]
-    return Block(id=blockId, text=text, type=DocTag.doc, children=children)
+    tags = []
+    for m in re.finditer(r'[^\.]+', block.text):
+        tags.append(Tag(kind='structure', name='sentence', startIdx=m.start(), endIdx=m.end()+1))
+    if block.tags:
+        block.tags.extend(tags)
+    else:
+        block.tags = tags
+
 
 
 def _makeTestResponse(request: BlockAndTagPluginInput) -> BlockAndTagPluginOutput:
-    blocks = []
-    for i, doc in enumerate(request.docs):
-        # This is awkward and we shouldn're require plugin authors to return
-        # the block ID below if possible... (Note: it's necessary for knowing
-        # where in the DB to fold the results back into.)
-        blockId = None
-        if request.blockIds is not None and i < len(request.blockIds):
-            i = request.blockIds[i]
-        blocks.append(
-            _makeDocBlock(
-                doc,
-                blockId=blockId,
-                includeTokens=request.includeTokens is None or request.includeTokens is True
-            )
-        )
-    response = BlockAndTagPluginOutput(blocks=blocks)
+    for block in request.file.blocks:
+        tagSentences(block)
+    response = BlockAndTagPluginOutput(request.file)
     return response
 
 

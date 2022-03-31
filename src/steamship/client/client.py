@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+from steamship import Block
 from steamship.base import Client, Response
 from steamship.client.operations.embedder import EmbedRequest
 from steamship.client.operations.tagger import TagRequest
@@ -196,9 +197,9 @@ class Steamship(Client):
             space=space
         )
 
-    def parse(
+    def tag(
             self,
-            docs: List[str],
+            doc: str,
             pluginInstance: str = None,
             includeTokens: bool = True,
             includeParseData: bool = True,
@@ -210,7 +211,11 @@ class Steamship(Client):
     ) -> Response[TagResponse]:
         req = TagRequest(
             type="inline",
-            docs=docs,
+            file=File.CreateRequest(
+                blocks=[Block.CreateRequest(
+                    text=doc
+                )]
+            ),
             pluginInstance=pluginInstance,
             includeTokens=includeTokens,
             includeParseData=includeParseData,
