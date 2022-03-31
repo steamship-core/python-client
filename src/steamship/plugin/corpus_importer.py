@@ -1,7 +1,7 @@
 from abc import ABC
 
 from steamship.base import Client
-from steamship.data.corpus import CorpusImportRequest, CorpusImportResponse
+from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from steamship.plugin.service import PluginService, PluginRequest
 
 # Note!

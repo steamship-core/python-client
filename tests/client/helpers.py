@@ -9,7 +9,7 @@ import zipfile
 from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
 from steamship.base import Client
-from steamship.data.corpus import Corpus
+from steamship.extension.corpus import Corpus
 from steamship.data.plugin import Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion

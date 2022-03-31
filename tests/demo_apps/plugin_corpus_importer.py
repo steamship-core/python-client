@@ -1,6 +1,7 @@
 from steamship import File
 from steamship.app import App, post, create_handler
-from steamship.plugin.corpus_importer import CorpusImporter, CorpusImportResponse, CorpusImportRequest
+from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
+from steamship.plugin.corpus_importer import CorpusImporter
 from steamship.plugin.service import PluginResponse, PluginRequest
 
 
