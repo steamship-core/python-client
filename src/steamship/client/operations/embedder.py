@@ -6,13 +6,13 @@ from steamship.base import Client
 @dataclass
 class EmbedRequest:
     docs: List[str]
-    plugin: str
+    pluginInstance: str
     metadata: Dict = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "EmbedRequest":
         return EmbedRequest(
             docs=d.get('docs', None),
-            plugin=d.get('plugin', None),
+            pluginInstance=d.get('pluginInstance', None),
             metadata=d.get('metadata', {})
         )

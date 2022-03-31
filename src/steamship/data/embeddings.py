@@ -10,7 +10,7 @@ from steamship.data.search import Hit
 class EmbedAndSearchRequest(Request):
     query: str
     docs: List[str]
-    plugin: str
+    pluginInstance: str
     k: int = 1
 
 @dataclass

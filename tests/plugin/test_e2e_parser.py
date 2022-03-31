@@ -10,8 +10,11 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 TEST_REQ = TagRequest(
-    docs=["Hi there."],
-    blockIds=["ABC"]
+    file=File.CreateRequest(
+        blocks=[Block.CreateRequest(
+            text='Hi there'
+        )]
+    )
 )
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
 TEST_REQ_DICT = TEST_PLUGIN_REQ.to_dict()

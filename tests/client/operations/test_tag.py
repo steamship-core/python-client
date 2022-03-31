@@ -10,43 +10,15 @@ __license__ = "MIT"
 def test_parsing():
     steamship = _steamship()
     parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
-    resp = steamship.tag(["This is a test"], pluginInstance=parser.handle)
+    resp = steamship.tag("This is a test", pluginInstance=parser.handle)
     resp.wait()
     resp = resp.data
-    assert (len(resp.blocks) == 1)
-    d = resp.blocks[0]
-    assert (len(d.children) == 1)
-    s = d.children[0]
+    assert (len(resp.file.blocks) == 1)
+    d = resp.file.blocks[0]
 
-    assert (s.text == "This is a test")
-    assert (len(s.tokens) == 4)
-    t = s.tokens[0]
+    assert (d.text == "This is a test")
+    assert (len(d.tags) == 5)
 
-
-def test_parsing_options():
-    steamship = _steamship()
-    parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
-    resp = steamship.tag(["This is a test"], pluginInstance=parser.handle, includeTokens=False)
-    resp.wait()
-    assert (len(resp.data.blocks) == 1)
-    d = resp.data.blocks[0]
-    assert (len(d.children) == 1)
-    s = d.children[0]
-
-    assert (s.text == "This is a test")
-    assert (len(s.tokens) == 0)
-
-    resp = steamship.tag(["This is a test"], pluginInstance=parser.handle, includeTokens=True,
-                         includeParseData=False)
-    resp.wait()
-    assert (len(resp.data.blocks) == 1)
-    d = resp.data.blocks[0]
-    assert (len(d.children) == 1)
-    s = d.children[0]
-
-    assert (s.text == "This is a test")
-    assert (len(s.tokens) == 4)
-    assert (s.tokens[0].dep is None)
 
 # def test_ner():
 #     steamship = _steamship()

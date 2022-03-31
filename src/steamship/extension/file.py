@@ -1,5 +1,5 @@
 from steamship.base import Client, Response
-from steamship.client.operations.tagger import TagRequest
+from steamship.client.operations.tagger import TagRequest, TagResponse
 from steamship.data.embeddings import EmbeddingIndex, EmbeddedItem
 from steamship.data.file import File, FileUploadType
 from steamship.data.plugin import PluginTargetType
@@ -67,8 +67,6 @@ def convert(self, pluginInstance: str = None ):
 File.convert = convert
 
 
-class TagResponse:
-    pass
 
 
 def tag(

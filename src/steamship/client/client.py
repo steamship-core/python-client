@@ -154,14 +154,14 @@ class Steamship(Client):
     def embed(
             self,
             docs: List[str],
-            plugin: str,
+            pluginInstance: str,
             spaceId: str = None,
             spaceHandle: str = None,
             space: Space = None
     ) -> Response[EmbeddedItemsPluginOutput]:
         req = EmbedRequest(
             docs=docs,
-            plugin=plugin
+            pluginInstance=pluginInstance
         )
         return self.post(
             'embedding/create',
@@ -176,7 +176,7 @@ class Steamship(Client):
             self,
             query: str,
             docs: List[str],
-            plugin: str,
+            pluginInstance: str,
             k: int = 1,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -185,7 +185,7 @@ class Steamship(Client):
         req = EmbedAndSearchRequest(
             query=query,
             docs=docs,
-            plugin=plugin,
+            pluginInstance=pluginInstance,
             k=k
         )
         return self.post(
@@ -201,10 +201,6 @@ class Steamship(Client):
             self,
             doc: str,
             pluginInstance: str = None,
-            includeTokens: bool = True,
-            includeParseData: bool = True,
-            includeEntities: bool = False,
-            metadata: any = None,
             spaceId: str = None,
             spaceHandle: str = None,
             space: Space = None
@@ -217,10 +213,6 @@ class Steamship(Client):
                 )]
             ),
             pluginInstance=pluginInstance,
-            includeTokens=includeTokens,
-            includeParseData=includeParseData,
-            includeEntities=includeEntities,
-            metadata=metadata
         )
         return self.post(
             'plugin/instance/tag',
