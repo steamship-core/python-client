@@ -4,7 +4,7 @@ from .app_version import AppVersion
 from .block import Block
 from .block import Block
 from .corpus import Corpus
-from .embedding_index import EmbeddingIndex
+from .embeddings import EmbeddingIndex
 from .file import File
 from .plugin import Plugin
 from .plugin_instance import PluginInstance

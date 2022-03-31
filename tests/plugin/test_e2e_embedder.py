@@ -3,7 +3,7 @@ from ..client.helpers import deploy_app, register_app_as_plugin, _steamship
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-from tests.client.operations.test_embedding import basic_embeddings, basic_embedding_search
+from tests.client.operations.test_embed import basic_embeddings, basic_embedding_search
 from tests.client.operations.test_embedding_index import create_index
 
 

@@ -2,19 +2,20 @@ import logging
 from typing import List
 
 from steamship.base import Client, Response
+from steamship.client.operations.embedder import EmbedRequest
 from steamship.client.tasks import Tasks
 from steamship.data import File
-from steamship.data.embeddings import EmbedAndSearchRequest, EmbedAndSearchResponse, EmbedRequest, EmbedResponse
-from steamship.data.embedding_index import EmbeddingIndex
+from steamship.data.embeddings import EmbedAndSearchRequest, EmbedAndSearchResponse, EmbeddingIndex
 from steamship.data.space import Space
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from steamship.extension.file import TagResponse
-from steamship.plugin.tagger import TagRequest
+from steamship.plugin.outputs.embedded_items_plugin_output import EmbeddedItemsPluginOutput
 
 _logger = logging.getLogger(__name__)
+
 
 
 class Steamship(Client):
@@ -155,7 +156,7 @@ class Steamship(Client):
             spaceId: str = None,
             spaceHandle: str = None,
             space: Space = None
-    ) -> Response[EmbedResponse]:
+    ) -> Response[EmbeddedItemsPluginOutput]:
         req = EmbedRequest(
             docs=docs,
             plugin=plugin
@@ -163,7 +164,7 @@ class Steamship(Client):
         return self.post(
             'embedding/create',
             req,
-            expect=EmbedResponse,
+            expect=EmbeddedItemsPluginOutput,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
