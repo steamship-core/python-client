@@ -1,4 +1,4 @@
-from steamship.data.embedding_index import EmbeddedItem
+from steamship.data.embeddings import EmbeddedItem
 
 from tests.client.helpers import _random_index, _random_name, _steamship
 

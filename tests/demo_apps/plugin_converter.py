@@ -1,7 +1,7 @@
 from steamship import Block, File, DocTag, Tag
 from steamship.data.tags import TagKind, DocTag
 from steamship.app import App, post, create_handler, Response
-from steamship.plugin.converter import Converter, ConvertRequest
+from steamship.plugin.converter import Converter
 from steamship.plugin.service import PluginResponse, PluginRequest
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput

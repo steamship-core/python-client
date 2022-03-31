@@ -1,6 +1,7 @@
 from steamship.app import App, post, create_handler
-from steamship.plugin.file_importer import FileImporter, File
+from steamship.plugin.file_importer import FileImporter
 from steamship.plugin.service import PluginResponse, PluginRequest
+from steamship.extension.file import File
 
 # Note: this aligns with the same document in the internal Engine test.
 NAME = "Test Importer (Plugin)"

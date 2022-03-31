@@ -3,7 +3,9 @@ from typing import Dict
 from steamship import File
 from steamship.base import Client
 
+from dataclasses import dataclass
 
+@dataclass
 class BlockAndTagPluginInput:
     file: File = None
 

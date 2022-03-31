@@ -32,6 +32,15 @@ class Block:
                 upsert=d.get('upsert', None),
             )
 
+        def to_dict(self)-> dict:
+            return dict(
+                id=self.id,
+                fileId=self.fileId,
+                text=self.text,
+                upsert=self.upsert,
+                tags=[tag.to_dict() for tag in self.tags] if self.tags else []
+            )
+
     @dataclass
     class DeleteRequest(Request):
         id: str = None

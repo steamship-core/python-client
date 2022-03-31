@@ -1,4 +1,6 @@
-from steamship.plugin.tagger import TagRequest
+from steamship.extension.file import File
+from steamship.data.block import Block
+from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.service import PluginRequest
 
 from ..client.helpers import deploy_plugin, _steamship
@@ -7,9 +9,13 @@ from tests.client.operations.test_tag_file import parse_file
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-TEST_REQ = TagRequest(
-    docs=["Hi there."],
-    blockIds=["ABC"]
+TEST_REQ = BlockAndTagPluginInput(
+    file=File.CreateRequest(
+        value="Hi there.",
+        blocks=[
+            Block.CreateRequest(id='ABC')
+        ]
+    )
 )
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
 TEST_REQ_DICT = TEST_PLUGIN_REQ.to_dict()

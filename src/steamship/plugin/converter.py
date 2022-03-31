@@ -1,5 +1,4 @@
 from abc import ABC
-from dataclasses import dataclass
 
 from steamship.base import Client
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput

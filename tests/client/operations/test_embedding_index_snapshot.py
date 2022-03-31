@@ -1,5 +1,5 @@
 from steamship.base.response import TaskStatus
-from steamship.data.embedding_index import IndexSnapshotRequest, IndexSnapshotResponse
+from steamship.data.embeddings import IndexSnapshotRequest, IndexSnapshotResponse
 
 from tests.client.helpers import _random_name, _steamship
 

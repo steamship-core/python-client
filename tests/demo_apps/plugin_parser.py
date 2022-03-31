@@ -1,7 +1,9 @@
 from steamship import Block, DocTag
 from steamship.app import App, post, create_handler
-from steamship.plugin.tagger import Tagger, TagResponse, TagRequest
+from steamship.plugin.tagger import Tagger
 from steamship.plugin.service import PluginResponse, PluginRequest
+from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
+from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
 
 def _makeSentenceBlock(sentence: str, includeTokens: bool = True) -> Block:
@@ -21,7 +23,7 @@ def _makeDocBlock(text: str, blockId: str = None, includeTokens=True) -> Block:
     return Block(id=blockId, text=text, type=DocTag.doc, children=children)
 
 
-def _makeTestResponse(request: TagRequest) -> TagResponse:
+def _makeTestResponse(request: BlockAndTagPluginInput) -> BlockAndTagPluginOutput:
     blocks = []
     for i, doc in enumerate(request.docs):
         # This is awkward and we shouldn're require plugin authors to return
@@ -37,7 +39,7 @@ def _makeTestResponse(request: TagRequest) -> TagResponse:
                 includeTokens=request.includeTokens is None or request.includeTokens is True
             )
         )
-    response = TagResponse(blocks=blocks)
+    response = BlockAndTagPluginOutput(blocks=blocks)
     return response
 
 
@@ -46,7 +48,7 @@ class TestParserPlugin(Tagger, App):
     # a distributed endless loop. E.g., a parser plugin returning the results
     # of using the Steamship client to call parse.. via itself!
 
-    def run(self, request: PluginRequest[TagRequest]) -> PluginResponse[TagResponse]:
+    def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> PluginResponse[BlockAndTagPluginOutput]:
         if request.data is not None:
             return PluginResponse(
                 data=_makeTestResponse(request.data)
