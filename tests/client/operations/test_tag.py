@@ -1,16 +1,16 @@
+from steamship import PluginInstance
 from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 
-def parsing_plugin():
-    return "test-parser-v1"
 
 
 def test_parsing():
     steamship = _steamship()
-    resp = steamship.parse(["This is a test"], pluginInstance=parsing_plugin())
+    parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
+    resp = steamship.parse(["This is a test"], pluginInstance=parser.handle)
     resp.wait()
     resp = resp.data
     assert (len(resp.blocks) == 1)
@@ -25,7 +25,8 @@ def test_parsing():
 
 def test_parsing_options():
     steamship = _steamship()
-    resp = steamship.parse(["This is a test"], pluginInstance=parsing_plugin(), includeTokens=False)
+    parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
+    resp = steamship.parse(["This is a test"], pluginInstance=parser.handle, includeTokens=False)
     resp.wait()
     assert (len(resp.data.blocks) == 1)
     d = resp.data.blocks[0]
@@ -35,7 +36,7 @@ def test_parsing_options():
     assert (s.text == "This is a test")
     assert (len(s.tokens) == 0)
 
-    resp = steamship.parse(["This is a test"], pluginInstance=parsing_plugin(), includeTokens=True,
+    resp = steamship.parse(["This is a test"], pluginInstance=parser.handle, includeTokens=True,
                            includeParseData=False)
     resp.wait()
     assert (len(resp.data.blocks) == 1)

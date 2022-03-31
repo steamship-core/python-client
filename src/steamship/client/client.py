@@ -3,6 +3,7 @@ from typing import List
 
 from steamship.base import Client, Response
 from steamship.client.operations.embedder import EmbedRequest
+from steamship.client.operations.tagger import TagRequest
 from steamship.client.tasks import Tasks
 from steamship.data import File
 from steamship.data.embeddings import EmbedAndSearchRequest, EmbedAndSearchResponse, EmbeddingIndex

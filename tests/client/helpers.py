@@ -35,9 +35,9 @@ _TEST_EMBEDDER = "test-embedder-v1"
 
 
 @contextlib.contextmanager
-def _random_index(steamship: Steamship, plugin: str = _TEST_EMBEDDER) -> EmbeddingIndex:
+def _random_index(steamship: Steamship, pluginInstance: str = _TEST_EMBEDDER) -> EmbeddingIndex:
     index = steamship.create_index(
-        plugin=plugin
+        pluginInstance=pluginInstance
     ).data
     yield index
     index.delete()  # or whatever you need to do at exit
