@@ -1,3 +1,4 @@
+from steamship import PluginInstance
 from steamship.base.response import TaskStatus
 from steamship.data.embeddings import IndexSnapshotRequest, IndexSnapshotResponse
 
@@ -6,7 +7,7 @@ from tests.client.helpers import _random_name, _steamship
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-_TEST_EMBEDDER = "test-embedder-v1"
+_TEST_EMBEDDER = "test-embedder"
 
 
 def _insert(index, items):
@@ -46,9 +47,10 @@ def test_snapshot_create():
     steamship = _steamship()
 
     name = _random_name()
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
     index = steamship.create_index(
         name=name,
-        plugin=_TEST_EMBEDDER,
+        pluginInstance=pluginInstance.handle,
         upsert=True
     ).data
 
@@ -94,7 +96,7 @@ def test_snapshot_create():
     name = _random_name()
     index = steamship.create_index(
         name=name,
-        plugin=_TEST_EMBEDDER,
+        pluginInstance=pluginInstance.handle,
         upsert=True
     ).data
 

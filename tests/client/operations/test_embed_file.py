@@ -8,7 +8,7 @@ __license__ = "MIT"
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
 
-_TEST_EMBEDDER = "test-embedder-v1"
+_TEST_EMBEDDER = "test-embedder"
 
 
 
@@ -50,11 +50,12 @@ def test_file_parse():
     parseResp.wait()
 
     # Now the sentences should be parsed!
-    q2 = a.query(blockType=DocTag.sentence).data
-    assert (len(q2.blocks) == 8)  # The 5th is inside the header!
+    q2 = a.query().data
+    assert (len(q2.blocks) == 6)
 
     # Now we add the file to the index
-    with _random_index(steamship) as index:
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
+    with _random_index(steamship, pluginInstance=pluginInstance.handle) as index:
         index.insert_file(a.id, reindex=False)
         embedResp = index.embed()
         assert (embedResp.error is None)
@@ -105,11 +106,12 @@ def test_file_index():
     parseResp.wait()
 
     # Now the sentences should be parsed!
-    q2 = a.query(blockType=DocTag.sentence).data
-    assert (len(q2.blocks) == 8)  # The 5th is inside the header!
+    q2 = a.query().data
+    assert (len(q2.blocks) == 6)
 
     # Now we add the file to the index via the shortcut.
-    index = a.index(plugin=_TEST_EMBEDDER)
+    embedder = PluginInstance.create(steamship, pluginHandle='test-embedder').data
+    index = a.index(pluginInstance=embedder.handle)
 
     res = index.search("What color are roses?").data
     assert (len(res.hits) == 1)

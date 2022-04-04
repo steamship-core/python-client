@@ -125,7 +125,6 @@ def index(
         self,
         pluginInstance: str = None,
         indexName: str = None,
-        blockType: str = None,
         indexId: str = None,
         index: "EmbeddingIndex" = None,
         upsert: bool = True,
@@ -159,7 +158,6 @@ def index(
 
     # We have an index available to us now. Perform the query.
     blocks = self.query(
-        blockType=blockType,
         spaceId=spaceId,
         spaceHandle=spaceHandle,
         space=space

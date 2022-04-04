@@ -439,7 +439,6 @@ class File:
 
     def query(
             self,
-            blockType: str = None,
             hasSpans: List[SpanQuery] = None,
             text: str = None,
             textMode: str = None,
@@ -452,7 +451,6 @@ class File:
 
         req = FileQueryRequest(
             fileId=self.id,
-            type=blockType,
             hasSpans=hasSpans,
             text=text,
             textMode=textMode,
