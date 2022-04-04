@@ -1,13 +1,14 @@
 from steamship.base import Client
 from steamship.base.response import TaskStatus
 from steamship.data.embeddings import EmbeddedItem
+from steamship.data.plugin_instance import PluginInstance
 
 from tests.client.helpers import _random_index, _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-_TEST_EMBEDDER = "test-embedder-v1"
+_TEST_EMBEDDER = "test-embedder"
 
 
 def create_index(client: Client, plugin: str):
@@ -21,9 +22,10 @@ def create_index(client: Client, plugin: str):
     assert task.error is not None
     assert task.data is None
 
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
     index = steamship.create_index(
         name=name,
-        plugin=_TEST_EMBEDDER,
+        pluginInstance=pluginInstance.handle,
         upsert=True
     ).data
     assert index is not None
@@ -31,7 +33,7 @@ def create_index(client: Client, plugin: str):
     # Duplicate creation should fail with upsert=False
     task = steamship.create_index(
         handle=index.handle,
-        plugin=_TEST_EMBEDDER,
+        pluginInstance=pluginInstance.handle,
         upsert=False
     )
     assert task.error is not None
@@ -47,16 +49,17 @@ def test_create_index():
 def test_delete_index():
     steamship = _steamship()
     name = _random_name()
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
     index = steamship.create_index(
         name=name,
-        plugin=_TEST_EMBEDDER,
+        pluginInstance=pluginInstance.handle,
         upsert=True
     ).data
     assert (index.id is not None)
 
     task = steamship.create_index(
         handle=index.handle,
-        plugin=_TEST_EMBEDDER,
+        pluginInstance=pluginInstance.handle,
         upsert=True
     )
     assert task.error is None
@@ -67,7 +70,7 @@ def test_delete_index():
 
     task = steamship.create_index(
         name=name,
-        plugin=_TEST_EMBEDDER,
+        pluginInstance=pluginInstance.handle,
         upsert=True
     )
     assert task.error is None
@@ -85,7 +88,8 @@ def _list_equal(actual, expected):
 def test_insert_many():
     steamship = _steamship()
     name = _random_name()
-    with _random_index(steamship) as index:
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
+    with _random_index(steamship, pluginInstance.handle) as index:
         item1 = EmbeddedItem(
             value="Pizza",
             externalId="pizza",
@@ -129,7 +133,8 @@ def test_insert_many():
 def test_embed_task():
     steamship = _steamship()
     name = _random_name()
-    with _random_index(steamship) as index:
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
+    with _random_index(steamship, pluginInstance.handle) as index:
         insert_results = index.insert("test", reindex=False)
         res = index.embed()
 
@@ -146,7 +151,8 @@ def test_duplicate_inserts():
     steamship = _steamship()
     name = _random_name()
 
-    with _random_index(steamship) as index:
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
+    with _random_index(steamship, pluginInstance.handle) as index:
         # Test for suppressed re-indexing
         A1 = "Ted can eat an entire block of cheese."
         Q1 = "Who can eat the most cheese"
@@ -158,7 +164,8 @@ def test_index_usage():
     steamship = _steamship()
     name = _random_name()
 
-    with _random_index(steamship) as index:
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
+    with _random_index(steamship, pluginInstance.handle) as index:
         A1 = "Ted can eat an entire block of cheese."
         Q1 = "Who can eat the most cheese"
         insert_results = index.insert(A1)
@@ -221,7 +228,8 @@ def test_multiple_queries():
     steamship = _steamship()
     name = _random_name()
 
-    with _random_index(steamship) as index:
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
+    with _random_index(steamship, pluginInstance.handle) as index:
         # Test for suppressed re-indexing
         A1 = "Ted can eat an entire block of cheese."
         A2 = "Joe can drink an entire glass of water."
@@ -278,7 +286,8 @@ def test_empty_queries():
     steamship = _steamship()
     name = _random_name()
 
-    with _random_index(steamship) as index:
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
+    with _random_index(steamship, pluginInstance.handle) as index:
         A1 = "Ted can eat an entire block of cheese."
         A2 = "Joe can drink an entire glass of water."
         insert_results = index.insert_many([A1, A2])

@@ -75,7 +75,7 @@ class EmbeddedItem:
 class IndexCreateRequest(Request):
     handle: str = None
     name: str = None
-    plugin: str = None
+    pluginInstance: str = None
     upsert: bool = True
     externalId: str = None
     externalType: str = None
@@ -222,6 +222,9 @@ class DeleteSnapshotsRequest(Request):
 class DeleteSnapshotsResponse(Request):
     snapshotId: str = None
 
+@dataclass
+class DeleteEmbeddingIndexRequest(Request):
+    id: str
 
 @dataclass
 class EmbeddingIndex:
@@ -448,7 +451,7 @@ class EmbeddingIndex:
             space: any = None) -> "Response[EmbeddingIndex]":
         return self.client.post(
             'embedding-index/delete',
-            IdentifierRequest(id=self.id),
+            DeleteEmbeddingIndexRequest(id=self.id),
             expect=EmbeddingIndex,
             spaceId=spaceId,
             spaceHandle=spaceHandle,

@@ -160,8 +160,9 @@ def test_file_embed_lookup():
     assert (parseRes.error is None)
     parseRes.wait()
 
+    embedder = PluginInstance.create(steamship, pluginHandle='test-embedder').data
     # Now we add the file to the index
-    with _random_index(steamship) as index:
+    with _random_index(steamship, embedder.handle) as index:
         index.insert_file(a.id, blockType='sentence', reindex=True)
         index.insert_file(b.id, blockType='sentence', reindex=True)
 
