@@ -11,7 +11,7 @@ __license__ = "MIT"
 _TEST_EMBEDDER = "test-embedder"
 
 
-def create_index(client: Client, plugin: str):
+def create_index(client: Client, pluginInstance: str):
     steamship = _steamship()
     name = _random_name()
 
@@ -22,10 +22,9 @@ def create_index(client: Client, plugin: str):
     assert task.error is not None
     assert task.data is None
 
-    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
     index = steamship.create_index(
         name=name,
-        pluginInstance=pluginInstance.handle,
+        pluginInstance=pluginInstance,
         upsert=True
     ).data
     assert index is not None
@@ -33,7 +32,7 @@ def create_index(client: Client, plugin: str):
     # Duplicate creation should fail with upsert=False
     task = steamship.create_index(
         handle=index.handle,
-        pluginInstance=pluginInstance.handle,
+        pluginInstance=pluginInstance,
         upsert=False
     )
     assert task.error is not None
@@ -43,7 +42,9 @@ def create_index(client: Client, plugin: str):
 
 
 def test_create_index():
-    create_index(_steamship(), _TEST_EMBEDDER)
+    steamship = _steamship()
+    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
+    create_index(_steamship(), pluginInstance.handle)
 
 
 def test_delete_index():

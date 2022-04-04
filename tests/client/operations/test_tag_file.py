@@ -11,7 +11,7 @@ __license__ = "MIT"
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
 
-def parse_file(client: Client):
+def parse_file(client: Client, parserInstanceHandle: str):
     name_a = "{}.mkd".format(_random_name())
     T = "A Poem"
     P1_1 = "Roses are red."
@@ -49,8 +49,7 @@ def parse_file(client: Client):
     assert (len(q2.blocks) == 0)
 
     # Now we parse
-    parser = PluginInstance.create(client, pluginHandle='test-tagger').data
-    task = a.tag(pluginInstance=parser.handle)
+    task = a.tag(pluginInstance=parserInstanceHandle)
     assert (task.error is None)
     assert (task.task is not None)
     assert (task.task.state == TaskStatus.waiting)
@@ -74,4 +73,5 @@ def parse_file(client: Client):
 
 def test_parse_file():
     steamship = _steamship()
-    parse_file(steamship)
+    parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
+    parse_file(steamship, parser.handle)

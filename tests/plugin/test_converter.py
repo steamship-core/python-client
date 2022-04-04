@@ -12,6 +12,6 @@ def test_resp():
     request = PluginRequest(data=RawDataPluginInput(data="Hi there"))
     response = converter.run(request).data
     assert (response.file is not None)
-    assert (len(response.file.blocks) == 5)
+    assert (len(response.file.blocks) == 4)
 
     # Now test as an HTTP Call

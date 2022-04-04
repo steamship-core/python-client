@@ -1,4 +1,4 @@
-from ..client.helpers import deploy_app, register_app_as_plugin, _steamship
+from ..client.helpers import deploy_plugin, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
