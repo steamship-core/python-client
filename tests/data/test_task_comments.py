@@ -1,3 +1,4 @@
+from steamship import PluginInstance
 from steamship.data.embeddings import EmbeddedItem
 
 from tests.client.helpers import _random_index, _random_name, _steamship
@@ -14,7 +15,8 @@ def _list_equal(actual, expected):
 def test_basic_task_comment():
     steamship = _steamship()
     name = _random_name()
-    with _random_index(steamship) as index:
+    embedder = PluginInstance.create(steamship, pluginHandle='test-embedder').data
+    with _random_index(steamship, embedder.handle) as index:
         item1 = EmbeddedItem(
             value="Pizza",
             externalId="pizza",
@@ -102,7 +104,8 @@ def test_task_comment_feedback_reporting():
     """
     steamship = _steamship()
     name = _random_name()
-    with _random_index(steamship) as index:
+    embedder = PluginInstance.create(steamship, pluginHandle='test-embedder').data
+    with _random_index(steamship, pluginInstance=embedder.handle) as index:
         item1 = EmbeddedItem(
             value="Pizza",
             externalId="pizza",
