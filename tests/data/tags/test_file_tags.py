@@ -33,7 +33,9 @@ def test_file_tag():
         must.remove(tag.name)
     assert (len(must) == 0)
 
-    tags.data.tags[0].delete()
+    for tag in tags.data.tags:
+        if tag.name == 'test1':
+            tag.delete()
 
     tags = Tag.listPublic(steamship, fileId=a.id)
     assert (tags.data is not None)
