@@ -63,7 +63,8 @@ def test_file_parse():
 
         res = index.search("What color are roses?").data
         assert (len(res.hits) == 1)
-        assert (res.hits[0].value == P1_1)
+        # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
+        assert (res.hits[0].value == " ".join([P1_1, P1_2]))
 
     a.delete()
 
@@ -115,11 +116,13 @@ def test_file_index():
 
     res = index.search("What color are roses?").data
     assert (len(res.hits) == 1)
-    assert (res.hits[0].value == P1_1)
+    # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
+    assert (res.hits[0].value == " ".join([P1_1, P1_2]))
 
     res = index.search("What flavors does cake come in?").data
     assert (len(res.hits) == 1)
-    assert (res.hits[0].value == P4_1)
+    # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
+    assert (res.hits[0].value == " ".join([P4_1, P4_2]))
 
     index.delete()
     a.delete()
