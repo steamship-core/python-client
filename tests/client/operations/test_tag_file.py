@@ -1,4 +1,4 @@
-from steamship import MimeTypes, DocTag, PluginInstance
+from steamship import MimeTypes, DocTag, PluginInstance, Block
 from steamship.base import Client
 from steamship.base.response import TaskStatus
 
@@ -10,6 +10,20 @@ __license__ = "MIT"
 
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
+
+def count_blocks_with_tag(blocks: [Block], tag_kind: str, tag_name: str):
+    c = 0
+    for block in blocks:
+        if any([tag.kind == tag_kind and tag.name == tag_name for tag in block.tags]):
+            c += 1
+    return c
+
+def count_tags(blocks: [Block], tag_kind: str, tag_name: str):
+    c = 0
+    for block in blocks:
+        tag_matches = [1 if tag.kind == tag_kind and tag.name == tag_name else 0 for tag in block.tags]
+        c += sum(tag_matches)
+    return c
 
 def parse_file(client: Client, parserInstanceHandle: str):
     name_a = "{}.mkd".format(_random_name())
@@ -34,19 +48,20 @@ def parse_file(client: Client, parserInstanceHandle: str):
     raw = a.raw()
     assert (raw.data.decode('utf-8') == CONTENT)
 
+
+    # The following tests should be updated once the Tag query basics are merged.
+    # Instead of querying and filtering, do a query with a tag filter
     q1 = a.query().data
-    assert (len(q1.blocks) == 1)
-    assert (q1.blocks[0].type == DocTag.h1)
+    assert( count_blocks_with_tag(q1.blocks, DocTag.doc, DocTag.h1) == 1)
     assert (q1.blocks[0].text == T)
 
-    q2 = a.query().data
-    assert (len(q2.blocks) == 2)
-    assert (q2.blocks[0].type == DocTag.paragraph)
-    assert (q2.blocks[0].text == "{} {}".format(P1_1, P1_2))
+    # Instead of re-filtering previous result, do a new tag filter query
+    assert (count_blocks_with_tag(q1.blocks, DocTag.doc, DocTag.paragraph) == 2)
+    assert (q1.blocks[1].text == "{} {}".format(P1_1, P1_2))
 
     # The sentences aren't yet parsed out!
-    q2 = a.query().data
-    assert (len(q2.blocks) == 0)
+    # Instead of re-filtering again, do a new tag filter query
+    assert (count_blocks_with_tag(q1.blocks, DocTag.doc, DocTag.sentence) == 0)
 
     # Now we parse
     task = a.tag(pluginInstance=parserInstanceHandle)
@@ -60,13 +75,14 @@ def parse_file(client: Client, parserInstanceHandle: str):
     assert (task.task.state == TaskStatus.succeeded)
 
     # Now the sentences should be parsed!
+    # Again, should rewrite these once tag queries are integrated
     q2 = a.query().data
-    assert (len(q2.blocks) == 2)  # The 5th is inside the header!
+    assert (count_tags(q2.blocks, DocTag.doc, DocTag.sentence) == 4)
 
     a.clear()
 
     q2 = a.query().data
-    assert (len(q2.blocks) == 0)  # The 5th is inside the header!
+    assert (len(q2.blocks) == 0)
 
     a.delete()
 

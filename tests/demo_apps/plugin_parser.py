@@ -13,7 +13,7 @@ def tagSentences(block: Block):
     # Add the period back
     tags = []
     for m in re.finditer(r'[^\.]+', block.text):
-        tags.append(Tag(kind='structure', name='sentence', startIdx=m.start(), endIdx=m.end()+1))
+        tags.append(Tag(kind=DocTag.doc, name=DocTag.sentence, startIdx=m.start(), endIdx=m.end()+1))
     if block.tags:
         block.tags.extend(tags)
     else:
