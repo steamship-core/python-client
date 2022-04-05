@@ -87,29 +87,6 @@ class Steamship(Client):
             space=space
         )
 
-    # def create_classifier(
-    #         self,
-    #         name: str,
-    #         plugin: str,
-    #         upsert: bool = True,
-    #         save: bool = None,
-    #         labels: List[str] = None,
-    #         spaceId: str = None,
-    #         spaceHandle: str = None,
-    #         space: Space = None
-    # ) -> Classifier:
-    #     return Classifier.create(
-    #         client=self,
-    #         plugin=plugin,
-    #         name=name,
-    #         upsert=upsert,
-    #         save=save,
-    #         labels=labels,
-    #         spaceId=spaceId,
-    #         spaceHandle=spaceHandle,
-    #         space=space
-    #     )
-
     def upload(
             self,
             filename: str = None,
