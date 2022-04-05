@@ -3,15 +3,17 @@ import io
 import os
 import random
 import string
-import zipfile
 import time
+import zipfile
 
 from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
 from steamship.base import Client
+from steamship.extension.corpus import Corpus
 from steamship.data.plugin import Plugin
+from steamship.data.plugin_instance import PluginInstance
+from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
-from steamship.data.corpus import Corpus
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -33,9 +35,9 @@ _TEST_EMBEDDER = "test-embedder-v1"
 
 
 @contextlib.contextmanager
-def _random_index(steamship: Steamship, plugin: str = _TEST_EMBEDDER) -> EmbeddingIndex:
+def _random_index(steamship: Steamship, pluginInstance: str) -> EmbeddingIndex:
     index = steamship.create_index(
-        plugin=plugin
+        pluginInstance=pluginInstance
     ).data
     yield index
     index.delete()  # or whatever you need to do at exit
@@ -50,11 +52,13 @@ def _random_file(steamship: Steamship, content: str = "") -> File:
     yield file
     file.delete()  # or whatever you need to do at exit
 
+
 @contextlib.contextmanager
 def _random_corpus(client: Steamship) -> Corpus:
     corpus = Corpus.create(client, name=_random_name()).data
     yield corpus
     corpus.delete()
+
 
 def _steamship() -> Steamship:
     # This should automatically pick up variables from the environment.
@@ -160,6 +164,60 @@ def deploy_app(py_name: str):
     assert (res.error is None)
 
 
+@contextlib.contextmanager
+def deploy_plugin(py_name: str, plugin_type: str):
+    client = _steamship()
+    name = _random_name()
+    plugin = Plugin.create(client, name=name, description='test', type=plugin_type, transport="jsonOverHttp",
+                           isPublic=False)
+    assert (plugin.error is None)
+    assert (plugin.data is not None)
+    plugin = plugin.data
+
+    zip_bytes = create_app_zip(py_name)
+    version = PluginVersion.create(
+        client,
+        "test-version",
+        pluginId=plugin.id,
+        filebytes=zip_bytes
+    )
+    # TODO: This is due to having to wait for the lambda to finish deploying.
+    # TODO: We should update the task system to allow its .wait() to depend on this.
+    time.sleep(15)
+    version.wait()
+    assert (version.error is None)
+    assert (version.data is not None)
+    version = version.data
+
+    instance = PluginInstance.create(
+        client,
+        pluginId=plugin.id,
+        pluginVersionId=version.id,
+    )
+    instance.wait()
+    assert (instance.error is None)
+    assert (instance.data is not None)
+    instance = instance.data
+
+    assert (instance.pluginId == plugin.id)
+    assert (instance.pluginVersionId == version.id)
+
+    user = User.current(client).data
+
+    assert (instance.userId == user.id)
+
+    yield (plugin, version, instance)
+
+    res = instance.delete()
+    assert (res.error is None)
+
+    res = version.delete()
+    assert (res.error is None)
+
+    res = plugin.delete()
+    assert (res.error is None)
+
+
 def shouldUseSubdomain(client: Client):
     # We have to do a little switcheroo here depending on if we're hitting localhost or prod/staging.
     if 'localhost' in client.config.appBase or '127.0.0.1' in client.config.appBase:
@@ -169,7 +227,6 @@ def shouldUseSubdomain(client: Client):
 
 @contextlib.contextmanager
 def register_app_as_plugin(client: Client, type: string, path: str, app: App, instance: AppInstance) -> Plugin:
-
     url = instance.full_url_for(
         path=path,
         appHandle=app.handle,

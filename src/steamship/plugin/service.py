@@ -5,9 +5,15 @@ from typing import TypeVar, Generic, Union, Callable
 from steamship.base import Client
 from steamship.base.response import SteamshipError, Task
 
+# Note!
+# =====
+#
+# This the files in this package are for Plugin Implementors.
+# If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
+#
+
 T = TypeVar('T')
 U = TypeVar('U')
-
 
 @dataclass
 class PluginRequest(Generic[T]):

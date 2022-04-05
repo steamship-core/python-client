@@ -3,6 +3,7 @@ from dataclasses import asdict
 from typing import Any, TypeVar, Union
 
 import requests  # type: ignore
+
 from steamship.base.configuration import Configuration
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes
@@ -206,7 +207,7 @@ class Client:
             appCall: bool = False,
             appOwner: str = None,
             appId: str = None,
-            appInstanceId: str = None
+            appInstanceId: str = None,
     ) -> Union[Any, Response[T]]:
         """Post to the Steamship API.
 
