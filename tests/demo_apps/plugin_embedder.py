@@ -1,7 +1,9 @@
 from typing import List
 
 from steamship.app import App, post, create_handler, Response
-from steamship.plugin.embedder import Embedder, EmbedResponse, EmbedRequest
+from steamship.plugin.embedder import Embedder
+from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
+from steamship.plugin.outputs.embedded_items_plugin_output import EmbeddedItemsPluginOutput
 from steamship.plugin.service import PluginResponse, PluginRequest
 
 FEATURES = ["employee", "roses", "run", "bike", "ted", "grace", "violets", "sugar", "sweet", "cake",
@@ -20,9 +22,9 @@ def embed(s: str) -> List[float]:
 
 
 class TestEmbedderPlugin(Embedder, App):
-    def run(self, request: PluginRequest[EmbedRequest]) -> PluginResponse[EmbedResponse]:
-        embeddings = list(map(lambda s: embed(s), request.data.docs))
-        return PluginResponse(data=EmbedResponse(embeddings=embeddings))
+    def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> PluginResponse[EmbeddedItemsPluginOutput]:
+        embeddings = list(map(lambda s: embed(s.text), request.data.file.blocks))
+        return PluginResponse(data=EmbeddedItemsPluginOutput(embeddings=embeddings))
 
     @post('embed')
     def embed(self, **kwargs) -> Response:

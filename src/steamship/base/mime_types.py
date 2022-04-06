@@ -16,3 +16,12 @@ class MimeTypes:
     PPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
     RTF = "application/rtf"
     BINARY = "application/octet-stream"
+
+
+TEXT_MIME_TYPES = [
+    MimeTypes.TXT,
+    MimeTypes.MKD,
+    MimeTypes.HTML,
+    MimeTypes.DOCX,
+    MimeTypes.PPTX
+]
