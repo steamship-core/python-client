@@ -5,6 +5,7 @@ import random
 import string
 import time
 import zipfile
+from typing import Dict
 
 from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
@@ -112,7 +113,7 @@ def create_app_zip(filename) -> bytes:
 
 
 @contextlib.contextmanager
-def deploy_app(py_name: str):
+def deploy_app(py_name: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None):
     client = _steamship()
     name = _random_name()
     app = App.create(client, name=name)
@@ -124,7 +125,8 @@ def deploy_app(py_name: str):
     version = AppVersion.create(
         client,
         appId=app.id,
-        filebytes=zip_bytes
+        filebytes=zip_bytes,
+        configTemplate=versionConfigTemplate
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
@@ -138,6 +140,7 @@ def deploy_app(py_name: str):
         client,
         appId=app.id,
         appVersionId=version.id,
+        config=instanceConfig
     )
     instance.wait()
     assert (instance.error is None)
@@ -223,39 +226,3 @@ def shouldUseSubdomain(client: Client):
     if 'localhost' in client.config.appBase or '127.0.0.1' in client.config.appBase:
         return False
     return True
-
-
-@contextlib.contextmanager
-def register_app_as_plugin(client: Client, type: string, path: str, app: App, instance: AppInstance) -> Plugin:
-    url = instance.full_url_for(
-        path=path,
-        appHandle=app.handle,
-        useSubdomain=shouldUseSubdomain(client)  # In a test setting, the subdomain is hard to use
-    )
-    metadata = dict(
-        http=dict(
-            headers=dict(
-                Authorization="Bearer {}".format(client.config.apiKey)
-            )
-        )
-    )
-
-    plugin = Plugin.create(
-        client=client,
-        name=instance.name,
-        handle=instance.handle,
-        description="Auto-generated",
-        type=type,
-        url=url,
-        transport="jsonOverHttp",
-        isPublic=True,
-        metadata=metadata
-    )
-    assert (plugin.error is None)
-    assert (plugin.data is not None)
-    plugin = plugin.data
-
-    yield plugin
-
-    res = plugin.delete()
-    assert (res.error is None)

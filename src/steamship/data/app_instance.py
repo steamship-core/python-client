@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict
 
 from steamship.base import Client, Request
 
@@ -11,6 +12,7 @@ class CreateAppInstanceRequest(Request):
     name: str = None
     handle: str = None
     upsert: bool = None
+    config: Dict[str, any] = None
 
 
 @dataclass
@@ -30,6 +32,8 @@ class AppInstance:
     appVersionId: str = None
     userId: str = None
     invocationURL: str = None
+    config: Dict[str, any] = None
+    spaceId: str = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "AppInstance":
@@ -46,7 +50,9 @@ class AppInstance:
             userHandle=d.get('userHandle', None),
             appVersionId=d.get('appVersionId', None),
             userId=d.get('userId', None),
-            invocationURL=d.get('invocationURL', None)
+            invocationURL=d.get('invocationURL', None),
+            config= d.get('config', None),
+            spaceId= d.get('spaceId', None)
         )
 
     @staticmethod
@@ -56,7 +62,8 @@ class AppInstance:
             appVersionId: str = None,
             name: str = None,
             handle: str = None,
-            upsert: bool = None
+            upsert: bool = None,
+            config: Dict[str, any] = None
     ) -> "AppInstance":
 
         req = CreateAppInstanceRequest(
@@ -64,7 +71,8 @@ class AppInstance:
             handle=handle,
             appId=appId,
             appVersionId=appVersionId,
-            upsert=upsert
+            upsert=upsert,
+            config=config
         )
 
         return client.post(
@@ -92,7 +100,8 @@ class AppInstance:
             appCall=True,
             appOwner=self.userHandle,
             appId=self.appId,
-            appInstanceId=self.id
+            appInstanceId=self.id,
+            spaceId=self.spaceId
         )
 
     def post(self, path: str, **kwargs):
@@ -104,7 +113,8 @@ class AppInstance:
             appCall=True,
             appOwner=self.userHandle,
             appId=self.appId,
-            appInstanceId=self.id
+            appInstanceId=self.id,
+            spaceId=self.spaceId
         )
 
     def full_url_for(self, path: str):

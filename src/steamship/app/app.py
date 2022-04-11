@@ -6,6 +6,7 @@ Please see https://docs.steamship.com/ for information about building a Steamshi
 
 import logging
 from functools import wraps
+from typing import Dict
 
 from steamship.app.request import Request, Verb
 from steamship.app.response import Error
@@ -72,8 +73,9 @@ class App:
     3. Provides useful methods connecting functions to the router.
   """
 
-    def __init__(self, client: Steamship = None):
+    def __init__(self, client: Steamship = None, config: Dict[str, any] = None):
         self.client = client
+        self.config = config
 
     """Base class to expose instance methods"""
 
