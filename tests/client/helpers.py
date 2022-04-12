@@ -168,7 +168,7 @@ def deploy_app(py_name: str, versionConfigTemplate : Dict[str, any] = None, inst
 
 
 @contextlib.contextmanager
-def deploy_plugin(py_name: str, plugin_type: str):
+def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None):
     client = _steamship()
     name = _random_name()
     plugin = Plugin.create(client, name=name, description='test', type=plugin_type, transport="jsonOverHttp",
@@ -182,7 +182,8 @@ def deploy_plugin(py_name: str, plugin_type: str):
         client,
         "test-version",
         pluginId=plugin.id,
-        filebytes=zip_bytes
+        filebytes=zip_bytes,
+        configTemplate=versionConfigTemplate
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
@@ -196,6 +197,7 @@ def deploy_plugin(py_name: str, plugin_type: str):
         client,
         pluginId=plugin.id,
         pluginVersionId=version.id,
+        config=instanceConfig
     )
     instance.wait()
     assert (instance.error is None)
