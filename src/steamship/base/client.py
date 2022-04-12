@@ -1,6 +1,7 @@
+import json
 import logging
 from dataclasses import asdict
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar, Union, Dict
 
 import requests  # type: ignore
 
@@ -190,6 +191,17 @@ class Client:
     def get(self, *args, **kwargs):
         return self.call('GET', *args, **kwargs)
 
+    def make_file_dict(self, data, file):
+        result = {}
+        for key, val in data.items():
+            if val:
+                if isinstance(val, Dict):
+                    result[key] = (None, json.dumps(val), 'application/json')
+                else:
+                    result[key] = (None, str(val))
+        result['file'] = file
+        return result
+
     def call(
             self,
             verb: str,
@@ -251,7 +263,8 @@ class Client:
 
         if verb == 'POST':
             if file is not None:
-                resp = requests.post(url, files={"file": file}, data=data, headers=headers)
+                files = self.make_file_dict(data, file)
+                resp = requests.post(url, files=files, headers=headers)
             else:
                 resp = requests.post(url, json=data, headers=headers)
         elif verb == 'GET':

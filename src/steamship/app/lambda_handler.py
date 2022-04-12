@@ -22,15 +22,6 @@ def create_handler(App: Type[App]):
         app = None
 
         try:
-            app = App(client=client)
-        except Exception as ex:
-            logging.exception("Unable to initialize app.")
-            response = Error(
-                message="There was an exception thrown handling this request.",
-                error=ex
-            )
-
-        try:
             request = Request.from_dict(event)
         except Exception as ex:
             logging.exception("Unable to parse inbound request")
@@ -38,6 +29,16 @@ def create_handler(App: Type[App]):
                 message="There was an exception thrown handling this request.",
                 error=ex
             )
+
+        try:
+            app = App(client=client, config=request.invocation.config)
+        except Exception as ex:
+            logging.exception("Unable to initialize app.")
+            response = Error(
+                message="There was an exception thrown handling this request.",
+                error=ex
+            )
+
 
         try:
             if app is not None:

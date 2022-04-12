@@ -2,22 +2,6 @@ from steamship import Steamship
 from steamship.app import get, App, Response, Error, post, create_handler
 
 class TestApp(App):
-    def __init__(self, client: Steamship):
-        # In production, the lambda handler will provide an Steamship client:
-        # - Authenticated to the appropriate user
-        # - Bound to the appropriate space
-        self.client = client
-
-        # Create an embedding index using (for now!) our
-        # mock embedder.
-        #
-        # Note that the *scope* of this index is limited to the space
-        # this app is executing within. Each new instance of the app
-        # will resultingly have a fresh index.
-        # self.index = self.client.create_index(
-        #     handle="qa-index",
-        #     plugin="test-embedder-v1"
-        # ).data
 
     @get('greet')
     def greet1(self, name: str = "Person") -> Response:
