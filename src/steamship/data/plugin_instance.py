@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
@@ -18,6 +19,7 @@ class CreatePluginInstanceRequest(Request):
     name: str = None
     handle: str = None
     upsert: bool = None
+    config: Dict[str, any] = None
 
 
 @dataclass
@@ -34,6 +36,7 @@ class PluginInstance:
     pluginId: str = None
     pluginVersionId: str = None
     userId: str = None
+    config: Dict[str, any] = None
     spaceId: str = None
 
     @staticmethod
@@ -48,6 +51,7 @@ class PluginInstance:
             handle=d.get('handle', None),
             pluginId=d.get('pluginId', None),
             pluginVersionId=d.get('pluginVersionId', None),
+            config=d.get('config', None),
             userId=d.get('userId', None)
         )
 
@@ -60,7 +64,8 @@ class PluginInstance:
             pluginVersionHandle: str = None,
             name: str = None,
             handle: str = None,
-            upsert: bool = None
+            upsert: bool = None,
+            config: Dict[str, any] = None
     ) -> Response[PluginInstance]:
         req = CreatePluginInstanceRequest(
             name=name,
@@ -69,7 +74,8 @@ class PluginInstance:
             pluginHandle=pluginHandle,
             pluginVersionId=pluginVersionId,
             pluginVersionHandle=pluginVersionHandle,
-            upsert=upsert
+            upsert=upsert,
+            config=config
         )
 
         return client.post(
