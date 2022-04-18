@@ -7,13 +7,15 @@ from steamship.client.operations.embedder import EmbedRequest
 from steamship.client.operations.tagger import TagRequest
 from steamship.client.tasks import Tasks
 from steamship.data import File
-from steamship.data.embeddings import EmbedAndSearchRequest, EmbedAndSearchResponse, EmbeddingIndex
+from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults, EmbeddingIndex
+from steamship.data.search import Hit
 from steamship.data.space import Space
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from steamship.extension.file import TagResponse
+from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.embedded_items_plugin_output import EmbeddedItemsPluginOutput
 
 _logger = logging.getLogger(__name__)
@@ -128,27 +130,6 @@ class Steamship(Client):
             space=space
         )
 
-    def embed(
-            self,
-            docs: List[str],
-            pluginInstance: str,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: Space = None
-    ) -> Response[EmbeddedItemsPluginOutput]:
-        req = EmbedRequest(
-            docs=docs,
-            pluginInstance=pluginInstance
-        )
-        return self.post(
-            'embedding/create',
-            req,
-            expect=EmbeddedItemsPluginOutput,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
-        )
-
     def embed_and_search(
             self,
             query: str,
@@ -158,7 +139,7 @@ class Steamship(Client):
             spaceId: str = None,
             spaceHandle: str = None,
             space: Space = None
-    ) -> Response[EmbedAndSearchResponse]:
+    ) -> Response[QueryResults]:
         req = EmbedAndSearchRequest(
             query=query,
             docs=docs,
@@ -166,9 +147,9 @@ class Steamship(Client):
             k=k
         )
         return self.post(
-            'embedding/search',
+            'plugin/instance/embeddingSearch',
             req,
-            expect=EmbedAndSearchResponse,
+            expect=QueryResults,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space

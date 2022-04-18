@@ -71,9 +71,10 @@ def test_plugin_create():
 
     plugin = Plugin.create(
         client=steamship,
+        isTrainable=False,
         name=_random_name(),
         description="This is just for test",
-        type=PluginType.embedder,
+        type=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
         isPublic=False
     ).data
@@ -83,10 +84,11 @@ def test_plugin_create():
     # No upsert doesn't work
     pluginX = Plugin.create(
         client=steamship,
+        isTrainable=False,
         handle=plugin.handle,
         name=plugin.name,
         description="This is just for test",
-        type=PluginType.embedder,
+        type=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
         isPublic=False
     )
@@ -96,9 +98,10 @@ def test_plugin_create():
     # Upsert does work
     plugin2 = Plugin.create(
         client=steamship,
+        isTrainable=False,
         name=plugin.name,
         description="This is just for test 2",
-        type=PluginType.embedder,
+        type=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
         isPublic=False,
         upsert=True
