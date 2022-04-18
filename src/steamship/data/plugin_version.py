@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import List, Dict
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
@@ -16,6 +16,7 @@ class CreatePluginVersionRequest(Request):
     handle: str = None
     upsert: bool = None
     type: str = 'file'
+    configTemplate: Dict[str, any] = None
 
 
 @dataclass
@@ -53,6 +54,7 @@ class PluginVersion:
     pluginId: str = None
     name: str = None
     handle: str = None
+    configTemplate: Dict[str, any] = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "PluginVersion":
@@ -63,7 +65,8 @@ class PluginVersion:
             client=client,
             id=d.get('id', None),
             name=d.get('name', None),
-            handle=d.get('handle', None)
+            handle=d.get('handle', None),
+            configTemplate=d.get('configTemplate', None)
         )
 
     @staticmethod
@@ -74,7 +77,8 @@ class PluginVersion:
             name: str = None,
             filename: str = None,
             filebytes: bytes = None,
-            upsert: bool = None
+            upsert: bool = None,
+            configTemplate: Dict[str, any] = None
     ) -> Response[PluginVersion]:
 
         if filename is None and filebytes is None:
@@ -90,7 +94,8 @@ class PluginVersion:
             name=name,
             handle=handle,
             pluginId=pluginId,
-            upsert=upsert
+            upsert=upsert,
+            configTemplate=configTemplate
         )
 
         return client.post(

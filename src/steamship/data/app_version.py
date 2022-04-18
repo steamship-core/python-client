@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Dict
 
 from steamship.base import Client, Request
 
@@ -10,6 +11,7 @@ class CreateAppVersionRequest(Request):
     handle: str = None
     upsert: bool = None
     type: str = 'file'
+    configTemplate: Dict[str, any] = None
 
 
 @dataclass
@@ -29,6 +31,7 @@ class AppVersion:
     appId: str = None
     name: str = None
     handle: str = None
+    configTemplate: Dict[str, any] = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "AppVersion":
@@ -39,7 +42,8 @@ class AppVersion:
             client=client,
             id=d.get('id', None),
             name=d.get('name', None),
-            handle=d.get('handle', None)
+            handle=d.get('handle', None),
+            configTemplate=d.get('configTemplate', None)
         )
 
     @staticmethod
@@ -50,8 +54,10 @@ class AppVersion:
             handle: str = None,
             filename: str = None,
             filebytes: bytes = None,
-            upsert: bool = None
+            upsert: bool = None,
+            configTemplate: Dict[str, any] = None
     ) -> "AppVersion":
+
 
         if filename is None and filebytes is None:
             raise Exception("Either filename or filebytes must be provided.")
@@ -66,7 +72,8 @@ class AppVersion:
             name=name,
             handle=handle,
             appId=appId,
-            upsert=upsert
+            upsert=upsert,
+            configTemplate=configTemplate
         )
 
         return client.post(

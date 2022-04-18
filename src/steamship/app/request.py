@@ -33,13 +33,15 @@ class Invocation:
     httpVerb: str = None
     appPath: str = None  # e.g. /hello/there
     arguments: Dict[str, any] = None
+    config: Dict[str, any] = None
 
     @staticmethod
     def from_dict(d: dict) -> "Invocation":
         return Invocation(
             httpVerb=d.get('httpVerb', None),
             appPath=d.get('appPath', None),
-            arguments=d.get('arguments', None)
+            arguments=d.get('arguments', None),
+            config=d.get('config', None)
         )
 
 
