@@ -168,10 +168,10 @@ def deploy_app(py_name: str, versionConfigTemplate : Dict[str, any] = None, inst
 
 
 @contextlib.contextmanager
-def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None):
+def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None, isTrainable: bool = False):
     client = _steamship()
     name = _random_name()
-    plugin = Plugin.create(client, name=name, description='test', type=plugin_type, transport="jsonOverHttp",
+    plugin = Plugin.create(client, isTrainable=isTrainable, name=name, description='test', type=plugin_type, transport="jsonOverHttp",
                            isPublic=False)
     assert (plugin.error is None)
     assert (plugin.data is not None)

@@ -62,9 +62,9 @@ def test_file_parse():
         embedResp.wait()
 
         res = index.search("What color are roses?").data
-        assert (len(res.hits) == 1)
+        assert (len(res.items) == 1)
         # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
-        assert (res.hits[0].value == " ".join([P1_1, P1_2]))
+        assert (res.items[0].value.value == " ".join([P1_1, P1_2]))
 
     a.delete()
 
@@ -115,14 +115,14 @@ def test_file_index():
     index = a.index(pluginInstance=embedder.handle)
 
     res = index.search("What color are roses?").data
-    assert (len(res.hits) == 1)
+    assert (len(res.items) == 1)
     # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
-    assert (res.hits[0].value == " ".join([P1_1, P1_2]))
+    assert (res.items[0].value.value == " ".join([P1_1, P1_2]))
 
     res = index.search("What flavors does cake come in?").data
-    assert (len(res.hits) == 1)
+    assert (len(res.items) == 1)
     # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
-    assert (res.hits[0].value == " ".join([P4_1, P4_2]))
+    assert (res.items[0].value.value == " ".join([P4_1, P4_2]))
 
     index.delete()
     a.delete()
@@ -172,12 +172,12 @@ def test_file_embed_lookup():
         index.insert_file(b.id, blockType='sentence', reindex=True)
 
         res = index.search("What does Ted like to do?").data
-        assert (len(res.hits) == 1)
-        assert (res.hits[0].value == content_a)
+        assert (len(res.items) == 1)
+        assert (res.items[0].value.value == content_a)
 
         res = index.search("What does Grace like to do?").data
-        assert (len(res.hits) == 1)
-        assert (res.hits[0].value == content_b)
+        assert (len(res.items) == 1)
+        assert (res.items[0].value.value == content_b)
 
         # Now we list the items
         itemsa = index.list_items(fileId=a.id).data

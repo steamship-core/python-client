@@ -116,19 +116,19 @@ def test_insert_many():
         assert (len(indexItems.items[0].embedding) == len(indexItems.items[1].embedding))
 
         res = index.search(item1.value, includeMetadata=True, k=100)
-        assert (res.data.hits is not None)
-        assert (len(res.data.hits) == 2)
-        assert (res.data.hits[0].value == item1.value)
-        assert (res.data.hits[0].externalId == item1.externalId)
-        assert (res.data.hits[0].externalType == item1.externalType)
-        _list_equal(res.data.hits[0].metadata, item1.metadata)
+        assert (res.data.items is not None)
+        assert (len(res.data.items) == 2)
+        assert (res.data.items[0].value.value == item1.value)
+        assert (res.data.items[0].value.externalId == item1.externalId)
+        assert (res.data.items[0].value.externalType == item1.externalType)
+        _list_equal(res.data.items[0].value.metadata, item1.metadata)
 
         res = index.search(item2.value, includeMetadata=True)
-        assert (res.data.hits is not None)
-        assert (res.data.hits[0].value == item2.value)
-        assert (res.data.hits[0].externalId == item2.externalId)
-        assert (res.data.hits[0].externalType == item2.externalType)
-        assert (res.data.hits[0].metadata == item2.metadata)
+        assert (res.data.items is not None)
+        assert (res.data.items[0].value.value == item2.value)
+        assert (res.data.items[0].value.externalId == item2.externalId)
+        assert (res.data.items[0].value.externalType == item2.externalType)
+        assert (res.data.items[0].value.metadata == item2.metadata)
 
 
 def test_embed_task():
@@ -179,8 +179,8 @@ def test_index_usage():
         assert (task.task.state == TaskStatus.succeeded)
 
         search_results = index.search(Q1)
-        assert (len(search_results.data.hits) == 1)
-        assert (search_results.data.hits[0].value == A1)
+        assert (len(search_results.data.items) == 1)
+        assert (search_results.data.items[0].value.value == A1)
 
         # Associate metadata
         A2 = "Armadillo shells are bulletproof."
@@ -202,27 +202,27 @@ def test_index_usage():
             metadata=A2metadata
         )
         search_results2 = index.search(Q2)
-        assert (len(search_results2.data.hits) == 1)
-        assert (search_results2.data.hits[0].value == A2)
-        assert (search_results2.data.hits[0].externalId == None)
-        assert (search_results2.data.hits[0].externalType == None)
-        assert (search_results2.data.hits[0].metadata == None)
+        assert (len(search_results2.data.items) == 1)
+        assert (search_results2.data.items[0].value.value == A2)
+        assert (search_results2.data.items[0].value.externalId == None)
+        assert (search_results2.data.items[0].value.externalType == None)
+        assert (search_results2.data.items[0].value.metadata == None)
 
         search_results3 = index.search(Q2, includeMetadata=True)
-        assert (len(search_results3.data.hits) == 1)
-        assert (search_results3.data.hits[0].value == A2)
-        assert (search_results3.data.hits[0].externalId == A2id)
-        assert (search_results3.data.hits[0].externalType == A2type)
+        assert (len(search_results3.data.items) == 1)
+        assert (search_results3.data.items[0].value.value == A2)
+        assert (search_results3.data.items[0].value.externalId == A2id)
+        assert (search_results3.data.items[0].value.externalType == A2type)
 
-        assert (search_results3.data.hits[0].metadata == A2metadata)
+        assert (search_results3.data.items[0].value.metadata == A2metadata)
         # Because I don't know pytest enough to fully trust the dict comparison..
-        assert (search_results3.data.hits[0].metadata["id"] == A2id)
-        assert (search_results3.data.hits[0].metadata["idid"] == "{}{}".format(A2id, A2id))
+        assert (search_results3.data.items[0].value.metadata["id"] == A2id)
+        assert (search_results3.data.items[0].value.metadata["idid"] == "{}{}".format(A2id, A2id))
 
         search_results4 = index.search(Q2, k=10)
-        assert (len(search_results4.data.hits) == 2)
-        assert (search_results4.data.hits[0].value == A2)
-        assert (search_results4.data.hits[1].value == A1)
+        assert (len(search_results4.data.items) == 2)
+        assert (search_results4.data.items[0].value.value == A2)
+        assert (search_results4.data.items[1].value.value == A1)
 
 
 def test_multiple_queries():
@@ -239,27 +239,27 @@ def test_multiple_queries():
 
         QS1 = ["Who can eat the most cheese", "Who can run the fastest?"]
         search_results = index.search(QS1)
-        assert (len(search_results.data.hits) == 1)
-        assert (search_results.data.hits[0].value == A1)
-        assert (search_results.data.hits[0].query == QS1[0])
+        assert (len(search_results.data.items) == 1)
+        assert (search_results.data.items[0].value.value == A1)
+        assert (search_results.data.items[0].value.query == QS1[0])
 
         QS2 = ["Who can tie a shoe?", "Who can drink the most water?"]
         search_results = index.search(QS2)
-        assert (len(search_results.data.hits) == 1)
-        assert (search_results.data.hits[0].value == A2)
-        assert (search_results.data.hits[0].query == QS2[1])
+        assert (len(search_results.data.items) == 1)
+        assert (search_results.data.items[0].value.value == A2)
+        assert (search_results.data.items[0].value.query == QS2[1])
 
         QS3 = ["What can Ted do?", "What can Sam do?", "What can Jerry do?"]
         search_results = index.search(QS3)
-        assert (len(search_results.data.hits) == 1)
-        assert (search_results.data.hits[0].value == A1)
-        assert (search_results.data.hits[0].query == QS3[0])
+        assert (len(search_results.data.items) == 1)
+        assert (search_results.data.items[0].value.value == A1)
+        assert (search_results.data.items[0].value.query == QS3[0])
 
         QS3 = ["What can Sam do?", "What can Ted do?", "What can Jerry do?"]
         search_results = index.search(QS3)
-        assert (len(search_results.data.hits) == 1)
-        assert (search_results.data.hits[0].value == A1)
-        assert (search_results.data.hits[0].query == QS3[1])
+        assert (len(search_results.data.items) == 1)
+        assert (search_results.data.items[0].value.value == A1)
+        assert (search_results.data.items[0].value.query == QS3[1])
 
         index.create_snapshot().wait()
 
@@ -270,17 +270,17 @@ def test_multiple_queries():
 
         QS4 = ["What can Brenda do?", "What can Ronaldo do?", "What can Jerry do?"]
         search_results = index.search(QS4)
-        assert (len(search_results.data.hits) == 1)
-        assert (search_results.data.hits[0].value == A4)
-        assert (search_results.data.hits[0].query == QS4[0])
+        assert (len(search_results.data.items) == 1)
+        assert (search_results.data.items[0].value.value == A4)
+        assert (search_results.data.items[0].value.query == QS4[0])
 
         QS4 = ["What can Brenda do?", "Who should run a marathon?", "What can Jerry do?"]
         search_results = index.search(QS4, k=2)
-        assert (len(search_results.data.hits) == 2)
-        assert (search_results.data.hits[0].value == A4)
-        assert (search_results.data.hits[0].query == QS4[0])
-        assert (search_results.data.hits[1].value == A3)
-        assert (search_results.data.hits[1].query == QS4[1])
+        assert (len(search_results.data.items) == 2)
+        assert (search_results.data.items[0].value.value == A4)
+        assert (search_results.data.items[0].value.query == QS4[0])
+        assert (search_results.data.items[1].value.value == A3)
+        assert (search_results.data.items[1].value.query == QS4[1])
 
 
 def test_empty_queries():
@@ -301,7 +301,7 @@ def test_empty_queries():
         # These technically don't count as empty. Leaving this test in here
         # to encode and capture that in case we want to change it.
         search_results = index.search([])
-        assert (len(search_results.data.hits) == 0)
+        assert (len(search_results.data.items) == 0)
 
         search_results = index.search("")
-        assert (len(search_results.data.hits) == 1)
+        assert (len(search_results.data.items) == 1)

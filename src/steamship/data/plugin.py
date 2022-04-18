@@ -20,6 +20,7 @@ class Plugin:
 
 @dataclass
 class CreatePluginRequest(Request):
+    isTrainable: bool
     id: str = None
     name: str = None
     type: str = None
@@ -69,9 +70,9 @@ class GetPluginRequest(Request):
 
 
 class PluginType:
-    embedder = "embedder"
     parser = "parser"
     classifier = "classifier"
+    tagger = "tagger"
 
 
 class PluginAdapterType:
@@ -133,6 +134,7 @@ class Plugin:
     @staticmethod
     def create(
             client: Client,
+            isTrainable: bool,
             name: str,
             description: str,
             type: str,
@@ -152,6 +154,7 @@ class Plugin:
             metadata = json.dumps(metadata)
 
         req = CreatePluginRequest(
+            isTrainable=isTrainable,
             name=name,
             type=type,
             transport=transport,
