@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import Dict, Any
 
 from steamship.base.binary_utils import flexi_create
+from steamship.base import SteamshipError
 
 
 @dataclass
