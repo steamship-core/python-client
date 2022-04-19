@@ -34,12 +34,12 @@ def test_basic_task_comment():
 
         res = index.search(item1.value, includeMetadata=True, k=1)
 
-        assert (res.data.hits is not None)
-        assert (len(res.data.hits) == 1)
-        assert (res.data.hits[0].value == item1.value)
-        assert (res.data.hits[0].externalId == item1.externalId)
-        assert (res.data.hits[0].externalType == item1.externalType)
-        _list_equal(res.data.hits[0].metadata, item1.metadata)
+        assert (res.data.items is not None)
+        assert (len(res.data.items) == 1)
+        assert (res.data.items[0].value.value == item1.value)
+        assert (res.data.items[0].value.externalId == item1.externalId)
+        assert (res.data.items[0].value.externalType == item1.externalType)
+        _list_equal(res.data.items[0].value.metadata, item1.metadata)
 
         res.add_comment(externalId="Foo", externalType="Bar", metadata=[1, 2])
 

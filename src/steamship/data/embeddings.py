@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import List, Dict, Union
+from typing import List, Dict, Union, TypeVar, Generic
 
 from steamship.base import Client, Request, Response, metadata_to_str
 from steamship.data.search import Hit
@@ -13,16 +13,38 @@ class EmbedAndSearchRequest(Request):
     pluginInstance: str
     k: int = 1
 
+
+#TODO: These types are not generics like the Swift QueryResult/QueryResults.
 @dataclass
-class EmbedAndSearchResponse(Request):
-    hits: List[Hit] = None
+class QueryResult():
+    value: Hit
+    score: float
+    index: int
+    id: str
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "EmbedAndSearchResponse":
-        hits = [Hit.from_dict(h) for h in (d.get("hits", []) or [])]
-        return EmbedAndSearchResponse(
-            hits=hits
+    def from_dict(d: any, client: Client = None) -> "QueryResult":
+        value = Hit.from_dict(d.get("value", {}))
+        return QueryResult(
+            value = value,
+            score = d.get('score'),
+            index = d.get('index'),
+            id = d.get('id')
         )
+
+@dataclass
+class QueryResults(Request):
+    items: List[QueryResult] = None
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "QueryResults":
+        items = [QueryResult.from_dict(h) for h in (d.get("items", []) or [])]
+        return QueryResults(
+            items=items
+        )
+
+
+
 
 
 @dataclass
@@ -143,18 +165,6 @@ class IndexSearchRequest(Request):
     queries: List[str] = None
     k: int = 1
     includeMetadata: bool = False
-
-
-@dataclass
-class IndexSearchResponse:
-    hits: List[Hit] = None
-
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexSearchResponse":
-        hits = [Hit.from_dict(h) for h in (d.get("hits", []) or [])]
-        return IndexSearchResponse(
-            hits=hits
-        )
 
 
 @dataclass
@@ -467,7 +477,7 @@ class EmbeddingIndex:
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
-    ) -> Response[IndexSearchResponse]:
+    ) -> Response[QueryResults]:
         if type(query) == list:
             req = IndexSearchRequest(
                 self.id,
@@ -487,7 +497,7 @@ class EmbeddingIndex:
         ret = self.client.post(
             'embedding-index/search',
             req,
-            expect=IndexSearchResponse,
+            expect=QueryResults,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
             space=space
