@@ -12,20 +12,6 @@ class AppResponse:
 
 
 @dataclass
-class ErrorResponse():
-    message: str = None
-    internalMessage: str = None
-    error: str = None
-    suggestion: str = None
-    code: str = None
-
-    def log(self):
-        logging.error("[{}] {}. [Internal: {}]".format(self.code, self.message, self.internalMessage))
-        if self.error:
-            logging.error(self.error)
-
-
-@dataclass
 class Http():
     status: int = None
     headers: Dict[str, str] = None
@@ -33,13 +19,13 @@ class Http():
 
 @dataclass
 class Response(AppResponse):
-    error: ErrorResponse = None
+    error: SteamshipError = None
     http: Http = None
     body: any = None
 
     def __init__(
             self,
-            error: ErrorResponse = None,
+            error: SteamshipError = None,
             http: Http = None,
             body: any = None,
             string: str = None,
@@ -74,7 +60,7 @@ def Error(
         suggestion: str = None,
         error: Exception = None
 ) -> Response:
-    err = ErrorResponse(
+    err = SteamshipError(
         message=message,
         internalMessage=internalMessage,
         error="{}".format(error),
