@@ -64,7 +64,7 @@ def Error(
     err = SteamshipError(
         message=message,
         internalMessage=internalMessage,
-        error="{}".format(error),
+        error=error,
         suggestion=suggestion,
         code=code
     )

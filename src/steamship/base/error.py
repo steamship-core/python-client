@@ -1,6 +1,7 @@
 from typing import Any
 from dataclasses import dataclass
 import logging
+from typing import Union
 
 @dataclass
 class SteamshipError(Exception):
@@ -16,7 +17,7 @@ class SteamshipError(Exception):
             internalMessage : str = None,
             suggestion: str = None,
             code: str = None,
-            error: Exception = None):
+            error: Union[Exception, str] = None):
         self.message = message
         self.suggestion = suggestion
         self.internalMessage = internalMessage
