@@ -30,3 +30,4 @@ class TextTag:
     isOov = "isOov"
     isStop = "isStop"
     lang = "lang"
+    embedding = "embedding"
