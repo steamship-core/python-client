@@ -22,7 +22,6 @@ class Plugin:
 class CreatePluginRequest(Request):
     isTrainable: bool
     id: str = None
-    name: str = None
     type: str = None
     transport: str = None
     isPublic: bool = None
@@ -98,7 +97,6 @@ class LimitUnit:
 class Plugin:
     client: Client = None
     id: str = None
-    name: str = None
     type: str = None
     transport: str = None
     isPublic: bool = None
@@ -118,7 +116,6 @@ class Plugin:
         return Plugin(
             client=client,
             id=d.get('id', None),
-            name=d.get('name', None),
             type=d.get('type', None),
             transport=d.get('transport', None),
             isPublic=d.get('isPublic', None),
@@ -135,7 +132,6 @@ class Plugin:
     def create(
             client: Client,
             isTrainable: bool,
-            name: str,
             description: str,
             type: str,
             transport: str,
@@ -155,7 +151,6 @@ class Plugin:
 
         req = CreatePluginRequest(
             isTrainable=isTrainable,
-            name=name,
             type=type,
             transport=transport,
             isPublic=isPublic,

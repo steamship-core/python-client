@@ -16,7 +16,6 @@ class CreatePluginInstanceRequest(Request):
     pluginHandle: str = None
     pluginVersionId: str = None
     pluginVersionHandle: str = None
-    name: str = None
     handle: str = None
     upsert: bool = None
     config: Dict[str, any] = None
@@ -31,7 +30,6 @@ class DeletePluginInstanceRequest(Request):
 class PluginInstance:
     client: Client = None
     id: str = None
-    name: str = None
     handle: str = None
     pluginId: str = None
     pluginVersionId: str = None
@@ -47,7 +45,6 @@ class PluginInstance:
         return PluginInstance(
             client=client,
             id=d.get('id', None),
-            name=d.get('name', None),
             handle=d.get('handle', None),
             pluginId=d.get('pluginId', None),
             pluginVersionId=d.get('pluginVersionId', None),
@@ -62,13 +59,11 @@ class PluginInstance:
             pluginHandle: str = None,
             pluginVersionId: str = None,
             pluginVersionHandle: str = None,
-            name: str = None,
             handle: str = None,
             upsert: bool = None,
             config: Dict[str, any] = None
     ) -> Response[PluginInstance]:
         req = CreatePluginInstanceRequest(
-            name=name,
             handle=handle,
             pluginId=pluginId,
             pluginHandle=pluginHandle,

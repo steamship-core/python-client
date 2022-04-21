@@ -16,7 +16,7 @@ def test_default_space():
 def test_delete_space():
     client = _steamship()
     default = Space.get(client=client).data
-    space1 = Space.create(client=client, name="Test", handle="test").data
+    space1 = Space.create(client=client, handle="test").data
     assert (default.id is not None)
     assert (space1.id is not None)
     assert (default.id != space1.id)
@@ -26,7 +26,7 @@ def test_delete_space():
     assert (space1a.data is None)
     assert (space1a.error is not None)
 
-    space1 = Space.create(client=client, name="Test", handle="test").data
+    space1 = Space.create(client=client, handle="test").data
     assert (default.id is not None)
     assert (space1.id is not None)
     assert (default.id != space1.id)
@@ -44,7 +44,7 @@ def test_delete_space():
 def test_get_space():
     client = _steamship()
     default = Space.get(client=client).data
-    space1 = Space.create(client=client, name="Test", handle="test").data
+    space1 = Space.create(client=client, handle="test").data
     space1a = Space.get(client=client, spaceId=space1.id).data
     assert (space1a.id == space1.id)
     assert (space1a.id != default.id)
@@ -54,8 +54,8 @@ def test_get_space():
 def test_create_use_delete_space():
     client = _steamship()
     default = Space.get(client=client).data
-    space1 = Space.create(client=client, name="Test", handle="test").data
-    space2 = Space.create(client=client, name="Test", handle="test2").data
+    space1 = Space.create(client=client, handle="test").data
+    space2 = Space.create(client=client, handle="test2").data
 
     assert (space1 is not None)
     assert (space1.handle == 'test')

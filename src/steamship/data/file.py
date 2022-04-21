@@ -113,24 +113,24 @@ class File:
     """
     client: Client = None
     id: str = None
-    name: str = None
     handle: str = None
     mimeType: str = None
     spaceId: str = None
     corpusId: str = None
     blocks: [Block] = None
     tags: [Tag] = None
+    filename: str = None
 
     @dataclass
     class CreateRequest:
         value: str = None
         data: str = None
         url: str = None
+        filename: str = None
         type: str = None  # FileUploadType: fileImporter | value | url | data
 
         mimeType: str = None
         corpusId: str = None
-        name: str = None
         blocks: [Block.CreateRequest] = None
         tags: [Tag.CreateRequest] = None
 
@@ -146,9 +146,9 @@ class File:
                 mimeType=d.get('mimeType', None),
                 corpusId=d.get('corpusId', None),
                 pluginInstance=d.get('pluginInstance', None),
-                name=d.get('name', None),
                 blocks=[Block.CreateRequest.from_dict(block, client=client) for block in d.get('blocks', [])],
-                tags=[Tag.CreateRequest.from_dict(tag, client=client) for tag in d.get('tags', [])]
+                tags=[Tag.CreateRequest.from_dict(tag, client=client) for tag in d.get('tags', [])],
+                filename=d.get('filename', None)
             )
 
         def to_dict(self) -> dict:
@@ -160,8 +160,9 @@ class File:
                 mimeType=self.mimeType,
                 corpusId=self.corpusId,
                 pluginInstance=self.pluginInstance,
-                name=self.name,
-                blocks=[block.to_dict() for block in self.blocks] if self.blocks else []
+                blocks=[block.to_dict() for block in self.blocks] if self.blocks else [],
+                tags=[tag.to_dict() for tag in self.tags] if self.tags else [],
+                filename=self.filename
             )
 
     @dataclass
@@ -228,7 +229,6 @@ class File:
             client=client,
             id=d.get('id', None),
             handle=d.get('handle', None),
-            name=d.get('name', None),
             mimeType=d.get('mimeType', None),
             corpusId=d.get('corpusId', None),
             spaceId=d.get('spaceId', None),
@@ -240,7 +240,6 @@ class File:
         return dict(
             id=self.id,
             handle=self.handle,
-            name= self.name,
             mimeType=self.mimeType,
             corpusId=self.corpusId,
             spaceId=self.spaceId,
@@ -299,7 +298,6 @@ class File:
     def create(
             client: Client,
             filename: str = None,
-            name: str = None,
             url: str = None,
             content: str = None,
             pluginInstance: str = None,
@@ -312,8 +310,8 @@ class File:
             space: any = None
     ) -> "Response[File]":
 
-        if filename is None and name is None and content is None and url is None and pluginInstance is None and blocks is None:
-            raise Exception("Either filename, name + content, url, or plugin Instance must be provided.")
+        if filename is None and content is None and url is None and pluginInstance is None and blocks is None:
+            raise Exception("Either filename, content, url, or plugin Instance must be provided.")
 
         uploadType = None
         if blocks is not None:
@@ -321,12 +319,11 @@ class File:
         elif pluginInstance is not None:
             uploadType = FileUploadType.fileImporter
         elif content is not None:
-            # We're still goign to use the file upload method for file uploads
+            # We're still going to use the file upload method for file uploads
             uploadType = FileUploadType.file
         elif filename is not None:
             with open(filename, 'rb') as f:
                 content = f.read()
-                name = filename
             uploadType = FileUploadType.file
         else:
             if url is not None:
@@ -337,18 +334,20 @@ class File:
         req = File.CreateRequest(
             type=uploadType,
             corpusId=corpusId,
-            name=name,
             url=url,
             mimeType=mimeType,
             pluginInstance=pluginInstance,
             blocks=blocks,
-            tags=tags
+            tags=tags,
+            filename=filename
         )
 
+        # Defaulting this here, as opposed to in the Engine, because it is processed by Vapor
+        filePartName = filename if filename else "unnamed"
         return client.post(
             'file/create',
             payload=req,
-            file=(name, content, "multipart/form-data") if uploadType != FileUploadType.blocks else None,
+            file=(filePartName, content, "multipart/form-data") if uploadType != FileUploadType.blocks else None,
             expect=File,
             spaceId=spaceId,
             spaceHandle=spaceHandle,
@@ -380,16 +379,12 @@ class File:
     def scrape(
             client: Client,
             url: str,
-            name: str = None,
             corpusId: str = None,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None) -> "File":
-        if name is None:
-            name = url
         req = File.CreateRequest(
             type=FileUploadType.url,
-            name=name,
             url=url,
             corpusId=corpusId
         )

@@ -10,7 +10,7 @@ __license__ = "MIT"
 def test_e2e_converter():
     client = _steamship()
     with deploy_plugin("plugin_converter.py", "converter") as (plugin, version, instance):
-        file = File.create(client=client, name="Test.txt", content="This is a test.").data
+        file = File.create(client=client, content="This is a test.").data
         assert (len(file.query().data.blocks) == 0)
 
         # Use the plugin we just registered
