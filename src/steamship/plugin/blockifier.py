@@ -8,12 +8,12 @@ from steamship.plugin.service import PluginService, PluginRequest
 # Note!
 # =====
 #
-# This is the PLUGIN IMPLEMENTOR's View of a Converter.
+# This is the PLUGIN IMPLEMENTOR's View of a Blockifier.
 #
 # If you are using the Steamship Client, you probably want steamship.client.operations.converter instead
 # of this file.
 #
-class Converter(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC):
+class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC):
     @classmethod
     def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[RawDataPluginInput]:
         return RawDataPluginInput.from_dict(d, client=client)

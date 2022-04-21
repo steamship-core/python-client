@@ -11,7 +11,7 @@ __license__ = "MIT"
 def test_plugin_create():
     steamship = _steamship()
 
-    my_plugins = Plugin.listPrivate(steamship).data
+    my_plugins = Plugin.list(steamship).data
     orig_count = len(my_plugins.plugins)
 
     # Should require name
@@ -61,7 +61,7 @@ def test_plugin_create():
             transport=PluginAdapterType.steamshipDocker,
         )
 
-    my_plugins = Plugin.listPrivate(steamship).data
+    my_plugins = Plugin.list(steamship).data
     assert (len(my_plugins.plugins) == orig_count)
 
     plugin = Plugin.create(
@@ -72,7 +72,7 @@ def test_plugin_create():
         transport=PluginAdapterType.steamshipDocker,
         isPublic=False
     ).data
-    my_plugins = Plugin.listPrivate(steamship).data
+    my_plugins = Plugin.list(steamship).data
     assert (len(my_plugins.plugins) == orig_count + 1)
 
     # No upsert doesn't work
@@ -92,6 +92,7 @@ def test_plugin_create():
     plugin2 = Plugin.create(
         client=steamship,
         isTrainable=False,
+        handle=plugin.handle,
         description="This is just for test 2",
         type=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
@@ -101,7 +102,7 @@ def test_plugin_create():
 
     assert (plugin2.id == plugin.id)
 
-    my_plugins = Plugin.listPrivate(steamship).data
+    my_plugins = Plugin.list(steamship).data
     assert (len(my_plugins.plugins) == orig_count + 1)
 
     assert (plugin2.id in [plugin.id for plugin in my_plugins.plugins])
@@ -111,14 +112,14 @@ def test_plugin_create():
 
     plugin.delete()
 
-    my_plugins = Plugin.listPrivate(steamship).data
+    my_plugins = Plugin.list(steamship).data
     assert (len(my_plugins.plugins) == orig_count)
 
 
 def test_plugin_public():
     steamship = _steamship()
 
-    resp = Plugin.listPublic(steamship).data
+    resp = Plugin.list(steamship).data
     assert (resp.plugins is not None)
     plugins = resp.plugins
 

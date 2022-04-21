@@ -172,30 +172,15 @@ class Plugin:
         )
 
     @staticmethod
-    def listPublic(
+    def list(
             client: Client,
             type: str = None,
             spaceId: str = None,
             spaceHandle: str = None
     ) -> Response[ListPluginsResponse]:
         return client.post(
-            'plugin/public',
+            'plugin/list',
             ListPublicPluginsRequest(type=type),
-            expect=ListPluginsResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle
-        )
-
-    @staticmethod
-    def listPrivate(
-            client: Client,
-            type=None,
-            spaceId: str = None,
-            spaceHandle: str = None
-    ) -> Response[ListPluginsResponse]:
-        return client.post(
-            'plugin/private',
-            ListPrivatePluginsRequest(type=type),
             expect=ListPluginsResponse,
             spaceId=spaceId,
             spaceHandle=spaceHandle
@@ -208,14 +193,6 @@ class Plugin:
             GetPluginRequest(handle=handle),
             expect=Plugin
         )
-
-    @staticmethod
-    def getPublic(client: Client, handle: str):
-        publicPlugins = Plugin.listPublic(client=client).data.plugins
-        for plugin in publicPlugins:
-            if plugin.handle == handle:
-                return plugin
-        return None
 
     def delete(self) -> Response[Plugin]:
         return self.client.post(

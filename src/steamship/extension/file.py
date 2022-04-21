@@ -121,7 +121,6 @@ File.tag = tag
 def index(
         self,
         pluginInstance: str = None,
-        indexName: str = None,
         indexId: str = None,
         index: "EmbeddingIndex" = None,
         upsert: bool = True,
@@ -135,12 +134,8 @@ def index(
     if indexId is None and index is not None:
         indexId = index.id
 
-    if indexName is None:
-        indexName = "{}-{}".format(self.id, pluginInstance)
-
     if indexId is None and index is None:
         index = self.client.create_index(
-            name=indexName,
             pluginInstance=pluginInstance,
             upsert=True,
             spaceId=spaceId,

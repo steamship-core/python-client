@@ -36,7 +36,7 @@ def test_file_parse():
     assert (a.id is not None)
     assert (a.mimeType == MimeTypes.MKD)
 
-    convertResp = a.blockify(pluginInstance="markdown-converter-default-1.0")
+    convertResp = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
     assert (convertResp.error is None)
     convertResp.wait()
 
@@ -90,7 +90,7 @@ def test_file_index():
     assert (a.id is not None)
     assert (a.mimeType == MimeTypes.MKD)
 
-    convertResp = a.blockify(pluginInstance="markdown-converter-default-1.0")
+    convertResp = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
     assert (convertResp.error is None)
     convertResp.wait()
 
@@ -133,7 +133,7 @@ def test_file_embed_lookup():
         mimeType=MimeTypes.MKD
     ).data
 
-    convertRes = a.blockify(pluginInstance="markdown-converter-default-1.0")
+    convertRes = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
     assert (convertRes.error is None)
     convertRes.wait()
 
@@ -146,7 +146,7 @@ def test_file_embed_lookup():
         content=content_b,
         mimeType=MimeTypes.MKD
     ).data
-    convertRes = b.blockify(pluginInstance="markdown-converter-default-1.0")
+    convertRes = b.blockify(pluginInstance="markdown-blockifier-default-1.0")
     assert (convertRes.error is None)
     convertRes.wait()
 
