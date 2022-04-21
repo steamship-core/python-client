@@ -41,7 +41,7 @@ class Invocation:
             httpVerb=d.get('httpVerb', None),
             appPath=d.get('appPath', None),
             arguments=d.get('arguments', None),
-            config=d.get('config', None)
+            config=d.get('config', dict())
         )
 
 
