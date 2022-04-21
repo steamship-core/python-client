@@ -39,7 +39,7 @@ def create_handler(App: Type[App]):
                 error=ex
             )
 
-            
+
         try:
             if app is not None:
                 response = app(request)
