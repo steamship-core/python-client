@@ -26,7 +26,6 @@ class CreatePluginRequest(Request):
     type: str = None
     transport: str = None
     isPublic: bool = None
-    isTrainable: bool = None
     handle: str = None
     description: str = None
     dimensionality: int = None
@@ -143,7 +142,6 @@ class Plugin:
             type: str,
             transport: str,
             isPublic: bool,
-            isTrainable: bool = False,
             handle: str = None,
             dimensionality: int = None,
             limitAmount: int = None,
@@ -163,7 +161,6 @@ class Plugin:
             type=type,
             transport=transport,
             isPublic=isPublic,
-            isTrainable=isTrainable,
             handle=handle,
             description=description,
             dimensionality=dimensionality,
