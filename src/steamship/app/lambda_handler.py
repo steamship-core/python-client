@@ -7,7 +7,7 @@ from steamship.app.app import App
 from steamship.app.request import Request
 from steamship.app.response import Response, Error, Http
 from steamship.client.client import Steamship
-
+from steamship.base import SteamshipError
 
 def create_handler(App: Type[App]):
     """Wrapper function for an Steamship app within an AWS Lambda function.
@@ -54,6 +54,11 @@ def create_handler(App: Type[App]):
 
         if type(response) == Response:
             lambda_response = response
+        elif type(response) == SteamshipError:
+            lambda_response = Response(
+                error=response,
+                http=Http(status=500)
+            )
         elif type(response) == io.BytesIO:
             lambda_response = Response(bytes=response)
         elif type(response) == dict:
@@ -66,16 +71,14 @@ def create_handler(App: Type[App]):
             lambda_response = Response(json=response)
         else:
             lambda_response = Response(
-                error=Error(message="Handler provided unknown response type."),
-                http=Http(statusCode=500)
+                error=SteamshipError(message="Handler provided unknown response type."),
+                http=Http(status=500)
             )
-
         if lambda_response is None:
             lambda_response = Response(
-                error=Error(message="Handler provided no response."),
-                http=Http(statusCode=500)
+                error=SteamshipError(message="Handler provided no response."),
+                http=Http(status=500)
             )
-
         return dataclasses.asdict(lambda_response)
 
     return handler
