@@ -26,6 +26,7 @@ class CreatePluginRequest(Request):
     type: str = None
     transport: str = None
     isPublic: bool = None
+    isTrainable: bool = None
     handle: str = None
     description: str = None
     dimensionality: int = None
@@ -102,6 +103,7 @@ class Plugin:
     type: str = None
     transport: str = None
     isPublic: bool = None
+    isTrainable: bool = None
     handle: str = None
     description: str = None
     dimensionality: int = None
@@ -122,6 +124,7 @@ class Plugin:
             type=d.get('type', None),
             transport=d.get('transport', None),
             isPublic=d.get('isPublic', None),
+            isTrainable=d.get('isTrainable', None),
             handle=d.get('handle', None),
             description=d.get('description', None),
             dimensionality=d.get('dimensionality', None),
@@ -140,6 +143,7 @@ class Plugin:
             type: str,
             transport: str,
             isPublic: bool,
+            isTrainable: bool = False,
             handle: str = None,
             dimensionality: int = None,
             limitAmount: int = None,
@@ -159,6 +163,7 @@ class Plugin:
             type=type,
             transport=transport,
             isPublic=isPublic,
+            isTrainable=isTrainable,
             handle=handle,
             description=description,
             dimensionality=dimensionality,
