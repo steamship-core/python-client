@@ -12,7 +12,6 @@ class PluginVersion:
 @dataclass
 class CreatePluginVersionRequest(Request):
     pluginId: str = None
-    name: str = None
     handle: str = None
     upsert: bool = None
     hostingMemory: str = None
@@ -57,7 +56,6 @@ class PluginVersion:
     client: Client = None
     id: str = None
     pluginId: str = None
-    name: str = None
     handle: str = None
     hostingMemory: str = None
     hostingTimeout: str = None
@@ -74,7 +72,6 @@ class PluginVersion:
         return PluginVersion(
             client=client,
             id=d.get('id', None),
-            name=d.get('name', None),
             handle=d.get('handle', None),
             hostingMemory=d.get('hostingMemory', None),
             hostingTimeout=d.get('hostingTimeout', None),
@@ -89,7 +86,6 @@ class PluginVersion:
             client: Client,
             handle: str,
             pluginId: str = None,
-            name: str = None,
             filename: str = None,
             filebytes: bytes = None,
             upsert: bool = None,
@@ -111,7 +107,6 @@ class PluginVersion:
                 filebytes = f.read()
 
         req = CreatePluginVersionRequest(
-            name=name,
             handle=handle,
             pluginId=pluginId,
             upsert=upsert,

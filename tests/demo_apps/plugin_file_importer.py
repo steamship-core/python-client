@@ -4,9 +4,7 @@ from steamship.plugin.service import PluginResponse, PluginRequest
 from steamship.extension.file import File
 
 # Note: this aligns with the same document in the internal Engine test.
-NAME = "Test Importer (Plugin)"
 HANDLE = "test-importer-plugin-v1"
-URL = "builtin://importer/test-plugin/v1"
 TEST_H1 = "A Poem"
 TEST_S1 = "Roses are red."
 TEST_S2 = "Violets are blue."

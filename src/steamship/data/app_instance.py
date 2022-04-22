@@ -9,7 +9,6 @@ class CreateAppInstanceRequest(Request):
     id: str = None
     appId: str = None
     appVersionId: str = None
-    name: str = None
     handle: str = None
     upsert: bool = None
     config: Dict[str, any] = None
@@ -24,7 +23,6 @@ class DeleteAppInstanceRequest(Request):
 class AppInstance:
     client: Client = None
     id: str = None
-    name: str = None
     handle: str = None
     appId: str = None
     appHandle: str = None
@@ -43,7 +41,6 @@ class AppInstance:
         return AppInstance(
             client=client,
             id=d.get('id', None),
-            name=d.get('name', None),
             handle=d.get('handle', None),
             appId=d.get('appId', None),
             appHandle=d.get('appHandle', None),
@@ -60,14 +57,12 @@ class AppInstance:
             client: Client,
             appId: str = None,
             appVersionId: str = None,
-            name: str = None,
             handle: str = None,
             upsert: bool = None,
             config: Dict[str, any] = None
     ) -> "AppInstance":
 
         req = CreateAppInstanceRequest(
-            name=name,
             handle=handle,
             appId=appId,
             appVersionId=appVersionId,

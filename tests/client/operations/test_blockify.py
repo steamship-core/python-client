@@ -9,9 +9,7 @@ __license__ = "MIT"
 def test_file_upload_then_parse():
     steamship = _steamship()
 
-    name_a = "{}.txt".format(_random_name())
     a = steamship.upload(
-        name=name_a,
         content="This is a test."
     ).data
     assert (a.id is not None)
@@ -33,9 +31,7 @@ def test_file_upload_then_parse():
     assert (len(q1.blocks) == 1)
     assert (q1.blocks[0].text == 'This is a test.')
 
-    name_b = "{}.mkd".format(_random_name())
     b = steamship.upload(
-        name=name_b,
         content="""# Header
 
 This is a test."""

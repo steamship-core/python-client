@@ -26,7 +26,6 @@ def count_tags(blocks: [Block], tag_kind: str, tag_name: str):
     return c
 
 def tag_file(client: Client, parserInstanceHandle: str):
-    name_a = "{}.mkd".format(_random_name())
     T = "A Poem"
     P1_1 = "Roses are red."
     P1_2 = "Violets are blue."
@@ -35,12 +34,10 @@ def tag_file(client: Client, parserInstanceHandle: str):
     CONTENT = "# {}\n\n{} {}\n\n{}".format(T, P1_1, P1_2, P2_1)
 
     a = client.upload(
-        name=name_a,
         content=CONTENT,
         mimeType=MimeTypes.MKD
     ).data
     assert (a.id is not None)
-    assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
     a.blockify(pluginInstance="markdown-blockifier-default-1.0").wait()

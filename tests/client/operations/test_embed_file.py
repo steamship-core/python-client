@@ -14,7 +14,6 @@ _TEST_EMBEDDER = "test-embedder"
 
 def test_file_parse():
     steamship = _steamship()
-    name_a = "{}.mkd".format(_random_name())
     T = "A nice poem"
     P1_1 = "Roses are red."
     P1_2 = "Violets are blue."
@@ -31,12 +30,10 @@ def test_file_parse():
     content = "{}\n\n{}".format(content1, content2)
 
     a = steamship.upload(
-        name=name_a,
         content=content,
         mimeType=MimeTypes.MKD
     ).data
     assert (a.id is not None)
-    assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
     blockifyResp = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
@@ -71,7 +68,6 @@ def test_file_parse():
 
 def test_file_index():
     steamship = _steamship()
-    name_a = "{}.mkd".format(_random_name())
     T = "A nice poem"
     P1_1 = "Roses are red."
     P1_2 = "Violets are blue."
@@ -88,12 +84,10 @@ def test_file_index():
     content = "{}\n\n{}".format(content1, content2)
 
     a = steamship.upload(
-        name=name_a,
         content=content,
         mimeType=MimeTypes.MKD
     ).data
     assert (a.id is not None)
-    assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
     blockifyResp = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
@@ -130,14 +124,11 @@ def test_file_index():
 
 def test_file_embed_lookup():
     steamship = _steamship()
-    name_a = "{}.mkd".format(_random_name())
-    name_b = "{}.mkd".format(_random_name())
 
     content_a = "Ted likes to run."
     content_b = "Grace likes to bike."
 
     a = steamship.upload(
-        name=name_a,
         content=content_a,
         mimeType=MimeTypes.MKD
     ).data
@@ -152,7 +143,6 @@ def test_file_embed_lookup():
     parseRes.wait()
 
     b = steamship.upload(
-        name=name_b,
         content=content_b,
         mimeType=MimeTypes.MKD
     ).data

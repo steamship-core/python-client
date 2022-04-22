@@ -49,7 +49,6 @@ def test_snapshot_create():
     name = _random_name()
     pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
     index = steamship.create_index(
-        name=name,
         pluginInstance=pluginInstance.handle,
         upsert=True
     ).data
@@ -95,7 +94,6 @@ def test_snapshot_create():
 
     name = _random_name()
     index = steamship.create_index(
-        name=name,
         pluginInstance=pluginInstance.handle,
         upsert=True
     ).data

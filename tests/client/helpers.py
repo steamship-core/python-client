@@ -47,7 +47,6 @@ def _random_index(steamship: Steamship, pluginInstance: str) -> EmbeddingIndex:
 @contextlib.contextmanager
 def _random_file(steamship: Steamship, content: str = "") -> File:
     file = steamship.create_file(
-        name=_random_name(),
         contents=content
     ).data
     yield file
@@ -56,7 +55,7 @@ def _random_file(steamship: Steamship, content: str = "") -> File:
 
 @contextlib.contextmanager
 def _random_corpus(client: Steamship) -> Corpus:
-    corpus = Corpus.create(client, name=_random_name()).data
+    corpus = Corpus.create(client).data
     yield corpus
     corpus.delete()
 
@@ -115,8 +114,7 @@ def create_app_zip(filename) -> bytes:
 @contextlib.contextmanager
 def deploy_app(py_name: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None):
     client = _steamship()
-    name = _random_name()
-    app = App.create(client, name=name)
+    app = App.create(client)
     assert (app.error is None)
     assert (app.data is not None)
     app = app.data
@@ -170,8 +168,7 @@ def deploy_app(py_name: str, versionConfigTemplate : Dict[str, any] = None, inst
 @contextlib.contextmanager
 def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None, isTrainable: bool = False):
     client = _steamship()
-    name = _random_name()
-    plugin = Plugin.create(client, isTrainable=isTrainable, name=name, description='test', type=plugin_type, transport="jsonOverHttp",
+    plugin = Plugin.create(client, isTrainable=isTrainable, description='test', type=plugin_type, transport="jsonOverHttp",
                            isPublic=False)
     assert (plugin.error is None)
     assert (plugin.data is not None)
