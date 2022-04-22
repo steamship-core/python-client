@@ -13,17 +13,13 @@ _TEST_EMBEDDER = "test-embedder"
 
 def create_index(client: Client, pluginInstance: str):
     steamship = _steamship()
-    name = _random_name()
 
     # Should require plugin
-    task = steamship.create_index(
-        name="Test Index"
-    )
+    task = steamship.create_index()
     assert task.error is not None
     assert task.data is None
 
     index = steamship.create_index(
-        name=name,
         pluginInstance=pluginInstance,
         upsert=True
     ).data
@@ -49,10 +45,8 @@ def test_create_index():
 
 def test_delete_index():
     steamship = _steamship()
-    name = _random_name()
     pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
     index = steamship.create_index(
-        name=name,
         pluginInstance=pluginInstance.handle,
         upsert=True
     ).data
@@ -70,7 +64,6 @@ def test_delete_index():
     index.delete()
 
     task = steamship.create_index(
-        name=name,
         pluginInstance=pluginInstance.handle,
         upsert=True
     )

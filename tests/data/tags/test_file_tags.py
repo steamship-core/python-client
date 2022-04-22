@@ -9,14 +9,11 @@ __license__ = "MIT"
 
 def test_file_tag():
     steamship = _steamship()
-    name_a = "{}.mkd".format(_random_name())
     a = steamship.upload(
-        name=name_a,
         content="A",
         mimeType=MimeTypes.MKD
     ).data
     assert (a.id is not None)
-    assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
     t1 = Tag.create(steamship, fileId=a.id, name="test1").data
