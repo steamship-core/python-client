@@ -12,7 +12,6 @@ from steamship.base import Client, Request
 @dataclass
 class CreateAppRequest(Request):
     id: str = None
-    name: str = None
     handle: str = None
     upsert: bool = None
 
@@ -31,7 +30,6 @@ class ListPrivateAppsRequest(Request):
 class App:
     client: Client = None
     id: str = None
-    name: str = None
     handle: str = None
 
     @staticmethod
@@ -41,19 +39,16 @@ class App:
         return App(
             client=client,
             id=d.get('id', None),
-            name=d.get('name', None),
             handle=d.get('handle', None)
         )
 
     @staticmethod
     def create(
             client: Client,
-            name: str = None,
             handle: str = None,
             upsert: bool = None
     ) -> "App":
         req = CreateAppRequest(
-            name=name,
             handle=handle,
             upsert=upsert
         )

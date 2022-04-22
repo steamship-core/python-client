@@ -10,35 +10,28 @@ __license__ = "MIT"
 def test_corpus_create():
     client = _steamship()
 
-    # Should require name
     corpus = Corpus.create(client)
     assert (corpus.data is not None)
     corpus.data.delete()
 
-    corpus = Corpus.create(client, name=_random_name()).data
+    corpus = Corpus.create(client).data
 
-    name_a = "{}.mkd".format(_random_name())
     a = File.create(
         client,
-        name=name_a,
         content="A",
         corpusId=corpus.id,
         mimeType=MimeTypes.MKD
     ).data
     assert (a.id is not None)
-    assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
     assert (a.corpusId == corpus.id)
 
-    name_a = "{}.html".format(_random_name())
     a = File.scrape(
         client,
-        name=name_a,
         corpusId=corpus.id,
         url="https://edwardbenson.com/2020/10/gpt3-travel-agent"
     ).data
     assert (a.id is not None)
-    assert (a.name == name_a)
     assert (a.corpusId == corpus.id)
 
     resp = File.list(client, corpusId=corpus.id).data
@@ -47,18 +40,17 @@ def test_corpus_create():
 
 def test_corpus_upsert():
     client = _steamship()
-    name = _random_name()
-    corpus1 = Corpus.create(client, name=name).data
+    corpus1 = Corpus.create(client).data
     assert (corpus1.id is not None)
 
     #This finds the same corpus as corpus1
-    corpus2 = Corpus.create(client, name=name)
+    corpus2 = Corpus.create(client)
     assert (corpus2.data is not None)
     assert (corpus2.error is None)
     #Commenting out below, which deletes corpus1, which results in the corpus3 test failing
     #corpus2.data.delete()
 
-    corpus2 = Corpus.create(client, name=name, handle=_random_name()).data
+    corpus2 = Corpus.create(client, handle=_random_name()).data
     assert (corpus1.id != corpus2.id)
     assert (corpus2.id is not None)
     corpus2.delete()
@@ -75,7 +67,7 @@ def test_corpus_upsert():
 def test_corpus_delete():
     client = _steamship()
     name = _random_name()
-    corpus1 = Corpus.create(client, name=name).data
+    corpus1 = Corpus.create(client).data
     resp = corpus1.delete()
     assert (resp.error is None)
     assert (resp.data is not None)
@@ -84,7 +76,6 @@ def test_corpus_delete():
     name_a = "{}.mkd".format(_random_name())
     a = File.create(
         client,
-        name=name_a,
         content="A",
         corpusId=corpus1.id,
         mimeType=MimeTypes.MKD
@@ -97,13 +88,12 @@ def test_corpus_delete_cascade():
     client = _steamship()
     name = _random_name()
 
-    corpus1 = Corpus.create(client=client, name=name).data
+    corpus1 = Corpus.create(client=client).data
 
     name_a = "{}.mkd".format(_random_name())
     a = File.create(
         client=client,
         corpusId=corpus1.id,
-        name=name_a,
         content="A",
         mimeType=MimeTypes.MKD
     ).data

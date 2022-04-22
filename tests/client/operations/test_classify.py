@@ -12,7 +12,6 @@
 
 # def test_classifier_create():
 #   steamship = _steamship()
-#   name = _random_name()
 
 #   # Should require name
 #   with pytest.raises(Exception):

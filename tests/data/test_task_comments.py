@@ -14,7 +14,6 @@ def _list_equal(actual, expected):
 
 def test_basic_task_comment():
     steamship = _steamship()
-    name = _random_name()
     embedder = PluginInstance.create(steamship, pluginHandle='test-embedder').data
     with _random_index(steamship, embedder.handle) as index:
         item1 = EmbeddedItem(
@@ -103,7 +102,6 @@ def test_task_comment_feedback_reporting():
     So really we just need to test the group aggregation
     """
     steamship = _steamship()
-    name = _random_name()
     embedder = PluginInstance.create(steamship, pluginHandle='test-embedder').data
     with _random_index(steamship, pluginInstance=embedder.handle) as index:
         item1 = EmbeddedItem(
