@@ -57,7 +57,7 @@ class SteamshipError(Exception):
         return SteamshipError(
             message=d.get('statusMessage', d.get('message', None)),
             internalMessage=d.get('internalMessage', None),
-            suggestion=d.get('statusSuggestion', suggestion=d.get('suggestion', None)),
+            suggestion=d.get('statusSuggestion', d.get('suggestion', None)),
             code=d.get('statusCode', d.get('code', None)),
             error=d.get('error', d.get('error', None))
         )
