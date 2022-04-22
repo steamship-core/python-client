@@ -3,7 +3,7 @@ from steamship.client.operations.tagger import TagRequest, TagResponse
 from steamship.data.embeddings import EmbeddingIndex, EmbeddedItem
 from steamship.data.file import File, FileUploadType
 from steamship.data.plugin import PluginTargetType
-from steamship.client.operations.converter import ConvertRequest
+from steamship.client.operations.blockifier import BlockifyRequest
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
 
@@ -48,15 +48,15 @@ def upload(
 File.upload = upload
 
 
-def convert(self, pluginInstance: str = None ):
-    req = ConvertRequest(
+def blockify(self, pluginInstance: str = None ):
+    req = BlockifyRequest(
         type='file',
         id=self.id,
         pluginInstance=pluginInstance
     )
 
     return self.client.post(
-        'plugin/instance/convert',
+        'plugin/instance/blockify',
         payload=req,
         expect=BlockAndTagPluginOutput,
         asynchronous=True,
@@ -64,7 +64,7 @@ def convert(self, pluginInstance: str = None ):
     )
 
 
-File.convert = convert
+File.blockify = blockify
 
 
 

@@ -43,7 +43,7 @@ def parse_file(client: Client, parserInstanceHandle: str):
     assert (a.name == name_a)
     assert (a.mimeType == MimeTypes.MKD)
 
-    a.convert(pluginInstance="markdown-converter-default-1.0").wait()
+    a.blockify(pluginInstance="markdown-blockifier-default-1.0").wait()
 
     raw = a.raw()
     assert (raw.data.decode('utf-8') == CONTENT)

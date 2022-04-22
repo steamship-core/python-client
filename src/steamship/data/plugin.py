@@ -28,10 +28,6 @@ class CreatePluginRequest(Request):
     isPublic: bool = None
     handle: str = None
     description: str = None
-    dimensionality: int = None
-    limitAmount: int = None
-    limitUnit: str = None
-    apiKey: str = None
     metadata: str = None
     upsert: bool = None
 
@@ -105,10 +101,6 @@ class Plugin:
     isTrainable: bool = None
     handle: str = None
     description: str = None
-    dimensionality: int = None
-    limitAmount: int = None
-    limitUnit: str = None
-    apiKey: str = None
     metadata: str = None
 
     @staticmethod
@@ -126,10 +118,6 @@ class Plugin:
             isTrainable=d.get('isTrainable', None),
             handle=d.get('handle', None),
             description=d.get('description', None),
-            dimensionality=d.get('dimensionality', None),
-            limitAmount=d.get('limitAmount', None),
-            limitUnit=d.get('limitUnit', None),
-            apiKey=d.get('apiKey', None),
             metadata=d.get('metadata', None)
         )
 
@@ -143,10 +131,6 @@ class Plugin:
             transport: str,
             isPublic: bool,
             handle: str = None,
-            dimensionality: int = None,
-            limitAmount: int = None,
-            limitUnit: str = None,
-            apiKey: str = None,
             metadata: Union[str, Dict, List] = None,
             upsert: bool = None,
             spaceId: str = None,
@@ -163,10 +147,6 @@ class Plugin:
             isPublic=isPublic,
             handle=handle,
             description=description,
-            dimensionality=dimensionality,
-            limitAmount=limitAmount,
-            limitUnit=limitUnit,
-            apiKey=apiKey,
             metadata=metadata,
             upsert=upsert
         )

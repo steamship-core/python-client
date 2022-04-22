@@ -15,6 +15,11 @@ class CreatePluginVersionRequest(Request):
     name: str = None
     handle: str = None
     upsert: bool = None
+    hostingMemory: str = None
+    hostingTimeout: str = None
+    hostingHandler: str = None
+    isPublic: bool = None
+    isDefault: bool = None
     type: str = 'file'
     configTemplate: Dict[str, any] = None
 
@@ -54,6 +59,11 @@ class PluginVersion:
     pluginId: str = None
     name: str = None
     handle: str = None
+    hostingMemory: str = None
+    hostingTimeout: str = None
+    hostingHandler: str = None
+    isPublic: bool = None
+    isDefault: bool = None
     configTemplate: Dict[str, any] = None
 
     @staticmethod
@@ -66,6 +76,11 @@ class PluginVersion:
             id=d.get('id', None),
             name=d.get('name', None),
             handle=d.get('handle', None),
+            hostingMemory=d.get('hostingMemory', None),
+            hostingTimeout=d.get('hostingTimeout', None),
+            hostingHandler=d.get('hostingHandler', None),
+            isPublic=d.get('isPublic', None),
+            isDefault=d.get('isDefault', None),
             configTemplate=d.get('configTemplate', None)
         )
 
@@ -78,6 +93,11 @@ class PluginVersion:
             filename: str = None,
             filebytes: bytes = None,
             upsert: bool = None,
+            hostingMemory: str = None,
+            hostingTimeout: str = None,
+            hostingHandler: str = None,
+            isPublic: bool = None,
+            isDefault: bool = None,
             configTemplate: Dict[str, any] = None
     ) -> Response[PluginVersion]:
 
@@ -95,6 +115,11 @@ class PluginVersion:
             handle=handle,
             pluginId=pluginId,
             upsert=upsert,
+            hostingMemory=hostingMemory,
+            hostingTimeout=hostingTimeout,
+            hostingHandler=hostingHandler,
+            isPublic=isPublic,
+            isDefault=isDefault,
             configTemplate=configTemplate
         )
 
