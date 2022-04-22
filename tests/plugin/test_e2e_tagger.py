@@ -4,13 +4,13 @@ from steamship.plugin.service import PluginRequest
 from steamship.client.operations.tagger import TagRequest
 
 from ..client.helpers import deploy_plugin, _steamship
-from tests.client.operations.test_tag_file import parse_file
+from tests.client.operations.test_tag_file import tag_file
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 
-def test_e2e_parser():
+def test_e2e_tagger():
     client = _steamship()
     with deploy_plugin("plugin_parser.py", "tagger") as (plugin, version, instance):
         test_doc = "Hi there"
@@ -23,4 +23,4 @@ def test_e2e_parser():
 
         # Let's try it on a file. This is the same test we run on the Swift test parser.
         # Since the python test parser is implemented to behave the same, we can reuse it!
-        parse_file(client, instance.handle)
+        tag_file(client, instance.handle)
