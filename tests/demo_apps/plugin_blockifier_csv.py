@@ -27,7 +27,15 @@ class CsvBlockifierPlugin(Blockifier, App):
                 message="Missing data field on the incoming request."
             ))
 
-        if type(request.data.data) != str:
+        data = request.data.data
+        if isinstance(data, bytes):
+            data = data.decode('utf-8')
+
+        logging.info("HI")
+        logging.info(request)
+        logging.info(request.data.data)
+
+        if type(data) != str:
             return Response(error=SteamshipError(
                 message="The incoming data was not of expected String type"
             ))
@@ -38,8 +46,6 @@ class CsvBlockifierPlugin(Blockifier, App):
         escapechar = self.config.get('escapechar', '\\') or '\\'
         newline = self.config.get('newline', '\\n') or '\\n'
         skipinitialspace = self.config.get('skipinitialspace', False) or False
-
-        logging.info(request.data.data)
 
         text_column = self.config.get('textColumn', None)
         tag_columns = self.config.get('tagColumns', [])
@@ -78,13 +84,12 @@ class CsvBlockifierPlugin(Blockifier, App):
             ))
 
         reader = csv.DictReader(
-            io.StringIO(request.data.data),
+            io.StringIO(data),
             delimiter=delimiter,
             quotechar=quotechar,
             escapechar=escapechar,
             skipinitialspace=skipinitialspace
         )
-
         file = File(blocks=[])
         for row in reader:
             text = row.get(text_column, None)
