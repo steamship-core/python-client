@@ -9,7 +9,6 @@ from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPlug
 import re
 
 
-
 class TestParserPlugin(Tagger, App):
     # For testing; mirrors TestConfigurableTagger in Swift
 

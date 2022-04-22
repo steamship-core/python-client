@@ -24,10 +24,10 @@
 #         assert (c.name == name_c)
 #         assert (c.mimeType == MimeTypes.PNG)
 #
-#         blockifyResp = c.blockify(plugin="ocr_ms_vision_default")
-#         assert (blockifyResp.error is None)
-#         blockifyResp.wait()
-#         assert (blockifyResp.data is not None)
+#         convertResp = c.convert(plugin="ocr_ms_vision_default")
+#         assert (convertResp.error is None)
+#         convertResp.wait()
+#         assert (convertResp.data is not None)
 #
 #         q1 = c.query().data
 #         assert (len(q1.blocks) == 3)

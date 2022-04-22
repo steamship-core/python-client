@@ -10,6 +10,11 @@ from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
 from steamship.data.tags import Tag
 
+
+class File:
+    pass
+
+
 class FileUploadType:
     file = "file"  # The CreateRequest contains a file upload that should be used
     url = "url"  # The CreateRequest contains a url that should be scraped

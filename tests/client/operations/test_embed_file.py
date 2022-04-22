@@ -36,9 +36,9 @@ def test_file_parse():
     assert (a.id is not None)
     assert (a.mimeType == MimeTypes.MKD)
 
-    blockifyResp = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
-    assert (blockifyResp.error is None)
-    blockifyResp.wait()
+    convertResp = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
+    assert (convertResp.error is None)
+    convertResp.wait()
 
     # Now we parse
     parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
@@ -90,9 +90,9 @@ def test_file_index():
     assert (a.id is not None)
     assert (a.mimeType == MimeTypes.MKD)
 
-    blockifyResp = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
-    assert (blockifyResp.error is None)
-    blockifyResp.wait()
+    convertResp = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
+    assert (convertResp.error is None)
+    convertResp.wait()
 
     # Now we parse
     parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
@@ -133,9 +133,9 @@ def test_file_embed_lookup():
         mimeType=MimeTypes.MKD
     ).data
 
-    blockifyRes = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
-    assert (blockifyRes.error is None)
-    blockifyRes.wait()
+    convertRes = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
+    assert (convertRes.error is None)
+    convertRes.wait()
 
     parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
     parseRes = a.tag(pluginInstance=parser.handle)
@@ -146,9 +146,9 @@ def test_file_embed_lookup():
         content=content_b,
         mimeType=MimeTypes.MKD
     ).data
-    blockifyRes = b.blockify(pluginInstance="markdown-blockifier-default-1.0")
-    assert (blockifyRes.error is None)
-    blockifyRes.wait()
+    convertRes = b.blockify(pluginInstance="markdown-blockifier-default-1.0")
+    assert (convertRes.error is None)
+    convertRes.wait()
 
     parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
     parseRes = b.tag(pluginInstance=parser.handle)

@@ -51,7 +51,7 @@ class Steamship(Client):
     
         dQuery is a Beta option that will return chainable responses, like:
           file.upload()
-              .blockify()
+              .convert()
               .parse()
               .embed()
               .query()

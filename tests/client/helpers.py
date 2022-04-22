@@ -6,7 +6,6 @@ import string
 import time
 import zipfile
 from typing import Dict
-import pathlib
 
 from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
@@ -19,6 +18,7 @@ from steamship.data.user import User
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
+
 
 def _env_or(env_var: str, or_val: str) -> str:
     if env_var in os.environ:
@@ -164,16 +164,6 @@ def deploy_app(py_name: str, versionConfigTemplate : Dict[str, any] = None, inst
     res = app.delete()
     assert (res.error is None)
 
-
-@contextlib.contextmanager
-def upload_file(test_assets_filename: str):
-    client = _steamship()
-    full_path = os.path.join(os.path.dirname(__file__), '..', '..', 'test_assets', test_assets_filename)
-    file = File.create(client, filename=full_path)
-    assert (file.data is not None)
-    assert (file.data.id is not None)
-    yield file.data
-    file.data.delete()
 
 @contextlib.contextmanager
 def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None, isTrainable: bool = False):
