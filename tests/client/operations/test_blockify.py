@@ -1,5 +1,5 @@
 from steamship import MimeTypes, DocTag
-from steamship.base.response import TaskStatus
+from steamship.base.response import TaskState
 from tests.client.helpers import _random_name, _steamship
 
 __copyright__ = "Steamship"
@@ -20,12 +20,12 @@ def test_file_upload_then_parse():
     task = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
     assert (task.error is None)
     assert (task.task is not None)
-    assert (task.task.state == TaskStatus.waiting)
+    assert (task.task.state == TaskState.waiting)
 
     task.wait()
     assert (task.error is None)
     assert (task.task is not None)
-    assert (task.task.state == TaskStatus.succeeded)
+    assert (task.task.state == TaskState.succeeded)
 
     q1 = a.query().data
     assert (len(q1.blocks) == 1)

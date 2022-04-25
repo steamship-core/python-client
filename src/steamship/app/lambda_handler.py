@@ -5,7 +5,7 @@ from typing import Dict, Type
 
 from steamship.app.app import App
 from steamship.app.request import Request
-from steamship.app.response import Response, Error, Http
+from steamship.app.response import Response, Http
 from steamship.client.client import Steamship
 from steamship.base import SteamshipError
 
@@ -14,51 +14,45 @@ def create_handler(App: Type[App]):
     """Wrapper function for an Steamship app within an AWS Lambda function.
     """
 
-    def handler(event: Dict, context: Dict = None) -> dict:
-        # Create a new Steamship client
-        client = Steamship(
-            configDict=event.get("clientConfig", None)
-        )
+    def _handler(event: Dict, context: Dict = None) -> Response:
+        try:
+            client = Steamship(
+                configDict=event.get("clientConfig", None)
+            )
+        except SteamshipError as se:
+            return Response.from_obj(se)
+        except Exception as ex:
+            return Response.error(code=500, message="Plugin/App handler was unable to create Steamship client.", exception=ex)
 
         app = None
-        response = None
 
         try:
             request = Request.from_dict(event)
+        except SteamshipError as se:
+            return Response.from_obj(se)
         except Exception as ex:
-            return Response.from_obj(
-                SteamshipError(
-                    message="There was an exception thrown handling this request.",
-                    internalMessage="Unable to parse inbound request",
-                    error=ex
-                )
-            ).to_dict()
-
-        if response is None:
-            try:
-                app = App(client=client, config=request.invocation.config)
-            except Exception as ex:
-                return Response.from_obj(
-                    SteamshipError(
-                        message="There was an exception thrown handling this request.",
-                        internalMessage="Unable to initialize app.",
-                        error=ex
-                    )
-                ).to_dict()
+            return Response.error(code=500, message="Plugin/App handler was unable to parse inbound request.", exception=ex)
 
         try:
-            if app is not None:
-                response = app(request)
-                logging.info("response from app", response)
+            app = App(client=client, config=request.invocation.config)
+        except SteamshipError as se:
+            return Response.from_obj(se)
         except Exception as ex:
-            return Response.from_obj(
-                SteamshipError(
-                    message="There was an exception thrown handling this request.",
-                    internalMessage="Unable to run app method.",
-                    error=ex
-                )
-            ).to_dict()
+            return Response.error(code=500, message="Handler was unable to initialize plugin/app.", exception=ex)
 
-        return Response.from_obj(response).to_dict()
+        if app is None:
+            return Response.error(code=500, message="Handler was unable to construct app/plugin for invocation")
+
+        try:
+            response = app(request)
+            return Response.from_obj(response)
+        except SteamshipError as se:
+            return Response.from_obj(se)
+        except Exception as ex:
+            return Response.error(code=500, message="Handler was unable to run app/plugin method", exception=ex)
+
+    def handler(event: Dict, context: Dict = None) -> dict:
+        response = _handler(event, context)
+        return response.to_dict()
 
     return handler

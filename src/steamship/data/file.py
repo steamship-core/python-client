@@ -174,7 +174,7 @@ class File:
                 mimeType: str = None
         ):
             data, mimeType = flexi_create(
-                body=data,
+                data=data,
                 string=string,
                 json=json,
                 bytes=bytes,

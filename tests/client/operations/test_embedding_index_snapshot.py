@@ -1,5 +1,5 @@
 from steamship import PluginInstance
-from steamship.base.response import TaskStatus
+from steamship.base.response import TaskState
 from steamship.data.embeddings import IndexSnapshotRequest, IndexSnapshotResponse
 
 from tests.client.helpers import _random_name, _steamship
@@ -18,7 +18,7 @@ def _insert(index, items):
     task = index.embed()
     task.wait()
     task.check()
-    assert (task.task.state == TaskStatus.succeeded)
+    assert (task.task.state == TaskState.succeeded)
 
 
 def _snapshot(index, windowSize=None):

@@ -1,9 +1,9 @@
 """CSV Blockifier - Steamship Plugin.
 """
 
-from steamship.app import App, Response, post, create_handler
+from steamship.app import App, Response, post, create_handler, Response
 from steamship.plugin.blockifier import Blockifier
-from steamship.plugin.service import PluginResponse, PluginRequest
+from steamship.plugin.service import PluginRequest
 from steamship.base.error import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
@@ -21,7 +21,7 @@ class CsvBlockifierPlugin(Blockifier, App):
     def __init__(self, client=None, config=None):
         self.config = config
 
-    def run(self, request: PluginRequest[RawDataPluginInput]) -> Union[Response, PluginResponse[BlockAndTagPluginOutput]]:
+    def run(self, request: PluginRequest[RawDataPluginInput]) -> Union[Response, Response[BlockAndTagPluginOutput]]:
         if request is None or request.data is None or request.data.data is None:
             return Response(error=SteamshipError(
                 message="Missing data field on the incoming request."
@@ -103,7 +103,7 @@ class CsvBlockifierPlugin(Blockifier, App):
                         block.tags.append(Tag.CreateRequest(kind=tag_kind, name=tag_name))
                 file.blocks.append(block)
 
-        return PluginResponse(data=BlockAndTagPluginOutput(file=file))
+        return Response(data=BlockAndTagPluginOutput(file=file))
 
     @post('blockify')
     def blockify(self, **kwargs) -> Response:
@@ -115,8 +115,7 @@ class CsvBlockifierPlugin(Blockifier, App):
         When developing your own plugin, you can almost always leave the below code unchanged.
         """
         blockifyRequest = Blockifier.parse_request(request=kwargs)
-        blockifyResponse = self.run(blockifyRequest)
-        return Blockifier.response_to_dict(blockifyResponse)
+        return self.run(blockifyRequest)
 
 
 handler = create_handler(CsvBlockifierPlugin)

@@ -4,6 +4,7 @@ from typing import TypeVar, Generic, Union, Callable
 
 from steamship.base import Client
 from steamship.base.response import SteamshipError, Task
+from steamship.app.response import Response
 
 # Note!
 # =====
@@ -24,7 +25,7 @@ class PluginRequest(Generic[T]):
             d: any,
             subclass_request_from_dict: Callable[[dict, Client], dict] = None,
             client: Client = None
-    ) -> "PluginRequest(Generic[T])":
+    ) -> "PluginRequest[T]":
         data = None
         if "data" in d:
             if subclass_request_from_dict is not None:
@@ -42,41 +43,9 @@ class PluginRequest(Generic[T]):
             return dict(data=self.data.to_dict())
 
 
-@dataclass
-class PluginResponse(Generic[U]):
-    error: SteamshipError = None
-    task: Task[U] = None
-    data: U = None
-
-    @staticmethod
-    def from_dict(
-            d: any,
-            client: Client = None
-    ) -> "PluginResponse(Generic[U])":
-        data = None
-        error = None
-        task = None
-
-        if "data" in d:
-            data = d["data"].to_dict()
-        if "error" in d:
-            error = SteamshipError.from_dict(d["error"], client=client)
-        if "task" in d:
-            task = Task[U].from_dict(d["task"], client=client)
-
-        return PluginResponse(data=data, task=task, error=error)
-
-    def to_dict(self) -> dict:
-        return dict(
-            data=None if self.data is None else self.data.to_dict(),
-            error=None if self.error is None else self.error.to_dict(),
-            task=None if self.task is None else self.task.to_dict()
-        )
-
-
 class PluginService(ABC, Generic[T, U]):
     @abstractmethod
-    def run(self, request: PluginRequest[T]) -> Union[U, PluginResponse[U]]:
+    def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
         pass
 
     @classmethod
@@ -100,18 +69,18 @@ class PluginService(ABC, Generic[T, U]):
         return request
 
     @classmethod
-    def response_to_dict(cls, response: Union[SteamshipError, PluginResponse[U], U, dict]) -> PluginResponse[U]:
+    def response_to_dict(cls, response: Union[SteamshipError, Response[U], U, dict]) -> Response[U]:
         try:
-            if type(response) == PluginResponse:
+            if type(response) == Response:
                 return response
             elif type(response) == SteamshipError:
-                return PluginResponse(error=response)
+                return Response(error=response)
             else:
-                return PluginResponse(data=response)
+                return Response(data=response)
         except SteamshipError as remote_error:
-            return PluginResponse[U](error=remote_error)
+            return Response[U](error=remote_error)
         except Exception as error:
-            return PluginResponse[U](error=SteamshipError(
+            return Response[U](error=SteamshipError(
                 message="Unhandled exception completing your request",
                 error=error
             ))

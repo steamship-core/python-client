@@ -5,4 +5,4 @@ from .metadata import str_to_metadata, metadata_to_str
 from .mime_types import MimeTypes
 from .request import Request
 from .response import Response
-from .tasks import Task, TaskStatus, TaskComment
+from .tasks import Task, TaskState, TaskComment
