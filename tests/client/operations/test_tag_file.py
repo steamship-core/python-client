@@ -25,7 +25,7 @@ def count_tags(blocks: [Block], tag_kind: str, tag_name: str):
         c += sum(tag_matches)
     return c
 
-def parse_file(client: Client, parserInstanceHandle: str):
+def tag_file(client: Client, parserInstanceHandle: str):
     T = "A Poem"
     P1_1 = "Roses are red."
     P1_2 = "Violets are blue."
@@ -87,4 +87,4 @@ def parse_file(client: Client, parserInstanceHandle: str):
 def test_parse_file():
     steamship = _steamship()
     parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
-    parse_file(steamship, parser.handle)
+    tag_file(steamship, parser.handle)
