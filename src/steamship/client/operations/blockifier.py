@@ -4,7 +4,7 @@ from steamship.base import Client
 
 
 @dataclass
-class ConvertRequest:
+class BlockifyRequest:
     type: str = None
     pluginInstance: str = None
     id: str = None
@@ -12,8 +12,8 @@ class ConvertRequest:
     name: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ConvertRequest":
-        return ConvertRequest(
+    def from_dict(d: any, client: Client = None) -> "BlockifyRequest":
+        return BlockifyRequest(
             type=d.get('type', None),
             pluginInstance=d.get('pluginInstance', None),
             id=d.get('id', None),
