@@ -2,16 +2,21 @@ import dataclasses
 import io
 import logging
 from dataclasses import dataclass
-from typing import Dict, Any, Generic, TypeVar
+from typing import Dict, Any, Generic, TypeVar, Union
 
 from steamship.base.binary_utils import flexi_create
 from steamship.base import SteamshipError
 from steamship.base.tasks import Task, TaskState
+from steamship.base.mime_types import MimeTypes, ContentEncodings
 
 
 @dataclass
 class Http():
     status: int = None
+    # If true, we're signaling to the Steamship Proxy that the `data` field of the SteamshipResponse object
+    # has been wrapped in base64. In this situation, we can return the bytes within directly to the Proxy
+    # caller without interpreting it.
+    base64Wrapped: bool = None
     headers: Dict[str, str] = None
 
 T = TypeVar('T')
@@ -31,7 +36,7 @@ class Response(Generic[T]):
             data: any = None,
             string: str = None,
             json: Any = None,
-            bytes: io.BytesIO = None,
+            bytes: Union[bytes, io.BytesIO] = None,
             mimeType = None
     ):
         # Note:
@@ -44,7 +49,7 @@ class Response(Generic[T]):
 
         # Handle the core data
         try:
-            data, mimeType = flexi_create(
+            data, mimeType, encoding = flexi_create(
                 data=data,
                 string=string,
                 json=json,
@@ -54,10 +59,19 @@ class Response(Generic[T]):
 
             self.data = data
 
-            # Set the mime type if not already set
+            if mimeType is None:
+                mimeType = MimeTypes.BINARY
+
             if mimeType is not None:
+                if self.http.headers is None:
+                    self.http.headers = dict()
                 self.http.headers["Content-Type"] = mimeType
+
+            if encoding == ContentEncodings.BASE64:
+                self.http.base64Wrapped = True
+
         except Exception as ex:
+            logging.error("Exception within Response.__init__. {}".format(ex))
             if error is not None:
                 if error.message:
                     error.message = "{}. Also found error - unable to serialize data to response. {}".format(error.message, ex)
@@ -65,6 +79,7 @@ class Response(Generic[T]):
                     error.message = "Unable to serialize data to response. {}".format(ex)
             else:
                 error = SteamshipError(message="Unable to serialize data to response. {}".format(ex))
+            logging.error(error)
 
         # Handle the task provided
         if status is None:

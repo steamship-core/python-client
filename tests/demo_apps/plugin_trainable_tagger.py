@@ -17,13 +17,10 @@ class TestTrainableTaggerPlugin(Tagger, App):
     # For testing; mirrors TestConfigurableTagger in Swift
 
     RESPONSE = TrainingParameterPluginOutput(
-        runConfig=dict(
-            epochs=3,
-            model="pytorch_text_classification",
-            trainTestSplit=dict(
-                trainPercent=0.7
-            )
-        )
+        trainingEpochs=3,
+        modelName="pytorch_text_classification",
+        testingHoldoutPercent=0.3,
+        trainingParams=dict(foo=1)
     )
 
     def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> Response[BlockAndTagPluginOutput]:
@@ -39,9 +36,8 @@ class TestTrainableTaggerPlugin(Tagger, App):
         return Response(data=TrainPluginOutput(
             tenantId=trainPluginInput.tenantId,
             spaceId=trainPluginInput.spaceId,
-            signedDataUrl=trainPluginInput.signedDataUrl,
-            signedModelUrl=trainPluginInput.signedModelUrl,
-            modelZipFilename=trainPluginInput.modelZipFilename,
+            modelUploadUrl=trainPluginInput.modelUploadUrl,
+            modelFilename=trainPluginInput.modelFilename,
         ))
 
 handler = create_handler(TestTrainableTaggerPlugin)

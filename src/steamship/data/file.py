@@ -173,7 +173,7 @@ class File:
                 json: io.BytesIO = None,
                 mimeType: str = None
         ):
-            data, mimeType = flexi_create(
+            data, mimeType, encoding = flexi_create(
                 data=data,
                 string=string,
                 json=json,

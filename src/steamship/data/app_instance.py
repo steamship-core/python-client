@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict
 
+from steamship.data.space import Space
 from steamship.base import Client, Request
 
 
@@ -32,6 +33,7 @@ class AppInstance:
     invocationURL: str = None
     config: Dict[str, any] = None
     spaceId: str = None
+    spaceHandle: str = None
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "AppInstance":
@@ -49,7 +51,8 @@ class AppInstance:
             userId=d.get('userId', None),
             invocationURL=d.get('invocationURL', None),
             config= d.get('config', None),
-            spaceId= d.get('spaceId', None)
+            spaceId= d.get('spaceId', None),
+            spaceHandle= d.get('spaceHandle', None)
         )
 
     @staticmethod
@@ -86,11 +89,23 @@ class AppInstance:
             expect=AppInstance
         )
 
+    def load_missing_vals(self):
+        if self.client is not None and self.spaceHandle is None and self.spaceId is not None:
+            # Get the spaceHandle
+            space = Space.get(self.client, id=self.spaceId)
+            if space and space.data:
+                self.spaceHandle = space.data.handle
+
     def get(self, path: str, **kwargs):
+        self.load_missing_vals()
         if path[0] == '/':
             path = path[1:]
         return self.client.get(
-            '/_/_/{}'.format(path),
+            '/{}/{}/{}'.format(
+                self.spaceHandle or "/",
+                self.handle or "/",
+                path
+            ),
             payload=kwargs,
             appCall=True,
             appOwner=self.userHandle,
@@ -100,10 +115,15 @@ class AppInstance:
         )
 
     def post(self, path: str, **kwargs):
+        self.load_missing_vals()
         if path[0] == '/':
             path = path[1:]
         return self.client.post(
-            '/_/_/{}'.format(path),
+            '/{}/{}/{}'.format(
+                self.spaceHandle or "/",
+                self.handle or "/",
+                path
+            ),
             payload=kwargs,
             appCall=True,
             appOwner=self.userHandle,

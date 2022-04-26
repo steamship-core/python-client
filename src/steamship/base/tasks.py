@@ -291,8 +291,14 @@ class Task(Generic[T]):
             self.maxRetries = None
             self.retries = None
 
-    def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None,
-                    metadata: any = None, upsert: bool = True) -> IResponse[TaskComment]:
+    def add_comment(
+            self,
+            externalId: str = None,
+            externalType: str = None,
+            externalGroup: str = None,
+            metadata: any = None,
+            upsert: bool = True
+    ) -> IResponse[TaskComment]:
         return TaskComment.create(
             client=self.client,
             taskId=self.taskId,

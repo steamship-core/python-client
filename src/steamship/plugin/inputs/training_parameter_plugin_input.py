@@ -8,7 +8,7 @@ from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 @dataclass
 class TrainingParameterPluginInput:
     pluginInstance: str = None
-    exportPluginInput: ExportPluginInput = None
+    exportRequest: ExportPluginInput = None
 
     @staticmethod
     def from_dict(d: any = None, client: Client = None) -> "TrainingParameterPluginInput":
@@ -17,13 +17,13 @@ class TrainingParameterPluginInput:
 
         return TrainingParameterPluginInput(
             pluginInstance = d.get('pluginInstance', None),
-            exportPluginInput =  ExportPluginInput.from_dict(d.get('exportPluginInput', None), client)
+            exportRequest =  ExportPluginInput.from_dict(d.get('exportPluginInput', None), client)
         )
 
     def to_dict(self) -> Dict:
         exportPluginInputParams = None
-        if self.exportPluginInput is not None:
-            exportPluginInputParams = self.exportPluginInput.to_dict()
+        if self.exportRequest is not None:
+            exportPluginInputParams = self.exportRequest.to_dict()
 
         return dict(
             pluginInstance=self.pluginInstance,

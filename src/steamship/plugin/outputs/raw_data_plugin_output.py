@@ -16,7 +16,7 @@ class RawDataPluginOutput:
             json: io.BytesIO = None,
             mimeType: str = None
     ):
-        self.data, self.mimeType = flexi_create(
+        self.data, self.mimeType, encoding = flexi_create(
             base64string=base64string,
             string=string,
             json=json,

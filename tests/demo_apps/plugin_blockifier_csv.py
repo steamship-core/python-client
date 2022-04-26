@@ -31,10 +31,6 @@ class CsvBlockifierPlugin(Blockifier, App):
         if isinstance(data, bytes):
             data = data.decode('utf-8')
 
-        logging.info("HI")
-        logging.info(request)
-        logging.info(request.data.data)
-
         if type(data) != str:
             return Response(error=SteamshipError(
                 message="The incoming data was not of expected String type"

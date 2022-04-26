@@ -10,8 +10,8 @@ RES_NAME = "Hello, {}".format(NAME)
 def test_invoke_app_in_python():
     app = HelloWorld()
 
-    assert (app.greet().body == RES_EMPTY)
-    assert (app.greet(NAME).body == RES_NAME)
+    assert (app.greet().data == RES_EMPTY)
+    assert (app.greet(NAME).data == RES_NAME)
 
 
 def test_invoke_app_with_request():
@@ -19,11 +19,11 @@ def test_invoke_app_with_request():
 
     req = Request(invocation=Invocation(httpVerb="POST", appPath="greet"))
     res = app(req)
-    assert (res.body == RES_EMPTY)
+    assert (res.data == RES_EMPTY)
 
     req = Request(invocation=Invocation(httpVerb="POST", appPath="greet", arguments=dict(name=NAME)))
     res = app(req)
-    assert (res.body == RES_NAME)
+    assert (res.data == RES_NAME)
 
 
 def test_invoke_app_with_handler():
@@ -34,7 +34,7 @@ def test_invoke_app_with_handler():
         )
     )
     res = handler(event)
-    assert (res['body'] == RES_EMPTY)
+    assert (res['data'] == RES_EMPTY)
 
     event = dict(
         invocation=dict(
@@ -46,4 +46,4 @@ def test_invoke_app_with_handler():
         )
     )
     res = handler(event)
-    assert (res['body'] == RES_NAME)
+    assert (res['data'] == RES_NAME)

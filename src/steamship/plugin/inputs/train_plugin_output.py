@@ -1,18 +1,31 @@
 from dataclasses import dataclass
 from typing import Dict
-
 from steamship.base import Client
-from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
-
 
 @dataclass
 class TrainPluginOutput:
-    pluginInstance: str = None
+    """
+    This is the object produced by a completed training operation, stored as the `output` field of a `train` task.
+    """
+
+    # The tenant in which training is happening
     tenantId: str = None
+    # The space in which training is happening
     spaceId: str = None
-    signedDataUrl: str = None
-    signedModelUrl: str = None
-    modelZipFilename: str = None
+
+    #  The name of the model to train; e.g. "DistilBERT"
+    modelName: str = None
+
+    # The desired filename of the output model parameters.
+    # This will be uploaded to the "Models" section of the Space's storage bucket
+    modelFilename: str = None
+
+    # A URL that has been pre-signed, permitting upload to that location
+    modelUploadUrl: str = None
+
+    # Arbitrary key-valued data to provide to the inference runner.
+    # The training process will have the opportunity to amend this before writing it to the output
+    inferenceParams: dict = None
 
     @staticmethod
     def from_dict(d: any = None, client: Client = None) -> "TrainPluginOutput":
@@ -20,20 +33,20 @@ class TrainPluginOutput:
             return None
 
         return TrainPluginOutput(
-            pluginInstance = d.get('pluginInstance', None),
             tenantId = d.get(': str = None', None),
             spaceId = d.get(': str = None', None),
-            signedDataUrl = d.get(': str = None', None),
-            signedModelUrl = d.get(': str = None', None),
-            modelZipFilename = d.get(': str = None', None)
+            modelName = d.get('modelName', None),
+            modelFilename = d.get('modelFilename', None),
+            modelUploadUrl = d.get('modelUploadUrl', None),
+            inferenceParams = d.get('inferenceParams', None),
         )
 
     def to_dict(self) -> Dict:
         return dict(
-            pluginInstance=self.pluginInstance,
             tenantId=self.tenantId,
             spaceId=self.spaceId,
-            signedDataUrl=self.signedDataUrl,
-            signedModelUrl=self.signedModelUrl,
-            modelZipFilename=self.modelZipFilename
+            modelName=self.modelName,
+            modelFilename=self.modelFilename,
+            modelUploadUrl=self.modelUploadUrl,
+            inferenceParams=self.inferenceParams,
         )

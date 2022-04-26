@@ -9,7 +9,13 @@ from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 @dataclass
 class TrainingParameterPluginOutput():
     machineType: str = None
-    runConfig: Dict[str, Any] = None
+    modelName: str = None
+    modelFilename: str = None
+
+    trainingEpochs: int = None
+    testingHoldoutPercent: float = None
+    trainingParams: Dict[str, Any] = None
+
     exportRequest: ExportPluginInput = None
 
     @staticmethod
@@ -19,7 +25,11 @@ class TrainingParameterPluginOutput():
 
         return TrainingParameterPluginOutput(
             machineType=d.get('machineType', None),
-            runConfig=d.get('runConfig', None),
+            modelName=d.get('modelName', None),
+            modelFilename=d.get('modelFilename', None),
+            trainingEpochs=d.get('trainingEpochs', None),
+            testingHoldoutPercent=d.get('testingHoldoutPercent', None),
+            trainingParams=d.get('trainingParams', None),
             exportRequest=ExportPluginInput.from_dict(d.get('exportPluginInput', None), client)
         )
 
@@ -30,6 +40,10 @@ class TrainingParameterPluginOutput():
 
         return dict(
             machineType=self.machineType,
-            runConfig=self.runConfig,
+            modelName=self.modelName,
+            modelFilename=self.modelFilename,
+            trainingEpochs=self.trainingEpochs,
+            testingHoldoutPercent=self.testingHoldoutPercent,
+            trainingParams=self.trainingParams,
             exportRequest=exportPluginInputParams
         )

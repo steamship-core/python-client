@@ -10,7 +10,7 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from ..demo_apps.plugin_trainable_tagger import TestTrainableTaggerPlugin
-
+import math
 
 def test_get_training_parameters():
     """Any trainable plugin needs a Python+Lambda component that can report its training params.
@@ -26,8 +26,9 @@ def test_get_training_parameters():
         res = taggerInstance.getTrainingParameters(trainingRequest)
         assert (res.data is not None)
         params = res.data
-        assert (params.runConfig is not None)
-        assert (params.runConfig["epochs"] is not None)
-        assert (params.runConfig["epochs"] == TestTrainableTaggerPlugin.RESPONSE.runConfig["epochs"])
-        assert (params.runConfig["model"] == TestTrainableTaggerPlugin.RESPONSE.runConfig["model"])
-        assert (params.runConfig["trainTestSplit"]["trainPercent"] == TestTrainableTaggerPlugin.RESPONSE.runConfig["trainTestSplit"]["trainPercent"])
+
+        assert (params.trainingEpochs is not None)
+        assert (params.trainingEpochs == TestTrainableTaggerPlugin.RESPONSE.trainingEpochs)
+        assert (params.modelName == TestTrainableTaggerPlugin.RESPONSE.modelName)
+        assert (math.isclose(params.testingHoldoutPercent,TestTrainableTaggerPlugin.RESPONSE.testingHoldoutPercent, abs_tol=0.0001))
+        assert (params.trainingParams == TestTrainableTaggerPlugin.RESPONSE.trainingParams)

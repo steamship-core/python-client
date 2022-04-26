@@ -20,8 +20,10 @@ def create_handler(App: Type[App]):
                 configDict=event.get("clientConfig", None)
             )
         except SteamshipError as se:
+            logging.error(se)
             return Response.from_obj(se)
         except Exception as ex:
+            logging.error(ex)
             return Response.error(code=500, message="Plugin/App handler was unable to create Steamship client.", exception=ex)
 
         app = None
@@ -29,8 +31,10 @@ def create_handler(App: Type[App]):
         try:
             request = Request.from_dict(event)
         except SteamshipError as se:
+            logging.error(se)
             return Response.from_obj(se)
         except Exception as ex:
+            logging.error(ex)
             return Response.error(code=500, message="Plugin/App handler was unable to parse inbound request.", exception=ex)
 
         try:
@@ -38,6 +42,7 @@ def create_handler(App: Type[App]):
         except SteamshipError as se:
             return Response.from_obj(se)
         except Exception as ex:
+            logging.error(ex)
             return Response.error(code=500, message="Handler was unable to initialize plugin/app.", exception=ex)
 
         if app is None:
@@ -47,9 +52,17 @@ def create_handler(App: Type[App]):
             response = app(request)
             return Response.from_obj(response)
         except SteamshipError as se:
+            logging.error(se)
             return Response.from_obj(se)
         except Exception as ex:
-            return Response.error(code=500, message="Handler was unable to run app/plugin method", exception=ex)
+            logging.error(ex)
+            appVerb = None
+            appPath = None
+            if request:
+                if request.invocation:
+                    appPath = request.invocation.appPath
+                    appVerb = request.invocation.httpVerb
+            return Response.error(code=500, message="Handler was unable to run app/plugin method {} {}".format(appVerb, appPath), exception=ex)
 
     def handler(event: Dict, context: Dict = None) -> dict:
         response = _handler(event, context)

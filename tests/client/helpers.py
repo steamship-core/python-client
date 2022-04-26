@@ -176,7 +176,7 @@ def upload_file(test_assets_filename: str):
     file.data.delete()
 
 @contextlib.contextmanager
-def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None, trainingPlatform: str = False):
+def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None, trainingPlatform: str = None):
     client = _steamship()
     plugin = Plugin.create(client, trainingPlatform=trainingPlatform, description='test', type=plugin_type, transport="jsonOverHttp",
                            isPublic=False)
