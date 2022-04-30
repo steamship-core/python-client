@@ -12,8 +12,7 @@ class TrainPluginOutput:
     tenantId: str = None
     # The space in which training is happening
     spaceId: str = None
-
-    #  The name of the model to train; e.g. "DistilBERT"
+    #  The name of the model being trained
     modelName: str = None
 
     # The desired filename of the output model parameters.
@@ -27,6 +26,10 @@ class TrainPluginOutput:
     # The training process will have the opportunity to amend this before writing it to the output
     inferenceParams: dict = None
 
+    progress: dict = None
+    resultData: dict = None
+    error: str = None
+
     @staticmethod
     def from_dict(d: any = None, client: Client = None) -> "TrainPluginOutput":
         if d is None:
@@ -39,6 +42,9 @@ class TrainPluginOutput:
             modelFilename = d.get('modelFilename', None),
             modelUploadUrl = d.get('modelUploadUrl', None),
             inferenceParams = d.get('inferenceParams', None),
+            progress=d.get('progress', None),
+            resultData=d.get('resultData', None),
+            error=d.get('error', None)
         )
 
     def to_dict(self) -> Dict:
@@ -49,4 +55,7 @@ class TrainPluginOutput:
             modelFilename=self.modelFilename,
             modelUploadUrl=self.modelUploadUrl,
             inferenceParams=self.inferenceParams,
+            progress=self.progress,
+            resultData=self.resultData,
+            error=self.error
         )

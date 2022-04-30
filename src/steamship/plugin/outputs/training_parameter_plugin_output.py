@@ -14,6 +14,7 @@ class TrainingParameterPluginOutput():
 
     trainingEpochs: int = None
     testingHoldoutPercent: float = None
+    testSplitSeed: int = None
     trainingParams: Dict[str, Any] = None
 
     exportRequest: ExportPluginInput = None
@@ -29,6 +30,7 @@ class TrainingParameterPluginOutput():
             modelFilename=d.get('modelFilename', None),
             trainingEpochs=d.get('trainingEpochs', None),
             testingHoldoutPercent=d.get('testingHoldoutPercent', None),
+            testSplitSeed=d.get('testSplitSeed', None),
             trainingParams=d.get('trainingParams', None),
             exportRequest=ExportPluginInput.from_dict(d.get('exportPluginInput', None), client)
         )
@@ -44,6 +46,7 @@ class TrainingParameterPluginOutput():
             modelFilename=self.modelFilename,
             trainingEpochs=self.trainingEpochs,
             testingHoldoutPercent=self.testingHoldoutPercent,
+            testSplitSeed=self.testSplitSeed,
             trainingParams=self.trainingParams,
             exportRequest=exportPluginInputParams
         )

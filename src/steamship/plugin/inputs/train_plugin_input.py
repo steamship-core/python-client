@@ -32,6 +32,9 @@ class TrainPluginInput:
     trainingEpochs: int = None
     # How much data to hold out for testing & reporting, if relevant and supported.
     testingHoldoutPercent: float = None
+    # An optional seed for the train-test split
+    testSplitSeed: int = None
+
     # Arbitrary key-valued data to provide to the particular `modelName` trainer.
     trainingParams: dict = None
     # Arbitrary key-valued data to provide to the inference runner in the TrainPluginOutput object.
@@ -56,6 +59,7 @@ class TrainPluginInput:
             modelUploadUrl = d.get('modelUploadUrl', None),
             trainingEpochs = d.get('trainingEpochs', None),
             testingHoldoutPercent = d.get('testingHoldoutPercent', None),
+            testSplitSeed = d.get('testSplitSeed', None),
             trainingParams = d.get('trainingParams', None),
             inferenceParams = d.get('inferenceParams', None),
             trainingDataUrl = d.get('trainingDataUrl', None),
@@ -72,6 +76,7 @@ class TrainPluginInput:
             modelUploadUrl=self.modelUploadUrl,
             trainingEpochs=self.trainingEpochs,
             testingHoldoutPercent=self.testingHoldoutPercent,
+            testSplitSeed=self.testSplitSeed,
             trainingParams=self.trainingParams,
             inferenceParams=self.inferenceParams,
             trainingDataUrl=self.trainingDataUrl
