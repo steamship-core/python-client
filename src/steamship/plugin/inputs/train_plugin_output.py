@@ -33,8 +33,8 @@ class TrainPluginOutput:
             return None
 
         return TrainPluginOutput(
-            tenantId = d.get(': str = None', None),
-            spaceId = d.get(': str = None', None),
+            tenantId = d.get('tenantId', None),
+            spaceId = d.get('spaceId', None),
             modelName = d.get('modelName', None),
             modelFilename = d.get('modelFilename', None),
             modelUploadUrl = d.get('modelUploadUrl', None),

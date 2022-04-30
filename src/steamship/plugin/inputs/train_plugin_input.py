@@ -47,8 +47,8 @@ class TrainPluginInput:
             return None
 
         return TrainPluginInput(
-            tenantId = d.get(': str = None', None),
-            spaceId = d.get(': str = None', None),
+            tenantId = d.get('tenantId', None),
+            spaceId = d.get('spaceId', None),
             pluginInstance=d.get('pluginInstance', None),
             pluginInstanceId=d.get('pluginInstanceId', None),
             modelName = d.get('modelName', None),

@@ -52,6 +52,7 @@ EXPORTER_HANDLE = "signed-url-exporter"
 
 def test_e2e_trainable_tagger_ecs_training():
     client = _steamship()
+
     versionConfigTemplate = dict(
         textColumn=dict(type="string"),
         tagColumns=dict(type="string"),

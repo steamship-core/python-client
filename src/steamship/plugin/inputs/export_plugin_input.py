@@ -19,10 +19,10 @@ class ExportPluginInput:
 
         return ExportPluginInput(
             pluginInstance = d.get('pluginInstance', None),
-            id = d.get(': str = None', None),
-            handle = d.get(': str = None', None),
-            type = d.get(': str = None', None),
-            filename = d.get(': str = None', None)
+            id = d.get('id', None),
+            handle = d.get('id', None),
+            type = d.get('type', None),
+            filename = d.get('filename', None)
         )
 
     def to_dict(self) -> Dict:
