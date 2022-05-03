@@ -1,13 +1,13 @@
 from steamship import File
-from steamship.app import App, post, create_handler
+from steamship.app import App, post, create_handler, Response
 from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from steamship.plugin.corpus_importer import CorpusImporter
-from steamship.plugin.service import PluginResponse, PluginRequest
+from steamship.plugin.service import PluginRequest
 
 
 class TestCorpusImporterPlugin(CorpusImporter, App):
-    def run(self, request: PluginRequest[CorpusImportRequest]) -> PluginResponse[CorpusImportResponse]:
-        return PluginResponse(
+    def run(self, request: PluginRequest[CorpusImportRequest]) -> Response[CorpusImportResponse]:
+        return Response(
             data=CorpusImportResponse(
                 fileImportRequests=[
                     File.CreateRequest(
@@ -26,8 +26,7 @@ class TestCorpusImporterPlugin(CorpusImporter, App):
     @post('import')
     def do_import(self, **kwargs) -> any:
         request = CorpusImporter.parse_request(request=kwargs)
-        response = self.run(request)
-        return CorpusImporter.response_to_dict(response)
+        return self.run(request)
 
 
 handler = create_handler(TestCorpusImporterPlugin)

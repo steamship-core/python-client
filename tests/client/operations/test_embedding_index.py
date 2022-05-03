@@ -1,5 +1,5 @@
 from steamship.base import Client
-from steamship.base.response import TaskStatus
+from steamship.base.response import TaskState
 from steamship.data.embeddings import EmbeddedItem
 from steamship.data.plugin_instance import PluginInstance
 
@@ -136,9 +136,9 @@ def test_embed_task():
         assert (res.task.state is not None)
         assert (res.task.taskCreatedOn is not None)
         assert (res.task.taskLastModifiedOn is not None)
-        assert (res.task.state == TaskStatus.waiting)
+        assert (res.task.state == TaskState.waiting)
         res.wait()
-        assert (res.task.state == TaskStatus.succeeded)
+        assert (res.task.state == TaskState.succeeded)
 
 
 def test_duplicate_inserts():
@@ -169,7 +169,7 @@ def test_index_usage():
         task = index.embed()
         task.wait()
         task.check()
-        assert (task.task.state == TaskStatus.succeeded)
+        assert (task.task.state == TaskState.succeeded)
 
         search_results = index.search(Q1)
         assert (len(search_results.data.items) == 1)

@@ -1,7 +1,4 @@
-import json
 from dataclasses import dataclass, asdict
-from typing import List
-
 from steamship import File
 from steamship.base import Client
 

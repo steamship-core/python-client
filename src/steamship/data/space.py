@@ -3,6 +3,34 @@ from dataclasses import dataclass
 from steamship.base import Client, Request, Response
 from steamship.base.request import GetRequest, IdentifierRequest
 
+class SignedUrl:
+    class Bucket:
+        exports = "exports"
+        imports = "imports"
+        userData = "userData"
+        pluginData = "pluginData"
+        appData = "appData"
+        models = "models"
+
+    class Operation:
+        read = "Read"
+        write = "Write"
+
+    @dataclass
+    class Request(Request):
+        bucket: str = None
+        filepath: str = None
+        operation: str = None
+        expiresInMinutes: int = None
+
+    @dataclass
+    class Response(Response):
+        bucket: str = None
+        filepath: str = None
+        operation: str = None
+        expiresInMinutes: int = None
+        signedUrl: str = None
+
 
 @dataclass
 class Space:
@@ -78,4 +106,14 @@ class Space:
             'space/create',
             req,
             expect=Space
+        )
+
+    def createSignedUrl(
+            self,
+            request: SignedUrl.Request
+    ) -> Response[SignedUrl.Response]:
+        return self.client.post(
+            'space/createSignedUrl',
+            payload=request,
+            expect=SignedUrl.Response
         )

@@ -3,6 +3,10 @@ from typing import Dict
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
+from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
+from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
+from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
+from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
 
 class PluginInstance:
@@ -24,6 +28,7 @@ class CreatePluginInstanceRequest(Request):
 @dataclass
 class DeletePluginInstanceRequest(Request):
     id: str
+
 
 
 @dataclass
@@ -89,6 +94,27 @@ class PluginInstance:
             expect=PluginInstance
         )
 
+    def export(self, input: ExportPluginInput) -> RawDataPluginOutput:
+        input.pluginInstance = self.handle
+        return self.client.post(
+            'plugin/instance/export',
+            payload=input,
+            expect=RawDataPluginOutput
+        )
+
+    def train(self, trainingRequest: TrainingParameterPluginInput) -> PluginInstance:
+        return self.client.post(
+            'plugin/instance/train',
+            payload=trainingRequest,
+            expect=PluginInstance
+        )
+
+    def getTrainingParameters(self, trainingRequest: TrainingParameterPluginInput) -> PluginInstance:
+        return self.client.post(
+            'plugin/instance/getTrainingParameters',
+            payload=trainingRequest,
+            expect=TrainingParameterPluginOutput
+        )
 
 @dataclass
 class ListPrivatePluginInstancesRequest(Request):

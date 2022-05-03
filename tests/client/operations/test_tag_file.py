@@ -1,6 +1,6 @@
 from steamship import MimeTypes, DocTag, PluginInstance, Block
 from steamship.base import Client
-from steamship.base.response import TaskStatus
+from steamship.base.response import TaskState
 
 from tests.client.helpers import _random_name, _steamship
 
@@ -64,12 +64,12 @@ def tag_file(client: Client, parserInstanceHandle: str):
     task = a.tag(pluginInstance=parserInstanceHandle)
     assert (task.error is None)
     assert (task.task is not None)
-    assert (task.task.state == TaskStatus.waiting)
+    assert (task.task.state == TaskState.waiting)
 
     task.wait()
     assert (task.error is None)
     assert (task.task is not None)
-    assert (task.task.state == TaskStatus.succeeded)
+    assert (task.task.state == TaskState.succeeded)
 
     # Now the sentences should be parsed!
     # Again, should rewrite these once tag queries are integrated

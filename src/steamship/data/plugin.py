@@ -17,10 +17,13 @@ from steamship.base.response import Response
 class Plugin:
     pass
 
+class TrainingPlatform:
+    custom = "lambda"
+    managed = "ecs"
 
 @dataclass
 class CreatePluginRequest(Request):
-    isTrainable: bool
+    trainingPlatform: str
     id: str = None
     type: str = None
     transport: str = None
@@ -96,7 +99,7 @@ class Plugin:
     type: str = None
     transport: str = None
     isPublic: bool = None
-    isTrainable: bool = None
+    trainingPlatform: str = None
     handle: str = None
     description: str = None
     metadata: str = None
@@ -112,7 +115,7 @@ class Plugin:
             type=d.get('type', None),
             transport=d.get('transport', None),
             isPublic=d.get('isPublic', None),
-            isTrainable=d.get('isTrainable', None),
+            trainingPlatform=d.get('trainingPlatform', None),
             handle=d.get('handle', None),
             description=d.get('description', None),
             metadata=d.get('metadata', None)
@@ -121,7 +124,7 @@ class Plugin:
     @staticmethod
     def create(
             client: Client,
-            isTrainable: bool,
+            trainingPlatform: str,
             description: str,
             type: str,
             transport: str,
@@ -136,7 +139,7 @@ class Plugin:
             metadata = json.dumps(metadata)
 
         req = CreatePluginRequest(
-            isTrainable=isTrainable,
+            trainingPlatform=trainingPlatform,
             type=type,
             transport=transport,
             isPublic=isPublic,

@@ -62,7 +62,14 @@ def _random_corpus(client: Steamship) -> Corpus:
 
 def _steamship() -> Steamship:
     # This should automatically pick up variables from the environment.
-    return Steamship(profile="test")
+    client = Steamship(profile="test")
+    assert (client.config is not None)
+    assert (client.config.profile == "test")
+    assert (client.config.apiKey is not None)
+    user = User.current(client).data
+    assert (user.id is not None)
+    assert (user.handle is not None)
+    return client
 
 
 def create_app_zip(filename) -> bytes:
@@ -176,9 +183,9 @@ def upload_file(test_assets_filename: str):
     file.data.delete()
 
 @contextlib.contextmanager
-def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None, isTrainable: bool = False):
+def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None, trainingPlatform: str = None):
     client = _steamship()
-    plugin = Plugin.create(client, isTrainable=isTrainable, description='test', type=plugin_type, transport="jsonOverHttp",
+    plugin = Plugin.create(client, trainingPlatform=trainingPlatform, description='test', type=plugin_type, transport="jsonOverHttp",
                            isPublic=False)
     assert (plugin.error is None)
     assert (plugin.data is not None)

@@ -1,6 +1,7 @@
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginRequest, PluginResponse
+from steamship.plugin.service import PluginRequest
+from steamship.app.response import Response
 from steamship.extension.file import File
 from steamship.data.block import Block
 
@@ -21,7 +22,7 @@ TEST_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 
 
 def _test_resp(res):
-    assert (type(res) == PluginResponse)
+    assert (type(res) == Response)
     assert (type(res.data) == BlockAndTagPluginOutput)
     assert (len(res.data.file.blocks) == 1)
     assert (res.data.file.blocks[0].text == TEST_REQ.file.blocks[0].text)
