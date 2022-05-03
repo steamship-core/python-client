@@ -9,9 +9,8 @@ from functools import wraps
 from typing import Dict
 
 from steamship.app.request import Request, Verb
-from steamship.app.response import Error
 from steamship.client.client import Steamship
-
+from steamship.app.response import Response
 
 def makeRegisteringDecorator(foreignDecorator):
     """
@@ -113,19 +112,13 @@ class App:
         cls._method_mappings[verb][path] = name
         logging.info("[{}] {} {} => {}".format(cls.__name__, verb, path, name))
 
-    def __call__(self, request: Request, context: any = None):
+    def __call__(self, request: Request, context: any = None) -> Response:
         """Invokes a method call if it is registered."""
         if not getattr(self.__class__, "_method_mappings"):
-            return Error(
-                httpStatus=404,
-                message="No mappings available for app."
-            )
+            return Response.error(code=404, message="No mappings available for app.")
 
         if request.invocation is None:
-            return Error(
-                httpStatus=404,
-                message="No invocation was found."
-            )
+            return Response.error(code=404, message="No invocation was found.")
 
         verb = Verb.safely_from_str(request.invocation.httpVerb)
         appPath = request.invocation.appPath
@@ -137,21 +130,14 @@ class App:
             appPath = '/{}'.format(appPath)
 
         if verb not in self.__class__._method_mappings:
-            return Error(
-                httpStatus=404,
-                message="No methods for verb {} available.".format(verb)
-            )
+            return Response.error(code=404, message="No methods for verb {} available.".format(verb))
+
         if appPath not in self.__class__._method_mappings[verb]:
-            return Error(
-                httpStatus=404,
-                message="No handler for {} {} available.".format(verb, appPath)
-            )
+            return Response.error(code=404, message="No handler for {} {} available.".format(verb, appPath))
+
         method = self.__class__._method_mappings[verb][appPath]
         if not (hasattr(self, method) and callable(getattr(self, method))):
-            return Error(
-                httpStatus=500,
-                message="Handler for {} {} not callable.".format(verb, appPath)
-            )
+            return Response.error(code=500, message="Handler for {} {} not callable.".format(verb, appPath))
 
         if arguments is None:
             return getattr(self, method)()

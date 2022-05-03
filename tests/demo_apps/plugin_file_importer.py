@@ -1,6 +1,8 @@
-from steamship.app import App, post, create_handler
+from steamship import MimeTypes
+from steamship.app import App, post, create_handler, Response
 from steamship.plugin.file_importer import FileImporter
-from steamship.plugin.service import PluginResponse, PluginRequest
+from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
+from steamship.plugin.service import PluginRequest
 from steamship.extension.file import File
 
 # Note: this aligns with the same document in the internal Engine test.
@@ -13,18 +15,18 @@ TEST_DOC = "# {}\n\n{} {}\n\n{}\n".format(TEST_H1, TEST_S1, TEST_S2, TEST_S3)
 
 
 class TestFileImporterPlugin(FileImporter, App):
-    def run(self, request: PluginRequest[File.CreateRequest]) -> PluginResponse[File.CreateResponse]:
-        return PluginResponse(
-            data=File.CreateResponse(
-                string=TEST_DOC
+    def run(self, request: PluginRequest[File.CreateRequest]) -> Response[RawDataPluginOutput]:
+        return Response(
+            data=RawDataPluginOutput(
+                string=TEST_DOC,
+                mimeType=MimeTypes.MKD
             )
         )
 
     @post('import')
     def do_import(self, **kwargs) -> any:
         importRequest = FileImporter.parse_request(request=kwargs)
-        importResponse = self.run(importRequest)
-        return FileImporter.response_to_dict(importResponse)
+        return self.run(importRequest)
 
 
 handler = create_handler(TestFileImporterPlugin)

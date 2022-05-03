@@ -2,7 +2,7 @@ from steamship import Block, File, DocTag, Tag
 from steamship.data.tags import TagKind, DocTag
 from steamship.app import App, post, create_handler, Response
 from steamship.plugin.blockifier import Blockifier
-from steamship.plugin.service import PluginResponse, PluginRequest
+from steamship.plugin.service import PluginRequest
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
@@ -18,8 +18,8 @@ TEST_DOC = "# {}\n\n{} {}\n\n{}\n".format(TEST_H1, TEST_S1, TEST_S2, TEST_S3)
 
 
 class TestBlockifierPlugin(Blockifier, App):
-    def run(self, request: PluginRequest[RawDataPluginInput]) -> PluginResponse[BlockAndTagPluginOutput]:
-        return PluginResponse(data=BlockAndTagPluginOutput(file=File.CreateRequest(
+    def run(self, request: PluginRequest[RawDataPluginInput]) -> Response[BlockAndTagPluginOutput]:
+        return Response(json=BlockAndTagPluginOutput(file=File.CreateRequest(
             blocks=[
                 Block.CreateRequest(text=TEST_H1, tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.h1)]),
                 Block.CreateRequest(text=TEST_S1, tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.sentence)]),
@@ -31,9 +31,7 @@ class TestBlockifierPlugin(Blockifier, App):
     @post('blockify')
     def blockify(self, **kwargs) -> Response:
         rawDataPluginInput = Blockifier.parse_request(request=kwargs)
-        blockAndTagPluginOutput = self.run(rawDataPluginInput)
-        ret = Blockifier.response_to_dict(blockAndTagPluginOutput)
-        return Response(json=ret)
+        return self.run(rawDataPluginInput)
 
 
 handler = create_handler(TestBlockifierPlugin)

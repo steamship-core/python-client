@@ -24,12 +24,12 @@ class Response(IResponse, Generic[T]):
     def wait(self, max_timeout_s: float = 60, retry_delay_s: float = 1):
         """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
         start = time.time()
-        if self.task is None or self.task.state == TaskStatus.failed:
+        if self.task is None or self.task.state == TaskState.failed:
             return
 
         self.check()
         if self.task is not None:
-            if self.task.state == TaskStatus.succeeded or self.task.state == TaskStatus.failed:
+            if self.task.state == TaskState.succeeded or self.task.state == TaskState.failed:
                 return
         else:
             return
@@ -39,7 +39,7 @@ class Response(IResponse, Generic[T]):
             time.sleep(retry_delay_s)
             self.check()
             if self.task is not None:
-                if self.task.state == TaskStatus.succeeded or self.task.state == TaskStatus.failed:
+                if self.task.state == TaskState.succeeded or self.task.state == TaskState.failed:
                     return
             else:
                 return

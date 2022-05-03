@@ -5,7 +5,7 @@ from steamship.app import App, post, create_handler, Response
 from steamship.plugin.embedder import Embedder
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginResponse, PluginRequest
+from steamship.plugin.service import PluginRequest
 
 FEATURES = ["employee", "roses", "run", "bike", "ted", "grace", "violets", "sugar", "sweet", "cake",
             "flour", "chocolate", "vanilla", "flavors", "flavor", "can", "armadillo", "pizza",
@@ -38,17 +38,14 @@ def embedBlock(block: Block) -> Block.CreateRequest:
 
 
 class TestEmbedderPlugin(Embedder, App):
-    def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> PluginResponse[BlockAndTagPluginOutput]:
+    def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> Response[BlockAndTagPluginOutput]:
         updatedBlocks = [ embedBlock(block) for block in request.data.file.blocks ]
-        return PluginResponse(data=BlockAndTagPluginOutput(file=File.CreateRequest(blocks = updatedBlocks)))
+        return Response(data=BlockAndTagPluginOutput(file=File.CreateRequest(blocks = updatedBlocks)))
 
     @post('tag')
     def embed(self, **kwargs) -> Response:
         embedRequest = Embedder.parse_request(request=kwargs)
-        objResponse = self.run(embedRequest)
-        dictResponse = Embedder.response_to_dict(objResponse)
-        response = Response(json=dictResponse)
-        return response
+        return self.run(embedRequest)
 
 
 handler = create_handler(TestEmbedderPlugin)

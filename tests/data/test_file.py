@@ -1,7 +1,7 @@
 import json
 
 from steamship import MimeTypes, DocTag
-from steamship.base.response import TaskStatus
+from steamship.base.response import TaskState
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag

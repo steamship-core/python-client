@@ -31,5 +31,4 @@ def test_e2e_embedder():
         # Now lets run all the other embedding tests
         basic_embeddings(client, pluginInstance=instance.handle)
         basic_embedding_search(client, pluginInstance=instance.handle)
-
         create_index(client, pluginInstance=instance.handle)

@@ -1,5 +1,6 @@
 from steamship import Space
-
+from steamship.data.space import SignedUrl
+import requests
 from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"

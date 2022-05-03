@@ -59,7 +59,6 @@ class Request:
     def from_dict(d: dict) -> "Request":
         invocation = Invocation.from_dict(d.get('invocation', dict()))
         clientConfig = Configuration.from_dict(d.get('clientConfig', dict()))
-        logging.info("App layer got invocation {} {}".format(type(invocation), invocation))
         return Request(
             clientConfig=clientConfig,
             invocation=invocation

@@ -248,8 +248,9 @@ class Client:
         url = self._url(
             appCall=appCall,
             appOwner=appOwner,
-            operation=operation
+            operation=operation,
         )
+
         headers = self._headers(
             spaceId=spaceId,
             spaceHandle=spaceHandle,
