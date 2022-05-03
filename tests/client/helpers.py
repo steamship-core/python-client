@@ -62,7 +62,14 @@ def _random_corpus(client: Steamship) -> Corpus:
 
 def _steamship() -> Steamship:
     # This should automatically pick up variables from the environment.
-    return Steamship(profile="test")
+    client = Steamship(profile="test")
+    assert (client.config is not None)
+    assert (client.config.profile == "test")
+    assert (client.config.apiKey is not None)
+    user = User.current(client).data
+    assert (user.id is not None)
+    assert (user.handle is not None)
+    return client
 
 
 def create_app_zip(filename) -> bytes:
