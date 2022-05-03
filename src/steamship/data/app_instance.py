@@ -102,8 +102,8 @@ class AppInstance:
             path = path[1:]
         return self.client.get(
             '/{}/{}/{}'.format(
-                self.spaceHandle or "/",
-                self.handle or "/",
+                self.spaceHandle or "_",
+                self.handle or "_",
                 path
             ),
             payload=kwargs,
@@ -120,8 +120,8 @@ class AppInstance:
             path = path[1:]
         return self.client.post(
             '/{}/{}/{}'.format(
-                self.spaceHandle or "/",
-                self.handle or "/",
+                self.spaceHandle or "_",
+                self.handle or "_",
                 path
             ),
             payload=kwargs,
