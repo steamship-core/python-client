@@ -75,7 +75,7 @@ def test_e2e_trainable_tagger_ecs_training():
     assert (exporterPlugin.handle is not None)
 
     # Make a blockifier which will generate our training corpus
-    with deploy_plugin("plugin_blockifier_csv.py", "blockifier", versionConfigTemplate=versionConfigTemplate, instanceConfig=instanceConfig) as (plugin, version, instance):
+    with deploy_plugin("plugin_blockifier_csv.py", "blockifier", version_config_template=versionConfigTemplate, instance_config=instanceConfig) as (plugin, version, instance):
         with upload_file("utterances.csv") as file:
             assert (len(file.query().data.blocks) == 0)
             # Use the plugin we just registered
@@ -83,7 +83,7 @@ def test_e2e_trainable_tagger_ecs_training():
             assert (len(file.query().data.blocks) == 5)
 
             # Now make a trainable tagger to train on those tags
-            with deploy_plugin("plugin_trainable_tagger.py", "tagger", trainingPlatform=TrainingPlatform.managed) as (tagger, taggerVersion, taggerInstance):
+            with deploy_plugin("plugin_trainable_tagger.py", "tagger", training_platform=TrainingPlatform.managed) as (tagger, taggerVersion, taggerInstance):
 
                 # Now train the plugin
                 trainingRequest = TrainingParameterPluginInput(

@@ -20,7 +20,7 @@ def test_e2e_parser():
                         "numberValue": 3,
                         "booleanValue": True}
 
-    with deploy_plugin("plugin_configurable_tagger.py", "tagger", versionConfigTemplate=configTemplate, instanceConfig=instanceConfig1) as (plugin, version, instance):
+    with deploy_plugin("plugin_configurable_tagger.py", "tagger", version_config_template=configTemplate, instance_config=instanceConfig1) as (plugin, version, instance):
         test_doc = "Hi there"
         res = client.tag(doc=test_doc, pluginInstance=instance.handle)
         res.wait()

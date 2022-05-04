@@ -6,7 +6,7 @@ import string
 import time
 import zipfile
 from typing import Dict
-import pathlib
+from pathlib import Path
 
 from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
@@ -171,21 +171,23 @@ def deploy_app(py_name: str, versionConfigTemplate : Dict[str, any] = None, inst
     res = app.delete()
     assert (res.error is None)
 
+TEST_ASSETS_PATH = Path(__file__).parent.parent.parent / "test_assets"
+print("TEST_ASSETS_PATH", TEST_ASSETS_PATH)
 
 @contextlib.contextmanager
-def upload_file(test_assets_filename: str):
+def upload_file(test_asset_filename: str):
     client = _steamship()
-    full_path = os.path.join(os.path.dirname(__file__), '..', '..', 'test_assets', test_assets_filename)
-    file = File.create(client, filename=full_path)
+    full_path = TEST_ASSETS_PATH / test_asset_filename
+    file = File.create(client, filename=str(full_path))
     assert (file.data is not None)
     assert (file.data.id is not None)
     yield file.data
     file.data.delete()
 
 @contextlib.contextmanager
-def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[str, any] = None, instanceConfig : Dict[str, any] = None, trainingPlatform: str = None):
+def deploy_plugin(py_name: str, plugin_type: str, version_config_template : Dict[str, any] = None, instance_config : Dict[str, any] = None, training_platform: str = None):
     client = _steamship()
-    plugin = Plugin.create(client, trainingPlatform=trainingPlatform, description='test', type=plugin_type, transport="jsonOverHttp",
+    plugin = Plugin.create(client, trainingPlatform=training_platform, description='test', type=plugin_type, transport="jsonOverHttp",
                            isPublic=False)
     assert (plugin.error is None)
     assert (plugin.data is not None)
@@ -197,7 +199,7 @@ def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[s
         "test-version",
         pluginId=plugin.id,
         filebytes=zip_bytes,
-        configTemplate=versionConfigTemplate
+        configTemplate=version_config_template
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
@@ -211,7 +213,7 @@ def deploy_plugin(py_name: str, plugin_type: str, versionConfigTemplate : Dict[s
         client,
         pluginId=plugin.id,
         pluginVersionId=version.id,
-        config=instanceConfig
+        config=instance_config
     )
     instance.wait()
     assert (instance.error is None)

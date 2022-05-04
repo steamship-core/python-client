@@ -40,7 +40,7 @@ def test_e2e_corpus_export():
     print(asdict(input))
 
     # Make a blockifier which will generate our training corpus
-    with deploy_plugin("plugin_blockifier_csv.py", "blockifier", versionConfigTemplate=versionConfigTemplate, instanceConfig=instanceConfig) as (plugin, version, instance):
+    with deploy_plugin("plugin_blockifier_csv.py", "blockifier", version_config_template=versionConfigTemplate, instance_config=instanceConfig) as (plugin, version, instance):
         with upload_file("utterances.csv") as file:
             assert (len(file.query().data.blocks) == 0)
             # Use the plugin we just registered
