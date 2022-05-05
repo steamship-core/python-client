@@ -27,10 +27,10 @@ __license__ = "MIT"
 #     # Make a blockifier which will generate our training corpus
 #     with deploy_plugin("plugin_blockifier_csv.py", "blockifier", versionConfigTemplate=versionConfigTemplate, instanceConfig=instanceConfig, trainingPlatform=TrainingPlatform.custom) as (plugin, version, instance):
 #         with upload_file("utterances.csv") as file:
-#             assert (len(file.query().data.blocks) == 0)
+#             assert (len(file.refresh().data.blocks) == 0)
 #             # Use the plugin we just registered
 #             file.blockify(pluginInstance=instance.handle).wait()
-#             assert (len(file.query().data.blocks) == 5)
+#             assert (len(file.refresh().data.blocks) == 5)
 #
 #             # Now make a trainable tagger to train on those tags
 #             with deploy_plugin("plugin_trainable_tagger.py", "tagger", trainingPlatform=TrainingPlatform.custom) as (tagger, taggerVersion, taggerInstance):
@@ -77,10 +77,10 @@ def test_e2e_trainable_tagger_ecs_training():
     # Make a blockifier which will generate our training corpus
     with deploy_plugin("plugin_blockifier_csv.py", "blockifier", versionConfigTemplate=versionConfigTemplate, instanceConfig=instanceConfig) as (plugin, version, instance):
         with upload_file("utterances.csv") as file:
-            assert (len(file.query().data.blocks) == 0)
+            assert (len(file.refresh().data.blocks) == 0)
             # Use the plugin we just registered
             file.blockify(pluginInstance=instance.handle).wait()
-            assert (len(file.query().data.blocks) == 5)
+            assert (len(file.refresh().data.blocks) == 5)
 
             # Now make a trainable tagger to train on those tags
             with deploy_plugin("plugin_trainable_tagger.py", "tagger", trainingPlatform=TrainingPlatform.managed) as (tagger, taggerVersion, taggerInstance):

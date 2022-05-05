@@ -21,10 +21,10 @@ def test_e2e_blockifier():
     )
     with deploy_plugin("plugin_blockifier_csv.py", "blockifier", versionConfigTemplate=versionConfigTemplate, instanceConfig=instanceConfig) as (plugin, version, instance):
         with upload_file("utterances.csv") as file:
-            assert (len(file.query().data.blocks) == 0)
+            assert (len(file.refresh().data.blocks) == 0)
 
             # Use the plugin we just registered
             file.blockify(pluginInstance=instance.handle).wait()
-            assert (len(file.query().data.blocks) == 5)
+            assert (len(file.refresh().data.blocks) == 5)
 
             file.delete()

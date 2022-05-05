@@ -98,7 +98,7 @@ def test_corpus_delete_cascade():
         mimeType=MimeTypes.MKD
     ).data
 
-    res = a.query()
+    res = a.refresh()
     corpus1.delete()
 
     # Now verify the file isn't there!

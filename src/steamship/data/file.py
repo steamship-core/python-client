@@ -21,85 +21,14 @@ class FileUploadType:
 _logger = logging.getLogger(__name__)
 
 
-def parseDquery(query: str) -> List[Tuple[str, str, str]]:
-    query = re.sub(' +', ' ', query.strip())
-    parts = re.split(r'\s*(?=[@#])', query)
-    ret = []
-
-    for s in parts:
-        s = s.strip()
-        if not s:
-            continue
-
-        command = ''
-        if s[0] in ['@', '#']:
-            command = s[0]
-            s = s[1:]
-
-        if command == '':
-            ret.append((command, None, s))
-            continue
-
-        if '"' not in s and ":" not in s:
-            if command == '#':
-                ret.append((command, 'contains', s))
-            else:
-                ret.append((command, s, None))
-            continue
-
-        modifier = None
-        if ':' in s:
-            ss = s.split(':')
-            modifier = ss[0]
-            s = ss[1]
-
-        content = s
-        if '"' in s:
-            i = s.index('"')
-            content = s[1 + i:-1]
-            if modifier is None:
-                s = s[:i]
-                modifier = s
-                if modifier == '':
-                    modifier = None
-
-        ret.append((command, modifier, content))
-    return ret
-
-
 @dataclass
 class FileClearResponse:
     id: str
 
 
 @dataclass
-class SpanQuery:
-    text: str = None
-    label: str = None
-    spanType: str = None
-
-
-@dataclass
 class FileQueryRequest(Request):
-    fileId: str
-    type: str = None
-    hasSpans: List[SpanQuery] = None
-    text: str = None
-    textMode: str = None
-    isQuote: bool = None
-
-
-@dataclass
-class FileQueryResponse:
-    id: str
-    blocks: List[Block]
-
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> "FileQueryResponse":
-        return FileQueryResponse(
-            id=d.get('id', None),
-            blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', None)]
-        )
+    tagFilterQuery: str
 
 
 @dataclass
@@ -393,58 +322,19 @@ class File:
             space=space
         )
 
-    def dquery(
-            self,
-            dQuery: str,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None):
-        blockType = None
-        hasSpans = []
-        text = None
-        isQuote = None
-        textMode = None
-
-        for tup in parseDquery(dQuery):
-            (cmd, subcmd, content) = tup
-            if cmd == '':
-                blockType = content
-            elif cmd == '#':
-                text = content
-                textMode = subcmd
-            elif cmd == '@':
-                hasSpans.append(SpanQuery(label=subcmd, text=content))
-
-        return self.query(
-            blockType=blockType,
-            hasSpans=hasSpans,
-            text=text,
-            textMode=textMode,
-            isQuote=isQuote,
-            pd=True,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
-        )
+    def refresh(self):
+        return File.get(self.client, self.id)
 
     def query(
             self,
-            hasSpans: List[SpanQuery] = None,
-            text: str = None,
-            textMode: str = None,
-            isQuote: bool = None,
-            pd: bool = False,
+            tagFilterQuery: str,
             spaceId: str = None,
             spaceHandle: str = None,
             space: any = None
-    ) -> Response[FileQueryResponse]:
+    ) -> Response["FileQueryResponse"]:
 
         req = FileQueryRequest(
-            fileId=self.id,
-            hasSpans=hasSpans,
-            text=text,
-            textMode=textMode,
-            isQuote=isQuote
+            tagFilterQuery=tagFilterQuery
         )
         res = self.client.post(
             'file/query',
@@ -472,4 +362,15 @@ class File:
             spaceHandle=spaceHandle,
             space=space,
             rawResponse=True
+        )
+
+
+@dataclass
+class FileQueryResponse:
+    files: List[File]
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "FileQueryResponse":
+        return FileQueryResponse(
+            files=[File.from_dict(file, client=client) for file in d.get('files', None)]
         )

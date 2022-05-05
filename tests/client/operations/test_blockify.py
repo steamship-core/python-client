@@ -14,7 +14,7 @@ def test_file_upload_then_parse():
     ).data
     assert (a.id is not None)
 
-    q1 = a.query().data
+    q1 = a.refresh().data
     assert (len(q1.blocks) == 0)
 
     task = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
@@ -27,7 +27,7 @@ def test_file_upload_then_parse():
     assert (task.task is not None)
     assert (task.task.state == TaskState.succeeded)
 
-    q1 = a.query().data
+    q1 = a.refresh().data
     assert (len(q1.blocks) == 1)
     assert (q1.blocks[0].text == 'This is a test.')
 
@@ -38,7 +38,7 @@ This is a test."""
     ).data
     assert (b.id is not None)
 
-    q1 = b.query().data
+    q1 = b.refresh().data
     assert (len(q1.blocks) == 0)
 
     task = b.blockify(pluginInstance="markdown-blockifier-default-1.0")
@@ -46,7 +46,7 @@ This is a test."""
     assert (task.task is not None)
     task.wait()
 
-    q1 = b.query().data
+    q1 = b.refresh().data
     assert (len(q1.blocks) == 2)
     assert (q1.blocks[1].text == 'This is a test.')
     assert (q1.blocks[0].text == 'Header')
