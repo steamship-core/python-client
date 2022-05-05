@@ -326,7 +326,7 @@ class File:
         return File.get(self.client, self.id)
 
     def query(
-            self,
+            client: Client,
             tagFilterQuery: str,
             spaceId: str = None,
             spaceHandle: str = None,
@@ -336,7 +336,7 @@ class File:
         req = FileQueryRequest(
             tagFilterQuery=tagFilterQuery
         )
-        res = self.client.post(
+        res = client.post(
             'file/query',
             payload=req,
             expect=FileQueryResponse,

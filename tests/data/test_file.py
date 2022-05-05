@@ -133,3 +133,38 @@ def test_file_upload_with_blocks():
     assert (aa.tags[0].name == "FileTag")
 
     a.delete()
+
+def test_query():
+    client = _steamship()
+    a = File.create(
+        client=client,
+        blocks=[
+            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
+            Block.CreateRequest(text="B")
+        ]
+    ).data
+    assert (a.id is not None)
+    b = File.create(
+        client=client,
+        blocks=[
+            Block.CreateRequest(text="A"),
+            Block.CreateRequest(text="B")
+        ],
+        tags=[
+            Tag.CreateRequest(name="FileTag")
+        ]
+    ).data
+    assert (b.id is not None)
+
+    files = File.query(client=client, tagFilterQuery='blocktag and name "BlockTag"').data.files
+    assert (len(files)==1)
+    assert(files[0].id == a.id)
+
+    files = File.query(client=client, tagFilterQuery='filetag and name "FileTag"').data.files
+    assert (len(files) == 1)
+    assert (files[0].id == b.id)
+
+
+
+    a.delete()
+    b.delete()
