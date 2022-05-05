@@ -19,7 +19,7 @@ TEST_DOC = "# {}\n\n{} {}\n\n{}\n".format(TEST_H1, TEST_S1, TEST_S2, TEST_S3)
 
 class TestBlockifierPlugin(Blockifier, App):
     def run(self, request: PluginRequest[RawDataPluginInput]) -> Response[BlockAndTagPluginOutput]:
-        return Response(json=BlockAndTagPluginOutput(file=File.CreateRequest(
+        return Response(data=BlockAndTagPluginOutput(file=File.CreateRequest(
             blocks=[
                 Block.CreateRequest(text=TEST_H1, tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.h1)]),
                 Block.CreateRequest(text=TEST_S1, tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.sentence)]),
