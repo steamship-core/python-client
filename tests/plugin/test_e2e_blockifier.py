@@ -10,7 +10,7 @@ from tests.utils.plugin import deploy_plugin
 
 def test_e2e_blockifier_plugin():
     client = get_steamship_client()
-    blockifier_plugin_path = APPS_PATH / "plugin_blockifier.py"
+    blockifier_plugin_path = APPS_PATH / "blockifier.py"
     with deploy_plugin(client, blockifier_plugin_path, "blockifier") as (
         plugin,
         version,

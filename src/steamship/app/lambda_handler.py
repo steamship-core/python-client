@@ -11,8 +11,7 @@ from steamship.base import SteamshipError
 
 
 def create_handler(App: Type[App]):
-    """Wrapper function for an Steamship app within an AWS Lambda function.
-    """
+    """Wrapper function for an Steamship app within an AWS Lambda function."""
 
     def _handler(event: Dict, context: Dict = None) -> Response:
         try:

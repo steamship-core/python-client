@@ -1,7 +1,7 @@
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.service import PluginRequest
 
-from ..demo_apps.plugin_blockifier import TestBlockifierPlugin
+from tests.demo_apps.plugins.blockifier import TestBlockifierPlugin
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

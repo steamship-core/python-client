@@ -22,16 +22,17 @@ def zip_plugin(file_path: Path) -> bytes:
     # Might be good to find a more machine-invariant solution here.
     # The goal is to copy in all the dependencies of the lambda package.
     # Which are: steamship (current repo), setuptools_scm, requests
-    packages_path = VENV_PATH / "lib" / "python3.8" / "site-packages"
+    dependencies_path = VENV_PATH / "lib" / "python3.9" / "site-packages"
 
     package_paths = [
         SRC_PATH / "steamship",
-        packages_path / "setuptools_scm",
-        packages_path / "requests",
-        packages_path / "charset_normalizer",
-        packages_path / "certifi",
-        packages_path / "urllib3",
-        packages_path / "idna",
+        dependencies_path / "setuptools_scm",
+        dependencies_path / "requests",
+        dependencies_path / "charset_normalizer",
+        dependencies_path / "certifi",
+        dependencies_path / "urllib3",
+        dependencies_path / "idna",
+        dependencies_path / "pydantic",
     ]
 
     zip_buffer = io.BytesIO()
@@ -44,7 +45,7 @@ def zip_plugin(file_path: Path) -> bytes:
             for root, _, files in os.walk(package_path):
                 for file in files:
                     pypi_file = Path(root) / file
-                    zip_file.write(pypi_file, pypi_file.relative_to(SRC_PATH))
+                    zip_file.write(pypi_file, pypi_file.relative_to(package_path.parent))
 
     return zip_buffer.getvalue()
 
@@ -76,7 +77,7 @@ def deploy_plugin(
         "test-version",
         pluginId=plugin.id,
         filebytes=zip_bytes,
-        configTemplate=version_config_template,
+        configTemplate=version_config_template, # TODO: What is this?
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.

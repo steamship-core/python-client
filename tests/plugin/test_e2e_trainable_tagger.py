@@ -25,7 +25,7 @@ __license__ = "MIT"
 #     )
 #
 #     # Make a blockifier which will generate our training corpus
-#     with deploy_plugin("plugin_blockifier_csv.py", "blockifier", versionConfigTemplate=versionConfigTemplate, instanceConfig=instanceConfig, trainingPlatform=TrainingPlatform.custom) as (plugin, version, instance):
+#     with deploy_plugin("csv_blockifier.py", "blockifier", versionConfigTemplate=versionConfigTemplate, instanceConfig=instanceConfig, trainingPlatform=TrainingPlatform.custom) as (plugin, version, instance):
 #         with upload_file("utterances.csv") as file:
 #             assert (len(file.query().data.blocks) == 0)
 #             # Use the plugin we just registered
@@ -75,7 +75,7 @@ def test_e2e_trainable_tagger_ecs_training():
     assert (exporterPlugin.handle is not None)
 
     # Make a blockifier which will generate our training corpus
-    with deploy_plugin("plugin_blockifier_csv.py", "blockifier", version_config_template=versionConfigTemplate, instance_config=instanceConfig) as (plugin, version, instance):
+    with deploy_plugin("csv_blockifier.py", "blockifier", version_config_template=versionConfigTemplate, instance_config=instanceConfig) as (plugin, version, instance):
         with upload_file("utterances.csv") as file:
             assert (len(file.query().data.blocks) == 0)
             # Use the plugin we just registered

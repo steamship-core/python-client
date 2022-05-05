@@ -1,3 +1,5 @@
+import csv
+
 from .. import APPS_PATH
 
 __copyright__ = "Steamship"
@@ -10,7 +12,7 @@ from ..utils.plugin import deploy_plugin
 
 
 def test_e2e_csv_blockifier_plugin():
-    csv_blockifier_plugin_path = APPS_PATH / "plugin_blockifier_csv.py"
+    csv_blockifier_plugin_path = APPS_PATH / "plugins" / "csv_blockifier.py"
     client = get_steamship_client()
 
     version_config_template = dict(
@@ -31,5 +33,16 @@ def test_e2e_csv_blockifier_plugin():
         with upload_file(client, "utterances.csv") as file:
             assert len(file.query().data.blocks) == 0
             file.blockify(pluginInstance=instance.handle).wait()
-            assert len(file.query().data.blocks) == 5
+            # Check the number of blocks
+            blocks = file.query().data.blocks
+            assert (
+                len(blocks) == 5
+            )  # TODO: Does a query using a file ever return with more than just blocks?
+            # Check if the tags are correctly added
+            for block in blocks:
+                assert block.tags is not None
+                assert len(block.tags) > 0
+                for tag in block.tags:
+                    assert tag.name is not None
+                    assert tag.kind is not None
             file.delete()
