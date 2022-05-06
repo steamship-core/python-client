@@ -10,8 +10,7 @@ _logger = logging.getLogger(__name__)
 
 
 class Tasks:
-    """Asynchronous background task (and task feedback) management.
-    """
+    """Asynchronous background task (and task feedback) management."""
 
     def __init__(self, client: Client):
         self.client = client

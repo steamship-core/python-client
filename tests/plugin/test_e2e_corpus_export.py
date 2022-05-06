@@ -1,26 +1,27 @@
 from dataclasses import asdict
 
 import requests
-
-from steamship.data.plugin_instance import PluginInstance
-from steamship.data.plugin import TrainingPlatform
-from steamship.data import Block, Tag
-from steamship.extension.file import File
-from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-import time
 import base64
 import json
 
-from ..client.helpers import deploy_plugin, upload_file, _steamship
+
+from steamship.data import Block, Tag
+from steamship.data.plugin_instance import PluginInstance
+from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
+from .. import APPS_PATH
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from ..utils.client import get_steamship_client
+from ..utils.file import upload_file
+from ..utils.plugin import deploy_plugin
+
 EXPORTER_HANDLE = "signed-url-exporter"
 
+
 def test_e2e_corpus_export():
-    client = _steamship()
+    client = get_steamship_client()
     versionConfigTemplate = dict(
         textColumn=dict(type="string"),
         tagColumns=dict(type="string"),
@@ -44,9 +45,12 @@ def test_e2e_corpus_export():
     input = ExportPluginInput(handle='default', type="corpus")
     print(asdict(input))
 
+    csv_blockifier_path = APPS_PATH / "plugins" / "csv_blockifier.py"
+
     # Make a blockifier which will generate our training corpus
-    with deploy_plugin("plugin_blockifier_csv.py", "blockifier", versionConfigTemplate=versionConfigTemplate, instanceConfig=instanceConfig) as (plugin, version, instance):
-        with upload_file("utterances.csv") as file:
+    with deploy_plugin(client, csv_blockifier_path, "blockifier", version_config_template=versionConfigTemplate,
+                       instance_config=instanceConfig) as (plugin, version, instance):
+        with upload_file(client, "utterances.csv") as file:
             assert (len(file.refresh().data.blocks) == 0)
             # Use the plugin we just registered
             file.blockify(pluginInstance=instance.handle).wait()
