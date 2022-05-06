@@ -1,7 +1,7 @@
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
-from steamship.deployable.response import Response
+from steamship.app.response import Response
 from steamship.extension.file import File
 from steamship.data.block import Block
 

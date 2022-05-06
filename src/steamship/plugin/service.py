@@ -4,7 +4,7 @@ from typing import TypeVar, Generic, Union, Callable
 
 from steamship.base import Client
 from steamship.base.response import SteamshipError, Task
-from steamship.deployable.response import Response
+from steamship.app.response import Response
 
 # Note!
 # =====

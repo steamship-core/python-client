@@ -12,8 +12,8 @@ from typing import Dict
 from typing import Optional
 
 from steamship.client.client import Steamship
-from steamship.deployable.request import Request, Verb
-from steamship.deployable.response import Response
+from steamship.app.request import Request, Verb
+from steamship.app.response import Response
 
 
 def makeRegisteringDecorator(foreignDecorator):
@@ -120,7 +120,7 @@ class App:
     def __call__(self, request: Request, context: any = None) -> Response:
         """Invokes a method call if it is registered."""
         if not getattr(self.__class__, "_method_mappings"):
-            return Response.error(code=HTTPStatus.NOT_FOUND, message="No mappings available for deployable.")
+            return Response.error(code=HTTPStatus.NOT_FOUND, message="No mappings available for app.")
 
         if request.invocation is None:
             return Response.error(code=HTTPStatus.NOT_FOUND, message="No invocation was found.")

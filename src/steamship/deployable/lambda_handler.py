@@ -4,15 +4,15 @@ import logging
 from http import HTTPStatus
 from typing import Dict, Type
 
-from steamship.deployable.app import App
-from steamship.deployable.request import Request
-from steamship.deployable.response import Response, Http
+from steamship.app.app import App
+from steamship.app.request import Request
+from steamship.app.response import Response, Http
 from steamship.client.client import Steamship
 from steamship.base import SteamshipError
 
 
 def create_handler(app_cls: Type[App]):
-    """Wrapper function for an Steamship deployable within an AWS Lambda function."""
+    """Wrapper function for an Steamship app within an AWS Lambda function."""
 
     def _handler(event: Dict, context: Dict = None) -> Response:
         try:
@@ -41,10 +41,10 @@ def create_handler(app_cls: Type[App]):
             return Response.from_obj(se)
         except Exception as ex:
             logging.error(ex)
-            return Response.error(code=HTTPStatus.INTERNAL_SERVER_ERROR, message="Handler was unable to initialize plugin/deployable.", exception=ex)
+            return Response.error(code=HTTPStatus.INTERNAL_SERVER_ERROR, message="Handler was unable to initialize plugin/app.", exception=ex)
 
         if not app:
-            return Response.error(code=HTTPStatus.INTERNAL_SERVER_ERROR, message="Handler was unable to construct deployable/plugin for invocation.")
+            return Response.error(code=HTTPStatus.INTERNAL_SERVER_ERROR, message="Handler was unable to construct app/plugin for invocation.")
 
         try:
             response = app(request)
@@ -60,7 +60,7 @@ def create_handler(app_cls: Type[App]):
                 if request.invocation:
                     app_path = request.invocation.appPath
                     app_verb = request.invocation.httpVerb
-            return Response.error(code=HTTPStatus.INTERNAL_SERVER_ERROR, message=f"Handler was unable to run deployable/plugin method {app_verb} {app_path}", exception=ex)
+            return Response.error(code=HTTPStatus.INTERNAL_SERVER_ERROR, message=f"Handler was unable to run app/plugin method {app_verb} {app_path}", exception=ex)
 
     def handler(event: Dict, context: Dict = None) -> dict:
         response = _handler(event, context)

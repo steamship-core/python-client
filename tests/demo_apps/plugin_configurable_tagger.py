@@ -1,7 +1,7 @@
 import json
 
 from steamship import Tag
-from steamship.deployable import App, post, create_handler, Response
+from steamship.app import App, post, create_handler, Response
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest

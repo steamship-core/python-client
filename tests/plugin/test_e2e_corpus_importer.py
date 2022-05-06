@@ -11,7 +11,7 @@ def test_e2e_corpus_importer():
     client = _steamship()
     testFileImporterInstance = PluginInstance.create(client, pluginHandle='test-fileImporter-valueOrData', upsert=True).data
     with deploy_plugin("plugin_corpus_importer.py", "corpusImporter") as (plugin, version, instance):
-        #with PluginVersion.(client, "corpusImporter", "do_import", deployable, instance) as plugin:
+        #with PluginVersion.(client, "corpusImporter", "do_import", app, instance) as plugin:
         with _random_corpus(client) as corpus:
             resp = corpus.doImport(
                 pluginInstance=instance.handle,

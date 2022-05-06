@@ -1,7 +1,7 @@
 import io
 import logging
 
-from steamship.deployable import get, App, Response, post, create_handler
+from steamship.app import get, App, Response, post, create_handler
 from steamship.base.mime_types import MimeTypes
 from dataclasses import dataclass
 import os

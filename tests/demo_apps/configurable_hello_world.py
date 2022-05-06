@@ -1,4 +1,4 @@
-from steamship.deployable import get, App, Response, post, create_handler
+from steamship.app import get, App, Response, post, create_handler
 
 
 class HelloWorld(App):

@@ -1,7 +1,7 @@
 #
-# This is the CLIENT-side abstraction for an deployable.
+# This is the CLIENT-side abstraction for an app.
 #
-# If you are implementing an deployable, see: steamship.deployable.server.App
+# If you are implementing an app, see: steamship.app.server.App
 #
 
 from dataclasses import dataclass
@@ -34,8 +34,8 @@ class App:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "App":
-        if 'deployable' in d:
-            d = d['deployable']
+        if 'app' in d:
+            d = d['app']
         return App(
             client=client,
             id=d.get('id', None),
@@ -53,7 +53,7 @@ class App:
             upsert=upsert
         )
         return client.post(
-            'deployable/create',
+            'app/create',
             payload=req,
             expect=App
         )
@@ -63,7 +63,7 @@ class App:
             id=self.id
         )
         return self.client.post(
-            'deployable/delete',
+            'app/delete',
             payload=req,
             expect=App
         )

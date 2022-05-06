@@ -1,5 +1,5 @@
 from steamship import File
-from steamship.deployable import App, post, create_handler, Response
+from steamship.app import App, post, create_handler, Response
 from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from steamship.plugin.corpus_importer import CorpusImporter
 from steamship.plugin.service import PluginRequest
