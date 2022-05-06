@@ -22,7 +22,7 @@ class DummyBlockifierPlugin(Blockifier, App):
         self, request: PluginRequest[RawDataPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         return Response(
-            json=BlockAndTagPluginOutput(
+            data=BlockAndTagPluginOutput(
                 file=File.CreateRequest(
                     blocks=[
                         Block.CreateRequest(

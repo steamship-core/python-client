@@ -6,6 +6,7 @@ import json
 
 
 from steamship.data import Block, Tag
+from steamship.extension.file import File
 from steamship.data.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from .. import APPS_PATH
@@ -65,7 +66,7 @@ def test_e2e_corpus_export():
 
 
 def test_e2e_corpus_export_with_query():
-    client = _steamship()
+    client = get_steamship_client()
     versionConfigTemplate = dict(
         textColumn=dict(type="string"),
         tagColumns=dict(type="string"),
