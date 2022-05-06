@@ -2,12 +2,12 @@
 
 from typing import Dict
 
-from steamship.deployable import Deployable, post, create_handler, Response
+from steamship.deployable import App, post, create_handler, Response
 from steamship.plugin.blockifier import Blockifier
 from tests.demo_apps.plugins.csv_blockifier import CsvBlockifier
 
 
-class TsvBlockifier(CsvBlockifier, Blockifier, Deployable):
+class TsvBlockifier(CsvBlockifier, Blockifier, App):
     """Converts TSV into Tagged Steamship Blocks.
 
     Implementation is only here to demonstrate how plugins can be built through inheritance.

@@ -1,7 +1,7 @@
 from typing import List
 
 from steamship import Tag, TagKind, TextTag, Block, File
-from steamship.deployable import Deployable, post, create_handler, Response
+from steamship.deployable import App, post, create_handler, Response
 from steamship.plugin.embedder import Embedder
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -37,7 +37,7 @@ def embedBlock(block: Block) -> Block.CreateRequest:
     )
 
 
-class TestEmbedderPlugin(Embedder, Deployable):
+class TestEmbedderPlugin(Embedder, App):
     def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> Response[BlockAndTagPluginOutput]:
         updatedBlocks = [ embedBlock(block) for block in request.data.file.blocks ]
         return Response(data=BlockAndTagPluginOutput(file=File.CreateRequest(blocks = updatedBlocks)))

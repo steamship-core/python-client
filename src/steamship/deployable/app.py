@@ -66,7 +66,7 @@ def post(path: str, **kwargs):
     return endpoint(verb=Verb.POST, path=path, **kwargs)
 
 
-class Deployable:
+class App:
     """A Steamship microservice.
 
   This base.py class:
@@ -85,11 +85,11 @@ class Deployable:
         cls._method_mappings = defaultdict(dict)
 
         for maybeDecorated in cls.__dict__.values():
-            if hasattr(maybeDecorated, 'decorator'):
-                decorator = getattr(maybeDecorated, 'decorator')
-                if hasattr(decorator, '__is_endpoint__') and getattr(decorator, '__is_endpoint__') == True:
-                    path = getattr(maybeDecorated, '__path__') if hasattr(maybeDecorated, '__path__') else None
-                    verb = getattr(maybeDecorated, '__verb__') if hasattr(maybeDecorated, '__verb__') else None
+            decorator = getattr(maybeDecorated, 'decorator', None)
+            if decorator:
+                if getattr(decorator, '__is_endpoint__', False) == True:
+                    path = getattr(maybeDecorated, '__path__', None)
+                    verb = getattr(maybeDecorated, '__verb__', None)
                     cls._register_mapping(maybeDecorated.__name__, verb, path)
 
     @staticmethod

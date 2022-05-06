@@ -10,7 +10,7 @@ from steamship.base.error import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags import Tag
-from steamship.deployable import Deployable, post, create_handler, Response
+from steamship.deployable import App, post, create_handler, Response
 from steamship.plugin.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -39,7 +39,7 @@ class CsvBlockifierConfig(Config):
         super().__init__(**kwargs)
 
 
-class CsvBlockifier(Blockifier, Deployable):
+class CsvBlockifier(Blockifier, App):
     """Converts CSV or TSV into Tagged Steamship Blocks.
 
     A CSV file is mapped onto 1 File

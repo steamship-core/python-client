@@ -1,5 +1,5 @@
 from steamship import Block, DocTag, Tag
-from steamship.deployable import Deployable, post, create_handler, Response
+from steamship.deployable import App, post, create_handler, Response
 from steamship.plugin.tagger import Tagger
 from steamship.plugin.service import PluginRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
@@ -28,7 +28,7 @@ def _makeTestResponse(request: BlockAndTagPluginInput) -> BlockAndTagPluginOutpu
     return response
 
 
-class TestParserPlugin(Tagger, Deployable):
+class TestParserPlugin(Tagger, App):
     # TODO: WARNING! We will need to implement some logic that prevents 
     # a distributed endless loop. E.g., a parser plugin returning the results
     # of using the Steamship client to call parse.. via itself!

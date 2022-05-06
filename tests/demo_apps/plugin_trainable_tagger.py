@@ -1,4 +1,4 @@
-from steamship.deployable import Deployable, post, create_handler, Response
+from steamship.deployable import App, post, create_handler, Response
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
@@ -9,7 +9,7 @@ from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPlug
 from steamship import SteamshipError
 
 
-class TestTrainableTaggerPlugin(Tagger, Deployable):
+class TestTrainableTaggerPlugin(Tagger, App):
     # For testing; mirrors TestConfigurableTagger in Swift
 
     RESPONSE = TrainingParameterPluginOutput(

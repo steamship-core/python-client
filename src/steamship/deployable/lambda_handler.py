@@ -4,14 +4,14 @@ import logging
 from http import HTTPStatus
 from typing import Dict, Type
 
-from steamship.deployable.deployable import Deployable
+from steamship.deployable.app import App
 from steamship.deployable.request import Request
 from steamship.deployable.response import Response, Http
 from steamship.client.client import Steamship
 from steamship.base import SteamshipError
 
 
-def create_handler(app_cls: Type[Deployable]):
+def create_handler(app_cls: Type[App]):
     """Wrapper function for an Steamship deployable within an AWS Lambda function."""
 
     def _handler(event: Dict, context: Dict = None) -> Response:
