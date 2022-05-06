@@ -5,6 +5,10 @@ from steamship.base import Client, Request, Response
 from steamship.base.request import IdentifierRequest
 from steamship.data.tags.tag import Tag
 
+@dataclass
+class BlockQueryRequest(Request):
+    tagFilterQuery: str
+
 
 @dataclass
 class Block:
@@ -147,4 +151,35 @@ class Block:
             'block/delete',
             Block.DeleteRequest(id=self.id),
             expect=Tag,
+        )
+
+    def query(
+            client: Client,
+            tagFilterQuery: str,
+            spaceId: str = None,
+            spaceHandle: str = None,
+            space: any = None
+    ) -> Response["BlockQueryResponse"]:
+
+        req = BlockQueryRequest(
+            tagFilterQuery=tagFilterQuery
+        )
+        res = client.post(
+            'block/query',
+            payload=req,
+            expect=BlockQueryResponse,
+            spaceId=spaceId,
+            spaceHandle=spaceHandle,
+            space=space
+        )
+        return res
+
+@dataclass
+class BlockQueryResponse:
+    blocks: List[Block]
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "BlockQueryResponse":
+        return BlockQueryResponse(
+            blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', None)]
         )
