@@ -17,7 +17,7 @@ class TsvBlockifier(CsvBlockifier, Blockifier, Deployable):
         super().__init__(client, config)
         self.config.delimiter = "\t"
 
-    @post("blockify")  # TODO: Move the blockify handle one inheritance level up
+    @post("blockify")  # TODO (enias): Move the blockify handle one inheritance level up
     def blockify(self, **kwargs) -> Response:
         """App endpoint for our plugin.
 

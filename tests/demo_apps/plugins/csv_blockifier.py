@@ -24,7 +24,7 @@ class Config(BaseModel):
 
 
 class CsvBlockifierConfig(Config):
-    textColumn: str  # TODO: Make pep8 compatible once the engine allows it
+    textColumn: str  # TODO (enias): Make pep8 compatible once the engine allows it
     tagColumns: List[str]
     delimiter: Optional[str] = ","
     quotechar: Optional[constr(max_length=1)] = '"'

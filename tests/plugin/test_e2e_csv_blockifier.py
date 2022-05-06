@@ -17,7 +17,7 @@ def test_e2e_csv_blockifier_plugin():
         textColumn=dict(type="string"),
         tagColumns=dict(type="string"),
         tagKind=dict(type="string"),
-    )  # TODO: Derive this from Config
+    )  # TODO (enias): Derive this from Config
     instance_config = dict(  # Has to match up
         textColumn="Message",
         tagColumns="Category",

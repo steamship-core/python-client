@@ -61,6 +61,7 @@ def _random_corpus(client: Steamship) -> Corpus:
 
 
 def _steamship() -> Steamship:
+    # TODO (enias): Deprecate during refactor
     # This should automatically pick up variables from the environment.
     client = Steamship(profile="test")
     assert (client.config is not None)
@@ -73,6 +74,7 @@ def _steamship() -> Steamship:
 
 
 def create_app_zip(filename) -> bytes:
+    # TODO (enias): Deprecate during refactor
     full_path = os.path.join(os.path.dirname(__file__), '..', 'demo_apps', filename)
     zip_buffer = io.BytesIO()
 
