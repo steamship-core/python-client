@@ -103,7 +103,7 @@ def test_e2e_corpus_export_with_query():
     assert (b.id is not None)
 
     # Now export the corpus
-    input = ExportPluginInput(query="filetag", type='file')
+    input = ExportPluginInput(query='filetag and name "FileTag"', type='file')
     print(asdict(input))
     rawDataR = exporterPlugin.export(input)
     assert (rawDataR is not None)
