@@ -372,5 +372,5 @@ class FileQueryResponse:
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "FileQueryResponse":
         return FileQueryResponse(
-            files=[File.from_dict(file, client=client) for file in d.get('files', None)]
+            files=[File.from_dict(file, client=client) for file in d.get('files', [])]
         )

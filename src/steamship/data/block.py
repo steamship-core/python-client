@@ -181,5 +181,5 @@ class BlockQueryResponse:
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "BlockQueryResponse":
         return BlockQueryResponse(
-            blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', None)]
+            blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', [])]
         )

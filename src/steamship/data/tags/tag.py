@@ -185,5 +185,5 @@ class TagQueryResponse:
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "TagQueryResponse":
         return TagQueryResponse(
-            tags=[Tag.from_dict(tag, client=client) for tag in d.get('tags', None)]
+            tags=[Tag.from_dict(tag, client=client) for tag in d.get('tags', [])]
         )
