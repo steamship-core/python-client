@@ -19,7 +19,7 @@ def test_get_training_parameters():
     client = _steamship()
 
     # Now make a trainable tagger to train on those tags
-    with deploy_plugin("plugin_trainable_tagger.py", "tagger", trainingPlatform=TrainingPlatform.managed) as (tagger, taggerVersion, taggerInstance):
+    with deploy_plugin("plugin_trainable_tagger.py", "tagger", training_platform=TrainingPlatform.managed) as (tagger, taggerVersion, taggerInstance):
         trainingRequest = TrainingParameterPluginInput(
             pluginInstance=taggerInstance.handle
         )
