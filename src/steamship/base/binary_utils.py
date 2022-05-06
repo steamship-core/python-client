@@ -36,7 +36,7 @@ def flexi_create(
         alwaysBase64=False) -> Tuple[Any, Union[None, str], Union[None, str]]:
     """
     It's convenient for some constructors to accept a variety of input types:
-    - data (your chocie)
+    - data (your choice)
     - string
     - json
     - bytes

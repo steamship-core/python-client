@@ -11,6 +11,7 @@ class ExportPluginInput:
     handle: str = None
     type: str = None
     filename: str = None
+    query: str = None
 
     @staticmethod
     def from_dict(d: any = None, client: Client = None) -> "ExportPluginInput":
@@ -22,7 +23,8 @@ class ExportPluginInput:
             id = d.get('id', None),
             handle = d.get('id', None),
             type = d.get('type', None),
-            filename = d.get('filename', None)
+            filename = d.get('filename', None),
+            query = d.get('query', None)
         )
 
     def to_dict(self) -> Dict:
@@ -31,5 +33,6 @@ class ExportPluginInput:
             id=self.id,
             handle=self.handle,
             type=self.type,
-            filename=self.filename
+            filename=self.filename,
+            query=self.query
         )
