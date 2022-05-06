@@ -46,7 +46,7 @@ def test_file_parse():
     parseResp.wait()
 
     # Now the sentences should be parsed!
-    q2 = a.query().data
+    q2 = a.refresh().data
     assert (len(q2.blocks) == 6)
 
     # Now we add the file to the index
@@ -100,7 +100,7 @@ def test_file_index():
     parseResp.wait()
 
     # Now the sentences should be parsed!
-    q2 = a.query().data
+    q2 = a.refresh().data
     assert (len(q2.blocks) == 6)
 
     # Now we add the file to the index via the shortcut.

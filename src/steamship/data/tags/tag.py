@@ -4,6 +4,10 @@ from typing import List, Any
 
 from steamship.base import Client, Request, Response
 
+@dataclass
+class TagQueryRequest(Request):
+    tagFilterQuery: str
+
 
 @dataclass
 class Tag:
@@ -151,4 +155,35 @@ class Tag:
             'tag/delete',
             Tag.DeleteRequest(id=self.id, fileId=self.fileId, blockId=self.blockId),
             expect=Tag,
+        )
+
+    def query(
+            client: Client,
+            tagFilterQuery: str,
+            spaceId: str = None,
+            spaceHandle: str = None,
+            space: any = None
+    ) -> Response["TagQueryResponse"]:
+
+        req = TagQueryRequest(
+            tagFilterQuery=tagFilterQuery
+        )
+        res = client.post(
+            'tag/query',
+            payload=req,
+            expect=TagQueryResponse,
+            spaceId=spaceId,
+            spaceHandle=spaceHandle,
+            space=space
+        )
+        return res
+
+@dataclass
+class TagQueryResponse:
+    tags: List[Tag]
+
+    @staticmethod
+    def from_dict(d: any, client: Client = None) -> "TagQueryResponse":
+        return TagQueryResponse(
+            tags=[Tag.from_dict(tag, client=client) for tag in d.get('tags', [])]
         )

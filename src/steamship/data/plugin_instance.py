@@ -94,7 +94,7 @@ class PluginInstance:
             expect=PluginInstance
         )
 
-    def export(self, input: ExportPluginInput) -> RawDataPluginOutput:
+    def export(self, input: ExportPluginInput) -> Response[RawDataPluginOutput]:
         input.pluginInstance = self.handle
         return self.client.post(
             'plugin/instance/export',

@@ -48,7 +48,7 @@ def tag_file(client: Client, parserInstanceHandle: str):
 
     # The following tests should be updated once the Tag query basics are merged.
     # Instead of querying and filtering, do a query with a tag filter
-    q1 = a.query().data
+    q1 = a.refresh().data
     assert( count_blocks_with_tag(q1.blocks, DocTag.doc, DocTag.h1) == 1)
     assert (q1.blocks[0].text == T)
 
@@ -73,12 +73,12 @@ def tag_file(client: Client, parserInstanceHandle: str):
 
     # Now the sentences should be parsed!
     # Again, should rewrite these once tag queries are integrated
-    q2 = a.query().data
+    q2 = a.refresh().data
     assert (count_tags(q2.blocks, DocTag.doc, DocTag.sentence) == 4)
 
     a.clear()
 
-    q2 = a.query().data
+    q2 = a.refresh().data
     assert (len(q2.blocks) == 0)
 
     a.delete()

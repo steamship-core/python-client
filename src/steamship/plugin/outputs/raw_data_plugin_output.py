@@ -26,9 +26,9 @@ class RawDataPluginOutput:
         )
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "File.CreateResponse":
+    def from_dict(d: any, client: Client = None) -> "RawDataPluginOutput":
         return RawDataPluginOutput(
-            data=d.get('data', None),
+            base64string=d.get('data', None),
             mimeType=d.get('mimeType', None)
         )
 

@@ -126,11 +126,7 @@ def index(
         )
 
     # We have an index available to us now. Perform the query.
-    blocks = self.query(
-        spaceId=spaceId,
-        spaceHandle=spaceHandle,
-        space=space
-    ).data.blocks
+    blocks = self.refresh().data.blocks
 
     items = []
     for block in blocks:

@@ -17,7 +17,7 @@ def test_e2e_blockifier_plugin():
         instance,
     ):
         file = File.create(client=client, content="This is a test.").data
-        assert len(file.query().data.blocks) == 0
+        assert len(file.refresh().data.blocks) == 0
         file.blockify(pluginInstance=instance.handle).wait()
-        assert len(file.query().data.blocks) == 4
+        assert len(file.refresh().data.blocks) == 4
         file.delete()

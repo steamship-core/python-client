@@ -31,10 +31,10 @@ def test_e2e_csv_blockifier_plugin():
         instance_config=instance_config,
     ) as (plugin, version, instance):
         with upload_file(client, "utterances.csv") as file:
-            assert len(file.query().data.blocks) == 0
+            assert len(file.refresh().data.blocks) == 0
             file.blockify(pluginInstance=instance.handle).wait()
             # Check the number of blocks
-            blocks = file.query().data.blocks
+            blocks = file.refresh().data.blocks
             assert len(blocks) == 5
             for block in blocks:
                 assert block.tags is not None
