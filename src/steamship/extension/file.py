@@ -105,7 +105,7 @@ def index(
         spaceId: str = None,
         spaceHandle: str = None,
         space: any = None) -> "EmbeddingIndex":
-    # TODO: This should really be done all on the app, but for now we'll do it in the client
+    # TODO: This should really be done all on the deployable, but for now we'll do it in the client
     # to facilitate demos.
 
     if indexId is None and index is not None:

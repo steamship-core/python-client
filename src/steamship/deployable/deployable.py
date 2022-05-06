@@ -5,12 +5,16 @@ Please see https://docs.steamship.com/ for information about building a Steamshi
 """
 
 import logging
+from collections import defaultdict
 from functools import wraps
+from http import HTTPStatus
 from typing import Dict
+from typing import Optional
 
-from steamship.app.request import Request, Verb
 from steamship.client.client import Steamship
-from steamship.app.response import Response
+from steamship.deployable.request import Request, Verb
+from steamship.deployable.response import Response
+
 
 def makeRegisteringDecorator(foreignDecorator):
     """
@@ -36,7 +40,7 @@ def makeRegisteringDecorator(foreignDecorator):
 
 
 # https://stackoverflow.com/questions/2366713/can-a-decorator-of-an-instance-method-access-the-class
-def endpoint(verb: str = None, path: str = None):
+def endpoint(verb: str = None, path: str = None, **kwargs):
     """By using **kw we can tag the function with any parameters"""
 
     def decorator(function):
@@ -55,15 +59,15 @@ def endpoint(verb: str = None, path: str = None):
 
 
 def get(path: str, **kwargs):
-    return endpoint(verb='GET', path=path, **kwargs)
+    return endpoint(verb=Verb.GET, path=path, **kwargs)
 
 
 def post(path: str, **kwargs):
-    return endpoint(verb='POST', path=path, **kwargs)
+    return endpoint(verb=Verb.POST, path=path, **kwargs)
 
 
-class App:
-    """An Steamship microservice.
+class Deployable:
+    """A Steamship microservice.
 
   This base.py class:
 
@@ -76,11 +80,9 @@ class App:
         self.client = client
         self.config = config
 
-    """Base class to expose instance methods"""
-
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
-        cls._method_mappings = {}
+        cls._method_mappings = defaultdict(dict)
 
         for maybeDecorated in cls.__dict__.values():
             if hasattr(maybeDecorated, 'decorator'):
@@ -90,55 +92,58 @@ class App:
                     verb = getattr(maybeDecorated, '__verb__') if hasattr(maybeDecorated, '__verb__') else None
                     cls._register_mapping(maybeDecorated.__name__, verb, path)
 
-    @classmethod
-    def _register_mapping(cls, name: str, verb: str = None, path: str = None):
-        """Registering a mapping permits the method to be invoked via HTTP."""
-
-        if verb is None:
-            verb = "get"
-        if path is None and name is not None:
-            path = "/{}".format(name)
-
-        if getattr(cls, "_method_mappings") is None:
-            setattr(cls, "_method_mappings", {})
-        if path is None or path == '':
+    @staticmethod
+    def _clean_path(path: str = "") -> str:
+        if not path:
             path = '/'
         elif path[0] != '/':
             path = '/{}'.format(path)
+        return path
 
-        verb = Verb.safely_from_str(verb)
-        if verb not in cls._method_mappings:
-            cls._method_mappings[verb] = {}
+    @classmethod
+    def _register_mapping(cls, name: str, verb: Optional[Verb] = None, path: str = "") -> None:
+        """Registering a mapping permits the method to be invoked via HTTP."""
+
+        verb = verb or Verb.GET
+
+        if path is None and name is not None:
+            path = f"/{name}"
+
+        # if getattr(cls, "_method_mappings") is None: # TODO: Do we need this?
+        #     setattr(cls, "_method_mappings", defaultdict(dict))
+
+        path = cls._clean_path(path)
+
         cls._method_mappings[verb][path] = name
-        logging.info("[{}] {} {} => {}".format(cls.__name__, verb, path, name))
+        logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
 
     def __call__(self, request: Request, context: any = None) -> Response:
         """Invokes a method call if it is registered."""
         if not getattr(self.__class__, "_method_mappings"):
-            return Response.error(code=404, message="No mappings available for app.")
+            return Response.error(code=HTTPStatus.NOT_FOUND, message="No mappings available for deployable.")
 
         if request.invocation is None:
-            return Response.error(code=404, message="No invocation was found.")
+            return Response.error(code=HTTPStatus.NOT_FOUND, message="No invocation was found.")
 
         verb = Verb.safely_from_str(request.invocation.httpVerb)
-        appPath = request.invocation.appPath
-        arguments = request.invocation.arguments
+        path = request.invocation.appPath
 
-        if appPath is None or appPath == '':
-            appPath = '/'
-        elif appPath[0] != '/':
-            appPath = '/{}'.format(appPath)
+        path = self._clean_path(path)
 
-        if verb not in self.__class__._method_mappings:
-            return Response.error(code=404, message="No methods for verb {} available.".format(verb))
+        method_mappings = self.__class__._method_mappings
 
-        if appPath not in self.__class__._method_mappings[verb]:
-            return Response.error(code=404, message="No handler for {} {} available.".format(verb, appPath))
+        if verb not in method_mappings:
+            return Response.error(code=HTTPStatus.NOT_FOUND, message=f"No methods for verb {verb} available.")
 
-        method = self.__class__._method_mappings[verb][appPath]
+        if path not in method_mappings[verb]:
+            return Response.error(code=HTTPStatus.NOT_FOUND, message=f"No handler for {verb} {path} available.")
+
+        method = method_mappings[verb][path]
         if not (hasattr(self, method) and callable(getattr(self, method))):
-            return Response.error(code=500, message="Handler for {} {} not callable.".format(verb, appPath))
+            return Response.error(code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                                  message=f"Handler for {verb} {path} not callable.")
 
+        arguments = request.invocation.arguments
         if arguments is None:
             return getattr(self, method)()
         else:

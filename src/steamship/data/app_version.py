@@ -72,9 +72,9 @@ class AppVersion:
         )
 
         return client.post(
-            'app/version/create',
+            'deployable/version/create',
             payload=req,
-            file=('app.zip', filebytes, "multipart/form-data"),
+            file=('deployable.zip', filebytes, "multipart/form-data"),
             expect=AppVersion
         )
 
@@ -83,7 +83,7 @@ class AppVersion:
             id=self.id
         )
         return self.client.post(
-            'app/version/delete',
+            'deployable/version/delete',
             payload=req,
             expect=AppVersion
         )

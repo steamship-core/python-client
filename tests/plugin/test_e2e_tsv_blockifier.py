@@ -1,3 +1,5 @@
+import csv
+
 from .. import APPS_PATH
 
 __copyright__ = "Steamship"
@@ -9,15 +11,15 @@ from ..utils.file import upload_file
 from ..utils.plugin import deploy_plugin
 
 
-def test_e2e_csv_blockifier_plugin():
-    csv_blockifier_plugin_path = APPS_PATH / "plugins" / "csv_blockifier.py"
+def test_e2e_tsv_blockifier_plugin():
+    csv_blockifier_plugin_path = APPS_PATH / "plugins" / "tsv_blockifier.py"
     client = get_steamship_client()
 
     version_config_template = dict(
         textColumn=dict(type="string"),
         tagColumns=dict(type="string"),
         tagKind=dict(type="string"),
-    )  # TODO: Derive this from Config
+    )
     instance_config = dict(  # Has to match up
         textColumn="Message",
         tagColumns="Category",
@@ -30,12 +32,13 @@ def test_e2e_csv_blockifier_plugin():
         version_config_template=version_config_template,
         instance_config=instance_config,
     ) as (plugin, version, instance):
-        with upload_file(client, "utterances.csv") as file:
+        with upload_file(client, "utterances.tsv") as file:
             assert len(file.query().data.blocks) == 0
             file.blockify(pluginInstance=instance.handle).wait()
             # Check the number of blocks
             blocks = file.query().data.blocks
             assert len(blocks) == 5
+            # Check if the tags are correctly added
             for block in blocks:
                 assert block.tags is not None
                 assert len(block.tags) > 0

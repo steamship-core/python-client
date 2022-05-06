@@ -26,6 +26,7 @@ def zip_plugin(file_path: Path) -> bytes:
 
     package_paths = [
         SRC_PATH / "steamship",
+        SRC_PATH / ".." / "tests", # This is included to test plugin development using inheritance
         dependencies_path / "setuptools_scm",
         dependencies_path / "requests",
         dependencies_path / "charset_normalizer",

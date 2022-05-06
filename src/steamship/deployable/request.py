@@ -47,10 +47,10 @@ class Invocation:
 
 @dataclass
 class Request:
-    """An request of a method on an app instance.
+    """An request of a method on an deployable instance.
 
     This is the payload sent from the public-facing App Proxy to the
-    private-facing app microservice.
+    private-facing deployable microservice.
     """
     clientConfig: Configuration = None
     invocation: Invocation = None

@@ -74,7 +74,7 @@ class AppInstance:
         )
 
         return client.post(
-            'app/instance/create',
+            'deployable/instance/create',
             payload=req,
             expect=AppInstance
         )
@@ -84,7 +84,7 @@ class AppInstance:
             id=self.id
         )
         return self.client.post(
-            'app/instance/delete',
+            'deployable/instance/delete',
             payload=req,
             expect=AppInstance
         )

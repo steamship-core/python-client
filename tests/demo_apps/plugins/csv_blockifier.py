@@ -5,11 +5,12 @@ import io
 from typing import Union, List, Dict, Optional
 
 from pydantic import BaseModel, constr
-from steamship.app import App, post, create_handler, Response
+
 from steamship.base.error import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags import Tag
+from steamship.deployable import Deployable, post, create_handler, Response
 from steamship.plugin.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -23,8 +24,8 @@ class Config(BaseModel):
 
 
 class CsvBlockifierConfig(Config):
-    textColumn: str  # TODO: Make pep8 compatible once version_config is changed
-    tagColumns: List[str]  # TODO: This should be a list?
+    textColumn: str  # TODO: Make pep8 compatible once the engine allows it
+    tagColumns: List[str]
     delimiter: Optional[str] = ","
     quotechar: Optional[constr(max_length=1)] = '"'
     escapechar: Optional[constr(max_length=1)] = "\\"
@@ -38,14 +39,15 @@ class CsvBlockifierConfig(Config):
         super().__init__(**kwargs)
 
 
-class CsvBlockifier(Blockifier, App):
-    """ "Converts CSV or TSV into Tagged Steamship Blocks.
+class CsvBlockifier(Blockifier, Deployable):
+    """Converts CSV or TSV into Tagged Steamship Blocks.
 
-    Rows = Blocks
-    TODO: Q: What is I want to search based on AI generated tags, and non ai generated tags?
+    A CSV file is mapped onto 1 File
+    Each row in the CSV file is mapped onto a block
+    Each block has text which is extracted from a single column
+    Each block has one or more tags extracted from the values in one ore more columns
     """
 
-    # TODO: Dangerous: We require client to be available, but this is never enforces
     def __init__(self, client=None, config: Dict[str, any] = None):
         super().__init__()
         self.config = CsvBlockifierConfig(**config)
@@ -73,14 +75,11 @@ class CsvBlockifier(Blockifier, App):
                     message="Missing data field on the incoming request."
                 )
             )
-
-        data = request.data.data  # TODO: This is weird, why two levels?
+        data = request.data.data
         if isinstance(data, bytes):
             data = data.decode("utf-8")
 
         if type(data) != str:
-            # TODO: I feel like we should allow developers to raise Exceptions, we catch them and wrap them in responses ourselves.
-            # Inspiration: FastAPI
             return Response(
                 error=SteamshipError(
                     message="The incoming data was not of expected String type"
@@ -106,14 +105,11 @@ class CsvBlockifier(Blockifier, App):
                     for tag_value in tag_values
                 ],
             )
-            # TODO: Why does a Tag have a value and a value? Why are we not adding the value of the tag to the value field
             file.blocks.append(block)
 
         return Response(data=BlockAndTagPluginOutput(file=file))
 
-    @post(
-        "blockify"
-    )  # TODO: Q: Do we have to be specific or can plugins just operate using a "run" endpoint
+    @post("blockify")
     def blockify(self, **kwargs) -> Response:
         """App endpoint for our plugin.
 
@@ -126,4 +122,4 @@ class CsvBlockifier(Blockifier, App):
         return self.run(blockify_request)
 
 
-handler = create_handler(CsvBlockifier)  # Risky to require you to write this
+handler = create_handler(CsvBlockifier)

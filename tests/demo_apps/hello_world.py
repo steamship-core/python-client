@@ -1,7 +1,7 @@
-from steamship.app import get, App, Response, post, create_handler
+from steamship.deployable import get, Deployable, Response, post, create_handler
 
 
-class HelloWorld(App):
+class HelloWorld(Deployable):
     @post('greet')
     def greet(self, name: str = "Person") -> Response:
         return Response(string='Hello, {}'.format(name))

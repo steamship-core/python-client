@@ -1,7 +1,7 @@
 from steamship.data.file import File
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.service import PluginRequest
-from steamship.app import Response
+from steamship.deployable import Response
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

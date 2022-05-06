@@ -1,11 +1,11 @@
 from steamship import File
-from steamship.app import App, post, create_handler, Response
+from steamship.deployable import Deployable, post, create_handler, Response
 from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from steamship.plugin.corpus_importer import CorpusImporter
 from steamship.plugin.service import PluginRequest
 
 
-class TestCorpusImporterPlugin(CorpusImporter, App):
+class TestCorpusImporterPlugin(CorpusImporter, Deployable):
     def run(self, request: PluginRequest[CorpusImportRequest]) -> Response[CorpusImportResponse]:
         return Response(
             data=CorpusImportResponse(

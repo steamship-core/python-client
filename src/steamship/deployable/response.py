@@ -96,7 +96,7 @@ class Response(Generic[T]):
             self.status.statusMessage = error.message
             self.status.statusSuggestion = error.suggestion
             self.status.statusCode = error.code
-            logging.error("steamship.app.response - Response created with error.")
+            logging.error("steamship.deployable.response - Response created with error.")
             logging.error(error)
         else:
             if self.status.state is None:
