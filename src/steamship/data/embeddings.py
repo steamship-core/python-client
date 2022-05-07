@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import List, Dict, Union, TypeVar, Generic
+from typing import List, Dict, Union
 
 from steamship.base import Client, Request, Response, metadata_to_str
 from steamship.data.search import Hit

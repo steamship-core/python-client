@@ -2,7 +2,6 @@ import json
 
 from steamship import PluginInstance
 from ..client.helpers import deploy_plugin, _steamship
-from tests.client.operations.test_tag_file import tag_file
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

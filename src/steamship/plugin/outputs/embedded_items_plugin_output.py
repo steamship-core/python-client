@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import List
+
 from steamship.base import Client
+
 
 @dataclass
 class EmbeddedItemsPluginOutput:

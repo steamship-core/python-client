@@ -1,10 +1,7 @@
-from steamship import DocTag
 from steamship.data.plugin import TrainingPlatform
-from steamship.extension.file import File
-from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 
-from ..client.helpers import deploy_plugin, upload_file, _steamship
+from ..client.helpers import deploy_plugin, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

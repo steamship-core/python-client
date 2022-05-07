@@ -1,7 +1,9 @@
+import io
 from dataclasses import dataclass
+
 from steamship.base import Client
 from steamship.base.binary_utils import flexi_create
-import io
+
 
 @dataclass
 class RawDataPluginOutput:

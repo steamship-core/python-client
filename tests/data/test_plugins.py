@@ -2,7 +2,7 @@ import pytest
 
 from steamship.data.plugin import PluginAdapterType
 from steamship.data.plugin import PluginType, Plugin
-from tests.client.helpers import _random_name, _steamship
+from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

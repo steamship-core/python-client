@@ -5,6 +5,7 @@ from steamship.base import Client, Request, Response
 from steamship.base.request import IdentifierRequest
 from steamship.data.tags.tag import Tag
 
+
 @dataclass
 class BlockQueryRequest(Request):
     tagFilterQuery: str

@@ -11,9 +11,9 @@ from http import HTTPStatus
 from typing import Dict
 from typing import Optional
 
-from steamship.client.client import Steamship
 from steamship.app.request import Request, Verb
 from steamship.app.response import Response
+from steamship.client.client import Steamship
 
 
 def makeRegisteringDecorator(foreignDecorator):

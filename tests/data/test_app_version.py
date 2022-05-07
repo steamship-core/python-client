@@ -1,6 +1,6 @@
 from steamship import App, AppVersion
 
-from tests.client.helpers import _random_name, _steamship, create_app_zip
+from tests.client.helpers import _steamship, create_app_zip
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

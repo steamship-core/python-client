@@ -1,11 +1,9 @@
 from dataclasses import asdict
 
-from steamship.data.user import User
-
 from steamship.app.response import Response
 from steamship.base.mime_types import MimeTypes
-from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.data.file import File
+from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

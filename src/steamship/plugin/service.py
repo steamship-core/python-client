@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import TypeVar, Generic, Union, Callable
 
-from steamship.base import Client
-from steamship.base.response import SteamshipError, Task
 from steamship.app.response import Response
+from steamship.base import Client
+from steamship.base.response import SteamshipError
 
 # Note!
 # =====

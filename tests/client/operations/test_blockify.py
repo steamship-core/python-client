@@ -1,6 +1,5 @@
-from steamship import MimeTypes, DocTag
 from steamship.base.response import TaskState
-from tests.client.helpers import _random_name, _steamship
+from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

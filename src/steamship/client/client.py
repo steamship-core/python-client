@@ -3,23 +3,18 @@ from typing import List
 
 from steamship import Block
 from steamship.base import Client, Response
-from steamship.client.operations.embedder import EmbedRequest
 from steamship.client.operations.tagger import TagRequest
 from steamship.client.tasks import Tasks
 from steamship.data import File
 from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults, EmbeddingIndex
-from steamship.data.search import Hit
 from steamship.data.space import Space
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from steamship.extension.file import TagResponse
-from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.outputs.embedded_items_plugin_output import EmbeddedItemsPluginOutput
 
 _logger = logging.getLogger(__name__)
-
 
 
 class Steamship(Client):

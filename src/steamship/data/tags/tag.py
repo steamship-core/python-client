@@ -4,6 +4,7 @@ from typing import List, Any
 
 from steamship.base import Client, Request, Response
 
+
 @dataclass
 class TagQueryRequest(Request):
     tagFilterQuery: str

@@ -1,12 +1,12 @@
+from steamship import SteamshipError
 from steamship.app import App, post, create_handler, Response
+from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
-from steamship.plugin.tagger import Tagger
 from steamship.plugin.service import PluginRequest
-from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
-from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship import SteamshipError
+from steamship.plugin.tagger import Tagger
 
 
 class TestTrainableTaggerPlugin(Tagger, App):

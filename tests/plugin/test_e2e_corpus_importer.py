@@ -1,4 +1,4 @@
-from steamship import File, Corpus, Plugin, PluginVersion, PluginInstance
+from steamship import File, PluginInstance
 
 from ..client.helpers import deploy_plugin, _steamship, _random_corpus
 from ..demo_apps.plugin_file_importer import TEST_DOC

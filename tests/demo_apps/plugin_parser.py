@@ -1,11 +1,11 @@
-from steamship import Block, DocTag, Tag
-from steamship.app import App, post, create_handler, Response
-from steamship.plugin.tagger import Tagger
-from steamship.plugin.service import PluginRequest
-from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
-from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 import re
 
+from steamship import Block, DocTag, Tag
+from steamship.app import App, post, create_handler, Response
+from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
+from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
+from steamship.plugin.service import PluginRequest
+from steamship.plugin.tagger import Tagger
 
 
 def tagSentences(block: Block):

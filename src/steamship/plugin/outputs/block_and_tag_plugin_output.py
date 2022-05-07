@@ -4,6 +4,7 @@ from typing import Dict
 from steamship.base import Client
 from steamship.data.file import File
 
+
 @dataclass
 class BlockAndTagPluginOutput():
     file: File.CreateRequest = None

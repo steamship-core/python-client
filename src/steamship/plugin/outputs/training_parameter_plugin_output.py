@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import Dict, Any
 
 from steamship.base import Client
-from steamship.data.file import File
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 
 

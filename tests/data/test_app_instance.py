@@ -1,11 +1,11 @@
-import requests
-import os
 import base64
+import os
 
-from steamship.base.tasks import TaskState
-from steamship.data.user import User
-from tests.client.helpers import _steamship, deploy_app, shouldUseSubdomain
+import requests
+
 from steamship.base.mime_types import MimeTypes
+from steamship.base.tasks import TaskState
+from tests.client.helpers import _steamship, deploy_app
 from tests.demo_apps.demo_app import PALM_TREE_BASE_64
 
 __copyright__ = "Steamship"

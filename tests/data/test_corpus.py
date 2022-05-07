@@ -1,5 +1,3 @@
-import pytest
-
 from steamship import MimeTypes, File, Corpus
 from tests.client.helpers import _random_name, _steamship
 
