@@ -16,5 +16,7 @@ from steamship.plugin.service import PluginService, PluginRequest
 #
 class FileImporter(PluginService[FileImportPluginInput, RawDataPluginOutput], ABC):
     @classmethod
-    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[FileImportPluginInput]:
+    def subclass_request_from_dict(
+        cls, d: any, client: Client = None
+    ) -> PluginRequest[FileImportPluginInput]:
         return FileImportPluginInput.from_dict(d, client=client)

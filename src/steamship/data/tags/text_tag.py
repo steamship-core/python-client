@@ -1,6 +1,6 @@
 class TextTag:
-    """This class provides a set of SpaCy-style constants to use with Tag(kind="token").
-    """
+    """This class provides a set of SpaCy-style constants to use with Tag(kind="token")."""
+
     textWithWs = "textWithWs"
     whitespace = "whitespace"
     head = "head"

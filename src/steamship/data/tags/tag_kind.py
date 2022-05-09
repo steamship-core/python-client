@@ -1,5 +1,6 @@
 class TagKind:
     """This class provides a set of `kind` constants for Tags"""
+
     pos = "pos"  # Part of speech tags
     dep = "dep"  # Dependency tags
     ent = "ent"  # Entity tags, such as PERSON or ORG

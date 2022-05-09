@@ -34,5 +34,5 @@ class Hit:
             externalId=d.get("externalId", None),
             externalType=d.get("externalType", None),
             metadata=metadata,
-            query=d.get("query", None)
+            query=d.get("query", None),
         )

@@ -19,7 +19,7 @@ class CreatePluginVersionRequest(Request):
     hostingHandler: str = None
     isPublic: bool = None
     isDefault: bool = None
-    type: str = 'file'
+    type: str = "file"
     configTemplate: Dict[str, any] = None
 
 
@@ -47,7 +47,10 @@ class ListPluginVersionsResponse(Request):
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "ListPluginsResponse":
         return ListPluginVersionsResponse(
-            plugins=[PluginVersion.from_dict(x, client=client) for x in (d.get("pluginVersions", []) or [])]
+            plugins=[
+                PluginVersion.from_dict(x, client=client)
+                for x in (d.get("pluginVersions", []) or [])
+            ]
         )
 
 
@@ -66,35 +69,35 @@ class PluginVersion:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "PluginVersion":
-        if 'pluginVersion' in d:
-            d = d['pluginVersion']
+        if "pluginVersion" in d:
+            d = d["pluginVersion"]
 
         return PluginVersion(
             client=client,
-            id=d.get('id', None),
-            handle=d.get('handle', None),
-            hostingMemory=d.get('hostingMemory', None),
-            hostingTimeout=d.get('hostingTimeout', None),
-            hostingHandler=d.get('hostingHandler', None),
-            isPublic=d.get('isPublic', None),
-            isDefault=d.get('isDefault', None),
-            configTemplate=d.get('configTemplate', None)
+            id=d.get("id", None),
+            handle=d.get("handle", None),
+            hostingMemory=d.get("hostingMemory", None),
+            hostingTimeout=d.get("hostingTimeout", None),
+            hostingHandler=d.get("hostingHandler", None),
+            isPublic=d.get("isPublic", None),
+            isDefault=d.get("isDefault", None),
+            configTemplate=d.get("configTemplate", None),
         )
 
     @staticmethod
     def create(
-            client: Client,
-            handle: str,
-            pluginId: str = None,
-            filename: str = None,
-            filebytes: bytes = None,
-            upsert: bool = None,
-            hostingMemory: str = None,
-            hostingTimeout: str = None,
-            hostingHandler: str = None,
-            isPublic: bool = None,
-            isDefault: bool = None,
-            configTemplate: Dict[str, any] = None
+        client: Client,
+        handle: str,
+        pluginId: str = None,
+        filename: str = None,
+        filebytes: bytes = None,
+        upsert: bool = None,
+        hostingMemory: str = None,
+        hostingTimeout: str = None,
+        hostingHandler: str = None,
+        isPublic: bool = None,
+        isDefault: bool = None,
+        configTemplate: Dict[str, any] = None,
     ) -> Response[PluginVersion]:
 
         if filename is None and filebytes is None:
@@ -103,7 +106,7 @@ class PluginVersion:
             raise Exception("Only either filename or filebytes should be provided.")
 
         if filename is not None:
-            with open(filename, 'rb') as f:
+            with open(filename, "rb") as f:
                 filebytes = f.read()
 
         req = CreatePluginVersionRequest(
@@ -115,29 +118,27 @@ class PluginVersion:
             hostingHandler=hostingHandler,
             isPublic=isPublic,
             isDefault=isDefault,
-            configTemplate=configTemplate
+            configTemplate=configTemplate,
         )
 
         return client.post(
-            'plugin/version/create',
+            "plugin/version/create",
             payload=req,
-            file=('plugin.zip', filebytes, "multipart/form-data"),
-            expect=PluginVersion
+            file=("plugin.zip", filebytes, "multipart/form-data"),
+            expect=PluginVersion,
         )
 
     def delete(self) -> "PluginVersion":
-        req = DeletePluginVersionRequest(
-            id=self.id
-        )
+        req = DeletePluginVersionRequest(id=self.id)
         return self.client.post(
-            'plugin/version/delete',
-            payload=req,
-            expect=PluginVersion
+            "plugin/version/delete", payload=req, expect=PluginVersion
         )
 
     @staticmethod
     def getPublic(client: Client, pluginId: str, handle: str):
-        publicPlugins = PluginVersion.listPublic(client=client, pluginId=pluginId, handle=handle).data.plugins
+        publicPlugins = PluginVersion.listPublic(
+            client=client, pluginId=pluginId, handle=handle
+        ).data.plugins
         for plugin in publicPlugins:
             if plugin.handle == handle:
                 return plugin
@@ -145,25 +146,20 @@ class PluginVersion:
 
     @staticmethod
     def listPublic(
-            client: Client,
-            pluginId: str = None,
-            handle: str = None
+        client: Client, pluginId: str = None, handle: str = None
     ) -> Response[ListPluginVersionsResponse]:
         return client.post(
-            'plugin/version/public',
+            "plugin/version/public",
             ListPublicPluginVersionsRequest(handle=handle, pluginId=pluginId),
             expect=ListPluginVersionsResponse,
         )
 
     @staticmethod
     def listPrivate(
-            client: Client,
-            type=None,
-            pluginId: str = None,
-            handle: str = None
+        client: Client, type=None, pluginId: str = None, handle: str = None
     ) -> Response[ListPluginVersionsResponse]:
         return client.post(
-            'plugin/version/private',
+            "plugin/version/private",
             ListPrivatePluginVersionsRequest(handle=handle, pluginId=pluginId),
             expect=ListPluginVersionsResponse,
         )

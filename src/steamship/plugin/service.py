@@ -13,8 +13,9 @@ from steamship.base.response import SteamshipError
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
 
-T = TypeVar('T')
-U = TypeVar('U')
+T = TypeVar("T")
+U = TypeVar("U")
+
 
 @dataclass
 class PluginRequest(Generic[T]):
@@ -22,9 +23,9 @@ class PluginRequest(Generic[T]):
 
     @staticmethod
     def from_dict(
-            d: any,
-            subclass_request_from_dict: Callable[[dict, Client], dict] = None,
-            client: Client = None
+        d: any,
+        subclass_request_from_dict: Callable[[dict, Client], dict] = None,
+        client: Client = None,
     ) -> "PluginRequest[T]":
         data = None
         if "data" in d:
@@ -50,7 +51,9 @@ class PluginService(ABC, Generic[T, U]):
 
     @classmethod
     @abstractmethod
-    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[T]:
+    def subclass_request_from_dict(
+        cls, d: any, client: Client = None
+    ) -> PluginRequest[T]:
         pass
 
     @classmethod
@@ -58,18 +61,18 @@ class PluginService(ABC, Generic[T, U]):
         if type(request) == dict:
             try:
                 request = PluginRequest[T].from_dict(
-                    request,
-                    subclass_request_from_dict=cls.subclass_request_from_dict
+                    request, subclass_request_from_dict=cls.subclass_request_from_dict
                 )
             except Exception as error:
                 raise SteamshipError(
-                    message="Unable to parse input request.",
-                    error=error
+                    message="Unable to parse input request.", error=error
                 )
         return request
 
     @classmethod
-    def response_to_dict(cls, response: Union[SteamshipError, Response[U], U, dict]) -> Response[U]:
+    def response_to_dict(
+        cls, response: Union[SteamshipError, Response[U], U, dict]
+    ) -> Response[U]:
         try:
             if type(response) == Response:
                 return response
@@ -80,7 +83,8 @@ class PluginService(ABC, Generic[T, U]):
         except SteamshipError as remote_error:
             return Response[U](error=remote_error)
         except Exception as error:
-            return Response[U](error=SteamshipError(
-                message="Unhandled exception completing your request",
-                error=error
-            ))
+            return Response[U](
+                error=SteamshipError(
+                    message="Unhandled exception completing your request", error=error
+                )
+            )

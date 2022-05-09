@@ -4,7 +4,9 @@ from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPlugin
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
-from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
+from steamship.plugin.outputs.training_parameter_plugin_output import (
+    TrainingParameterPluginOutput,
+)
 from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import Tagger
 
@@ -16,24 +18,33 @@ class TestTrainableTaggerPlugin(Tagger, App):
         trainingEpochs=3,
         modelName="pytorch_text_classification",
         testingHoldoutPercent=0.3,
-        trainingParams=dict(foo=1)
+        trainingParams=dict(foo=1),
     )
 
-    def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> Response[BlockAndTagPluginOutput]:
-        raise SteamshipError(message="Inference on this tagger is performed by the Steamship Inference Cloud.")
+    def run(
+        self, request: PluginRequest[BlockAndTagPluginInput]
+    ) -> Response[BlockAndTagPluginOutput]:
+        raise SteamshipError(
+            message="Inference on this tagger is performed by the Steamship Inference Cloud."
+        )
 
-    @post('getTrainingParameters')
-    def getTrainingParameters(self, **kwargs) -> Response[TrainingParameterPluginOutput]:
+    @post("getTrainingParameters")
+    def getTrainingParameters(
+        self, **kwargs
+    ) -> Response[TrainingParameterPluginOutput]:
         return Response(data=TestTrainableTaggerPlugin.RESPONSE)
 
-    @post('train')
+    @post("train")
     def train(self, **kwargs) -> Response[TrainPluginInput]:
         trainPluginInput = TrainPluginInput.from_dict(kwargs)
-        return Response(data=TrainPluginOutput(
-            tenantId=trainPluginInput.tenantId,
-            spaceId=trainPluginInput.spaceId,
-            modelUploadUrl=trainPluginInput.modelUploadUrl,
-            modelFilename=trainPluginInput.modelFilename,
-        ))
+        return Response(
+            data=TrainPluginOutput(
+                tenantId=trainPluginInput.tenantId,
+                spaceId=trainPluginInput.spaceId,
+                modelUploadUrl=trainPluginInput.modelUploadUrl,
+                modelFilename=trainPluginInput.modelFilename,
+            )
+        )
+
 
 handler = create_handler(TestTrainableTaggerPlugin)

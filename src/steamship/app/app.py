@@ -18,15 +18,17 @@ from steamship.client.client import Steamship
 
 def makeRegisteringDecorator(foreignDecorator):
     """
-        Returns a copy of foreignDecorator, which is identical in every
-        way(*), except also appends a .decorator property to the callable it
-        spits out.
+    Returns a copy of foreignDecorator, which is identical in every
+    way(*), except also appends a .decorator property to the callable it
+    spits out.
     """
 
     def newDecorator(func):
         # Call to newDecorator(method)
         # Exactly like old decorator, but output keeps track of what decorated it
-        R = foreignDecorator(func)  # apply foreignDecorator, like call to foreignDecorator(method) would have done
+        R = foreignDecorator(
+            func
+        )  # apply foreignDecorator, like call to foreignDecorator(method) would have done
         R.decorator = newDecorator  # keep track of decorator
         # R.original = func         # might as well keep track of everything!
         return R
@@ -69,12 +71,12 @@ def post(path: str, **kwargs):
 class App:
     """A Steamship microservice.
 
-  This base.py class:
+    This base.py class:
 
-    1. Provide a pre-authenticated instance of the Steamship client
-    2. Provides a Lambda handler that routes to registered functions
-    3. Provides useful methods connecting functions to the router.
-  """
+      1. Provide a pre-authenticated instance of the Steamship client
+      2. Provides a Lambda handler that routes to registered functions
+      3. Provides useful methods connecting functions to the router.
+    """
 
     def __init__(self, client: Steamship = None, config: Dict[str, any] = None):
         self.client = client
@@ -85,23 +87,25 @@ class App:
         cls._method_mappings = defaultdict(dict)
 
         for maybeDecorated in cls.__dict__.values():
-            decorator = getattr(maybeDecorated, 'decorator', None)
+            decorator = getattr(maybeDecorated, "decorator", None)
             if decorator:
-                if getattr(decorator, '__is_endpoint__', False) == True:
-                    path = getattr(maybeDecorated, '__path__', None)
-                    verb = getattr(maybeDecorated, '__verb__', None)
+                if getattr(decorator, "__is_endpoint__", False) == True:
+                    path = getattr(maybeDecorated, "__path__", None)
+                    verb = getattr(maybeDecorated, "__verb__", None)
                     cls._register_mapping(maybeDecorated.__name__, verb, path)
 
     @staticmethod
     def _clean_path(path: str = "") -> str:
         if not path:
-            path = '/'
-        elif path[0] != '/':
-            path = '/{}'.format(path)
+            path = "/"
+        elif path[0] != "/":
+            path = "/{}".format(path)
         return path
 
     @classmethod
-    def _register_mapping(cls, name: str, verb: Optional[Verb] = None, path: str = "") -> None:
+    def _register_mapping(
+        cls, name: str, verb: Optional[Verb] = None, path: str = ""
+    ) -> None:
         """Registering a mapping permits the method to be invoked via HTTP."""
 
         verb = verb or Verb.GET
@@ -120,10 +124,14 @@ class App:
     def __call__(self, request: Request, context: any = None) -> Response:
         """Invokes a method call if it is registered."""
         if not getattr(self.__class__, "_method_mappings"):
-            return Response.error(code=HTTPStatus.NOT_FOUND, message="No mappings available for app.")
+            return Response.error(
+                code=HTTPStatus.NOT_FOUND, message="No mappings available for app."
+            )
 
         if request.invocation is None:
-            return Response.error(code=HTTPStatus.NOT_FOUND, message="No invocation was found.")
+            return Response.error(
+                code=HTTPStatus.NOT_FOUND, message="No invocation was found."
+            )
 
         verb = Verb.safely_from_str(request.invocation.httpVerb)
         path = request.invocation.appPath
@@ -133,15 +141,23 @@ class App:
         method_mappings = self.__class__._method_mappings
 
         if verb not in method_mappings:
-            return Response.error(code=HTTPStatus.NOT_FOUND, message=f"No methods for verb {verb} available.")
+            return Response.error(
+                code=HTTPStatus.NOT_FOUND,
+                message=f"No methods for verb {verb} available.",
+            )
 
         if path not in method_mappings[verb]:
-            return Response.error(code=HTTPStatus.NOT_FOUND, message=f"No handler for {verb} {path} available.")
+            return Response.error(
+                code=HTTPStatus.NOT_FOUND,
+                message=f"No handler for {verb} {path} available.",
+            )
 
         method = method_mappings[verb][path]
         if not (hasattr(self, method) and callable(getattr(self, method))):
-            return Response.error(code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                                  message=f"Handler for {verb} {path} not callable.")
+            return Response.error(
+                code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                message=f"Handler for {verb} {path} not callable.",
+            )
 
         arguments = request.invocation.arguments
         if arguments is None:

@@ -16,6 +16,7 @@ from steamship.plugin.service import PluginService, PluginRequest
 #
 class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC):
     @classmethod
-    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[RawDataPluginInput]:
+    def subclass_request_from_dict(
+        cls, d: any, client: Client = None
+    ) -> PluginRequest[RawDataPluginInput]:
         return RawDataPluginInput.from_dict(d, client=client)
-

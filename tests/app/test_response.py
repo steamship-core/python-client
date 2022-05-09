@@ -8,16 +8,22 @@ from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPlug
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+
 def check_mime(d: dict, mime: str):
-    assert (d.get('http', dict()).get('headers', dict()).get('Content-Type', None) == mime)
+    assert (
+        d.get("http", dict()).get("headers", dict()).get("Content-Type", None) == mime
+    )
+
 
 def check_type(d: dict, type: any):
-    data = d.get('data', None)
-    assert (isinstance(data, type))
+    data = d.get("data", None)
+    assert isinstance(data, type)
 
-def check_val(d: dict,  val: any):
-    data = d.get('data', None)
-    assert (data == val)
+
+def check_val(d: dict, val: any):
+    data = d.get("data", None)
+    assert data == val
+
 
 def test_text_response():
     """Test test response"""
@@ -27,6 +33,7 @@ def test_text_response():
     check_type(d, str)
     check_val(d, "Hi there")
 
+
 def test_dict_response():
     """Test test response"""
     r = Response.from_obj(dict(a=1))
@@ -35,14 +42,6 @@ def test_dict_response():
     check_type(d, dict)
     check_val(d, dict(a=1))
 
-def test_resp_response():
-    """Test test response"""
-    o = BlockAndTagPluginOutput(file=File.CreateRequest(value="Foo"))
-    r = Response(json=o)
-    d = r.to_dict()
-    check_mime(d, MimeTypes.JSON)
-    check_type(d, dict)
-    check_val(d, asdict(o))
 
 def test_resp_response():
     """Test test response"""
@@ -54,3 +53,11 @@ def test_resp_response():
     check_val(d, asdict(o))
 
 
+def test_resp_response():
+    """Test test response"""
+    o = BlockAndTagPluginOutput(file=File.CreateRequest(value="Foo"))
+    r = Response(json=o)
+    d = r.to_dict()
+    check_mime(d, MimeTypes.JSON)
+    check_type(d, dict)
+    check_val(d, asdict(o))
