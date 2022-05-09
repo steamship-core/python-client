@@ -6,7 +6,7 @@ import zipfile
 from pathlib import Path
 from typing import Dict
 
-from steamship import Steamship
+from steamship import App, AppVersion, AppInstance, Steamship
 from steamship.data.plugin import Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
@@ -14,7 +14,7 @@ from steamship.data.user import User
 from tests import VENV_PATH, SRC_PATH
 
 
-def zip_plugin(file_path: Path) -> bytes:
+def zip_deployable(file_path: Path) -> bytes:
     """Prepare and zip a Steamship plugin."""
 
     # TODO: This is very dependent on the setup of the local machine.
@@ -39,7 +39,7 @@ def zip_plugin(file_path: Path) -> bytes:
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(
-        file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
+            file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
     ) as zip_file:
         zip_file.write(file_path, "api.py")
 
@@ -55,19 +55,55 @@ def zip_plugin(file_path: Path) -> bytes:
 
 
 @contextlib.contextmanager
+def deploy_app(
+        client: Steamship,
+        py_path: Path,
+        version_config_template: Dict[str, any] = None,
+        instance_config: Dict[str, any] = None,
+):
+    app = App.create(client)
+    assert app.error is None
+    assert app.data is not None
+    app = app.data
+
+    zip_bytes = zip_deployable(py_path)
+    version = AppVersion.create(
+        client,
+        app_id=app.id,
+        filebytes=zip_bytes,
+        config_template=version_config_template,
+    )
+
+    version = _wait_for_version(version)
+    instance = AppInstance.create(
+        client, app_id=app.id, app_version_id=version.id, config=instance_config
+    )
+    instance = _wait_for_instance(instance)
+
+    assert instance.app_id == app.id
+    assert instance.app_version_id == version.id
+
+    _check_user(client, instance)
+
+    yield app, version, instance
+
+    _delete_deployable(instance, version, app)
+
+
+@contextlib.contextmanager
 def deploy_plugin(
-    client: Steamship,
-    py_path: Path,
-    plugin_type: str,
-    version_config_template: Dict[str, any] = None,
-    instance_config: Dict[str, any] = None,
-    training_platform: str = None,
+        client: Steamship,
+        py_path: Path,
+        plugin_type: str,
+        version_config_template: Dict[str, any] = None,
+        instance_config: Dict[str, any] = None,
+        training_platform: str = None,
 ):
     plugin = Plugin.create(
         client,
         training_platform=training_platform,
         description="test",
-        type=plugin_type,
+        type_=plugin_type,
         transport="jsonOverHttp",
         is_public=False,
     )
@@ -75,7 +111,7 @@ def deploy_plugin(
     assert plugin.data is not None
     plugin = plugin.data
 
-    zip_bytes = zip_plugin(py_path)
+    zip_bytes = zip_deployable(py_path)
     version = PluginVersion.create(
         client,
         "test-version",
@@ -85,11 +121,7 @@ def deploy_plugin(
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
-    time.sleep(15)
-    version.wait()
-    assert version.error is None
-    assert version.data is not None
-    version = version.data
+    version = _wait_for_version(version)
 
     instance = PluginInstance.create(
         client,
@@ -97,24 +129,46 @@ def deploy_plugin(
         plugin_version_id=version.id,
         config=instance_config,
     )
+    instance = _wait_for_instance(instance)
+
+    assert instance.plugin_id == plugin.id
+    assert instance.plugin_version_id == version.id
+
+    _check_user(client, instance)
+
+    yield plugin, version, instance
+
+    _delete_deployable(instance, version, plugin)
+
+
+def _check_user(client, instance):
+    user = User.current(client).data
+    assert instance.user_id == user.id
+
+{"pluginInstance":"radioactive-hill-stsyu","type":"file","id":"BA3BECF6-F2D1-4136-B473-67F72A24AAA5"}
+
+
+def _delete_deployable(instance, version, deployable):
+    res = instance.delete()
+    assert res.error is None
+    res = version.delete()
+    assert res.error is None
+    res = deployable.delete()
+    assert res.error is None
+
+
+def _wait_for_instance(instance):
     instance.wait()
     assert instance.error is None
     assert instance.data is not None
     instance = instance.data
+    return instance
 
-    assert instance.pluginId == plugin.id
-    assert instance.pluginVersionId == version.id
 
-    user = User.current(client).data
-
-    assert instance.userId == user.id
-    yield plugin, version, instance
-
-    res = instance.delete()
-    assert res.error is None
-
-    res = version.delete()
-    assert res.error is None
-
-    res = plugin.delete()
-    assert res.error is None
+def _wait_for_version(version):
+    time.sleep(15)
+    version.wait()
+    assert version.error is None
+    assert version.data is not None
+    version = version.data
+    return version

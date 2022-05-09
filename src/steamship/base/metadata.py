@@ -1,22 +1,16 @@
 import json
-from typing import Union, List, Dict
+from typing import Union, List, Dict, Optional
 
 Metadata = Union[int, float, bool, str, List, Dict]
 
 
-def str_to_metadata(s: str) -> Metadata:
+def str_to_metadata(s: str) -> Optional[Metadata]:
     if s is None:
         return None
-    try:
-        return json.loads(s)
-    except:
-        s
+    return json.loads(s)
 
 
-def metadata_to_str(m: Metadata) -> str:
+def metadata_to_str(m: Metadata) -> Optional[str]:
     if m is None:
         return None
-    try:
-        return json.dumps(m)
-    except:
-        m
+    return json.dumps(m)

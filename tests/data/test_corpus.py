@@ -1,12 +1,14 @@
 from steamship import MimeTypes, File, Corpus
-from tests.client.helpers import _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests.utils.client import get_steamship_client
+from tests.utils.random import random_name
+
 
 def test_corpus_create():
-    client = _steamship()
+    client = get_steamship_client()
 
     corpus = Corpus.create(client)
     assert corpus.data is not None
@@ -34,7 +36,7 @@ def test_corpus_create():
 
 
 def test_corpus_upsert():
-    client = _steamship()
+    client = get_steamship_client()
     corpus1 = Corpus.create(client).data
     assert corpus1.id is not None
 
@@ -45,7 +47,7 @@ def test_corpus_upsert():
     # Commenting out below, which deletes corpus1, which results in the corpus3 test failing
     # corpus2.data.delete()
 
-    corpus2 = Corpus.create(client, handle=_random_name()).data
+    corpus2 = Corpus.create(client, handle=random_name()).data
     assert corpus1.id != corpus2.id
     assert corpus2.id is not None
     corpus2.delete()
@@ -60,32 +62,28 @@ def test_corpus_upsert():
 
 
 def test_corpus_delete():
-    client = _steamship()
-    name = _random_name()
+    client = get_steamship_client()
     corpus1 = Corpus.create(client).data
     resp = corpus1.delete()
     assert resp.error is None
     assert resp.data is not None
     assert resp.data.id == corpus1.id
 
-    name_a = "{}.mkd".format(_random_name())
     a = File.create(client, content="A", corpus_id=corpus1.id, mime_type=MimeTypes.MKD)
     assert a.data is None
     assert a.error is not None
 
 
 def test_corpus_delete_cascade():
-    client = _steamship()
-    name = _random_name()
+    client = get_steamship_client()
 
     corpus1 = Corpus.create(client=client).data
 
-    name_a = "{}.mkd".format(_random_name())
     a = File.create(
         client=client, corpus_id=corpus1.id, content="A", mime_type=MimeTypes.MKD
     ).data
 
-    res = a.refresh()
+    _ = a.refresh()
     corpus1.delete()
 
     # Now verify the file isn't there!

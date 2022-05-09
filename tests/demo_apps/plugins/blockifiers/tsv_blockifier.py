@@ -4,7 +4,7 @@ from typing import Dict
 
 from steamship.app import App, post, create_handler, Response
 from steamship.plugin.blockifier import Blockifier
-from tests.demo_apps.plugins.csv_blockifier import CsvBlockifier
+from tests.demo_apps.plugins.blockifiers.csv_blockifier import CsvBlockifier
 
 
 class TsvBlockifier(CsvBlockifier, Blockifier, App):

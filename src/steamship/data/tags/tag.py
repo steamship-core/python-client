@@ -11,7 +11,7 @@ class TagQueryRequest(Request):
 
 
 @dataclass
-class Tag:
+class Tag: # TODO (enias): Make pep8 compatible
     client: Client = None
     id: str = None
     fileId: str = None
@@ -37,15 +37,15 @@ class Tag:
         @staticmethod
         def from_dict(d: any, client: Client = None) -> "Tag.CreateRequest":
             return Tag.CreateRequest(
-                id=d.get("id", None),
-                fileId=d.get("fileId", None),
-                blockId=d.get("blockId", None),
-                kind=d.get("kind", None),
-                name=d.get("name", None),
-                startIdx=d.get("startIdx", None),
-                endIdx=d.get("endIdx", None),
-                value=d.get("value", None),
-                upsert=d.get("upsert", None),
+                id=d.get("id"),
+                fileId=d.get("fileId"),
+                blockId=d.get("blockId"),
+                kind=d.get("kind"),
+                name=d.get("name"),
+                startIdx=d.get("startIdx"),
+                endIdx=d.get("endIdx"),
+                value=d.get("value"),
+                upsert=d.get("upsert"),
             )
 
     @dataclass
@@ -77,14 +77,14 @@ class Tag:
     def from_dict(d: any, client: Client = None) -> "Tag":
         return Tag(
             client=client,
-            id=d.get("id", None),
-            fileId=d.get("fileId", None),
-            blockId=d.get("blockId", None),
-            kind=d.get("kind", None),
-            name=d.get("name", None),
-            startIdx=d.get("startIdx", None),
-            endIdx=d.get("endIdx", None),
-            value=d.get("value", None),
+            id=d.get("id"),
+            fileId=d.get("fileId"),
+            blockId=d.get("blockId"),
+            kind=d.get("kind"),
+            name=d.get("name"),
+            startIdx=d.get("startIdx"),
+            endIdx=d.get("endIdx"),
+            value=d.get("value"),
         )
 
     def to_dict(self) -> dict:

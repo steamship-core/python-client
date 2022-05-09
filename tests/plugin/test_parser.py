@@ -8,14 +8,15 @@ from steamship.plugin.service import PluginRequest
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-from ..demo_apps.plugin_parser import TestParserPlugin
+from tests.demo_apps.plugins.taggers.plugin_parser import TestParserPlugin
 
 TEST_REQ = BlockAndTagPluginInput(
     file=File(
         blocks=[
             Block(
                 id="ABC",
-                text="Once upon a time there was a magical ship. The ship was powered by STEAM. The ship went to the moon.",
+                text="Once upon a time there was a magical ship. "
+                "The ship was powered by STEAM. The ship went to the moon.",
             )
         ]
     )

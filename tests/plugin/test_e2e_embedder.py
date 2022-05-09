@@ -1,8 +1,9 @@
 from steamship.data.plugin import PluginType
-from ..client.helpers import deploy_plugin, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
+
+from tests import APPS_PATH
 
 from tests.client.operations.test_embed import (
     basic_embeddings,
@@ -10,11 +11,15 @@ from tests.client.operations.test_embed import (
     count_embeddings,
 )
 from tests.client.operations.test_embedding_index import create_index
+from tests.utils.client import get_steamship_client
+from tests.utils.deployables import deploy_plugin
 
 
 def test_e2e_embedder():
-    client = _steamship()
-    with deploy_plugin("plugin_embedder.py", PluginType.tagger) as (
+    client = get_steamship_client()
+    embedder_path = APPS_PATH / "plugins" / "taggers" / "plugin_embedder.py"
+
+    with deploy_plugin(client, embedder_path, PluginType.tagger) as (
         plugin,
         version,
         instance,

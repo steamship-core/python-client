@@ -64,7 +64,7 @@ class Client:
         app_owner: str = None,
         operation: str = None,
         config: Configuration = None,
-    ):
+    ):  # TODO (enias): Simplify
         if not app_call:
             # Regular API call
             base = None
@@ -76,7 +76,8 @@ class Client:
                 return SteamshipError(
                     code="EndpointMissing",
                     message="Can not invoke endpoint without the Client variable set.",
-                    suggestion="This should automatically have a good default setting. Reach out to our Steamship support.",
+                    suggestion="This should automatically have a good default setting. "
+                    "Reach out to our Steamship support.",
                 )
         else:
             # Do the app version
@@ -96,7 +97,8 @@ class Client:
                 return SteamshipError(
                     code="EndpointMissing",
                     message="Can not invoke an app endpoint without the App Base variable set.",
-                    suggestion="This should automatically have a good default setting. Reach out to our Steamship support.",
+                    suggestion="This should automatically have a good default setting. "
+                    "Reach out to our Steamship support.",
                 )
             if (
                 "localhost" not in base
@@ -142,11 +144,15 @@ class Client:
                 headers["X-App-Instance-Id"] = app_instance_id
         return headers
 
-    def _data(self, verb: str, file: any, payload: Union[Request, dict]):
-        if type(payload) == dict:
+    @staticmethod
+    def _data(verb: str, file: any, payload: Union[Request, dict]):
+        if payload is None:
+            data = {}
+        elif isinstance(payload, dict):
             data = payload
         else:
-            data = asdict(payload) if payload is not None else {}
+            # noinspection PyDataclass
+            data = asdict(payload)
 
         if verb == "POST" and file is not None:
             # Note: requests seems to have a bug passing boolean (and maybe numeric?)
@@ -161,7 +167,8 @@ class Client:
 
         return data
 
-    def _response_data(self, resp, raw_response: bool = False):
+    @staticmethod
+    def _response_data(resp, raw_response: bool = False):
         if resp is None:
             return None
 
@@ -183,7 +190,8 @@ class Client:
                 else:
                     return resp.content
 
-    def make_file_dict(self, data, file):
+    @staticmethod
+    def make_file_dict(data, file):
         # TODO (enias): Review
         result = {}
         for key, val in data.items():
@@ -271,7 +279,7 @@ class Client:
         elif verb == "GET":
             resp = requests.get(url, params=data, headers=headers)
         else:
-            raise Exception("Unsupported verb: {}".format(verb))
+            raise Exception(f"Unsupported verb: {verb}")
 
         if debug is True:
             print("Response", resp)

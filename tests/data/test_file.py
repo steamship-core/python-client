@@ -4,14 +4,15 @@ from steamship import MimeTypes
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
-from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests.utils.client import get_steamship_client
+
 
 def test_file_upload():
-    steamship = _steamship()
+    steamship = get_steamship_client()
     a = steamship.upload(content="A", mime_type=MimeTypes.MKD).data
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
@@ -38,7 +39,7 @@ def test_file_upload():
 
 
 def test_file_scrape():
-    steamship = _steamship()
+    steamship = get_steamship_client()
 
     a = steamship.scrape(url="https://edwardbenson.com/2020/10/gpt3-travel-agent").data
     assert a.id is not None
@@ -56,9 +57,9 @@ def test_file_scrape():
 
 
 # def test_file_add_bloc():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
-#     name_a = "{}.txt".format(_random_name())
+#     name_a = "{}.txt".format(random_name())
 #     a = steamship.upload(
 #         name=name_a,
 #         content="This is a test."
@@ -75,7 +76,7 @@ def test_file_scrape():
 
 
 def test_file_import_response_dict():
-    resp = File.CreateResponse(bytes=b"some bytes", mime_type=MimeTypes.BINARY)
+    resp = File.CreateResponse(bytes=b"some bytes", mimeType=MimeTypes.BINARY)
     to_dict = resp.to_dict()
     from_dict = File.CreateResponse.from_dict(to_dict)
     assert resp.data == from_dict.data
@@ -83,7 +84,7 @@ def test_file_import_response_dict():
 
 
 def test_file_import_response_bytes_serialization():
-    file_resp = File.CreateResponse(bytes=b"some bytes", mime_type=MimeTypes.BINARY)
+    file_resp = File.CreateResponse(bytes=b"some bytes", mimeType=MimeTypes.BINARY)
     to_dict = file_resp.to_dict()
     as_json_string = json.dumps(to_dict)
     as_dict_again = json.loads(as_json_string)
@@ -91,7 +92,7 @@ def test_file_import_response_bytes_serialization():
 
 
 def test_file_upload_with_blocks():
-    client = _steamship()
+    client = get_steamship_client()
     a = File.create(
         client=client,
         blocks=[
@@ -125,7 +126,7 @@ def test_file_upload_with_blocks():
 
 
 def test_query():
-    client = _steamship()
+    client = get_steamship_client()
     a = File.create(
         client=client,
         blocks=[

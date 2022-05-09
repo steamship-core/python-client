@@ -1,12 +1,13 @@
 from steamship import PluginInstance
-from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests.utils.client import get_steamship_client
+
 
 def test_parsing():
-    steamship = _steamship()
+    steamship = get_steamship_client()
     parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
     resp = steamship.tag("This is a test", plugin_instance=parser.handle)
     resp.wait()
@@ -19,7 +20,7 @@ def test_parsing():
 
 
 # def test_ner():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 #     resp = steamship.parse(["I like Ted"], plugin=parsing_plugin(), includeEntities=True).data
 #     assert(len(resp.docs) == 1)
 #     d = resp.docs[0]
@@ -33,7 +34,7 @@ def test_parsing():
 
 
 # def test_token_matcher():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
 #     a_matcher = TokenMatcher(
 #       label="A_MATCHER",
@@ -70,7 +71,7 @@ def test_parsing():
 #       assert(sp.label == ans[sp.text])
 
 # def test_phrase_matcher():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
 #     a_matcher = PhraseMatcher(
 #       label="A_MATCHER",
@@ -102,7 +103,7 @@ def test_parsing():
 #       assert(sp.label == ans[sp.text])
 
 # def test_phrase_matcher_attr():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
 #     a_matcher = PhraseMatcher(
 #       label="IP_ADDR",
@@ -129,7 +130,7 @@ def test_parsing():
 #       assert(sp.label == ans[sp.text])
 
 # def test_token_phrase_matcher_combo():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
 #     a_matcher = PhraseMatcher(
 #       label="A_MATCHER",
@@ -192,7 +193,7 @@ def test_parsing():
 #       assert(sp.label == ans[sp.text])
 
 # def test_dependency_matcher():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
 #     a_matcher = DependencyMatcher(
 #       label="FOUNDED",

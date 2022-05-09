@@ -6,7 +6,7 @@ from steamship.plugin.service import PluginRequest
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-from ..demo_apps.plugin_file_importer import TestFileImporterPlugin, TEST_DOC
+from tests.demo_apps.plugins.importers.plugin_file_importer import TestFileImporterPlugin, TEST_DOC
 import base64
 
 TEST_REQ = File.CreateRequest(value="Hi there.")

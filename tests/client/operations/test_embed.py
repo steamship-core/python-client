@@ -1,10 +1,10 @@
 from steamship import PluginInstance, File
 from steamship.base import Client
 
-from tests.client.helpers import _steamship
-
 __copyright__ = "Steamship"
 __license__ = "MIT"
+
+from tests.utils.client import get_steamship_client
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -40,10 +40,11 @@ def basic_embeddings(steamship: Client, plugin_instance: str):
 
 
 def test_basic_embeddings():
+    client = get_steamship_client()
     plugin_instance = PluginInstance.create(
-        _steamship(), plugin_handle=_TEST_EMBEDDER
+        client, plugin_handle=_TEST_EMBEDDER
     ).data
-    basic_embeddings(_steamship(), plugin_instance.handle)
+    basic_embeddings(client, plugin_instance.handle)
 
 
 def basic_embedding_search(steamship: Client, plugin_instance: str):
@@ -64,7 +65,8 @@ def basic_embedding_search(steamship: Client, plugin_instance: str):
 
 
 def test_basic_embedding_search():
+    client = get_steamship_client()
     plugin_instance = PluginInstance.create(
-        _steamship(), plugin_handle=_TEST_EMBEDDER
+        client, plugin_handle=_TEST_EMBEDDER
     ).data
-    basic_embedding_search(_steamship(), plugin_instance.handle)
+    basic_embedding_search(client, plugin_instance.handle)

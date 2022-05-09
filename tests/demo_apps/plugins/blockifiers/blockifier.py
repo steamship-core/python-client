@@ -14,7 +14,7 @@ TEST_H1 = "A Poem"
 TEST_S1 = "Roses are red."
 TEST_S2 = "Violets are blue."
 TEST_S3 = "Sugar is sweet, and I love you."
-TEST_DOC = "# {}\n\n{} {}\n\n{}\n".format(TEST_H1, TEST_S1, TEST_S2, TEST_S3)
+TEST_DOC = f"# {TEST_H1}\n\n{TEST_S1} {TEST_S2}\n\n{TEST_S3}\n"
 
 
 class DummyBlockifierPlugin(Blockifier, App):

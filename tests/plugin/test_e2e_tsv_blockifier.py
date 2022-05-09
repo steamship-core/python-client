@@ -6,29 +6,29 @@ __license__ = "MIT"
 from ..utils.client import get_steamship_client
 
 from ..utils.file import upload_file
-from ..utils.plugin import deploy_plugin
+from ..utils.deployables import deploy_plugin
 
 
 def test_e2e_tsv_blockifier_plugin():
-    csv_blockifier_plugin_path = APPS_PATH / "plugins" / "tsv_blockifier.py"
+    csv_blockifier_plugin_path = APPS_PATH / "plugins" / "blockifiers" / "tsv_blockifier.py"
     client = get_steamship_client()
 
     version_config_template = dict(
-        textColumn=dict(type="string"),
-        tagColumns=dict(type="string"),
-        tagKind=dict(type="string"),
+        text_column=dict(type="string"),
+        tag_columns=dict(type="string"),
+        tag_kind=dict(type="string"),
     )
     instance_config = dict(  # Has to match up
-        textColumn="Message",
-        tagColumns="Category",
-        tagKind="Intent",
+        text_column="Message",
+        tag_columns="Category",
+        tag_kind="Intent",
     )
     with deploy_plugin(
-        client,
-        csv_blockifier_plugin_path,
-        "blockifier",
-        version_config_template=version_config_template,
-        instance_config=instance_config,
+            client,
+            csv_blockifier_plugin_path,
+            "blockifier",
+            version_config_template=version_config_template,
+            instance_config=instance_config,
     ) as (plugin, version, instance):
         with upload_file(client, "utterances.tsv") as file:
             assert len(file.refresh().data.blocks) == 0

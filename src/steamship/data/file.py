@@ -52,15 +52,14 @@ class File:
         url: str = None
         filename: str = None
         type: str = None  # FileUploadType: fileImporter | value | url | data
-        mimeType: str = None
+        mimeType: str = None  # TODO: This should work
         corpusId: str = None
         blocks: [Block.CreateRequest] = None
         tags: [Tag.CreateRequest] = None
-
         pluginInstance: str = None
 
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "File.CreateRequest":
+        def from_dict(d: Any, client: Client = None) -> "File.CreateRequest":
             return File.CreateRequest(
                 value=d.get("value"),
                 data=d.get("data"),
@@ -107,18 +106,18 @@ class File:
             string: str = None,
             bytes: io.BytesIO = None,
             json: io.BytesIO = None,
-            mime_type: str = None,
+            mimeType: str = None,
         ):
-            data, mime_type, encoding = flexi_create(
-                data=data, string=string, json=json, bytes=bytes, mime_type=mime_type
+            data, mimeType, encoding = flexi_create(
+                data=data, string=string, json=json, bytes=bytes, mime_type=mimeType
             )
             self.data = data
-            self.mimeType = mime_type
+            self.mimeType = mimeType
 
         @staticmethod
         def from_dict(d: any, client: Client = None) -> "File.CreateResponse":
             return File.CreateResponse(
-                data=d.get("data", None), mime_type=d.get("mimeType", None)
+                data=d.get("data", None), mimeType=d.get("mimeType", None)
             )
 
         def to_dict(self) -> dict:
@@ -244,7 +243,7 @@ class File:
                 "Either filename, content, url, or plugin Instance must be provided."
             )
 
-        upload_type = None  # TODO (enias): Review
+        upload_type = None # TODO (enias): Review
         if blocks is not None:
             upload_type = FileUploadType.blocks
         elif plugin_instance is not None:

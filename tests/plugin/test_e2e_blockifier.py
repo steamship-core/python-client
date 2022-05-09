@@ -5,12 +5,12 @@ __license__ = "MIT"
 
 from tests import APPS_PATH
 from tests.utils.client import get_steamship_client
-from tests.utils.plugin import deploy_plugin
+from tests.utils.deployables import deploy_plugin
 
 
 def test_e2e_blockifier_plugin():
     client = get_steamship_client()
-    blockifier_path = APPS_PATH / "plugins" / "blockifier.py"
+    blockifier_path = APPS_PATH / "plugins" / "blockifiers" / "blockifier.py"
     with deploy_plugin(client, blockifier_path, "blockifier") as (
         plugin,
         version,

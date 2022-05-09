@@ -31,10 +31,8 @@ sys.path.insert(0, os.path.join(__location__, "../src"))
 # setup.py install" in the RTD Advanced Settings.
 # Additionally it helps us to avoid running apidoc manually
 
-try:  # for Sphinx >= 1.7
-    from sphinx.ext import apidoc
-except ImportError:
-    from sphinx import apidoc
+# noinspection PyPackageRequirements
+from sphinx.ext import apidoc
 
 output_dir = os.path.join(__location__, "api")
 module_dir = os.path.join(__location__, "../src/steamship")
@@ -44,6 +42,7 @@ except FileNotFoundError:
     pass
 
 try:
+    # noinspection PyPackageRequirements
     import sphinx
 
     cmd_line_template = (
@@ -58,7 +57,7 @@ try:
 
     apidoc.main(args)
 except Exception as e:
-    print("Running `sphinx-apidoc` failed!\n{}".format(e))
+    print(f"Running `sphinx-apidoc` failed!\n{e}")
 
 # -- General configuration ---------------------------------------------------
 

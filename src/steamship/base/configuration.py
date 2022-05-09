@@ -78,13 +78,13 @@ class Configuration:
             self.web_base = "https://app.steamship.com/"
 
         if self.api_base[len(self.api_base) - 1] != "/":
-            self.api_base = "{}/".format(self.api_base)
+            self.api_base = f"{self.api_base}/"
 
         if self.app_base[len(self.app_base) - 1] != "/":
-            self.app_base = "{}/".format(self.app_base)
+            self.app_base = f"{self.app_base}/"
 
         if self.web_base[len(self.web_base) - 1] != "/":
-            self.web_base = "{}/".format(self.web_base)
+            self.web_base = f"{self.web_base}/"
 
     def merge_dict(self, d: Dict[str, any]):
         api_key = d.get("apiKey")
@@ -119,9 +119,7 @@ class Configuration:
         if not os.path.exists(filepath):
             if throw_on_error:
                 raise Exception(
-                    "Tried to load configuration file at {} but it did not exist.".format(
-                        filepath
-                    )
+                    f"Tried to load configuration file at {filepath} but it did not exist."
                 )
             else:
                 return
@@ -134,17 +132,9 @@ class Configuration:
                 if profile is None:
                     self.merge_dict(j)
                 else:
-                    if "profiles" not in j:
+                    if "profiles" not in j or profile not in j["profiles"]:
                         raise Exception(
-                            "Profile {} requested but not found in {}".format(
-                                profile, filepath
-                            )
-                        )
-                    if profile not in j["profiles"]:
-                        raise Exception(
-                            "Profile {} requested but not found in {}".format(
-                                profile, filepath
-                            )
+                            f"Profile {profile} requested but not found in {filepath}"
                         )
                     self.merge_dict(j["profiles"][profile])
 
@@ -171,7 +161,7 @@ class Configuration:
         paths.append(os.path.join(str(Path.home()), _configFile))
         for filepath in paths:
             if os.path.exists(filepath):
-                self.load_from_file(filepath, profile=profile, throw_on_error=True)
+                self.load_from_file(filepath, profile=profile)
                 break  # Once we've found it; we're done.
 
     def apply_env_var_overrides(self):

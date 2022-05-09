@@ -1,7 +1,7 @@
 import contextlib
 
 from steamship import File, Steamship
-from tests.client.helpers import TEST_ASSETS_PATH
+from tests import TEST_ASSETS_PATH
 
 
 @contextlib.contextmanager

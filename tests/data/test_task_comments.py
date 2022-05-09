@@ -1,10 +1,12 @@
 from steamship import PluginInstance
 from steamship.data.embeddings import EmbeddedItem
 
-from tests.client.helpers import _random_index, _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
+
+from tests.utils.client import get_steamship_client
+from tests.utils.random import random_index, random_name
 
 
 def _list_equal(actual, expected):
@@ -13,9 +15,9 @@ def _list_equal(actual, expected):
 
 
 def test_basic_task_comment():
-    steamship = _steamship()
+    steamship = get_steamship_client()
     embedder = PluginInstance.create(steamship, plugin_handle="test-embedder").data
-    with _random_index(steamship, embedder.handle) as index:
+    with random_index(steamship, embedder.handle) as index:
         item1 = EmbeddedItem(
             value="Pizza", externalId="pizza", externalType="food", metadata=[1, 2, 3]
         )
@@ -103,15 +105,15 @@ def test_task_comment_feedback_reporting():
 
     So really we just need to test the group aggregation
     """
-    steamship = _steamship()
-    embedder = PluginInstance.create(steamship, plugin_handle="test-embedder").data
-    with _random_index(steamship, plugin_instance=embedder.handle) as index:
+    client = get_steamship_client()
+    embedder = PluginInstance.create(client, plugin_handle="test-embedder").data
+    with random_index(client, plugin_instance=embedder.handle) as index:
         item1 = EmbeddedItem(
             value="Pizza", externalId="pizza", externalType="food", metadata=[1, 2, 3]
         )
 
-        g1 = _random_name()
-        g2 = _random_name()
+        group_name_1 = random_name()
+        group_name_2 = random_name()
 
         index.insert(
             item1.value,
@@ -126,44 +128,44 @@ def test_task_comment_feedback_reporting():
         res.add_comment(
             external_id="Foo1",
             external_type="Bar1",
-            external_group=g1,
+            external_group=group_name_1,
             metadata=[1, 2, 3],
         )
         res.add_comment(
             external_id="Foo2",
             external_type="Bar1",
-            external_group=g1,
+            external_group=group_name_1,
             metadata=[1, 2, 3],
         )
         res.add_comment(
             external_id="Foo2",
             external_type="Bar1",
-            external_group=g2,
+            external_group=group_name_2,
             metadata=[1, 2, 3],
         )
 
         comments = res.list_comments()
         assert len(comments.data.comments) == 3
 
-        g1 = steamship.tasks.list_comments(external_group=g1)
+        g1 = client.tasks.list_comments(external_group=group_name_1)
         assert len(g1.data.comments) == 2
 
-        g2 = steamship.tasks.list_comments(external_group=g2)
+        g2 = client.tasks.list_comments(external_group=group_name_2)
         assert len(g2.data.comments) == 1
 
-        g1 = steamship.tasks.list_comments(task_id=res.task.task_id, external_group=g1)
+        g1 = client.tasks.list_comments(task_id=res.task.task_id, external_group=group_name_1)
         assert len(g1.data.comments) == 2
 
-        g2 = steamship.tasks.list_comments(task_id=res.task.task_id, external_group=g2)
+        g2 = client.tasks.list_comments(task_id=res.task.task_id, external_group=group_name_2)
         assert len(g2.data.comments) == 1
 
-        g1 = steamship.tasks.list_comments(
-            task_id=res.task.task_id, external_id="Foo1", external_group=g1
+        g1 = client.tasks.list_comments(
+            task_id=res.task.task_id, external_id="Foo1", external_group=group_name_1
         )
         assert len(g1.data.comments) == 1
 
-        g2 = steamship.tasks.list_comments(
-            task_id=res.task.task_id, external_id="Foo1", external_group=g2
+        g2 = client.tasks.list_comments(
+            task_id=res.task.task_id, external_id="Foo1", external_group=group_name_2
         )
         assert len(g2.data.comments) == 0
 
@@ -171,8 +173,8 @@ def test_task_comment_feedback_reporting():
         res.delete_comment(comments.data.comments[1])
         res.delete_comment(comments.data.comments[2])
 
-        g1 = steamship.tasks.list_comments(external_group=g1)
+        g1 = client.tasks.list_comments(external_group=group_name_1)
         assert len(g1.data.comments) == 0
 
-        g2 = steamship.tasks.list_comments(external_group=g2)
+        g2 = client.tasks.list_comments(external_group=group_name_2)
         assert len(g2.data.comments) == 0

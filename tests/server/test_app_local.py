@@ -1,10 +1,10 @@
 from steamship.app import Invocation, Request
 
-from ..demo_apps.hello_world import HelloWorld, handler
+from tests.demo_apps.apps.hello_world import HelloWorld, handler
 
 NAME = "Ted"
 RES_EMPTY = "Hello, Person"
-RES_NAME = "Hello, {}".format(NAME)
+RES_NAME = f"Hello, {NAME}"
 
 
 def test_invoke_app_in_python():

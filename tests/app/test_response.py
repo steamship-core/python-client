@@ -15,9 +15,9 @@ def check_mime(d: dict, mime: str):
     )
 
 
-def check_type(d: dict, type: any):
+def check_type(d: dict, t: any):
     data = d.get("data", None)
-    assert isinstance(data, type)
+    assert isinstance(data, t)
 
 
 def check_val(d: dict, val: any):

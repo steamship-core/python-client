@@ -92,7 +92,7 @@ class App:
         for maybeDecorated in cls.__dict__.values():
             decorator = getattr(maybeDecorated, "decorator", None)
             if decorator:
-                if getattr(decorator, "__is_endpoint__", False) == True:
+                if getattr(decorator, "__is_endpoint__", False):
                     path = getattr(maybeDecorated, "__path__", None)
                     verb = getattr(maybeDecorated, "__verb__", None)
                     cls._register_mapping(maybeDecorated.__name__, verb, path)
@@ -102,7 +102,7 @@ class App:
         if not path:
             path = "/"
         elif path[0] != "/":
-            path = "/{}".format(path)
+            path = f"/{path}"
         return path
 
     @classmethod

@@ -22,7 +22,7 @@ class Hit:
         if metadata is not None:
             try:
                 metadata = json.loads(metadata)
-            except:
+            except Exception as e:
                 pass
 
         return Hit(
