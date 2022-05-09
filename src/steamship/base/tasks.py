@@ -183,9 +183,9 @@ class Task(Generic[T]):
     def failure(message: str, suggestion: str, error: str, code: str) -> "Task":
         return Task(
             state=TaskState.failed,
-            statusMessage=message,
-            statusSuggestion=suggestion,
-            statusCode=code,
+            status_message=message,
+            status_suggestion=suggestion,
+            status_code=code,
         )
 
     @staticmethod
@@ -193,12 +193,12 @@ class Task(Generic[T]):
         if type(error) == SteamshipError:
             return Task(
                 state=TaskState.failed,
-                statusMessage=error.message,
-                statusSuggestion=error.suggestion,
-                statusCode=error.code,
+                status_message=error.message,
+                status_suggestion=error.suggestion,
+                status_code=error.code,
             )
         else:
-            return Task(state=TaskState.failed, statusMessage="{}".error)
+            return Task(state=TaskState.failed, status_message=str(error))
 
     @staticmethod
     def from_dict(d: any, client: Any = None) -> "Task":  # TODO (Enias): Review
@@ -306,5 +306,6 @@ class Task(Generic[T]):
     def list_comments(self) -> IResponse[TaskCommentList]:
         return TaskComment.list(client=self.client, task_id=self.task_id)
 
-    def delete_comment(self, comment: TaskComment = None) -> IResponse[TaskComment]:
+    @staticmethod
+    def delete_comment(comment: TaskComment = None) -> IResponse[TaskComment]:
         return comment.delete()

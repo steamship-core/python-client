@@ -67,14 +67,14 @@ class Space:
     @staticmethod
     def get(
         client: Client,
-        id: str = None,
+        id_: str = None,
         handle: str = None,
         upsert: bool = None,
         space_id: str = None,
         space_handle: str = None,
         space: "Space" = None,
     ) -> "Response[Space]":
-        req = GetRequest(id=id, handle=handle, upsert=upsert)
+        req = GetRequest(id=id_, handle=handle, upsert=upsert)
         return client.post(
             "space/get",
             req,

@@ -7,6 +7,7 @@ from steamship.data.file import File
 
 @dataclass
 class BlockAndTagPluginOutput:
+    # TODO (enias): Review
     file: File.CreateRequest = None
 
     @staticmethod

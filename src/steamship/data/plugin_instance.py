@@ -39,9 +39,9 @@ class PluginInstance:
     client: Client = None
     id: str = None
     handle: str = None
-    pluginId: str = None
-    pluginVersionId: str = None
-    userId: str = None
+    plugin_id: str = None
+    plugin_version_id: str = None
+    user_id: str = None
     config: Dict[str, any] = None
     spaceId: str = None
 
@@ -54,10 +54,10 @@ class PluginInstance:
             client=client,
             id=d.get("id", None),
             handle=d.get("handle", None),
-            pluginId=d.get("pluginId", None),
-            pluginVersionId=d.get("pluginVersionId", None),
+            plugin_id=d.get("pluginId", None),
+            plugin_version_id=d.get("pluginVersionId", None),
             config=d.get("config", None),
-            userId=d.get("userId", None),
+            user_id=d.get("userId", None),
         )
 
     @staticmethod

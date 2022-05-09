@@ -1,19 +1,20 @@
 from steamship import Space
-from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests.utils.client import get_steamship_client
+
 
 def test_default_space():
-    client = _steamship()
+    client = get_steamship_client()
     space = Space.get(client=client).data
     assert space is not None
     assert space.handle == "default"
 
 
 def test_delete_space():
-    client = _steamship()
+    client = get_steamship_client()
     default = Space.get(client=client).data
     space1 = Space.create(client=client, handle="test").data
     assert default.id is not None
@@ -41,7 +42,7 @@ def test_delete_space():
 
 
 def test_get_space():
-    client = _steamship()
+    client = get_steamship_client()
     default = Space.get(client=client).data
     space1 = Space.create(client=client, handle="test").data
     space1a = Space.get(client=client, space_id=space1.id).data
@@ -51,7 +52,7 @@ def test_get_space():
 
 
 def test_create_use_delete_space():
-    client = _steamship()
+    client = get_steamship_client()
     default = Space.get(client=client).data
     space1 = Space.create(client=client, handle="test").data
     space2 = Space.create(client=client, handle="test2").data

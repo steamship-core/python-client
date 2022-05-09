@@ -1,63 +1,54 @@
+# noinspection PyPackageRequirements
 import pytest
 
 from steamship.data.plugin import PluginAdapterType
 from steamship.data.plugin import PluginType, Plugin
-from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests.utils.client import get_steamship_client
+
 
 def test_plugin_create():
-    steamship = _steamship()
+    steamship = get_steamship_client()
 
     my_plugins = Plugin.list(steamship).data
     orig_count = len(my_plugins.plugins)
 
-    # Should require name
-    with pytest.raises(Exception):
-        index = Plugin.create(
-            client=steamship,
-            description="This is just for test",
-            type=PluginType.embedder,
-            transport=PluginAdapterType.steamshipDocker,
-            is_public=True,
-        )
+    plugin_args = dict(
+        name="name",
+        client=steamship,
+        description="This is just for test",
+        type_=PluginType.embedder,
+        transport=PluginAdapterType.steamshipDocker,
+        is_public=True,
+    )
 
-    # Should require description
-    with pytest.raises(Exception):
-        index = Plugin.create(
-            client=steamship,
-            type=PluginType.embedder,
-            transport=PluginAdapterType.steamshipDocker,
-            is_public=True,
-        )
-
-    # Should require plugin type
-    with pytest.raises(Exception):
-        index = Plugin.create(
-            client=steamship,
-            description="This is just for test",
-            transport=PluginAdapterType.steamshipDocker,
-            is_public=True,
-        )
+    required_fields = {"name", "description", "type_"}
+    for required_field in required_fields:
+        with pytest.raises(Exception):
+            del plugin_args[required_field]
+            # noinspection PyArgumentList
+            _ = Plugin.create(**plugin_args)
 
     # Should require adapter type
     with pytest.raises(Exception):
-        index = steamship.plugins.create(
+        # noinspection PyArgumentList
+        _ = steamship.plugins.create(  # TODO (enias): Q: Why do we have this function call?
             client=steamship,
             description="This is just for test",
-            type=PluginType.embedder,
+            type_=PluginType.embedder,
             url="http://foo4",
             is_public=True,
         )
 
-    # Should require is public
+    # Should require is_public
     with pytest.raises(Exception):
-        index = steamship.plugins.create(
+        _ = steamship.plugins.create(
             client=steamship,
             description="This is just for test",
-            type=PluginType.embedder,
+            type_=PluginType.embedder,
             transport=PluginAdapterType.steamshipDocker,
         )
 
@@ -68,7 +59,7 @@ def test_plugin_create():
         client=steamship,
         training_platform=None,
         description="This is just for test",
-        type=PluginType.tagger,
+        type_=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
         is_public=False,
     ).data
@@ -81,7 +72,7 @@ def test_plugin_create():
         training_platform=None,
         handle=plugin.handle,
         description="This is just for test",
-        type=PluginType.tagger,
+        type_=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
         is_public=False,
     )
@@ -94,7 +85,7 @@ def test_plugin_create():
         training_platform=None,
         handle=plugin.handle,
         description="This is just for test 2",
-        type=PluginType.tagger,
+        type_=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
         is_public=False,
         upsert=True,
@@ -117,7 +108,7 @@ def test_plugin_create():
 
 
 def test_plugin_public():
-    steamship = _steamship()
+    steamship = get_steamship_client()
 
     resp = Plugin.list(steamship).data
     assert resp.plugins is not None

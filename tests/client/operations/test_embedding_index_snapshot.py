@@ -2,10 +2,11 @@ from steamship import PluginInstance
 from steamship.base.response import TaskState
 from steamship.data.embeddings import IndexSnapshotRequest, IndexSnapshotResponse
 
-from tests.client.helpers import _random_name, _steamship
-
 __copyright__ = "Steamship"
 __license__ = "MIT"
+
+from tests.utils.client import get_steamship_client
+from tests.utils.random import random_name
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -41,15 +42,12 @@ def _snapshot(index, window_size=None):
 
 
 def test_snapshot_create():
-    steamship = _steamship()
+    steamship = get_steamship_client()
 
-    name = _random_name()
     plugin_instance = PluginInstance.create(
         steamship, plugin_handle=_TEST_EMBEDDER
     ).data
-    index = steamship.create_index(
-        plugin_instance=plugin_instance.handle, upsert=True
-    ).data
+    index = steamship.create_index(plugin_instance=plugin_instance.handle).data
 
     _insert(index, ["Oranges are orange."])
     search_results = index.search("What color are oranges?", include_metadata=True)
@@ -88,12 +86,9 @@ def test_snapshot_create():
     assert len(search_results.data.items[0].value.metadata) == 3
 
     index.delete()
-    steamship = _steamship()
+    steamship = get_steamship_client()
 
-    name = _random_name()
-    index = steamship.create_index(
-        plugin_instance=plugin_instance.handle, upsert=True
-    ).data
+    index = steamship.create_index(plugin_instance=plugin_instance.handle).data
 
     sentences = []
     for i in range(15):

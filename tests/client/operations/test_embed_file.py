@@ -1,12 +1,12 @@
 from steamship import MimeTypes, PluginInstance
 
-from tests.client.helpers import _random_index, _steamship
-
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
+from tests.utils.client import get_steamship_client
+from tests.utils.random import random_index
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -23,7 +23,7 @@ P4_2 = "Cake can be cut into many pieces and shared."
 
 
 def test_file_parse():
-    steamship = _steamship()
+    steamship = get_steamship_client()
     content1 = "# {}\n\n{} {}\n\n{} {}".format(T, P1_1, P1_2, P2_1, P2_2)
     content2 = "# {}\n\n{} {}\n\n{} {}".format(T2, P3_1, P3_2, P4_1, P4_2)
     content = "{}\n\n{}".format(content1, content2)
@@ -50,7 +50,7 @@ def test_file_parse():
     plugin_instance = PluginInstance.create(
         steamship, plugin_handle=_TEST_EMBEDDER
     ).data
-    with _random_index(steamship, plugin_instance=plugin_instance.handle) as index:
+    with random_index(steamship, plugin_instance=plugin_instance.handle) as index:
         index.insert_file(a.id, reindex=False)
         embed_resp = index.embed()
         assert embed_resp.error is None
@@ -65,7 +65,7 @@ def test_file_parse():
 
 
 def test_file_index():
-    steamship = _steamship()
+    steamship = get_steamship_client()
     t = "A nice poem"
     p1_1 = "Roses are red."
     p1_2 = "Violets are blue."
@@ -77,9 +77,9 @@ def test_file_index():
     p4_1 = "Cake comes in chocolate and vanilla flavors."
     p4_2 = "Cake can be cut into many pieces and shared."
 
-    content1 = "# {}\n\n{} {}\n\n{} {}".format(t, p1_1, p1_2, p2_1, p2_2)
-    content2 = "# {}\n\n{} {}\n\n{} {}".format(t2, p3_1, p3_2, p4_1, p4_2)
-    content = "{}\n\n{}".format(content1, content2)
+    content1 = f"# {t}\n\n{p1_1} {p1_2}\n\n{p2_1} {p2_2}"
+    content2 = f"# {t2}\n\n{p3_1} {p3_2}\n\n{p4_1} {p4_2}"
+    content = f"{content1}\n\n{content2}"
 
     a = steamship.upload(content=content, mime_type=MimeTypes.MKD).data
     assert a.id is not None
@@ -118,7 +118,7 @@ def test_file_index():
 
 
 def test_file_embed_lookup():
-    steamship = _steamship()
+    steamship = get_steamship_client()
 
     content_a = "Ted likes to run."
     content_b = "Grace likes to bike."
@@ -146,7 +146,7 @@ def test_file_embed_lookup():
 
     embedder = PluginInstance.create(steamship, plugin_handle="test-embedder").data
     # Now we add the file to the index
-    with _random_index(steamship, embedder.handle) as index:
+    with random_index(steamship, embedder.handle) as index:
         index.insert_file(a.id, block_type="sentence", reindex=True)
         index.insert_file(b.id, block_type="sentence", reindex=True)
 

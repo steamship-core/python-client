@@ -1,12 +1,13 @@
 from steamship.base.response import TaskState
-from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests.utils.client import get_steamship_client
+
 
 def test_file_upload_then_parse():
-    steamship = _steamship()
+    steamship = get_steamship_client()
 
     a = steamship.upload(content="This is a test.").data
     assert a.id is not None

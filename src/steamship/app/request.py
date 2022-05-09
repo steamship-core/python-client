@@ -10,7 +10,7 @@ def event_to_config(event: dict) -> Configuration:
     if "invocationContext" not in event:
         raise Exception("invocationContext not in event")
 
-    return Configuration(from_dict=event["invocationContext"])
+    return Configuration.from_dict(event["invocationContext"])
 
 
 class Verb:

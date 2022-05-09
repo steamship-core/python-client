@@ -75,6 +75,7 @@ class PluginType:
     parser = "parser"
     classifier = "classifier"
     tagger = "tagger"
+    embedder = "embedder"
 
 
 class PluginAdapterType:
@@ -130,7 +131,7 @@ class Plugin:
         client: Client,
         training_platform: str,
         description: str,
-        type: str,
+        type_: str,
         transport: str,
         is_public: bool,
         handle: str = None,
@@ -144,7 +145,7 @@ class Plugin:
 
         req = CreatePluginRequest(
             trainingPlatform=training_platform,
-            type=type,
+            type=type_,
             transport=transport,
             isPublic=is_public,
             handle=handle,
@@ -162,11 +163,11 @@ class Plugin:
 
     @staticmethod
     def list(
-        client: Client, type: str = None, space_id: str = None, space_handle: str = None
+        client: Client, t: str = None, space_id: str = None, space_handle: str = None
     ) -> Response[ListPluginsResponse]:
         return client.post(
             "plugin/list",
-            ListPublicPluginsRequest(type=type),
+            ListPublicPluginsRequest(type=t),
             expect=ListPluginsResponse,
             space_id=space_id,
             space_handle=space_handle,

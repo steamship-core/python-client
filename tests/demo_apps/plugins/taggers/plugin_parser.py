@@ -12,7 +12,7 @@ def tag_sentences(block: Block):
     """Splits the document into sentences by assuming a period is a sentence divider."""
     # Add the period back
     tags = []
-    for m in re.finditer(r"[^\.]+", block.text):
+    for m in re.finditer(r"[^.]+", block.text):
         tags.append(
             Tag(
                 kind=DocTag.doc,

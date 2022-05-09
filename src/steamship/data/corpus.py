@@ -44,7 +44,7 @@ class Corpus:
         @staticmethod
         def from_dict(d: any, client: Client = None) -> "Corpus.ListResponse":
             return Corpus.ListResponse(
-                plugins=[Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
+                corpora=[Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
             )
 
     @staticmethod

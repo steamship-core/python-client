@@ -25,25 +25,23 @@ class SteamshipError(Exception):
         self.internalMessage = internal_message
         self.statusCode = code
         if error is not None:
-            self.error = "{}".format(error)
+            self.error = str(error)
 
         parts = []
         if code is not None:
-            parts.append("[{}]".format(code))
+            parts.append(f"[{code}]")
         if message is not None:
             parts.append(message)
         if internal_message is not None:
-            parts.append("Internal Message: {}".format(internal_message))
+            parts.append(f"Internal Message: {internal_message}")
         if suggestion is not None:
-            parts.append("Suggestion: {}".format(suggestion))
+            parts.append(f"Suggestion: {suggestion}")
 
         super().__init__("\n".join(parts))
 
     def log(self):
         logging.error(
-            "[{}] {}. [Internal: {}] [Suggestion: {}]".format(
-                self.code, self.message, self.internalMessage, self.suggestion
-            )
+            f"[{self.code}] {self.message}. [Internal: {self.internalMessage}] [Suggestion: { self.suggestion}]"
         )
         if self.error:
             logging.error(self.error)

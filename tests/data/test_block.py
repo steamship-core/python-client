@@ -1,14 +1,15 @@
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
-from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests.utils.client import get_steamship_client
+
 
 def test_query():
-    client = _steamship()
+    client = get_steamship_client()
     a = File.create(
         client=client,
         blocks=[

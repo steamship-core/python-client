@@ -7,7 +7,6 @@ from steamship.data.plugin import PluginTargetType
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
 
-@staticmethod
 def upload(
     client: Client,
     filename: str = None,
@@ -112,7 +111,7 @@ def index(
             space=space,
         ).data
     elif index is None:
-        index = EmbeddingIndex(client=self.client, indexId=index_id)
+        index = EmbeddingIndex(client=self.client, id=index_id)
 
     # We have an index available to us now. Perform the query.
     blocks = self.refresh().data.blocks

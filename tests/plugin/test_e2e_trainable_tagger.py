@@ -11,7 +11,7 @@ __license__ = "MIT"
 
 #
 # def test_e2e_trainable_tagger_lambda_training():
-#     client = _steamship()
+#     client = get_steamship_client()
 #     versionConfigTemplate = dict(
 #         textColumn=dict(type="string"),
 #         tagColumns=dict(type="string"),
@@ -48,7 +48,7 @@ __license__ = "MIT"
 #                 trainResult.wait()
 from ..utils.client import get_steamship_client
 from ..utils.file import upload_file
-from ..utils.plugin import deploy_plugin
+from ..utils.deployables import deploy_plugin
 
 EXPORTER_HANDLE = "signed-url-exporter"
 
@@ -57,12 +57,12 @@ def test_e2e_trainable_tagger_ecs_training():
     client = get_steamship_client()
 
     version_config_template = dict(
-        textColumn=dict(type="string"),
-        tagColumns=dict(type="string"),
-        tagKind=dict(type="string"),
+        text_column=dict(type="string"),
+        tag_columns=dict(type="string"),
+        tag_kind=dict(type="string"),
     )
     instance_config = dict(
-        textColumn="Message", tagColumns="Category", tagKind="Intent"
+        text_column="Message", tag_columns="Category", tag_kind="Intent"
     )
 
     exporter_plugin_r = PluginInstance.create(
@@ -75,16 +75,16 @@ def test_e2e_trainable_tagger_ecs_training():
     exporter_plugin = exporter_plugin_r.data
     assert exporter_plugin.handle is not None
 
-    csv_blockifier_path = APPS_PATH / "plugins" / "csv_blockifier.py"
-    trainable_tagger_path = APPS_PATH / "plugin_trainable_tagger.py"
+    csv_blockifier_path = APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
+    trainable_tagger_path = APPS_PATH / "plugins" / "taggers" / "plugin_trainable_tagger.py"
 
     # Make a blockifier which will generate our training corpus
     with deploy_plugin(
-        client,
-        csv_blockifier_path,
-        "blockifier",
-        version_config_template=version_config_template,
-        instance_config=instance_config,
+            client,
+            csv_blockifier_path,
+            "blockifier",
+            version_config_template=version_config_template,
+            instance_config=instance_config,
     ) as (plugin, version, instance):
         with upload_file(client, "utterances.csv") as file:
             assert len(file.refresh().data.blocks) == 0
@@ -94,10 +94,10 @@ def test_e2e_trainable_tagger_ecs_training():
 
             # Now make a trainable tagger to train on those tags
             with deploy_plugin(
-                client,
-                trainable_tagger_path,
-                "tagger",
-                training_platform=TrainingPlatform.managed,
+                    client,
+                    trainable_tagger_path,
+                    "tagger",
+                    training_platform=TrainingPlatform.managed,
             ) as (tagger, taggerVersion, taggerInstance):
                 # Now train the plugin
                 training_request = TrainingParameterPluginInput(

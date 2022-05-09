@@ -15,7 +15,7 @@ __license__ = "MIT"
 
 from ..utils.client import get_steamship_client
 from ..utils.file import upload_file
-from ..utils.plugin import deploy_plugin
+from ..utils.deployables import deploy_plugin
 
 EXPORTER_HANDLE = "signed-url-exporter"
 
@@ -23,12 +23,14 @@ EXPORTER_HANDLE = "signed-url-exporter"
 def test_e2e_corpus_export():
     client = get_steamship_client()
     version_config_template = dict(
-        textColumn=dict(type="string"),
-        tagColumns=dict(type="string"),
-        tagKind=dict(type="string"),
-    )
-    instance_config = dict(
-        textColumn="Message", tagColumns="Category", tagKind="Intent"
+        text_column=dict(type="string"),
+        tag_columns=dict(type="string"),
+        tag_kind=dict(type="string"),
+    )  # TODO (enias): Derive this from Config
+    instance_config = dict(  # Has to match up
+        text_column="Message",
+        tag_columns="Category",
+        tag_kind="Intent",
     )
     exporter_plugin_r = PluginInstance.create(
         client=client,
@@ -40,10 +42,10 @@ def test_e2e_corpus_export():
     exporter_plugin = exporter_plugin_r.data
     assert exporter_plugin.handle is not None
 
-    input = ExportPluginInput(handle="default", type="corpus")
-    print(asdict(input))
+    _input = ExportPluginInput(handle="default", type="corpus")
+    print(asdict(_input))
 
-    csv_blockifier_path = APPS_PATH / "plugins" / "csv_blockifier.py"
+    csv_blockifier_path = APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
 
     # Make a blockifier which will generate our training corpus
     with deploy_plugin(
@@ -60,7 +62,7 @@ def test_e2e_corpus_export():
             assert len(file.refresh().data.blocks) == 5
 
             # Now export the corpus
-            raw_data_r = exporter_plugin.export(input)
+            raw_data_r = exporter_plugin.export(_input)
             assert raw_data_r is not None
 
             # The results of a corpus exporter are MD5 encoded!
@@ -95,9 +97,9 @@ def test_e2e_corpus_export_with_query():
     assert b.id is not None
 
     # Now export the corpus
-    input = ExportPluginInput(query='filetag and name "FileTag"', type="file")
-    print(asdict(input))
-    raw_data_r = exporter_plugin.export(input)
+    _input = ExportPluginInput(query='filetag and name "FileTag"', type="file")
+    print(asdict(_input))
+    raw_data_r = exporter_plugin.export(_input)
     assert raw_data_r is not None
 
     # The results of a corpus exporter are MD5 encoded!

@@ -53,7 +53,7 @@ class Response(Generic[T]):
         # Handle the core data
         try:
             data, mime_type, encoding = flexi_create(
-                data=data, string=string, json=json, bytes=bytes, mime_type=mime_type
+                data=data, string=string, json=json,bytes=bytes, mime_type=mime_type
             )
 
             self.data = data
@@ -70,19 +70,15 @@ class Response(Generic[T]):
                 self.http.base64Wrapped = True
 
         except Exception as ex:
-            logging.error("Exception within Response.__init__. {}".format(ex))
+            logging.error(f"Exception within Response.__init__. {ex}")
             if error is not None:
                 if error.message:
-                    error.message = "{}. Also found error - unable to serialize data to response. {}".format(
-                        error.message, ex
-                    )
+                    error.message = f"{error.message}. Also found error - unable to serialize data to response. {ex}"
                 else:
-                    error.message = "Unable to serialize data to response. {}".format(
-                        ex
-                    )
+                    error.message = f"Unable to serialize data to response. {ex}"
             else:
                 error = SteamshipError(
-                    message="Unable to serialize data to response. {}".format(ex)
+                    message=f"Unable to serialize data to response. {ex}"
                 )
             logging.error(error)
 
@@ -94,8 +90,9 @@ class Response(Generic[T]):
         else:
             self.status = Task()
             self.status.state = TaskState.failed
-            self.status.status_message = "Status field of response should be of type Task. Instead was of type {} and had value {}.".format(
-                type(status), status
+            self.status.status_message = (
+                f"Status field of response should be of type Task. "
+                f"Instead was of type {type(status)} and had value {status}."
             )
 
         if error:
@@ -121,13 +118,13 @@ class Response(Generic[T]):
         if error.message is None:
             error.message = message
         else:
-            error.message = "{}. {}".format(error.message, message)
+            error.message = f"{error.message}. {message}"
 
         if exception is not None:
             if error.message is None:
-                error.message = "{}".format(exception)
+                error.message = f"{exception}"
             else:
-                error.message = "{}. {}".format(error.message, exception)
+                error.message = f"{error.message}. {exception}"
 
         return Response(
             error=error or SteamshipError(message=message), http=Http(status=code)
@@ -158,10 +155,8 @@ class Response(Generic[T]):
         if getattr(obj, "to_dict"):
             try:
                 return Response(json=getattr(obj, "to_dict")())
-            except:
-                logging.error(
-                    "Failed calling to_dict on response object. {}".format(obj)
-                )
+            except Exception as e:
+                logging.error(f"Failed calling to_dict on response object. {obj}")
 
         if dataclasses.is_dataclass(obj):
             return Response(json=dataclasses.asdict(obj))

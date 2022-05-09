@@ -1,20 +1,21 @@
 from steamship import MimeTypes, File, Block
 from steamship.data.tags import Tag
 
-from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests.utils.client import get_steamship_client
+
 
 def test_file_tag():
-    steamship = _steamship()
+    steamship = get_steamship_client()
     a = steamship.upload(content="A", mime_type=MimeTypes.MKD).data
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
 
-    t1 = Tag.create(steamship, file_id=a.id, name="test1").data
-    t2 = Tag.create(steamship, file_id=a.id, name="test2").data
+    _ = Tag.create(steamship, file_id=a.id, name="test1").data
+    _ = Tag.create(steamship, file_id=a.id, name="test2").data
 
     tags = Tag.list_public(steamship, file_id=a.id)
     assert tags.data is not None
@@ -53,7 +54,7 @@ def test_file_tag():
 
 
 def test_query():
-    client = _steamship()
+    client = get_steamship_client()
     a = File.create(
         client=client,
         blocks=[

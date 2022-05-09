@@ -308,7 +308,6 @@ class EmbeddingIndex:
 
         req = IndexInsertRequest(
             indexId=self.id,
-            value=None,
             items=[item.clone_for_insert() for item in new_items],
             reindex=reindex,
         )
@@ -336,7 +335,6 @@ class EmbeddingIndex:
         req = IndexInsertRequest(
             indexId=self.id,
             value=value,
-            items=None,
             externalId=external_id,
             externalType=external_type,
             metadata=metadata_to_str(metadata),
@@ -455,19 +453,11 @@ class EmbeddingIndex:
     ) -> Response[QueryResults]:
         if type(query) == list:
             req = IndexSearchRequest(
-                self.id,
-                query=None,
-                queries=query,
-                k=k,
-                includeMetadata=include_metadata,
+                self.id, queries=query, k=k, includeMetadata=include_metadata
             )
         else:
             req = IndexSearchRequest(
-                self.id,
-                query=query,
-                queries=None,
-                k=k,
-                includeMetadata=include_metadata,
+                self.id, query=query, k=k, includeMetadata=include_metadata
             )
         ret = self.client.post(
             "embedding-index/search",
@@ -481,6 +471,7 @@ class EmbeddingIndex:
         if pd is False:
             return ret
 
+        # noinspection PyPackageRequirements
         import pandas as pd  # type: ignore
 
         return pd.DataFrame(

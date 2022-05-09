@@ -98,7 +98,7 @@ class Steamship(Client):
         space_id: str = None,
         space_handle: str = None,
         space: Space = None,
-    ) -> File:
+    ) -> Response[File]:
         return File.create(
             self,
             filename=filename,

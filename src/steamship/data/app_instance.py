@@ -86,7 +86,7 @@ class AppInstance:
             and self.space_id is not None
         ):
             # Get the spaceHandle
-            space = Space.get(self.client, id=self.space_id)
+            space = Space.get(self.client, id_=self.space_id)
             if space and space.data:
                 self.space_handle = space.data.handle
 
@@ -95,7 +95,7 @@ class AppInstance:
         if path[0] == "/":
             path = path[1:]
         return self.client.get(
-            "/{}/{}/{}".format(self.space_handle or "_", self.handle or "_", path),
+            f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",  # TODO (enias): Fix code duplication
             payload=kwargs,
             app_call=True,
             app_owner=self.user_handle,
@@ -109,7 +109,7 @@ class AppInstance:
         if path[0] == "/":
             path = path[1:]
         return self.client.post(
-            "/{}/{}/{}".format(self.space_handle or "_", self.handle or "_", path),
+            f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",
             payload=kwargs,
             app_call=True,
             app_owner=self.user_handle,
@@ -119,7 +119,7 @@ class AppInstance:
         )
 
     def full_url_for(self, path: str):
-        return "{}{}".format(self.invocation_url, path)
+        return f"{self.invocation_url}{path}"
 
 
 @dataclass

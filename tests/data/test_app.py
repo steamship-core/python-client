@@ -1,13 +1,13 @@
 from steamship import App
 
-from tests.client.helpers import _steamship
-
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests.utils.client import get_steamship_client
+
 
 def test_app_create():
-    client = _steamship()
+    client = get_steamship_client()
 
     app = App.create(client)
     assert app.error is None

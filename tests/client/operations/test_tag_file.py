@@ -2,14 +2,13 @@ from steamship import MimeTypes, DocTag, PluginInstance, Block
 from steamship.base import Client
 from steamship.base.response import TaskState
 
-from tests.client.helpers import _steamship
-
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
+from tests.utils.client import get_steamship_client
 
 
 def count_blocks_with_tag(blocks: [Block], tag_kind: str, tag_name: str):
@@ -56,7 +55,7 @@ def tag_file(client: Client, parser_instance_handle: str):
 
     # Instead of re-filtering previous result, do a new tag filter query
     assert count_blocks_with_tag(q1.blocks, DocTag.doc, DocTag.paragraph) == 2
-    assert q1.blocks[1].text == "{} {}".format(p1_1, p1_2)
+    assert q1.blocks[1].text == f"{p1_1} {p1_2}"
 
     # The sentences aren't yet parsed out!
     # Instead of re-filtering again, do a new tag filter query
@@ -87,6 +86,6 @@ def tag_file(client: Client, parser_instance_handle: str):
 
 
 def test_parse_file():
-    steamship = _steamship()
+    steamship = get_steamship_client()
     parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
     tag_file(steamship, parser.handle)

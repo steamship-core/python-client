@@ -11,7 +11,7 @@
 # __license__ = "MIT"
 
 # def test_classifier_create():
-#   steamship = _steamship()
+#   steamship = get_steamship_client()
 
 #   # Should require name
 #   with pytest.raises(Exception):
