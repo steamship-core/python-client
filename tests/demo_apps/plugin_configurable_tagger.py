@@ -11,10 +11,17 @@ from steamship.plugin.tagger import Tagger
 class TestParserPlugin(Tagger, App):
     # For testing; mirrors TestConfigurableTagger in Swift
 
-    def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> Response[BlockAndTagPluginOutput]:
-        tagKind = self.config['tagKind']
-        tagName = self.config['tagName']
-        tagValue = json.dumps({'numberValue': self.config['numberValue'], 'booleanValue': self.config['booleanValue']})
+    def run(
+        self, request: PluginRequest[BlockAndTagPluginInput]
+    ) -> Response[BlockAndTagPluginOutput]:
+        tagKind = self.config["tagKind"]
+        tagName = self.config["tagName"]
+        tagValue = json.dumps(
+            {
+                "numberValue": self.config["numberValue"],
+                "booleanValue": self.config["booleanValue"],
+            }
+        )
 
         if request.data is not None:
             file = request.data.file
@@ -23,11 +30,9 @@ class TestParserPlugin(Tagger, App):
                 file.tags.append(tag)
             else:
                 file.tags = [tag]
-            return Response(
-                data=BlockAndTagPluginOutput(file)
-            )
+            return Response(data=BlockAndTagPluginOutput(file))
 
-    @post('tag')
+    @post("tag")
     def parse(self, **kwargs) -> dict:
         parseRequest = Tagger.parse_request(request=kwargs)
         return self.run(parseRequest)

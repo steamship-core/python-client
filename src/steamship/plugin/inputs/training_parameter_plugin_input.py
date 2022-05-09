@@ -11,13 +11,17 @@ class TrainingParameterPluginInput:
     exportRequest: ExportPluginInput = None
 
     @staticmethod
-    def from_dict(d: any = None, client: Client = None) -> "TrainingParameterPluginInput":
+    def from_dict(
+        d: any = None, client: Client = None
+    ) -> "TrainingParameterPluginInput":
         if d is None:
             return None
 
         return TrainingParameterPluginInput(
-            pluginInstance = d.get('pluginInstance', None),
-            exportRequest =  ExportPluginInput.from_dict(d.get('exportPluginInput', None), client)
+            pluginInstance=d.get("pluginInstance", None),
+            exportRequest=ExportPluginInput.from_dict(
+                d.get("exportPluginInput", None), client
+            ),
         )
 
     def to_dict(self) -> Dict:
@@ -27,5 +31,5 @@ class TrainingParameterPluginInput:
 
         return dict(
             pluginInstance=self.pluginInstance,
-            exportPluginInput=exportPluginInputParams
+            exportPluginInput=exportPluginInputParams,
         )

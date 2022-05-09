@@ -9,15 +9,17 @@ __license__ = "MIT"
 
 def test_e2e_importer():
     client = _steamship()
-    with deploy_plugin("plugin_file_importer.py","fileImporter") as (plugin, version, instance):
+    with deploy_plugin("plugin_file_importer.py", "fileImporter") as (
+        plugin,
+        version,
+        instance,
+    ):
         file = File.create(
-            client=client,
-            content="This is a test.",
-            pluginInstance=instance.handle
+            client=client, content="This is a test.", pluginInstance=instance.handle
         ).data
 
         data = file.raw().data
 
-        assert (data.decode('utf-8') == TEST_DOC)
+        assert data.decode("utf-8") == TEST_DOC
 
         file.delete()

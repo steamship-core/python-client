@@ -16,16 +16,16 @@ class Tasks:
         self.client = client
 
     def list_comments(
-            self,
-            taskId: str = None,
-            externalId: str = None,
-            externalType: str = None,
-            externalGroup: str = None
+        self,
+        taskId: str = None,
+        externalId: str = None,
+        externalType: str = None,
+        externalGroup: str = None,
     ) -> Response[TaskCommentList]:
         return TaskComment.list(
             client=self.client,
             taskId=taskId,
             externalId=externalId,
             externalType=externalType,
-            externalGroup=externalGroup
+            externalGroup=externalGroup,
         )

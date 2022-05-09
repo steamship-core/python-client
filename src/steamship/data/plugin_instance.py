@@ -4,9 +4,13 @@ from typing import Dict
 from steamship.base import Client, Request
 from steamship.base.response import Response
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
+from steamship.plugin.inputs.training_parameter_plugin_input import (
+    TrainingParameterPluginInput,
+)
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
-from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
+from steamship.plugin.outputs.training_parameter_plugin_output import (
+    TrainingParameterPluginOutput,
+)
 
 
 class PluginInstance:
@@ -30,7 +34,6 @@ class DeletePluginInstanceRequest(Request):
     id: str
 
 
-
 @dataclass
 class PluginInstance:
     client: Client = None
@@ -44,29 +47,29 @@ class PluginInstance:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "PluginInstance":
-        if 'pluginInstance' in d:
-            d = d['pluginInstance']
+        if "pluginInstance" in d:
+            d = d["pluginInstance"]
 
         return PluginInstance(
             client=client,
-            id=d.get('id', None),
-            handle=d.get('handle', None),
-            pluginId=d.get('pluginId', None),
-            pluginVersionId=d.get('pluginVersionId', None),
-            config=d.get('config', None),
-            userId=d.get('userId', None)
+            id=d.get("id", None),
+            handle=d.get("handle", None),
+            pluginId=d.get("pluginId", None),
+            pluginVersionId=d.get("pluginVersionId", None),
+            config=d.get("config", None),
+            userId=d.get("userId", None),
         )
 
     @staticmethod
     def create(
-            client: Client,
-            pluginId: str = None,
-            pluginHandle: str = None,
-            pluginVersionId: str = None,
-            pluginVersionHandle: str = None,
-            handle: str = None,
-            upsert: bool = None,
-            config: Dict[str, any] = None
+        client: Client,
+        pluginId: str = None,
+        pluginHandle: str = None,
+        pluginVersionId: str = None,
+        pluginVersionHandle: str = None,
+        handle: str = None,
+        upsert: bool = None,
+        config: Dict[str, any] = None,
     ) -> Response[PluginInstance]:
         req = CreatePluginInstanceRequest(
             handle=handle,
@@ -75,46 +78,37 @@ class PluginInstance:
             pluginVersionId=pluginVersionId,
             pluginVersionHandle=pluginVersionHandle,
             upsert=upsert,
-            config=config
+            config=config,
         )
 
-        return client.post(
-            'plugin/instance/create',
-            payload=req,
-            expect=PluginInstance
-        )
+        return client.post("plugin/instance/create", payload=req, expect=PluginInstance)
 
     def delete(self) -> PluginInstance:
-        req = DeletePluginInstanceRequest(
-            id=self.id
-        )
+        req = DeletePluginInstanceRequest(id=self.id)
         return self.client.post(
-            'plugin/instance/delete',
-            payload=req,
-            expect=PluginInstance
+            "plugin/instance/delete", payload=req, expect=PluginInstance
         )
 
     def export(self, input: ExportPluginInput) -> Response[RawDataPluginOutput]:
         input.pluginInstance = self.handle
         return self.client.post(
-            'plugin/instance/export',
-            payload=input,
-            expect=RawDataPluginOutput
+            "plugin/instance/export", payload=input, expect=RawDataPluginOutput
         )
 
     def train(self, trainingRequest: TrainingParameterPluginInput) -> PluginInstance:
         return self.client.post(
-            'plugin/instance/train',
-            payload=trainingRequest,
-            expect=PluginInstance
+            "plugin/instance/train", payload=trainingRequest, expect=PluginInstance
         )
 
-    def getTrainingParameters(self, trainingRequest: TrainingParameterPluginInput) -> PluginInstance:
+    def getTrainingParameters(
+        self, trainingRequest: TrainingParameterPluginInput
+    ) -> PluginInstance:
         return self.client.post(
-            'plugin/instance/getTrainingParameters',
+            "plugin/instance/getTrainingParameters",
             payload=trainingRequest,
-            expect=TrainingParameterPluginOutput
+            expect=TrainingParameterPluginOutput,
         )
+
 
 @dataclass
 class ListPrivatePluginInstancesRequest(Request):

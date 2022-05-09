@@ -9,7 +9,7 @@ class CreateAppVersionRequest(Request):
     appId: str = None
     handle: str = None
     upsert: bool = None
-    type: str = 'file'
+    type: str = "file"
     configTemplate: Dict[str, any] = None
 
 
@@ -33,27 +33,26 @@ class AppVersion:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "AppVersion":
-        if 'appVersion' in d:
-            d = d['appVersion']
+        if "appVersion" in d:
+            d = d["appVersion"]
 
         return AppVersion(
             client=client,
-            id=d.get('id', None),
-            handle=d.get('handle', None),
-            configTemplate=d.get('configTemplate', None)
+            id=d.get("id", None),
+            handle=d.get("handle", None),
+            configTemplate=d.get("configTemplate", None),
         )
 
     @staticmethod
     def create(
-            client: Client,
-            appId: str = None,
-            handle: str = None,
-            filename: str = None,
-            filebytes: bytes = None,
-            upsert: bool = None,
-            configTemplate: Dict[str, any] = None
+        client: Client,
+        appId: str = None,
+        handle: str = None,
+        filename: str = None,
+        filebytes: bytes = None,
+        upsert: bool = None,
+        configTemplate: Dict[str, any] = None,
     ) -> "AppVersion":
-
 
         if filename is None and filebytes is None:
             raise Exception("Either filename or filebytes must be provided.")
@@ -61,29 +60,20 @@ class AppVersion:
             raise Exception("Only either filename or filebytes should be provided.")
 
         if filename is not None:
-            with open(filename, 'rb') as f:
+            with open(filename, "rb") as f:
                 filebytes = f.read()
 
         req = CreateAppVersionRequest(
-            handle=handle,
-            appId=appId,
-            upsert=upsert,
-            configTemplate=configTemplate
+            handle=handle, appId=appId, upsert=upsert, configTemplate=configTemplate
         )
 
         return client.post(
-            'app/version/create',
+            "app/version/create",
             payload=req,
-            file=('app.zip', filebytes, "multipart/form-data"),
-            expect=AppVersion
+            file=("app.zip", filebytes, "multipart/form-data"),
+            expect=AppVersion,
         )
 
     def delete(self) -> "AppVersion":
-        req = DeleteAppVersionRequest(
-            id=self.id
-        )
-        return self.client.post(
-            'app/version/delete',
-            payload=req,
-            expect=AppVersion
-        )
+        req = DeleteAppVersionRequest(id=self.id)
+        return self.client.post("app/version/delete", payload=req, expect=AppVersion)

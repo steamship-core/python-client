@@ -11,7 +11,7 @@ from steamship.base.tasks import Task, TaskState
 
 
 @dataclass
-class Http():
+class Http:
     status: int = None
     # If true, we're signaling to the Steamship Proxy that the `data` field of the SteamshipResponse object
     # has been wrapped in base64. In this situation, we can return the bytes within directly to the Proxy
@@ -19,25 +19,28 @@ class Http():
     base64Wrapped: bool = None
     headers: Dict[str, str] = None
 
-T = TypeVar('T')
+
+T = TypeVar("T")
+
 
 @dataclass
 class Response(Generic[T]):
     """Mirrors the Response object in the Steamship server."""
-    data: T = None      # Data for successful or synchronous requests.
-    status: Task = None # Reporting for errors and async status
-    http: Http = None   # Additional HTTP information for Steamship Proxy (headers, etc)
+
+    data: T = None  # Data for successful or synchronous requests.
+    status: Task = None  # Reporting for errors and async status
+    http: Http = None  # Additional HTTP information for Steamship Proxy (headers, etc)
 
     def __init__(
-            self,
-            status: Task = None,
-            error: SteamshipError = None,
-            http: Http = None,
-            data: any = None,
-            string: str = None,
-            json: Any = None,
-            bytes: Union[bytes, io.BytesIO] = None,
-            mimeType = None
+        self,
+        status: Task = None,
+        error: SteamshipError = None,
+        http: Http = None,
+        data: any = None,
+        string: str = None,
+        json: Any = None,
+        bytes: Union[bytes, io.BytesIO] = None,
+        mimeType=None,
     ):
         # Note:
         # This function has to be very defensively coded since any errors thrown here will not be returned
@@ -50,11 +53,7 @@ class Response(Generic[T]):
         # Handle the core data
         try:
             data, mimeType, encoding = flexi_create(
-                data=data,
-                string=string,
-                json=json,
-                bytes=bytes,
-                mimeType=mimeType
+                data=data, string=string, json=json, bytes=bytes, mimeType=mimeType
             )
 
             self.data = data
@@ -74,11 +73,17 @@ class Response(Generic[T]):
             logging.error("Exception within Response.__init__. {}".format(ex))
             if error is not None:
                 if error.message:
-                    error.message = "{}. Also found error - unable to serialize data to response. {}".format(error.message, ex)
+                    error.message = "{}. Also found error - unable to serialize data to response. {}".format(
+                        error.message, ex
+                    )
                 else:
-                    error.message = "Unable to serialize data to response. {}".format(ex)
+                    error.message = "Unable to serialize data to response. {}".format(
+                        ex
+                    )
             else:
-                error = SteamshipError(message="Unable to serialize data to response. {}".format(ex))
+                error = SteamshipError(
+                    message="Unable to serialize data to response. {}".format(ex)
+                )
             logging.error(error)
 
         # Handle the task provided
@@ -89,7 +94,9 @@ class Response(Generic[T]):
         else:
             self.status = Task()
             self.status.state = TaskState.failed
-            self.status.statusMessage = "Status field of response should be of type Task. Instead was of type {} and had value {}.".format(type(status), status)
+            self.status.statusMessage = "Status field of response should be of type Task. Instead was of type {} and had value {}.".format(
+                type(status), status
+            )
 
         if error:
             self.status.state = TaskState.failed
@@ -103,7 +110,12 @@ class Response(Generic[T]):
                 self.status.state = TaskState.succeeded
 
     @staticmethod
-    def error(code: int, message: str = None, error: SteamshipError = None, exception: Exception = None) -> "Response[T]":
+    def error(
+        code: int,
+        message: str = None,
+        error: SteamshipError = None,
+        exception: Exception = None,
+    ) -> "Response[T]":
         error = error or SteamshipError(message=message)
 
         if error.message is None:
@@ -118,8 +130,7 @@ class Response(Generic[T]):
                 error.message = "{}. {}".format(error.message, exception)
 
         return Response(
-            error=error or SteamshipError(message=message),
-            http=Http(status=code)
+            error=error or SteamshipError(message=message), http=Http(status=code)
         )
 
     @staticmethod
@@ -144,11 +155,13 @@ class Response(Generic[T]):
         elif objT in [float, int, bool]:
             return Response(json=obj)
 
-        if getattr(obj, 'to_dict'):
+        if getattr(obj, "to_dict"):
             try:
-                return Response(json=getattr(obj, 'to_dict')())
+                return Response(json=getattr(obj, "to_dict")())
             except:
-                logging.error("Failed calling to_dict on response object. {}".format(obj))
+                logging.error(
+                    "Failed calling to_dict on response object. {}".format(obj)
+                )
 
         if dataclasses.is_dataclass(obj):
             return Response(json=dataclasses.asdict(obj))

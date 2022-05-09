@@ -6,7 +6,7 @@ from steamship.data.file import File
 
 
 @dataclass
-class BlockAndTagPluginOutput():
+class BlockAndTagPluginOutput:
     file: File.CreateRequest = None
 
     @staticmethod
@@ -15,7 +15,7 @@ class BlockAndTagPluginOutput():
             return None
 
         return BlockAndTagPluginOutput(
-            file=File.CreateRequest.from_dict(d.get('file', None), client=client)
+            file=File.CreateRequest.from_dict(d.get("file", None), client=client)
         )
 
     def to_dict(self) -> Dict:

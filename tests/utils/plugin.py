@@ -25,7 +25,9 @@ def zip_plugin(file_path: Path) -> bytes:
 
     package_paths = [
         SRC_PATH / "steamship",
-        SRC_PATH / ".." / "tests", # This is included to test plugin development using inheritance
+        SRC_PATH
+        / ".."
+        / "tests",  # This is included to test plugin development using inheritance
         dependencies_path / "setuptools_scm",
         dependencies_path / "requests",
         dependencies_path / "charset_normalizer",
@@ -45,7 +47,9 @@ def zip_plugin(file_path: Path) -> bytes:
             for root, _, files in os.walk(package_path):
                 for file in files:
                     pypi_file = Path(root) / file
-                    zip_file.write(pypi_file, pypi_file.relative_to(package_path.parent))
+                    zip_file.write(
+                        pypi_file, pypi_file.relative_to(package_path.parent)
+                    )
 
     return zip_buffer.getvalue()
 
@@ -77,7 +81,7 @@ def deploy_plugin(
         "test-version",
         pluginId=plugin.id,
         filebytes=zip_bytes,
-        configTemplate=version_config_template, # TODO: What is this?
+        configTemplate=version_config_template,  # TODO: What is this?
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.

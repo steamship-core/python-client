@@ -1,7 +1,9 @@
 from steamship.data.plugin import TrainingPlatform
 from steamship.data.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
+from steamship.plugin.inputs.training_parameter_plugin_input import (
+    TrainingParameterPluginInput,
+)
 from .. import APPS_PATH
 
 __copyright__ = "Steamship"
@@ -57,47 +59,47 @@ def test_e2e_trainable_tagger_ecs_training():
     versionConfigTemplate = dict(
         textColumn=dict(type="string"),
         tagColumns=dict(type="string"),
-        tagKind=dict(type="string")
+        tagKind=dict(type="string"),
     )
-    instanceConfig = dict(
-        textColumn="Message",
-        tagColumns="Category",
-        tagKind="Intent"
-    )
+    instanceConfig = dict(textColumn="Message", tagColumns="Category", tagKind="Intent")
 
     exporterPluginR = PluginInstance.create(
-        client=client,
-        handle=EXPORTER_HANDLE,
-        pluginHandle=EXPORTER_HANDLE,
-        upsert=True
+        client=client, handle=EXPORTER_HANDLE, pluginHandle=EXPORTER_HANDLE, upsert=True
     )
-    assert (exporterPluginR.data is not None)
+    assert exporterPluginR.data is not None
     exporterPlugin = exporterPluginR.data
-    assert (exporterPlugin.handle is not None)
+    assert exporterPlugin.handle is not None
 
     csv_blockifier_path = APPS_PATH / "plugins" / "csv_blockifier.py"
     trainable_tagger_path = APPS_PATH / "plugin_trainable_tagger.py"
 
     # Make a blockifier which will generate our training corpus
-    with deploy_plugin(client, csv_blockifier_path, "blockifier", version_config_template=versionConfigTemplate,
-                       instance_config=instanceConfig) as (plugin, version, instance):
+    with deploy_plugin(
+        client,
+        csv_blockifier_path,
+        "blockifier",
+        version_config_template=versionConfigTemplate,
+        instance_config=instanceConfig,
+    ) as (plugin, version, instance):
         with upload_file(client, "utterances.csv") as file:
-            assert (len(file.refresh().data.blocks) == 0)
+            assert len(file.refresh().data.blocks) == 0
             # Use the plugin we just registered
             file.blockify(pluginInstance=instance.handle).wait()
-            assert (len(file.refresh().data.blocks) == 5)
+            assert len(file.refresh().data.blocks) == 5
 
             # Now make a trainable tagger to train on those tags
-            with deploy_plugin(client, trainable_tagger_path, "tagger", training_platform=TrainingPlatform.managed) as (
-                    tagger, taggerVersion, taggerInstance):
+            with deploy_plugin(
+                client,
+                trainable_tagger_path,
+                "tagger",
+                training_platform=TrainingPlatform.managed,
+            ) as (tagger, taggerVersion, taggerInstance):
                 # Now train the plugin
                 trainingRequest = TrainingParameterPluginInput(
                     pluginInstance=taggerInstance.handle,
                     exportRequest=ExportPluginInput(
-                        pluginInstance=EXPORTER_HANDLE,
-                        type="corpus",
-                        handle="default"
-                    )
+                        pluginInstance=EXPORTER_HANDLE, type="corpus", handle="default"
+                    ),
                 )
 
                 trainResult = taggerInstance.train(trainingRequest)

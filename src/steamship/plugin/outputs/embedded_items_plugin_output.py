@@ -11,10 +11,8 @@ class EmbeddedItemsPluginOutput:
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "EmbeddedItemPluginOutput":
         return EmbeddedItemsPluginOutput(
-            embeddings=d.get('embeddings', None),
+            embeddings=d.get("embeddings", None),
         )
 
     def to_dict(self) -> dict:
-        return dict(
-            embeddings=self.embeddings
-        )
+        return dict(embeddings=self.embeddings)

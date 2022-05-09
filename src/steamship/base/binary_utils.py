@@ -15,24 +15,27 @@ def guess_mime(obj: Any, provided_mime: str = None) -> str:
         return MimeTypes.TXT
     return MimeTypes.BINARY
 
+
 def to_b64(obj: Any) -> str:
     ret_bytes = obj
     if type(obj) == bytes:
         ret_bytes = obj
     elif type(obj) == str:
-        ret_bytes = ret_bytes.encode('utf-8')
+        ret_bytes = ret_bytes.encode("utf-8")
     else:
-        ret_bytes = str(obj).encode('utf-8')
-    return base64.b64encode(ret_bytes).decode('utf-8')
+        ret_bytes = str(obj).encode("utf-8")
+    return base64.b64encode(ret_bytes).decode("utf-8")
+
 
 def flexi_create(
-        base64string: str = None,
-        data: Any = None,
-        string: str = None,
-        json: Any = None,
-        bytes: Union[bytes, io.BytesIO] = None,
-        mimeType=None,
-        alwaysBase64=False) -> Tuple[Any, Union[None, str], Union[None, str]]:
+    base64string: str = None,
+    data: Any = None,
+    string: str = None,
+    json: Any = None,
+    bytes: Union[bytes, io.BytesIO] = None,
+    mimeType=None,
+    alwaysBase64=False,
+) -> Tuple[Any, Union[None, str], Union[None, str]]:
     """
     It's convenient for some constructors to accept a variety of input types:
     - data (your choice)
@@ -48,9 +51,9 @@ def flexi_create(
             logging.error("B64")
             return base64string, mimeType or MimeTypes.BINARY, ContentEncodings.BASE64
 
-        ret_data = None # the body of the result
-        ret_mime = None # for the Content-Type field
-        ret_encoding = None # for the Content-Encoding field
+        ret_data = None  # the body of the result
+        ret_mime = None  # for the Content-Type field
+        ret_encoding = None  # for the Content-Encoding field
         is_b64 = False
 
         if data is not None:
@@ -61,14 +64,20 @@ def flexi_create(
 
         elif json is not None:
             if dataclasses.is_dataclass(json):
-                ret_data, ret_mime = dataclasses.asdict(json), mimeType or MimeTypes.JSON
+                ret_data, ret_mime = (
+                    dataclasses.asdict(json),
+                    mimeType or MimeTypes.JSON,
+                )
             else:
                 ret_data, ret_mime = json, mimeType or MimeTypes.JSON
 
         elif bytes is not None:
             if isinstance(bytes, io.BytesIO):
-                bytes = bytes.getvalue() # Turn it into regular bytes
-            ret_data, ret_mime = base64.b64encode(bytes).decode('utf-8'), mimeType or ret_mime or MimeTypes.BINARY
+                bytes = bytes.getvalue()  # Turn it into regular bytes
+            ret_data, ret_mime = (
+                base64.b64encode(bytes).decode("utf-8"),
+                mimeType or ret_mime or MimeTypes.BINARY,
+            )
             is_b64 = True
             ret_encoding = ContentEncodings.BASE64
 
@@ -79,10 +88,17 @@ def flexi_create(
             if is_b64 is True:
                 return ret_data, ret_mime, ContentEncodings.BASE64
             else:
-                return to_b64(ret_data), ret_mime or MimeTypes.BINARY, ContentEncodings.BASE64
+                return (
+                    to_b64(ret_data),
+                    ret_mime or MimeTypes.BINARY,
+                    ContentEncodings.BASE64,
+                )
 
         return None, None, None
     except Exception as ex:
         logging.error("Exception thrown trying to encode data")
         logging.error(ex)
-        raise SteamshipError(message="There was an exception thrown while trying to encode your app/plugin data.", error=ex)
+        raise SteamshipError(
+            message="There was an exception thrown while trying to encode your app/plugin data.",
+            error=ex,
+        )

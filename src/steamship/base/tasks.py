@@ -6,7 +6,7 @@ from steamship.base.error import SteamshipError
 from steamship.base.metadata import str_to_metadata, metadata_to_str
 from steamship.base.request import Request
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 @dataclass
@@ -46,13 +46,13 @@ class TaskComment:
 
     @staticmethod
     def create(
-            client: Any,
-            taskId: str = None,
-            externalId: str = None,
-            externalType: str = None,
-            externalGroup: str = None,
-            metadata: any = None,
-            upsert: bool = True
+        client: Any,
+        taskId: str = None,
+        externalId: str = None,
+        externalType: str = None,
+        externalGroup: str = None,
+        metadata: any = None,
+        upsert: bool = True,
     ) -> "IResponse[TaskComment]":
         req = CreateTaskCommentRequest(
             taskId=taskId,
@@ -60,30 +60,30 @@ class TaskComment:
             externalType=externalType,
             externalGroup=externalGroup,
             metadata=metadata_to_str(metadata),
-            upsert=upsert
+            upsert=upsert,
         )
         return client.post(
-            'task/comment/create',
+            "task/comment/create",
             req,
             expect=TaskComment,
         )
 
     @staticmethod
     def list(
-            client: Any,
-            taskId: str = None,
-            externalId: str = None,
-            externalType: str = None,
-            externalGroup: str = None
+        client: Any,
+        taskId: str = None,
+        externalId: str = None,
+        externalType: str = None,
+        externalGroup: str = None,
     ) -> "IResponse[TaskCommentList]":
         req = ListTaskCommentRequest(
             taskId=taskId,
             externalId=externalId,
             externalType=externalType,
-            externalGroup=externalGroup
+            externalGroup=externalGroup,
         )
         return client.post(
-            'task/comment/list',
+            "task/comment/list",
             req,
             expect=TaskCommentList,
         )
@@ -91,7 +91,7 @@ class TaskComment:
     def delete(self) -> "IResponse[TaskComment]":
         req = DeleteTaskCommentRequest(self.id)
         return self.client.post(
-            'task/comment/delete',
+            "task/comment/delete",
             req,
             expect=TaskComment,
         )
@@ -100,14 +100,14 @@ class TaskComment:
     def from_dict(d: any, client: Any = None) -> "TaskComment":
         return TaskComment(
             client=client,
-            id=d.get('id', None),
-            userId=d.get('userId', None),
-            taskId=d.get('taskId', None),
-            externalId=d.get('externalId', None),
-            externalType=d.get('externalType', None),
-            externalGroup=d.get('externalGroup', None),
+            id=d.get("id", None),
+            userId=d.get("userId", None),
+            taskId=d.get("taskId", None),
+            externalId=d.get("externalId", None),
+            externalType=d.get("externalType", None),
+            externalGroup=d.get("externalGroup", None),
             metadata=str_to_metadata(d.get("metadata", None)),
-            createdAt=d.get('createdAt', None)
+            createdAt=d.get("createdAt", None),
         )
 
 
@@ -118,7 +118,7 @@ class TaskCommentList:
     @staticmethod
     def from_dict(d: any, client: Any = None) -> "TaskCommentList":
         return TaskCommentList(
-            comments=[TaskComment.from_dict(dd, client) for dd in d.get('comments', [])]
+            comments=[TaskComment.from_dict(dd, client) for dd in d.get("comments", [])]
         )
 
 
@@ -148,30 +148,31 @@ class TaskStatusRequest(Request):
 @dataclass
 class Task(Generic[T]):
     """Encapsulates a unit of asynchronously performed work."""
-    client: Any = None      # Steamship client
 
-    taskId: str = None      # The id of this task
-    userId: str = None      # The user who requested this task
-    spaceId: str = None     # The space in which this task is executing
+    client: Any = None  # Steamship client
 
-    input: str = None       # The input provided to the task
-    state: str = None       # A value in class TaskState
+    taskId: str = None  # The id of this task
+    userId: str = None  # The user who requested this task
+    spaceId: str = None  # The space in which this task is executing
 
-    statusMessage: str = None       # User-facing message concerning task status
-    statusSuggestion: str = None    # User-facing suggestion concerning error remediation
-    statusCode: str = None          # User-facing error code for support assistance
-    statusCreatedOn: str = None     # When the status fields were last set
+    input: str = None  # The input provided to the task
+    state: str = None  # A value in class TaskState
 
-    taskType: str = None            # A value in class TaskType; for internal routing
-    taskExecutor: str = None        #
-    taskCreatedOn: str = None       # When the task object was created
+    statusMessage: str = None  # User-facing message concerning task status
+    statusSuggestion: str = None  # User-facing suggestion concerning error remediation
+    statusCode: str = None  # User-facing error code for support assistance
+    statusCreatedOn: str = None  # When the status fields were last set
+
+    taskType: str = None  # A value in class TaskType; for internal routing
+    taskExecutor: str = None  #
+    taskCreatedOn: str = None  # When the task object was created
     taskLastModifiedOn: str = None  # When the task object was last modified
 
-    assignedWorker: str = None      # The worker assigned to complete this task
-    startedAt: str = None           # When the work on this task began
+    assignedWorker: str = None  # The worker assigned to complete this task
+    startedAt: str = None  # When the work on this task began
 
-    maxRetries: int = None          # The maximum number of retries allowed for this task
-    retries: int = None             # The number of retries already used.
+    maxRetries: int = None  # The maximum number of retries allowed for this task
+    retries: int = None  # The number of retries already used.
 
     # This is typed wrong, but I'm not sure how to type it..
     # This is a local object, for use in Python only, that helps deserialize the task
@@ -179,17 +180,12 @@ class Task(Generic[T]):
     eventualResultType: Type[Any] = None
 
     @staticmethod
-    def failure(
-            message: str,
-            suggestion: str,
-            error: str,
-            code: str
-    ) -> "Task":
+    def failure(message: str, suggestion: str, error: str, code: str) -> "Task":
         return Task(
             state=TaskState.failed,
             statusMessage=message,
             statusSuggestion=suggestion,
-            statusCode=code
+            statusCode=code,
         )
 
     @staticmethod
@@ -199,36 +195,33 @@ class Task(Generic[T]):
                 state=TaskState.failed,
                 statusMessage=error.message,
                 statusSuggestion=error.suggestion,
-                statusCode=error.code
+                statusCode=error.code,
             )
         else:
-            return Task(
-                state=TaskState.failed,
-                statusMessage="{}".error
-            )
+            return Task(state=TaskState.failed, statusMessage="{}".error)
 
     @staticmethod
     def from_dict(d: any, client: Any = None) -> "Task":
         """Last resort if subclass doesn't override: pass through."""
         return Task(
             client=client,
-            taskId=d.get('taskId', None),
-            userId=d.get('userId', None),
-            spaceId=d.get('spaceId', None),
-            input=d.get('input', None),
-            state=d.get('state', None),
-            statusMessage=d.get('statusMessage', None),
-            statusSuggestion=d.get('statusSuggestion', None),
-            statusCode=d.get('statusCode', None),
-            statusCreatedOn=d.get('statusCreatedOn', None),
-            taskType=d.get('taskType', None),
-            taskExecutor=d.get('taskExecutor', None),
-            taskCreatedOn=d.get('taskCreatedOn', None),
-            taskLastModifiedOn=d.get('taskLastModifiedOn', None),
-            assignedWorker=d.get('assignedWorker', None),
-            startedAt=d.get('startedAt', None),
-            maxRetries=d.get('maxRetries', None),
-            retries=d.get('retries', None)
+            taskId=d.get("taskId", None),
+            userId=d.get("userId", None),
+            spaceId=d.get("spaceId", None),
+            input=d.get("input", None),
+            state=d.get("state", None),
+            statusMessage=d.get("statusMessage", None),
+            statusSuggestion=d.get("statusSuggestion", None),
+            statusCode=d.get("statusCode", None),
+            statusCreatedOn=d.get("statusCreatedOn", None),
+            taskType=d.get("taskType", None),
+            taskExecutor=d.get("taskExecutor", None),
+            taskCreatedOn=d.get("taskCreatedOn", None),
+            taskLastModifiedOn=d.get("taskLastModifiedOn", None),
+            assignedWorker=d.get("assignedWorker", None),
+            startedAt=d.get("startedAt", None),
+            maxRetries=d.get("maxRetries", None),
+            retries=d.get("retries", None),
         )
 
     def to_dict(self) -> dict:
@@ -292,12 +285,12 @@ class Task(Generic[T]):
             self.retries = None
 
     def add_comment(
-            self,
-            externalId: str = None,
-            externalType: str = None,
-            externalGroup: str = None,
-            metadata: any = None,
-            upsert: bool = True
+        self,
+        externalId: str = None,
+        externalType: str = None,
+        externalGroup: str = None,
+        metadata: any = None,
+        upsert: bool = True,
     ) -> IResponse[TaskComment]:
         return TaskComment.create(
             client=self.client,
@@ -306,7 +299,7 @@ class Task(Generic[T]):
             externalType=externalType,
             externalGroup=externalGroup,
             metadata=metadata,
-            upsert=upsert
+            upsert=upsert,
         )
 
     def list_comments(self) -> IResponse[TaskCommentList]:

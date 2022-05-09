@@ -11,8 +11,8 @@ class User:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "User":
-        if d['user'] is not None:
-            d = d['user']
+        if d["user"] is not None:
+            d = d["user"]
 
         return User(
             client=client,
@@ -21,14 +21,8 @@ class User:
         )
 
     def to_dict(self) -> dict:
-        return dict(
-            id=self.id,
-            handle=self.handle
-        )
+        return dict(id=self.id, handle=self.handle)
 
     @staticmethod
     def current(client: Client) -> "User":
-        return client.get(
-            'account/current',
-            expect=User
-        )
+        return client.get("account/current", expect=User)

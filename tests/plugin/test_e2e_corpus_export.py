@@ -25,40 +25,38 @@ def test_e2e_corpus_export():
     versionConfigTemplate = dict(
         textColumn=dict(type="string"),
         tagColumns=dict(type="string"),
-        tagKind=dict(type="string")
+        tagKind=dict(type="string"),
     )
-    instanceConfig = dict(
-        textColumn="Message",
-        tagColumns="Category",
-        tagKind="Intent"
-    )
+    instanceConfig = dict(textColumn="Message", tagColumns="Category", tagKind="Intent")
     exporterPluginR = PluginInstance.create(
-        client=client,
-        handle=EXPORTER_HANDLE,
-        pluginHandle=EXPORTER_HANDLE,
-        upsert=True
+        client=client, handle=EXPORTER_HANDLE, pluginHandle=EXPORTER_HANDLE, upsert=True
     )
-    assert (exporterPluginR.data is not None)
+    assert exporterPluginR.data is not None
     exporterPlugin = exporterPluginR.data
-    assert (exporterPlugin.handle is not None)
+    assert exporterPlugin.handle is not None
 
-    input = ExportPluginInput(handle='default', type="corpus")
+    input = ExportPluginInput(handle="default", type="corpus")
     print(asdict(input))
 
     csv_blockifier_path = APPS_PATH / "plugins" / "csv_blockifier.py"
 
     # Make a blockifier which will generate our training corpus
-    with deploy_plugin(client, csv_blockifier_path, "blockifier", version_config_template=versionConfigTemplate,
-                       instance_config=instanceConfig) as (plugin, version, instance):
+    with deploy_plugin(
+        client,
+        csv_blockifier_path,
+        "blockifier",
+        version_config_template=versionConfigTemplate,
+        instance_config=instanceConfig,
+    ) as (plugin, version, instance):
         with upload_file(client, "utterances.csv") as file:
-            assert (len(file.refresh().data.blocks) == 0)
+            assert len(file.refresh().data.blocks) == 0
             # Use the plugin we just registered
             file.blockify(pluginInstance=instance.handle).wait()
-            assert (len(file.refresh().data.blocks) == 5)
+            assert len(file.refresh().data.blocks) == 5
 
             # Now export the corpus
             rawDataR = exporterPlugin.export(input)
-            assert (rawDataR is not None)
+            assert rawDataR is not None
 
             # The results of a corpus exporter are MD5 encoded!
             rawData = rawDataR.data
@@ -69,64 +67,51 @@ def test_e2e_corpus_export_with_query():
     versionConfigTemplate = dict(
         textColumn=dict(type="string"),
         tagColumns=dict(type="string"),
-        tagKind=dict(type="string")
+        tagKind=dict(type="string"),
     )
-    instanceConfig = dict(
-        textColumn="Message",
-        tagColumns="Category",
-        tagKind="Intent"
-    )
+    instanceConfig = dict(textColumn="Message", tagColumns="Category", tagKind="Intent")
     exporterPluginR = PluginInstance.create(
-        client=client,
-        handle=EXPORTER_HANDLE,
-        pluginHandle=EXPORTER_HANDLE,
-        upsert=True
+        client=client, handle=EXPORTER_HANDLE, pluginHandle=EXPORTER_HANDLE, upsert=True
     )
-    assert (exporterPluginR.data is not None)
+    assert exporterPluginR.data is not None
     exporterPlugin = exporterPluginR.data
-    assert (exporterPlugin.handle is not None)
+    assert exporterPlugin.handle is not None
 
     a = File.create(
         client=client,
         blocks=[
             Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
-            Block.CreateRequest(text="B")
-        ]
+            Block.CreateRequest(text="B"),
+        ],
     ).data
-    assert (a.id is not None)
+    assert a.id is not None
     b = File.create(
         client=client,
-        blocks=[
-            Block.CreateRequest(text="A"),
-            Block.CreateRequest(text="B")
-        ],
-        tags=[
-            Tag.CreateRequest(name="FileTag")
-        ]
+        blocks=[Block.CreateRequest(text="A"), Block.CreateRequest(text="B")],
+        tags=[Tag.CreateRequest(name="FileTag")],
     ).data
-    assert (b.id is not None)
+    assert b.id is not None
 
     # Now export the corpus
-    input = ExportPluginInput(query='filetag and name "FileTag"', type='file')
+    input = ExportPluginInput(query='filetag and name "FileTag"', type="file")
     print(asdict(input))
     rawDataR = exporterPlugin.export(input)
-    assert (rawDataR is not None)
+    assert rawDataR is not None
 
     # The results of a corpus exporter are MD5 encoded!
     rawDataR.wait()
     rawData = rawDataR.data.data
     # decode base64 to get URL at url json property
     decodedData = json.loads(base64.b64decode(rawData))
-    url = decodedData['url']
+    url = decodedData["url"]
 
-
-    #fetch the URL via requests.get
+    # fetch the URL via requests.get
     content = requests.get(url).text
 
-    #Look at lines of jsonl file
+    # Look at lines of jsonl file
     files = [File.from_dict(json.loads(line)) for line in content.splitlines()]
-    assert(len(files) == 1)
-    assert(len(files[0].tags) == 1)
+    assert len(files) == 1
+    assert len(files[0].tags) == 1
 
     a.delete()
     b.delete()

@@ -1,6 +1,6 @@
 class DocTag:
-    """This class provides a set of Markdown-style constants to use with Tag(kind="doc")
-    """
+    """This class provides a set of Markdown-style constants to use with Tag(kind="doc")"""
+
     doc = "doc"
     page = "page"  # E.g. in a PDF
     region = "region"  # E.g., abstract catchall region in a document

@@ -18,11 +18,11 @@ class FileImportPluginInput:
             return None
 
         return FileImportPluginInput(
-            value = d.get('value', None),
-            data = d.get('data', None),
-            url = d.get('url', None),
-            pluginInstance = d.get('pluginInstance', None),
-            mimeType = d.get('mimeType', None),
+            value=d.get("value", None),
+            data=d.get("data", None),
+            url=d.get("url", None),
+            pluginInstance=d.get("pluginInstance", None),
+            mimeType=d.get("mimeType", None),
         )
 
     def to_dict(self) -> Dict:

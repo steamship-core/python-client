@@ -16,6 +16,7 @@ from steamship.plugin.service import PluginService, PluginRequest
 #
 class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
     @classmethod
-    def subclass_request_from_dict(cls, d: any, client: Client = None) -> PluginRequest[BlockAndTagPluginInput]:
+    def subclass_request_from_dict(
+        cls, d: any, client: Client = None
+    ) -> PluginRequest[BlockAndTagPluginInput]:
         return BlockAndTagPluginInput.from_dict(d, client=client)
-

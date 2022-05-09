@@ -15,15 +15,14 @@ TEST_DOC = "# {}\n\n{} {}\n\n{}\n".format(TEST_H1, TEST_S1, TEST_S2, TEST_S3)
 
 
 class TestFileImporterPlugin(FileImporter, App):
-    def run(self, request: PluginRequest[File.CreateRequest]) -> Response[RawDataPluginOutput]:
+    def run(
+        self, request: PluginRequest[File.CreateRequest]
+    ) -> Response[RawDataPluginOutput]:
         return Response(
-            data=RawDataPluginOutput(
-                string=TEST_DOC,
-                mimeType=MimeTypes.MKD
-            )
+            data=RawDataPluginOutput(string=TEST_DOC, mimeType=MimeTypes.MKD)
         )
 
-    @post('import')
+    @post("import")
     def do_import(self, **kwargs) -> any:
         importRequest = FileImporter.parse_request(request=kwargs)
         return self.run(importRequest)

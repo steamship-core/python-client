@@ -8,49 +8,45 @@ __license__ = "MIT"
 def test_file_upload_then_parse():
     steamship = _steamship()
 
-    a = steamship.upload(
-        content="This is a test."
-    ).data
-    assert (a.id is not None)
+    a = steamship.upload(content="This is a test.").data
+    assert a.id is not None
 
     q1 = a.refresh().data
-    assert (len(q1.blocks) == 0)
+    assert len(q1.blocks) == 0
 
     task = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
-    assert (task.error is None)
-    assert (task.task is not None)
-    assert (task.task.state == TaskState.waiting)
+    assert task.error is None
+    assert task.task is not None
+    assert task.task.state == TaskState.waiting
 
     task.wait()
-    assert (task.error is None)
-    assert (task.task is not None)
-    assert (task.task.state == TaskState.succeeded)
+    assert task.error is None
+    assert task.task is not None
+    assert task.task.state == TaskState.succeeded
 
     q1 = a.refresh().data
-    assert (len(q1.blocks) == 1)
-    assert (q1.blocks[0].text == 'This is a test.')
+    assert len(q1.blocks) == 1
+    assert q1.blocks[0].text == "This is a test."
 
     b = steamship.upload(
         content="""# Header
 
 This is a test."""
     ).data
-    assert (b.id is not None)
+    assert b.id is not None
 
     q1 = b.refresh().data
-    assert (len(q1.blocks) == 0)
+    assert len(q1.blocks) == 0
 
     task = b.blockify(pluginInstance="markdown-blockifier-default-1.0")
-    assert (task.error is None)
-    assert (task.task is not None)
+    assert task.error is None
+    assert task.task is not None
     task.wait()
 
     q1 = b.refresh().data
-    assert (len(q1.blocks) == 2)
-    assert (q1.blocks[1].text == 'This is a test.')
-    assert (q1.blocks[0].text == 'Header')
+    assert len(q1.blocks) == 2
+    assert q1.blocks[1].text == "This is a test."
+    assert q1.blocks[0].text == "Header"
 
     a.delete()
     b.delete()
-
-

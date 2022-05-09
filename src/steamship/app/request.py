@@ -37,10 +37,10 @@ class Invocation:
     @staticmethod
     def from_dict(d: dict) -> "Invocation":
         return Invocation(
-            httpVerb=d.get('httpVerb', None),
-            appPath=d.get('appPath', None),
-            arguments=d.get('arguments', None),
-            config=d.get('config', None)
+            httpVerb=d.get("httpVerb", None),
+            appPath=d.get("appPath", None),
+            arguments=d.get("arguments", None),
+            config=d.get("config", None),
         )
 
 
@@ -51,14 +51,12 @@ class Request:
     This is the payload sent from the public-facing App Proxy to the
     private-facing app microservice.
     """
+
     clientConfig: Configuration = None
     invocation: Invocation = None
 
     @staticmethod
     def from_dict(d: dict) -> "Request":
-        invocation = Invocation.from_dict(d.get('invocation', dict()))
-        clientConfig = Configuration.from_dict(d.get('clientConfig', dict()))
-        return Request(
-            clientConfig=clientConfig,
-            invocation=invocation
-        )
+        invocation = Invocation.from_dict(d.get("invocation", dict()))
+        clientConfig = Configuration.from_dict(d.get("clientConfig", dict()))
+        return Request(clientConfig=clientConfig, invocation=invocation)

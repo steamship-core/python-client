@@ -15,11 +15,10 @@ class BlockAndTagPluginInput:
             return None
 
         return BlockAndTagPluginInput(
-            file=File.from_dict(d.get('file', None), client=client)
+            file=File.from_dict(d.get("file", None), client=client)
         )
 
     def to_dict(self) -> Dict:
         if self.file is None:
             return dict()
         return dict(file=self.file.to_dict())
-

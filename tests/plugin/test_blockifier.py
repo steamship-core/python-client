@@ -11,8 +11,7 @@ def test_resp():
     blockifier = DummyBlockifierPlugin()
     request = PluginRequest(data=RawDataPluginInput(data="Hi there"))
     response = blockifier.run(request).data
-    assert (response.file is not None)
-    assert (len(response.file.blocks) == 4)
+    assert response.file is not None
+    assert len(response.file.blocks) == 4
 
     # Now test as an HTTP Call
-

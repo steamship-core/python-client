@@ -21,7 +21,7 @@ def test_plugin_create():
             description="This is just for test",
             type=PluginType.embedder,
             transport=PluginAdapterType.steamshipDocker,
-            isPublic=True
+            isPublic=True,
         )
 
     # Should require description
@@ -30,7 +30,7 @@ def test_plugin_create():
             client=steamship,
             type=PluginType.embedder,
             transport=PluginAdapterType.steamshipDocker,
-            isPublic=True
+            isPublic=True,
         )
 
     # Should require plugin type
@@ -39,7 +39,7 @@ def test_plugin_create():
             client=steamship,
             description="This is just for test",
             transport=PluginAdapterType.steamshipDocker,
-            isPublic=True
+            isPublic=True,
         )
 
     # Should require adapter type
@@ -49,7 +49,7 @@ def test_plugin_create():
             description="This is just for test",
             type=PluginType.embedder,
             url="http://foo4",
-            isPublic=True
+            isPublic=True,
         )
 
     # Should require is public
@@ -62,7 +62,7 @@ def test_plugin_create():
         )
 
     my_plugins = Plugin.list(steamship).data
-    assert (len(my_plugins.plugins) == orig_count)
+    assert len(my_plugins.plugins) == orig_count
 
     plugin = Plugin.create(
         client=steamship,
@@ -70,10 +70,10 @@ def test_plugin_create():
         description="This is just for test",
         type=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
-        isPublic=False
+        isPublic=False,
     ).data
     my_plugins = Plugin.list(steamship).data
-    assert (len(my_plugins.plugins) == orig_count + 1)
+    assert len(my_plugins.plugins) == orig_count + 1
 
     # No upsert doesn't work
     pluginX = Plugin.create(
@@ -83,10 +83,10 @@ def test_plugin_create():
         description="This is just for test",
         type=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
-        isPublic=False
+        isPublic=False,
     )
-    assert (pluginX.error is not None)
-    assert (pluginX.data is None)
+    assert pluginX.error is not None
+    assert pluginX.data is None
 
     # Upsert does work
     plugin2 = Plugin.create(
@@ -97,35 +97,35 @@ def test_plugin_create():
         type=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
         isPublic=False,
-        upsert=True
+        upsert=True,
     ).data
 
-    assert (plugin2.id == plugin.id)
+    assert plugin2.id == plugin.id
 
     my_plugins = Plugin.list(steamship).data
-    assert (len(my_plugins.plugins) == orig_count + 1)
+    assert len(my_plugins.plugins) == orig_count + 1
 
-    assert (plugin2.id in [plugin.id for plugin in my_plugins.plugins])
-    assert (plugin2.description in [plugin.description for plugin in my_plugins.plugins])
+    assert plugin2.id in [plugin.id for plugin in my_plugins.plugins]
+    assert plugin2.description in [plugin.description for plugin in my_plugins.plugins]
 
     # assert(my_plugins.plugins[0].description != plugin.description)
 
     plugin.delete()
 
     my_plugins = Plugin.list(steamship).data
-    assert (len(my_plugins.plugins) == orig_count)
+    assert len(my_plugins.plugins) == orig_count
 
 
 def test_plugin_public():
     steamship = _steamship()
 
     resp = Plugin.list(steamship).data
-    assert (resp.plugins is not None)
+    assert resp.plugins is not None
     plugins = resp.plugins
 
-    assert (len(plugins) > 0)
+    assert len(plugins) > 0
 
     # Make sure they can't be deleted.
     res = plugins[0].delete()
-    assert (res.error is not None)
-    assert (res.data is None)
+    assert res.error is not None
+    assert res.data is None

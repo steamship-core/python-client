@@ -17,16 +17,17 @@ class TagRequest:
     def from_dict(d: any, client: Client = None) -> "TagRequest":
 
         return TagRequest(
-            type = d.get('type', None),
-            id = d.get('id', None),
-            name = d.get('name', None),
-            handle = d.get('handle', None),
-            pluginInstance= d.get('pluginInstance', None),
-            file= File.CreateRequest.from_dict(d.get('file', {}))
+            type=d.get("type", None),
+            id=d.get("id", None),
+            name=d.get("name", None),
+            handle=d.get("handle", None),
+            pluginInstance=d.get("pluginInstance", None),
+            file=File.CreateRequest.from_dict(d.get("file", {})),
         )
 
     def to_dict(self) -> dict:
         return asdict(self)
+
 
 @dataclass
 class TagResponse:
@@ -34,9 +35,7 @@ class TagResponse:
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "TagResponse":
-        return TagResponse(
-            file= File.from_dict(d.get('file', {}))
-        )
+        return TagResponse(file=File.from_dict(d.get("file", {})))
 
     def to_dict(self) -> dict:
         return asdict(self)

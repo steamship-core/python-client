@@ -13,7 +13,7 @@ class EmbedRequest:
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "EmbedRequest":
         return EmbedRequest(
-            docs=d.get('docs', None),
-            pluginInstance=d.get('pluginInstance', None),
-            metadata=d.get('metadata', {})
+            docs=d.get("docs", None),
+            pluginInstance=d.get("pluginInstance", None),
+            metadata=d.get("metadata", {}),
         )
