@@ -46,12 +46,12 @@ class AppVersion:
     @staticmethod
     def create(
         client: Client,
-        appId: str = None,
+        app_id: str = None,
         handle: str = None,
         filename: str = None,
         filebytes: bytes = None,
         upsert: bool = None,
-        configTemplate: Dict[str, any] = None,
+        config_template: Dict[str, any] = None,
     ) -> "AppVersion":
 
         if filename is None and filebytes is None:
@@ -64,7 +64,7 @@ class AppVersion:
                 filebytes = f.read()
 
         req = CreateAppVersionRequest(
-            handle=handle, appId=appId, upsert=upsert, configTemplate=configTemplate
+            handle=handle, appId=app_id, upsert=upsert, configTemplate=config_template
         )
 
         return client.post(

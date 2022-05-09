@@ -97,44 +97,51 @@ class Block:
     def get(
         client: Client,
         id: str = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> Response["Block"]:
         return client.post(
             "block/get",
             IdentifierRequest(id=id),
             expect=Block,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
     @staticmethod
     def create(
         client: Client,
-        fileId: str = None,
+        file_id: str = None,
         text: str = None,
         tags: List[Tag.CreateRequest] = None,
         upsert: bool = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
     ) -> Response["Block"]:
-        req = Block.CreateRequest(fileId=fileId, text=text, tags=tags, upsert=upsert)
+        req = Block.CreateRequest(fileId=file_id, text=text, tags=tags, upsert=upsert)
         return client.post(
-            "block/create", req, expect=Block, spaceId=spaceId, spaceHandle=spaceHandle
+            "block/create",
+            req,
+            expect=Block,
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
     @staticmethod
-    def listPublic(
-        client: Client, fileId: str = None, spaceId: str = None, spaceHandle: str = None
+    def list_public(
+        client: Client,
+        file_id: str = None,
+        space_id: str = None,
+        space_handle: str = None,
     ) -> Response["Block.ListResponse"]:
         return client.post(
             "block/list",
-            Block.ListRequest(fileId=fileId),
+            Block.ListRequest(fileId=file_id),
             expect=Block.ListResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
     def delete(self) -> Response["Block"]:
@@ -144,21 +151,22 @@ class Block:
             expect=Tag,
         )
 
+    @staticmethod
     def query(
         client: Client,
-        tagFilterQuery: str,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        tag_filter_query: str,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> Response["BlockQueryResponse"]:
-
-        req = BlockQueryRequest(tagFilterQuery=tagFilterQuery)
+        # TODO: Is this a static method?
+        req = BlockQueryRequest(tagFilterQuery=tag_filter_query)
         res = client.post(
             "block/query",
             payload=req,
             expect=BlockQueryResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
         return res

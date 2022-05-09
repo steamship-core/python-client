@@ -8,7 +8,7 @@ from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import Tagger
 
 
-def tagSentences(block: Block):
+def tag_sentences(block: Block):
     """Splits the document into sentences by assuming a period is a sentence divider."""
     # Add the period back
     tags = []
@@ -27,9 +27,9 @@ def tagSentences(block: Block):
         block.tags = tags
 
 
-def _makeTestResponse(request: BlockAndTagPluginInput) -> BlockAndTagPluginOutput:
+def _make_test_response(request: BlockAndTagPluginInput) -> BlockAndTagPluginOutput:
     for block in request.file.blocks:
-        tagSentences(block)
+        tag_sentences(block)
     response = BlockAndTagPluginOutput(request.file)
     return response
 
@@ -43,12 +43,12 @@ class TestParserPlugin(Tagger, App):
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         if request.data is not None:
-            return Response(data=_makeTestResponse(request.data))
+            return Response(data=_make_test_response(request.data))
 
     @post("tag")
     def parse(self, **kwargs) -> dict:
-        parseRequest = Tagger.parse_request(request=kwargs)
-        return self.run(parseRequest)
+        parse_request = Tagger.parse_request(request=kwargs)
+        return self.run(parse_request)
 
 
 handler = create_handler(TestParserPlugin)

@@ -14,7 +14,7 @@ def test_file_upload_then_parse():
     q1 = a.refresh().data
     assert len(q1.blocks) == 0
 
-    task = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
+    task = a.blockify(plugin_instance="markdown-blockifier-default-1.0")
     assert task.error is None
     assert task.task is not None
     assert task.task.state == TaskState.waiting
@@ -38,7 +38,7 @@ This is a test."""
     q1 = b.refresh().data
     assert len(q1.blocks) == 0
 
-    task = b.blockify(pluginInstance="markdown-blockifier-default-1.0")
+    task = b.blockify(plugin_instance="markdown-blockifier-default-1.0")
     assert task.error is None
     assert task.task is not None
     task.wait()

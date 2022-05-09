@@ -9,14 +9,14 @@ __license__ = "MIT"
 
 def test_file_tag():
     steamship = _steamship()
-    a = steamship.upload(content="A", mimeType=MimeTypes.MKD).data
+    a = steamship.upload(content="A", mime_type=MimeTypes.MKD).data
     assert a.id is not None
-    assert a.mimeType == MimeTypes.MKD
+    assert a.mime_type == MimeTypes.MKD
 
-    t1 = Tag.create(steamship, fileId=a.id, name="test1").data
-    t2 = Tag.create(steamship, fileId=a.id, name="test2").data
+    t1 = Tag.create(steamship, file_id=a.id, name="test1").data
+    t2 = Tag.create(steamship, file_id=a.id, name="test2").data
 
-    tags = Tag.listPublic(steamship, fileId=a.id)
+    tags = Tag.list_public(steamship, file_id=a.id)
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 2
@@ -31,7 +31,7 @@ def test_file_tag():
         if tag.name == "test1":
             tag.delete()
 
-    tags = Tag.listPublic(steamship, fileId=a.id)
+    tags = Tag.list_public(steamship, file_id=a.id)
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 1
@@ -44,7 +44,7 @@ def test_file_tag():
 
     tags.data.tags[0].delete()
 
-    tags = Tag.listPublic(steamship, fileId=a.id)
+    tags = Tag.list_public(steamship, file_id=a.id)
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 0
@@ -75,12 +75,14 @@ def test_query():
     b = b.refresh().data
 
     tags = Tag.query(
-        client=client, tagFilterQuery='blocktag and name "BlockTag"'
+        client=client, tag_filter_query='blocktag and name "BlockTag"'
     ).data.tags
     assert len(tags) == 1
     assert tags[0].id == a.blocks[0].tags[0].id
 
-    tags = Tag.query(client=client, tagFilterQuery='blocktag and name "Test"').data.tags
+    tags = Tag.query(
+        client=client, tag_filter_query='blocktag and name "Test"'
+    ).data.tags
     assert len(tags) == 1
     assert tags[0].id == b.blocks[1].tags[0].id
 

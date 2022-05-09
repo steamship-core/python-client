@@ -16,21 +16,21 @@ class RawDataPluginOutput:
         string: str = None,
         bytes: io.BytesIO = None,
         json: io.BytesIO = None,
-        mimeType: str = None,
+        mime_type: str = None,
     ):
         self.data, self.mimeType, encoding = flexi_create(
             base64string=base64string,
             string=string,
             json=json,
             bytes=bytes,
-            mimeType=mimeType,
-            alwaysBase64=True,  # The Engine needs the data result to always be base64 encoded.
+            mime_type=mime_type,
+            force_base64=True,  # The Engine needs the data result to always be base64 encoded.
         )
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "RawDataPluginOutput":
         return RawDataPluginOutput(
-            base64string=d.get("data", None), mimeType=d.get("mimeType", None)
+            base64string=d.get("data", None), mime_type=d.get("mimeType", None)
         )
 
     def to_dict(self) -> dict:

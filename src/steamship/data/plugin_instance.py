@@ -63,20 +63,20 @@ class PluginInstance:
     @staticmethod
     def create(
         client: Client,
-        pluginId: str = None,
-        pluginHandle: str = None,
-        pluginVersionId: str = None,
-        pluginVersionHandle: str = None,
+        plugin_id: str = None,
+        plugin_handle: str = None,
+        plugin_version_id: str = None,
+        plugin_version_handle: str = None,
         handle: str = None,
         upsert: bool = None,
         config: Dict[str, any] = None,
     ) -> Response[PluginInstance]:
         req = CreatePluginInstanceRequest(
             handle=handle,
-            pluginId=pluginId,
-            pluginHandle=pluginHandle,
-            pluginVersionId=pluginVersionId,
-            pluginVersionHandle=pluginVersionHandle,
+            pluginId=plugin_id,
+            pluginHandle=plugin_handle,
+            pluginVersionId=plugin_version_id,
+            pluginVersionHandle=plugin_version_handle,
             upsert=upsert,
             config=config,
         )
@@ -95,17 +95,17 @@ class PluginInstance:
             "plugin/instance/export", payload=input, expect=RawDataPluginOutput
         )
 
-    def train(self, trainingRequest: TrainingParameterPluginInput) -> PluginInstance:
+    def train(self, training_request: TrainingParameterPluginInput) -> PluginInstance:
         return self.client.post(
-            "plugin/instance/train", payload=trainingRequest, expect=PluginInstance
+            "plugin/instance/train", payload=training_request, expect=PluginInstance
         )
 
-    def getTrainingParameters(
-        self, trainingRequest: TrainingParameterPluginInput
+    def get_training_parameters(
+        self, training_request: TrainingParameterPluginInput
     ) -> PluginInstance:
         return self.client.post(
             "plugin/instance/getTrainingParameters",
-            payload=trainingRequest,
+            payload=training_request,
             expect=TrainingParameterPluginOutput,
         )
 

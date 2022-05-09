@@ -14,9 +14,9 @@ class TestParserPlugin(Tagger, App):
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
-        tagKind = self.config["tagKind"]
-        tagName = self.config["tagName"]
-        tagValue = json.dumps(
+        tag_kind = self.config["tagKind"]  # TODO (enias): Review config loading
+        tag_name = self.config["tagName"]
+        tag_value = json.dumps(
             {
                 "numberValue": self.config["numberValue"],
                 "booleanValue": self.config["booleanValue"],
@@ -25,7 +25,7 @@ class TestParserPlugin(Tagger, App):
 
         if request.data is not None:
             file = request.data.file
-            tag = Tag.CreateRequest(kind=tagKind, name=tagName, value=tagValue)
+            tag = Tag.CreateRequest(kind=tag_kind, name=tag_name, value=tag_value)
             if file.tags:
                 file.tags.append(tag)
             else:
@@ -34,8 +34,8 @@ class TestParserPlugin(Tagger, App):
 
     @post("tag")
     def parse(self, **kwargs) -> dict:
-        parseRequest = Tagger.parse_request(request=kwargs)
-        return self.run(parseRequest)
+        parse_request = Tagger.parse_request(request=kwargs)
+        return self.run(parse_request)
 
 
 handler = create_handler(TestParserPlugin)

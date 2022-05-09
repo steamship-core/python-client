@@ -15,21 +15,21 @@ def test_corpus_create():
     corpus = Corpus.create(client).data
 
     a = File.create(
-        client, content="A", corpusId=corpus.id, mimeType=MimeTypes.MKD
+        client, content="A", corpus_id=corpus.id, mime_type=MimeTypes.MKD
     ).data
     assert a.id is not None
-    assert a.mimeType == MimeTypes.MKD
-    assert a.corpusId == corpus.id
+    assert a.mime_type == MimeTypes.MKD
+    assert a.corpus_id == corpus.id
 
     a = File.scrape(
         client,
-        corpusId=corpus.id,
+        corpus_id=corpus.id,
         url="https://edwardbenson.com/2020/10/gpt3-travel-agent",
     ).data
     assert a.id is not None
-    assert a.corpusId == corpus.id
+    assert a.corpus_id == corpus.id
 
-    resp = File.list(client, corpusId=corpus.id).data
+    resp = File.list(client, corpus_id=corpus.id).data
     assert len(resp.files) == 2
 
 
@@ -69,7 +69,7 @@ def test_corpus_delete():
     assert resp.data.id == corpus1.id
 
     name_a = "{}.mkd".format(_random_name())
-    a = File.create(client, content="A", corpusId=corpus1.id, mimeType=MimeTypes.MKD)
+    a = File.create(client, content="A", corpus_id=corpus1.id, mime_type=MimeTypes.MKD)
     assert a.data is None
     assert a.error is not None
 
@@ -82,7 +82,7 @@ def test_corpus_delete_cascade():
 
     name_a = "{}.mkd".format(_random_name())
     a = File.create(
-        client=client, corpusId=corpus1.id, content="A", mimeType=MimeTypes.MKD
+        client=client, corpus_id=corpus1.id, content="A", mime_type=MimeTypes.MKD
     ).data
 
     res = a.refresh()

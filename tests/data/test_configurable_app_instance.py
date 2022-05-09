@@ -8,13 +8,13 @@ __license__ = "MIT"
 def test_configurable_instance_invoke():
 
     greeting1 = "Hola"
-    configTemplate = {"greeting": {"type": "string"}}
-    instanceConfig = {"greeting": greeting1}
+    config_template = {"greeting": {"type": "string"}}
+    instance_config = {"greeting": greeting1}
 
     with deploy_app(
         "configurable_hello_world.py",
-        versionConfigTemplate=configTemplate,
-        instanceConfig=instanceConfig,
+        version_config_template=config_template,
+        instance_config=instance_config,
     ) as (app, version, instance):
         # Now let's invoke it!
         # Note: we're invoking the data at configurable_hello_world.py in the tests/demo_apps folder
@@ -23,9 +23,9 @@ def test_configurable_instance_invoke():
         assert res == "{}, Person".format(greeting1)
 
         greeting2 = "Hallo"
-        instanceConfig2 = {"greeting": greeting2}
+        instance_config2 = {"greeting": greeting2}
         instance2 = AppInstance.create(
-            client, appId=app.id, appVersionId=version.id, config=instanceConfig2
+            client, app_id=app.id, app_version_id=version.id, config=instance_config2
         )
         instance2.wait()
         assert instance2.error is None

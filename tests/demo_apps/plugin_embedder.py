@@ -80,16 +80,16 @@ def embed(s: str) -> List[float]:
     return list(map(lambda word: 1.0 if word in s else 0.0, FEATURES))
 
 
-def embedToTag(s: str) -> Tag.CreateRequest:
+def _embed_to_tag(s: str) -> Tag.CreateRequest:
     embedding = embed(s)
     return Tag.CreateRequest(
         kind=TagKind.text, name=TextTag.embedding, value={TextTag.embedding: embedding}
     )
 
 
-def embedBlock(block: Block) -> Block.CreateRequest:
+def _embed_block(block: Block) -> Block.CreateRequest:
     return Block.CreateRequest(
-        id=block.id, text=block.text, tags=[embedToTag(block.text)]
+        id=block.id, text=block.text, tags=[_embed_to_tag(block.text)]
     )
 
 
@@ -97,15 +97,15 @@ class TestEmbedderPlugin(Embedder, App):
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
-        updatedBlocks = [embedBlock(block) for block in request.data.file.blocks]
+        updated_blocks = [_embed_block(block) for block in request.data.file.blocks]
         return Response(
-            data=BlockAndTagPluginOutput(file=File.CreateRequest(blocks=updatedBlocks))
+            data=BlockAndTagPluginOutput(file=File.CreateRequest(blocks=updated_blocks))
         )
 
     @post("tag")
     def embed(self, **kwargs) -> Response:
-        embedRequest = Embedder.parse_request(request=kwargs)
-        return self.run(embedRequest)
+        embed_request = Embedder.parse_request(request=kwargs)
+        return self.run(embed_request)
 
 
 handler = create_handler(TestEmbedderPlugin)

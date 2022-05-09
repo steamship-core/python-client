@@ -12,7 +12,7 @@ def test_version_create():
     app = App.create(client).data
     zip_bytes = create_app_zip("demo_app.py")
 
-    version = AppVersion.create(client, appId=app.id, filebytes=zip_bytes)
+    version = AppVersion.create(client, app_id=app.id, filebytes=zip_bytes)
 
     version.wait()
 

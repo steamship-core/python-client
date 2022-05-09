@@ -51,13 +51,3 @@ def test_resp_response():
     check_mime(d, MimeTypes.JSON)
     check_type(d, dict)
     check_val(d, asdict(o))
-
-
-def test_resp_response():
-    """Test test response"""
-    o = BlockAndTagPluginOutput(file=File.CreateRequest(value="Foo"))
-    r = Response(json=o)
-    d = r.to_dict()
-    check_mime(d, MimeTypes.JSON)
-    check_type(d, dict)
-    check_val(d, asdict(o))

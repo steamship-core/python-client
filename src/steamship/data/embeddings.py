@@ -237,8 +237,8 @@ class EmbeddingIndex:
     handle: str = None
     name: str = None
     plugin: str = None
-    externalId: str = None
-    externalType: str = None
+    external_id: str = None
+    external_type: str = None
     metadata: str = None
 
     @staticmethod
@@ -249,25 +249,25 @@ class EmbeddingIndex:
             d = d["index"]
         return EmbeddingIndex(
             client=client,
-            id=d.get("id", None),
-            handle=d.get("handle", None),
-            name=d.get("name", None),
-            plugin=d.get("plugin", None),
-            externalId=d.get("externalId", None),
-            externalType=d.get("externalType", None),
-            metadata=d.get("metadata", None),
+            id=d.get("id"),
+            handle=d.get("handle"),
+            name=d.get("name"),
+            plugin=d.get("plugin"),
+            external_id=d.get("externalId"),
+            external_type=d.get("externalType"),
+            metadata=d.get("metadata"),
         )
 
     def insert_file(
         self,
-        fileId: str,
-        blockType: str = None,
-        externalId: str = None,
-        externalType: str = None,
+        file_id: str,
+        block_type: str = None,
+        external_id: str = None,
+        external_type: str = None,
         metadata: Union[int, float, bool, str, List, Dict] = None,
         reindex: bool = True,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> Response[IndexInsertResponse]:
         if isinstance(metadata, dict) or isinstance(metadata, list):
@@ -275,10 +275,10 @@ class EmbeddingIndex:
 
         req = IndexInsertRequest(
             indexId=self.id,
-            fileId=fileId,
-            blockType=blockType,
-            externalId=externalId,
-            externalType=externalType,
+            fileId=file_id,
+            blockType=block_type,
+            externalId=external_id,
+            externalType=external_type,
             metadata=metadata,
             reindex=reindex,
         )
@@ -286,8 +286,8 @@ class EmbeddingIndex:
             "embedding-index/item/create",
             req,
             expect=IndexInsertResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
@@ -295,41 +295,41 @@ class EmbeddingIndex:
         self,
         items: List[Union[EmbeddedItem, str]],
         reindex: bool = True,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> Response[IndexInsertResponse]:
-        newItems = []
+        new_items = []
         for item in items:
             if type(item) == str:
-                newItems.append(EmbeddedItem(value=item))
+                new_items.append(EmbeddedItem(value=item))
             else:
-                newItems.append(item)
+                new_items.append(item)
 
         req = IndexInsertRequest(
             indexId=self.id,
             value=None,
-            items=[item.clone_for_insert() for item in newItems],
+            items=[item.clone_for_insert() for item in new_items],
             reindex=reindex,
         )
         return self.client.post(
             "embedding-index/item/create",
             req,
             expect=IndexInsertResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
     def insert(
         self,
         value: str,
-        externalId: str = None,
-        externalType: str = None,
+        external_id: str = None,
+        external_type: str = None,
         metadata: Union[int, float, bool, str, List, Dict] = None,
         reindex: bool = True,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> Response[IndexInsertResponse]:
 
@@ -337,8 +337,8 @@ class EmbeddingIndex:
             indexId=self.id,
             value=value,
             items=None,
-            externalId=externalId,
-            externalType=externalType,
+            externalId=external_id,
+            externalType=external_type,
             metadata=metadata_to_str(metadata),
             reindex=reindex,
         )
@@ -346,13 +346,13 @@ class EmbeddingIndex:
             "embedding-index/item/create",
             req,
             expect=IndexInsertResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
     def embed(
-        self, spaceId: str = None, spaceHandle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: any = None
     ) -> Response[IndexEmbedResponse]:
         req = IndexEmbedRequest(self.id)
         return self.client.post(
@@ -360,13 +360,13 @@ class EmbeddingIndex:
             req,
             expect=IndexEmbedResponse,
             asynchronous=True,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
     def create_snapshot(
-        self, spaceId: str = None, spaceHandle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: any = None
     ) -> Response[IndexSnapshotResponse]:
         req = IndexSnapshotRequest(indexId=self.id)
         return self.client.post(
@@ -374,50 +374,51 @@ class EmbeddingIndex:
             req,
             expect=IndexSnapshotResponse,
             asynchronous=True,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
+    # TODO (enias): Can these be generic list operations for all file types?
     def list_snapshots(
-        self, spaceId: str = None, spaceHandle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: any = None
     ) -> Response[ListSnapshotsResponse]:
         req = ListSnapshotsRequest(id=self.id)
         return self.client.post(
             "embedding-index/snapshot/list",
             req,
             expect=ListSnapshotsResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
     def list_items(
         self,
-        fileId: str = None,
-        blockId: str = None,
-        spanId: str = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        file_id: str = None,
+        block_id: str = None,
+        span_id: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> Response[ListItemsResponse]:
         req = ListItemsRequest(
-            id=self.id, fileId=fileId, blockId=blockId, spanId=spanId
+            id=self.id, fileId=file_id, blockId=block_id, spanId=span_id
         )
         return self.client.post(
             "embedding-index/item/list",
             req,
             expect=ListItemsResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
     def delete_snapshot(
         self,
         snapshot_id: str,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> Response[DeleteSnapshotsResponse]:
         req = DeleteSnapshotsRequest(snapshotId=snapshot_id)
@@ -425,20 +426,20 @@ class EmbeddingIndex:
             "embedding-index/snapshot/delete",
             req,
             expect=DeleteSnapshotsResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
     def delete(
-        self, spaceId: str = None, spaceHandle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: any = None
     ) -> "Response[EmbeddingIndex]":
         return self.client.post(
             "embedding-index/delete",
             DeleteEmbeddingIndexRequest(id=self.id),
             expect=EmbeddingIndex,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
@@ -446,10 +447,10 @@ class EmbeddingIndex:
         self,
         query: Union[str, List[str]],
         k: int = 1,
-        includeMetadata: bool = False,
+        include_metadata: bool = False,
         pd=False,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> Response[QueryResults]:
         if type(query) == list:
@@ -458,7 +459,7 @@ class EmbeddingIndex:
                 query=None,
                 queries=query,
                 k=k,
-                includeMetadata=includeMetadata,
+                includeMetadata=include_metadata,
             )
         else:
             req = IndexSearchRequest(
@@ -466,14 +467,14 @@ class EmbeddingIndex:
                 query=query,
                 queries=None,
                 k=k,
-                includeMetadata=includeMetadata,
+                includeMetadata=include_metadata,
             )
         ret = self.client.post(
             "embedding-index/search",
             req,
             expect=QueryResults,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
@@ -492,29 +493,29 @@ class EmbeddingIndex:
         client: Client,
         handle: str = None,
         name: str = None,
-        pluginInstance: str = None,
+        plugin_instance: str = None,
         upsert: bool = True,
-        externalId: str = None,
-        externalType: str = None,
+        external_id: str = None,
+        external_type: str = None,
         metadata: any = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> "Response[EmbeddingIndex]":
         req = IndexCreateRequest(
             handle=handle,
             name=name,
-            pluginInstance=pluginInstance,
+            pluginInstance=plugin_instance,
             upsert=upsert,
-            externalId=externalId,
-            externalType=externalType,
+            externalId=external_id,
+            externalType=external_type,
             metadata=metadata,
         )
         return client.post(
             "embedding-index/create",
             req,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
             expect=EmbeddingIndex,
         )

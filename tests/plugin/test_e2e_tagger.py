@@ -9,7 +9,7 @@ def test_e2e_tagger():
     client = _steamship()
     with deploy_plugin("plugin_parser.py", "tagger") as (plugin, version, instance):
         test_doc = "Hi there"
-        res = client.tag(doc=test_doc, pluginInstance=instance.handle)
+        res = client.tag(doc=test_doc, plugin_instance=instance.handle)
         res.wait()
         assert res.error is None
         assert res.data is not None

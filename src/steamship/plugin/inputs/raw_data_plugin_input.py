@@ -6,7 +6,7 @@ from steamship.base import Client
 from steamship.base.mime_types import TEXT_MIME_TYPES
 
 
-def isBase64(sb):
+def is_base64(sb):
     try:
         if isinstance(sb, str):
             # If there's any unicode here, an exception will be thrown and the function will return false
@@ -39,7 +39,7 @@ class RawDataPluginInput:
         #         data = data_bytes.decode('utf-8')
         #     else:
         #         data = data_bytes
-        if data is not None and isBase64(data):
+        if data is not None and is_base64(data):
             data_bytes = base64.b64decode(data)
             if d.get("defaultMimeType", None) in TEXT_MIME_TYPES:
                 data = data_bytes.decode("utf-8")

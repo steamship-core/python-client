@@ -65,11 +65,11 @@ def deploy_plugin(
 ):
     plugin = Plugin.create(
         client,
-        trainingPlatform=training_platform,
+        training_platform=training_platform,
         description="test",
         type=plugin_type,
         transport="jsonOverHttp",
-        isPublic=False,
+        is_public=False,
     )
     assert plugin.error is None
     assert plugin.data is not None
@@ -79,9 +79,9 @@ def deploy_plugin(
     version = PluginVersion.create(
         client,
         "test-version",
-        pluginId=plugin.id,
+        plugin_id=plugin.id,
         filebytes=zip_bytes,
-        configTemplate=version_config_template,  # TODO: What is this?
+        config_template=version_config_template,  # TODO: What is this?
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
@@ -92,7 +92,10 @@ def deploy_plugin(
     version = version.data
 
     instance = PluginInstance.create(
-        client, pluginId=plugin.id, pluginVersionId=version.id, config=instance_config
+        client,
+        plugin_id=plugin.id,
+        plugin_version_id=version.id,
+        config=instance_config,
     )
     instance.wait()
     assert instance.error is None

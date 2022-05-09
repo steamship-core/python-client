@@ -31,39 +31,39 @@ def count_tags(blocks: [Block], tag_kind: str, tag_name: str):
     return c
 
 
-def tag_file(client: Client, parserInstanceHandle: str):
-    T = "A Poem"
-    P1_1 = "Roses are red."
-    P1_2 = "Violets are blue."
-    P2_1 = "Sugar is sweet, and I love you."
+def tag_file(client: Client, parser_instance_handle: str):
+    t = "A Poem"
+    p1_1 = "Roses are red."
+    p1_2 = "Violets are blue."
+    p2_1 = "Sugar is sweet, and I love you."
 
-    CONTENT = "# {}\n\n{} {}\n\n{}".format(T, P1_1, P1_2, P2_1)
+    content = "# {}\n\n{} {}\n\n{}".format(t, p1_1, p1_2, p2_1)
 
-    a = client.upload(content=CONTENT, mimeType=MimeTypes.MKD).data
+    a = client.upload(content=content, mime_type=MimeTypes.MKD).data
     assert a.id is not None
-    assert a.mimeType == MimeTypes.MKD
+    assert a.mime_type == MimeTypes.MKD
 
-    a.blockify(pluginInstance="markdown-blockifier-default-1.0").wait()
+    a.blockify(plugin_instance="markdown-blockifier-default-1.0").wait()
 
     raw = a.raw()
-    assert raw.data.decode("utf-8") == CONTENT
+    assert raw.data.decode("utf-8") == content
 
     # The following tests should be updated once the Tag query basics are merged.
     # Instead of querying and filtering, do a query with a tag filter
     q1 = a.refresh().data
     assert count_blocks_with_tag(q1.blocks, DocTag.doc, DocTag.h1) == 1
-    assert q1.blocks[0].text == T
+    assert q1.blocks[0].text == t
 
     # Instead of re-filtering previous result, do a new tag filter query
     assert count_blocks_with_tag(q1.blocks, DocTag.doc, DocTag.paragraph) == 2
-    assert q1.blocks[1].text == "{} {}".format(P1_1, P1_2)
+    assert q1.blocks[1].text == "{} {}".format(p1_1, p1_2)
 
     # The sentences aren't yet parsed out!
     # Instead of re-filtering again, do a new tag filter query
     assert count_blocks_with_tag(q1.blocks, DocTag.doc, DocTag.sentence) == 0
 
     # Now we parse
-    task = a.tag(pluginInstance=parserInstanceHandle)
+    task = a.tag(plugin_instance=parser_instance_handle)
     assert task.error is None
     assert task.task is not None
     assert task.task.state == TaskState.waiting
@@ -88,5 +88,5 @@ def tag_file(client: Client, parserInstanceHandle: str):
 
 def test_parse_file():
     steamship = _steamship()
-    parser = PluginInstance.create(steamship, pluginHandle="test-tagger").data
+    parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
     tag_file(steamship, parser.handle)

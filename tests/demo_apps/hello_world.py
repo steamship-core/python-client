@@ -8,7 +8,7 @@ class HelloWorld(App):
 
     @get("space")
     def space(self) -> Response:
-        return Response(string=self.client.config.spaceId)
+        return Response(string=self.client.config.space_id)
 
 
 handler = create_handler(HelloWorld)

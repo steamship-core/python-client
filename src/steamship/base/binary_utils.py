@@ -33,9 +33,9 @@ def flexi_create(
     string: str = None,
     json: Any = None,
     bytes: Union[bytes, io.BytesIO] = None,
-    mimeType=None,
-    alwaysBase64=False,
-) -> Tuple[Any, Union[None, str], Union[None, str]]:
+    mime_type=None,
+    force_base64=False,
+) -> Tuple[Any, Union[None, str], Union[None, str]]:  # TODO (Enias): Review
     """
     It's convenient for some constructors to accept a variety of input types:
     - data (your choice)
@@ -49,7 +49,7 @@ def flexi_create(
     try:
         if base64string is not None:
             logging.error("B64")
-            return base64string, mimeType or MimeTypes.BINARY, ContentEncodings.BASE64
+            return base64string, mime_type or MimeTypes.BINARY, ContentEncodings.BASE64
 
         ret_data = None  # the body of the result
         ret_mime = None  # for the Content-Type field
@@ -57,33 +57,33 @@ def flexi_create(
         is_b64 = False
 
         if data is not None:
-            ret_data, ret_mime = data, mimeType or guess_mime(data, mimeType)
+            ret_data, ret_mime = data, mime_type or guess_mime(data, mime_type)
 
         elif string is not None:
-            ret_data, ret_mime = string, mimeType or MimeTypes.TXT
+            ret_data, ret_mime = string, mime_type or MimeTypes.TXT
 
         elif json is not None:
             if dataclasses.is_dataclass(json):
                 ret_data, ret_mime = (
                     dataclasses.asdict(json),
-                    mimeType or MimeTypes.JSON,
+                    mime_type or MimeTypes.JSON,
                 )
             else:
-                ret_data, ret_mime = json, mimeType or MimeTypes.JSON
+                ret_data, ret_mime = json, mime_type or MimeTypes.JSON
 
         elif bytes is not None:
             if isinstance(bytes, io.BytesIO):
                 bytes = bytes.getvalue()  # Turn it into regular bytes
             ret_data, ret_mime = (
                 base64.b64encode(bytes).decode("utf-8"),
-                mimeType or ret_mime or MimeTypes.BINARY,
+                mime_type or ret_mime or MimeTypes.BINARY,
             )
             is_b64 = True
             ret_encoding = ContentEncodings.BASE64
 
         if ret_data is not None:
             logging.error("had ret data")
-            if alwaysBase64 is False:
+            if force_base64 is False:
                 return ret_data, ret_mime, ret_encoding
             if is_b64 is True:
                 return ret_data, ret_mime, ContentEncodings.BASE64

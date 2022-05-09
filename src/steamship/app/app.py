@@ -16,29 +16,32 @@ from steamship.app.response import Response
 from steamship.client.client import Steamship
 
 
-def makeRegisteringDecorator(foreignDecorator):
+def make_registering_decorator(decorator):  # TODO (Enias): Review
     """
     Returns a copy of foreignDecorator, which is identical in every
     way(*), except also appends a .decorator property to the callable it
     spits out.
+
+    (*)We can be somewhat "hygienic", but newDecorator still isn't signature-preserving,
+    i.e. you will not be able to get a runtime list of parameters.
+    For that, you need hackish libraries...but in this case, the only argument is func, so it's not a big issue
     """
 
-    def newDecorator(func):
+    def new_decorator(func):
         # Call to newDecorator(method)
         # Exactly like old decorator, but output keeps track of what decorated it
-        R = foreignDecorator(
+        output = decorator(
             func
         )  # apply foreignDecorator, like call to foreignDecorator(method) would have done
-        R.decorator = newDecorator  # keep track of decorator
+        output.decorator = new_decorator  # keep track of decorator
         # R.original = func         # might as well keep track of everything!
-        return R
+        return output
 
-    newDecorator.__name__ = foreignDecorator.__name__
-    newDecorator.__doc__ = foreignDecorator.__doc__
-    newDecorator.__is_endpoint__ = True
-    # (*)We can be somewhat "hygienic", but newDecorator still isn't signature-preserving, i.e. you will not be able to get a runtime list of parameters. For that, you need hackish libraries...but in this case, the only argument is func, so it's not a big issue
+    new_decorator.__name__ = decorator.__name__
+    new_decorator.__doc__ = decorator.__doc__
+    new_decorator.__is_endpoint__ = True
 
-    return newDecorator
+    return new_decorator
 
 
 # https://stackoverflow.com/questions/2366713/can-a-decorator-of-an-instance-method-access-the-class
@@ -56,7 +59,7 @@ def endpoint(verb: str = None, path: str = None, **kwargs):
         wrap.__verb__ = verb
         return wrap
 
-    decorator = makeRegisteringDecorator(decorator)
+    decorator = make_registering_decorator(decorator)
     return decorator
 
 

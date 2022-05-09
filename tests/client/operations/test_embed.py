@@ -18,35 +18,35 @@ def count_embeddings(file: File):
     return embeddings
 
 
-def basic_embeddings(steamship: Client, pluginInstance: str):
-    e1 = steamship.tag("This is a test", pluginInstance=pluginInstance)
-    e1b = steamship.tag("Banana", pluginInstance=pluginInstance)
+def basic_embeddings(steamship: Client, plugin_instance: str):
+    e1 = steamship.tag("This is a test", plugin_instance=plugin_instance)
+    e1b = steamship.tag("Banana", plugin_instance=plugin_instance)
     e1.wait()
     e1b.wait()
     assert count_embeddings(e1.data.file) == 1
     assert count_embeddings(e1b.data.file) == 1
     assert len(e1.data.file.blocks[0].tags[0].value["embedding"]) > 1
 
-    e2 = steamship.tag("This is a test", pluginInstance=pluginInstance)
+    e2 = steamship.tag("This is a test", plugin_instance=plugin_instance)
     e2.wait()
     assert count_embeddings(e2.data.file) == 1
     assert len(e2.data.file.blocks[0].tags[0].value["embedding"]) == len(
         e1.data.file.blocks[0].tags[0].value["embedding"]
     )
 
-    e4 = steamship.tag("This is a test", pluginInstance=pluginInstance)
+    e4 = steamship.tag("This is a test", plugin_instance=plugin_instance)
     e4.wait()
     assert count_embeddings(e4.data.file) == 1
 
 
 def test_basic_embeddings():
-    pluginInstance = PluginInstance.create(
-        _steamship(), pluginHandle=_TEST_EMBEDDER
+    plugin_instance = PluginInstance.create(
+        _steamship(), plugin_handle=_TEST_EMBEDDER
     ).data
-    basic_embeddings(_steamship(), pluginInstance.handle)
+    basic_embeddings(_steamship(), plugin_instance.handle)
 
 
-def basic_embedding_search(steamship: Client, pluginInstance: str):
+def basic_embedding_search(steamship: Client, plugin_instance: str):
     docs = [
         "Armadillo shells are bulletproof.",
         "Dolphins sleep with one eye open.",
@@ -55,7 +55,7 @@ def basic_embedding_search(steamship: Client, pluginInstance: str):
         "The code for the New York office is 1234",
     ]
     query = "Who should I talk to about new employee setup?"
-    results = steamship.embed_and_search(query, docs, pluginInstance=pluginInstance)
+    results = steamship.embed_and_search(query, docs, plugin_instance=plugin_instance)
     assert len(results.data.items) == 1
     assert (
         results.data.items[0].value.value
@@ -64,7 +64,7 @@ def basic_embedding_search(steamship: Client, pluginInstance: str):
 
 
 def test_basic_embedding_search():
-    pluginInstance = PluginInstance.create(
-        _steamship(), pluginHandle=_TEST_EMBEDDER
+    plugin_instance = PluginInstance.create(
+        _steamship(), plugin_handle=_TEST_EMBEDDER
     ).data
-    basic_embedding_search(_steamship(), pluginInstance.handle)
+    basic_embedding_search(_steamship(), plugin_instance.handle)

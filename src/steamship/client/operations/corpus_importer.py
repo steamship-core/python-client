@@ -52,14 +52,14 @@ class CorpusImportResponse:
     client: Client = None
     fileImportRequests: List[File.CreateRequest] = None
 
-    def __init__(self, fileImportRequests: List[File.CreateRequest] = None):
-        self.fileImportRequests = fileImportRequests
+    def __init__(self, file_import_requests: List[File.CreateRequest] = None):
+        self.fileImportRequests = file_import_requests
 
     @staticmethod
     def from_dict(d: any, client: Client = None) -> "CorpusImportResponse":
         return CorpusImportResponse(
             client=client,
-            fileImportRequests=[
+            file_import_requests=[
                 File.CreateRequest.from_dict(req)
                 for req in d.get("fileImportRequests", [])
             ],

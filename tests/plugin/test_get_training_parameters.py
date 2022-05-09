@@ -24,10 +24,10 @@ def test_get_training_parameters():
         "tagger",
         training_platform=TrainingPlatform.managed,
     ) as (tagger, taggerVersion, taggerInstance):
-        trainingRequest = TrainingParameterPluginInput(
+        training_request = TrainingParameterPluginInput(
             pluginInstance=taggerInstance.handle
         )
-        res = taggerInstance.getTrainingParameters(trainingRequest)
+        res = taggerInstance.get_training_parameters(training_request)
         assert res.data is not None
         params = res.data
 

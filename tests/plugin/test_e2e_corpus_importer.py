@@ -9,8 +9,8 @@ __license__ = "MIT"
 
 def test_e2e_corpus_importer():
     client = _steamship()
-    testFileImporterInstance = PluginInstance.create(
-        client, pluginHandle="test-fileImporter-valueOrData", upsert=True
+    test_file_importer_instance = PluginInstance.create(
+        client, plugin_handle="test-fileImporter-valueOrData", upsert=True
     ).data
     with deploy_plugin("plugin_corpus_importer.py", "corpusImporter") as (
         plugin,
@@ -19,15 +19,15 @@ def test_e2e_corpus_importer():
     ):
         # with PluginVersion.(client, "corpusImporter", "do_import", app, instance) as plugin:
         with _random_corpus(client) as corpus:
-            resp = corpus.doImport(
-                pluginInstance=instance.handle,
-                fileImporterPluginInstance=testFileImporterInstance.handle,
+            resp = corpus.do_import(
+                plugin_instance=instance.handle,
+                file_importer_plugin_instance=test_file_importer_instance.handle,
                 value="dummy-value",
             )
             resp.wait()
 
             # We should now have two files!
-            files = File.list(client, corpusId=corpus.id).data
+            files = File.list(client, corpus_id=corpus.id).data
             assert files.files is not None
             assert len(files.files) == 2
 

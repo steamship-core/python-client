@@ -26,26 +26,27 @@ class Steamship(Client):
 
     def __init__(
         self,
-        apiKey: str = None,
-        apiBase: str = None,
-        appBase: str = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        api_key: str = None,
+        api_base: str = None,
+        app_base: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         profile: str = None,
-        configFile: str = None,
-        configDict: dict = None,
-        dQuery: bool = False,
-    ):
+        config_file: str = None,
+        config_dict: dict = None,
+        d_query: bool = False,
+    ):  # TODO (Enias): What is d_query?
+        # TODO (Enias): Do we need config file and config dict?
         super().__init__(
-            apiKey=apiKey,
-            apiBase=apiBase,
-            appBase=appBase,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            api_key=api_key,
+            api_base=api_base,
+            app_base=app_base,
+            space_id=space_id,
+            space_handle=space_handle,
             profile=profile,
-            configFile=configFile,
-            configDict=configDict,
-            dQuery=dQuery,
+            config_file=config_file,
+            config_dict=config_dict,
+            d_query=d_query,
         )
         """
         The base.py class will properly detect and set the defaults. They should be None here.
@@ -66,25 +67,25 @@ class Steamship(Client):
     def create_index(
         self,
         handle: str = None,
-        pluginInstance: str = None,
+        plugin_instance: str = None,
         upsert: bool = True,
-        externalId: str = None,
-        externalType: str = None,
+        external_id: str = None,
+        external_type: str = None,
         metadata: any = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: Space = None,
     ) -> Response[EmbeddingIndex]:
         return EmbeddingIndex.create(
             client=self,
             handle=handle,
-            pluginInstance=pluginInstance,
+            plugin_instance=plugin_instance,
             upsert=upsert,
-            externalId=externalId,
-            externalType=externalType,
+            external_id=external_id,
+            external_type=external_type,
             metadata=metadata,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
@@ -92,73 +93,73 @@ class Steamship(Client):
         self,
         filename: str = None,
         content: str = None,
-        mimeType: str = None,
+        mime_type: str = None,
         plugin: str = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: Space = None,
     ) -> File:
         return File.create(
             self,
             filename=filename,
             content=content,
-            mimeType=mimeType,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            mime_type=mime_type,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
     def scrape(
         self,
         url: str,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: Space = None,
     ) -> File:
         return File.scrape(
-            self, url, spaceId=spaceId, spaceHandle=spaceHandle, space=space
+            self, url, space_id=space_id, space_handle=space_handle, space=space
         )
 
     def embed_and_search(
         self,
         query: str,
         docs: List[str],
-        pluginInstance: str,
+        plugin_instance: str,
         k: int = 1,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: Space = None,
     ) -> Response[QueryResults]:
         req = EmbedAndSearchRequest(
-            query=query, docs=docs, pluginInstance=pluginInstance, k=k
+            query=query, docs=docs, pluginInstance=plugin_instance, k=k
         )
         return self.post(
             "plugin/instance/embeddingSearch",
             req,
             expect=QueryResults,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
     def tag(
         self,
         doc: str,
-        pluginInstance: str = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        plugin_instance: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: Space = None,
     ) -> Response[TagResponse]:
         req = TagRequest(
             type="inline",
             file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
-            pluginInstance=pluginInstance,
+            pluginInstance=plugin_instance,
         )
         return self.post(
             "plugin/instance/tag",
             req,
             expect=TagResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )

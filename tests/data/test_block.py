@@ -30,13 +30,13 @@ def test_query():
     b = b.refresh().data
 
     blocks = Block.query(
-        client=client, tagFilterQuery='blocktag and name "BlockTag"'
+        client=client, tag_filter_query='blocktag and name "BlockTag"'
     ).data.blocks
     assert len(blocks) == 1
     assert blocks[0].id == a.blocks[0].id
 
     blocks = Block.query(
-        client=client, tagFilterQuery='blocktag and name "Test"'
+        client=client, tag_filter_query='blocktag and name "Test"'
     ).data.blocks
     assert len(blocks) == 1
     assert blocks[0].id == b.blocks[1].id

@@ -70,8 +70,8 @@ class Space:
         id: str = None,
         handle: str = None,
         upsert: bool = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: "Space" = None,
     ) -> "Response[Space]":
         req = GetRequest(id=id, handle=handle, upsert=upsert)
@@ -79,8 +79,8 @@ class Space:
             "space/get",
             req,
             expect=Space,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
@@ -88,21 +88,21 @@ class Space:
     def create(
         client: Client,
         handle: str,
-        externalId: str = None,
-        externalType: str = None,
+        external_id: str = None,
+        external_type: str = None,
         metadata: any = None,
         upsert: bool = True,
     ) -> "Response[Space]":
         req = Space.CreateRequest(
             handle=handle,
             upsert=upsert,
-            externalId=externalId,
-            externalType=externalType,
+            externalId=external_id,
+            externalType=external_type,
             metadata=metadata,
         )
         return client.post("space/create", req, expect=Space)
 
-    def createSignedUrl(
+    def create_signed_url(
         self, request: SignedUrl.Request
     ) -> Response[SignedUrl.Response]:
         return self.client.post(
