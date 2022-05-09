@@ -12,24 +12,24 @@ __license__ = "MIT"
 
 def test_file_upload():
     steamship = _steamship()
-    a = steamship.upload(content="A", mimeType=MimeTypes.MKD).data
+    a = steamship.upload(content="A", mime_type=MimeTypes.MKD).data
     assert a.id is not None
-    assert a.mimeType == MimeTypes.MKD
+    assert a.mime_type == MimeTypes.MKD
 
-    b = steamship.upload(content="B", mimeType=MimeTypes.TXT).data
+    b = steamship.upload(content="B", mime_type=MimeTypes.TXT).data
     assert b.id is not None
-    assert b.mimeType == MimeTypes.TXT
+    assert b.mime_type == MimeTypes.TXT
     assert a.id != b.id
 
-    c = steamship.upload(content="B", mimeType=MimeTypes.MKD).data
+    c = steamship.upload(content="B", mime_type=MimeTypes.MKD).data
     assert (
-        c.mimeType == MimeTypes.MKD
+        c.mime_type == MimeTypes.MKD
     )  # The specified format gets precedence over filename
 
     d = steamship.upload(
         content="B",
     ).data
-    assert d.mimeType == MimeTypes.TXT  # The filename is used in a pinch.
+    assert d.mime_type == MimeTypes.TXT  # The filename is used in a pinch.
 
     a.delete()
     b.delete()
@@ -42,14 +42,14 @@ def test_file_scrape():
 
     a = steamship.scrape(url="https://edwardbenson.com/2020/10/gpt3-travel-agent").data
     assert a.id is not None
-    assert a.mimeType == MimeTypes.HTML
+    assert a.mime_type == MimeTypes.HTML
 
     b = steamship.scrape(
         url="https://edwardbenson.com/2018/09/case-of-the-murderous-ai"
     ).data
     assert b.id is not None
     assert a.id != b.id
-    assert b.mimeType == MimeTypes.HTML
+    assert b.mime_type == MimeTypes.HTML
 
     a.delete()
     b.delete()
@@ -75,7 +75,7 @@ def test_file_scrape():
 
 
 def test_file_import_response_dict():
-    resp = File.CreateResponse(bytes=b"some bytes", mimeType=MimeTypes.BINARY)
+    resp = File.CreateResponse(bytes=b"some bytes", mime_type=MimeTypes.BINARY)
     to_dict = resp.to_dict()
     from_dict = File.CreateResponse.from_dict(to_dict)
     assert resp.data == from_dict.data
@@ -83,7 +83,7 @@ def test_file_import_response_dict():
 
 
 def test_file_import_response_bytes_serialization():
-    file_resp = File.CreateResponse(bytes=b"some bytes", mimeType=MimeTypes.BINARY)
+    file_resp = File.CreateResponse(bytes=b"some bytes", mime_type=MimeTypes.BINARY)
     to_dict = file_resp.to_dict()
     as_json_string = json.dumps(to_dict)
     as_dict_again = json.loads(as_json_string)
@@ -102,7 +102,7 @@ def test_file_upload_with_blocks():
     ).data
     assert a.id is not None
 
-    blocks = Block.listPublic(client, fileId=a.id)
+    blocks = Block.list_public(client, file_id=a.id)
 
     def check_blocks(blocks):
         assert len(blocks) == 2
@@ -142,13 +142,13 @@ def test_query():
     assert b.id is not None
 
     files = File.query(
-        client=client, tagFilterQuery='blocktag and name "BlockTag"'
+        client=client, tag_filter_query='blocktag and name "BlockTag"'
     ).data.files
     assert len(files) == 1
     assert files[0].id == a.id
 
     files = File.query(
-        client=client, tagFilterQuery='filetag and name "FileTag"'
+        client=client, tag_filter_query='filetag and name "FileTag"'
     ).data.files
     assert len(files) == 1
     assert files[0].id == b.id

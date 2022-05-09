@@ -15,7 +15,7 @@ def test_e2e_importer():
         instance,
     ):
         file = File.create(
-            client=client, content="This is a test.", pluginInstance=instance.handle
+            client=client, content="This is a test.", plugin_instance=instance.handle
         ).data
 
         data = file.raw().data

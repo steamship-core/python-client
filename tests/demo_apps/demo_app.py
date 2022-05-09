@@ -42,7 +42,7 @@ class TestApp(App):
     @get("resp_image")
     def resp_image(self) -> Response:
         bytes = base64.b64decode(PALM_TREE_BASE_64)
-        return Response(bytes=bytes, mimeType=MimeTypes.PNG)
+        return Response(bytes=bytes, mime_type=MimeTypes.PNG)
 
     @get("greet")
     def greet1(self, name: str = "Person") -> Response:
@@ -54,16 +54,16 @@ class TestApp(App):
 
     @get("space")
     def space(self) -> Response:
-        return Response(string=self.client.config.spaceId)
+        return Response(string=self.client.config.space_id)
 
     @get("config")
     def config(self) -> Response:
         return Response(
             json=dict(
-                spaceId=self.client.config.spaceId,
-                appBase=self.client.config.appBase,
-                Client=self.client.config.apiBase,
-                apiKey=self.client.config.apiKey,
+                spaceId=self.client.config.space_id,
+                appBase=self.client.config.app_base,
+                Client=self.client.config.api_base,
+                apiKey=self.client.config.api_key,
             )
         )
 

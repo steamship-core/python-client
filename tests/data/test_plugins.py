@@ -21,7 +21,7 @@ def test_plugin_create():
             description="This is just for test",
             type=PluginType.embedder,
             transport=PluginAdapterType.steamshipDocker,
-            isPublic=True,
+            is_public=True,
         )
 
     # Should require description
@@ -30,7 +30,7 @@ def test_plugin_create():
             client=steamship,
             type=PluginType.embedder,
             transport=PluginAdapterType.steamshipDocker,
-            isPublic=True,
+            is_public=True,
         )
 
     # Should require plugin type
@@ -39,7 +39,7 @@ def test_plugin_create():
             client=steamship,
             description="This is just for test",
             transport=PluginAdapterType.steamshipDocker,
-            isPublic=True,
+            is_public=True,
         )
 
     # Should require adapter type
@@ -49,7 +49,7 @@ def test_plugin_create():
             description="This is just for test",
             type=PluginType.embedder,
             url="http://foo4",
-            isPublic=True,
+            is_public=True,
         )
 
     # Should require is public
@@ -66,37 +66,37 @@ def test_plugin_create():
 
     plugin = Plugin.create(
         client=steamship,
-        trainingPlatform=None,
+        training_platform=None,
         description="This is just for test",
         type=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
-        isPublic=False,
+        is_public=False,
     ).data
     my_plugins = Plugin.list(steamship).data
     assert len(my_plugins.plugins) == orig_count + 1
 
     # No upsert doesn't work
-    pluginX = Plugin.create(
+    plugin_x = Plugin.create(
         client=steamship,
-        trainingPlatform=None,
+        training_platform=None,
         handle=plugin.handle,
         description="This is just for test",
         type=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
-        isPublic=False,
+        is_public=False,
     )
-    assert pluginX.error is not None
-    assert pluginX.data is None
+    assert plugin_x.error is not None
+    assert plugin_x.data is None
 
     # Upsert does work
     plugin2 = Plugin.create(
         client=steamship,
-        trainingPlatform=None,
+        training_platform=None,
         handle=plugin.handle,
         description="This is just for test 2",
         type=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
-        isPublic=False,
+        is_public=False,
         upsert=True,
     ).data
 

@@ -17,15 +17,15 @@ class Tasks:
 
     def list_comments(
         self,
-        taskId: str = None,
-        externalId: str = None,
-        externalType: str = None,
-        externalGroup: str = None,
+        task_id: str = None,
+        external_id: str = None,
+        external_type: str = None,
+        external_group: str = None,
     ) -> Response[TaskCommentList]:
         return TaskComment.list(
             client=self.client,
-            taskId=taskId,
-            externalId=externalId,
-            externalType=externalType,
-            externalGroup=externalGroup,
+            task_id=task_id,
+            external_id=external_id,
+            external_type=external_type,
+            external_group=external_group,
         )

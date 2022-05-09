@@ -60,8 +60,8 @@ class DummyBlockifierPlugin(Blockifier, App):
 
     @post("blockify")
     def blockify(self, **kwargs) -> Response:
-        rawDataPluginInput = Blockifier.parse_request(request=kwargs)
-        return self.run(rawDataPluginInput)
+        raw_data_plugin_input = Blockifier.parse_request(request=kwargs)
+        return self.run(raw_data_plugin_input)
 
 
 handler = create_handler(DummyBlockifierPlugin)

@@ -39,9 +39,9 @@ class TrainingParameterPluginOutput:
         )
 
     def to_dict(self) -> Dict:
-        exportPluginInputParams = None
+        export_plugin_input_params = None
         if self.exportRequest is not None:
-            exportPluginInputParams = self.exportRequest.to_dict()
+            export_plugin_input_params = self.exportRequest.to_dict()
 
         return dict(
             machineType=self.machineType,
@@ -51,5 +51,5 @@ class TrainingParameterPluginOutput:
             testingHoldoutPercent=self.testingHoldoutPercent,
             testSplitSeed=self.testSplitSeed,
             trainingParams=self.trainingParams,
-            exportRequest=exportPluginInputParams,
+            exportRequest=export_plugin_input_params,
         )

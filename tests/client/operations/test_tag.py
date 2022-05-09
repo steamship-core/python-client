@@ -7,8 +7,8 @@ __license__ = "MIT"
 
 def test_parsing():
     steamship = _steamship()
-    parser = PluginInstance.create(steamship, pluginHandle="test-tagger").data
-    resp = steamship.tag("This is a test", pluginInstance=parser.handle)
+    parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
+    resp = steamship.tag("This is a test", plugin_instance=parser.handle)
     resp.wait()
     resp = resp.data
     assert len(resp.file.blocks) == 1

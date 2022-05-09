@@ -15,14 +15,14 @@ class SteamshipError(Exception):
     def __init__(
         self,
         message: str = "Undefined remote error",
-        internalMessage: str = None,
+        internal_message: str = None,
         suggestion: str = None,
         code: str = None,
         error: Union[Exception, str] = None,
     ):
         self.message = message
         self.suggestion = suggestion
-        self.internalMessage = internalMessage
+        self.internalMessage = internal_message
         self.statusCode = code
         if error is not None:
             self.error = "{}".format(error)
@@ -32,8 +32,8 @@ class SteamshipError(Exception):
             parts.append("[{}]".format(code))
         if message is not None:
             parts.append(message)
-        if internalMessage is not None:
-            parts.append("Internal Message: {}".format(internalMessage))
+        if internal_message is not None:
+            parts.append("Internal Message: {}".format(internal_message))
         if suggestion is not None:
             parts.append("Suggestion: {}".format(suggestion))
 
@@ -62,7 +62,7 @@ class SteamshipError(Exception):
         """Last resort if subclass doesn't override: pass through."""
         return SteamshipError(
             message=d.get("statusMessage", d.get("message", None)),
-            internalMessage=d.get("internalMessage", None),
+            internal_message=d.get("internalMessage", None),
             suggestion=d.get("statusSuggestion", d.get("suggestion", None)),
             code=d.get("statusCode", d.get("code", None)),
             error=d.get("error", d.get("error", None)),

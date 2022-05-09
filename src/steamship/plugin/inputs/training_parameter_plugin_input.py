@@ -25,11 +25,11 @@ class TrainingParameterPluginInput:
         )
 
     def to_dict(self) -> Dict:
-        exportPluginInputParams = None
+        export_plugin_input_params = None
         if self.exportRequest is not None:
-            exportPluginInputParams = self.exportRequest.to_dict()
+            export_plugin_input_params = self.exportRequest.to_dict()
 
         return dict(
             pluginInstance=self.pluginInstance,
-            exportPluginInput=exportPluginInputParams,
+            exportPluginInput=export_plugin_input_params,
         )

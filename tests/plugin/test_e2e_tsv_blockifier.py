@@ -32,7 +32,7 @@ def test_e2e_tsv_blockifier_plugin():
     ) as (plugin, version, instance):
         with upload_file(client, "utterances.tsv") as file:
             assert len(file.refresh().data.blocks) == 0
-            file.blockify(pluginInstance=instance.handle).wait()
+            file.blockify(plugin_instance=instance.handle).wait()
             # Check the number of blocks
             blocks = file.refresh().data.blocks
             assert len(blocks) == 5

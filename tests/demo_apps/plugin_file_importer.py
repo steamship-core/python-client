@@ -19,13 +19,14 @@ class TestFileImporterPlugin(FileImporter, App):
         self, request: PluginRequest[File.CreateRequest]
     ) -> Response[RawDataPluginOutput]:
         return Response(
-            data=RawDataPluginOutput(string=TEST_DOC, mimeType=MimeTypes.MKD)
+            data=RawDataPluginOutput(string=TEST_DOC, mime_type=MimeTypes.MKD)
         )
 
     @post("import")
     def do_import(self, **kwargs) -> any:
-        importRequest = FileImporter.parse_request(request=kwargs)
-        return self.run(importRequest)
+        # TODO (enias): Move this code up one abstraction level
+        import_request = FileImporter.parse_request(request=kwargs)
+        return self.run(import_request)
 
 
 handler = create_handler(TestFileImporterPlugin)

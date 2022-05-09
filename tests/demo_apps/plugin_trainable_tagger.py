@@ -29,20 +29,20 @@ class TestTrainableTaggerPlugin(Tagger, App):
         )
 
     @post("getTrainingParameters")
-    def getTrainingParameters(
+    def get_training_parameters(
         self, **kwargs
     ) -> Response[TrainingParameterPluginOutput]:
         return Response(data=TestTrainableTaggerPlugin.RESPONSE)
 
     @post("train")
     def train(self, **kwargs) -> Response[TrainPluginInput]:
-        trainPluginInput = TrainPluginInput.from_dict(kwargs)
+        train_plugin_input = TrainPluginInput.from_dict(kwargs)
         return Response(
             data=TrainPluginOutput(
-                tenantId=trainPluginInput.tenantId,
-                spaceId=trainPluginInput.spaceId,
-                modelUploadUrl=trainPluginInput.modelUploadUrl,
-                modelFilename=trainPluginInput.modelFilename,
+                tenantId=train_plugin_input.tenantId,
+                spaceId=train_plugin_input.spaceId,
+                modelUploadUrl=train_plugin_input.modelUploadUrl,
+                modelFilename=train_plugin_input.modelFilename,
             )
         )
 

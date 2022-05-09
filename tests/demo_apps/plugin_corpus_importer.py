@@ -14,7 +14,7 @@ class TestCorpusImporterPlugin(CorpusImporter, App):
     ) -> Response[CorpusImportResponse]:
         return Response(
             data=CorpusImportResponse(
-                fileImportRequests=[
+                file_import_requests=[
                     File.CreateRequest(
                         type="fileImporter",
                         pluginInstance=request.data.fileImporterPluginInstance

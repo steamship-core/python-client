@@ -11,7 +11,7 @@ def test_connect():
     client = _steamship()
     assert client.config is not None
     assert client.config.profile == "test"
-    assert client.config.apiKey is not None
+    assert client.config.api_key is not None
 
 
 def test_user():

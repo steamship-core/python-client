@@ -102,48 +102,48 @@ class Tag:
     @staticmethod
     def create(
         client: Client,
-        fileId: str = None,
-        blockId: str = None,
+        file_id: str = None,
+        block_id: str = None,
         kind: str = None,
         name: str = None,
-        startIdx: int = None,
-        endIdx: int = None,
+        start_idx: int = None,
+        end_idx: int = None,
         value: Any = None,
         upsert: bool = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
     ) -> Response["Tag"]:
         if isinstance(value, dict) or isinstance(value, list):
             value = json.dumps(value)
 
         req = Tag.CreateRequest(
-            fileId=fileId,
-            blockId=blockId,
+            fileId=file_id,
+            blockId=block_id,
             kind=kind,
             name=name,
-            startIdx=startIdx,
-            endIdx=endIdx,
+            startIdx=start_idx,
+            endIdx=end_idx,
             value=value,
             upsert=upsert,
         )
         return client.post(
-            "tag/create", req, expect=Tag, spaceId=spaceId, spaceHandle=spaceHandle
+            "tag/create", req, expect=Tag, space_id=space_id, space_handle=space_handle
         )
 
     @staticmethod
-    def listPublic(
+    def list_public(
         client: Client,
-        fileId: str = None,
-        blockId: str = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        file_id: str = None,
+        block_id: str = None,
+        space_id: str = None,
+        space_handle: str = None,
     ) -> Response["Tag.ListResponse"]:
         return client.post(
             "tag/list",
-            Tag.ListRequest(fileId=fileId, blockId=blockId),
+            Tag.ListRequest(fileId=file_id, blockId=block_id),
             expect=Tag.ListResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
     def delete(self) -> Response["Tag"]:
@@ -153,21 +153,22 @@ class Tag:
             expect=Tag,
         )
 
+    @staticmethod
     def query(
         client: Client,
-        tagFilterQuery: str,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        tag_filter_query: str,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> Response["TagQueryResponse"]:
 
-        req = TagQueryRequest(tagFilterQuery=tagFilterQuery)
+        req = TagQueryRequest(tagFilterQuery=tag_filter_query)
         res = client.post(
             "tag/query",
             payload=req,
             expect=TagQueryResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
         return res

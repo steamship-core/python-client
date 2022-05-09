@@ -58,5 +58,7 @@ class Request:
     @staticmethod
     def from_dict(d: dict) -> "Request":
         invocation = Invocation.from_dict(d.get("invocation", dict()))
-        clientConfig = Configuration.from_dict(d.get("clientConfig", dict()))
-        return Request(clientConfig=clientConfig, invocation=invocation)
+        client_config = Configuration.from_dict(
+            d.get("clientConfig", dict())
+        )  # TODO (enias): Review config dict
+        return Request(clientConfig=client_config, invocation=invocation)

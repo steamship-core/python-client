@@ -56,19 +56,24 @@ EXPORTER_HANDLE = "signed-url-exporter"
 def test_e2e_trainable_tagger_ecs_training():
     client = get_steamship_client()
 
-    versionConfigTemplate = dict(
+    version_config_template = dict(
         textColumn=dict(type="string"),
         tagColumns=dict(type="string"),
         tagKind=dict(type="string"),
     )
-    instanceConfig = dict(textColumn="Message", tagColumns="Category", tagKind="Intent")
-
-    exporterPluginR = PluginInstance.create(
-        client=client, handle=EXPORTER_HANDLE, pluginHandle=EXPORTER_HANDLE, upsert=True
+    instance_config = dict(
+        textColumn="Message", tagColumns="Category", tagKind="Intent"
     )
-    assert exporterPluginR.data is not None
-    exporterPlugin = exporterPluginR.data
-    assert exporterPlugin.handle is not None
+
+    exporter_plugin_r = PluginInstance.create(
+        client=client,
+        handle=EXPORTER_HANDLE,
+        plugin_handle=EXPORTER_HANDLE,
+        upsert=True,
+    )
+    assert exporter_plugin_r.data is not None
+    exporter_plugin = exporter_plugin_r.data
+    assert exporter_plugin.handle is not None
 
     csv_blockifier_path = APPS_PATH / "plugins" / "csv_blockifier.py"
     trainable_tagger_path = APPS_PATH / "plugin_trainable_tagger.py"
@@ -78,13 +83,13 @@ def test_e2e_trainable_tagger_ecs_training():
         client,
         csv_blockifier_path,
         "blockifier",
-        version_config_template=versionConfigTemplate,
-        instance_config=instanceConfig,
+        version_config_template=version_config_template,
+        instance_config=instance_config,
     ) as (plugin, version, instance):
         with upload_file(client, "utterances.csv") as file:
             assert len(file.refresh().data.blocks) == 0
             # Use the plugin we just registered
-            file.blockify(pluginInstance=instance.handle).wait()
+            file.blockify(plugin_instance=instance.handle).wait()
             assert len(file.refresh().data.blocks) == 5
 
             # Now make a trainable tagger to train on those tags
@@ -95,12 +100,12 @@ def test_e2e_trainable_tagger_ecs_training():
                 training_platform=TrainingPlatform.managed,
             ) as (tagger, taggerVersion, taggerInstance):
                 # Now train the plugin
-                trainingRequest = TrainingParameterPluginInput(
+                training_request = TrainingParameterPluginInput(
                     pluginInstance=taggerInstance.handle,
                     exportRequest=ExportPluginInput(
                         pluginInstance=EXPORTER_HANDLE, type="corpus", handle="default"
                     ),
                 )
 
-                trainResult = taggerInstance.train(trainingRequest)
-                trainResult.wait()
+                train_result = taggerInstance.train(training_request)
+                train_result.wait()

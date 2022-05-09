@@ -18,6 +18,6 @@ def test_e2e_blockifier_plugin():
     ):
         file = File.create(client=client, content="This is a test.").data
         assert len(file.refresh().data.blocks) == 0
-        file.blockify(pluginInstance=instance.handle).wait()
+        file.blockify(plugin_instance=instance.handle).wait()
         assert len(file.refresh().data.blocks) == 4
         file.delete()

@@ -14,7 +14,7 @@ def create_handler(app_cls: Type[App]):
 
     def _handler(event: Dict, context: Dict = None) -> Response:
         try:
-            client = Steamship(configDict=event.get("clientConfig"))
+            client = Steamship(config_dict=event.get("clientConfig"))
         except SteamshipError as se:
             logging.error(se)
             return Response.from_obj(se)

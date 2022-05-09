@@ -64,15 +64,18 @@ class Corpus:
 
     @staticmethod
     def default(
-        client: Client, spaceId: str = None, spaceHandle: str = None, space: any = None
-    ) -> "Response[Corpus]":
+        client: Client,
+        space_id: str = None,
+        space_handle: str = None,
+        space: any = None,
+    ) -> "Response[Corpus]":  # TODO (Enias): Review
         req = IdentifierRequest()
         return client.post(
             "corpus/get",
             req,
             expect=Corpus,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
@@ -81,13 +84,13 @@ class Corpus:
         client: Client,
         handle: str = None,
         description: str = None,
-        externalId: str = None,
-        externalType: str = None,
+        external_id: str = None,
+        external_type: str = None,
         metadata: any = None,
-        isPublic: bool = False,
+        is_public: bool = False,
         upsert: bool = True,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
         space: any = None,
     ) -> "Response[Corpus]":
         if isinstance(metadata, dict) or isinstance(metadata, list):
@@ -96,29 +99,29 @@ class Corpus:
         req = Corpus.CreateRequest(
             handle=handle,
             description=description,
-            isPublic=isPublic,
+            isPublic=is_public,
             upsert=upsert,
-            externalId=externalId,
-            externalType=externalType,
+            externalId=external_id,
+            externalType=external_type,
             metadata=metadata,
         )
         return client.post(
             "corpus/create",
             req,
             expect=Corpus,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )
 
     def delete(
-        self, spaceId: str = None, spaceHandle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: any = None
     ) -> Response["Corpus"]:
         return self.client.post(
             "corpus/delete",
             IdentifierRequest(id=self.id),
             expect=Corpus,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
         )

@@ -40,7 +40,7 @@ class Response(Generic[T]):
         string: str = None,
         json: Any = None,
         bytes: Union[bytes, io.BytesIO] = None,
-        mimeType=None,
+        mime_type=None,
     ):
         # Note:
         # This function has to be very defensively coded since any errors thrown here will not be returned
@@ -52,19 +52,19 @@ class Response(Generic[T]):
 
         # Handle the core data
         try:
-            data, mimeType, encoding = flexi_create(
-                data=data, string=string, json=json, bytes=bytes, mimeType=mimeType
+            data, mime_type, encoding = flexi_create(
+                data=data, string=string, json=json, bytes=bytes, mime_type=mime_type
             )
 
             self.data = data
 
-            if mimeType is None:
-                mimeType = MimeTypes.BINARY
+            if mime_type is None:
+                mime_type = MimeTypes.BINARY
 
-            if mimeType is not None:
+            if mime_type is not None:
                 if self.http.headers is None:
                     self.http.headers = dict()
-                self.http.headers["Content-Type"] = mimeType
+                self.http.headers["Content-Type"] = mime_type
 
             if encoding == ContentEncodings.BASE64:
                 self.http.base64Wrapped = True
@@ -94,15 +94,15 @@ class Response(Generic[T]):
         else:
             self.status = Task()
             self.status.state = TaskState.failed
-            self.status.statusMessage = "Status field of response should be of type Task. Instead was of type {} and had value {}.".format(
+            self.status.status_message = "Status field of response should be of type Task. Instead was of type {} and had value {}.".format(
                 type(status), status
             )
 
         if error:
             self.status.state = TaskState.failed
-            self.status.statusMessage = error.message
-            self.status.statusSuggestion = error.suggestion
-            self.status.statusCode = error.code
+            self.status.status_message = error.message
+            self.status.status_suggestion = error.suggestion
+            self.status.status_code = error.code
             logging.error("steamship.app.response - Response created with error.")
             logging.error(error)
         else:
@@ -138,21 +138,21 @@ class Response(Generic[T]):
         if obj is None:
             return Response.error(500, "Handler provided no response.")
 
-        objT = type(obj)
+        obj_t = type(obj)
 
-        if objT == Response:
+        if obj_t == Response:
             return obj
-        elif objT == SteamshipError:
+        elif obj_t == SteamshipError:
             return Response.error(500, error=obj)
-        elif objT == Exception:
+        elif obj_t == Exception:
             return Response.error(500, error=SteamshipError(error=obj))
-        elif objT == io.BytesIO:
+        elif obj_t == io.BytesIO:
             return Response(bytes=obj)
-        elif objT == dict:
+        elif obj_t == dict:
             return Response(json=obj)
-        elif objT == str:
+        elif obj_t == str:
             return Response(string=obj)
-        elif objT in [float, int, bool]:
+        elif obj_t in [float, int, bool]:
             return Response(json=obj)
 
         if getattr(obj, "to_dict"):

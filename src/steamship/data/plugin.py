@@ -128,25 +128,25 @@ class Plugin:
     @staticmethod
     def create(
         client: Client,
-        trainingPlatform: str,
+        training_platform: str,
         description: str,
         type: str,
         transport: str,
-        isPublic: bool,
+        is_public: bool,
         handle: str = None,
         metadata: Union[str, Dict, List] = None,
         upsert: bool = None,
-        spaceId: str = None,
-        spaceHandle: str = None,
+        space_id: str = None,
+        space_handle: str = None,
     ) -> Response[Plugin]:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
         req = CreatePluginRequest(
-            trainingPlatform=trainingPlatform,
+            trainingPlatform=training_platform,
             type=type,
             transport=transport,
-            isPublic=isPublic,
+            isPublic=is_public,
             handle=handle,
             description=description,
             metadata=metadata,
@@ -156,20 +156,20 @@ class Plugin:
             "plugin/create",
             req,
             expect=Plugin,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
     @staticmethod
     def list(
-        client: Client, type: str = None, spaceId: str = None, spaceHandle: str = None
+        client: Client, type: str = None, space_id: str = None, space_handle: str = None
     ) -> Response[ListPluginsResponse]:
         return client.post(
             "plugin/list",
             ListPublicPluginsRequest(type=type),
             expect=ListPluginsResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
     @staticmethod

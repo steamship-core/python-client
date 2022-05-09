@@ -88,16 +88,16 @@ class PluginVersion:
     def create(
         client: Client,
         handle: str,
-        pluginId: str = None,
+        plugin_id: str = None,
         filename: str = None,
         filebytes: bytes = None,
         upsert: bool = None,
-        hostingMemory: str = None,
-        hostingTimeout: str = None,
-        hostingHandler: str = None,
-        isPublic: bool = None,
-        isDefault: bool = None,
-        configTemplate: Dict[str, any] = None,
+        hosting_memory: str = None,
+        hosting_timeout: str = None,
+        hosting_handler: str = None,
+        is_public: bool = None,
+        is_default: bool = None,
+        config_template: Dict[str, any] = None,
     ) -> Response[PluginVersion]:
 
         if filename is None and filebytes is None:
@@ -111,14 +111,14 @@ class PluginVersion:
 
         req = CreatePluginVersionRequest(
             handle=handle,
-            pluginId=pluginId,
+            pluginId=plugin_id,
             upsert=upsert,
-            hostingMemory=hostingMemory,
-            hostingTimeout=hostingTimeout,
-            hostingHandler=hostingHandler,
-            isPublic=isPublic,
-            isDefault=isDefault,
-            configTemplate=configTemplate,
+            hostingMemory=hosting_memory,
+            hostingTimeout=hosting_timeout,
+            hostingHandler=hosting_handler,
+            isPublic=is_public,
+            isDefault=is_default,
+            configTemplate=config_template,
         )
 
         return client.post(
@@ -135,31 +135,31 @@ class PluginVersion:
         )
 
     @staticmethod
-    def getPublic(client: Client, pluginId: str, handle: str):
-        publicPlugins = PluginVersion.listPublic(
-            client=client, pluginId=pluginId, handle=handle
+    def get_public(client: Client, plugin_id: str, handle: str):
+        public_plugins = PluginVersion.list_public(
+            client=client, plugin_id=plugin_id, handle=handle
         ).data.plugins
-        for plugin in publicPlugins:
+        for plugin in public_plugins:
             if plugin.handle == handle:
                 return plugin
         return None
 
     @staticmethod
-    def listPublic(
-        client: Client, pluginId: str = None, handle: str = None
+    def list_public(
+        client: Client, plugin_id: str = None, handle: str = None
     ) -> Response[ListPluginVersionsResponse]:
         return client.post(
             "plugin/version/public",
-            ListPublicPluginVersionsRequest(handle=handle, pluginId=pluginId),
+            ListPublicPluginVersionsRequest(handle=handle, pluginId=plugin_id),
             expect=ListPluginVersionsResponse,
         )
 
     @staticmethod
-    def listPrivate(
-        client: Client, type=None, pluginId: str = None, handle: str = None
+    def list_private(
+        client: Client, type=None, plugin_id: str = None, handle: str = None
     ) -> Response[ListPluginVersionsResponse]:
         return client.post(
             "plugin/version/private",
-            ListPrivatePluginVersionsRequest(handle=handle, pluginId=pluginId),
+            ListPrivatePluginVersionsRequest(handle=handle, pluginId=plugin_id),
             expect=ListPluginVersionsResponse,
         )

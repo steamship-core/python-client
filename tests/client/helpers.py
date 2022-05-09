@@ -20,6 +20,8 @@ from steamship.extension.corpus import Corpus
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+# TODO (enias): Remove this file
+
 
 def _env_or(env_var: str, or_val: str) -> str:
     if env_var in os.environ:
@@ -37,8 +39,8 @@ _TEST_EMBEDDER = "test-embedder-v1"
 
 
 @contextlib.contextmanager
-def _random_index(steamship: Steamship, pluginInstance: str) -> EmbeddingIndex:
-    index = steamship.create_index(pluginInstance=pluginInstance).data
+def _random_index(steamship: Steamship, plugin_instance: str) -> EmbeddingIndex:
+    index = steamship.create_index(plugin_instance=plugin_instance).data
     yield index
     index.delete()  # or whatever you need to do at exit
 
@@ -63,7 +65,7 @@ def _steamship() -> Steamship:
     client = Steamship(profile="test")
     assert client.config is not None
     assert client.config.profile == "test"
-    assert client.config.apiKey is not None
+    assert client.config.api_key is not None
     user = User.current(client).data
     assert user.id is not None
     assert user.handle is not None
@@ -127,8 +129,8 @@ def create_app_zip(filename) -> bytes:
 @contextlib.contextmanager
 def deploy_app(
     py_name: str,
-    versionConfigTemplate: Dict[str, any] = None,
-    instanceConfig: Dict[str, any] = None,
+    version_config_template: Dict[str, any] = None,
+    instance_config: Dict[str, any] = None,
 ):
     client = _steamship()
     app = App.create(client)
@@ -138,7 +140,10 @@ def deploy_app(
 
     zip_bytes = create_app_zip(py_name)
     version = AppVersion.create(
-        client, appId=app.id, filebytes=zip_bytes, configTemplate=versionConfigTemplate
+        client,
+        app_id=app.id,
+        filebytes=zip_bytes,
+        config_template=version_config_template,
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
@@ -149,22 +154,22 @@ def deploy_app(
     version = version.data
 
     instance = AppInstance.create(
-        client, appId=app.id, appVersionId=version.id, config=instanceConfig
+        client, app_id=app.id, app_version_id=version.id, config=instance_config
     )
     instance.wait()
     assert instance.error is None
     assert instance.data is not None
     instance = instance.data
 
-    assert instance.appId == app.id
-    assert instance.appVersionId == version.id
+    assert instance.app_id == app.id
+    assert instance.app_version_id == version.id
 
     user = User.current(client).data
 
-    assert instance.userHandle == user.handle
-    assert instance.userId == user.id
+    assert instance.user_handle == user.handle
+    assert instance.user_id == user.id
 
-    yield (app, version, instance)
+    yield app, version, instance
 
     res = instance.delete()
     assert res.error is None
@@ -202,11 +207,11 @@ def deploy_plugin(
     client = _steamship()
     plugin = Plugin.create(
         client,
-        trainingPlatform=training_platform,
+        training_platform=training_platform,
         description="test",
         type=plugin_type,
         transport="jsonOverHttp",
-        isPublic=False,
+        is_public=False,
     )
     assert plugin.error is None
     assert plugin.data is not None
@@ -216,9 +221,9 @@ def deploy_plugin(
     version = PluginVersion.create(
         client,
         "test-version",
-        pluginId=plugin.id,
+        plugin_id=plugin.id,
         filebytes=zip_bytes,
-        configTemplate=version_config_template,
+        config_template=version_config_template,
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
@@ -229,7 +234,10 @@ def deploy_plugin(
     version = version.data
 
     instance = PluginInstance.create(
-        client, pluginId=plugin.id, pluginVersionId=version.id, config=instance_config
+        client,
+        plugin_id=plugin.id,
+        plugin_version_id=version.id,
+        config=instance_config,
     )
     instance.wait()
     assert instance.error is None
@@ -243,7 +251,7 @@ def deploy_plugin(
 
     assert instance.userId == user.id
 
-    yield (plugin, version, instance)
+    yield plugin, version, instance
 
     res = instance.delete()
     assert res.error is None
@@ -255,8 +263,8 @@ def deploy_plugin(
     assert res.error is None
 
 
-def shouldUseSubdomain(client: Client):
+def should_use_subdomain(client: Client):
     # We have to do a little switcheroo here depending on if we're hitting localhost or prod/staging.
-    if "localhost" in client.config.appBase or "127.0.0.1" in client.config.appBase:
+    if "localhost" in client.config.app_base or "127.0.0.1" in client.config.app_base:
         return False
     return True

@@ -22,18 +22,23 @@ EXPORTER_HANDLE = "signed-url-exporter"
 
 def test_e2e_corpus_export():
     client = get_steamship_client()
-    versionConfigTemplate = dict(
+    version_config_template = dict(
         textColumn=dict(type="string"),
         tagColumns=dict(type="string"),
         tagKind=dict(type="string"),
     )
-    instanceConfig = dict(textColumn="Message", tagColumns="Category", tagKind="Intent")
-    exporterPluginR = PluginInstance.create(
-        client=client, handle=EXPORTER_HANDLE, pluginHandle=EXPORTER_HANDLE, upsert=True
+    instance_config = dict(
+        textColumn="Message", tagColumns="Category", tagKind="Intent"
     )
-    assert exporterPluginR.data is not None
-    exporterPlugin = exporterPluginR.data
-    assert exporterPlugin.handle is not None
+    exporter_plugin_r = PluginInstance.create(
+        client=client,
+        handle=EXPORTER_HANDLE,
+        plugin_handle=EXPORTER_HANDLE,
+        upsert=True,
+    )
+    assert exporter_plugin_r.data is not None
+    exporter_plugin = exporter_plugin_r.data
+    assert exporter_plugin.handle is not None
 
     input = ExportPluginInput(handle="default", type="corpus")
     print(asdict(input))
@@ -45,37 +50,34 @@ def test_e2e_corpus_export():
         client,
         csv_blockifier_path,
         "blockifier",
-        version_config_template=versionConfigTemplate,
-        instance_config=instanceConfig,
+        version_config_template=version_config_template,
+        instance_config=instance_config,
     ) as (plugin, version, instance):
         with upload_file(client, "utterances.csv") as file:
             assert len(file.refresh().data.blocks) == 0
             # Use the plugin we just registered
-            file.blockify(pluginInstance=instance.handle).wait()
+            file.blockify(plugin_instance=instance.handle).wait()
             assert len(file.refresh().data.blocks) == 5
 
             # Now export the corpus
-            rawDataR = exporterPlugin.export(input)
-            assert rawDataR is not None
+            raw_data_r = exporter_plugin.export(input)
+            assert raw_data_r is not None
 
             # The results of a corpus exporter are MD5 encoded!
-            rawData = rawDataR.data
+            raw_data = raw_data_r.data
 
 
 def test_e2e_corpus_export_with_query():
     client = get_steamship_client()
-    versionConfigTemplate = dict(
-        textColumn=dict(type="string"),
-        tagColumns=dict(type="string"),
-        tagKind=dict(type="string"),
+    exporter_plugin_r = PluginInstance.create(
+        client=client,
+        handle=EXPORTER_HANDLE,
+        plugin_handle=EXPORTER_HANDLE,
+        upsert=True,
     )
-    instanceConfig = dict(textColumn="Message", tagColumns="Category", tagKind="Intent")
-    exporterPluginR = PluginInstance.create(
-        client=client, handle=EXPORTER_HANDLE, pluginHandle=EXPORTER_HANDLE, upsert=True
-    )
-    assert exporterPluginR.data is not None
-    exporterPlugin = exporterPluginR.data
-    assert exporterPlugin.handle is not None
+    assert exporter_plugin_r.data is not None
+    exporter_plugin = exporter_plugin_r.data
+    assert exporter_plugin.handle is not None
 
     a = File.create(
         client=client,
@@ -95,15 +97,15 @@ def test_e2e_corpus_export_with_query():
     # Now export the corpus
     input = ExportPluginInput(query='filetag and name "FileTag"', type="file")
     print(asdict(input))
-    rawDataR = exporterPlugin.export(input)
-    assert rawDataR is not None
+    raw_data_r = exporter_plugin.export(input)
+    assert raw_data_r is not None
 
     # The results of a corpus exporter are MD5 encoded!
-    rawDataR.wait()
-    rawData = rawDataR.data.data
+    raw_data_r.wait()
+    raw_data = raw_data_r.data.data
     # decode base64 to get URL at url json property
-    decodedData = json.loads(base64.b64decode(rawData))
-    url = decodedData["url"]
+    decoded_data = json.loads(base64.b64decode(raw_data))
+    url = decoded_data["url"]
 
     # fetch the URL via requests.get
     content = requests.get(url).text

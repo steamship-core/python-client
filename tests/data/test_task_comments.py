@@ -14,7 +14,7 @@ def _list_equal(actual, expected):
 
 def test_basic_task_comment():
     steamship = _steamship()
-    embedder = PluginInstance.create(steamship, pluginHandle="test-embedder").data
+    embedder = PluginInstance.create(steamship, plugin_handle="test-embedder").data
     with _random_index(steamship, embedder.handle) as index:
         item1 = EmbeddedItem(
             value="Pizza", externalId="pizza", externalType="food", metadata=[1, 2, 3]
@@ -22,34 +22,34 @@ def test_basic_task_comment():
 
         index.insert(
             item1.value,
-            externalId=item1.externalId,
-            externalType=item1.externalType,
+            external_id=item1.externalId,
+            external_type=item1.externalType,
             metadata=item1.metadata,
         )
         task = index.embed()
         task.wait()
 
-        res2 = index.search(item1.value, includeMetadata=True, k=1)
-        res2.add_comment(externalId="Foo", externalType="Bar", metadata=[1, 2])
+        res2 = index.search(item1.value, include_metadata=True, k=1)
+        res2.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
         # We don't return to Res2 until the end to make sure we aren't co-mingling comments!
 
-        res = index.search(item1.value, includeMetadata=True, k=1)
+        res = index.search(item1.value, include_metadata=True, k=1)
 
         assert res.data.items is not None
         assert len(res.data.items) == 1
         assert res.data.items[0].value.value == item1.value
-        assert res.data.items[0].value.externalId == item1.externalId
-        assert res.data.items[0].value.externalType == item1.externalType
+        assert res.data.items[0].value.external_id == item1.externalId
+        assert res.data.items[0].value.external_type == item1.externalType
         _list_equal(res.data.items[0].value.metadata, item1.metadata)
 
-        res.add_comment(externalId="Foo", externalType="Bar", metadata=[1, 2])
+        res.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
 
         comments = res.list_comments()
         assert len(comments.data.comments) == 1
 
         comment = comments.data.comments[0]
-        assert comment.externalId == "Foo"
-        assert comment.externalType == "Bar"
+        assert comment.external_id == "Foo"
+        assert comment.external_type == "Bar"
         _list_equal(comment.metadata, [1, 2])
 
         res.delete_comment(comment)
@@ -58,20 +58,20 @@ def test_basic_task_comment():
         assert len(comments.data.comments) == 0
 
         # Now let's add one
-        res.add_comment(externalId="Foo1", externalType="Bar1", metadata=[1, 2, 3])
-        res.add_comment(externalId="Foo2", externalType="Bar2", metadata=[1, 2, 3, 4])
+        res.add_comment(external_id="Foo1", external_type="Bar1", metadata=[1, 2, 3])
+        res.add_comment(external_id="Foo2", external_type="Bar2", metadata=[1, 2, 3, 4])
 
         comments = res.list_comments()
         assert len(comments.data.comments) == 2
 
         comment = comments.data.comments[0]
-        assert comment.externalId == "Foo1"
-        assert comment.externalType == "Bar1"
+        assert comment.external_id == "Foo1"
+        assert comment.external_type == "Bar1"
         _list_equal(comment.metadata, [1, 2, 3])
 
         comment = comments.data.comments[1]
-        assert comment.externalId == "Foo2"
-        assert comment.externalType == "Bar2"
+        assert comment.external_id == "Foo2"
+        assert comment.external_type == "Bar2"
         _list_equal(comment.metadata, [1, 2, 3, 4])
 
         res.delete_comment(comments.data.comments[0])
@@ -84,8 +84,8 @@ def test_basic_task_comment():
         comments = res2.list_comments()
         assert len(comments.data.comments) == 1
         comment = comments.data.comments[0]
-        assert comment.externalId == "Foo"
-        assert comment.externalType == "Bar"
+        assert comment.external_id == "Foo"
+        assert comment.external_type == "Bar"
         _list_equal(comment.metadata, [1, 2])
         res.delete_comment(comments.data.comments[0])
         comments = res.list_comments()
@@ -104,57 +104,66 @@ def test_task_comment_feedback_reporting():
     So really we just need to test the group aggregation
     """
     steamship = _steamship()
-    embedder = PluginInstance.create(steamship, pluginHandle="test-embedder").data
-    with _random_index(steamship, pluginInstance=embedder.handle) as index:
+    embedder = PluginInstance.create(steamship, plugin_handle="test-embedder").data
+    with _random_index(steamship, plugin_instance=embedder.handle) as index:
         item1 = EmbeddedItem(
             value="Pizza", externalId="pizza", externalType="food", metadata=[1, 2, 3]
         )
 
-        G1 = _random_name()
-        G2 = _random_name()
+        g1 = _random_name()
+        g2 = _random_name()
 
         index.insert(
             item1.value,
-            externalId=item1.externalId,
-            externalType=item1.externalType,
+            external_id=item1.externalId,
+            external_type=item1.externalType,
             metadata=item1.metadata,
         )
         task = index.embed()
         task.wait()
 
-        res = index.search(item1.value, includeMetadata=True, k=1)
+        res = index.search(item1.value, include_metadata=True, k=1)
         res.add_comment(
-            externalId="Foo1", externalType="Bar1", externalGroup=G1, metadata=[1, 2, 3]
+            external_id="Foo1",
+            external_type="Bar1",
+            external_group=g1,
+            metadata=[1, 2, 3],
         )
         res.add_comment(
-            externalId="Foo2", externalType="Bar1", externalGroup=G1, metadata=[1, 2, 3]
+            external_id="Foo2",
+            external_type="Bar1",
+            external_group=g1,
+            metadata=[1, 2, 3],
         )
         res.add_comment(
-            externalId="Foo2", externalType="Bar1", externalGroup=G2, metadata=[1, 2, 3]
+            external_id="Foo2",
+            external_type="Bar1",
+            external_group=g2,
+            metadata=[1, 2, 3],
         )
 
         comments = res.list_comments()
         assert len(comments.data.comments) == 3
 
-        g1 = steamship.tasks.list_comments(externalGroup=G1)
+        g1 = steamship.tasks.list_comments(external_group=g1)
         assert len(g1.data.comments) == 2
 
-        g2 = steamship.tasks.list_comments(externalGroup=G2)
+        g2 = steamship.tasks.list_comments(external_group=g2)
         assert len(g2.data.comments) == 1
 
-        g1 = steamship.tasks.list_comments(taskId=res.task.taskId, externalGroup=G1)
+        g1 = steamship.tasks.list_comments(task_id=res.task.task_id, external_group=g1)
         assert len(g1.data.comments) == 2
 
-        g2 = steamship.tasks.list_comments(taskId=res.task.taskId, externalGroup=G2)
+        g2 = steamship.tasks.list_comments(task_id=res.task.task_id, external_group=g2)
         assert len(g2.data.comments) == 1
 
         g1 = steamship.tasks.list_comments(
-            taskId=res.task.taskId, externalId="Foo1", externalGroup=G1
+            task_id=res.task.task_id, external_id="Foo1", external_group=g1
         )
         assert len(g1.data.comments) == 1
 
         g2 = steamship.tasks.list_comments(
-            taskId=res.task.taskId, externalId="Foo1", externalGroup=G2
+            task_id=res.task.task_id, external_id="Foo1", external_group=g2
         )
         assert len(g2.data.comments) == 0
 
@@ -162,8 +171,8 @@ def test_task_comment_feedback_reporting():
         res.delete_comment(comments.data.comments[1])
         res.delete_comment(comments.data.comments[2])
 
-        g1 = steamship.tasks.list_comments(externalGroup=G1)
+        g1 = steamship.tasks.list_comments(external_group=g1)
         assert len(g1.data.comments) == 0
 
-        g2 = steamship.tasks.list_comments(externalGroup=G2)
+        g2 = steamship.tasks.list_comments(external_group=g2)
         assert len(g2.data.comments) == 0
