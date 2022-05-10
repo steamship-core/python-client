@@ -1,7 +1,7 @@
 import json
 import logging
 from dataclasses import asdict
-from typing import Any, TypeVar, Union, Dict
+from typing import Any, Dict, TypeVar, Union
 
 import requests  # type: ignore
 
@@ -145,7 +145,7 @@ class Client:
         return headers
 
     @staticmethod
-    def _data(verb: str, file: any, payload: Union[Request, dict]):
+    def _data(verb: str, file: Any, payload: Union[Request, dict]):
         if payload is None:
             data = {}
         elif isinstance(payload, dict):
@@ -208,13 +208,13 @@ class Client:
         verb: str,
         operation: str,
         payload: Union[Request, dict] = None,
-        file: any = None,
-        expect: any = None,
+        file: Any = None,
+        expect: Any = None,
         asynchronous: bool = False,
         debug: bool = False,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
         id_query: bool = None,
         raw_response: bool = False,
         app_call: bool = False,
@@ -301,9 +301,7 @@ class Client:
                 #     task.update(task_resp)
                 if "state" in response_data["status"]:
                     if response_data["status"]["state"] == "failed":
-                        error = SteamshipError.from_dict(
-                            response_data["status"], client=self
-                        )
+                        error = SteamshipError.from_dict(response_data["status"])
 
             if "data" in response_data:
                 if expect is not None and hasattr(expect, "from_dict"):
@@ -345,20 +343,20 @@ class Client:
         self,
         operation: str,
         payload: Union[Request, dict] = None,
-        file: any = None,
-        expect: any = None,
+        file: Any = None,
+        expect: Any = None,
         asynchronous: bool = False,
         debug: bool = False,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
         id_query: bool = None,
         raw_response: bool = False,
         app_call: bool = False,
         app_owner: str = None,
         app_id: str = None,
         app_instance_id: str = None,
-    ):
+    ) -> Union[Any, Response[T]]:
         return self.call(
             verb="POST",
             operation=operation,
@@ -382,20 +380,20 @@ class Client:
         self,
         operation: str,
         payload: Union[Request, dict] = None,
-        file: any = None,
-        expect: any = None,
+        file: Any = None,
+        expect: Any = None,
         asynchronous: bool = False,
         debug: bool = False,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
         id_query: bool = None,
         raw_response: bool = False,
         app_call: bool = False,
         app_owner: str = None,
         app_id: str = None,
         app_instance_id: str = None,
-    ):
+    ) -> Union[Any, Response[T]]:
         return self.call(
             verb="GET",
             operation=operation,

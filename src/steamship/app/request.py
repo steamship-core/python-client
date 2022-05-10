@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 
 from steamship.base.configuration import Configuration
 
@@ -31,8 +31,8 @@ class Verb:
 class Invocation:
     httpVerb: str = None
     appPath: str = None  # e.g. /hello/there
-    arguments: Dict[str, any] = None
-    config: Dict[str, any] = None
+    arguments: Dict[str, Any] = None
+    config: Dict[str, Any] = None
 
     @staticmethod
     def from_dict(d: dict) -> "Invocation":
@@ -51,6 +51,8 @@ class Request:
     This is the payload sent from the public-facing App Proxy to the
     private-facing app microservice.
     """
+
+    # TODO (enias): Is this a replacement for the Request in base?
 
     clientConfig: Configuration = None
     invocation: Invocation = None

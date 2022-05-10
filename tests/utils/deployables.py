@@ -4,14 +4,14 @@ import os
 import time
 import zipfile
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
-from steamship import App, AppVersion, AppInstance, Steamship
+from steamship import App, AppInstance, AppVersion, Steamship
 from steamship.data.plugin import Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
-from tests import VENV_PATH, SRC_PATH
+from tests import SRC_PATH, VENV_PATH
 
 
 def zip_deployable(file_path: Path) -> bytes:
@@ -39,7 +39,7 @@ def zip_deployable(file_path: Path) -> bytes:
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(
-            file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
+        file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
     ) as zip_file:
         zip_file.write(file_path, "api.py")
 
@@ -56,10 +56,10 @@ def zip_deployable(file_path: Path) -> bytes:
 
 @contextlib.contextmanager
 def deploy_app(
-        client: Steamship,
-        py_path: Path,
-        version_config_template: Dict[str, any] = None,
-        instance_config: Dict[str, any] = None,
+    client: Steamship,
+    py_path: Path,
+    version_config_template: Dict[str, Any] = None,
+    instance_config: Dict[str, Any] = None,
 ):
     app = App.create(client)
     assert app.error is None
@@ -92,12 +92,12 @@ def deploy_app(
 
 @contextlib.contextmanager
 def deploy_plugin(
-        client: Steamship,
-        py_path: Path,
-        plugin_type: str,
-        version_config_template: Dict[str, any] = None,
-        instance_config: Dict[str, any] = None,
-        training_platform: str = None,
+    client: Steamship,
+    py_path: Path,
+    plugin_type: str,
+    version_config_template: Dict[str, Any] = None,
+    instance_config: Dict[str, Any] = None,
+    training_platform: str = None,
 ):
     plugin = Plugin.create(
         client,
@@ -144,8 +144,6 @@ def deploy_plugin(
 def _check_user(client, instance):
     user = User.current(client).data
     assert instance.user_id == user.id
-
-{"pluginInstance":"radioactive-hill-stsyu","type":"file","id":"BA3BECF6-F2D1-4136-B473-67F72A24AAA5"}
 
 
 def _delete_deployable(instance, version, deployable):

@@ -1,5 +1,5 @@
 from steamship import SteamshipError
-from steamship.app import App, post, create_handler, Response
+from steamship.app import App, Response, create_handler, post
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -28,6 +28,7 @@ class TestTrainableTaggerPlugin(Tagger, App):
             message="Inference on this tagger is performed by the Steamship Inference Cloud."
         )
 
+    # noinspection PyUnusedLocal
     @post("getTrainingParameters")
     def get_training_parameters(
         self, **kwargs

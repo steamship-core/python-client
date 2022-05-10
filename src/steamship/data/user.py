@@ -1,5 +1,7 @@
 from dataclasses import dataclass
+from typing import Any
 
+from steamship.app import Response
 from steamship.base import Client
 
 
@@ -10,7 +12,7 @@ class User:
     handle: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "User":
+    def from_dict(d: Any, client: Client = None) -> "User":
         if d["user"] is not None:
             d = d["user"]
 
@@ -24,5 +26,5 @@ class User:
         return dict(id=self.id, handle=self.handle)
 
     @staticmethod
-    def current(client: Client) -> "User":
+    def current(client: Client) -> "Response[User]":
         return client.get("account/current", expect=User)

@@ -1,5 +1,4 @@
-from steamship import PluginInstance, File
-from steamship.base import Client
+from steamship import File, PluginInstance, Steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -18,7 +17,7 @@ def count_embeddings(file: File):
     return embeddings
 
 
-def basic_embeddings(steamship: Client, plugin_instance: str):
+def basic_embeddings(steamship: Steamship, plugin_instance: str):
     e1 = steamship.tag("This is a test", plugin_instance=plugin_instance)
     e1b = steamship.tag("Banana", plugin_instance=plugin_instance)
     e1.wait()
@@ -41,13 +40,11 @@ def basic_embeddings(steamship: Client, plugin_instance: str):
 
 def test_basic_embeddings():
     client = get_steamship_client()
-    plugin_instance = PluginInstance.create(
-        client, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(client, plugin_handle=_TEST_EMBEDDER).data
     basic_embeddings(client, plugin_instance.handle)
 
 
-def basic_embedding_search(steamship: Client, plugin_instance: str):
+def basic_embedding_search(steamship: Steamship, plugin_instance: str):
     docs = [
         "Armadillo shells are bulletproof.",
         "Dolphins sleep with one eye open.",
@@ -66,7 +63,5 @@ def basic_embedding_search(steamship: Client, plugin_instance: str):
 
 def test_basic_embedding_search():
     client = get_steamship_client()
-    plugin_instance = PluginInstance.create(
-        client, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(client, plugin_handle=_TEST_EMBEDDER).data
     basic_embedding_search(client, plugin_instance.handle)

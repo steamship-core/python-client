@@ -13,5 +13,5 @@ def test_app_create():
     assert app.error is None
     assert app.data is not None
 
-    res = app.data.delete()
+    _ = app.data.delete()
     assert app.error is None

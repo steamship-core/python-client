@@ -1,10 +1,8 @@
-from steamship import MimeTypes, DocTag, PluginInstance, Block
-from steamship.base import Client
+from steamship import Block, DocTag, MimeTypes, PluginInstance, Steamship
 from steamship.base.response import TaskState
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
-
 
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
@@ -30,7 +28,7 @@ def count_tags(blocks: [Block], tag_kind: str, tag_name: str):
     return c
 
 
-def tag_file(client: Client, parser_instance_handle: str):
+def tag_file(client: Steamship, parser_instance_handle: str):
     t = "A Poem"
     p1_1 = "Roses are red."
     p1_2 = "Violets are blue."

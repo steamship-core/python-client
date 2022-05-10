@@ -19,7 +19,7 @@ T2 = "A flavorful story"
 P3_1 = "Cake is made of flour."
 P3_2 = "Cake tastes good with milk."
 P4_1 = "Cake comes in chocolate and vanilla flavors."
-P4_2 = "Cake can be cut into many pieces and shared."
+P4_2 = "Cake can be cut into mAny pieces and shared."
 
 
 def test_file_parse():
@@ -75,7 +75,7 @@ def test_file_index():
     p3_1 = "Cake is made of flour."
     p3_2 = "Cake tastes good with milk."
     p4_1 = "Cake comes in chocolate and vanilla flavors."
-    p4_2 = "Cake can be cut into many pieces and shared."
+    p4_2 = "Cake can be cut into mAny pieces and shared."
 
     content1 = f"# {t}\n\n{p1_1} {p1_2}\n\n{p2_1} {p2_2}"
     content2 = f"# {t2}\n\n{p3_1} {p3_2}\n\n{p4_1} {p4_2}"

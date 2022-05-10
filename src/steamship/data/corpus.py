@@ -41,14 +41,15 @@ class Corpus:
     class ListResponse(Request):
         corpora: List["Corpus"]
 
+        # noinspection PyUnusedLocal
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "Corpus.ListResponse":
+        def from_dict(d: Any, client: Client = None) -> "Corpus.ListResponse":
             return Corpus.ListResponse(
                 corpora=[Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
             )
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "Corpus":
+    def from_dict(d: Any, client: Client = None) -> "Corpus":
         if "corpus" in d:
             d = d["corpus"]
 
@@ -67,7 +68,7 @@ class Corpus:
         client: Client,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> "Response[Corpus]":  # TODO (Enias): Review
         req = IdentifierRequest()
         return client.post(
@@ -86,12 +87,12 @@ class Corpus:
         description: str = None,
         external_id: str = None,
         external_type: str = None,
-        metadata: any = None,
+        metadata: Any = None,
         is_public: bool = False,
         upsert: bool = True,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> "Response[Corpus]":
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
@@ -115,7 +116,7 @@ class Corpus:
         )
 
     def delete(
-        self, space_id: str = None, space_handle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: Any = None
     ) -> Response["Corpus"]:
         return self.client.post(
             "corpus/delete",

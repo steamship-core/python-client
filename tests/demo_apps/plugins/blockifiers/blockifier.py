@@ -1,6 +1,6 @@
 from steamship import Block, File, Tag
-from steamship.app import App, post, create_handler, Response
-from steamship.data.tags import TagKind, DocTag
+from steamship.app import App, Response, create_handler, post
+from steamship.data.tags import DocTag, TagKind
 from steamship.plugin.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput

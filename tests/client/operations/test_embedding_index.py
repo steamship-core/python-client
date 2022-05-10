@@ -7,12 +7,12 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from tests.utils.client import get_steamship_client
-from tests.utils.random import random_name, random_index
+from tests.utils.random import random_index
 
 _TEST_EMBEDDER = "test-embedder"
 
 
-def create_index(client: Client, plugin_instance: str):
+def create_index(_: Client, plugin_instance: str):
     steamship = get_steamship_client()
 
     # Should require plugin
@@ -35,9 +35,7 @@ def create_index(client: Client, plugin_instance: str):
 
 def test_create_index():
     client = get_steamship_client()
-    plugin_instance = PluginInstance.create(
-        client, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(client, plugin_handle=_TEST_EMBEDDER).data
     create_index(client, plugin_instance.handle)
 
 
@@ -73,7 +71,6 @@ def _list_equal(actual, expected):
 
 def test_insert_many():
     steamship = get_steamship_client()
-    name = random_name()
     plugin_instance = PluginInstance.create(
         steamship, plugin_handle=_TEST_EMBEDDER
     ).data
@@ -119,12 +116,11 @@ def test_insert_many():
 
 def test_embed_task():
     steamship = get_steamship_client()
-    name = random_name()
     plugin_instance = PluginInstance.create(
         steamship, plugin_handle=_TEST_EMBEDDER
     ).data
     with random_index(steamship, plugin_instance.handle) as index:
-        insert_results = index.insert("test", reindex=False)
+        _ = index.insert("test", reindex=False)
         res = index.embed()
 
         assert res.task.task_id is not None
@@ -138,7 +134,6 @@ def test_embed_task():
 
 def test_duplicate_inserts():
     steamship = get_steamship_client()
-    name = random_name()
 
     plugin_instance = PluginInstance.create(
         steamship, plugin_handle=_TEST_EMBEDDER
@@ -147,13 +142,12 @@ def test_duplicate_inserts():
         # Test for suppressed re-indexing
         a1 = "Ted can eat an entire block of cheese."
         q1 = "Who can eat the most cheese"
-        insert_results = index.insert(a1)
-        search_results = index.search(q1)
+        _ = index.insert(a1)
+        _ = index.search(q1)
 
 
 def test_index_usage():
     steamship = get_steamship_client()
-    name = random_name()
 
     plugin_instance = PluginInstance.create(
         steamship, plugin_handle=_TEST_EMBEDDER
@@ -161,8 +155,8 @@ def test_index_usage():
     with random_index(steamship, plugin_instance.handle) as index:
         a1 = "Ted can eat an entire block of cheese."
         q1 = "Who can eat the most cheese"
-        insert_results = index.insert(a1)
-        search_results = index.search(q1)
+        _ = index.insert(a1)
+        _ = index.search(q1)
 
         # Now embed
         task = index.embed()
@@ -187,7 +181,7 @@ def test_index_usage():
             floatVal=1.2,
         )
 
-        insert_results2 = index.insert(
+        _ = index.insert(
             a2, external_id=a2id, external_type=a2type, metadata=a2metadata
         )
         search_results2 = index.search(q2)
@@ -218,7 +212,6 @@ def test_index_usage():
 
 def test_multiple_queries():
     steamship = get_steamship_client()
-    name = random_name()
 
     plugin_instance = PluginInstance.create(
         steamship, plugin_handle=_TEST_EMBEDDER
@@ -227,7 +220,7 @@ def test_multiple_queries():
         # Test for suppressed re-indexing
         a1 = "Ted can eat an entire block of cheese."
         a2 = "Joe can drink an entire glass of water."
-        insert_results = index.insert_many([a1, a2])
+        _ = index.insert_many([a1, a2])
         index.embed().wait()
 
         qs1 = ["Who can eat the most cheese", "Who can run the fastest?"]
@@ -258,7 +251,7 @@ def test_multiple_queries():
 
         a3 = "Susan can run very fast."
         a4 = "Brenda can fight alligators."
-        insert_results = index.insert_many([a3, a4])
+        _ = index.insert_many([a3, a4])
         index.embed().wait()
 
         qs4 = ["What can Brenda do?", "What can Ronaldo do?", "What can Jerry do?"]
@@ -282,7 +275,6 @@ def test_multiple_queries():
 
 def test_empty_queries():
     steamship = get_steamship_client()
-    name = random_name()
 
     plugin_instance = PluginInstance.create(
         steamship, plugin_handle=_TEST_EMBEDDER
@@ -290,7 +282,7 @@ def test_empty_queries():
     with random_index(steamship, plugin_instance.handle) as index:
         a1 = "Ted can eat an entire block of cheese."
         a2 = "Joe can drink an entire glass of water."
-        insert_results = index.insert_many([a1, a2])
+        _ = index.insert_many([a1, a2])
         index.embed().wait()
 
         search_results = index.search(None)

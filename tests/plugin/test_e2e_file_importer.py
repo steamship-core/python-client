@@ -1,5 +1,6 @@
 from steamship import File
 from tests.demo_apps.plugins.importers.plugin_file_importer import TEST_DOC
+
 from .. import APPS_PATH
 
 __copyright__ = "Steamship"
@@ -14,9 +15,9 @@ def test_e2e_importer():
     file_importer_path = APPS_PATH / "plugins" / "importers" / "plugin_file_importer.py"
 
     with deploy_plugin(client, file_importer_path, "fileImporter") as (
-            plugin,
-            version,
-            instance,
+        plugin,
+        version,
+        instance,
     ):
         file = File.create(
             client=client, content="This is a test.", plugin_instance=instance.handle

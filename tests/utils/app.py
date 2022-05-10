@@ -11,8 +11,8 @@
 # def deploy_app(
 #         client: Steamship,
 #         py_path: Path,
-#         version_config_template: Dict[str, any] = None,
-#         instance_config: Dict[str, any] = None,
+#         version_config_template: Dict[str, Any] = None,
+#         instance_config: Dict[str, Any] = None,
 # ):
 #     app = App.create(client)
 #     assert app.error is None

@@ -1,4 +1,4 @@
-from steamship import MimeTypes, File, Corpus
+from steamship import Corpus, File, MimeTypes
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -54,7 +54,7 @@ def test_corpus_upsert():
 
     assert corpus1.handle is not None
     assert len(corpus1.handle) > 0
-    corpus3 = Corpus.create(client, handle=corpus1.handle, upsert=True)
+    corpus3 = Corpus.create(client, handle=corpus1.handle)
     assert corpus3.error is None
     assert corpus3.data.id is not None
     assert corpus1.id == corpus3.data.id

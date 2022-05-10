@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TypeVar, Generic, Union, Callable
+from typing import Any, Callable, Generic, TypeVar, Union
 
 from steamship.app.response import Response
 from steamship.base import Client
@@ -23,14 +23,14 @@ class PluginRequest(Generic[T]):
 
     @staticmethod
     def from_dict(
-        d: any,
+        d: Any,
         subclass_request_from_dict: Callable[[dict, Client], dict] = None,
         client: Client = None,
     ) -> "PluginRequest[T]":
         data = None
         if "data" in d:
             if subclass_request_from_dict is not None:
-                data = subclass_request_from_dict(d["data"], client=client)
+                data = subclass_request_from_dict(d["data"], client)
             else:
                 raise SteamshipError(
                     message="No `subclass_request_from_dict` provided to parse inbound dict request."
@@ -39,9 +39,9 @@ class PluginRequest(Generic[T]):
 
     def to_dict(self) -> dict:
         if self.data is None:
-            return dict()
+            return {}
         else:
-            return dict(data=self.data.to_dict())
+            return {"data": self.data.to_dict()}
 
 
 class PluginService(ABC, Generic[T, U]):
@@ -52,7 +52,7 @@ class PluginService(ABC, Generic[T, U]):
     @classmethod
     @abstractmethod
     def subclass_request_from_dict(
-        cls, d: any, client: Client = None
+        cls, d: Any, client: Client = None
     ) -> PluginRequest[T]:
         pass
 

@@ -1,11 +1,12 @@
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
+from typing import Any
 
 from steamship import File
-from steamship.base import Client
+from steamship.base import Client, Request
 
 
 @dataclass
-class TagRequest:
+class TagRequest(Request):
     type: str = None
     id: str = None
     name: str = None
@@ -13,8 +14,9 @@ class TagRequest:
     pluginInstance: str = None
     file: File.CreateRequest = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "TagRequest":
+    def from_dict(d: Any, client: Client = None) -> "TagRequest":
 
         return TagRequest(
             type=d.get("type", None),
@@ -33,8 +35,9 @@ class TagRequest:
 class TagResponse:
     file: File = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "TagResponse":
+    def from_dict(d: Any, client: Client = None) -> "TagResponse":
         return TagResponse(file=File.from_dict(d.get("file", {})))
 
     def to_dict(self) -> dict:

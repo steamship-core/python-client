@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import List, Dict, Union
+from typing import Any, Dict, List, Union
 
 from steamship.base import Client, Request, Response, metadata_to_str
 from steamship.data.search import Hit
@@ -22,8 +22,9 @@ class QueryResult:
     index: int
     id: str
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "QueryResult":
+    def from_dict(d: Any, client: Client = None) -> "QueryResult":
         value = Hit.from_dict(d.get("value", {}))
         return QueryResult(
             value=value, score=d.get("score"), index=d.get("index"), id=d.get("id")
@@ -34,8 +35,10 @@ class QueryResult:
 class QueryResults(Request):
     items: List[QueryResult] = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "QueryResults":
+    def from_dict(d: Any, client: Client = None) -> "QueryResults":
+        # TODO: Try to always use client through inheritance
         items = [QueryResult.from_dict(h) for h in (d.get("items", []) or [])]
         return QueryResults(items=items)
 
@@ -50,7 +53,7 @@ class EmbeddedItem:
     value: str = None
     externalId: str = None
     externalType: str = None
-    metadata: any = None
+    metadata: Any = None
     embedding: List[float] = None
 
     def clone_for_insert(self) -> "EmbeddedItem":
@@ -71,8 +74,9 @@ class EmbeddedItem:
             ret.metadata = json.dumps(ret.metadata)
         return ret
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "EmbeddedItem":
+    def from_dict(d: Any, client: Client = None) -> "EmbeddedItem":
         return EmbeddedItem(
             id=d.get("id", None),
             indexId=d.get("indexId", None),
@@ -95,7 +99,7 @@ class IndexCreateRequest(Request):
     upsert: bool = True
     externalId: str = None
     externalType: str = None
-    metadata: any = None
+    metadata: Any = None
 
 
 @dataclass
@@ -107,7 +111,7 @@ class IndexInsertRequest(Request):
     blockType: str = None
     externalId: str = None
     externalType: str = None
-    metadata: any = None
+    metadata: Any = None
     reindex: bool = True
 
 
@@ -116,8 +120,9 @@ class IndexItemId:
     indexId: str = None
     id: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexItemId":
+    def from_dict(d: Any, client: Client = None) -> "IndexItemId":
         return IndexItemId(indexId=d.get("indexId", None), id=d.get("id", None))
 
 
@@ -125,8 +130,9 @@ class IndexItemId:
 class IndexInsertResponse:
     itemIds: List[IndexItemId] = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexInsertResponse":
+    def from_dict(d: Any, client: Client = None) -> "IndexInsertResponse":
         return IndexInsertResponse(
             itemIds=[IndexItemId.from_dict(x) for x in (d.get("itemIds", []) or [])]
         )
@@ -141,8 +147,9 @@ class IndexEmbedRequest(Request):
 class IndexEmbedResponse:
     id: str
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexEmbedResponse":
+    def from_dict(d: Any, client: Client = None) -> "IndexEmbedResponse":
         return IndexEmbedResponse(id=d.get("id", None))
 
 
@@ -168,8 +175,9 @@ class IndexSnapshotResponse:
     id: str
     snapshotId: str
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexSnapshotResponse":
+    def from_dict(d: Any, client: Client = None) -> "IndexSnapshotResponse":
         return IndexSnapshotResponse(
             id=d.get("id", None), snapshotId=d.get("snapshotId", None)
         )
@@ -184,8 +192,9 @@ class ListSnapshotsRequest(Request):
 class ListSnapshotsResponse:
     snapshots: List[IndexSnapshotResponse]
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexSnapshotResponse":
+    def from_dict(d: Any, client: Client = None) -> "IndexSnapshotResponse":
         return IndexSnapshotResponse(
             snapshots=[
                 IndexSnapshotResponse.from_dict(dd)
@@ -206,8 +215,9 @@ class ListItemsRequest(Request):
 class ListItemsResponse:
     items: List[EmbeddedItem]
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ListItemsResponse":
+    def from_dict(d: Any, client: Client = None) -> "ListItemsResponse":
         return ListItemsResponse(
             items=[EmbeddedItem.from_dict(dd) for dd in (d.get("items", []) or [])]
         )
@@ -242,7 +252,7 @@ class EmbeddingIndex:
     metadata: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "EmbeddingIndex":
+    def from_dict(d: Any, client: Client = None) -> "EmbeddingIndex":
         if "embeddingIndex" in d:
             d = d["embeddingIndex"]
         elif "index" in d:
@@ -268,7 +278,7 @@ class EmbeddingIndex:
         reindex: bool = True,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response[IndexInsertResponse]:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
@@ -297,7 +307,7 @@ class EmbeddingIndex:
         reindex: bool = True,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response[IndexInsertResponse]:
         new_items = []
         for item in items:
@@ -329,7 +339,7 @@ class EmbeddingIndex:
         reindex: bool = True,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response[IndexInsertResponse]:
 
         req = IndexInsertRequest(
@@ -350,7 +360,7 @@ class EmbeddingIndex:
         )
 
     def embed(
-        self, space_id: str = None, space_handle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: Any = None
     ) -> Response[IndexEmbedResponse]:
         req = IndexEmbedRequest(self.id)
         return self.client.post(
@@ -364,7 +374,7 @@ class EmbeddingIndex:
         )
 
     def create_snapshot(
-        self, space_id: str = None, space_handle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: Any = None
     ) -> Response[IndexSnapshotResponse]:
         req = IndexSnapshotRequest(indexId=self.id)
         return self.client.post(
@@ -379,7 +389,7 @@ class EmbeddingIndex:
 
     # TODO (enias): Can these be generic list operations for all file types?
     def list_snapshots(
-        self, space_id: str = None, space_handle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: Any = None
     ) -> Response[ListSnapshotsResponse]:
         req = ListSnapshotsRequest(id=self.id)
         return self.client.post(
@@ -398,7 +408,7 @@ class EmbeddingIndex:
         span_id: str = None,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response[ListItemsResponse]:
         req = ListItemsRequest(
             id=self.id, fileId=file_id, blockId=block_id, spanId=span_id
@@ -417,7 +427,7 @@ class EmbeddingIndex:
         snapshot_id: str,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response[DeleteSnapshotsResponse]:
         req = DeleteSnapshotsRequest(snapshotId=snapshot_id)
         return self.client.post(
@@ -430,7 +440,7 @@ class EmbeddingIndex:
         )
 
     def delete(
-        self, space_id: str = None, space_handle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: Any = None
     ) -> "Response[EmbeddingIndex]":
         return self.client.post(
             "embedding-index/delete",
@@ -449,7 +459,7 @@ class EmbeddingIndex:
         pd=False,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response[QueryResults]:
         if type(query) == list:
             req = IndexSearchRequest(
@@ -488,10 +498,10 @@ class EmbeddingIndex:
         upsert: bool = True,
         external_id: str = None,
         external_type: str = None,
-        metadata: any = None,
+        metadata: Any = None,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> "Response[EmbeddingIndex]":
         req = IndexCreateRequest(
             handle=handle,

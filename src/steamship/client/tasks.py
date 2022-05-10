@@ -1,6 +1,6 @@
 import logging
 
-from steamship.base import Response, TaskComment, Client
+from steamship.base import Client, Response, TaskComment
 from steamship.base.tasks import TaskCommentList
 
 __copyright__ = "Steamship"

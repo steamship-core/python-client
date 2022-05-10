@@ -5,7 +5,7 @@ import logging
 from typing import Any, Tuple, Union
 
 from steamship.base.error import SteamshipError
-from steamship.base.mime_types import MimeTypes, ContentEncodings
+from steamship.base.mime_types import ContentEncodings, MimeTypes
 
 
 def guess_mime(obj: Any, provided_mime: str = None) -> str:

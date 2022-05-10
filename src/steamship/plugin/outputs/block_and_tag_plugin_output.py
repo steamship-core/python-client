@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict, Optional
 
 from steamship.base import Client
 from steamship.data.file import File
@@ -11,7 +11,9 @@ class BlockAndTagPluginOutput:
     file: File.CreateRequest = None
 
     @staticmethod
-    def from_dict(d: any = None, client: Client = None) -> "BlockAndTagPluginOutput":
+    def from_dict(
+        d: Any = None, client: Client = None
+    ) -> "Optional[BlockAndTagPluginOutput]":
         if d is None:
             return None
 
@@ -21,5 +23,5 @@ class BlockAndTagPluginOutput:
 
     def to_dict(self) -> Dict:
         if self.file is None:
-            return dict()
-        return dict(file=self.file.to_dict())
+            return {}
+        return {"file": self.file.to_dict()}

@@ -6,14 +6,15 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from tests import APPS_PATH
-
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
 
 
 def test_e2e_parser():
     client = get_steamship_client()
-    tagger_plugin_path = APPS_PATH / "plugins" / "taggers" / "plugin_configurable_tagger.py"
+    tagger_plugin_path = (
+        APPS_PATH / "plugins" / "taggers" / "plugin_configurable_tagger.py"
+    )
     config_template = {
         "tagKind": {"type": "string"},
         "tagName": {"type": "string"},
@@ -29,10 +30,10 @@ def test_e2e_parser():
 
     with deploy_plugin(
         client,
-            tagger_plugin_path,
-            "tagger",
-            version_config_template=config_template,
-            instance_config=instance_config1,
+        tagger_plugin_path,
+        "tagger",
+        version_config_template=config_template,
+        instance_config=instance_config1,
     ) as (plugin, version, instance):
         test_doc = "Hi there"
         res = client.tag(doc=test_doc, plugin_instance=instance.handle)

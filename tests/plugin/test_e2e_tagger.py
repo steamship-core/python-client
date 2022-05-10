@@ -4,7 +4,6 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from .. import APPS_PATH
-
 from ..utils.client import get_steamship_client
 from ..utils.deployables import deploy_plugin
 

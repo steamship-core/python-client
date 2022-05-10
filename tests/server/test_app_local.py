@@ -1,5 +1,4 @@
 from steamship.app import Invocation, Request
-
 from tests.demo_apps.apps.hello_world import HelloWorld, handler
 
 NAME = "Ted"

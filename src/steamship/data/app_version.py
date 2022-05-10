@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 
-from steamship.base import Client, Request
+from steamship.base import Client, Request, Response
 
 
 @dataclass
@@ -10,7 +10,7 @@ class CreateAppVersionRequest(Request):
     handle: str = None
     upsert: bool = None
     type: str = "file"
-    configTemplate: Dict[str, any] = None
+    configTemplate: Dict[str, Any] = None
 
 
 @dataclass
@@ -29,10 +29,10 @@ class AppVersion:
     id: str = None
     appId: str = None
     handle: str = None
-    configTemplate: Dict[str, any] = None
+    configTemplate: Dict[str, Any] = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "AppVersion":
+    def from_dict(d: Any, client: Client = None) -> "AppVersion":
         if "appVersion" in d:
             d = d["appVersion"]
 
@@ -51,8 +51,8 @@ class AppVersion:
         filename: str = None,
         filebytes: bytes = None,
         upsert: bool = None,
-        config_template: Dict[str, any] = None,
-    ) -> "AppVersion":
+        config_template: Dict[str, Any] = None,
+    ) -> "Response[AppVersion]":
 
         if filename is None and filebytes is None:
             raise Exception("Either filename or filebytes must be provided.")
@@ -74,6 +74,6 @@ class AppVersion:
             expect=AppVersion,
         )
 
-    def delete(self) -> "AppVersion":
+    def delete(self) -> "Response[AppVersion]":
         req = DeleteAppVersionRequest(id=self.id)
         return self.client.post("app/version/delete", payload=req, expect=AppVersion)

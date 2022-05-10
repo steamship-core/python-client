@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import List, Any
+from typing import Any, List, Optional, Dict
 
 from steamship.base import Client, Request, Response
 
@@ -11,14 +11,14 @@ class TagQueryRequest(Request):
 
 
 @dataclass
-class Tag: # TODO (enias): Make pep8 compatible
+class Tag:  # TODO (enias): Make pep8 compatible
     client: Client = None
     id: str = None
     fileId: str = None
     blockId: str = None
     kind: str = None  # E.g. ner
     name: str = None  # E.g. person
-    value: str = None  # JSON Metadata
+    value: Dict[str, Any] = None  # JSON Metadata
     startIdx: int = None  # w/r/t block.text. None means 0 if blockId is not None
     endIdx: int = None  # w/r/t block.text. None means -1 if blockId is not None
 
@@ -31,11 +31,12 @@ class Tag: # TODO (enias): Make pep8 compatible
         name: str = None
         startIdx: int = None
         endIdx: int = None
-        value: Any = None
+        value: Dict[str, Any] = None
         upsert: bool = None
 
+        # noinspection PyUnusedLocal
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "Tag.CreateRequest":
+        def from_dict(d: Any, client: Client = None) -> "Tag.CreateRequest":
             return Tag.CreateRequest(
                 id=d.get("id"),
                 fileId=d.get("fileId"),
@@ -47,6 +48,9 @@ class Tag: # TODO (enias): Make pep8 compatible
                 value=d.get("value"),
                 upsert=d.get("upsert"),
             )
+
+        def to_dict(self):
+            pass
 
     @dataclass
     class DeleteRequest(Request):
@@ -64,7 +68,7 @@ class Tag: # TODO (enias): Make pep8 compatible
         tags: List["Tag"] = None
 
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "Tag.ListResponse":
+        def from_dict(d: Any, client: Client = None) -> "Optional[Tag.ListResponse]":
             if d is None:
                 return None
             return Tag.ListResponse(
@@ -74,7 +78,7 @@ class Tag: # TODO (enias): Make pep8 compatible
             )
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "Tag":
+    def from_dict(d: Any, client: Client = None) -> "Tag":
         return Tag(
             client=client,
             id=d.get("id"),
@@ -159,7 +163,7 @@ class Tag: # TODO (enias): Make pep8 compatible
         tag_filter_query: str,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response["TagQueryResponse"]:
 
         req = TagQueryRequest(tagFilterQuery=tag_filter_query)
@@ -179,7 +183,7 @@ class TagQueryResponse:
     tags: List[Tag]
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "TagQueryResponse":
+    def from_dict(d: Any, client: Client = None) -> "TagQueryResponse":
         return TagQueryResponse(
             tags=[Tag.from_dict(tag, client=client) for tag in d.get("tags", [])]
         )

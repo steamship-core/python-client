@@ -1,7 +1,7 @@
 from steamship import File, PluginInstance
-from .. import APPS_PATH
-
 from tests.demo_apps.plugins.importers.plugin_file_importer import TEST_DOC
+
+from .. import APPS_PATH
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -13,7 +13,9 @@ from ..utils.random import random_corpus
 
 def test_e2e_corpus_importer():
     client = get_steamship_client()
-    corpus_importer_path = APPS_PATH / "plugins" / "importers" / "plugin_corpus_importer.py"
+    corpus_importer_path = (
+        APPS_PATH / "plugins" / "importers" / "plugin_corpus_importer.py"
+    )
 
     test_file_importer_instance = PluginInstance.create(
         client, plugin_handle="test-fileImporter-valueOrData", upsert=True

@@ -1,5 +1,7 @@
+from typing import Any
+
 from steamship import MimeTypes
-from steamship.app import App, post, create_handler, Response
+from steamship.app import App, Response, create_handler, post
 from steamship.extension.file import File
 from steamship.plugin.file_importer import FileImporter
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
@@ -23,7 +25,7 @@ class TestFileImporterPlugin(FileImporter, App):
         )
 
     @post("import")
-    def do_import(self, **kwargs) -> any:
+    def do_import(self, **kwargs) -> Any:
         # TODO (enias): Move this code up one abstraction level
         import_request = FileImporter.parse_request(request=kwargs)
         return self.run(import_request)

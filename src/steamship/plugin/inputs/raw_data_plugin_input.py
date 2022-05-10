@@ -1,15 +1,16 @@
 import base64
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 from steamship.base import Client
 from steamship.base.mime_types import TEXT_MIME_TYPES
 
 
 def is_base64(sb):
+    # noinspection PyBroadException
     try:
         if isinstance(sb, str):
-            # If there's any unicode here, an exception will be thrown and the function will return false
+            # If there's Any unicode here, an exception will be thrown and the function will return false
             sb_bytes = bytes(sb, "ascii")
         elif isinstance(sb, bytes):
             sb_bytes = sb
@@ -26,8 +27,9 @@ class RawDataPluginInput:
     data: Any = None
     defaultMimeType: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "RawDataPluginInput":
+    def from_dict(d: Any, client: Client = None) -> "Optional[RawDataPluginInput]":
         if d is None:
             return None
         data = d.get("data", None)

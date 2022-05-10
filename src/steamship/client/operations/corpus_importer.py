@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Any, List
 
 from steamship import File
 from steamship.base import Client
@@ -21,7 +21,8 @@ class CorpusImportRequest:  # TODO (enias): Depricate
     fileImporterPluginInstance: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "CorpusImportRequest":
+    def from_dict(d: Any, client: Client = None) -> "CorpusImportRequest":
+        # noinspection PyArgumentEqualDefault
         return CorpusImportRequest(
             client=client,
             id=d.get("id", None),
@@ -52,11 +53,16 @@ class CorpusImportResponse:
     client: Client = None
     fileImportRequests: List[File.CreateRequest] = None
 
-    def __init__(self, file_import_requests: List[File.CreateRequest] = None):
+    def __init__(
+        self,
+        client: Client = None,
+        file_import_requests: List[File.CreateRequest] = None,
+    ):
+        self.client = client
         self.fileImportRequests = file_import_requests
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "CorpusImportResponse":
+    def from_dict(d: Any, client: Client = None) -> "CorpusImportResponse":
         return CorpusImportResponse(
             client=client,
             file_import_requests=[

@@ -1,9 +1,9 @@
 from dataclasses import dataclass
-from typing import TypeVar, Any, List, Generic, Type, Union
+from typing import Any, Generic, List, Type, TypeVar, Union
 
 from steamship.base.base import IResponse
 from steamship.base.error import SteamshipError
-from steamship.base.metadata import str_to_metadata, metadata_to_str
+from steamship.base.metadata import metadata_to_str, str_to_metadata
 from steamship.base.request import Request
 
 T = TypeVar("T")
@@ -51,7 +51,7 @@ class TaskComment:
         external_id: str = None,
         external_type: str = None,
         external_group: str = None,
-        metadata: any = None,
+        metadata: Any = None,
         upsert: bool = True,
     ) -> "IResponse[TaskComment]":
         req = CreateTaskCommentRequest(
@@ -97,7 +97,7 @@ class TaskComment:
         )
 
     @staticmethod
-    def from_dict(d: any, client: Any = None) -> "TaskComment":
+    def from_dict(d: Any, client: Any = None) -> "TaskComment":
         return TaskComment(
             client=client,
             id=d.get("id"),
@@ -116,7 +116,7 @@ class TaskCommentList:
     comments: List[TaskComment]
 
     @staticmethod
-    def from_dict(d: any, client: Any = None) -> "TaskCommentList":
+    def from_dict(d: Any, client: Any = None) -> "TaskCommentList":
         return TaskCommentList(
             comments=[TaskComment.from_dict(dd, client) for dd in d.get("comments", [])]
         )
@@ -180,7 +180,7 @@ class Task(Generic[T]):
     eventual_result_type: Type[Any] = None
 
     @staticmethod
-    def failure(message: str, suggestion: str, error: str, code: str) -> "Task":
+    def failure(message: str, suggestion: str, _: str, code: str) -> "Task":
         return Task(
             state=TaskState.failed,
             status_message=message,
@@ -201,7 +201,7 @@ class Task(Generic[T]):
             return Task(state=TaskState.failed, status_message=str(error))
 
     @staticmethod
-    def from_dict(d: any, client: Any = None) -> "Task":  # TODO (Enias): Review
+    def from_dict(d: Any, client: Any = None) -> "Task":  # TODO (Enias): Review
         """Last resort if subclass doesn't override: pass through."""
         return Task(
             client=client,
@@ -290,7 +290,7 @@ class Task(Generic[T]):
         external_id: str = None,
         external_type: str = None,
         external_group: str = None,
-        metadata: any = None,
+        metadata: Any = None,
         upsert: bool = True,
     ) -> IResponse[TaskComment]:
         return TaskComment.create(

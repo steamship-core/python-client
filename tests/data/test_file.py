@@ -56,27 +56,8 @@ def test_file_scrape():
     b.delete()
 
 
-# def test_file_add_bloc():
-#     steamship = get_steamship_client()
-
-#     name_a = "{}.txt".format(random_name())
-#     a = steamship.upload(
-#         name=name_a,
-#         content="This is a test."
-#     )
-#     assert(a.id is not None)
-#     task  = a.convert()
-#     task._run_development_mode()
-#     task.wait()
-#     q1 = a.query()
-#     assert(len(q1.blocks) == 2)
-
-#     # TODO: Append Content
-#     # TODO: Append Blocks
-
-
 def test_file_import_response_dict():
-    resp = File.CreateResponse(bytes=b"some bytes", mimeType=MimeTypes.BINARY)
+    resp = File.CreateResponse(bytes=b"some bytes", mime_type=MimeTypes.BINARY)
     to_dict = resp.to_dict()
     from_dict = File.CreateResponse.from_dict(to_dict)
     assert resp.data == from_dict.data
@@ -84,7 +65,7 @@ def test_file_import_response_dict():
 
 
 def test_file_import_response_bytes_serialization():
-    file_resp = File.CreateResponse(bytes=b"some bytes", mimeType=MimeTypes.BINARY)
+    file_resp = File.CreateResponse(bytes=b"some bytes", mime_type=MimeTypes.BINARY)
     to_dict = file_resp.to_dict()
     as_json_string = json.dumps(to_dict)
     as_dict_again = json.loads(as_json_string)
@@ -105,12 +86,12 @@ def test_file_upload_with_blocks():
 
     blocks = Block.list_public(client, file_id=a.id)
 
-    def check_blocks(blocks):
-        assert len(blocks) == 2
-        assert blocks[0].tags is not None
-        assert len(blocks[0].tags) == 1
-        assert blocks[0].tags[0].name == "BlockTag"
-        assert blocks[0].text == "A"
+    def check_blocks(block_list):
+        assert len(block_list) == 2
+        assert block_list[0].tags is not None
+        assert len(block_list[0].tags) == 1
+        assert block_list[0].tags[0].name == "BlockTag"
+        assert block_list[0].text == "A"
 
     assert blocks.data.blocks is not None
     check_blocks(blocks.data.blocks)

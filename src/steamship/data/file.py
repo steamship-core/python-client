@@ -1,7 +1,7 @@
 import io
 import logging
 from dataclasses import dataclass
-from typing import Any, List
+from typing import Any, List, Union, Optional
 
 from steamship.base import Client, Response, Request
 from steamship.base.binary_utils import flexi_create
@@ -41,8 +41,8 @@ class File:
     mime_type: str = None
     space_id: str = None
     corpus_id: str = None
-    blocks: [Block] = None
-    tags: [Tag] = None
+    blocks: List[Block] = None
+    tags: List[Tag] = None
     filename: str = None
 
     @dataclass
@@ -54,8 +54,8 @@ class File:
         type: str = None  # FileUploadType: fileImporter | value | url | data
         mimeType: str = None  # TODO: This should work
         corpusId: str = None
-        blocks: [Block.CreateRequest] = None
-        tags: [Tag.CreateRequest] = None
+        blocks: List[Block.CreateRequest] = None
+        tags: List[Tag.CreateRequest] = None
         pluginInstance: str = None
 
         @staticmethod
@@ -104,20 +104,21 @@ class File:
             self,
             data: Any = None,
             string: str = None,
-            bytes: io.BytesIO = None,
+            bytes: Union[bytes, io.BytesIO] = None,
             json: io.BytesIO = None,
-            mimeType: str = None,
+            mime_type: str = None,
         ):
-            data, mimeType, encoding = flexi_create(
-                data=data, string=string, json=json, bytes=bytes, mime_type=mimeType
+            data, mime_type, encoding = flexi_create(
+                data=data, string=string, json=json, bytes=bytes, mime_type=mime_type
             )
             self.data = data
-            self.mimeType = mimeType
+            self.mimeType = mime_type
 
+        # noinspection PyUnusedLocal
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "File.CreateResponse":
+        def from_dict(d: Any, client: Client = None) -> "File.CreateResponse":
             return File.CreateResponse(
-                data=d.get("data", None), mimeType=d.get("mimeType", None)
+                data=d.get("data", None), mime_type=d.get("mimeType", None)
             )
 
         def to_dict(self) -> dict:
@@ -132,7 +133,7 @@ class File:
         files: List["File"]
 
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "File.ListResponse":
+        def from_dict(d: Any, client: Client = None) -> "File.ListResponse":
             return File.ListResponse(
                 files=[File.from_dict(f, client=client) for f in d.get("files", [])]
             )
@@ -142,7 +143,7 @@ class File:
         id: str
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "File":
+    def from_dict(d: Any, client: Client = None) -> "Optional[File]":
         # TODO (enias): Resolve code duplication
         if d is None:
             return None
@@ -174,7 +175,7 @@ class File:
         )
 
     def delete(
-        self, space_id: str = None, space_handle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: Any = None
     ) -> "Response[File]":
         return self.client.post(
             "file/delete",
@@ -186,7 +187,7 @@ class File:
         )
 
     def clear(
-        self, space_id: str = None, space_handle: str = None, space: any = None
+        self, space_id: str = None, space_handle: str = None, space: Any = None
     ) -> Response[FileClearResponse]:
         return self.client.post(
             "file/clear",
@@ -205,7 +206,7 @@ class File:
         handle: str = None,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response["File"]:  # TODO (Enias): Why is this a staticmethod?
         return client.post(
             "file/get",
@@ -229,7 +230,7 @@ class File:
         corpus_id: str = None,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> "Response[File]":
 
         if (
@@ -243,7 +244,6 @@ class File:
                 "Either filename, content, url, or plugin Instance must be provided."
             )
 
-        upload_type = None # TODO (enias): Review
         if blocks is not None:
             upload_type = FileUploadType.blocks
         elif plugin_instance is not None:
@@ -294,7 +294,7 @@ class File:
         corpus_id: str = None,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ):
         req = File.ListRequest(corpusId=corpus_id)
         res = client.post(
@@ -314,8 +314,8 @@ class File:
         corpus_id: str = None,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
-    ) -> "File":
+        space: Any = None,
+    ) -> "Response[File]":
         req = File.CreateRequest(type=FileUploadType.url, url=url, corpusId=corpus_id)
 
         return client.post(
@@ -336,7 +336,7 @@ class File:
         tag_filter_query: str,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response["FileQueryResponse"]:
 
         req = FileQueryRequest(tagFilterQuery=tag_filter_query)
@@ -350,7 +350,7 @@ class File:
         )
         return res
 
-    def raw(self, space_id: str = None, space_handle: str = None, space: any = None):
+    def raw(self, space_id: str = None, space_handle: str = None, space: Any = None):
         req = File.RawRequest(
             id=self.id,
         )
@@ -364,13 +364,38 @@ class File:
             raw_response=True,
         )
 
+    @staticmethod
+    def upload(
+        client: Client,
+        filename: str = None,
+        content: str = None,
+        mime_type: str = None,
+        corpus_id: str = None,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
+    ) -> "Response[File]":
+        pass
+
+    def blockify(self, plugin_instance: str = None):
+        pass
+
+    def tag(
+        self,
+        plugin_instance: str = None,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
+    ):
+        pass
+
 
 @dataclass
 class FileQueryResponse:
     files: List[File]
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "FileQueryResponse":
+    def from_dict(d: Any, client: Client = None) -> "FileQueryResponse":
         return FileQueryResponse(
             files=[File.from_dict(file, client=client) for file in d.get("files", [])]
         )

@@ -1,8 +1,7 @@
 # noinspection PyPackageRequirements
 import pytest
 
-from steamship.data.plugin import PluginAdapterType
-from steamship.data.plugin import PluginType, Plugin
+from steamship.data.plugin import Plugin, PluginAdapterType, PluginType
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -31,26 +30,6 @@ def test_plugin_create():
             del plugin_args[required_field]
             # noinspection PyArgumentList
             _ = Plugin.create(**plugin_args)
-
-    # Should require adapter type
-    with pytest.raises(Exception):
-        # noinspection PyArgumentList
-        _ = steamship.plugins.create(  # TODO (enias): Q: Why do we have this function call?
-            client=steamship,
-            description="This is just for test",
-            type_=PluginType.embedder,
-            url="http://foo4",
-            is_public=True,
-        )
-
-    # Should require is_public
-    with pytest.raises(Exception):
-        _ = steamship.plugins.create(
-            client=steamship,
-            description="This is just for test",
-            type_=PluginType.embedder,
-            transport=PluginAdapterType.steamshipDocker,
-        )
 
     my_plugins = Plugin.list(steamship).data
     assert len(my_plugins.plugins) == orig_count

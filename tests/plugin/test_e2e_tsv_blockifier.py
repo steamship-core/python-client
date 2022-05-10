@@ -4,13 +4,14 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from ..utils.client import get_steamship_client
-
-from ..utils.file import upload_file
 from ..utils.deployables import deploy_plugin
+from ..utils.file import upload_file
 
 
 def test_e2e_tsv_blockifier_plugin():
-    csv_blockifier_plugin_path = APPS_PATH / "plugins" / "blockifiers" / "tsv_blockifier.py"
+    csv_blockifier_plugin_path = (
+        APPS_PATH / "plugins" / "blockifiers" / "tsv_blockifier.py"
+    )
     client = get_steamship_client()
 
     version_config_template = dict(
@@ -24,11 +25,11 @@ def test_e2e_tsv_blockifier_plugin():
         tag_kind="Intent",
     )
     with deploy_plugin(
-            client,
-            csv_blockifier_plugin_path,
-            "blockifier",
-            version_config_template=version_config_template,
-            instance_config=instance_config,
+        client,
+        csv_blockifier_plugin_path,
+        "blockifier",
+        version_config_template=version_config_template,
+        instance_config=instance_config,
     ) as (plugin, version, instance):
         with upload_file(client, "utterances.tsv") as file:
             assert len(file.refresh().data.blocks) == 0

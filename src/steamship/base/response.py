@@ -61,7 +61,7 @@ class Response(IResponse, Generic[T]):
         external_id: str = None,
         external_type: str = None,
         external_group: str = None,
-        metadata: any = None,
+        metadata: Any = None,
     ) -> "Response[TaskComment]":
         if self.task is not None:
             return self.task.add_comment(

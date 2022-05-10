@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import Any, Dict, List
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
+from steamship.data.plugin import ListPluginsResponse
 
 
 class PluginVersion:
@@ -20,7 +21,7 @@ class CreatePluginVersionRequest(Request):
     isPublic: bool = None
     isDefault: bool = None
     type: str = "file"
-    configTemplate: Dict[str, any] = None
+    configTemplate: Dict[str, Any] = None
 
 
 @dataclass
@@ -45,7 +46,7 @@ class ListPluginVersionsResponse(Request):
     plugins: List[PluginVersion]
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ListPluginsResponse":
+    def from_dict(d: Any, client: Client = None) -> "ListPluginsResponse":
         return ListPluginVersionsResponse(
             plugins=[
                 PluginVersion.from_dict(x, client=client)
@@ -65,10 +66,10 @@ class PluginVersion:
     hostingHandler: str = None
     isPublic: bool = None
     isDefault: bool = None
-    configTemplate: Dict[str, any] = None
+    configTemplate: Dict[str, Any] = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "PluginVersion":
+    def from_dict(d: Any, client: Client = None) -> "PluginVersion":
         if "pluginVersion" in d:
             d = d["pluginVersion"]
 
@@ -97,7 +98,7 @@ class PluginVersion:
         hosting_handler: str = None,
         is_public: bool = None,
         is_default: bool = None,
-        config_template: Dict[str, any] = None,
+        config_template: Dict[str, Any] = None,
     ) -> Response[PluginVersion]:
 
         if filename is None and filebytes is None:
@@ -156,7 +157,7 @@ class PluginVersion:
 
     @staticmethod
     def list_private(
-        client: Client, type=None, plugin_id: str = None, handle: str = None
+        client: Client, _=None, plugin_id: str = None, handle: str = None
     ) -> Response[ListPluginVersionsResponse]:
         return client.post(
             "plugin/version/private",

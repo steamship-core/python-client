@@ -1,7 +1,7 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 
-from steamship.base import Client, Request
+from steamship.base import Client, Request, Response
 from steamship.data.space import Space
 
 
@@ -12,7 +12,7 @@ class CreateAppInstanceRequest(Request):
     appVersionId: str = None
     handle: str = None
     upsert: bool = None
-    config: Dict[str, any] = None
+    config: Dict[str, Any] = None
 
 
 @dataclass
@@ -31,12 +31,12 @@ class AppInstance:
     app_version_id: str = None
     user_id: str = None
     invocation_url: str = None
-    config: Dict[str, any] = None
+    config: Dict[str, Any] = None
     space_id: str = None
     space_handle: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "AppInstance":
+    def from_dict(d: Any, client: Client = None) -> "AppInstance":
         if "appInstance" in d:
             d = d["appInstance"]
 
@@ -62,8 +62,8 @@ class AppInstance:
         app_version_id: str = None,
         handle: str = None,
         upsert: bool = None,
-        config: Dict[str, any] = None,
-    ) -> "AppInstance":
+        config: Dict[str, Any] = None,
+    ) -> "Response[AppInstance]":
 
         req = CreateAppInstanceRequest(
             handle=handle,

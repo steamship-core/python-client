@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
 
 def safe_get(d: Dict, key: str, default: Any = None) -> Optional[Any]:

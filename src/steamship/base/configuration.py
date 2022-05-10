@@ -1,7 +1,7 @@
 import json
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
 _configFile = ".steamship.json"
 
@@ -86,7 +86,7 @@ class Configuration:
         if self.web_base[len(self.web_base) - 1] != "/":
             self.web_base = f"{self.web_base}/"
 
-    def merge_dict(self, d: Dict[str, any]):
+    def merge_dict(self, d: Dict[str, Any]):
         api_key = d.get("apiKey")
         if api_key is not None:
             self.api_key = api_key

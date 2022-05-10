@@ -6,7 +6,6 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from tests.utils.client import get_steamship_client
-from tests.utils.random import random_name
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -94,7 +93,7 @@ def test_snapshot_create():
     for i in range(15):
         sentences.append("Orange number {} is as good as the last".format(i))
 
-    sent = "Is orange number 13 any good?"
+    sent = "Is orange number 13 Any good?"
     _insert(index, sentences)
 
     search_results = index.search(sent, include_metadata=True)

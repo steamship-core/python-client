@@ -1,5 +1,8 @@
+from typing import Any
+
 from steamship import Corpus
-from steamship.plugin.corpus_importer import CorpusImportResponse, CorpusImportRequest
+from steamship.app import Response
+from steamship.plugin.corpus_importer import CorpusImportRequest, CorpusImportResponse
 
 
 def do_import(
@@ -9,7 +12,7 @@ def do_import(
     plugin_instance: str = None,
     space_id: str = None,
     space_handle: str = None,
-    space: any = None,
+    space: Any = None,
     file_importer_plugin_instance: str = None,
 ) -> "Response[CorpusImportResponse]":
     # TODO (enias): Why not part of Corpus?
