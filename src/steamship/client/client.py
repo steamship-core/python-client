@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import Any, List
 
 from steamship import Block
 from steamship.base import Client, Response
@@ -8,8 +8,8 @@ from steamship.client.tasks import Tasks
 from steamship.data import File
 from steamship.data.embeddings import (
     EmbedAndSearchRequest,
-    QueryResults,
     EmbeddingIndex,
+    QueryResults,
 )
 from steamship.data.space import Space
 
@@ -50,15 +50,15 @@ class Steamship(Client):
         )
         """
         The base.py class will properly detect and set the defaults. They should be None here.
-    
+
         dQuery is a Beta option that will return chainable responses, like:
           file.upload()
               .blockify()
               .parse()
               .embed()
               .query()
-    
-        It offers no new functionality -- in fact at the moment it's slightly less in that you 
+
+        It offers no new functionality -- in fact at the moment it's slightly less in that you
         are given the syntactically convenient response object for chaining rather than the actual
         response object of the invocation.
         """
@@ -71,7 +71,7 @@ class Steamship(Client):
         upsert: bool = True,
         external_id: str = None,
         external_type: str = None,
-        metadata: any = None,
+        metadata: Any = None,
         space_id: str = None,
         space_handle: str = None,
         space: Space = None,
@@ -94,7 +94,6 @@ class Steamship(Client):
         filename: str = None,
         content: str = None,
         mime_type: str = None,
-        plugin: str = None,
         space_id: str = None,
         space_handle: str = None,
         space: Space = None,
@@ -115,7 +114,7 @@ class Steamship(Client):
         space_id: str = None,
         space_handle: str = None,
         space: Space = None,
-    ) -> File:
+    ) -> Response[File]:
         return File.scrape(
             self, url, space_id=space_id, space_handle=space_handle, space=space
         )

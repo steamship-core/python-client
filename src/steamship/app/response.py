@@ -2,11 +2,11 @@ import dataclasses
 import io
 import logging
 from dataclasses import dataclass
-from typing import Dict, Any, Generic, TypeVar, Union
+from typing import Any, Dict, Generic, TypeVar, Union
 
 from steamship.base import SteamshipError
 from steamship.base.binary_utils import flexi_create
-from steamship.base.mime_types import MimeTypes, ContentEncodings
+from steamship.base.mime_types import ContentEncodings, MimeTypes
 from steamship.base.tasks import Task, TaskState
 
 
@@ -36,14 +36,14 @@ class Response(Generic[T]):
         status: Task = None,
         error: SteamshipError = None,
         http: Http = None,
-        data: any = None,
+        data: Any = None,
         string: str = None,
         json: Any = None,
         bytes: Union[bytes, io.BytesIO] = None,
         mime_type=None,
     ):
         # Note:
-        # This function has to be very defensively coded since any errors thrown here will not be returned
+        # This function has to be very defensively coded since Any errors thrown here will not be returned
         # to the end-user via our proxy (as this is the constructor for the response itself!)
         if http is not None:
             self.http = http
@@ -53,7 +53,7 @@ class Response(Generic[T]):
         # Handle the core data
         try:
             data, mime_type, encoding = flexi_create(
-                data=data, string=string, json=json,bytes=bytes, mime_type=mime_type
+                data=data, string=string, json=json, bytes=bytes, mime_type=mime_type
             )
 
             self.data = data
@@ -63,7 +63,7 @@ class Response(Generic[T]):
 
             if mime_type is not None:
                 if self.http.headers is None:
-                    self.http.headers = dict()
+                    self.http.headers = {}
                 self.http.headers["Content-Type"] = mime_type
 
             if encoding == ContentEncodings.BASE64:
@@ -156,7 +156,7 @@ class Response(Generic[T]):
             try:
                 return Response(json=getattr(obj, "to_dict")())
             except Exception as e:
-                logging.error(f"Failed calling to_dict on response object. {obj}")
+                logging.error(f"Failed calling to_dict on response object. {obj}\n {e}")
 
         if dataclasses.is_dataclass(obj):
             return Response(json=dataclasses.asdict(obj))

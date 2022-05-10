@@ -1,5 +1,6 @@
 import io
 from dataclasses import dataclass
+from typing import Any
 
 from steamship.base import Client
 from steamship.base.binary_utils import flexi_create
@@ -28,7 +29,7 @@ class RawDataPluginOutput:
         )
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "RawDataPluginOutput":
+    def from_dict(d: Any, client: Client = None) -> "RawDataPluginOutput":
         return RawDataPluginOutput(
             base64string=d.get("data", None), mime_type=d.get("mimeType", None)
         )

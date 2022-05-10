@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
@@ -26,7 +26,7 @@ class CreatePluginInstanceRequest(Request):
     pluginVersionHandle: str = None
     handle: str = None
     upsert: bool = None
-    config: Dict[str, any] = None
+    config: Dict[str, Any] = None
 
 
 @dataclass
@@ -42,11 +42,11 @@ class PluginInstance:
     plugin_id: str = None
     plugin_version_id: str = None
     user_id: str = None
-    config: Dict[str, any] = None
+    config: Dict[str, Any] = None
     spaceId: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "PluginInstance":
+    def from_dict(d: Any, client: Client = None) -> "PluginInstance":
         if "pluginInstance" in d:
             d = d["pluginInstance"]
 
@@ -69,7 +69,7 @@ class PluginInstance:
         plugin_version_handle: str = None,
         handle: str = None,
         upsert: bool = None,
-        config: Dict[str, any] = None,
+        config: Dict[str, Any] = None,
     ) -> Response[PluginInstance]:
         req = CreatePluginInstanceRequest(
             handle=handle,

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 
 from steamship.base import Client
 
@@ -33,7 +33,7 @@ class TrainPluginOutput:
     error: str = None
 
     @staticmethod
-    def from_dict(d: any = None, client: Client = None) -> "TrainPluginOutput":
+    def from_dict(d: Any = None, client: Client = None) -> "TrainPluginOutput":
         if d is None:
             return None
 

@@ -1,5 +1,5 @@
 import json
-from typing import Union, List, Dict, Optional
+from typing import Dict, List, Optional, Union
 
 Metadata = Union[int, float, bool, str, List, Dict]
 

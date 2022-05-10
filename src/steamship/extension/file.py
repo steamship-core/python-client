@@ -1,7 +1,10 @@
+from typing import Any
+
+from steamship import Tag
 from steamship.base import Client, Response
 from steamship.client.operations.blockifier import BlockifyRequest
 from steamship.client.operations.tagger import TagRequest, TagResponse
-from steamship.data.embeddings import EmbeddingIndex, EmbeddedItem
+from steamship.data.embeddings import EmbeddedItem, EmbeddingIndex
 from steamship.data.file import File, FileUploadType
 from steamship.data.plugin import PluginTargetType
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -15,7 +18,7 @@ def upload(
     corpus_id: str = None,
     space_id: str = None,
     space_handle: str = None,
-    space: any = None,
+    space: Any = None,
 ) -> "Response[File]":
     if filename is None and content is None:
         raise Exception(
@@ -64,8 +67,8 @@ def tag(
     plugin_instance: str = None,
     space_id: str = None,
     space_handle: str = None,
-    space: any = None,
-):
+    space: Any = None,
+) -> Response[Tag]:
     req = TagRequest(
         type=PluginTargetType.file, id=self.id, pluginInstance=plugin_instance
     )
@@ -89,29 +92,28 @@ def index(
     self,
     plugin_instance: str = None,
     index_id: str = None,
-    index: "EmbeddingIndex" = None,
-    upsert: bool = True,
+    e_index: "EmbeddingIndex" = None,
     reindex: bool = True,
     space_id: str = None,
     space_handle: str = None,
-    space: any = None,
+    space: Any = None,
 ) -> "EmbeddingIndex":
     # TODO: This should really be done all on the app, but for now we'll do it in the client
     # to facilitate demos.
 
-    if index_id is None and index is not None:
-        index_id = index.id
+    if index_id is None and e_index is not None:
+        index_id = e_index.id
 
-    if index_id is None and index is None:
-        index = self.client.create_index(
+    if index_id is None and e_index is None:
+        e_index = self.client.create_index(
             plugin_instance=plugin_instance,
             upsert=True,
             space_id=space_id,
             space_handle=space_handle,
             space=space,
         ).data
-    elif index is None:
-        index = EmbeddingIndex(client=self.client, id=index_id)
+    elif e_index is None:
+        e_index = EmbeddingIndex(client=self.client, id=index_id)
 
     # We have an index available to us now. Perform the query.
     blocks = self.refresh().data.blocks
@@ -121,7 +123,7 @@ def index(
         item = EmbeddedItem(value=block.text, externalId=block.id, externalType="block")
         items.append(item)
 
-    insert_task = index.insert_many(
+    insert_task = e_index.insert_many(
         items,
         reindex=reindex,
         space_id=space_id,
@@ -130,7 +132,7 @@ def index(
     )
 
     insert_task.wait()
-    return index
+    return e_index
 
 
-File.index = index
+File.index = index  # TODO (enias): Q: Why are we adding this as an extension and not directly as a class method

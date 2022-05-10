@@ -1,7 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import Any
-from typing import Union
+from typing import Any, Union
 
 
 @dataclass
@@ -56,7 +55,7 @@ class SteamshipError(Exception):
         )
 
     @staticmethod
-    def from_dict(d: any, client: Any = None) -> "SteamshipError":
+    def from_dict(d: Any) -> "SteamshipError":
         """Last resort if subclass doesn't override: pass through."""
         return SteamshipError(
             message=d.get("statusMessage", d.get("message", None)),

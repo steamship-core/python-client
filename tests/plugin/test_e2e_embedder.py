@@ -4,10 +4,9 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from tests import APPS_PATH
-
 from tests.client.operations.test_embed import (
-    basic_embeddings,
     basic_embedding_search,
+    basic_embeddings,
     count_embeddings,
 )
 from tests.client.operations.test_embedding_index import create_index

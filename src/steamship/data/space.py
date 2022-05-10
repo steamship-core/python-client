@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from steamship.base import Client, Request, Response
 from steamship.base.request import GetRequest, IdentifierRequest
@@ -58,7 +59,7 @@ class Space:
         )
 
     @staticmethod
-    def from_dict(d: any, client: Client) -> "Space":
+    def from_dict(d: Any, client: Client) -> "Space":
         if "space" in d:
             d = d["space"]
 
@@ -90,7 +91,7 @@ class Space:
         handle: str,
         external_id: str = None,
         external_type: str = None,
-        metadata: any = None,
+        metadata: Any = None,
         upsert: bool = True,
     ) -> "Response[Space]":
         req = Space.CreateRequest(

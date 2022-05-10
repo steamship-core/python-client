@@ -1,12 +1,9 @@
 import base64
-import os
 
 import requests
 
 from steamship.base.mime_types import MimeTypes
-from steamship.base.tasks import TaskState
 from tests import APPS_PATH, TEST_ASSETS_PATH
-from tests.demo_apps.apps.demo_app import PALM_TREE_BASE_64
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

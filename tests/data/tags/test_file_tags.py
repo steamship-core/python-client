@@ -1,6 +1,5 @@
-from steamship import MimeTypes, File, Block
+from steamship import Block, File, MimeTypes
 from steamship.data.tags import Tag
-
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

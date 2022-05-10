@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Dict
+from typing import Any, Dict, List
 
 from steamship.base import Client
 
@@ -11,7 +11,8 @@ class EmbedRequest:
     metadata: Dict = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "EmbedRequest":
+    def from_dict(d: Any, client: Client = None) -> "EmbedRequest":
+        # TODO (enias): Review these _: Client lines
         return EmbedRequest(
             docs=d.get("docs", None),
             pluginInstance=d.get("pluginInstance", None),

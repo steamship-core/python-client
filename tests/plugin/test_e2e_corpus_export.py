@@ -8,14 +8,15 @@ from steamship.data import Block, Tag
 from steamship.data.plugin_instance import PluginInstance
 from steamship.extension.file import File
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
+
 from .. import APPS_PATH
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from ..utils.client import get_steamship_client
-from ..utils.file import upload_file
 from ..utils.deployables import deploy_plugin
+from ..utils.file import upload_file
 
 EXPORTER_HANDLE = "signed-url-exporter"
 
@@ -66,7 +67,7 @@ def test_e2e_corpus_export():
             assert raw_data_r is not None
 
             # The results of a corpus exporter are MD5 encoded!
-            raw_data = raw_data_r.data
+            _ = raw_data_r.data
 
 
 def test_e2e_corpus_export_with_query():

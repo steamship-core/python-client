@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 from steamship.base import Client
 
@@ -11,8 +12,9 @@ class BlockifyRequest:
     handle: str = None
     name: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "BlockifyRequest":
+    def from_dict(d: Any, client: Client = None) -> "BlockifyRequest":
         return BlockifyRequest(
             type=d.get("type", None),
             pluginInstance=d.get("pluginInstance", None),

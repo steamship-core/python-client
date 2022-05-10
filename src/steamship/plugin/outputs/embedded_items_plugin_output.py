@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List
+from typing import Any, List
 
 from steamship.base import Client
 
@@ -9,7 +9,7 @@ class EmbeddedItemsPluginOutput:
     embeddings: List[List[float]]
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "EmbeddedItemPluginOutput":
+    def from_dict(d: Any, client: Client = None) -> "EmbeddedItemsPluginOutput":
         return EmbeddedItemsPluginOutput(
             embeddings=d.get("embeddings", None),
         )

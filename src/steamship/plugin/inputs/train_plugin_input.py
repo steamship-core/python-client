@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict, Optional
 
 from steamship.base import Client
 
@@ -47,7 +47,7 @@ class TrainPluginInput:
     trainingDataUrl: str = None
 
     @staticmethod
-    def from_dict(d: any = None, client: Client = None) -> "TrainPluginInput":
+    def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainPluginInput]":
         if d is None:
             return None
 

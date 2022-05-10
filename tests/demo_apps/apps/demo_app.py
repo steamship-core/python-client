@@ -1,8 +1,10 @@
 import base64
 import io
 from dataclasses import dataclass
+from typing import Dict, Any
 
-from steamship.app import get, App, Response, post, create_handler
+from steamship.app import App, Response, create_handler, get, post
+from steamship.base import Client
 from steamship.base.mime_types import MimeTypes
 
 
@@ -18,6 +20,10 @@ PALM_TREE_BASE_64 = "iVBORw0KGgoAAAANSUhEUgAAADgAAABWCAYAAACaeFU0AAAMbWlDQ1BJQ0M
 
 
 class TestApp(App):
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+        super().__init__(client, config)
+        self.index = None
+
     @get("resp_string")
     def resp_string(self) -> Response:
         return Response(string="A String")

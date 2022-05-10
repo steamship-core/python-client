@@ -1,5 +1,6 @@
 import json
 from dataclasses import dataclass
+from typing import Any
 
 from steamship.base import Client
 
@@ -13,16 +14,18 @@ class Hit:
     score: float = None
     external_id: str = None
     external_type: str = None
-    metadata: any = None
+    metadata: Any = None
     query: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "Hit":
+    def from_dict(d: Any, client: Client = None) -> "Hit":
         metadata = d.get("metadata")
         if metadata is not None:
+            # noinspection PyBroadException
             try:
                 metadata = json.loads(metadata)
-            except Exception as e:
+            except Exception as _:
                 pass
 
         return Hit(

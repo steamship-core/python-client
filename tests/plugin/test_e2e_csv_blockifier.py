@@ -4,14 +4,15 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from ..utils.client import get_steamship_client
-
-from ..utils.file import upload_file
 from ..utils.deployables import deploy_plugin
+from ..utils.file import upload_file
 
 
 def test_e2e_csv_blockifier_plugin():
     client = get_steamship_client()
-    csv_blockifier_plugin_path = APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
+    csv_blockifier_plugin_path = (
+        APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
+    )
 
     version_config_template = dict(
         text_column=dict(type="string"),
@@ -24,11 +25,11 @@ def test_e2e_csv_blockifier_plugin():
         tag_kind="Intent",
     )
     with deploy_plugin(
-            client,
-            csv_blockifier_plugin_path,
-            "blockifier",
-            version_config_template=version_config_template,
-            instance_config=instance_config,
+        client,
+        csv_blockifier_plugin_path,
+        "blockifier",
+        version_config_template=version_config_template,
+        instance_config=instance_config,
     ) as (plugin, version, instance):
         with upload_file(client, "utterances.csv") as file:
             assert len(file.refresh().data.blocks) == 0

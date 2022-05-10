@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Union
+from typing import Any, List, Union, Optional
 
 from steamship.base import Client, Request, Response
 from steamship.base.request import IdentifierRequest
@@ -27,16 +27,14 @@ class Block:
         tags: List[Tag.CreateRequest] = None
         upsert: bool = None
 
+        # noinspection PyUnusedLocal
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "Block.CreateRequest":
+        def from_dict(d: Any, client: Client = None) -> "Block.CreateRequest":
             return Block.CreateRequest(
                 id=d.get("id", None),
                 fileId=d.get("fileId", None),
                 text=d.get("text", None),
-                tags=[
-                    Tag.CreateRequest.from_dict(tag, client=client)
-                    for tag in d.get("tags", [])
-                ],
+                tags=[Tag.CreateRequest.from_dict(tag) for tag in d.get("tags", [])],
                 upsert=d.get("upsert", None),
             )
 
@@ -46,7 +44,9 @@ class Block:
                 fileId=self.fileId,
                 text=self.text,
                 upsert=self.upsert,
-                tags=[tag.to_dict() for tag in self.tags] if self.tags else [],
+                tags=[tag.to_dict() for tag in self.tags]
+                if self.tags
+                else [],  # TODO (enias): Deprecate
             )
 
     @dataclass
@@ -62,7 +62,7 @@ class Block:
         blocks: List["Block"] = None
 
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "Block.ListResponse":
+        def from_dict(d: Any, client: Client = None) -> "Optional[Block.ListResponse]":
             if d is None:
                 return None
             return Block.ListResponse(
@@ -73,7 +73,7 @@ class Block:
             )
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> Union["Block", None]:
+    def from_dict(d: Any, client: Client = None) -> Union["Block", None]:
         if d is None:
             return None
         return Block(
@@ -99,7 +99,7 @@ class Block:
         id: str = None,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response["Block"]:
         return client.post(
             "block/get",
@@ -157,7 +157,7 @@ class Block:
         tag_filter_query: str,
         space_id: str = None,
         space_handle: str = None,
-        space: any = None,
+        space: Any = None,
     ) -> Response["BlockQueryResponse"]:
         # TODO: Is this a static method?
         req = BlockQueryRequest(tagFilterQuery=tag_filter_query)
@@ -177,7 +177,7 @@ class BlockQueryResponse:
     blocks: List[Block]
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "BlockQueryResponse":
+    def from_dict(d: Any, client: Client = None) -> "BlockQueryResponse":
         return BlockQueryResponse(
             blocks=[
                 Block.from_dict(block, client=client) for block in d.get("blocks", [])

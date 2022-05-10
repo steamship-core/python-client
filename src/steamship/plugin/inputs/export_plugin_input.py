@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict, Optional
 
 from steamship.base import Client
 
@@ -13,8 +13,11 @@ class ExportPluginInput:
     filename: str = None
     query: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any = None, client: Client = None) -> "ExportPluginInput":
+    def from_dict(
+        d: Any = None, client: Client = None
+    ) -> "Optional[ExportPluginInput]":
         if d is None:
             return None
 

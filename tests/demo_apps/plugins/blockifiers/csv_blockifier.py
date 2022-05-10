@@ -2,11 +2,11 @@
 
 import csv
 import io
-from typing import Union, List, Dict, Optional
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, constr
 
-from steamship.app import App, post, create_handler, Response
+from steamship.app import App, Response, create_handler, post
 from steamship.base.error import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
@@ -48,6 +48,7 @@ class CsvBlockifier(Blockifier, App):
     Each block has one or more tags extracted from the values in one ore more columns
     """
 
+    # noinspection PyUnusedLocal
     def __init__(self, client=None, config: Dict[str, any] = None):
         super().__init__()
         self.config = CsvBlockifierConfig(**config)
@@ -75,7 +76,7 @@ class CsvBlockifier(Blockifier, App):
                     message="Missing data field on the incoming request."
                 )
             )
-        data = request.data.data # TODO (enias): Simplify
+        data = request.data.data  # TODO (enias): Simplify
         if isinstance(data, bytes):
             data = data.decode("utf-8")
 

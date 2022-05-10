@@ -8,12 +8,11 @@ import logging
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
-from typing import Dict
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from steamship.app.request import Request, Verb
 from steamship.app.response import Response
-from steamship.client.client import Steamship
+from steamship.base import Client
 
 
 def make_registering_decorator(decorator):  # TODO (Enias): Review
@@ -45,12 +44,14 @@ def make_registering_decorator(decorator):  # TODO (Enias): Review
 
 
 # https://stackoverflow.com/questions/2366713/can-a-decorator-of-an-instance-method-access-the-class
+# noinspection PyUnusedLocal
 def endpoint(verb: str = None, path: str = None, **kwargs):
-    """By using **kw we can tag the function with any parameters"""
+    """By using **kw we can tag the function with Any parameters"""
 
     def decorator(function):
         # This is used in conjunction with the __init_subclass__ code!
         # Otherwise the __name__ won't be correct in maybeDecorated.__name__!
+        # noinspection PyShadowingNames
         @wraps(function)
         def wrap(self, *args, **kwargs):
             return function(self, *args, **kwargs)
@@ -81,7 +82,9 @@ class App:
       3. Provides useful methods connecting functions to the router.
     """
 
-    def __init__(self, client: Steamship = None, config: Dict[str, any] = None):
+    _method_mappings = defaultdict(dict)
+
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         self.client = client
         self.config = config
 
@@ -116,15 +119,12 @@ class App:
         if path is None and name is not None:
             path = f"/{name}"
 
-        # if getattr(cls, "_method_mappings") is None: # TODO: Do we need this?
-        #     setattr(cls, "_method_mappings", defaultdict(dict))
-
         path = cls._clean_path(path)
 
         cls._method_mappings[verb][path] = name
         logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
 
-    def __call__(self, request: Request, context: any = None) -> Response:
+    def __call__(self, request: Request, context: Any = None) -> Response:
         """Invokes a method call if it is registered."""
         if not getattr(self.__class__, "_method_mappings"):
             return Response.error(

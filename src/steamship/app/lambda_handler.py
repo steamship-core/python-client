@@ -12,7 +12,7 @@ from steamship.client.client import Steamship
 def create_handler(app_cls: Type[App]):
     """Wrapper function for an Steamship app within an AWS Lambda function."""
 
-    def _handler(event: Dict, context: Dict = None) -> Response:
+    def _handler(event: Dict, _: Dict = None) -> Response:
         try:
             client = Steamship(config_dict=event.get("clientConfig"))
         except SteamshipError as se:

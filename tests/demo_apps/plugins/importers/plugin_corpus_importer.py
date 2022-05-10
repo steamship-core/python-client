@@ -1,5 +1,7 @@
+from typing import Any
+
 from steamship import File
-from steamship.app import App, post, create_handler, Response
+from steamship.app import App, Response, create_handler, post
 from steamship.client.operations.corpus_importer import (
     CorpusImportRequest,
     CorpusImportResponse,
@@ -29,7 +31,7 @@ class TestCorpusImporterPlugin(CorpusImporter, App):
         )
 
     @post("import")
-    def do_import(self, **kwargs) -> any:
+    def do_import(self, **kwargs) -> Any:
         request = CorpusImporter.parse_request(request=kwargs)
         return self.run(request)
 

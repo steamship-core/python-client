@@ -1,4 +1,5 @@
 from dataclasses import asdict
+from typing import Any
 
 from steamship.app.response import Response
 from steamship.base.mime_types import MimeTypes
@@ -15,12 +16,12 @@ def check_mime(d: dict, mime: str):
     )
 
 
-def check_type(d: dict, t: any):
+def check_type(d: dict, t: Any):
     data = d.get("data", None)
     assert isinstance(data, t)
 
 
-def check_val(d: dict, val: any):
+def check_val(d: dict, val: Any):
     data = d.get("data", None)
     assert data == val
 

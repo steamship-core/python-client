@@ -4,7 +4,6 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from tests import APPS_PATH
-
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_app
 
@@ -17,10 +16,10 @@ def test_configurable_instance_invoke():
     hello_world_path = APPS_PATH / "apps" / "configurable_hello_world.py"
 
     with deploy_app(
-            client,
-            hello_world_path,
-            version_config_template=config_template,
-            instance_config=instance_config,
+        client,
+        hello_world_path,
+        version_config_template=config_template,
+        instance_config=instance_config,
     ) as (app, version, instance):
         # Now let's invoke it!
         # Note: we're invoking the data at configurable_hello_world.py in the tests/demo_apps folder
