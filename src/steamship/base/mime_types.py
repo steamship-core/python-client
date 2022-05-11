@@ -16,6 +16,7 @@ class MimeTypes:
     PPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
     RTF = "application/rtf"
     BINARY = "application/octet-stream"
+    STEAMSHIP_BLOCK_JSON = "application/vnd.steamship-block.json.v1"
 
 class ContentEncodings:
     BASE64 = "base64"
