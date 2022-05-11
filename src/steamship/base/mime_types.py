@@ -18,13 +18,15 @@ class MimeTypes:
     BINARY = "application/octet-stream"
     STEAMSHIP_BLOCK_JSON = "application/vnd.steamship-block.json.v1"
 
+
 class ContentEncodings:
     BASE64 = "base64"
+
 
 TEXT_MIME_TYPES = [
     MimeTypes.TXT,
     MimeTypes.MKD,
     MimeTypes.HTML,
     MimeTypes.DOCX,
-    MimeTypes.PPTX
+    MimeTypes.PPTX,
 ]

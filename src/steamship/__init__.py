@@ -15,7 +15,7 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .base import Configuration, SteamshipError, MimeTypes
+from .base import Configuration, MimeTypes, SteamshipError
 from .data import *
-from .client import *
 from .plugin import *
+from .client import Steamship

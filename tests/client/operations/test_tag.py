@@ -1,27 +1,26 @@
 from steamship import PluginInstance
-from tests.client.helpers import _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-
+from tests.utils.client import get_steamship_client
 
 
 def test_parsing():
-    steamship = _steamship()
-    parser = PluginInstance.create(steamship, pluginHandle='test-tagger').data
-    resp = steamship.tag("This is a test", pluginInstance=parser.handle)
+    steamship = get_steamship_client()
+    parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
+    resp = steamship.tag("This is a test", plugin_instance=parser.handle)
     resp.wait()
     resp = resp.data
-    assert (len(resp.file.blocks) == 1)
+    assert len(resp.file.blocks) == 1
     d = resp.file.blocks[0]
 
-    assert (d.text == "This is a test")
-    assert (len(d.tags) == 5)
+    assert d.text == "This is a test"
+    assert len(d.tags) == 5
 
 
 # def test_ner():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 #     resp = steamship.parse(["I like Ted"], plugin=parsing_plugin(), includeEntities=True).data
 #     assert(len(resp.docs) == 1)
 #     d = resp.docs[0]
@@ -35,7 +34,7 @@ def test_parsing():
 
 
 # def test_token_matcher():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
 #     a_matcher = TokenMatcher(
 #       label="A_MATCHER",
@@ -53,8 +52,8 @@ def test_parsing():
 #     )
 
 #     resp = steamship.parse(
-#       ["Let's see if a matcher works."], 
-#       plugin=parsing_plugin(),      
+#       ["Let's see if a matcher works."],
+#       plugin=parsing_plugin(),
 #       tokenMatchers=[a_matcher, b_matcher]
 #     ).data
 #     assert(len(resp.docs) == 1)
@@ -72,7 +71,7 @@ def test_parsing():
 #       assert(sp.label == ans[sp.text])
 
 # def test_phrase_matcher():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
 #     a_matcher = PhraseMatcher(
 #       label="A_MATCHER",
@@ -85,8 +84,8 @@ def test_parsing():
 #     )
 
 #     resp = steamship.parse(
-#       ["Let's see if a matcher works."], 
-#       plugin=parsing_plugin(),      
+#       ["Let's see if a matcher works."],
+#       plugin=parsing_plugin(),
 #       phraseMatchers=[a_matcher, b_matcher]
 #     ).data
 #     assert(len(resp.docs) == 1)
@@ -104,7 +103,7 @@ def test_parsing():
 #       assert(sp.label == ans[sp.text])
 
 # def test_phrase_matcher_attr():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
 #     a_matcher = PhraseMatcher(
 #       label="IP_ADDR",
@@ -114,7 +113,7 @@ def test_parsing():
 
 #     resp = steamship.parse(
 #       ["Often the router will have an IP address such as 192.168.1.1 or 192.168.2.1."],
-#       plugin=parsing_plugin(),      
+#       plugin=parsing_plugin(),
 #       phraseMatchers=[a_matcher]
 #     ).data
 #     assert(len(resp.docs) == 1)
@@ -131,7 +130,7 @@ def test_parsing():
 #       assert(sp.label == ans[sp.text])
 
 # def test_token_phrase_matcher_combo():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
 #     a_matcher = PhraseMatcher(
 #       label="A_MATCHER",
@@ -167,8 +166,8 @@ def test_parsing():
 #     )
 
 #     resp = steamship.parse(
-#       ["Let's see if a Matcher can match 44.33.22.11 accordingly."], 
-#       plugin=parsing_plugin(),      
+#       ["Let's see if a Matcher can match 44.33.22.11 accordingly."],
+#       plugin=parsing_plugin(),
 #       tokenMatchers=[d_matcher],
 #       phraseMatchers=[a_matcher, b_matcher, c_matcher, e_matcher, f_matcher]
 #     ).data
@@ -194,7 +193,7 @@ def test_parsing():
 #       assert(sp.label == ans[sp.text])
 
 # def test_dependency_matcher():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 
 #     a_matcher = DependencyMatcher(
 #       label="FOUNDED",
@@ -210,7 +209,7 @@ def test_parsing():
 
 #     resp = steamship.parse(
 #       ["Smith founded two companies"],
-#       plugin=parsing_plugin(),      
+#       plugin=parsing_plugin(),
 #       dependencyMatchers=[a_matcher]
 #     ).data
 #     assert(len(resp.docs) == 1)
@@ -240,7 +239,7 @@ def test_parsing():
 
 #     resp = steamship.parse(
 #       ["Smith founded two companies"],
-#       plugin=parsing_plugin(),      
+#       plugin=parsing_plugin(),
 #       dependencyMatchers=[a_matcher]
 #     ).data
 #     assert(len(resp.docs) == 1)
@@ -291,7 +290,7 @@ def test_parsing():
 #     )
 #     resp = steamship.parse(
 #       [sent],
-#       plugin=parsing_plugin(),      
+#       plugin=parsing_plugin(),
 #       dependencyMatchers=[a_matcher]
 #     ).data
 

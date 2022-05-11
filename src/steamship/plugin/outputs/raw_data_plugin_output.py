@@ -1,9 +1,10 @@
+import io
 from dataclasses import dataclass
 from typing import Any, Optional, Union
 
 from steamship.base import Client, MimeTypes
 from steamship.base.binary_utils import flexi_create
-import io
+
 
 @dataclass
 class RawDataPluginOutput:
@@ -57,7 +58,4 @@ class RawDataPluginOutput:
         )
 
     def to_dict(self) -> dict:
-        return dict(
-            data=self.data,
-            mimeType=self.mimeType
-        )
+        return dict(data=self.data, mimeType=self.mimeType)

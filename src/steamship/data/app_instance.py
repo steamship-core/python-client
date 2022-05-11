@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 
+from steamship.base import Client, Request, Response
 from steamship.data.space import Space
-from steamship.base import Client, Request
 
 
 @dataclass
@@ -12,7 +12,7 @@ class CreateAppInstanceRequest(Request):
     appVersionId: str = None
     handle: str = None
     upsert: bool = None
-    config: Dict[str, any] = None
+    config: Dict[str, Any] = None
 
 
 @dataclass
@@ -25,118 +25,101 @@ class AppInstance:
     client: Client = None
     id: str = None
     handle: str = None
-    appId: str = None
-    appHandle: str = None
-    userHandle: str = None
-    appVersionId: str = None
-    userId: str = None
-    invocationURL: str = None
-    config: Dict[str, any] = None
-    spaceId: str = None
-    spaceHandle: str = None
+    app_id: str = None
+    app_handle: str = None
+    user_handle: str = None
+    app_version_id: str = None
+    user_id: str = None
+    invocation_url: str = None
+    config: Dict[str, Any] = None
+    space_id: str = None
+    space_handle: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "AppInstance":
-        if 'appInstance' in d:
-            d = d['appInstance']
+    def from_dict(d: Any, client: Client = None) -> "AppInstance":
+        if "appInstance" in d:
+            d = d["appInstance"]
 
         return AppInstance(
             client=client,
-            id=d.get('id', None),
-            handle=d.get('handle', None),
-            appId=d.get('appId', None),
-            appHandle=d.get('appHandle', None),
-            userHandle=d.get('userHandle', None),
-            appVersionId=d.get('appVersionId', None),
-            userId=d.get('userId', None),
-            invocationURL=d.get('invocationURL', None),
-            config= d.get('config', None),
-            spaceId= d.get('spaceId', None),
-            spaceHandle= d.get('spaceHandle', None)
+            id=d.get("id"),
+            handle=d.get("handle"),
+            app_id=d.get("appId"),
+            app_handle=d.get("appHandle"),
+            user_handle=d.get("userHandle"),
+            app_version_id=d.get("appVersionId"),
+            user_id=d.get("userId"),
+            invocation_url=d.get("invocationURL"),
+            config=d.get("config"),
+            space_id=d.get("spaceId"),
+            space_handle=d.get("spaceHandle"),
         )
 
     @staticmethod
     def create(
-            client: Client,
-            appId: str = None,
-            appVersionId: str = None,
-            handle: str = None,
-            upsert: bool = None,
-            config: Dict[str, any] = None
-    ) -> "AppInstance":
+        client: Client,
+        app_id: str = None,
+        app_version_id: str = None,
+        handle: str = None,
+        upsert: bool = None,
+        config: Dict[str, Any] = None,
+    ) -> "Response[AppInstance]":
 
         req = CreateAppInstanceRequest(
             handle=handle,
-            appId=appId,
-            appVersionId=appVersionId,
+            appId=app_id,
+            appVersionId=app_version_id,
             upsert=upsert,
-            config=config
+            config=config,
         )
 
-        return client.post(
-            'app/instance/create',
-            payload=req,
-            expect=AppInstance
-        )
+        return client.post("app/instance/create", payload=req, expect=AppInstance)
 
     def delete(self) -> "AppInstance":
-        req = DeleteAppInstanceRequest(
-            id=self.id
-        )
-        return self.client.post(
-            'app/instance/delete',
-            payload=req,
-            expect=AppInstance
-        )
+        req = DeleteAppInstanceRequest(id=self.id)
+        return self.client.post("app/instance/delete", payload=req, expect=AppInstance)
 
     def load_missing_vals(self):
-        if self.client is not None and self.spaceHandle is None and self.spaceId is not None:
+        if (
+            self.client is not None
+            and self.space_handle is None
+            and self.space_id is not None
+        ):
             # Get the spaceHandle
-            space = Space.get(self.client, id=self.spaceId)
+            space = Space.get(self.client, id_=self.space_id)
             if space and space.data:
-                self.spaceHandle = space.data.handle
+                self.space_handle = space.data.handle
 
     def get(self, path: str, **kwargs):
         self.load_missing_vals()
-        if path[0] == '/':
+        if path[0] == "/":
             path = path[1:]
         return self.client.get(
-            '/{}/{}/{}'.format(
-                self.spaceHandle or "_",
-                self.handle or "_",
-                path
-            ),
+            f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",  # TODO (enias): Fix code duplication
             payload=kwargs,
-            appCall=True,
-            appOwner=self.userHandle,
-            appId=self.appId,
-            appInstanceId=self.id,
-            spaceId=self.spaceId
+            app_call=True,
+            app_owner=self.user_handle,
+            app_id=self.app_id,
+            app_instance_id=self.id,
+            space_id=self.space_id,
         )
 
     def post(self, path: str, **kwargs):
         self.load_missing_vals()
-        if path[0] == '/':
+        if path[0] == "/":
             path = path[1:]
         return self.client.post(
-            '/{}/{}/{}'.format(
-                self.spaceHandle or "_",
-                self.handle or "_",
-                path
-            ),
+            f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",
             payload=kwargs,
-            appCall=True,
-            appOwner=self.userHandle,
-            appId=self.appId,
-            appInstanceId=self.id,
-            spaceId=self.spaceId
+            app_call=True,
+            app_owner=self.user_handle,
+            app_id=self.app_id,
+            app_instance_id=self.id,
+            space_id=self.space_id,
         )
 
     def full_url_for(self, path: str):
-        return "{}{}".format(
-            self.invocationURL,
-            path
-        )
+        return f"{self.invocation_url}{path}"
 
 
 @dataclass

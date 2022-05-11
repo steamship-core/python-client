@@ -1,57 +1,53 @@
-from steamship import MimeTypes, DocTag
 from steamship.base.response import TaskState
-from tests.client.helpers import _random_name, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests.utils.client import get_steamship_client
+
 
 def test_file_upload_then_parse():
-    steamship = _steamship()
+    steamship = get_steamship_client()
 
-    a = steamship.upload(
-        content="This is a test."
-    ).data
-    assert (a.id is not None)
+    a = steamship.upload(content="This is a test.").data
+    assert a.id is not None
 
-    q1 = a.query().data
-    assert (len(q1.blocks) == 0)
+    q1 = a.refresh().data
+    assert len(q1.blocks) == 0
 
-    task = a.blockify(pluginInstance="markdown-blockifier-default-1.0")
-    assert (task.error is None)
-    assert (task.task is not None)
-    assert (task.task.state == TaskState.waiting)
+    task = a.blockify(plugin_instance="markdown-blockifier-default-1.0")
+    assert task.error is None
+    assert task.task is not None
+    assert task.task.state == TaskState.waiting
 
     task.wait()
-    assert (task.error is None)
-    assert (task.task is not None)
-    assert (task.task.state == TaskState.succeeded)
+    assert task.error is None
+    assert task.task is not None
+    assert task.task.state == TaskState.succeeded
 
-    q1 = a.query().data
-    assert (len(q1.blocks) == 1)
-    assert (q1.blocks[0].text == 'This is a test.')
+    q1 = a.refresh().data
+    assert len(q1.blocks) == 1
+    assert q1.blocks[0].text == "This is a test."
 
     b = steamship.upload(
         content="""# Header
 
 This is a test."""
     ).data
-    assert (b.id is not None)
+    assert b.id is not None
 
-    q1 = b.query().data
-    assert (len(q1.blocks) == 0)
+    q1 = b.refresh().data
+    assert len(q1.blocks) == 0
 
-    task = b.blockify(pluginInstance="markdown-blockifier-default-1.0")
-    assert (task.error is None)
-    assert (task.task is not None)
+    task = b.blockify(plugin_instance="markdown-blockifier-default-1.0")
+    assert task.error is None
+    assert task.task is not None
     task.wait()
 
-    q1 = b.query().data
-    assert (len(q1.blocks) == 2)
-    assert (q1.blocks[1].text == 'This is a test.')
-    assert (q1.blocks[0].text == 'Header')
+    q1 = b.refresh().data
+    assert len(q1.blocks) == 2
+    assert q1.blocks[1].text == "This is a test."
+    assert q1.blocks[0].text == "Header"
 
     a.delete()
     b.delete()
-
-

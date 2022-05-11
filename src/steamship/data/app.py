@@ -5,8 +5,9 @@
 #
 
 from dataclasses import dataclass
+from typing import Any
 
-from steamship.base import Client, Request
+from steamship.base import Client, Request, Response
 
 
 @dataclass
@@ -33,37 +34,18 @@ class App:
     handle: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "App":
-        if 'app' in d:
-            d = d['app']
-        return App(
-            client=client,
-            id=d.get('id', None),
-            handle=d.get('handle', None)
-        )
+    def from_dict(d: Any, client: Client = None) -> "App":
+        if "app" in d:
+            d = d["app"]
+        return App(client=client, id=d.get("id", None), handle=d.get("handle", None))
 
     @staticmethod
     def create(
-            client: Client,
-            handle: str = None,
-            upsert: bool = None
-    ) -> "App":
-        req = CreateAppRequest(
-            handle=handle,
-            upsert=upsert
-        )
-        return client.post(
-            'app/create',
-            payload=req,
-            expect=App
-        )
+        client: Client, handle: str = None, upsert: bool = None
+    ) -> "Response[App]":
+        req = CreateAppRequest(handle=handle, upsert=upsert)
+        return client.post("app/create", payload=req, expect=App)
 
-    def delete(self) -> "App":
-        req = DeleteAppRequest(
-            id=self.id
-        )
-        return self.client.post(
-            'app/delete',
-            payload=req,
-            expect=App
-        )
+    def delete(self) -> "Response[App]":
+        req = DeleteAppRequest(id=self.id)
+        return self.client.post("app/delete", payload=req, expect=App)
