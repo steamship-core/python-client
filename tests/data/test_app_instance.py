@@ -4,6 +4,7 @@ import requests
 
 from steamship.base.mime_types import MimeTypes
 from tests import APPS_PATH, TEST_ASSETS_PATH
+from steamship import Space
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -97,3 +98,13 @@ def test_instance_invoke():
         base64_image = base64.b64encode(resp_image.content).decode("utf-8")
         assert base64_image == base64_palm
         assert resp_image.headers.get("Content-Type") == MimeTypes.PNG
+
+
+def test_deploy_in_space():
+
+    client = get_steamship_client()
+    demo_app_path = APPS_PATH / "apps" / "demo_app.py"
+
+    space = Space.create(client, handle='test-non-default-space').data
+    with deploy_app(client, demo_app_path, space_id=space.id) as (_, _, instance):
+        assert(instance.space_id == space.id)
