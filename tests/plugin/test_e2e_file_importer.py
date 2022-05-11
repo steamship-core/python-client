@@ -19,12 +19,13 @@ def test_e2e_importer():
         version,
         instance,
     ):
+        # The test FileImporter should always return a string file with contents TEST_DOC
         file = File.create(
             client=client, content="This is a test.", plugin_instance=instance.handle
         ).data
 
+        # Now fetch the data from Steamship and assert that it is the SAME as the data the FileImporter creates
         data = file.raw().data
-
         assert data.decode("utf-8") == TEST_DOC
 
         file.delete()
