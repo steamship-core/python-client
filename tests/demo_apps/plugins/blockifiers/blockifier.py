@@ -21,47 +21,24 @@ class DummyBlockifierPlugin(Blockifier, App):
     def run(
         self, request: PluginRequest[RawDataPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
-        return Response(
-            data=BlockAndTagPluginOutput(
-                file=File.CreateRequest(
-                    blocks=[
-                        Block.CreateRequest(
-                            text=TEST_H1,
-                            tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.h1)],
-                        ),
-                        Block.CreateRequest(
-                            text=TEST_S1,
-                            tags=[
-                                Tag.CreateRequest(
-                                    kind=TagKind.doc, name=DocTag.sentence
-                                )
-                            ],
-                        ),
-                        Block.CreateRequest(
-                            text=TEST_S2,
-                            tags=[
-                                Tag.CreateRequest(
-                                    kind=TagKind.doc, name=DocTag.sentence
-                                )
-                            ],
-                        ),
-                        Block.CreateRequest(
-                            text=TEST_S3,
-                            tags=[
-                                Tag.CreateRequest(
-                                    kind=TagKind.doc, name=DocTag.paragraph
-                                )
-                            ],
-                        ),
-                    ]
-                )
+        file = File.CreateRequest(blocks=[])
+        for text, tag in {
+            (TEST_H1, DocTag.h1),
+            (TEST_S1, DocTag.sentence),
+            (TEST_S2, DocTag.sentence),
+            (TEST_S3, DocTag.paragraph),
+        }:
+            block = Block.CreateRequest(
+                text=text,
+                tags=[Tag.CreateRequest(kind=TagKind.doc, name=tag)],
             )
-        )
+            file.blocks.append(block)
+        return Response(data=BlockAndTagPluginOutput(file=file))
 
     @post("blockify")
     def blockify(self, **kwargs) -> Response:
-        raw_data_plugin_input = Blockifier.parse_request(request=kwargs)
-        return self.run(raw_data_plugin_input)
+        blockify_request = Blockifier.parse_request(request=kwargs)
+        return self.run(blockify_request)
 
 
 handler = create_handler(DummyBlockifierPlugin)

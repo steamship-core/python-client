@@ -1,5 +1,8 @@
+import logging
 from dataclasses import dataclass
 from typing import Any, List, Union, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
 from steamship.base.request import IdentifierRequest
@@ -19,35 +22,22 @@ class Block:
     text: str = None
     tags: List[Tag] = None
 
-    @dataclass
-    class CreateRequest(Request):
+    class CreateRequest(BaseModel, Request):
         id: str = None
         fileId: str = None
         text: str = None
         tags: List[Tag.CreateRequest] = None
         upsert: bool = None
 
-        # noinspection PyUnusedLocal
-        @staticmethod
-        def from_dict(d: Any, client: Client = None) -> "Block.CreateRequest":
-            return Block.CreateRequest(
-                id=d.get("id", None),
-                fileId=d.get("fileId", None),
-                text=d.get("text", None),
-                tags=[Tag.CreateRequest.from_dict(tag) for tag in d.get("tags", [])],
-                upsert=d.get("upsert", None),
-            )
-
-        def to_dict(self) -> dict:
-            return dict(
-                id=self.id,
-                fileId=self.fileId,
-                text=self.text,
-                upsert=self.upsert,
-                tags=[tag.to_dict() for tag in self.tags]
-                if self.tags
-                else [],  # TODO (enias): Deprecate
-            )
+        # # noinspection PyUnusedLocal
+        # @staticmethod
+        # def from_dict(d: Any, client: Client = None) -> "Block.CreateRequest":
+        #     logging.info("Calling from_dict on the Block!")
+        #     return Block.CreateRequest.parse_obj(d)
+        #
+        # def to_dict(self) -> dict:
+        #     # logging.info("Calling to_dict on the Block!")
+        #     return self.dict(exclude_unset=False, exclude_defaults=False, exclude_none=False)
 
     @dataclass
     class DeleteRequest(Request):

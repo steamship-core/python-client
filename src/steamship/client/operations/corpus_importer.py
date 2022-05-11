@@ -1,14 +1,15 @@
 from dataclasses import dataclass
 from typing import Any, List
 
+from pydantic import BaseModel
+
 from steamship import File
 from steamship.base import Client
 
 
-@dataclass
-class CorpusImportRequest:  # TODO (enias): Depricate
+class CorpusImportRequest(BaseModel):  # TODO (enias): Depricate
     # The Corpus Identifiers
-    client: Client = None
+    # client: Client = None # TODO: Do not send client
     id: str = None
     handle: str = None
     type: str = "corpus"
@@ -35,17 +36,18 @@ class CorpusImportRequest:  # TODO (enias): Depricate
             fileImporterPluginInstance=d.get("fileImporterPluginInstance", None),
         )
 
-    def to_dict(self) -> dict:
-        return dict(
-            id=self.id,
-            handle=self.handle,
-            type=self.type,
-            value=self.value,
-            data=self.data,
-            url=self.url,
-            pluginInstance=self.pluginInstance,
-            fileImporterPluginInstance=self.fileImporterPluginInstance,
-        )
+    #
+    # def to_dict(self) -> dict:
+    #     return dict(
+    #         id=self.id,
+    #         handle=self.handle,
+    #         type=self.type,
+    #         value=self.value,
+    #         data=self.data,
+    #         url=self.url,
+    #         pluginInstance=self.pluginInstance,
+    #         fileImporterPluginInstance=self.fileImporterPluginInstance,
+    #     )
 
 
 @dataclass

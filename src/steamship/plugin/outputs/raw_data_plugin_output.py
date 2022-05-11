@@ -2,12 +2,13 @@ import io
 from dataclasses import dataclass
 from typing import Any
 
+from pydantic import BaseModel
+
 from steamship.base import Client
 from steamship.base.binary_utils import flexi_create
 
 
-@dataclass
-class RawDataPluginOutput:
+class RawDataPluginOutput(BaseModel):
     data: str = None  # This should **always** be in base64
     mimeType: str = None
 
@@ -19,6 +20,7 @@ class RawDataPluginOutput:
         json: io.BytesIO = None,
         mime_type: str = None,
     ):
+        super().__init__()
         self.data, self.mimeType, encoding = flexi_create(
             base64string=base64string,
             string=string,
@@ -30,9 +32,10 @@ class RawDataPluginOutput:
 
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "RawDataPluginOutput":
+        # TODO (enias): Warning This needs to be here for parsing to work correctly
         return RawDataPluginOutput(
             base64string=d.get("data", None), mime_type=d.get("mimeType", None)
         )
 
-    def to_dict(self) -> dict:
-        return dict(data=self.data, mimeType=self.mimeType)
+    # def to_dict(self) -> dict:
+    #     return dict(data=self.data, mimeType=self.mimeType)

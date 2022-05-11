@@ -50,7 +50,6 @@ class CsvBlockifier(Blockifier, App):
 
     # noinspection PyUnusedLocal
     def __init__(self, client=None, config: Dict[str, any] = None):
-        super().__init__()
         self.config = CsvBlockifierConfig(**config)
 
     def _get_text(self, row) -> str:
@@ -94,7 +93,9 @@ class CsvBlockifier(Blockifier, App):
             escapechar=self.config.escapechar,
             skipinitialspace=self.config.skipinitialspace,
         )
-        file = File(blocks=[])
+        file = File.CreateRequest(
+            blocks=[]
+        )  # TODO: Ask why this cannot be a CreateRequest?
         for row in reader:
             text = self._get_text(row)
             tag_values = self._get_tags(row)
@@ -107,7 +108,6 @@ class CsvBlockifier(Blockifier, App):
                 ],
             )
             file.blocks.append(block)
-
         return Response(data=BlockAndTagPluginOutput(file=file))
 
     @post("blockify")

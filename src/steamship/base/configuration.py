@@ -3,12 +3,14 @@ import os
 from pathlib import Path
 from typing import Any, Dict
 
+from pydantic import BaseModel
+
 _configFile = ".steamship.json"
 
 MAX_DEPTH = 40
 
 
-class Configuration:
+class Configuration(BaseModel):
     # TODO (enias): Review
     api_key: str = None
     api_base: str = None
@@ -45,6 +47,7 @@ class Configuration:
         config_dict: dict = None,
     ):
         # First set the profile
+        super().__init__()
         if "STEAMSHIP_PROFILE" in os.environ:
             self.profile = os.getenv("STEAMSHIP_PROFILE")
         if profile is not None:

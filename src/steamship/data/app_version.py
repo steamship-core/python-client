@@ -1,11 +1,12 @@
 from dataclasses import dataclass
 from typing import Any, Dict
 
+from pydantic import BaseModel
+
 from steamship.base import Client, Request, Response
 
 
-@dataclass
-class CreateAppVersionRequest(Request):
+class CreateAppVersionRequest(BaseModel, Request):
     appId: str = None
     handle: str = None
     upsert: bool = None
@@ -13,13 +14,11 @@ class CreateAppVersionRequest(Request):
     configTemplate: Dict[str, Any] = None
 
 
-@dataclass
-class DeleteAppVersionRequest(Request):
+class DeleteAppVersionRequest(BaseModel, Request):
     id: str
 
 
-@dataclass
-class ListPrivateAppVersionsRequest(Request):
+class ListPrivateAppVersionsRequest(BaseModel, Request):
     pass
 
 

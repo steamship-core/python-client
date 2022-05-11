@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List
 
+from pydantic import BaseModel
+
 from steamship.base import Client, Request
 from steamship.base.response import Response
 from steamship.data.plugin import ListPluginsResponse
@@ -10,8 +12,7 @@ class PluginVersion:
     pass
 
 
-@dataclass
-class CreatePluginVersionRequest(Request):
+class CreatePluginVersionRequest(BaseModel, Request):
     pluginId: str = None
     handle: str = None
     upsert: bool = None
@@ -24,19 +25,16 @@ class CreatePluginVersionRequest(Request):
     configTemplate: Dict[str, Any] = None
 
 
-@dataclass
-class DeletePluginVersionRequest(Request):
+class DeletePluginVersionRequest(BaseModel, Request):
     id: str
 
 
-@dataclass
-class ListPublicPluginVersionsRequest(Request):
+class ListPublicPluginVersionsRequest(BaseModel, Request):
     handle: str
     pluginId: str
 
 
-@dataclass
-class ListPrivatePluginVersionsRequest(Request):
+class ListPrivatePluginVersionsRequest(BaseModel, Request):
     handle: str
     pluginId: str
 
@@ -55,8 +53,7 @@ class ListPluginVersionsResponse(Request):
         )
 
 
-@dataclass
-class PluginVersion:
+class PluginVersion(BaseModel):
     client: Client = None
     id: str = None
     pluginId: str = None
@@ -75,14 +72,14 @@ class PluginVersion:
 
         return PluginVersion(
             client=client,
-            id=d.get("id", None),
-            handle=d.get("handle", None),
-            hostingMemory=d.get("hostingMemory", None),
-            hostingTimeout=d.get("hostingTimeout", None),
-            hostingHandler=d.get("hostingHandler", None),
-            isPublic=d.get("isPublic", None),
-            isDefault=d.get("isDefault", None),
-            configTemplate=d.get("configTemplate", None),
+            id=d.get("id"),
+            handle=d.get("handle"),
+            hostingMemory=d.get("hostingMemory"),
+            hostingTimeout=d.get("hostingTimeout"),
+            hostingHandler=d.get("hostingHandler"),
+            isPublic=d.get("isPublic"),
+            isDefault=d.get("isDefault"),
+            configTemplate=d.get("configTemplate"),
         )
 
     @staticmethod

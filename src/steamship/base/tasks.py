@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from typing import Any, Generic, List, Type, TypeVar, Union
 
+from pydantic import BaseModel
+
 from steamship.base.base import IResponse
 from steamship.base.error import SteamshipError
 from steamship.base.metadata import metadata_to_str, str_to_metadata
@@ -145,8 +147,7 @@ class TaskStatusRequest(Request):
     taskId: str
 
 
-@dataclass
-class Task(Generic[T]):
+class Task(BaseModel, Generic[T]):
     """Encapsulates a unit of asynchronously performed work."""
 
     client: Any = None  # Steamship client

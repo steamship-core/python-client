@@ -1,9 +1,12 @@
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Callable, Generic, TypeVar, Union
 
+from pydantic import BaseModel
+
 from steamship.app.response import Response
-from steamship.base import Client
+from steamship.base import Client, Request
 from steamship.base.response import SteamshipError
 
 # Note!
@@ -30,6 +33,7 @@ class PluginRequest(Generic[T]):
         data = None
         if "data" in d:
             if subclass_request_from_dict is not None:
+                logging.info("Calling plugin request")
                 data = subclass_request_from_dict(d["data"], client)
             else:
                 raise SteamshipError(
@@ -41,7 +45,11 @@ class PluginRequest(Generic[T]):
         if self.data is None:
             return {}
         else:
-            return {"data": self.data.to_dict()}
+            logging.info("Debugging service")
+            if hasattr(self.data, "to_dict"):
+                return {"data": self.data.to_dict()}
+            else:
+                return {"data": self.data.dict()}
 
 
 class PluginService(ABC, Generic[T, U]):
@@ -58,6 +66,7 @@ class PluginService(ABC, Generic[T, U]):
 
     @classmethod
     def parse_request(cls, request: Union[PluginRequest[T], dict]) -> PluginRequest[T]:
+        # TODO (enias): Review this
         if type(request) == dict:
             try:
                 request = PluginRequest[T].from_dict(

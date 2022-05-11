@@ -1,5 +1,6 @@
 import base64
 import io
+import logging
 from dataclasses import dataclass
 from typing import Dict, Any
 
@@ -26,6 +27,7 @@ class TestApp(App):
 
     @get("resp_string")
     def resp_string(self) -> Response:
+        logging.info("New function call in demo app")
         return Response(string="A String")
 
     @get("resp_dict")

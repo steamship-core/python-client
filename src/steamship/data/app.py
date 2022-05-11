@@ -7,6 +7,8 @@
 from dataclasses import dataclass
 from typing import Any
 
+from pydantic import BaseModel
+
 from steamship.base import Client, Request, Response
 
 
@@ -27,8 +29,7 @@ class ListPrivateAppsRequest(Request):
     pass
 
 
-@dataclass
-class App:
+class App(BaseModel):
     client: Client = None
     id: str = None
     handle: str = None

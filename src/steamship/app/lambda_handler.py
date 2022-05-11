@@ -13,6 +13,7 @@ def create_handler(app_cls: Type[App]):
     """Wrapper function for an Steamship app within an AWS Lambda function."""
 
     def _handler(event: Dict, _: Dict = None) -> Response:
+        logging.info("Handler was replaced")
         try:
             client = Steamship(config_dict=event.get("clientConfig"))
         except SteamshipError as se:
@@ -22,7 +23,7 @@ def create_handler(app_cls: Type[App]):
             logging.error(ex)
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Plugin/App handler was unable to create Steamship client.",
+                message="Plugin/App handler was unable to create Steamship client",
                 exception=ex,
             )
 
@@ -35,7 +36,7 @@ def create_handler(app_cls: Type[App]):
             logging.error(ex)
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Plugin/App handler was unable to parse inbound request.",
+                message="Plugin/App handler was unable to parse inbound request",
                 exception=ex,
             )
 
@@ -47,14 +48,14 @@ def create_handler(app_cls: Type[App]):
             logging.error(ex)
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Handler was unable to initialize plugin/app.",
+                message="Handler was unable to initialize plugin/app",
                 exception=ex,
             )
 
         if not app:
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Handler was unable to construct app/plugin for invocation.",
+                message="Handler was unable to construct app/plugin for invocation",
             )
 
         try:
@@ -79,6 +80,6 @@ def create_handler(app_cls: Type[App]):
 
     def handler(event: Dict, context: Dict = None) -> dict:
         response = _handler(event, context)
-        return response.to_dict()
+        return response.dict()
 
     return handler

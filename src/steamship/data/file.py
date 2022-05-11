@@ -3,6 +3,8 @@ import logging
 from dataclasses import dataclass
 from typing import Any, List, Union, Optional
 
+from pydantic import BaseModel
+
 from steamship.base import Client, Response, Request
 from steamship.base.binary_utils import flexi_create
 from steamship.base.request import IdentifierRequest
@@ -45,8 +47,7 @@ class File:
     tags: List[Tag] = None
     filename: str = None
 
-    @dataclass
-    class CreateRequest:
+    class CreateRequest(BaseModel, Request):
         value: str = None
         data: str = None
         url: str = None
@@ -58,42 +59,14 @@ class File:
         tags: List[Tag.CreateRequest] = None
         pluginInstance: str = None
 
-        @staticmethod
-        def from_dict(d: Any, client: Client = None) -> "File.CreateRequest":
-            return File.CreateRequest(
-                value=d.get("value"),
-                data=d.get("data"),
-                url=d.get("url"),
-                type=d.get("type"),
-                mimeType=d.get("mimeType"),
-                corpusId=d.get("corpusId"),
-                pluginInstance=d.get("pluginInstance"),
-                blocks=[
-                    Block.CreateRequest.from_dict(block, client=client)
-                    for block in d.get("blocks", [])
-                ],
-                tags=[
-                    Tag.CreateRequest.from_dict(tag, client=client)
-                    for tag in d.get("tags", [])
-                ],
-                filename=d.get("filename", None),
-            )
+        # @staticmethod
+        # def from_dict(d: Any, client: Client = None) -> "File.CreateRequest":
+        #     logging.info("Calling from_dict on the File!")
+        #     return File.CreateRequest.parse_obj(d)
 
-        def to_dict(self) -> dict:
-            return dict(
-                value=self.value,
-                data=self.data,
-                url=self.url,
-                type=self.type,
-                mimeType=self.mimeType,
-                corpusId=self.corpusId,
-                pluginInstance=self.pluginInstance,
-                blocks=[block.to_dict() for block in self.blocks]
-                if self.blocks
-                else [],
-                tags=[tag.to_dict() for tag in self.tags] if self.tags else [],
-                filename=self.filename,
-            )
+        # def to_dict(self) -> dict:
+        #     logging.info("Calling to_dict on the File!")
+        #     return self.dict(exclude_unset=False, exclude_defaults=False, exclude_none=False)
 
     @dataclass
     class CreateResponse:

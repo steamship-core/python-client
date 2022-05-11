@@ -18,6 +18,7 @@ from steamship.plugin.service import PluginRequest, PluginService
 # of this file.
 #
 class CorpusImporter(PluginService[CorpusImportRequest, CorpusImportResponse], ABC):
+    # TODO (enias): Check if this works if we swap from_dict with parse_obj
     @classmethod
     def subclass_request_from_dict(
         cls, d: Any, client: Client = None

@@ -2,6 +2,7 @@ import base64
 
 import requests
 
+from steamship.base import TaskState
 from steamship.base.mime_types import MimeTypes
 from tests import APPS_PATH, TEST_ASSETS_PATH
 
@@ -32,56 +33,55 @@ def test_instance_invoke():
                 headers=dict(authorization=f"Bearer {client.config.api_key}"),
             )
 
-        # res = instance.get("greet").data
-        # assert res == "Hello, Person!"
-        #
-        # resp = get_raw("greet")
-        # assert resp.text == "Hello, Person!"
-        #
-        # res = instance.get("greet", name="Ted").data
-        # assert res == "Hello, Ted!"
-        # url = instance.full_url_for("greet?name=Ted")
-        # resp = requests.get(
-        #     url, headers=dict(authorization=f"Bearer {client.config.api_key}")
-        # )
-        # assert resp.text == "Hello, Ted!"
-        #
-        # res = instance.post("greet").data
-        # assert res == "Hello, Person!"
-        # url = instance.full_url_for("greet")
-        # resp = requests.post(
-        #     url, headers=dict(authorization=f"Bearer {client.config.api_key}")
-        # )
-        # assert resp.text == "Hello, Person!"
-        #
-        # res = instance.post("greet", name="Ted").data
-        # assert res == "Hello, Ted!"
-        # url = instance.full_url_for("greet")
-        # resp = requests.post(
-        #     url,
-        #     json=dict(name="Ted"),
-        #     headers=dict(authorization=f"Bearer {client.config.api_key}"),
-        # )
-        # assert resp.text == "Hello, Ted!"
-        #
-        # # Now we test different return types
-        # resp_string = get_raw("resp_string")
-        # assert resp_string.text == "A String"
-        #
-        # resp_dict = get_raw("resp_dict")
-        # assert resp_dict.json() == dict(string="A String", int=10)
+        res = instance.get("greet").data
+        assert res == "Hello, Person!"
 
-        # resp_404 = get_raw("doesnt_exist")
-        # json_404 = resp_404.json()
-        # assert isinstance(json_404, dict)
-        # assert json_404.get("status", None) is not None
-        # assert json_404.get("status", None) is not None
-        # assert json_404.get("status", dict()).get("state", None) == TaskState.failed
-        # # assert "No handler" in json_404.get("status", dict()).get("statusMessage", "")
-        # assert resp_404.status_code == 404
-        #
-        # resp_obj = get_raw("resp_obj")
-        # assert resp_obj.json() == dict(name="Foo")
+        resp = get_raw("greet")
+        assert resp.text == "Hello, Person!"
+
+        res = instance.get("greet", name="Ted").data
+        assert res == "Hello, Ted!"
+        url = instance.full_url_for("greet?name=Ted")
+        resp = requests.get(
+            url, headers=dict(authorization=f"Bearer {client.config.api_key}")
+        )
+        assert resp.text == "Hello, Ted!"
+
+        res = instance.post("greet").data
+        assert res == "Hello, Person!"
+        url = instance.full_url_for("greet")
+        resp = requests.post(
+            url, headers=dict(authorization=f"Bearer {client.config.api_key}")
+        )
+        assert resp.text == "Hello, Person!"
+
+        res = instance.post("greet", name="Ted").data
+        assert res == "Hello, Ted!"
+        url = instance.full_url_for("greet")
+        resp = requests.post(
+            url,
+            json=dict(name="Ted"),
+            headers=dict(authorization=f"Bearer {client.config.api_key}"),
+        )
+        assert resp.text == "Hello, Ted!"
+
+        # Now we test different return types
+        resp_string = get_raw("resp_string")
+        assert resp_string.text == "A String"
+
+        resp_dict = get_raw("resp_dict")
+        assert resp_dict.json() == dict(string="A String", int=10)
+
+        resp_404 = get_raw("doesnt_exist")
+        json_404 = resp_404.json()
+        assert isinstance(json_404, dict)
+        assert json_404.get("status") is not None
+        assert json_404.get("status", dict()).get("state") == TaskState.failed
+        # assert "No handler" in json_404.get("status", dict()).get("statusMessage", "")
+        assert resp_404.status_code == 404
+
+        resp_obj = get_raw("resp_obj")
+        assert resp_obj.json() == dict(name="Foo")
 
         resp_binary = get_raw("resp_binary")
         base64_binary = base64.b64encode(resp_binary.content).decode("utf-8")

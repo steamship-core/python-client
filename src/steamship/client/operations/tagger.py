@@ -1,12 +1,13 @@
-from dataclasses import asdict, dataclass
+import logging
 from typing import Any
+
+from pydantic import BaseModel
 
 from steamship import File
 from steamship.base import Client, Request
 
 
-@dataclass
-class TagRequest(Request):
+class TagRequest(BaseModel, Request):
     type: str = None
     id: str = None
     name: str = None
@@ -14,31 +15,12 @@ class TagRequest(Request):
     pluginInstance: str = None
     file: File.CreateRequest = None
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "TagRequest":
 
-        return TagRequest(
-            type=d.get("type", None),
-            id=d.get("id", None),
-            name=d.get("name", None),
-            handle=d.get("handle", None),
-            pluginInstance=d.get("pluginInstance", None),
-            file=File.CreateRequest.from_dict(d.get("file", {})),
-        )
-
-    def to_dict(self) -> dict:
-        return asdict(self)
-
-
-@dataclass
-class TagResponse:
+class TagResponse(BaseModel):
     file: File = None
 
     # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "TagResponse":
+        logging.info("Calling from_dict in tagresponse")
         return TagResponse(file=File.from_dict(d.get("file", {})))
-
-    def to_dict(self) -> dict:
-        return asdict(self)

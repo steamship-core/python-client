@@ -6,6 +6,7 @@ from steamship.base import Client, Request, Response, str_to_metadata
 from steamship.base.request import IdentifierRequest
 
 
+# TODO: Confirm this can be delete
 @dataclass
 class Corpus:
     """A corpus of files."""

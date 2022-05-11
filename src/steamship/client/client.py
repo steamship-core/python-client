@@ -1,5 +1,5 @@
 import logging
-from typing import Any, List
+from typing import Any, List, Optional
 
 from steamship import Block
 from steamship.base import Client, Response
@@ -23,6 +23,8 @@ _logger = logging.getLogger(__name__)
 
 class Steamship(Client):
     """Steamship Python Client."""
+
+    tasks: Optional[Tasks] = None
 
     def __init__(
         self,

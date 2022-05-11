@@ -48,7 +48,7 @@ def test_e2e_parser():
         tag = res.data.file.tags[0]
         assert tag.name == instance_config1["tagName"]
         assert tag.kind == instance_config1["tagKind"]
-        tag_value = json.loads(tag.value)
+        tag_value = tag.value
         assert tag_value["numberValue"] == instance_config1["numberValue"]
         assert tag_value["booleanValue"] == instance_config1["booleanValue"]
 
@@ -82,6 +82,6 @@ def test_e2e_parser():
         tag = res.data.file.tags[0]
         assert tag.name == instance_config2["tagName"]
         assert tag.kind == instance_config2["tagKind"]
-        tag_value = json.loads(tag.value)
+        tag_value = tag.value
         assert tag_value["numberValue"] == instance_config2["numberValue"]
         assert tag_value["booleanValue"] == instance_config2["booleanValue"]

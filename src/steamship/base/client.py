@@ -4,6 +4,8 @@ from dataclasses import asdict
 from typing import Any, Dict, TypeVar, Union
 
 import requests  # type: ignore
+from pydantic import BaseModel
+from pydantic.main import ModelMetaclass
 
 from steamship.base.configuration import Configuration
 from steamship.base.error import SteamshipError
@@ -19,7 +21,7 @@ _logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=Response)
 
 
-class Client:
+class Client(BaseModel):
     """Client base.py class.
 
     Separated primarily as a hack to prevent circular imports.
@@ -32,7 +34,7 @@ class Client:
     # Interaction prototype.
     dQuery: bool = False
 
-    def __init__(  # TODO (Enias): Do we need all the default parameters?
+    def __init__(
         self,
         api_key: str = None,
         api_base: str = None,
@@ -45,6 +47,7 @@ class Client:
         d_query: bool = False,
     ):
 
+        super().__init__()
         self.config = Configuration(
             api_key=api_key,
             api_base=api_base,
@@ -150,8 +153,11 @@ class Client:
             data = {}
         elif isinstance(payload, dict):
             data = payload
+        elif isinstance(payload, BaseModel):
+            data = payload.dict(
+                exclude_unset=False, exclude_defaults=False, exclude_none=False
+            )
         else:
-            # noinspection PyDataclass
             data = asdict(payload)
 
         if verb == "POST" and file is not None:
@@ -304,8 +310,17 @@ class Client:
                         error = SteamshipError.from_dict(response_data["status"])
 
             if "data" in response_data:
-                if expect is not None and hasattr(expect, "from_dict"):
-                    obj = expect.from_dict(response_data["data"], client=self)
+                logging.info("Parsing data in client")
+                if expect is not None:
+                    if hasattr(expect, "from_dict"):
+                        # TODO (enias): This is the part that gives me headaches
+                        obj = expect.from_dict(response_data["data"], client=self)
+                    else:
+                        if issubclass(expect, BaseModel):
+                            logging.info(
+                                "Response is subclassing BaseModel and does not have a from_dict"
+                            )
+                            obj = expect.parse_obj(response_data["data"])
                 else:
                     obj = response_data["data"]
 

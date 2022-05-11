@@ -22,7 +22,7 @@ def test_e2e_csv_blockifier_plugin():
     instance_config = dict(  # Has to match up
         text_column="Message",
         tag_columns="Category",
-        tag_kind="Intent",
+        tag_kind="Intent22",
     )
     with deploy_plugin(
         client,

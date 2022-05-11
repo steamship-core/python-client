@@ -1,16 +1,10 @@
+import logging
 from dataclasses import dataclass
 from typing import Any, Dict
 
+from pydantic import BaseModel
+
 from steamship.base.configuration import Configuration
-
-
-def event_to_config(event: dict) -> Configuration:
-    if event is None:
-        raise Exception("Null event provided")
-    if "invocationContext" not in event:
-        raise Exception("invocationContext not in event")
-
-    return Configuration.from_dict(event["invocationContext"])
 
 
 class Verb:
@@ -27,8 +21,7 @@ class Verb:
         return s
 
 
-@dataclass
-class Invocation:
+class Invocation(BaseModel):
     httpVerb: str = None
     appPath: str = None  # e.g. /hello/there
     arguments: Dict[str, Any] = None
@@ -44,8 +37,7 @@ class Invocation:
         )
 
 
-@dataclass
-class Request:
+class Request(BaseModel):
     """An request of a method on an app instance.
 
     This is the payload sent from the public-facing App Proxy to the
@@ -59,7 +51,8 @@ class Request:
 
     @staticmethod
     def from_dict(d: dict) -> "Request":
-        invocation = Invocation.from_dict(d.get("invocation", dict()))
+        logging.info("from_dict in Request has been called")
+        invocation = Invocation.parse_obj(d.get("invocation", dict()))
         client_config = Configuration.from_dict(
             d.get("clientConfig", dict())
         )  # TODO (enias): Review config dict

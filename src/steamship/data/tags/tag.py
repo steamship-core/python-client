@@ -1,6 +1,9 @@
 import json
+import logging
 from dataclasses import dataclass
-from typing import Any, List, Optional, Dict
+from typing import Any, List, Optional, Dict, Union
+
+from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
 
@@ -22,8 +25,7 @@ class Tag:  # TODO (enias): Make pep8 compatible
     startIdx: int = None  # w/r/t block.text. None means 0 if blockId is not None
     endIdx: int = None  # w/r/t block.text. None means -1 if blockId is not None
 
-    @dataclass
-    class CreateRequest(Request):
+    class CreateRequest(BaseModel, Request):
         id: str = None
         fileId: str = None
         blockId: str = None
@@ -31,26 +33,17 @@ class Tag:  # TODO (enias): Make pep8 compatible
         name: str = None
         startIdx: int = None
         endIdx: int = None
-        value: Dict[str, Any] = None
+        value: Union[str, Dict[str, Any]] = None
         upsert: bool = None
 
-        # noinspection PyUnusedLocal
-        @staticmethod
-        def from_dict(d: Any, client: Client = None) -> "Tag.CreateRequest":
-            return Tag.CreateRequest(
-                id=d.get("id"),
-                fileId=d.get("fileId"),
-                blockId=d.get("blockId"),
-                kind=d.get("kind"),
-                name=d.get("name"),
-                startIdx=d.get("startIdx"),
-                endIdx=d.get("endIdx"),
-                value=d.get("value"),
-                upsert=d.get("upsert"),
-            )
-
-        def to_dict(self):
-            pass
+        # # noinspection PyUnusedLocal
+        # @staticmethod
+        # def from_dict(d: Any, client: Client = None) -> "Tag.CreateRequest":
+        #     return Tag.CreateRequest.parse_obj(d)
+        #
+        # def to_dict(self):
+        #     logging.info("Calling to_dict on the Tag!")
+        #     return self.dict(exclude_unset=False, exclude_defaults=False, exclude_none=False)
 
     @dataclass
     class DeleteRequest(Request):

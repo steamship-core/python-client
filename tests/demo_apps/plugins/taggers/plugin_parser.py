@@ -1,6 +1,7 @@
+import logging
 import re
 
-from steamship import Block, DocTag, Tag
+from steamship import Block, DocTag, Tag, File
 from steamship.app import App, Response, create_handler, post
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -27,13 +28,6 @@ def tag_sentences(block: Block):
         block.tags = tags
 
 
-def _make_test_response(request: BlockAndTagPluginInput) -> BlockAndTagPluginOutput:
-    for block in request.file.blocks:
-        tag_sentences(block)
-    response = BlockAndTagPluginOutput(request.file)
-    return response
-
-
 class TestParserPlugin(Tagger, App):
     # TODO: WARNING! We will need to implement some logic that prevents
     # a distributed endless loop. E.g., a parser plugin returning the results
@@ -43,7 +37,15 @@ class TestParserPlugin(Tagger, App):
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         if request.data is not None:
-            return Response(data=_make_test_response(request.data))
+            logging.info("hello in parser")
+            logging.info(f"type of file: {type(request.data.file)}")
+            for block in request.data.file.blocks:
+                tag_sentences(block)
+            return Response(
+                data=BlockAndTagPluginOutput(
+                    file=File.CreateRequest.parse_obj(request.data.file.to_dict())
+                )
+            )
 
     @post("tag")
     def parse(self, **kwargs) -> dict:
