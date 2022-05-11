@@ -51,6 +51,9 @@ def zip_deployable(file_path: Path) -> bytes:
                         pypi_file, pypi_file.relative_to(package_path.parent)
                     )
 
+    with open('out.zip', 'wb') as f:
+        f.write(zip_buffer.getvalue())
+
     return zip_buffer.getvalue()
 
 
