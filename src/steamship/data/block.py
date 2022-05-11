@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Union
+from typing import Any, List, Union, Optional
 
 from steamship.base import Client, Request, Response
 from steamship.base.request import IdentifierRequest
@@ -27,23 +27,26 @@ class Block:
         tags: List[Tag.CreateRequest] = None
         upsert: bool = None
 
+        # noinspection PyUnusedLocal
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "Block.CreateRequest":
+        def from_dict(d: Any, client: Client = None) -> "Block.CreateRequest":
             return Block.CreateRequest(
-                id=d.get('id', None),
-                fileId=d.get('fileId', None),
-                text=d.get('text', None),
-                tags=[Tag.CreateRequest.from_dict(tag, client=client) for tag in d.get("tags", [])],
-                upsert=d.get('upsert', None),
+                id=d.get("id", None),
+                fileId=d.get("fileId", None),
+                text=d.get("text", None),
+                tags=[Tag.CreateRequest.from_dict(tag) for tag in d.get("tags", [])],
+                upsert=d.get("upsert", None),
             )
 
-        def to_dict(self)-> dict:
+        def to_dict(self) -> dict:
             return dict(
                 id=self.id,
                 fileId=self.fileId,
                 text=self.text,
                 upsert=self.upsert,
-                tags=[tag.to_dict() for tag in self.tags] if self.tags else []
+                tags=[tag.to_dict() for tag in self.tags]
+                if self.tags
+                else [],  # TODO (enias): Deprecate
             )
 
     @dataclass
@@ -59,23 +62,28 @@ class Block:
         blocks: List["Block"] = None
 
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "Block.ListResponse":
+        def from_dict(d: Any, client: Client = None) -> "Optional[Block.ListResponse]":
             if d is None:
                 return None
             return Block.ListResponse(
-                blocks=[Block.from_dict(x, client=client) for x in (d.get("blocks", []) or [])]
+                blocks=[
+                    Block.from_dict(x, client=client)
+                    for x in (d.get("blocks", []) or [])
+                ]
             )
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> Union["Block", None]:
+    def from_dict(d: Any, client: Client = None) -> Union["Block", None]:
         if d is None:
             return None
         return Block(
             client=client,
-            id=d.get('id', None),
-            fileId=d.get('fileId', None),
-            text=d.get('text', None),
-            tags=list(map(lambda tag: Tag.from_dict(tag, client=client), d.get('tags', [])))
+            id=d.get("id", None),
+            fileId=d.get("fileId", None),
+            text=d.get("text", None),
+            tags=list(
+                map(lambda tag: Tag.from_dict(tag, client=client), d.get("tags", []))
+            ),
         )
 
     def to_dict(self) -> dict:
@@ -83,104 +91,95 @@ class Block:
         if self.tags is not None:
             tags = [tag.to_dict() for tag in self.tags]
 
-        return dict(
-            id=self.id,
-            fileId=self.fileId,
-            text=self.text,
-            tags=tags
-        )
+        return dict(id=self.id, fileId=self.fileId, text=self.text, tags=tags)
 
     @staticmethod
     def get(
-            client: Client,
-            id: str = None,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None) -> Response["Block"]:
+        client: Client,
+        id: str = None,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
+    ) -> Response["Block"]:
         return client.post(
-            'block/get',
+            "block/get",
             IdentifierRequest(id=id),
             expect=Block,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     @staticmethod
     def create(
-            client: Client,
-            fileId: str = None,
-            text: str = None,
-            tags: List[Tag.CreateRequest] = None,
-            upsert: bool = None,
-            spaceId: str = None,
-            spaceHandle: str = None
+        client: Client,
+        file_id: str = None,
+        text: str = None,
+        tags: List[Tag.CreateRequest] = None,
+        upsert: bool = None,
+        space_id: str = None,
+        space_handle: str = None,
     ) -> Response["Block"]:
-        req = Block.CreateRequest(
-            fileId=fileId,
-            text=text,
-            tags=tags,
-            upsert=upsert
-        )
+        req = Block.CreateRequest(fileId=file_id, text=text, tags=tags, upsert=upsert)
         return client.post(
-            'block/create',
+            "block/create",
             req,
             expect=Block,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
     @staticmethod
-    def listPublic(
-            client: Client,
-            fileId: str = None,
-            spaceId: str = None,
-            spaceHandle: str = None
+    def list_public(
+        client: Client,
+        file_id: str = None,
+        space_id: str = None,
+        space_handle: str = None,
     ) -> Response["Block.ListResponse"]:
         return client.post(
-            'block/list',
-            Block.ListRequest(
-                fileId=fileId
-            ),
+            "block/list",
+            Block.ListRequest(fileId=file_id),
             expect=Block.ListResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
     def delete(self) -> Response["Block"]:
         return self.client.post(
-            'block/delete',
+            "block/delete",
             Block.DeleteRequest(id=self.id),
             expect=Tag,
         )
 
+    @staticmethod
     def query(
-            client: Client,
-            tagFilterQuery: str,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None
+        client: Client,
+        tag_filter_query: str,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
     ) -> Response["BlockQueryResponse"]:
-
-        req = BlockQueryRequest(
-            tagFilterQuery=tagFilterQuery
-        )
+        # TODO: Is this a static method?
+        req = BlockQueryRequest(tagFilterQuery=tag_filter_query)
         res = client.post(
-            'block/query',
+            "block/query",
             payload=req,
             expect=BlockQueryResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
         return res
+
 
 @dataclass
 class BlockQueryResponse:
     blocks: List[Block]
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "BlockQueryResponse":
+    def from_dict(d: Any, client: Client = None) -> "BlockQueryResponse":
         return BlockQueryResponse(
-            blocks=[Block.from_dict(block, client=client) for block in d.get('blocks', [])]
+            blocks=[
+                Block.from_dict(block, client=client) for block in d.get("blocks", [])
+            ]
         )

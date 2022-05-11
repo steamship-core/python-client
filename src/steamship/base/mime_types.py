@@ -17,13 +17,15 @@ class MimeTypes:
     RTF = "application/rtf"
     BINARY = "application/octet-stream"
 
+
 class ContentEncodings:
     BASE64 = "base64"
+
 
 TEXT_MIME_TYPES = [
     MimeTypes.TXT,
     MimeTypes.MKD,
     MimeTypes.HTML,
     MimeTypes.DOCX,
-    MimeTypes.PPTX
+    MimeTypes.PPTX,
 ]

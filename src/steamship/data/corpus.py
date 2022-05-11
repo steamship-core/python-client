@@ -8,8 +8,8 @@ from steamship.base.request import IdentifierRequest
 
 @dataclass
 class Corpus:
-    """A corpus of files.
-    """
+    """A corpus of files."""
+
     client: Client
     id: str = None
     handle: str = None
@@ -41,57 +41,58 @@ class Corpus:
     class ListResponse(Request):
         corpora: List["Corpus"]
 
+        # noinspection PyUnusedLocal
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "Corpus.ListResponse":
+        def from_dict(d: Any, client: Client = None) -> "Corpus.ListResponse":
             return Corpus.ListResponse(
-                plugins=[Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
+                corpora=[Corpus.from_dict(x) for x in (d.get("corpus", []) or [])]
             )
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "Corpus":
-        if 'corpus' in d:
-            d = d['corpus']
+    def from_dict(d: Any, client: Client = None) -> "Corpus":
+        if "corpus" in d:
+            d = d["corpus"]
 
         return Corpus(
             client=client,
-            id=d.get('id', None),
-            handle=d.get('handle', None),
-            description=d.get('description', None),
-            externalId=d.get('externalId', None),
-            externalType=d.get('externalType', None),
+            id=d.get("id", None),
+            handle=d.get("handle", None),
+            description=d.get("description", None),
+            externalId=d.get("externalId", None),
+            externalType=d.get("externalType", None),
             metadata=str_to_metadata(d.get("metadata", None)),
         )
 
     @staticmethod
     def default(
-            client: Client,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None
-    ) -> "Response[Corpus]":
+        client: Client,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
+    ) -> "Response[Corpus]":  # TODO (Enias): Review
         req = IdentifierRequest()
         return client.post(
-            'corpus/get',
+            "corpus/get",
             req,
             expect=Corpus,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     @staticmethod
     def create(
-            client: Client,
-            handle: str = None,
-            description: str = None,
-            externalId: str = None,
-            externalType: str = None,
-            metadata: any = None,
-            isPublic: bool = False,
-            upsert: bool = True,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None
+        client: Client,
+        handle: str = None,
+        description: str = None,
+        external_id: str = None,
+        external_type: str = None,
+        metadata: Any = None,
+        is_public: bool = False,
+        upsert: bool = True,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
     ) -> "Response[Corpus]":
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
@@ -99,31 +100,29 @@ class Corpus:
         req = Corpus.CreateRequest(
             handle=handle,
             description=description,
-            isPublic=isPublic,
+            isPublic=is_public,
             upsert=upsert,
-            externalId=externalId,
-            externalType=externalType,
-            metadata=metadata
+            externalId=external_id,
+            externalType=external_type,
+            metadata=metadata,
         )
         return client.post(
-            'corpus/create',
+            "corpus/create",
             req,
             expect=Corpus,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     def delete(
-            self,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None) -> Response["Corpus"]:
+        self, space_id: str = None, space_handle: str = None, space: Any = None
+    ) -> Response["Corpus"]:
         return self.client.post(
-            'corpus/delete',
+            "corpus/delete",
             IdentifierRequest(id=self.id),
             expect=Corpus,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )

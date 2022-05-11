@@ -7,7 +7,7 @@
 
 import json
 from dataclasses import dataclass
-from typing import List, Dict, Union
+from typing import Any, Dict, List, Union, Optional
 
 from steamship.base.client import Client
 from steamship.base.request import Request
@@ -17,9 +17,11 @@ from steamship.base.response import Response
 class Plugin:
     pass
 
+
 class TrainingPlatform:
     custom = "lambda"
     managed = "ecs"
+
 
 @dataclass
 class CreatePluginRequest(Request):
@@ -54,9 +56,11 @@ class ListPluginsResponse(Request):
     plugins: List[Plugin]
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ListPluginsResponse":
+    def from_dict(d: Any, client: Client = None) -> "ListPluginsResponse":
         return ListPluginsResponse(
-            plugins=[Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])]
+            plugins=[
+                Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])
+            ]
         )
 
 
@@ -71,6 +75,7 @@ class PluginType:
     parser = "parser"
     classifier = "classifier"
     tagger = "tagger"
+    embedder = "embedder"
 
 
 class PluginAdapterType:
@@ -105,83 +110,76 @@ class Plugin:
     metadata: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "Plugin":
-        if 'plugin' in d:
-            d = d['plugin']
+    def from_dict(d: Any, client: Client = None) -> "Plugin":
+        if "plugin" in d:
+            d = d["plugin"]
 
         return Plugin(
             client=client,
-            id=d.get('id', None),
-            type=d.get('type', None),
-            transport=d.get('transport', None),
-            isPublic=d.get('isPublic', None),
-            trainingPlatform=d.get('trainingPlatform', None),
-            handle=d.get('handle', None),
-            description=d.get('description', None),
-            metadata=d.get('metadata', None)
+            id=d.get("id", None),
+            type=d.get("type", None),
+            transport=d.get("transport", None),
+            isPublic=d.get("isPublic", None),
+            trainingPlatform=d.get("trainingPlatform", None),
+            handle=d.get("handle", None),
+            description=d.get("description", None),
+            metadata=d.get("metadata", None),
         )
 
     @staticmethod
     def create(
-            client: Client,
-            trainingPlatform: str,
-            description: str,
-            type: str,
-            transport: str,
-            isPublic: bool,
-            handle: str = None,
-            metadata: Union[str, Dict, List] = None,
-            upsert: bool = None,
-            spaceId: str = None,
-            spaceHandle: str = None
+        client: Client,
+        training_platform: Optional[str],
+        description: str,
+        type_: str,
+        transport: str,
+        is_public: bool,
+        handle: str = None,
+        metadata: Union[str, Dict, List] = None,
+        upsert: bool = None,
+        space_id: str = None,
+        space_handle: str = None,
     ) -> Response[Plugin]:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
         req = CreatePluginRequest(
-            trainingPlatform=trainingPlatform,
-            type=type,
+            trainingPlatform=training_platform,
+            type=type_,
             transport=transport,
-            isPublic=isPublic,
+            isPublic=is_public,
             handle=handle,
             description=description,
             metadata=metadata,
-            upsert=upsert
+            upsert=upsert,
         )
         return client.post(
-            'plugin/create',
+            "plugin/create",
             req,
             expect=Plugin,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
     @staticmethod
     def list(
-            client: Client,
-            type: str = None,
-            spaceId: str = None,
-            spaceHandle: str = None
+        client: Client, t: str = None, space_id: str = None, space_handle: str = None
     ) -> Response[ListPluginsResponse]:
         return client.post(
-            'plugin/list',
-            ListPublicPluginsRequest(type=type),
+            "plugin/list",
+            ListPublicPluginsRequest(type=t),
             expect=ListPluginsResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
     @staticmethod
     def get(client: Client, handle: str):
-        return client.post(
-            'plugin/get',
-            GetPluginRequest(handle=handle),
-            expect=Plugin
-        )
+        return client.post("plugin/get", GetPluginRequest(handle=handle), expect=Plugin)
 
     def delete(self) -> Response[Plugin]:
         return self.client.post(
-            'plugin/delete',
+            "plugin/delete",
             DeletePluginRequest(id=self.id),
             expect=Plugin,
         )

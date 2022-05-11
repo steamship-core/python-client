@@ -12,6 +12,13 @@ import os
 import shutil
 import sys
 
+# noinspection PyPackageRequirements
+from sphinx.ext import apidoc
+
+from steamship import __version__ as version
+
+release = version
+
 # -- Path setup --------------------------------------------------------------
 
 __location__ = os.path.join(
@@ -31,11 +38,6 @@ sys.path.insert(0, os.path.join(__location__, "../src"))
 # setup.py install" in the RTD Advanced Settings.
 # Additionally it helps us to avoid running apidoc manually
 
-try:  # for Sphinx >= 1.7
-    from sphinx.ext import apidoc
-except ImportError:
-    from sphinx import apidoc
-
 output_dir = os.path.join(__location__, "api")
 module_dir = os.path.join(__location__, "../src/steamship")
 try:
@@ -44,6 +46,7 @@ except FileNotFoundError:
     pass
 
 try:
+    # noinspection PyPackageRequirements
     import sphinx
 
     cmd_line_template = (
@@ -58,14 +61,14 @@ try:
 
     apidoc.main(args)
 except Exception as e:
-    print("Running `sphinx-apidoc` failed!\n{}".format(e))
+    print(f"Running `sphinx-apidoc` failed!\n{e}")
 
 # -- General configuration ---------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
 # needs_sphinx = '1.0'
 
-# Add any Sphinx extension module names here, as strings. They can be extensions
+# Add Any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
     "sphinx.ext.autodoc",
@@ -80,7 +83,7 @@ extensions = [
     "sphinx.ext.napoleon",
 ]
 
-# Add any paths that contain templates here, relative to this directory.
+# Add Any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
 # The suffix of source filenames.
@@ -152,22 +155,14 @@ html_theme = "alabaster"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-html_theme_options = {
-    "sidebar_width": "300px",
-    "page_width": "1200px"
-}
+html_theme_options = {"sidebar_width": "300px", "page_width": "1200px"}
 
-# Add any paths that contain custom themes here, relative to this directory.
+# Add Any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-try:
-    from steamship import __version__ as version
-except ImportError:
-    pass
-else:
-    release = version
+
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 # html_short_title = None
@@ -181,7 +176,7 @@ else:
 # pixels large.
 # html_favicon = None
 
-# Add any paths that contain custom static files (such as style sheets) here,
+# Add Any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
@@ -229,7 +224,6 @@ html_static_path = ["_static"]
 
 # Output file base.py name for HTML help builder.
 htmlhelp_basename = "steamship-doc"
-
 
 # -- Options for LaTeX output ------------------------------------------------
 

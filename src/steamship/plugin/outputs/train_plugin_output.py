@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict
 
 from steamship.base import Client
 
@@ -33,20 +33,20 @@ class TrainPluginOutput:
     error: str = None
 
     @staticmethod
-    def from_dict(d: any = None, client: Client = None) -> "TrainPluginOutput":
+    def from_dict(d: Any = None, client: Client = None) -> "TrainPluginOutput":
         if d is None:
             return None
 
         return TrainPluginOutput(
-            tenantId = d.get('tenantId', None),
-            spaceId = d.get('spaceId', None),
-            modelName = d.get('modelName', None),
-            modelFilename = d.get('modelFilename', None),
-            modelUploadUrl = d.get('modelUploadUrl', None),
-            inferenceParams = d.get('inferenceParams', None),
-            progress=d.get('progress', None),
-            resultData=d.get('resultData', None),
-            error=d.get('error', None)
+            tenantId=d.get("tenantId", None),
+            spaceId=d.get("spaceId", None),
+            modelName=d.get("modelName", None),
+            modelFilename=d.get("modelFilename", None),
+            modelUploadUrl=d.get("modelUploadUrl", None),
+            inferenceParams=d.get("inferenceParams", None),
+            progress=d.get("progress", None),
+            resultData=d.get("resultData", None),
+            error=d.get("error", None),
         )
 
     def to_dict(self) -> Dict:
@@ -59,5 +59,5 @@ class TrainPluginOutput:
             inferenceParams=self.inferenceParams,
             progress=self.progress,
             resultData=self.resultData,
-            error=self.error
+            error=self.error,
         )

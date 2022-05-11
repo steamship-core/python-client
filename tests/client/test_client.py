@@ -1,21 +1,21 @@
 from steamship.data.user import User
 
-from .helpers import _steamship
-
 __copyright__ = "Steamship"
 __license__ = "MIT"
+
+from tests.utils.client import get_steamship_client
 
 
 def test_connect():
     """Test basic connection"""
-    client = _steamship()
-    assert (client.config is not None)
-    assert (client.config.profile == "test")
-    assert (client.config.apiKey is not None)
+    client = get_steamship_client()
+    assert client.config is not None
+    assert client.config.profile == "test"
+    assert client.config.api_key is not None
 
 
 def test_user():
-    client = _steamship()
+    client = get_steamship_client()
     user = User.current(client).data
-    assert (user.id is not None)
-    assert (user.handle is not None)
+    assert user.id is not None
+    assert user.handle is not None

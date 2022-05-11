@@ -2,7 +2,7 @@ import time
 
 from steamship.base.tasks import *
 
-T = TypeVar('T')  # Declare type variable
+T = TypeVar("T")  # Declare type variable
 
 
 @dataclass
@@ -28,7 +28,10 @@ class Response(IResponse, Generic[T]):
 
         self.check()
         if self.task is not None:
-            if self.task.state == TaskState.succeeded or self.task.state == TaskState.failed:
+            if (
+                self.task.state == TaskState.succeeded
+                or self.task.state == TaskState.failed
+            ):
                 return
         else:
             return
@@ -38,7 +41,10 @@ class Response(IResponse, Generic[T]):
             time.sleep(retry_delay_s)
             self.check()
             if self.task is not None:
-                if self.task.state == TaskState.succeeded or self.task.state == TaskState.failed:
+                if (
+                    self.task.state == TaskState.succeeded
+                    or self.task.state == TaskState.failed
+                ):
                     return
             else:
                 return
@@ -46,21 +52,24 @@ class Response(IResponse, Generic[T]):
     def check(self):
         if self.task is None:
             return
-        req = TaskStatusRequest(
-            self.task.taskId
-        )
-        resp = self.client.post(
-            'task/status',
-            payload=req,
-            expect=self.expect
-        )
+        req = TaskStatusRequest(self.task.task_id)
+        resp = self.client.post("task/status", payload=req, expect=self.expect)
         self.update(resp)
 
-    def add_comment(self, externalId: str = None, externalType: str = None, externalGroup: str = None,
-                    metadata: any = None) -> "Response[TaskComment]":
+    def add_comment(
+        self,
+        external_id: str = None,
+        external_type: str = None,
+        external_group: str = None,
+        metadata: Any = None,
+    ) -> "Response[TaskComment]":
         if self.task is not None:
-            return self.task.add_comment(externalId=externalId, externalType=externalType, externalGroup=externalGroup,
-                                         metadata=metadata)
+            return self.task.add_comment(
+                external_id=external_id,
+                external_type=external_type,
+                external_group=external_group,
+                metadata=metadata,
+            )
 
     def list_comments(self) -> "Response[TaskCommentList]":
         if self.task is not None:

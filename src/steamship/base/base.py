@@ -1,6 +1,6 @@
-from typing import TypeVar, Generic
+from typing import Generic, TypeVar
 
-T = TypeVar('T')  # Declare type variable
+T = TypeVar("T")  # Declare type variable
 
 
 class IResponse(Generic[T]):

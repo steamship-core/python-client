@@ -1,6 +1,6 @@
 from steamship import Block, File, Tag
-from steamship.app import App, post, create_handler, Response
-from steamship.data.tags import TagKind, DocTag
+from steamship.app import App, Response, create_handler, post
+from steamship.data.tags import DocTag, TagKind
 from steamship.plugin.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -14,7 +14,7 @@ TEST_H1 = "A Poem"
 TEST_S1 = "Roses are red."
 TEST_S2 = "Violets are blue."
 TEST_S3 = "Sugar is sweet, and I love you."
-TEST_DOC = "# {}\n\n{} {}\n\n{}\n".format(TEST_H1, TEST_S1, TEST_S2, TEST_S3)
+TEST_DOC = f"# {TEST_H1}\n\n{TEST_S1} {TEST_S2}\n\n{TEST_S3}\n"
 
 
 class DummyBlockifierPlugin(Blockifier, App):
@@ -60,8 +60,8 @@ class DummyBlockifierPlugin(Blockifier, App):
 
     @post("blockify")
     def blockify(self, **kwargs) -> Response:
-        rawDataPluginInput = Blockifier.parse_request(request=kwargs)
-        return self.run(rawDataPluginInput)
+        raw_data_plugin_input = Blockifier.parse_request(request=kwargs)
+        return self.run(raw_data_plugin_input)
 
 
 handler = create_handler(DummyBlockifierPlugin)

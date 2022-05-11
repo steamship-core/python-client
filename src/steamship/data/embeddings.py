@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import List, Dict, Union
+from typing import Any, Dict, List, Union
 
 from steamship.base import Client, Request, Response, metadata_to_str
 from steamship.data.search import Hit
@@ -14,37 +14,33 @@ class EmbedAndSearchRequest(Request):
     k: int = 1
 
 
-#TODO: These types are not generics like the Swift QueryResult/QueryResults.
+# TODO: These types are not generics like the Swift QueryResult/QueryResults.
 @dataclass
-class QueryResult():
+class QueryResult:
     value: Hit
     score: float
     index: int
     id: str
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "QueryResult":
+    def from_dict(d: Any, client: Client = None) -> "QueryResult":
         value = Hit.from_dict(d.get("value", {}))
         return QueryResult(
-            value = value,
-            score = d.get('score'),
-            index = d.get('index'),
-            id = d.get('id')
+            value=value, score=d.get("score"), index=d.get("index"), id=d.get("id")
         )
+
 
 @dataclass
 class QueryResults(Request):
     items: List[QueryResult] = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "QueryResults":
+    def from_dict(d: Any, client: Client = None) -> "QueryResults":
+        # TODO: Try to always use client through inheritance
         items = [QueryResult.from_dict(h) for h in (d.get("items", []) or [])]
-        return QueryResults(
-            items=items
-        )
-
-
-
+        return QueryResults(items=items)
 
 
 @dataclass
@@ -57,7 +53,7 @@ class EmbeddedItem:
     value: str = None
     externalId: str = None
     externalType: str = None
-    metadata: any = None
+    metadata: Any = None
     embedding: List[float] = None
 
     def clone_for_insert(self) -> "EmbeddedItem":
@@ -72,26 +68,28 @@ class EmbeddedItem:
             externalId=self.externalId,
             externalType=self.externalType,
             metadata=self.metadata,
-            embedding=self.embedding
+            embedding=self.embedding,
         )
         if isinstance(ret.metadata, dict) or isinstance(ret.metadata, list):
             ret.metadata = json.dumps(ret.metadata)
         return ret
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "EmbeddedItem":
+    def from_dict(d: Any, client: Client = None) -> "EmbeddedItem":
         return EmbeddedItem(
-            id=d.get('id', None),
-            indexId=d.get('indexId', None),
-            fileId=d.get('fileId', None),
-            blockId=d.get('blockId', None),
-            tagId=d.get('tagId', None),
-            value=d.get('value', None),
-            externalId=d.get('externalId', None),
-            externalType=d.get('externalType', None),
-            metadata=d.get('metadata', None),
-            embedding=d.get('embedding', None),
+            id=d.get("id", None),
+            indexId=d.get("indexId", None),
+            fileId=d.get("fileId", None),
+            blockId=d.get("blockId", None),
+            tagId=d.get("tagId", None),
+            value=d.get("value", None),
+            externalId=d.get("externalId", None),
+            externalType=d.get("externalType", None),
+            metadata=d.get("metadata", None),
+            embedding=d.get("embedding", None),
         )
+
 
 @dataclass
 class IndexCreateRequest(Request):
@@ -101,8 +99,7 @@ class IndexCreateRequest(Request):
     upsert: bool = True
     externalId: str = None
     externalType: str = None
-    metadata: any = None
-
+    metadata: Any = None
 
 
 @dataclass
@@ -114,7 +111,7 @@ class IndexInsertRequest(Request):
     blockType: str = None
     externalId: str = None
     externalType: str = None
-    metadata: any = None
+    metadata: Any = None
     reindex: bool = True
 
 
@@ -123,22 +120,21 @@ class IndexItemId:
     indexId: str = None
     id: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexItemId":
-        return IndexItemId(
-            indexId=d.get('indexId', None),
-            id=d.get('id', None)
-        )
+    def from_dict(d: Any, client: Client = None) -> "IndexItemId":
+        return IndexItemId(indexId=d.get("indexId", None), id=d.get("id", None))
 
 
 @dataclass
 class IndexInsertResponse:
     itemIds: List[IndexItemId] = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexInsertResponse":
+    def from_dict(d: Any, client: Client = None) -> "IndexInsertResponse":
         return IndexInsertResponse(
-            itemIds=[IndexItemId.from_dict(x) for x in (d.get('itemIds', []) or [])]
+            itemIds=[IndexItemId.from_dict(x) for x in (d.get("itemIds", []) or [])]
         )
 
 
@@ -151,11 +147,10 @@ class IndexEmbedRequest(Request):
 class IndexEmbedResponse:
     id: str
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexEmbedResponse":
-        return IndexEmbedResponse(
-            id=d.get('id', None)
-        )
+    def from_dict(d: Any, client: Client = None) -> "IndexEmbedResponse":
+        return IndexEmbedResponse(id=d.get("id", None))
 
 
 @dataclass
@@ -180,11 +175,11 @@ class IndexSnapshotResponse:
     id: str
     snapshotId: str
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexSnapshotResponse":
+    def from_dict(d: Any, client: Client = None) -> "IndexSnapshotResponse":
         return IndexSnapshotResponse(
-            id=d.get('id', None),
-            snapshotId=d.get('snapshotId', None)
+            id=d.get("id", None), snapshotId=d.get("snapshotId", None)
         )
 
 
@@ -197,10 +192,14 @@ class ListSnapshotsRequest(Request):
 class ListSnapshotsResponse:
     snapshots: List[IndexSnapshotResponse]
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "IndexSnapshotResponse":
+    def from_dict(d: Any, client: Client = None) -> "IndexSnapshotResponse":
         return IndexSnapshotResponse(
-            snapshots=[IndexSnapshotResponse.from_dict(dd) for dd in (d.get('snapshots', []) or [])]
+            snapshots=[
+                IndexSnapshotResponse.from_dict(dd)
+                for dd in (d.get("snapshots", []) or [])
+            ]
         )
 
 
@@ -216,10 +215,11 @@ class ListItemsRequest(Request):
 class ListItemsResponse:
     items: List[EmbeddedItem]
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "ListItemsResponse":
+    def from_dict(d: Any, client: Client = None) -> "ListItemsResponse":
         return ListItemsResponse(
-            items=[EmbeddedItem.from_dict(dd) for dd in (d.get('items', []) or [])]
+            items=[EmbeddedItem.from_dict(dd) for dd in (d.get("items", []) or [])]
         )
 
 
@@ -232,311 +232,291 @@ class DeleteSnapshotsRequest(Request):
 class DeleteSnapshotsResponse(Request):
     snapshotId: str = None
 
+
 @dataclass
 class DeleteEmbeddingIndexRequest(Request):
     id: str
 
+
 @dataclass
 class EmbeddingIndex:
-    """A persistent, read-optimized index over embeddings.
-    """
+    """A persistent, read-optimized index over embeddings."""
 
     client: Client = None
     id: str = None
     handle: str = None
     name: str = None
     plugin: str = None
-    externalId: str = None
-    externalType: str = None
+    external_id: str = None
+    external_type: str = None
     metadata: str = None
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "EmbeddingIndex":
-        if 'embeddingIndex' in d:
-            d = d['embeddingIndex']
-        elif 'index' in d:
-            d = d['index']
+    def from_dict(d: Any, client: Client = None) -> "EmbeddingIndex":
+        if "embeddingIndex" in d:
+            d = d["embeddingIndex"]
+        elif "index" in d:
+            d = d["index"]
         return EmbeddingIndex(
             client=client,
-            id=d.get('id', None),
-            handle=d.get('handle', None),
-            name=d.get('name', None),
-            plugin=d.get('plugin', None),
-            externalId=d.get('externalId', None),
-            externalType=d.get('externalType', None),
-            metadata=d.get('metadata', None)
+            id=d.get("id"),
+            handle=d.get("handle"),
+            name=d.get("name"),
+            plugin=d.get("plugin"),
+            external_id=d.get("externalId"),
+            external_type=d.get("externalType"),
+            metadata=d.get("metadata"),
         )
 
     def insert_file(
-            self,
-            fileId: str,
-            blockType: str = None,
-            externalId: str = None,
-            externalType: str = None,
-            metadata: Union[int, float, bool, str, List, Dict] = None,
-            reindex: bool = True,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None
+        self,
+        file_id: str,
+        block_type: str = None,
+        external_id: str = None,
+        external_type: str = None,
+        metadata: Union[int, float, bool, str, List, Dict] = None,
+        reindex: bool = True,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
     ) -> Response[IndexInsertResponse]:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
         req = IndexInsertRequest(
             indexId=self.id,
-            fileId=fileId,
-            blockType=blockType,
-            externalId=externalId,
-            externalType=externalType,
+            fileId=file_id,
+            blockType=block_type,
+            externalId=external_id,
+            externalType=external_type,
             metadata=metadata,
             reindex=reindex,
         )
         return self.client.post(
-            'embedding-index/item/create',
+            "embedding-index/item/create",
             req,
             expect=IndexInsertResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     def insert_many(
-            self,
-            items: List[Union[EmbeddedItem, str]],
-            reindex: bool = True,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None
+        self,
+        items: List[Union[EmbeddedItem, str]],
+        reindex: bool = True,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
     ) -> Response[IndexInsertResponse]:
-        newItems = []
+        new_items = []
         for item in items:
             if type(item) == str:
-                newItems.append(EmbeddedItem(value=item))
+                new_items.append(EmbeddedItem(value=item))
             else:
-                newItems.append(item)
+                new_items.append(item)
 
         req = IndexInsertRequest(
             indexId=self.id,
-            value=None,
-            items=[item.clone_for_insert() for item in newItems],
+            items=[item.clone_for_insert() for item in new_items],
             reindex=reindex,
         )
         return self.client.post(
-            'embedding-index/item/create',
+            "embedding-index/item/create",
             req,
             expect=IndexInsertResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     def insert(
-            self,
-            value: str,
-            externalId: str = None,
-            externalType: str = None,
-            metadata: Union[int, float, bool, str, List, Dict] = None,
-            reindex: bool = True,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None
+        self,
+        value: str,
+        external_id: str = None,
+        external_type: str = None,
+        metadata: Union[int, float, bool, str, List, Dict] = None,
+        reindex: bool = True,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
     ) -> Response[IndexInsertResponse]:
 
         req = IndexInsertRequest(
             indexId=self.id,
             value=value,
-            items=None,
-            externalId=externalId,
-            externalType=externalType,
+            externalId=external_id,
+            externalType=external_type,
             metadata=metadata_to_str(metadata),
             reindex=reindex,
         )
         return self.client.post(
-            'embedding-index/item/create',
+            "embedding-index/item/create",
             req,
             expect=IndexInsertResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     def embed(
-            self,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None) -> Response[IndexEmbedResponse]:
-        req = IndexEmbedRequest(
-            self.id
-        )
+        self, space_id: str = None, space_handle: str = None, space: Any = None
+    ) -> Response[IndexEmbedResponse]:
+        req = IndexEmbedRequest(self.id)
         return self.client.post(
-            'embedding-index/embed',
+            "embedding-index/embed",
             req,
             expect=IndexEmbedResponse,
             asynchronous=True,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     def create_snapshot(
-            self,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None) -> Response[IndexSnapshotResponse]:
-        req = IndexSnapshotRequest(
-            indexId=self.id
-        )
+        self, space_id: str = None, space_handle: str = None, space: Any = None
+    ) -> Response[IndexSnapshotResponse]:
+        req = IndexSnapshotRequest(indexId=self.id)
         return self.client.post(
-            'embedding-index/snapshot/create',
+            "embedding-index/snapshot/create",
             req,
             expect=IndexSnapshotResponse,
             asynchronous=True,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
+    # TODO (enias): Can these be generic list operations for all file types?
     def list_snapshots(
-            self,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None) -> Response[ListSnapshotsResponse]:
-        req = ListSnapshotsRequest(
-            id=self.id
-        )
+        self, space_id: str = None, space_handle: str = None, space: Any = None
+    ) -> Response[ListSnapshotsResponse]:
+        req = ListSnapshotsRequest(id=self.id)
         return self.client.post(
-            'embedding-index/snapshot/list',
+            "embedding-index/snapshot/list",
             req,
             expect=ListSnapshotsResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     def list_items(
-            self,
-            fileId: str = None,
-            blockId: str = None,
-            spanId: str = None,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None) -> Response[ListItemsResponse]:
+        self,
+        file_id: str = None,
+        block_id: str = None,
+        span_id: str = None,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
+    ) -> Response[ListItemsResponse]:
         req = ListItemsRequest(
-            id=self.id,
-            fileId=fileId,
-            blockId=blockId,
-            spanId=spanId
+            id=self.id, fileId=file_id, blockId=block_id, spanId=span_id
         )
         return self.client.post(
-            'embedding-index/item/list',
+            "embedding-index/item/list",
             req,
             expect=ListItemsResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     def delete_snapshot(
-            self,
-            snapshot_id: str,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None) -> Response[DeleteSnapshotsResponse]:
-        req = DeleteSnapshotsRequest(
-            snapshotId=snapshot_id
-        )
+        self,
+        snapshot_id: str,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
+    ) -> Response[DeleteSnapshotsResponse]:
+        req = DeleteSnapshotsRequest(snapshotId=snapshot_id)
         return self.client.post(
-            'embedding-index/snapshot/delete',
+            "embedding-index/snapshot/delete",
             req,
             expect=DeleteSnapshotsResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     def delete(
-            self,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None) -> "Response[EmbeddingIndex]":
+        self, space_id: str = None, space_handle: str = None, space: Any = None
+    ) -> "Response[EmbeddingIndex]":
         return self.client.post(
-            'embedding-index/delete',
+            "embedding-index/delete",
             DeleteEmbeddingIndexRequest(id=self.id),
             expect=EmbeddingIndex,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
     def search(
-            self,
-            query: Union[str, List[str]],
-            k: int = 1,
-            includeMetadata: bool = False,
-            pd=False,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None
+        self,
+        query: Union[str, List[str]],
+        k: int = 1,
+        include_metadata: bool = False,
+        pd=False,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
     ) -> Response[QueryResults]:
         if type(query) == list:
             req = IndexSearchRequest(
-                self.id,
-                query=None,
-                queries=query,
-                k=k,
-                includeMetadata=includeMetadata,
+                self.id, queries=query, k=k, includeMetadata=include_metadata
             )
         else:
             req = IndexSearchRequest(
-                self.id,
-                query=query,
-                queries=None,
-                k=k,
-                includeMetadata=includeMetadata,
+                self.id, query=query, k=k, includeMetadata=include_metadata
             )
         ret = self.client.post(
-            'embedding-index/search',
+            "embedding-index/search",
             req,
             expect=QueryResults,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
 
         if pd is False:
             return ret
 
+        # noinspection PyPackageRequirements
         import pandas as pd  # type: ignore
-        return pd.DataFrame([(hit.score, hit.value) for hit in ret.data.hits], columns=['Score', 'Value'])
+
+        return pd.DataFrame(
+            [(hit.score, hit.value) for hit in ret.data.hits],
+            columns=["Score", "Value"],
+        )
 
     @staticmethod
     def create(
-            client: Client,
-            handle: str = None,
-            name: str = None,
-            pluginInstance: str = None,
-            upsert: bool = True,
-            externalId: str = None,
-            externalType: str = None,
-            metadata: any = None,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None
+        client: Client,
+        handle: str = None,
+        name: str = None,
+        plugin_instance: str = None,
+        upsert: bool = True,
+        external_id: str = None,
+        external_type: str = None,
+        metadata: Any = None,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
     ) -> "Response[EmbeddingIndex]":
         req = IndexCreateRequest(
             handle=handle,
             name=name,
-            pluginInstance=pluginInstance,
+            pluginInstance=plugin_instance,
             upsert=upsert,
-            externalId=externalId,
-            externalType=externalType,
+            externalId=external_id,
+            externalType=external_type,
             metadata=metadata,
         )
         return client.post(
-            'embedding-index/create',
+            "embedding-index/create",
             req,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            space_id=space_id,
+            space_handle=space_handle,
             space=space,
-            expect=EmbeddingIndex
+            expect=EmbeddingIndex,
         )

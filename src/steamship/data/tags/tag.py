@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import List, Any
+from typing import Any, List, Optional, Dict
 
 from steamship.base import Client, Request, Response
 
@@ -11,14 +11,14 @@ class TagQueryRequest(Request):
 
 
 @dataclass
-class Tag:
+class Tag:  # TODO (enias): Make pep8 compatible
     client: Client = None
     id: str = None
     fileId: str = None
     blockId: str = None
     kind: str = None  # E.g. ner
     name: str = None  # E.g. person
-    value: str = None  # JSON Metadata
+    value: Dict[str, Any] = None  # JSON Metadata
     startIdx: int = None  # w/r/t block.text. None means 0 if blockId is not None
     endIdx: int = None  # w/r/t block.text. None means -1 if blockId is not None
 
@@ -31,22 +31,26 @@ class Tag:
         name: str = None
         startIdx: int = None
         endIdx: int = None
-        value: Any = None
+        value: Dict[str, Any] = None
         upsert: bool = None
 
+        # noinspection PyUnusedLocal
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "Tag.CreateRequest":
+        def from_dict(d: Any, client: Client = None) -> "Tag.CreateRequest":
             return Tag.CreateRequest(
-                id=d.get('id', None),
-                fileId=d.get('fileId', None),
-                blockId=d.get('blockId', None),
-                kind=d.get('kind', None),
-                name=d.get('name', None),
-                startIdx=d.get('startIdx', None),
-                endIdx=d.get('endIdx', None),
-                value=d.get('value', None),
-                upsert=d.get('upsert', None),
+                id=d.get("id"),
+                fileId=d.get("fileId"),
+                blockId=d.get("blockId"),
+                kind=d.get("kind"),
+                name=d.get("name"),
+                startIdx=d.get("startIdx"),
+                endIdx=d.get("endIdx"),
+                value=d.get("value"),
+                upsert=d.get("upsert"),
             )
+
+        def to_dict(self):
+            pass
 
     @dataclass
     class DeleteRequest(Request):
@@ -64,25 +68,27 @@ class Tag:
         tags: List["Tag"] = None
 
         @staticmethod
-        def from_dict(d: any, client: Client = None) -> "Tag.ListResponse":
+        def from_dict(d: Any, client: Client = None) -> "Optional[Tag.ListResponse]":
             if d is None:
                 return None
             return Tag.ListResponse(
-                tags=[Tag.from_dict(x, client=client) for x in (d.get("tags", []) or [])]
+                tags=[
+                    Tag.from_dict(x, client=client) for x in (d.get("tags", []) or [])
+                ]
             )
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "Tag":
+    def from_dict(d: Any, client: Client = None) -> "Tag":
         return Tag(
             client=client,
-            id=d.get('id', None),
-            fileId=d.get('fileId', None),
-            blockId=d.get('blockId', None),
-            kind=d.get('kind', None),
-            name=d.get('name', None),
-            startIdx=d.get('startIdx', None),
-            endIdx=d.get('endIdx', None),
-            value=d.get('value', None)
+            id=d.get("id"),
+            fileId=d.get("fileId"),
+            blockId=d.get("blockId"),
+            kind=d.get("kind"),
+            name=d.get("name"),
+            startIdx=d.get("startIdx"),
+            endIdx=d.get("endIdx"),
+            value=d.get("value"),
         )
 
     def to_dict(self) -> dict:
@@ -94,97 +100,90 @@ class Tag:
             name=self.name,
             startIdx=self.startIdx,
             endIdx=self.endIdx,
-            value=self.value
+            value=self.value,
         )
 
     @staticmethod
     def create(
-            client: Client,
-            fileId: str = None,
-            blockId: str = None,
-            kind: str = None,
-            name: str = None,
-            startIdx: int = None,
-            endIdx: int = None,
-            value: Any = None,
-            upsert: bool = None,
-            spaceId: str = None,
-            spaceHandle: str = None
+        client: Client,
+        file_id: str = None,
+        block_id: str = None,
+        kind: str = None,
+        name: str = None,
+        start_idx: int = None,
+        end_idx: int = None,
+        value: Any = None,
+        upsert: bool = None,
+        space_id: str = None,
+        space_handle: str = None,
     ) -> Response["Tag"]:
         if isinstance(value, dict) or isinstance(value, list):
             value = json.dumps(value)
 
         req = Tag.CreateRequest(
-            fileId=fileId,
-            blockId=blockId,
+            fileId=file_id,
+            blockId=block_id,
             kind=kind,
             name=name,
-            startIdx=startIdx,
-            endIdx=endIdx,
+            startIdx=start_idx,
+            endIdx=end_idx,
             value=value,
-            upsert=upsert
+            upsert=upsert,
         )
         return client.post(
-            'tag/create',
-            req,
-            expect=Tag,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle
+            "tag/create", req, expect=Tag, space_id=space_id, space_handle=space_handle
         )
 
     @staticmethod
-    def listPublic(
-            client: Client,
-            fileId: str = None,
-            blockId: str = None,
-            spaceId: str = None,
-            spaceHandle: str = None
+    def list_public(
+        client: Client,
+        file_id: str = None,
+        block_id: str = None,
+        space_id: str = None,
+        space_handle: str = None,
     ) -> Response["Tag.ListResponse"]:
         return client.post(
-            'tag/list',
-            Tag.ListRequest(
-                fileId=fileId,
-                blockId=blockId
-            ),
+            "tag/list",
+            Tag.ListRequest(fileId=file_id, blockId=block_id),
             expect=Tag.ListResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
     def delete(self) -> Response["Tag"]:
         return self.client.post(
-            'tag/delete',
+            "tag/delete",
             Tag.DeleteRequest(id=self.id, fileId=self.fileId, blockId=self.blockId),
             expect=Tag,
         )
 
+    @staticmethod
     def query(
-            client: Client,
-            tagFilterQuery: str,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None
+        client: Client,
+        tag_filter_query: str,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
     ) -> Response["TagQueryResponse"]:
 
-        req = TagQueryRequest(
-            tagFilterQuery=tagFilterQuery
-        )
+        req = TagQueryRequest(tagFilterQuery=tag_filter_query)
         res = client.post(
-            'tag/query',
+            "tag/query",
             payload=req,
             expect=TagQueryResponse,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            space=space
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
         )
         return res
+
 
 @dataclass
 class TagQueryResponse:
     tags: List[Tag]
 
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "TagQueryResponse":
+    def from_dict(d: Any, client: Client = None) -> "TagQueryResponse":
         return TagQueryResponse(
-            tags=[Tag.from_dict(tag, client=client) for tag in d.get('tags', [])]
+            tags=[Tag.from_dict(tag, client=client) for tag in d.get("tags", [])]
         )

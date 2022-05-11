@@ -1,27 +1,26 @@
 from steamship import App, AppVersion
 
-from tests.client.helpers import _steamship, create_app_zip
-
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from tests import APPS_PATH
+from tests.utils.client import get_steamship_client
+from tests.utils.deployables import zip_deployable
+
 
 def test_version_create():
-    client = _steamship()
+    client = get_steamship_client()
+    demo_app_path = APPS_PATH / "apps" / "demo_app.py"
 
     app = App.create(client).data
-    zip_bytes = create_app_zip('demo_app.py')
+    zip_bytes = zip_deployable(demo_app_path)
 
-    version = AppVersion.create(
-        client,
-        appId=app.id,
-        filebytes=zip_bytes
-    )
+    version = AppVersion.create(client, app_id=app.id, filebytes=zip_bytes)
 
     version.wait()
 
     res = version.data.delete()
-    assert (res.error is None)
+    assert res.error is None
 
     res = app.delete()
-    assert (res.error is None)
+    assert res.error is None

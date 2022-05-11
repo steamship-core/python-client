@@ -1,7 +1,6 @@
 import logging
 from dataclasses import dataclass
-from typing import Any
-from typing import Union
+from typing import Any, Union
 
 
 @dataclass
@@ -13,33 +12,36 @@ class SteamshipError(Exception):
     error: str = None
 
     def __init__(
-            self,
-            message: str = "Undefined remote error",
-            internalMessage : str = None,
-            suggestion: str = None,
-            code: str = None,
-            error: Union[Exception, str] = None):
+        self,
+        message: str = "Undefined remote error",
+        internal_message: str = None,
+        suggestion: str = None,
+        code: str = None,
+        error: Union[Exception, str] = None,
+    ):
         self.message = message
         self.suggestion = suggestion
-        self.internalMessage = internalMessage
+        self.internalMessage = internal_message
         self.statusCode = code
         if error is not None:
-            self.error = "{}".format(error)
+            self.error = str(error)
 
         parts = []
         if code is not None:
-            parts.append("[{}]".format(code))
+            parts.append(f"[{code}]")
         if message is not None:
             parts.append(message)
-        if internalMessage is not None:
-            parts.append("Internal Message: {}".format(internalMessage))
+        if internal_message is not None:
+            parts.append(f"Internal Message: {internal_message}")
         if suggestion is not None:
-            parts.append("Suggestion: {}".format(suggestion))
+            parts.append(f"Suggestion: {suggestion}")
 
         super().__init__("\n".join(parts))
 
     def log(self):
-        logging.error("[{}] {}. [Internal: {}] [Suggestion: {}]".format(self.code, self.message, self.internalMessage, self.suggestion))
+        logging.error(
+            f"[{self.code}] {self.message}. [Internal: {self.internalMessage}] [Suggestion: { self.suggestion}]"
+        )
         if self.error:
             logging.error(self.error)
 
@@ -49,16 +51,16 @@ class SteamshipError(Exception):
             internalMessage=self.internalMessage,
             suggestion=self.suggestion,
             code=self.code,
-            error=self.error
+            error=self.error,
         )
 
     @staticmethod
-    def from_dict(d: any, client: Any = None) -> "SteamshipError":
+    def from_dict(d: Any) -> "SteamshipError":
         """Last resort if subclass doesn't override: pass through."""
         return SteamshipError(
-            message=d.get('statusMessage', d.get('message', None)),
-            internalMessage=d.get('internalMessage', None),
-            suggestion=d.get('statusSuggestion', d.get('suggestion', None)),
-            code=d.get('statusCode', d.get('code', None)),
-            error=d.get('error', d.get('error', None))
+            message=d.get("statusMessage", d.get("message", None)),
+            internal_message=d.get("internalMessage", None),
+            suggestion=d.get("statusSuggestion", d.get("suggestion", None)),
+            code=d.get("statusCode", d.get("code", None)),
+            error=d.get("error", d.get("error", None)),
         )

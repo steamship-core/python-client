@@ -2,11 +2,11 @@
 
 import csv
 import io
-from typing import Union, List, Dict, Optional
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, constr
 
-from steamship.app import App, post, create_handler, Response
+from steamship.app import App, Response, create_handler, post
 from steamship.base.error import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
@@ -24,18 +24,18 @@ class Config(BaseModel):
 
 
 class CsvBlockifierConfig(Config):
-    textColumn: str  # TODO (enias): Make pep8 compatible once the engine allows it
-    tagColumns: List[str]
+    text_column: str
+    tag_columns: List[str]
     delimiter: Optional[str] = ","
     quotechar: Optional[constr(max_length=1)] = '"'
     escapechar: Optional[constr(max_length=1)] = "\\"
     newline: Optional[str] = "\\n"
     skipinitialspace: Optional[bool] = False
-    tagKind: Optional[str] = None
+    tag_kind: Optional[str] = None
 
     def __init__(self, **kwargs):
-        if isinstance(kwargs["tagColumns"], str):
-            kwargs["tagColumns"] = kwargs["tagColumns"].split(",")
+        if isinstance(kwargs["tag_columns"], str):
+            kwargs["tag_columns"] = kwargs["tag_columns"].split(",")
         super().__init__(**kwargs)
 
 
@@ -48,19 +48,20 @@ class CsvBlockifier(Blockifier, App):
     Each block has one or more tags extracted from the values in one ore more columns
     """
 
+    # noinspection PyUnusedLocal
     def __init__(self, client=None, config: Dict[str, any] = None):
         super().__init__()
         self.config = CsvBlockifierConfig(**config)
 
     def _get_text(self, row) -> str:
-        text = row.get(self.config.textColumn)
+        text = row.get(self.config.text_column)
         if text:
             text = text.replace(self.config.newline, "\n")
         return text
 
     def _get_tags(self, row) -> List[str]:
         tag_values = []
-        for tag_column in self.config.tagColumns:
+        for tag_column in self.config.tag_columns:
             tag_value = row.get(tag_column)
             if tag_value:
                 tag_values.append(tag_value.replace(self.config.newline, "\n"))
@@ -75,7 +76,7 @@ class CsvBlockifier(Blockifier, App):
                     message="Missing data field on the incoming request."
                 )
             )
-        data = request.data.data
+        data = request.data.data  # TODO (enias): Simplify
         if isinstance(data, bytes):
             data = data.decode("utf-8")
 
@@ -101,7 +102,7 @@ class CsvBlockifier(Blockifier, App):
             block = Block.CreateRequest(
                 text=text,
                 tags=[
-                    Tag.CreateRequest(kind=self.config.tagKind, name=tag_value)
+                    Tag.CreateRequest(kind=self.config.tag_kind, name=tag_value)
                     for tag_value in tag_values
                 ],
             )

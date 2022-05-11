@@ -1,20 +1,25 @@
 from tests.client.operations.test_tag_file import tag_file
-from ..client.helpers import deploy_plugin, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from .. import APPS_PATH
+from ..utils.client import get_steamship_client
+from ..utils.deployables import deploy_plugin
+
 
 def test_e2e_tagger():
-    client = _steamship()
-    with deploy_plugin("plugin_parser.py", "tagger") as (plugin, version, instance):
+    client = get_steamship_client()
+    parser_path = APPS_PATH / "plugins" / "taggers" / "plugin_parser.py"
+    # TODO (enias): Use Enum for plugin type
+    with deploy_plugin(client, parser_path, "tagger") as (plugin, version, instance):
         test_doc = "Hi there"
-        res = client.tag(doc= test_doc, pluginInstance=instance.handle)
+        res = client.tag(doc=test_doc, plugin_instance=instance.handle)
         res.wait()
-        assert (res.error is None)
-        assert (res.data is not None)
-        assert (len(res.data.file.blocks) == 1)
-        assert (res.data.file.blocks[0].text == test_doc)
+        assert res.error is None
+        assert res.data is not None
+        assert len(res.data.file.blocks) == 1
+        assert res.data.file.blocks[0].text == test_doc
 
         # Let's try it on a file. This is the same test we run on the Swift test parser.
         # Since the python test parser is implemented to behave the same, we can reuse it!

@@ -1,7 +1,7 @@
 import json
 import logging
 from dataclasses import asdict
-from typing import Any, TypeVar, Union, Dict
+from typing import Any, Dict, TypeVar, Union
 
 import requests  # type: ignore
 
@@ -16,7 +16,7 @@ __license__ = "MIT"
 
 _logger = logging.getLogger(__name__)
 
-T = TypeVar('T', bound=Response)
+T = TypeVar("T", bound=Response)
 
 
 class Client:
@@ -32,152 +32,157 @@ class Client:
     # Interaction prototype.
     dQuery: bool = False
 
-    def __init__(
-            self,
-            apiKey: str = None,
-            apiBase: str = None,
-            appBase: str = None,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            profile: str = None,
-            configFile: str = None,
-            configDict: dict = None,
-            dQuery: bool = False):
+    def __init__(  # TODO (Enias): Do we need all the default parameters?
+        self,
+        api_key: str = None,
+        api_base: str = None,
+        app_base: str = None,
+        space_id: str = None,
+        space_handle: str = None,
+        profile: str = None,
+        config_file: str = None,
+        config_dict: dict = None,
+        d_query: bool = False,
+    ):
 
         self.config = Configuration(
-            apiKey=apiKey,
-            apiBase=apiBase,
-            appBase=appBase,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
+            api_key=api_key,
+            api_base=api_base,
+            app_base=app_base,
+            space_id=space_id,
+            space_handle=space_handle,
             profile=profile,
-            configFile=configFile,
-            configDict=configDict
+            config_file=config_file,
+            config_dict=config_dict,
         )
 
-        self.dQuery = dQuery
+        self.dQuery = d_query
 
     def _url(
-            self,
-            appCall: bool = False,
-            appOwner: str = None,
-            operation: str = None,
-            config: Configuration = None
-    ):
-        if not appCall:
+        self,
+        app_call: bool = False,
+        app_owner: str = None,
+        operation: str = None,
+        config: Configuration = None,
+    ):  # TODO (enias): Simplify
+        if not app_call:
             # Regular API call
             base = None
-            if self.config and self.config.apiBase:
-                base = self.config.apiBase
-            if config and config.apiBase:
-                base = config.apiBase
+            if self.config and self.config.api_base:
+                base = self.config.api_base
+            if config and config.api_base:
+                base = config.api_base
             if base is None:
                 return SteamshipError(
                     code="EndpointMissing",
                     message="Can not invoke endpoint without the Client variable set.",
-                    suggestion="This should automatically have a good default setting. Reach out to our Steamship support."
+                    suggestion="This should automatically have a good default setting. "
+                    "Reach out to our Steamship support.",
                 )
         else:
             # Do the app version
-            if appOwner is None:
+            if app_owner is None:
                 return SteamshipError(
                     code="UserMissing",
                     message="Can not invoke an app endpoint without the app owner's user handle.",
-                    suggestion="Provide the appOwner option, or initialize your app with a lookup."
+                    suggestion="Provide the appOwner option, or initialize your app with a lookup.",
                 )
 
             base = None
-            if self.config and self.config.appBase:
-                base = self.config.appBase
-            if config and config.appBase:
-                base = config.appBase
+            if self.config and self.config.app_base:
+                base = self.config.app_base
+            if config and config.app_base:
+                base = config.app_base
             if base is None:
                 return SteamshipError(
                     code="EndpointMissing",
                     message="Can not invoke an app endpoint without the App Base variable set.",
-                    suggestion="This should automatically have a good default setting. Reach out to our Steamship support."
+                    suggestion="This should automatically have a good default setting. "
+                    "Reach out to our Steamship support.",
                 )
-            if 'localhost' not in base and '127.0.0.1' not in base and '0:0:0:0' not in base:
+            if (
+                "localhost" not in base
+                and "127.0.0.1" not in base
+                and "0:0:0:0" not in base
+            ):
                 # We want to prepend the user handle
-                parts = base.split('//')
-                base = "{}//{}.{}".format(parts[0], appOwner, "//".join(parts[1:]))
+                parts = base.split("//")
+                base = f"{parts[0]}//{app_owner}.{'//'.join(parts[1:])}"
 
-        if base[len(base) - 1] == '/':
+        if base[len(base) - 1] == "/":
             base = base[:-1]
-        if operation[0] == '/':
+        if operation[0] == "/":
             operation = operation[1:]
 
-        return "{}/{}".format(base, operation)
+        return f"{base}/{operation}"
 
     def _headers(
-            self,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            appCall: bool = False,
-            appOwner: str = None,
-            appId: str = None,
-            appInstanceId: str = None
+        self,
+        space_id: str = None,
+        space_handle: str = None,
+        app_call: bool = False,
+        app_owner: str = None,
+        app_id: str = None,
+        app_instance_id: str = None,
     ):
-        ret = {
-            "Authorization": "Bearer {}".format(self.config.apiKey)
-        }
+        headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
-        sid = spaceId or self.config.spaceId
-        shandle = spaceHandle or self.config.spaceHandle
+        sid = space_id or self.config.space_id
+        shandle = space_handle or self.config.space_handle
 
         if sid:
-            ret["X-Space-Id"] = sid
+            headers["X-Space-Id"] = sid
         elif shandle:
-            ret["X-Space-Handle"] = shandle
+            headers["X-Space-Handle"] = shandle
 
-        if appCall:
-            if appOwner:
-                ret['X-App-Owner-Handle'] = appOwner
-            if appId:
-                ret['X-App-Id'] = appId
-            if appInstanceId:
-                ret['X-App-Instance-Id'] = appInstanceId
-        return ret
+        if app_call:
+            if app_owner:
+                headers["X-App-Owner-Handle"] = app_owner
+            if app_id:
+                headers["X-App-Id"] = app_id
+            if app_instance_id:
+                headers["X-App-Instance-Id"] = app_instance_id
+        return headers
 
-    def _data(
-            self,
-            verb: str,
-            file: any,
-            payload: Union[Request, dict]
-    ):
-        if type(payload) == dict:
+    @staticmethod
+    def _data(verb: str, file: Any, payload: Union[Request, dict]):
+        if payload is None:
+            data = {}
+        elif isinstance(payload, dict):
             data = payload
         else:
-            data = asdict(payload) if payload is not None else {}
+            # noinspection PyDataclass
+            data = asdict(payload)
 
-        if verb == 'POST' and file is not None:
+        if verb == "POST" and file is not None:
             # Note: requests seems to have a bug passing boolean (and maybe numeric?)
             # values in the midst of multipart form data. You need to manually convert
             # it to a string; otherwise it will pass as False or True (with the capital),
             # which is not standard notation outside of Python.
             for key in data:
                 if data[key] is False:
-                    data[key] = 'false'
+                    data[key] = "false"
                 elif data[key] is True:
-                    data[key] = 'true'
+                    data[key] = "true"
 
         return data
 
-    def _response_data(self, resp, rawResponse: bool = False):
+    @staticmethod
+    def _response_data(resp, raw_response: bool = False):
         if resp is None:
             return None
 
-        if rawResponse:
+        if raw_response:
             return resp.content
 
         if resp.headers:
             ct = None
-            if 'Content-Type' in resp.headers:
-                ct = resp.headers['Content-Type']
-            if 'content-type' in resp.headers:
-                ct = resp.headers['content-type']
+            if "Content-Type" in resp.headers:
+                ct = resp.headers["Content-Type"]
+            if "content-type" in resp.headers:
+                ct = resp.headers["content-type"]
             if ct is not None:
-                ct = ct.split(';')[0]  # application/json; charset=utf-8
+                ct = ct.split(";")[0]  # application/json; charset=utf-8
                 if ct in [MimeTypes.TXT, MimeTypes.MKD, MimeTypes.HTML]:
                     return resp.text
                 elif ct == MimeTypes.JSON:
@@ -185,42 +190,40 @@ class Client:
                 else:
                     return resp.content
 
-    def post(self, *args, **kwargs):
-        return self.call('POST', *args, **kwargs)
-
-    def get(self, *args, **kwargs):
-        return self.call('GET', *args, **kwargs)
-
-    def make_file_dict(self, data, file):
+    @staticmethod
+    def make_file_dict(data, file):
+        # TODO (enias): Review
         result = {}
         for key, val in data.items():
             if val:
                 if isinstance(val, Dict):
-                    result[key] = (None, json.dumps(val), 'application/json')
+                    result[key] = (None, json.dumps(val), "application/json")
                 else:
                     result[key] = (None, str(val))
-        result['file'] = file
+        result["file"] = file
         return result
 
     def call(
-            self,
-            verb: str,
-            operation: str,
-            payload: Union[Request, dict] = None,
-            file: any = None,
-            expect: any = None,
-            asynchronous: bool = False,
-            debug: bool = False,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            space: any = None,
-            ifdQuery: bool = None,
-            rawResponse: bool = False,
-            appCall: bool = False,
-            appOwner: str = None,
-            appId: str = None,
-            appInstanceId: str = None,
+        self,
+        verb: str,
+        operation: str,
+        payload: Union[Request, dict] = None,
+        file: Any = None,
+        expect: Any = None,
+        asynchronous: bool = False,
+        debug: bool = False,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
+        id_query: bool = None,
+        raw_response: bool = False,
+        app_call: bool = False,
+        app_owner: str = None,
+        app_id: str = None,
+        app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
     ) -> Union[Any, Response[T]]:
+        # TODO (Enias): Make shorter
+        # TODO (Enias): Review naming convention
         """Post to the Steamship API.
 
         All responses have the format:
@@ -235,91 +238,92 @@ class Client:
         field if present, and we raise an exception if the `error`
         field is filled in.
         """
-        if self.config.apiKey is None:
+        if self.config.api_key is None:
             raise Exception("Please set your Steamship API key.")
 
-        if spaceId is None and space is not None and hasattr(space, 'id'):
-            spaceId = getattr(space, 'id')
+        if space_id is None and space is not None and hasattr(space, "id"):
+            space_id = getattr(space, "id")
 
-        if spaceId is None and spaceHandle is None and space is not None and hasattr(space, 'handle'):
+        if (
+            space_id is None
+            and space_handle is None
+            and space is not None
+            and hasattr(space, "handle")
+        ):
             # Backup, if the spaceId transfer was None
-            spaceHandle = getattr(space, 'handle')
+            space_handle = getattr(space, "handle")
 
         url = self._url(
-            appCall=appCall,
-            appOwner=appOwner,
+            app_call=app_call,
+            app_owner=app_owner,
             operation=operation,
         )
 
         headers = self._headers(
-            spaceId=spaceId,
-            spaceHandle=spaceHandle,
-            appCall=appCall,
-            appOwner=appOwner,
-            appId=appId,
-            appInstanceId=appInstanceId,
+            space_id=space_id,
+            space_handle=space_handle,
+            app_call=app_call,
+            app_owner=app_owner,
+            app_id=app_id,
+            app_instance_id=app_instance_id,
         )
 
         data = self._data(verb=verb, file=file, payload=payload)
 
-        if verb == 'POST':
+        if verb == "POST":
             if file is not None:
                 files = self.make_file_dict(data, file)
                 resp = requests.post(url, files=files, headers=headers)
             else:
                 resp = requests.post(url, json=data, headers=headers)
-        elif verb == 'GET':
+        elif verb == "GET":
             resp = requests.get(url, params=data, headers=headers)
         else:
-            raise Exception("Unsupported verb: {}".format(verb))
+            raise Exception(f"Unsupported verb: {verb}")
 
         if debug is True:
             print("Response", resp)
 
-        responseData = self._response_data(resp, rawResponse=rawResponse)
+        response_data = self._response_data(resp, raw_response=raw_response)
 
         if debug is True:
-            print("Response JSON", responseData)
+            print("Response JSON", response_data)
 
         task = None
         error = None
-        obj = responseData
+        obj = response_data
 
-        if type(responseData) == dict:
-            if 'status' in responseData:
-                task = Task.from_dict(responseData['status'], client=self)
+        if type(response_data) == dict:
+            if "status" in response_data:
+                task = Task.from_dict(response_data["status"], client=self)
                 # if task_resp is not None and task_resp.taskId is not None:
                 #     task = Task(client=self)
                 #     task.update(task_resp)
-                if 'state' in responseData['status']:
-                    if responseData['status']['state'] == 'failed':
-                        error = SteamshipError.from_dict(responseData['status'], client=self)
+                if "state" in response_data["status"]:
+                    if response_data["status"]["state"] == "failed":
+                        error = SteamshipError.from_dict(response_data["status"])
 
-            if 'data' in responseData:
-                if expect is not None and hasattr(expect, 'from_dict'):
-                    obj = expect.from_dict(responseData['data'], client=self)
+            if "data" in response_data:
+                if expect is not None and hasattr(expect, "from_dict"):
+                    obj = expect.from_dict(response_data["data"], client=self)
                 else:
-                    obj = responseData['data']
+                    obj = response_data["data"]
 
-            if 'reason' in responseData:
+            if "reason" in response_data:
                 # This is a legacy error reporting field. We should work toward being comfortable
                 # removing this handler.
-                error = SteamshipError(message=responseData['reason'])
+                error = SteamshipError(message=response_data["reason"])
 
         ret_obj = None
         if error is None:
             ret_obj = obj
 
         ret = Response[T](
-            expect=expect,
-            task=task,
-            data=ret_obj,
-            error=error,
-            client=self
+            expect=expect, task=task, data=ret_obj, error=error, client=self
         )
 
         if ret.task is None and ret.data is None and ret.error is None:
-            raise Exception('No data, task status, or error found in response')
+            raise Exception("No data, task status, or error found in response")
 
         if self.dQuery is True and asynchronous:
             # This is an experimental UI for jQuery-style chaining.
@@ -328,9 +332,83 @@ class Client:
             if ret.error is not None:
                 raise ret.error
 
-        if self.dQuery is True and ifdQuery is not None:
+        if self.dQuery is True and id_query is not None:
             if ret.error is not None:
                 raise ret.error
-            return ifdQuery
+            return id_query
 
         return ret
+
+    def post(
+        self,
+        operation: str,
+        payload: Union[Request, dict] = None,
+        file: Any = None,
+        expect: Any = None,
+        asynchronous: bool = False,
+        debug: bool = False,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
+        id_query: bool = None,
+        raw_response: bool = False,
+        app_call: bool = False,
+        app_owner: str = None,
+        app_id: str = None,
+        app_instance_id: str = None,
+    ) -> Union[Any, Response[T]]:
+        return self.call(
+            verb="POST",
+            operation=operation,
+            payload=payload,
+            file=file,
+            expect=expect,
+            asynchronous=asynchronous,
+            debug=debug,
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
+            id_query=id_query,
+            raw_response=raw_response,
+            app_call=app_call,
+            app_owner=app_owner,
+            app_id=app_id,
+            app_instance_id=app_instance_id,
+        )
+
+    def get(
+        self,
+        operation: str,
+        payload: Union[Request, dict] = None,
+        file: Any = None,
+        expect: Any = None,
+        asynchronous: bool = False,
+        debug: bool = False,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Any = None,
+        id_query: bool = None,
+        raw_response: bool = False,
+        app_call: bool = False,
+        app_owner: str = None,
+        app_id: str = None,
+        app_instance_id: str = None,
+    ) -> Union[Any, Response[T]]:
+        return self.call(
+            verb="GET",
+            operation=operation,
+            payload=payload,
+            file=file,
+            expect=expect,
+            asynchronous=asynchronous,
+            debug=debug,
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
+            id_query=id_query,
+            raw_response=raw_response,
+            app_call=app_call,
+            app_owner=app_owner,
+            app_id=app_id,
+            app_instance_id=app_instance_id,
+        )
