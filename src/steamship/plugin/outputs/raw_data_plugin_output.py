@@ -32,11 +32,11 @@ class RawDataPluginOutput:
             string: str = None,
             bytes: Union[bytes, io.BytesIO] = None,
             json: Any = None,
-            mimeType: str = None
+            mime_type: str = None
     ):
         if base64string is not None:
             self.data = base64string
-            self.mimeType = mimeType or MimeTypes.BINARY
+            self.mime_type = mime_type or MimeTypes.BINARY
         else:
             # Base64-encode the data field.
             self.data, self.mimeType, encoding = flexi_create(
@@ -44,8 +44,8 @@ class RawDataPluginOutput:
                 string=string,
                 json=json,
                 bytes=bytes,
-                mimeType=mimeType,
-                alwaysBase64=True
+                mime_type=mime_type,
+                force_base64=True
             )
 
     @staticmethod
