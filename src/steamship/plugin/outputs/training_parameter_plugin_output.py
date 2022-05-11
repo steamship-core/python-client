@@ -1,12 +1,12 @@
-from dataclasses import dataclass
 from typing import Any, Dict
+
+from pydantic import BaseModel
 
 from steamship.base import Client
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 
 
-@dataclass
-class TrainingParameterPluginOutput:
+class TrainingParameterPluginOutput(BaseModel):
     machineType: str = None
     modelName: str = None
     modelFilename: str = None
@@ -20,7 +20,7 @@ class TrainingParameterPluginOutput:
 
     @staticmethod
     def from_dict(
-        d: Any = None, client: Client = None
+            d: Any = None, client: Client = None
     ) -> "TrainingParameterPluginOutput":
         if d is None:
             return None

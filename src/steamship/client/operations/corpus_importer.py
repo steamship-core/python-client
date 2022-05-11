@@ -36,18 +36,17 @@ class CorpusImportRequest(BaseModel):  # TODO (enias): Depricate
             fileImporterPluginInstance=d.get("fileImporterPluginInstance", None),
         )
 
-    #
-    # def to_dict(self) -> dict:
-    #     return dict(
-    #         id=self.id,
-    #         handle=self.handle,
-    #         type=self.type,
-    #         value=self.value,
-    #         data=self.data,
-    #         url=self.url,
-    #         pluginInstance=self.pluginInstance,
-    #         fileImporterPluginInstance=self.fileImporterPluginInstance,
-    #     )
+    def to_dict(self) -> dict:
+        return dict(
+            id=self.id,
+            handle=self.handle,
+            type=self.type,
+            value=self.value,
+            data=self.data,
+            url=self.url,
+            pluginInstance=self.pluginInstance,
+            fileImporterPluginInstance=self.fileImporterPluginInstance,
+        )
 
 
 @dataclass
@@ -56,9 +55,9 @@ class CorpusImportResponse:
     fileImportRequests: List[File.CreateRequest] = None
 
     def __init__(
-        self,
-        client: Client = None,
-        file_import_requests: List[File.CreateRequest] = None,
+            self,
+            client: Client = None,
+            file_import_requests: List[File.CreateRequest] = None,
     ):
         self.client = client
         self.fileImportRequests = file_import_requests

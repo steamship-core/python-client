@@ -99,7 +99,7 @@ class File:
 
     @dataclass
     class ListRequest(Request):
-        corpusId: str = None
+        corpus_id: str = None
 
     @dataclass
     class ListResponse:
@@ -269,7 +269,7 @@ class File:
         space_handle: str = None,
         space: Any = None,
     ):
-        req = File.ListRequest(corpusId=corpus_id)
+        req = File.ListRequest(corpus_id=corpus_id)
         res = client.post(
             "file/list",
             payload=req,
@@ -351,15 +351,6 @@ class File:
         pass
 
     def blockify(self, plugin_instance: str = None):
-        pass
-
-    def tag(
-        self,
-        plugin_instance: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ):
         pass
 
 
