@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict, Optional
 
 from steamship.base import Client
 
@@ -12,20 +12,22 @@ class FileImportPluginInput:
     pluginInstance: str = None
     mimeType: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any = None, client: Client = None) -> "FileImportPluginInput":
+    def from_dict(
+        d: Any = None, client: Client = None
+    ) -> "Optional[FileImportPluginInput]":
         if d is None:
             return None
 
         return FileImportPluginInput(
-            value = d.get('value', None),
-            data = d.get('data', None),
-            url = d.get('url', None),
-            pluginInstance = d.get('pluginInstance', None),
-            mimeType = d.get('mimeType', None),
+            value=d.get("value", None),
+            data=d.get("data", None),
+            url=d.get("url", None),
+            pluginInstance=d.get("pluginInstance", None),
+            mimeType=d.get("mimeType", None),
         )
 
     def to_dict(self) -> Dict:
-        if self.file is None:
-            return dict()
-        return dict(file=self.file.to_dict())
+        # TODO (enias): Debug why we reference a non-existent variable file
+        raise NotImplementedError()

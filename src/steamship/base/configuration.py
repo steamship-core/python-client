@@ -1,18 +1,21 @@
 import json
 import os
 from pathlib import Path
-from typing import Dict
+from typing import Any, Dict
 
-_configFile = '.steamship.json'
+_configFile = ".steamship.json"
+
+MAX_DEPTH = 40
 
 
 class Configuration:
-    apiKey: str = None
-    apiBase: str = None
-    appBase: str = None
-    webBase: str = None
-    spaceId: str = None
-    spaceHandle: str = None
+    # TODO (enias): Review
+    api_key: str = None
+    api_base: str = None
+    app_base: str = None
+    web_base: str = None
+    space_id: str = None
+    space_handle: str = None
     profile: str = None
 
     @staticmethod
@@ -21,116 +24,118 @@ class Configuration:
             return Configuration()
 
         return Configuration(
-            apiKey=d.get('apiKey', None),
-            apiBase=d.get('apiBase', None),
-            appBase=d.get('appBase', None),
-            webBase=d.get('webBase', None),
-            spaceId=d.get('spaceId', None),
-            spaceHandle=d.get('spaceHandle', None)
+            api_key=d.get("apiKey"),
+            api_base=d.get("apiBase"),
+            app_base=d.get("appBase"),
+            web_base=d.get("webBase"),
+            space_id=d.get("spaceId"),
+            space_handle=d.get("spaceHandle"),
         )
 
     def __init__(
-            self,
-            apiKey: str = None,
-            apiBase: str = None,
-            appBase: str = None,
-            webBase: str = None,
-            spaceId: str = None,
-            spaceHandle: str = None,
-            profile: str = None,
-            configFile: str = None,
-            configDict: dict = None,
+        self,
+        api_key: str = None,
+        api_base: str = None,
+        app_base: str = None,
+        web_base: str = None,
+        space_id: str = None,
+        space_handle: str = None,
+        profile: str = None,
+        config_file: str = None,
+        config_dict: dict = None,
     ):
         # First set the profile
         if "STEAMSHIP_PROFILE" in os.environ:
-            self.profile = os.getenv('STEAMSHIP_PROFILE')
+            self.profile = os.getenv("STEAMSHIP_PROFILE")
         if profile is not None:
             self.profile = profile
 
         # Then load from a file if provided
-        if configFile is not None:
-            self.load_from_file(configFile, self.profile)
+        if config_file is not None:
+            self.load_from_file(config_file, self.profile)
         else:
             self.try_autofinding_files(self.profile)
 
         self.apply_env_var_overrides()
 
-        if configDict is not None:
-            self.merge_dict(configDict)
+        if config_dict is not None:
+            self.merge_dict(config_dict)
 
         self.apply_invocation_overrides(
-            apiKey=apiKey,
-            apiBase=apiBase,
-            appBase=appBase,
-            webBase=webBase,
-            spaceId=spaceId,
-            spaceHandle=spaceHandle
+            api_key=api_key,
+            api_base=api_base,
+            app_base=app_base,
+            web_base=web_base,
+            space_id=space_id,
+            space_handle=space_handle,
         )
 
-        if self.apiBase is None:
-            self.apiBase = 'https://api.steamship.com/api/v1/'
-        if self.appBase is None:
-            self.appBase = 'https://steamship.run/'
-        if self.webBase is None:
-            self.webBase = 'https://app.steamship.com/'
+        if self.api_base is None:
+            self.api_base = "https://api.steamship.com/api/v1/"
+        if self.app_base is None:
+            self.app_base = "https://steamship.run/"
+        if self.web_base is None:
+            self.web_base = "https://app.steamship.com/"
 
-        if self.apiBase[len(self.apiBase) - 1] != '/':
-            self.apiBase = "{}/".format(self.apiBase)
+        if self.api_base[len(self.api_base) - 1] != "/":
+            self.api_base = f"{self.api_base}/"
 
-        if self.appBase[len(self.appBase) - 1] != '/':
-            self.appBase = "{}/".format(self.appBase)
+        if self.app_base[len(self.app_base) - 1] != "/":
+            self.app_base = f"{self.app_base}/"
 
-        if self.webBase[len(self.webBase) - 1] != '/':
-            self.webBase = "{}/".format(self.webBase)
+        if self.web_base[len(self.web_base) - 1] != "/":
+            self.web_base = f"{self.web_base}/"
 
-    def merge_dict(self, d: Dict[str, any]):
-        apiKey = d.get('apiKey', None)
-        if apiKey is not None:
-            self.apiKey = apiKey
+    def merge_dict(self, d: Dict[str, Any]):
+        api_key = d.get("apiKey")
+        if api_key is not None:
+            self.api_key = api_key
 
-        apiBase = d.get('apiBase', None)
-        if apiBase is not None:
-            self.apiBase = apiBase
+        api_base = d.get("apiBase")
+        if api_base is not None:
+            self.api_base = api_base
 
-        appBase = d.get('appBase', None)
-        if appBase is not None:
-            self.appBase = appBase
+        app_base = d.get("appBase")
+        if app_base is not None:
+            self.app_base = app_base
 
-        webBase = d.get('webBase', None)
-        if webBase is not None:
-            self.webBase = webBase
+        web_base = d.get("webBase")
+        if web_base is not None:
+            self.web_base = web_base
 
-        profile = d.get('profile', None)
+        profile = d.get("profile")
         if profile is not None:
             self.profile = profile
 
-        spaceId = d.get('spaceId', None)
-        if spaceId is not None:
-            self.spaceId = spaceId
+        space_id = d.get("spaceId")
+        if space_id is not None:
+            self.space_id = space_id
 
-        spaceHandle = d.get('spaceHandle', None)
-        if spaceHandle is not None:
-            self.spaceHandle = spaceHandle
+        space_handle = d.get("spaceHandle")
+        if space_handle is not None:
+            self.space_handle = space_handle
 
     def load_from_file(self, filepath: str, profile: str = None, throw_on_error=True):
         if not os.path.exists(filepath):
             if throw_on_error:
-                raise Exception("Tried to load configuration file at {} but it did not exist.".format(filepath))
+                raise Exception(
+                    f"Tried to load configuration file at {filepath} but it did not exist."
+                )
             else:
                 return
 
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 s = f.read()
                 j = json.loads(s)
 
                 if profile is None:
                     self.merge_dict(j)
                 else:
-                    if "profiles" not in j:
-                        raise Exception("Profile {} requested but not found in {}".format(profile, filepath))
-                    if profile not in j["profiles"]:
-                        raise Exception("Profile {} requested but not found in {}".format(profile, filepath))
+                    if "profiles" not in j or profile not in j["profiles"]:
+                        raise Exception(
+                            f"Profile {profile} requested but not found in {filepath}"
+                        )
                     self.merge_dict(j["profiles"][profile])
 
         except Exception as err:
@@ -144,7 +149,6 @@ class Configuration:
         """
         paths = []
         cwd = Path(os.getcwd()).absolute()
-        MAX_DEPTH = 40
         i = 0
         while len(str(cwd)) > 0 and str(cwd) != os.path.sep:
             paths.append(os.path.join(cwd, _configFile))
@@ -157,41 +161,42 @@ class Configuration:
         paths.append(os.path.join(str(Path.home()), _configFile))
         for filepath in paths:
             if os.path.exists(filepath):
-                self.load_from_file(filepath, profile=profile, throw_on_error=True)
+                self.load_from_file(filepath, profile=profile)
                 break  # Once we've found it; we're done.
 
     def apply_env_var_overrides(self):
         """Overrides with env vars"""
         if "STEAMSHIP_API_KEY" in os.environ:
-            self.apiKey = os.getenv('STEAMSHIP_API_KEY')
+            self.api_key = os.getenv("STEAMSHIP_API_KEY")
         if "STEAMSHIP_API_BASE" in os.environ:
-            self.apiBase = os.getenv('STEAMSHIP_API_BASE')
+            self.api_base = os.getenv("STEAMSHIP_API_BASE")
         if "STEAMSHIP_APP_BASE" in os.environ:
-            self.appBase = os.getenv('STEAMSHIP_APP_BASE')
+            self.app_base = os.getenv("STEAMSHIP_APP_BASE")
         if "STEAMSHIP_WEB_BASE" in os.environ:
-            self.webBase = os.getenv('STEAMSHIP_WEB_BASE')
+            self.web_base = os.getenv("STEAMSHIP_WEB_BASE")
         if "STEAMSHIP_SPACE_ID" in os.environ:
-            self.spaceId = os.getenv('STEAMSHIP_SPACE_ID')
+            self.space_id = os.getenv("STEAMSHIP_SPACE_ID")
         if "STEAMSHIP_SPACE_HANDLE" in os.environ:
-            self.spaceHandle = os.getenv('STEAMSHIP_SPACE_HANDLE')
+            self.space_handle = os.getenv("STEAMSHIP_SPACE_HANDLE")
 
     def apply_invocation_overrides(
-            self,
-            apiKey: str = None,
-            apiBase: str = None,
-            appBase: str = None,
-            webBase: str = None,
-            spaceId: str = None,
-            spaceHandle: str = None):
-        if apiKey is not None:
-            self.apiKey = apiKey
-        if apiBase is not None:
-            self.apiBase = apiBase
-        if appBase is not None:
-            self.appBase = appBase
-        if webBase is not None:
-            self.webBase = webBase
-        if spaceId is not None:
-            self.spaceId = spaceId
-        if spaceHandle is not None:
-            self.spaceHandle = spaceHandle
+        self,
+        api_key: str = None,
+        api_base: str = None,
+        app_base: str = None,
+        web_base: str = None,
+        space_id: str = None,
+        space_handle: str = None,
+    ):
+        if api_key is not None:
+            self.api_key = api_key
+        if api_base is not None:
+            self.api_base = api_base
+        if app_base is not None:
+            self.app_base = app_base
+        if web_base is not None:
+            self.web_base = web_base
+        if space_id is not None:
+            self.space_id = space_id
+        if space_handle is not None:
+            self.space_handle = space_handle

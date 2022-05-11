@@ -9,7 +9,7 @@
 #
 #
 # def test_image_upload():
-#     steamship = _steamship()
+#     steamship = get_steamship_client()
 #     test_filename = path.join(
 #         path.dirname(path.realpath(__file__)),
 #         'test_img.png'

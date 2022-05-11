@@ -2,10 +2,10 @@ from steamship import PluginInstance
 from steamship.base.response import TaskState
 from steamship.data.embeddings import IndexSnapshotRequest, IndexSnapshotResponse
 
-from tests.client.helpers import _random_name, _steamship
-
 __copyright__ = "Steamship"
 __license__ = "MIT"
+
+from tests.utils.client import get_steamship_client
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -18,108 +18,105 @@ def _insert(index, items):
     task = index.embed()
     task.wait()
     task.check()
-    assert (task.task.state == TaskState.succeeded)
+    assert task.task.state == TaskState.succeeded
 
 
-def _snapshot(index, windowSize=None):
-    if windowSize is None:
+def _snapshot(index, window_size=None):
+    if window_size is None:
         task = index.create_snapshot()
         task.wait()
         task.check()
     else:
         # We do this manually so as not to clutter the end-user visible
         # API with debug/testing parameters
-        req = IndexSnapshotRequest(
-            index.id,
-            windowSize=windowSize
-        )
+        req = IndexSnapshotRequest(index.id, windowSize=window_size)
         task = index.client.post(
-            'embedding-index/snapshot/create',
+            "embedding-index/snapshot/create",
             req,
             expect=IndexSnapshotResponse,
-            asynchronous=True
+            asynchronous=True,
         )
         task.wait()
         task.check()
 
 
 def test_snapshot_create():
-    steamship = _steamship()
+    steamship = get_steamship_client()
 
-    name = _random_name()
-    pluginInstance = PluginInstance.create(steamship, pluginHandle=_TEST_EMBEDDER).data
-    index = steamship.create_index(
-        pluginInstance=pluginInstance.handle,
-        upsert=True
+    plugin_instance = PluginInstance.create(
+        steamship, plugin_handle=_TEST_EMBEDDER
     ).data
+    index = steamship.create_index(plugin_instance=plugin_instance.handle).data
 
     _insert(index, ["Oranges are orange."])
-    search_results = index.search("What color are oranges?", includeMetadata=True)
-    assert (len(search_results.data.items) == 1)
-    assert (search_results.data.items[0].value.indexSource == "index")
-    assert (search_results.data.items[0].value.value == "Oranges are orange.")
-    assert (search_results.data.items[0].value.externalId == "TestId")
-    assert (search_results.data.items[0].value.externalType == "TestType")
-    assert (len(search_results.data.items[0].value.metadata) == 3)
+    search_results = index.search("What color are oranges?", include_metadata=True)
+    assert len(search_results.data.items) == 1
+    assert search_results.data.items[0].value.index_source == "index"
+    assert search_results.data.items[0].value.value == "Oranges are orange."
+    assert search_results.data.items[0].value.external_id == "TestId"
+    assert search_results.data.items[0].value.external_type == "TestType"
+    assert len(search_results.data.items[0].value.metadata) == 3
 
     _snapshot(index)
-    search_results = index.search("What color are oranges?", includeMetadata=True)
-    assert (len(search_results.data.items) == 1)
-    assert (search_results.data.items[0].value.indexSource == "snapshot")
-    assert (search_results.data.items[0].value.value == "Oranges are orange.")
-    assert (search_results.data.items[0].value.externalId == "TestId")
-    assert (search_results.data.items[0].value.externalType == "TestType")
-    assert (len(search_results.data.items[0].value.metadata) == 3)
+    search_results = index.search("What color are oranges?", include_metadata=True)
+    assert len(search_results.data.items) == 1
+    assert search_results.data.items[0].value.index_source == "snapshot"
+    assert search_results.data.items[0].value.value == "Oranges are orange."
+    assert search_results.data.items[0].value.external_id == "TestId"
+    assert search_results.data.items[0].value.external_type == "TestType"
+    assert len(search_results.data.items[0].value.metadata) == 3
 
     _insert(index, ["Apples are red."])
-    search_results = index.search("What color are apples?", includeMetadata=True)
-    assert (len(search_results.data.items) == 1)
-    assert (search_results.data.items[0].value.indexSource == "index")
-    assert (search_results.data.items[0].value.value == "Apples are red.")
-    assert (search_results.data.items[0].value.externalId == "TestId")
-    assert (search_results.data.items[0].value.externalType == "TestType")
-    assert (len(search_results.data.items[0].value.metadata) == 3)
+    search_results = index.search("What color are apples?", include_metadata=True)
+    assert len(search_results.data.items) == 1
+    assert search_results.data.items[0].value.index_source == "index"
+    assert search_results.data.items[0].value.value == "Apples are red."
+    assert search_results.data.items[0].value.external_id == "TestId"
+    assert search_results.data.items[0].value.external_type == "TestType"
+    assert len(search_results.data.items[0].value.metadata) == 3
 
     _snapshot(index)
-    search_results = index.search("What color are apples?", includeMetadata=True)
-    assert (len(search_results.data.items) == 1)
-    assert (search_results.data.items[0].value.indexSource == "snapshot")
-    assert (search_results.data.items[0].value.value == "Apples are red.")
-    assert (search_results.data.items[0].value.externalId == "TestId")
-    assert (search_results.data.items[0].value.externalType == "TestType")
-    assert (len(search_results.data.items[0].value.metadata) == 3)
+    search_results = index.search("What color are apples?", include_metadata=True)
+    assert len(search_results.data.items) == 1
+    assert search_results.data.items[0].value.index_source == "snapshot"
+    assert search_results.data.items[0].value.value == "Apples are red."
+    assert search_results.data.items[0].value.external_id == "TestId"
+    assert search_results.data.items[0].value.external_type == "TestType"
+    assert len(search_results.data.items[0].value.metadata) == 3
 
     index.delete()
-    steamship = _steamship()
+    steamship = get_steamship_client()
 
-    name = _random_name()
-    index = steamship.create_index(
-        pluginInstance=pluginInstance.handle,
-        upsert=True
-    ).data
+    index = steamship.create_index(plugin_instance=plugin_instance.handle).data
 
     sentences = []
     for i in range(15):
         sentences.append("Orange number {} is as good as the last".format(i))
 
-    SENT = "Is orange number 13 any good?"
+    sent = "Is orange number 13 Any good?"
     _insert(index, sentences)
 
-    search_results = index.search(SENT, includeMetadata=True)
-    assert (len(search_results.data.items) == 1)
-    assert (search_results.data.items[0].value.indexSource == "index")
-    assert (search_results.data.items[0].value.value == "Orange number 13 is as good as the last")
-    assert (search_results.data.items[0].value.externalId == "TestId")
-    assert (search_results.data.items[0].value.externalType == "TestType")
-    assert (len(search_results.data.items[0].value.metadata) == 3)
+    search_results = index.search(sent, include_metadata=True)
+    assert len(search_results.data.items) == 1
+    assert search_results.data.items[0].value.index_source == "index"
+    assert (
+        search_results.data.items[0].value.value
+        == "Orange number 13 is as good as the last"
+    )
+    assert search_results.data.items[0].value.external_id == "TestId"
+    assert search_results.data.items[0].value.external_type == "TestType"
+    assert len(search_results.data.items[0].value.metadata) == 3
 
-    _snapshot(index, windowSize=2)
-    search_results = index.search(SENT, includeMetadata=True)
-    assert (len(search_results.data.items) == 1)
-    assert (search_results.data.items[0].value.indexSource == "snapshot")
-    assert (search_results.data.items[0].value.value == "Orange number 13 is as good as the last")
-    assert (search_results.data.items[0].value.externalId == "TestId")
-    assert (search_results.data.items[0].value.externalType == "TestType")
-    assert (len(search_results.data.items[0].value.metadata) == 3)
+    _snapshot(index, window_size=2)
+    search_results = index.search(sent, include_metadata=True)
+    assert len(search_results.data.items) == 1
+    assert search_results.data.items[0].value.index_source == "snapshot"
+    assert (
+        search_results.data.items[0].value.value
+        == "Orange number 13 is as good as the last"
+    )
+    assert search_results.data.items[0].value.external_id == "TestId"
+    assert search_results.data.items[0].value.external_type == "TestType"
+    assert len(search_results.data.items[0].value.metadata) == 3
 
     index.delete()

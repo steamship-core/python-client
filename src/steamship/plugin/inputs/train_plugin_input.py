@@ -1,6 +1,8 @@
 from dataclasses import dataclass
-from typing import Dict
+from typing import Any, Dict, Optional
+
 from steamship.base import Client
+
 
 @dataclass
 class TrainPluginInput:
@@ -45,24 +47,24 @@ class TrainPluginInput:
     trainingDataUrl: str = None
 
     @staticmethod
-    def from_dict(d: any = None, client: Client = None) -> "TrainPluginInput":
+    def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainPluginInput]":
         if d is None:
             return None
 
         return TrainPluginInput(
-            tenantId = d.get('tenantId', None),
-            spaceId = d.get('spaceId', None),
-            pluginInstance=d.get('pluginInstance', None),
-            pluginInstanceId=d.get('pluginInstanceId', None),
-            modelName = d.get('modelName', None),
-            modelFilename = d.get('modelFilename', None),
-            modelUploadUrl = d.get('modelUploadUrl', None),
-            trainingEpochs = d.get('trainingEpochs', None),
-            testingHoldoutPercent = d.get('testingHoldoutPercent', None),
-            testSplitSeed = d.get('testSplitSeed', None),
-            trainingParams = d.get('trainingParams', None),
-            inferenceParams = d.get('inferenceParams', None),
-            trainingDataUrl = d.get('trainingDataUrl', None),
+            tenantId=d.get("tenantId", None),
+            spaceId=d.get("spaceId", None),
+            pluginInstance=d.get("pluginInstance", None),
+            pluginInstanceId=d.get("pluginInstanceId", None),
+            modelName=d.get("modelName", None),
+            modelFilename=d.get("modelFilename", None),
+            modelUploadUrl=d.get("modelUploadUrl", None),
+            trainingEpochs=d.get("trainingEpochs", None),
+            testingHoldoutPercent=d.get("testingHoldoutPercent", None),
+            testSplitSeed=d.get("testSplitSeed", None),
+            trainingParams=d.get("trainingParams", None),
+            inferenceParams=d.get("inferenceParams", None),
+            trainingDataUrl=d.get("trainingDataUrl", None),
         )
 
     def to_dict(self) -> Dict:
@@ -79,5 +81,5 @@ class TrainPluginInput:
             testSplitSeed=self.testSplitSeed,
             trainingParams=self.trainingParams,
             inferenceParams=self.inferenceParams,
-            trainingDataUrl=self.trainingDataUrl
+            trainingDataUrl=self.trainingDataUrl,
         )

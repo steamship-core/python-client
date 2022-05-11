@@ -1,13 +1,12 @@
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any, Dict
 
 from steamship.base import Client
-from steamship.data.file import File
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 
 
 @dataclass
-class TrainingParameterPluginOutput():
+class TrainingParameterPluginOutput:
     machineType: str = None
     modelName: str = None
     modelFilename: str = None
@@ -20,25 +19,29 @@ class TrainingParameterPluginOutput():
     exportRequest: ExportPluginInput = None
 
     @staticmethod
-    def from_dict(d: any = None, client: Client = None) -> "TrainingParameterPluginOutput":
+    def from_dict(
+        d: Any = None, client: Client = None
+    ) -> "TrainingParameterPluginOutput":
         if d is None:
             return None
 
         return TrainingParameterPluginOutput(
-            machineType=d.get('machineType', None),
-            modelName=d.get('modelName', None),
-            modelFilename=d.get('modelFilename', None),
-            trainingEpochs=d.get('trainingEpochs', None),
-            testingHoldoutPercent=d.get('testingHoldoutPercent', None),
-            testSplitSeed=d.get('testSplitSeed', None),
-            trainingParams=d.get('trainingParams', None),
-            exportRequest=ExportPluginInput.from_dict(d.get('exportPluginInput', None), client)
+            machineType=d.get("machineType", None),
+            modelName=d.get("modelName", None),
+            modelFilename=d.get("modelFilename", None),
+            trainingEpochs=d.get("trainingEpochs", None),
+            testingHoldoutPercent=d.get("testingHoldoutPercent", None),
+            testSplitSeed=d.get("testSplitSeed", None),
+            trainingParams=d.get("trainingParams", None),
+            exportRequest=ExportPluginInput.from_dict(
+                d.get("exportPluginInput", None), client
+            ),
         )
 
     def to_dict(self) -> Dict:
-        exportPluginInputParams = None
+        export_plugin_input_params = None
         if self.exportRequest is not None:
-            exportPluginInputParams = self.exportRequest.to_dict()
+            export_plugin_input_params = self.exportRequest.to_dict()
 
         return dict(
             machineType=self.machineType,
@@ -48,5 +51,5 @@ class TrainingParameterPluginOutput():
             testingHoldoutPercent=self.testingHoldoutPercent,
             testSplitSeed=self.testSplitSeed,
             trainingParams=self.trainingParams,
-            exportRequest=exportPluginInputParams
+            exportRequest=export_plugin_input_params,
         )
