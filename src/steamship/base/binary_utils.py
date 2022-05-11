@@ -48,7 +48,7 @@ def flexi_create(
 
     try:
         if base64string is not None:
-            return base64string, mimeType or MimeTypes.BINARY, ContentEncodings.BASE64
+            return base64string, mime_type or MimeTypes.BINARY, ContentEncodings.BASE64
 
         ret_data = None  # the body of the result
         ret_mime = None  # for the Content-Type field
