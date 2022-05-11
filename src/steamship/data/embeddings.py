@@ -456,7 +456,6 @@ class EmbeddingIndex:
         query: Union[str, List[str]],
         k: int = 1,
         include_metadata: bool = False,
-        pd=False,
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
@@ -478,16 +477,8 @@ class EmbeddingIndex:
             space=space,
         )
 
-        if pd is False:
-            return ret
+        return ret
 
-        # noinspection PyPackageRequirements
-        import pandas as pd  # type: ignore
-
-        return pd.DataFrame(
-            [(hit.score, hit.value) for hit in ret.data.hits],
-            columns=["Score", "Value"],
-        )
 
     @staticmethod
     def create(
