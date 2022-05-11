@@ -110,17 +110,5 @@ class CsvBlockifier(Blockifier, App):
 
         return Response(data=BlockAndTagPluginOutput(file=file))
 
-    @post("blockify")
-    def blockify(self, **kwargs) -> Response:
-        """App endpoint for our plugin.
-
-        The `run` method above implements the Plugin interface for a Converter.
-        This `convert` method exposes it over an HTTP endpoint as a Steamship App.
-
-        When developing your own plugin, you can almost always leave the below code unchanged.
-        """
-        blockify_request = Blockifier.parse_request(request=kwargs)
-        return self.run(blockify_request)
-
 
 handler = create_handler(CsvBlockifier)
