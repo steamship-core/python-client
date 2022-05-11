@@ -1,10 +1,10 @@
-from steamship import Block, File, DocTag, Tag
-from steamship.data.tags import TagKind, DocTag
+from steamship import Block, File, Tag
 from steamship.app import App, post, create_handler, Response
+from steamship.data.tags import TagKind, DocTag
 from steamship.plugin.blockifier import Blockifier
-from steamship.plugin.service import PluginRequest
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
+from steamship.plugin.service import PluginRequest
 
 # Note 1: this aligns with the same document in the internal Engine test.
 # Note 2: This should be duplicated from the test_importer because of the way our test system will

@@ -1,9 +1,9 @@
 from steamship import MimeTypes
 from steamship.app import App, post, create_handler, Response
+from steamship.extension.file import File
 from steamship.plugin.file_importer import FileImporter
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.service import PluginRequest
-from steamship.extension.file import File
 
 # Note: this aligns with the same document in the internal Engine test.
 HANDLE = "test-importer-plugin-v1"

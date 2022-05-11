@@ -1,14 +1,12 @@
-import dataclasses
-import io
 import logging
 from http import HTTPStatus
 from typing import Dict, Type
 
 from steamship.app.app import App
 from steamship.app.request import Request
-from steamship.app.response import Response, Http
-from steamship.client.client import Steamship
+from steamship.app.response import Response
 from steamship.base import SteamshipError
+from steamship.client.client import Steamship
 
 
 def create_handler(app_cls: Type[App]):

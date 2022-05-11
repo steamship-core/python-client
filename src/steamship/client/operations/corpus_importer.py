@@ -4,6 +4,7 @@ from typing import List
 from steamship import File
 from steamship.base import Client
 
+
 @dataclass
 class CorpusImportRequest:
     # The Corpus Identifiers

@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from steamship.base import Client, Request, Response
 from steamship.base.request import GetRequest, IdentifierRequest
 
+
 class SignedUrl:
     class Bucket:
         exports = "exports"

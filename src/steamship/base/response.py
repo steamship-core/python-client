@@ -1,6 +1,5 @@
 import time
 
-from steamship.base.error import SteamshipError
 from steamship.base.tasks import *
 
 T = TypeVar('T')  # Declare type variable

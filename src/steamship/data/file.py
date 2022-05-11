@@ -1,14 +1,14 @@
 import io
 import logging
-import re
 from dataclasses import dataclass
-from typing import Tuple, Any, List
+from typing import Any, List
 
 from steamship.base import Client, Response, Request
 from steamship.base.binary_utils import flexi_create
 from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
 from steamship.data.tags import Tag
+
 
 class FileUploadType:
     file = "file"  # The CreateRequest contains a file upload that should be used

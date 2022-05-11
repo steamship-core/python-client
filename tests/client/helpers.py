@@ -5,17 +5,17 @@ import random
 import string
 import time
 import zipfile
-from typing import Dict
 from pathlib import Path
+from typing import Dict
 
 from steamship import App, AppVersion, AppInstance
 from steamship import Steamship, EmbeddingIndex, File
 from steamship.base import Client
-from steamship.extension.corpus import Corpus
 from steamship.data.plugin import Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
+from steamship.extension.corpus import Corpus
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

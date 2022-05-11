@@ -4,10 +4,10 @@ import logging
 from dataclasses import dataclass
 from typing import Dict, Any, Generic, TypeVar, Union
 
-from steamship.base.binary_utils import flexi_create
 from steamship.base import SteamshipError
-from steamship.base.tasks import Task, TaskState
+from steamship.base.binary_utils import flexi_create
 from steamship.base.mime_types import MimeTypes, ContentEncodings
+from steamship.base.tasks import Task, TaskState
 
 
 @dataclass

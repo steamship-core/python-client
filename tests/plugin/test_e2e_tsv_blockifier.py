@@ -1,5 +1,3 @@
-import csv
-
 from .. import APPS_PATH
 
 __copyright__ = "Steamship"

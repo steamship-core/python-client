@@ -1,10 +1,5 @@
-from steamship.extension.file import File
-from steamship.data.block import Block
-from steamship.plugin.service import PluginRequest
-from steamship.client.operations.tagger import TagRequest
-
-from ..client.helpers import deploy_plugin, _steamship
 from tests.client.operations.test_tag_file import tag_file
+from ..client.helpers import deploy_plugin, _steamship
 
 __copyright__ = "Steamship"
 __license__ = "MIT"

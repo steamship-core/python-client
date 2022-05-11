@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from steamship.data.space import Space
 from steamship.base import Client, Request
+from steamship.data.space import Space
 
 
 @dataclass

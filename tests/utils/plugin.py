@@ -11,7 +11,6 @@ from steamship.data.plugin import Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
-
 from tests import VENV_PATH, SRC_PATH
 
 

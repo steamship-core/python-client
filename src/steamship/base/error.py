@@ -1,7 +1,8 @@
-from typing import Any
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
+from typing import Any
 from typing import Union
+
 
 @dataclass
 class SteamshipError(Exception):

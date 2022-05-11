@@ -1,11 +1,10 @@
+import base64
 import io
-import logging
+from dataclasses import dataclass
 
 from steamship.app import get, App, Response, post, create_handler
 from steamship.base.mime_types import MimeTypes
-from dataclasses import dataclass
-import os
-import base64
+
 
 @dataclass
 class TestObj:
