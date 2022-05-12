@@ -1,4 +1,5 @@
 import dataclasses
+import json
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -12,18 +13,18 @@ def test_dump_string():
 
 
 def test_dump_json():
-    assert (flexi_create(json="Hi")[0] == '"Hi"')
-    assert (flexi_create(json=True)[0] == 'true')
-    assert (flexi_create(json=1.2)[0] == '1.2')
-    assert (flexi_create(json=[1, 2, 3])[0] == '[1, 2, 3]')
-    assert (flexi_create(json={'hi': 'there'})[0] == '{"hi": "there"}')
+    assert (json.dumps(flexi_create(json="Hi")[0]) == '"Hi"')
+    assert (json.dumps(flexi_create(json=True)[0]) == 'true')
+    assert (json.dumps(flexi_create(json=1.2)[0]) == '1.2')
+    assert (json.dumps(flexi_create(json=[1, 2, 3])[0]) == '[1, 2, 3]')
+    assert (json.dumps(flexi_create(json={'hi': 'there'})[0]) == '{"hi": "there"}')
 
     @dataclasses.dataclass
     class Person:
         name: str
 
     person = Person(name="Ted")
-    assert (flexi_create(json=person)[0] == '{"name": "Ted"}')
+    assert (json.dumps(flexi_create(json=person)[0]) == '{"name": "Ted"}')
 
     @dataclasses.dataclass
     class Person2:
@@ -33,4 +34,4 @@ def test_dump_json():
             return {"takes": "precedence"}
 
     person2 = Person2(name="Ted")
-    assert (flexi_create(json=person2)[0] == '{"takes": "precedence"}')
+    assert (json.dumps(flexi_create(json=person2)[0]) == '{"takes": "precedence"}')
