@@ -12,6 +12,8 @@ from steamship.base.response import SteamshipError
 # This the files in this package are for Plugin Implementors.
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
+from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
+from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
 T = TypeVar("T")
 U = TypeVar("U")
@@ -47,7 +49,30 @@ class PluginRequest(Generic[T]):
 class PluginService(ABC, Generic[T, U]):
     @abstractmethod
     def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
+        """Runs the core operation implemented by this plugin: import, export, blockify, tag, etc."""
         pass
+
+    def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
+        """Produces the training parameters for this plugin.
+
+        - If the plugin is not trainable, the subclass simply doesn't override this method.
+        - If the plugin is trainable, this gives the hard-coded plugin implementation an opportunity to refine
+          any training parameters supplied by the end-user before training begins.
+        """
+        raise SteamshipError(
+            message="get_training_parameters has not been implemented on this plugin."
+        )
+
+    def train(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
+        """Produces the training parameters for this plugin.
+
+        - If the plugin is not trainable, the subclass simply doesn't override this method.
+        - If the plugin is trainable, this gives the hard-coded plugin implementation an opportunity to refine
+          any training parameters supplied by the end-user before training begins.
+        """
+        raise SteamshipError(
+            message="get_training_parameters has not been implemented on this plugin."
+        )
 
     @classmethod
     @abstractmethod
