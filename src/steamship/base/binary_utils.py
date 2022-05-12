@@ -1,6 +1,7 @@
 import base64
 import dataclasses
 import io
+import json as jsonlib
 import logging
 from typing import Any, Tuple, Union
 
@@ -28,13 +29,13 @@ def to_b64(obj: Any) -> str:
 
 
 def flexi_create(
-    base64string: str = None,
-    data: Any = None,
-    string: str = None,
-    json: Any = None,
-    bytes: Union[bytes, io.BytesIO] = None,
-    mime_type=None,
-    force_base64=False,
+        base64string: str = None,
+        data: Any = None,
+        string: str = None,
+        json: Any = None,
+        bytes: Union[bytes, io.BytesIO] = None,
+        mime_type=None,
+        force_base64=False,
 ) -> Tuple[Any, Union[None, str], Union[None, str]]:  # TODO (Enias): Review
     """
     It's convenient for some constructors to accept a variety of input types:
@@ -62,11 +63,16 @@ def flexi_create(
             ret_data, ret_mime = string, mime_type or MimeTypes.TXT
 
         elif json is not None:
-            if dataclasses.is_dataclass(json):
-                ret_data, ret_mime = (
-                    dataclasses.asdict(json),
-                    mime_type or MimeTypes.JSON,
-                )
+            ret_mime = mime_type or MimeTypes.JSON
+
+            if hasattr(json, "to_dict"):
+                ret_dict = getattr(json, "to_dict")()
+                ret_data = jsonlib.dumps(ret_dict)
+            elif dataclasses.is_dataclass(json):
+                ret_dict = dataclasses.asdict(json)
+                ret_data = jsonlib.dumps(ret_dict)
+            elif type(json) in [dict, list, int, bool, float, str]:
+                ret_data = jsonlib.dumps(json)
             else:
                 ret_data, ret_mime = json, mime_type or MimeTypes.JSON
 
@@ -81,7 +87,6 @@ def flexi_create(
             ret_encoding = ContentEncodings.BASE64
 
         if ret_data is not None:
-            logging.error("had ret data")
             if force_base64 is False:
                 return ret_data, ret_mime, ret_encoding
             if is_b64 is True:

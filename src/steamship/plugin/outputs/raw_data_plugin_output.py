@@ -54,7 +54,7 @@ class RawDataPluginOutput:
         # so we present it to the constructor as such.
         return RawDataPluginOutput(
             base64string=d.get('data', None),
-            mimeType=d.get('mimeType', None)
+            mime_type=d.get('mimeType', None)
         )
 
     def to_dict(self) -> dict:
