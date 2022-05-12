@@ -1,7 +1,9 @@
+from typing import Type
+
 from steamship import Block, File, Tag
 from steamship.app import App, Response, create_handler, post
 from steamship.data.tags import DocTag, TagKind
-from steamship.plugin.blockifier import Blockifier
+from steamship.plugin.blockifier import Blockifier, Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
@@ -18,6 +20,12 @@ TEST_DOC = f"# {TEST_H1}\n\n{TEST_S1} {TEST_S2}\n\n{TEST_S3}\n"
 
 
 class DummyBlockifierPlugin(Blockifier, App):
+    class DummyBlockifierConfig(Config):
+        pass
+
+    def config_cls(self) -> Type[Config]:
+        return self.DummyBlockifierConfig
+
     def run(
         self, request: PluginRequest[RawDataPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
