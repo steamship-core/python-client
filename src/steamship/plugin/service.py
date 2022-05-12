@@ -12,7 +12,9 @@ from steamship.base.response import SteamshipError
 # This the files in this package are for Plugin Implementors.
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
+from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
+from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
 T = TypeVar("T")
@@ -94,7 +96,7 @@ class PluginService(ABC, Generic[T, U]):
             suggestion="It is possible you are trying to train a plugin which is not trainable. If you are confident that this plugin IS trainable, then this is likely an implementation bug: please implement this method."
         )
 
-    def train(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
+    def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Produces the training parameters for this plugin.
 
         - If the plugin is not trainable, the subclass simply doesn't override this method.
