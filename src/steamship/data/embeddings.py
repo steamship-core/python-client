@@ -194,8 +194,8 @@ class ListSnapshotsResponse:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "IndexSnapshotResponse":
-        return IndexSnapshotResponse(
+    def from_dict(d: Any, client: Client = None) -> "ListSnapshotsResponse":
+        return ListSnapshotsResponse(
             snapshots=[
                 IndexSnapshotResponse.from_dict(dd)
                 for dd in (d.get("snapshots", []) or [])

@@ -38,14 +38,14 @@ def test_get_training_parameters():
 
         assert params.trainingEpochs is not None
         assert (
-            params.trainingEpochs == TestTrainableTaggerPlugin.RESPONSE.trainingEpochs
+            params.trainingEpochs == TestTrainableTaggerPlugin.TRAINING_PARAMETERS.trainingEpochs
         )
-        assert params.modelName == TestTrainableTaggerPlugin.RESPONSE.modelName
+        assert params.modelName == TestTrainableTaggerPlugin.TRAINING_PARAMETERS.modelName
         assert math.isclose(
             params.testingHoldoutPercent,
-            TestTrainableTaggerPlugin.RESPONSE.testingHoldoutPercent,
+            TestTrainableTaggerPlugin.TRAINING_PARAMETERS.testingHoldoutPercent,
             abs_tol=0.0001,
         )
         assert (
-            params.trainingParams == TestTrainableTaggerPlugin.RESPONSE.trainingParams
+            params.trainingParams == TestTrainableTaggerPlugin.TRAINING_PARAMETERS.trainingParams
         )

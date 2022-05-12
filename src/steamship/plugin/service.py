@@ -47,9 +47,39 @@ class PluginRequest(Generic[T]):
 
 
 class PluginService(ABC, Generic[T, U]):
+    """The Abstract Base Class of a Steamship Plugin.
+
+    All Steamship Plugins implement the operation:
+
+    - run(PluginRequest[T]) -> Response[U]
+
+    Many plugins are effectively stateless. This run operation defines their entire capability.
+    Examples of such stateless plugins are:
+    - Corpus Import Plugin
+    - File Import Plugin
+    - Export Plugin
+
+    Other plugins have state but in a very controlled way:
+    - they can be trained,
+    - this training process produces a "model",
+    - that model acts as the state on which the `run` method is conditioned
+
+    This model is stored in the Steamship Space that owns the Plugin Instance, and access to it is provided by the
+    hosting environment that runs the model.
+    - TODO(ted) Document this process.
+
+    These stateful plugins are called "Trainable Plugins," and they must implement the following additional methods:
+
+    - get_training_parameters(PluginRequest[TrainingParameterInput]) -> Response[TrainingParameterOutput]
+    - train(PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]
+
+    """
     @abstractmethod
     def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
-        """Runs the core operation implemented by this plugin: import, export, blockify, tag, etc."""
+        """Runs the core operation implemented by this plugin: import, export, blockify, tag, etc.
+
+        This is the method that a Steamship Plugin implements to perform its main work.
+        """
         pass
 
     def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
@@ -60,7 +90,8 @@ class PluginService(ABC, Generic[T, U]):
           any training parameters supplied by the end-user before training begins.
         """
         raise SteamshipError(
-            message="get_training_parameters has not been implemented on this plugin."
+            message="get_training_parameters has not been implemented on this plugin.",
+            suggestion="It is possible you are trying to train a plugin which is not trainable. If you are confident that this plugin IS trainable, then this is likely an implementation bug: please implement this method."
         )
 
     def train(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
@@ -71,8 +102,10 @@ class PluginService(ABC, Generic[T, U]):
           any training parameters supplied by the end-user before training begins.
         """
         raise SteamshipError(
-            message="get_training_parameters has not been implemented on this plugin."
+            message="train has not been implemented on this plugin.",
+            suggestion = "It is possible you are trying to train a plugin which is not trainable. If you are confident that this plugin IS trainable, then this is likely an implementation bug: please implement this method."
         )
+
 
     @classmethod
     @abstractmethod

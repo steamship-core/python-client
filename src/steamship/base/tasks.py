@@ -245,7 +245,7 @@ class Task(Generic[T]):
             retries=self.retries,
         )
 
-    def update(self, other: "Task"):
+    def refresh(self, other: "Task"):
         """Incorporates a `Task` into this object."""
         # TODO (Enias): Simplify with operations on __dict__
         if other is not None:
@@ -305,6 +305,29 @@ class Task(Generic[T]):
 
     def list_comments(self) -> IResponse[TaskCommentList]:
         return TaskComment.list(client=self.client, task_id=self.task_id)
+
+    def update(self, fields: List[str] = None) -> "IResponse[Task]":
+        """Updates this task in the Steamship Engine."""
+
+        body = self.to_dict()
+
+        if fields is not None:
+            # Limit the update to just the specified fields
+            for key in body.keys():
+                if key not in fields:
+                    del body[key]
+
+        # The Task ID must always be present
+        body["taskId"] = self.task_id
+
+        try:
+            return self.client.post("task/update", body, expect=Task)
+        except Exception as e:
+            raise SteamshipError(
+                message=f"Error updating task {self.task_id} updating task: {e}",
+                error=e
+            )
+
 
     @staticmethod
     def delete_comment(comment: TaskComment = None) -> IResponse[TaskComment]:
