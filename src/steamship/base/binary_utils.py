@@ -94,7 +94,7 @@ def flexi_create(
                     # If it was JSON, we need to dump the object first!
                     # Otherwise it will end up getting turned to the Python's object representation format
                     # which will result in invalid JSON
-                    ret_data = jsonlib.dumps(json)
+                    ret_data = jsonlib.dumps(ret_data)
 
                 return (
                     to_b64(ret_data),
