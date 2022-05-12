@@ -13,6 +13,7 @@ class CreateAppInstanceRequest(Request):
     handle: str = None
     upsert: bool = None
     config: Dict[str, Any] = None
+    spaceId: str = None
 
 
 @dataclass
@@ -58,6 +59,7 @@ class AppInstance:
     @staticmethod
     def create(
         client: Client,
+        space_id: str = None,
         app_id: str = None,
         app_version_id: str = None,
         handle: str = None,
@@ -71,6 +73,7 @@ class AppInstance:
             appVersionId=app_version_id,
             upsert=upsert,
             config=config,
+            spaceId=space_id,
         )
 
         return client.post("app/instance/create", payload=req, expect=AppInstance)
