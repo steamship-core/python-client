@@ -7,7 +7,7 @@ from steamship.app import Response, post
 from steamship.base import Client
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginRequest, PluginService
+from steamship.plugin.service import PluginService, PluginRequest
 
 
 # Note!
