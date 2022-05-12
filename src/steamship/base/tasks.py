@@ -156,6 +156,7 @@ class Task(Generic[T]):
     space_id: str = None  # The space in which this task is executing
 
     input: str = None  # The input provided to the task
+    output: str = None # The output of the task
     state: str = None  # A value in class TaskState
 
     status_message: str = None  # User-facing message concerning task status
@@ -209,6 +210,7 @@ class Task(Generic[T]):
             user_id=d.get("userId"),
             space_id=d.get("spaceId"),
             input=d.get("input"),
+            output=d.get("output"),
             state=d.get("state"),
             status_message=d.get("statusMessage"),
             status_suggestion=d.get("statusSuggestion"),
@@ -230,6 +232,7 @@ class Task(Generic[T]):
             userId=self.user_id,
             spaceId=self.space_id,
             input=self.input,
+            output=self.output,
             state=self.state,
             statusMessage=self.status_message,
             statusSuggestion=self.status_suggestion,
@@ -245,7 +248,7 @@ class Task(Generic[T]):
             retries=self.retries,
         )
 
-    def update(self, other: "Task"):
+    def refresh(self, other: "Task"):
         """Incorporates a `Task` into this object."""
         # TODO (Enias): Simplify with operations on __dict__
         if other is not None:
@@ -253,6 +256,7 @@ class Task(Generic[T]):
             self.user_id = other.user_id
             self.space_id = other.space_id
             self.input = other.input
+            self.output = other.output
             self.state = other.state
             self.status_message = other.status_message
             self.status_suggestion = other.status_suggestion
@@ -271,6 +275,7 @@ class Task(Generic[T]):
             self.user_id = None
             self.space_id = None
             self.input = None
+            self.output = None
             self.state = None
             self.status_message = None
             self.status_suggestion = None
@@ -305,6 +310,29 @@ class Task(Generic[T]):
 
     def list_comments(self) -> IResponse[TaskCommentList]:
         return TaskComment.list(client=self.client, task_id=self.task_id)
+
+    def update(self, fields: List[str] = None) -> "IResponse[Task]":
+        """Updates this task in the Steamship Engine."""
+
+        body = self.to_dict()
+
+        if fields is not None:
+            # Limit the update to just the specified fields
+            for key in list(body.keys()): # list() to make a copy so that we don't mutate the object as we iterate
+                if key not in fields:
+                    del body[key]
+
+        # The Task ID must always be present
+        body["taskId"] = self.task_id
+
+        try:
+            return self.client.post("task/update", body, expect=Task)
+        except Exception as e:
+            raise SteamshipError(
+                message=f"Error updating task {self.task_id} updating task: {e}",
+                error=e
+            )
+
 
     @staticmethod
     def delete_comment(comment: TaskComment = None) -> IResponse[TaskComment]:
