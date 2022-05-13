@@ -35,6 +35,7 @@ def zip_deployable(file_path: Path) -> bytes:
         dependencies_path / "urllib3",
         dependencies_path / "idna",
         dependencies_path / "pydantic",
+        dependencies_path / "typing-extensions"
     ]
 
     zip_buffer = io.BytesIO()
