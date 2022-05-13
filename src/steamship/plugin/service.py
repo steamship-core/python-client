@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Callable, Generic, TypeVar, Union
 
+from steamship.app import post
 from steamship.app.response import Response
 from steamship.base import Client
 from steamship.base.response import SteamshipError
@@ -31,6 +32,12 @@ class PluginRequest(Generic[T]):
         wrapped_object_from_dict: Callable[[dict, Client], T] = None,
         client: Client = None,
     ) -> "PluginRequest[T]":
+        """Create a PluginRequest[T] from a Python dictionary.
+
+        This `from_dict` method differs from others in this module in that it additionally requires the
+        `from_dict` method of the inner object that the Request wraps. Because of the way Python's type system
+        works, it is not possible to fetch this function pointer from the `T` TypeVar that represents the wrapped type.
+        """
         data = None
         if "data" in d:
             if wrapped_object_from_dict is not None:
@@ -109,22 +116,30 @@ class PluginService(ABC, Generic[T, U]):
         )
 
 
-    @classmethod
-    def response_to_dict(
-        cls, response: Union[SteamshipError, Response[U], U, dict]
-    ) -> Response[U]:
-        try:
-            if type(response) == Response:
-                return response
-            elif type(response) == SteamshipError:
-                return Response(error=response)
-            else:
-                return Response(data=response)
-        except SteamshipError as remote_error:
-            return Response[U](error=remote_error)
-        except Exception as error:
-            return Response[U](
-                error=SteamshipError(
-                    message="Unhandled exception completing your request", error=error
-                )
-            )
+    # HTTP Endpoints
+    # ------------------------------------
+    # We separate out the methods that exposes the Plugin's HTTP endpoint (below) from the method that perform the
+    # actual work (above) for two reasons:
+    #
+    # 1) Isolate separate concerns for testability
+    # 2) Allow plugin implementors to feel as if they're just writing Python (and the web hosting happens automatically)
+    #
+    # The endpoints standard across all plugins are captured below, while the endpoints that have paths specific to a
+    # particular plugin type are captured in the subclasses of `PluginService`, such as `Tagger` or `Blockifier`
+
+    # noinspection PyUnusedLocal
+    @post("getTrainingParameters")
+    def get_training_parameters_endpoint(self, **kwargs) -> Response[TrainingParameterPluginOutput]:
+        """Exposes the Tagger's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
+        return self.get_training_parameters(
+            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=TrainingParameterPluginInput.from_dict)
+        )
+
+    # noinspection PyUnusedLocal
+    @post("train")
+    def train_endpoint(self, **kwargs) -> Response[TrainPluginOutput]:
+        """Exposes the Tagger's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
+        return self.train(
+            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=TrainPluginInput.from_dict)
+        )
+

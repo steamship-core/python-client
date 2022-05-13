@@ -61,13 +61,6 @@ class TestTrainableTaggerPlugin(Tagger, App):
         return Response(data=TestTrainableTaggerPlugin.TRAINING_PARAMETERS)
 
 
-    # noinspection PyUnusedLocal
-    @post("getTrainingParameters")
-    def get_training_parameters_endpoint(
-        self, **kwargs
-    ) -> Response[TrainingParameterPluginOutput]:
-        return self.get_training_parameters()
-        return Response(data=TestTrainableTaggerPlugin.TRAINING_PARAMETERS)
 
 
     @post("train")
