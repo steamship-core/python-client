@@ -76,7 +76,11 @@ def test_task_update():
     result_2.task.status_message = STATUS
 
     # Only update the output field.
+<<<<<<< HEAD
     result_2.task.update(fields=['statusMessage'])
+=======
+    result_2.task.post_update(fields=['statusMessage'])
+>>>>>>> main
 
     # This will refresh the task.
     result_2.check()

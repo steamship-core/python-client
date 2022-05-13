@@ -311,27 +311,16 @@ class Task(Generic[T]):
     def list_comments(self) -> IResponse[TaskCommentList]:
         return TaskComment.list(client=self.client, task_id=self.task_id)
 
-    def update(self, fields: List[str] = None) -> "IResponse[Task]":
+    def post_update(self, fields: List[str] = None) -> "IResponse[Task]":
         """Updates this task in the Steamship Engine."""
 
-        body = self.to_dict()
-
-        if fields is not None:
-            # Limit the update to just the specified fields
-            for key in list(body.keys()): # list() to make a copy so that we don't mutate the object as we iterate
-                if key not in fields:
-                    del body[key]
+        self_dict = self.to_dict()
+        fields = fields or self_dict.keys()
+        body = {field: self_dict[field] for field in fields if field in self_dict}
 
         # The Task ID must always be present
         body["taskId"] = self.task_id
-
-        try:
-            return self.client.post("task/update", body, expect=Task)
-        except Exception as e:
-            raise SteamshipError(
-                message=f"Error updating task {self.task_id} updating task: {e}",
-                error=e
-            )
+        return self.client.post("task/update", body, expect=Task)
 
 
     @staticmethod
