@@ -45,10 +45,5 @@ class TestParserPlugin(Tagger, App):
         if request.data is not None:
             return Response(data=_make_test_response(request.data))
 
-    @post("tag")
-    def parse(self, **kwargs) -> dict:
-        parse_request = Tagger.parse_request(request=kwargs)
-        return self.run(parse_request)
-
 
 handler = create_handler(TestParserPlugin)
