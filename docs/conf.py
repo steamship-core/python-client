@@ -97,6 +97,7 @@ master_doc = "index"
 
 # General information about the project.
 project = "steamship"
+# noinspection PyShadowingBuiltins
 copyright = "2021, Edward Benson"
 
 # The version info for the project you're documenting, acts as replacement for

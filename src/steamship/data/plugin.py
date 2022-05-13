@@ -7,7 +7,7 @@
 
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from steamship.base.client import Client
 from steamship.base.request import Request

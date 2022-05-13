@@ -32,7 +32,7 @@ def flexi_create(
     data: Any = None,
     string: str = None,
     json: Any = None,
-    bytes: Union[bytes, io.BytesIO] = None,
+    _bytes: Union[bytes, io.BytesIO] = None,
     mime_type=None,
     force_base64=False,
 ) -> Tuple[Any, Union[None, str], Union[None, str]]:  # TODO (Enias): Review
@@ -70,11 +70,11 @@ def flexi_create(
             else:
                 ret_data, ret_mime = json, mime_type or MimeTypes.JSON
 
-        elif bytes is not None:
-            if isinstance(bytes, io.BytesIO):
-                bytes = bytes.getvalue()  # Turn it into regular bytes
+        elif _bytes is not None:
+            if isinstance(_bytes, io.BytesIO):
+                _bytes = _bytes.getvalue()  # Turn it into regular bytes
             ret_data, ret_mime = (
-                base64.b64encode(bytes).decode("utf-8"),
+                base64.b64encode(_bytes).decode("utf-8"),
                 mime_type or ret_mime or MimeTypes.BINARY,
             )
             is_b64 = True

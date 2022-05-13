@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import Any, List, Optional, Dict
+from typing import Any, Dict, List, Optional
 
 from steamship.base import Client, Request, Response
 

@@ -83,7 +83,12 @@ class PluginInstance:
             config=config,
         )
 
-        return client.post("plugin/instance/create", payload=req, expect=PluginInstance, space_id=space_id)
+        return client.post(
+            "plugin/instance/create",
+            payload=req,
+            expect=PluginInstance,
+            space_id=space_id,
+        )
 
     def delete(self) -> PluginInstance:
         req = DeletePluginInstanceRequest(id=self.id)
@@ -91,10 +96,10 @@ class PluginInstance:
             "plugin/instance/delete", payload=req, expect=PluginInstance
         )
 
-    def export(self, input: ExportPluginInput) -> Response[RawDataPluginOutput]:
-        input.pluginInstance = self.handle
+    def export(self, plugin_input: ExportPluginInput) -> Response[RawDataPluginOutput]:
+        plugin_input.pluginInstance = self.handle
         return self.client.post(
-            "plugin/instance/export", payload=input, expect=RawDataPluginOutput
+            "plugin/instance/export", payload=plugin_input, expect=RawDataPluginOutput
         )
 
     def train(self, training_request: TrainingParameterPluginInput) -> PluginInstance:

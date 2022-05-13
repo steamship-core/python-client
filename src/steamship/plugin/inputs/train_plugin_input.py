@@ -46,6 +46,7 @@ class TrainPluginInput:
     # A pre-signed URL at which the training data can be found
     trainingDataUrl: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainPluginInput]":
         if d is None:

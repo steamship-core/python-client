@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, List, Union, Optional
+from typing import Any, List, Optional, Union
 
 from steamship.base import Client, Request, Response
 from steamship.base.request import IdentifierRequest
@@ -96,14 +96,14 @@ class Block:
     @staticmethod
     def get(
         client: Client,
-        id: str = None,
+        _id: str = None,
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
     ) -> Response["Block"]:
         return client.post(
             "block/get",
-            IdentifierRequest(id=id),
+            IdentifierRequest(id=_id),
             expect=Block,
             space_id=space_id,
             space_handle=space_handle,

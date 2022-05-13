@@ -479,7 +479,6 @@ class EmbeddingIndex:
 
         return ret
 
-
     @staticmethod
     def create(
         client: Client,

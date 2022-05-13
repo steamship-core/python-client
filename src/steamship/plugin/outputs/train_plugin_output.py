@@ -32,6 +32,7 @@ class TrainPluginOutput:
     resultData: dict = None
     error: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any = None, client: Client = None) -> "TrainPluginOutput":
         if d is None:

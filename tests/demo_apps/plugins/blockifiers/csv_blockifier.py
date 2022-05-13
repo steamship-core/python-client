@@ -2,7 +2,7 @@
 
 import csv
 import io
-from typing import List, Optional, Union, Type
+from typing import List, Optional, Type, Union
 
 from pydantic import constr
 

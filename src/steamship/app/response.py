@@ -53,7 +53,7 @@ class Response(Generic[T]):
         # Handle the core data
         try:
             data, mime_type, encoding = flexi_create(
-                data=data, string=string, json=json, bytes=bytes, mime_type=mime_type
+                data=data, string=string, json=json, _bytes=bytes, mime_type=mime_type
             )
 
             self.data = data

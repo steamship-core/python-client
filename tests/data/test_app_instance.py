@@ -2,9 +2,9 @@ import base64
 
 import requests
 
+from steamship import Space
 from steamship.base.mime_types import MimeTypes
 from tests import APPS_PATH, TEST_ASSETS_PATH
-from steamship import Space
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -105,6 +105,6 @@ def test_deploy_in_space():
     client = get_steamship_client()
     demo_app_path = APPS_PATH / "apps" / "demo_app.py"
 
-    space = Space.create(client, handle='test-non-default-space').data
+    space = Space.create(client, handle="test-non-default-space").data
     with deploy_app(client, demo_app_path, space_id=space.id) as (_, _, instance):
-        assert(instance.space_id == space.id)
+        assert instance.space_id == space.id

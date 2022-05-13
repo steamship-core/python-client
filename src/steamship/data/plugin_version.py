@@ -6,8 +6,18 @@ from steamship.base.response import Response
 from steamship.data.plugin import ListPluginsResponse
 
 
+@dataclass
 class PluginVersion:
-    pass
+    client: Client = None
+    id: str = None
+    pluginId: str = None
+    handle: str = None
+    hostingMemory: str = None
+    hostingTimeout: str = None
+    hostingHandler: str = None
+    isPublic: bool = None
+    isDefault: bool = None
+    configTemplate: Dict[str, Any] = None
 
 
 @dataclass

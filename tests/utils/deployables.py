@@ -77,7 +77,11 @@ def deploy_app(
 
     version = _wait_for_version(version)
     instance = AppInstance.create(
-        client, app_id=app.id, app_version_id=version.id, config=instance_config, space_id=space_id
+        client,
+        app_id=app.id,
+        app_version_id=version.id,
+        config=instance_config,
+        space_id=space_id,
     )
     instance = _wait_for_instance(instance)
 
@@ -100,11 +104,6 @@ def deploy_plugin(
     instance_config: Dict[str, Any] = None,
     training_platform: str = None,
 ):
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("gfg", py_path)
-    foo = importlib.util.module_from_spec(spec)
-
     plugin = Plugin.create(
         client,
         training_platform=training_platform,

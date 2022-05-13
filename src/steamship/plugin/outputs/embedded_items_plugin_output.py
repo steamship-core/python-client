@@ -8,6 +8,7 @@ from steamship.base import Client
 class EmbeddedItemsPluginOutput:
     embeddings: List[List[float]]
 
+    # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "EmbeddedItemsPluginOutput":
         return EmbeddedItemsPluginOutput(

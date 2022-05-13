@@ -10,6 +10,7 @@ class EmbedRequest:
     pluginInstance: str
     metadata: Dict = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "EmbedRequest":
         # TODO (enias): Review these _: Client lines

@@ -1,9 +1,9 @@
 import io
 import logging
 from dataclasses import dataclass
-from typing import Any, List, Union, Optional
+from typing import Any, List, Optional, Union
 
-from steamship.base import Client, Response, Request
+from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
 from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
@@ -104,12 +104,12 @@ class File:
             self,
             data: Any = None,
             string: str = None,
-            bytes: Union[bytes, io.BytesIO] = None,
+            _bytes: Union[bytes, io.BytesIO] = None,
             json: io.BytesIO = None,
             mime_type: str = None,
         ):
             data, mime_type, encoding = flexi_create(
-                data=data, string=string, json=json, bytes=bytes, mime_type=mime_type
+                data=data, string=string, json=json, _bytes=_bytes, mime_type=mime_type
             )
             self.data = data
             self.mimeType = mime_type
@@ -202,7 +202,7 @@ class File:
     @staticmethod
     def get(
         client: Client,
-        id: str = None,
+        _id: str = None,
         handle: str = None,
         space_id: str = None,
         space_handle: str = None,
@@ -210,7 +210,7 @@ class File:
     ) -> Response["File"]:  # TODO (Enias): Why is this a staticmethod?
         return client.post(
             "file/get",
-            IdentifierRequest(id=id, handle=handle),
+            IdentifierRequest(id=_id, handle=handle),
             expect=File,
             space_id=space_id,
             space_handle=space_handle,

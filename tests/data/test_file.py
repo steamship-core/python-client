@@ -57,7 +57,7 @@ def test_file_scrape():
 
 
 def test_file_import_response_dict():
-    resp = File.CreateResponse(bytes=b"some bytes", mime_type=MimeTypes.BINARY)
+    resp = File.CreateResponse(_bytes=b"some bytes", mime_type=MimeTypes.BINARY)
     to_dict = resp.to_dict()
     from_dict = File.CreateResponse.from_dict(to_dict)
     assert resp.data == from_dict.data
@@ -65,7 +65,7 @@ def test_file_import_response_dict():
 
 
 def test_file_import_response_bytes_serialization():
-    file_resp = File.CreateResponse(bytes=b"some bytes", mime_type=MimeTypes.BINARY)
+    file_resp = File.CreateResponse(_bytes=b"some bytes", mime_type=MimeTypes.BINARY)
     to_dict = file_resp.to_dict()
     as_json_string = json.dumps(to_dict)
     as_dict_again = json.loads(as_json_string)
@@ -97,7 +97,7 @@ def test_file_upload_with_blocks():
     check_blocks(blocks.data.blocks)
 
     # Let's get the file fresh
-    aa = File.get(client, id=a.id).data
+    aa = File.get(client, _id=a.id).data
     check_blocks(aa.blocks)
     assert aa.tags is not None
     assert len(aa.tags) == 1

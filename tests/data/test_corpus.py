@@ -87,7 +87,7 @@ def test_corpus_delete_cascade():
     corpus1.delete()
 
     # Now verify the file isn't there!
-    aa = File.get(client, id=a.id)
+    aa = File.get(client, _id=a.id)
     assert aa.data is None
     assert aa.error is not None
 

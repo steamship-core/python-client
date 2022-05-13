@@ -1,7 +1,7 @@
 import base64
 import io
 from dataclasses import dataclass
-from typing import Dict, Any
+from typing import Any, Dict
 
 from steamship.app import App, Response, create_handler, get, post
 from steamship.base import Client
@@ -38,18 +38,18 @@ class TestApp(App):
 
     @get("resp_binary")
     def resp_binary(self) -> Response:
-        bytes = base64.b64decode(PALM_TREE_BASE_64)
-        return Response(bytes=bytes)
+        _bytes = base64.b64decode(PALM_TREE_BASE_64)
+        return Response(bytes=_bytes)
 
     @get("resp_bytes_io")
     def resp_bytes_io(self) -> Response:
-        bytes = base64.b64decode(PALM_TREE_BASE_64)
-        return Response(bytes=io.BytesIO(bytes))
+        _bytes = base64.b64decode(PALM_TREE_BASE_64)
+        return Response(bytes=io.BytesIO(_bytes))
 
     @get("resp_image")
     def resp_image(self) -> Response:
-        bytes = base64.b64decode(PALM_TREE_BASE_64)
-        return Response(bytes=bytes, mime_type=MimeTypes.PNG)
+        _bytes = base64.b64decode(PALM_TREE_BASE_64)
+        return Response(bytes=_bytes, mime_type=MimeTypes.PNG)
 
     @get("greet")
     def greet1(self, name: str = "Person") -> Response:
