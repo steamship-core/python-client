@@ -1,6 +1,9 @@
 import contextlib
 import io
+import logging
 import os
+import subprocess
+import tempfile
 import time
 import zipfile
 from pathlib import Path
@@ -12,6 +15,11 @@ from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
 from tests import SRC_PATH, VENV_PATH
+
+
+def install_package(package: str, into_folder: str):
+    logging.info(f"Installing {package} into: {into_folder}")
+    subprocess.run(["pip", "install", "--target", into_folder, package], stdout=subprocess.PIPE)
 
 
 def zip_deployable(file_path: Path) -> bytes:
@@ -28,21 +36,15 @@ def zip_deployable(file_path: Path) -> bytes:
         SRC_PATH
         / ".."
         / "tests",  # This is included to test plugin development using inheritance
-        dependencies_path / "setuptools_scm",
-        dependencies_path / "requests",
-        dependencies_path / "charset_normalizer",
-        dependencies_path / "certifi",
-        dependencies_path / "urllib3",
-        dependencies_path / "idna",
-        dependencies_path / "pydantic",
     ]
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(
-        file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
+            file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
     ) as zip_file:
         zip_file.write(file_path, "api.py")
 
+        # Copy in the package paths from source
         for package_path in package_paths:
             for root, _, files in os.walk(package_path):
                 for file in files:
@@ -51,16 +53,38 @@ def zip_deployable(file_path: Path) -> bytes:
                         pypi_file, pypi_file.relative_to(package_path.parent)
                     )
 
+        # Copy in package paths from pip
+        with tempfile.TemporaryDirectory() as package_dir:
+            logging.info(f"Created tempdir for pip installs: {package_dir}")
+            for package in [
+                "setuptools_scm",
+                "requests",
+                "charset_normalizer",
+                "certifi",
+                "urllib3",
+                "idna",
+                "pydantic",
+                "typing_extensions"
+            ]:
+                install_package(package, into_folder=package_dir)
+            # Now write that whole folder
+            for root, _, files in os.walk(package_dir):
+                for file in files:
+                    pypi_file = Path(root) / file
+                    zip_file.write(
+                        pypi_file, pypi_file.relative_to(package_dir)
+                    )
+
     return zip_buffer.getvalue()
 
 
 @contextlib.contextmanager
 def deploy_app(
-    client: Steamship,
-    py_path: Path,
-    version_config_template: Dict[str, Any] = None,
-    instance_config: Dict[str, Any] = None,
-    space_id: str = None,
+        client: Steamship,
+        py_path: Path,
+        version_config_template: Dict[str, Any] = None,
+        instance_config: Dict[str, Any] = None,
+        space_id: str = None,
 ):
     app = App.create(client)
     assert app.error is None
@@ -93,12 +117,12 @@ def deploy_app(
 
 @contextlib.contextmanager
 def deploy_plugin(
-    client: Steamship,
-    py_path: Path,
-    plugin_type: str,
-    version_config_template: Dict[str, Any] = None,
-    instance_config: Dict[str, Any] = None,
-    training_platform: str = None,
+        client: Steamship,
+        py_path: Path,
+        plugin_type: str,
+        version_config_template: Dict[str, Any] = None,
+        instance_config: Dict[str, Any] = None,
+        training_platform: str = None,
 ):
     import importlib.util
 
