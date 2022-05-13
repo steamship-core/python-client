@@ -50,7 +50,17 @@ class Tag:  # TODO (enias): Make pep8 compatible
             )
 
         def to_dict(self):
-            pass
+            return dict(
+                id=self.id,
+                fileId=self.fileId,
+                blockId=self.blockId,
+                kind=self.kind,
+                name=self.name,
+                startIdx=self.startIdx,
+                endIdx=self.endIdx,
+                value=self.value,
+                upsert=self.upsert,
+            )
 
     @dataclass
     class DeleteRequest(Request):
