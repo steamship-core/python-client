@@ -91,14 +91,19 @@ class App:
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         cls._method_mappings = defaultdict(dict)
+        base_fn_list = [
+            may_be_decorated
+            for base_cls in cls.__bases__
+            for may_be_decorated in base_cls.__dict__.values()
+        ]
 
-        for maybeDecorated in cls.__dict__.values():
-            decorator = getattr(maybeDecorated, "decorator", None)
+        for attribute in base_fn_list + list(cls.__dict__.values()):
+            decorator = getattr(attribute, "decorator", None)
             if decorator:
                 if getattr(decorator, "__is_endpoint__", False):
-                    path = getattr(maybeDecorated, "__path__", None)
-                    verb = getattr(maybeDecorated, "__verb__", None)
-                    cls._register_mapping(maybeDecorated.__name__, verb, path)
+                    path = getattr(attribute, "__path__", None)
+                    verb = getattr(attribute, "__verb__", None)
+                    cls._register_mapping(name=attribute.__name__, verb=verb, path=path)
 
     @staticmethod
     def _clean_path(path: str = "") -> str:
