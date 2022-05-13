@@ -32,10 +32,5 @@ class TestParserPlugin(Tagger, App):
                 file.tags = [tag]
             return Response(data=BlockAndTagPluginOutput(file))
 
-    @post("tag")
-    def parse(self, **kwargs) -> dict:
-        parse_request = Tagger.parse_request(request=kwargs)
-        return self.run(parse_request)
-
 
 handler = create_handler(TestParserPlugin)

@@ -28,16 +28,16 @@ class PluginRequest(Generic[T]):
     @staticmethod
     def from_dict(
         d: Any,
-        subclass_request_from_dict: Callable[[dict, Client], dict] = None,
+        wrapped_object_from_dict: Callable[[dict, Client], T] = None,
         client: Client = None,
     ) -> "PluginRequest[T]":
         data = None
         if "data" in d:
-            if subclass_request_from_dict is not None:
-                data = subclass_request_from_dict(d["data"], client)
+            if wrapped_object_from_dict is not None:
+                data = wrapped_object_from_dict(d["data"], client)
             else:
                 raise SteamshipError(
-                    message="No `subclass_request_from_dict` provided to parse inbound dict request."
+                    message="No `wrapped_object_from_dict` provided to parse inbound dict request."
                 )
         return PluginRequest(data=data)
 
@@ -108,26 +108,6 @@ class PluginService(ABC, Generic[T, U]):
             suggestion = "It is possible you are trying to train a plugin which is not trainable. If you are confident that this plugin IS trainable, then this is likely an implementation bug: please implement this method."
         )
 
-
-    @classmethod
-    @abstractmethod
-    def subclass_request_from_dict(
-        cls, d: Any, client: Client = None
-    ) -> PluginRequest[T]:
-        pass
-
-    @classmethod
-    def parse_request(cls, request: Union[PluginRequest[T], dict]) -> PluginRequest[T]:
-        if type(request) == dict:
-            try:
-                request = PluginRequest[T].from_dict(
-                    request, subclass_request_from_dict=cls.subclass_request_from_dict
-                )
-            except Exception as error:
-                raise SteamshipError(
-                    message="Unable to parse input request.", error=error
-                )
-        return request
 
     @classmethod
     def response_to_dict(

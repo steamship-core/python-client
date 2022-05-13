@@ -100,6 +100,11 @@ def deploy_plugin(
     instance_config: Dict[str, Any] = None,
     training_platform: str = None,
 ):
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("gfg", py_path)
+    foo = importlib.util.module_from_spec(spec)
+
     plugin = Plugin.create(
         client,
         training_platform=training_platform,

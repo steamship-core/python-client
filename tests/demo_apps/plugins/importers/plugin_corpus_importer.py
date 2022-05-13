@@ -30,10 +30,5 @@ class TestCorpusImporterPlugin(CorpusImporter, App):
             )
         )
 
-    @post("import")
-    def do_import(self, **kwargs) -> Any:
-        request = CorpusImporter.parse_request(request=kwargs)
-        return self.run(request)
-
 
 handler = create_handler(TestCorpusImporterPlugin)
