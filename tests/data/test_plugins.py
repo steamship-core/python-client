@@ -2,6 +2,7 @@
 import pytest
 
 from steamship.data.plugin import Plugin, PluginAdapterType, PluginType
+from steamship import Space, PluginInstance
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
@@ -99,3 +100,12 @@ def test_plugin_public():
     res = plugins[0].delete()
     assert res.error is not None
     assert res.data is None
+
+
+def test_deploy_in_space():
+
+    client = get_steamship_client()
+    space = Space.create(client, handle='test-non-default-space').data
+    instance = PluginInstance.create(client, plugin_handle='test-tagger', space_id=space.id).data
+    assert (instance.spaceId == space.id)
+

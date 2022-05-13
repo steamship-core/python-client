@@ -58,11 +58,13 @@ class PluginInstance:
             plugin_version_id=d.get("pluginVersionId", None),
             config=d.get("config", None),
             user_id=d.get("userId", None),
+            spaceId=d.get("spaceId", None),
         )
 
     @staticmethod
     def create(
         client: Client,
+        space_id: str = None,
         plugin_id: str = None,
         plugin_handle: str = None,
         plugin_version_id: str = None,
@@ -81,7 +83,7 @@ class PluginInstance:
             config=config,
         )
 
-        return client.post("plugin/instance/create", payload=req, expect=PluginInstance)
+        return client.post("plugin/instance/create", payload=req, expect=PluginInstance, space_id=space_id)
 
     def delete(self) -> PluginInstance:
         req = DeletePluginInstanceRequest(id=self.id)

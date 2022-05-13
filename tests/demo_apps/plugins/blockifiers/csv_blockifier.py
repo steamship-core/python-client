@@ -2,41 +2,19 @@
 
 import csv
 import io
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union, Type
 
-from pydantic import BaseModel, constr
+from pydantic import constr
 
-from steamship.app import App, Response, create_handler, post
+from steamship.app import App, Response, create_handler
 from steamship.base.error import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags import Tag
-from steamship.plugin.blockifier import Blockifier
+from steamship.plugin.blockifier import Blockifier, Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
-
-
-class Config(BaseModel):
-    def __init__(self, **kwargs):
-        kwargs = {k: v for k, v in kwargs.items() if v}
-        super().__init__(**kwargs)
-
-
-class CsvBlockifierConfig(Config):
-    text_column: str
-    tag_columns: List[str]
-    delimiter: Optional[str] = ","
-    quotechar: Optional[constr(max_length=1)] = '"'
-    escapechar: Optional[constr(max_length=1)] = "\\"
-    newline: Optional[str] = "\\n"
-    skipinitialspace: Optional[bool] = False
-    tag_kind: Optional[str] = None
-
-    def __init__(self, **kwargs):
-        if isinstance(kwargs["tag_columns"], str):
-            kwargs["tag_columns"] = kwargs["tag_columns"].split(",")
-        super().__init__(**kwargs)
 
 
 class CsvBlockifier(Blockifier, App):
@@ -48,10 +26,23 @@ class CsvBlockifier(Blockifier, App):
     Each block has one or more tags extracted from the values in one ore more columns
     """
 
-    # noinspection PyUnusedLocal
-    def __init__(self, client=None, config: Dict[str, any] = None):
-        super().__init__()
-        self.config = CsvBlockifierConfig(**config)
+    class CsvBlockifierConfig(Config):
+        text_column: str
+        tag_columns: List[str]
+        tag_kind: str = None
+        delimiter: Optional[str] = ","
+        quotechar: Optional[constr(max_length=1)] = '"'
+        escapechar: Optional[constr(max_length=1)] = "\\"
+        newline: Optional[str] = "\\n"
+        skipinitialspace: Optional[bool] = False
+
+        def __init__(self, **kwargs):
+            if isinstance(kwargs["tag_columns"], str):
+                kwargs["tag_columns"] = kwargs["tag_columns"].split(",")
+            super().__init__(**kwargs)
+
+    def config_cls(self) -> Type[CsvBlockifierConfig]:
+        return self.CsvBlockifierConfig
 
     def _get_text(self, row) -> str:
         text = row.get(self.config.text_column)
@@ -109,18 +100,6 @@ class CsvBlockifier(Blockifier, App):
             file.blocks.append(block)
 
         return Response(data=BlockAndTagPluginOutput(file=file))
-
-    @post("blockify")
-    def blockify(self, **kwargs) -> Response:
-        """App endpoint for our plugin.
-
-        The `run` method above implements the Plugin interface for a Converter.
-        This `convert` method exposes it over an HTTP endpoint as a Steamship App.
-
-        When developing your own plugin, you can almost always leave the below code unchanged.
-        """
-        blockify_request = Blockifier.parse_request(request=kwargs)
-        return self.run(blockify_request)
 
 
 handler = create_handler(CsvBlockifier)
