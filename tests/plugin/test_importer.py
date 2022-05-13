@@ -15,7 +15,7 @@ from tests.demo_apps.plugins.importers.plugin_file_importer import (
 
 TEST_REQ = File.CreateRequest(value="Hi there.")
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
-TEST_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 
 
 def _test_resp(res):
@@ -29,3 +29,7 @@ def test_importer():
     importer = TestFileImporterPlugin()
     res = importer.run(TEST_PLUGIN_REQ)
     _test_resp(res)
+
+    # The endpoints take a kwargs block which is transformed into the appropriate JSON object
+    res2 = importer.run_endpoint(**TEST_PLUGIN_REQ_DICT)
+    _test_resp(res2)

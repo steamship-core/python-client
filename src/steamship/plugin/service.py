@@ -100,7 +100,9 @@ class PluginService(ABC, Generic[T, U]):
         """
         raise SteamshipError(
             message="get_training_parameters has not been implemented on this plugin.",
-            suggestion="It is possible you are trying to train a plugin which is not trainable. If you are confident that this plugin IS trainable, then this is likely an implementation bug: please implement this method."
+            suggestion="It is possible you are trying to train a plugin which is not trainable. " +
+                       "If you are confident that this plugin IS trainable, then this is likely an " +
+                       "implementation bug: please implement this method."
         )
 
     def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
@@ -112,7 +114,9 @@ class PluginService(ABC, Generic[T, U]):
         """
         raise SteamshipError(
             message="train has not been implemented on this plugin.",
-            suggestion = "It is possible you are trying to train a plugin which is not trainable. If you are confident that this plugin IS trainable, then this is likely an implementation bug: please implement this method."
+            suggestion = "It is possible you are trying to train a plugin which is not trainable. " +
+                         "If you are confident that this plugin IS trainable, then this is likely an implementation " +
+                         "bug: please implement this method."
         )
 
 
@@ -130,7 +134,7 @@ class PluginService(ABC, Generic[T, U]):
     # noinspection PyUnusedLocal
     @post("getTrainingParameters")
     def get_training_parameters_endpoint(self, **kwargs) -> Response[TrainingParameterPluginOutput]:
-        """Exposes the Tagger's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
+        """Exposes the Service's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
         return self.get_training_parameters(
             PluginRequest.from_dict(kwargs, wrapped_object_from_dict=TrainingParameterPluginInput.from_dict)
         )
@@ -138,7 +142,7 @@ class PluginService(ABC, Generic[T, U]):
     # noinspection PyUnusedLocal
     @post("train")
     def train_endpoint(self, **kwargs) -> Response[TrainPluginOutput]:
-        """Exposes the Tagger's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
+        """Exposes the Service's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
         return self.train(
             PluginRequest.from_dict(kwargs, wrapped_object_from_dict=TrainPluginInput.from_dict)
         )

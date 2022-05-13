@@ -44,6 +44,10 @@ class ValidTrainableStringToStringPlugin(PluginService):
     def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         return Response(data=TrainPluginOutput())
 
+#
+# Tests plugin initialization
+# --------------------------------------------
+
 def test_plugin_service_is_abstract():
     with pytest.raises(Exception):
         service = PluginService()
@@ -57,6 +61,19 @@ def test_plugin_service_must_implement_run_and_subclass_request_from_dict():
 
     ValidStringToStringPlugin()
 
+#
+# Tests for the `run` method
+# --------------------------------------------
+
+def test_run_succeeds():
+    plugin = ValidStringToStringPlugin()
+    plugin.run(PluginRequest(data=""))
+    # Note: there is no run endpoint implemented automatically, since the path depends on the plugin type.
+    # TODO: Should we standardize all plugins to use /run?
+
+#
+# Tests for the `get_training_params` method
+# --------------------------------------------
 
 def test_without_override_get_training_params_fails():
     plugin = ValidStringToStringPlugin()
@@ -65,12 +82,19 @@ def test_without_override_get_training_params_fails():
     with pytest.raises(SteamshipError):
         # But throws a SteamshipError when invoked
         plugin.get_training_parameters(PluginRequest(data=TrainingParameterPluginInput()))
+    with pytest.raises(SteamshipError):
+        # But throws a SteamshipError when invoked
+        plugin.get_training_parameters_endpoint()
 
 
 def test_with_override_get_training_params_succeeds():
     trainable_plugin = ValidTrainableStringToStringPlugin()
     trainable_plugin.get_training_parameters(PluginRequest(data=TrainingParameterPluginInput()))
+    trainable_plugin.get_training_parameters_endpoint()
 
+#
+# Tests for the `train` method
+# --------------------------------------------
 
 def test_without_override_train_fails():
     plugin = ValidStringToStringPlugin()
@@ -79,10 +103,13 @@ def test_without_override_train_fails():
     with pytest.raises(SteamshipError):
         # But throws a SteamshipError when invoked
         plugin.train(PluginRequest(data=TrainPluginInput()))
+    with pytest.raises(SteamshipError):
+        # But throws a SteamshipError when invoked
+        plugin.train_endpoint()
 
 
 def test_with_override_train_succeeds():
     trainable_plugin = ValidTrainableStringToStringPlugin()
     trainable_plugin.train(PluginRequest(data=TrainPluginInput()))
-
+    trainable_plugin.train_endpoint()
 

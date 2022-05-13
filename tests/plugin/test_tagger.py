@@ -22,7 +22,7 @@ TEST_REQ = BlockAndTagPluginInput(
     )
 )
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
-TEST_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 
 
 def _test_resp(res):
@@ -37,3 +37,8 @@ def test_parser():
     parser = TestParserPlugin()
     res = parser.run(TEST_PLUGIN_REQ)
     _test_resp(res)
+
+    # The endpoints take a kwargs block which is transformed into the appropriate JSON object
+    res2 = parser.run_endpoint(**TEST_PLUGIN_REQ_DICT)
+    _test_resp(res2)
+

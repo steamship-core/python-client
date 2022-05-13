@@ -82,7 +82,7 @@ class Block:
             fileId=d.get("fileId", None),
             text=d.get("text", None),
             tags=list(
-                map(lambda tag: Tag.from_dict(tag, client=client), d.get("tags", []))
+                map(lambda tag: Tag.from_dict(tag, client=client), d.get("tags", []) or [])
             ),
         )
 
