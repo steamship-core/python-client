@@ -23,9 +23,9 @@ class PluginRequest(Generic[T]):
 
     @staticmethod
     def from_dict(
-        d: Any,
-        wrapped_object_from_dict: Callable[[dict, Client], T] = None,
-        client: Client = None,
+            d: Any,
+            wrapped_object_from_dict: Callable[[dict, Client], T] = None,
+            client: Client = None,
     ) -> "PluginRequest[T]":
         data = None
         if "data" in d:
@@ -51,7 +51,7 @@ class PluginService(ABC, Generic[T, U]):
 
     @classmethod
     def response_to_dict(
-        cls, response: Union[SteamshipError, Response[U], U, dict]
+            cls, response: Union[SteamshipError, Response[U], U, dict]
     ) -> Response[U]:
         try:
             if type(response) == Response:

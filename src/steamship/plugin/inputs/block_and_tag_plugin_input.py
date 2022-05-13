@@ -11,7 +11,7 @@ class BlockAndTagPluginInput:
 
     @staticmethod
     def from_dict(
-        d: Any = None, client: Client = None
+            d: Any = None, client: Client = None
     ) -> "Optional[BlockAndTagPluginInput]":
         if d is None:
             return None

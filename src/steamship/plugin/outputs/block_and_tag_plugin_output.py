@@ -12,7 +12,7 @@ class BlockAndTagPluginOutput:
 
     @staticmethod
     def from_dict(
-        d: Any = None, client: Client = None
+            d: Any = None, client: Client = None
     ) -> "Optional[BlockAndTagPluginOutput]":
         if d is None:
             return None

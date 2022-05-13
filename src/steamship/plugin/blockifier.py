@@ -1,12 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Any, Type
+from typing import Type
 
 from steamship.app import post, Response
 from steamship.base import Client
+from steamship.plugin.config import Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginService, PluginRequest
-from steamship.plugin.config import Config
+
 
 # Note!
 # =====
@@ -16,8 +17,6 @@ from steamship.plugin.config import Config
 # If you are using the Steamship Client, you probably want steamship.client.operations.converter instead
 # of this file.
 #
-
-
 
 
 class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC):

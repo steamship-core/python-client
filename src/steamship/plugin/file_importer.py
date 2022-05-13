@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 from steamship.app import Response, post
-from steamship.base import Client
 from steamship.plugin.inputs.file_import_plugin_input import FileImportPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.service import PluginRequest, PluginService
@@ -19,7 +17,7 @@ from steamship.plugin.service import PluginRequest, PluginService
 class FileImporter(PluginService[FileImportPluginInput, RawDataPluginOutput], ABC):
     @abstractmethod
     def run(
-        self, request: PluginRequest[FileImportPluginInput]
+            self, request: PluginRequest[FileImportPluginInput]
     ) -> Response[RawDataPluginOutput]:
         raise NotImplementedError()
 
