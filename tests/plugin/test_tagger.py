@@ -1,7 +1,11 @@
+import pytest
+
 from steamship.app.response import Response
 from steamship.data.block import Block
 from steamship.extension.file import File
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
+from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
 
@@ -42,3 +46,14 @@ def test_parser():
     res2 = parser.run_endpoint(**TEST_PLUGIN_REQ_DICT)
     _test_resp(res2)
 
+    # This plugin is not trainable, and thus it refuses training parameters requests
+    with pytest.raises(Exception):
+        parser.get_training_parameters(PluginRequest(data=TrainingParameterPluginInput()))
+    with pytest.raises(Exception):
+        parser.get_training_parameters_endpoint(**PluginRequest(data=TrainingParameterPluginInput()))
+
+    # This plugin is not trainable, and thus it refuses train requests
+    with pytest.raises(Exception):
+        parser.train(PluginRequest(data=TrainPluginInput()))
+    with pytest.raises(Exception):
+        parser.train_endpoint(**PluginRequest(data=TrainPluginInput()))
