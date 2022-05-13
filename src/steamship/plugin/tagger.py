@@ -4,6 +4,7 @@ from typing import Any
 from steamship.app import Response, post
 from steamship.base import Client
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
+from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest, PluginService
 
@@ -26,5 +27,11 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
 
     @post("getTrainingParameters")
     def _get_training_parameters_endpoint(self, **kwargs) -> dict:
+        plugin_request = PluginRequest.from_dict(
+            kwargs,
+            subclass_request_from_dict=TrainingParameterPluginInput.from_dict
+        )
+
+
         parse_request = Tagger.parse_request(request=kwargs)
         return self.run(parse_request)
