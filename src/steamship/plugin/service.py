@@ -28,9 +28,9 @@ class PluginRequest(Generic[T]):
 
     @staticmethod
     def from_dict(
-        d: Any,
-        wrapped_object_from_dict: Callable[[dict, Client], T] = None,
-        client: Client = None,
+            d: Any,
+            wrapped_object_from_dict: Callable[[dict, Client], T] = None,
+            client: Client = None,
     ) -> "PluginRequest[T]":
         """Create a PluginRequest[T] from a Python dictionary.
 

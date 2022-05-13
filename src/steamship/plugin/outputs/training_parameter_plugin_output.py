@@ -20,7 +20,7 @@ class TrainingParameterPluginOutput:
 
     @staticmethod
     def from_dict(
-        d: Any = None, client: Client = None
+            d: Any = None, client: Client = None
     ) -> "TrainingParameterPluginOutput":
         if d is None:
             return None

@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 from steamship.app import Response, post
-from steamship.base import Client
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -21,7 +19,7 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
 
     @abstractmethod
     def run(
-        self, request: PluginRequest[BlockAndTagPluginInput]
+            self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         raise NotImplementedError()
 

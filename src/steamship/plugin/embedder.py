@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 from steamship.app import Response, post
-from steamship.base import Client
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.embedded_items_plugin_output import (
     EmbeddedItemsPluginOutput,
@@ -21,7 +19,7 @@ from steamship.plugin.service import PluginRequest, PluginService
 class Embedder(PluginService[BlockAndTagPluginInput, EmbeddedItemsPluginOutput], ABC):
     @abstractmethod
     def run(
-        self, request: PluginRequest[BlockAndTagPluginInput]
+            self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[EmbeddedItemsPluginOutput]:
         raise NotImplementedError()
 

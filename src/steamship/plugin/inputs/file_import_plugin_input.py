@@ -15,7 +15,7 @@ class FileImportPluginInput:
     # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(
-        d: Any = None, client: Client = None
+            d: Any = None, client: Client = None
     ) -> "Optional[FileImportPluginInput]":
         if d is None:
             return None
