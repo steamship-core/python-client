@@ -17,12 +17,6 @@ from steamship.plugin.service import PluginRequest, PluginService
 # of this file.
 #
 class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
-    @classmethod
-    def subclass_request_from_dict(
-        cls, d: Any, client: Client = None
-    ) -> PluginRequest[BlockAndTagPluginInput]:
-        return BlockAndTagPluginInput.from_dict(d, client=client)
-
     @abstractmethod
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
@@ -30,6 +24,8 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
         raise NotImplementedError()
 
     @post("tag")
-    def parse(self, **kwargs) -> dict:
-        parse_request = Tagger.parse_request(request=kwargs)
-        return self.run(parse_request)
+    def run_endpoint(self, **kwargs) -> Response[BlockAndTagPluginOutput]:
+        """Exposes the Tagger's `run` operation to the Steamship Engine via the expected HTTP path POST /tag"""
+        return self.run(
+            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=BlockAndTagPluginInput.from_dict)
+        )

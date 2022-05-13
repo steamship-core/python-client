@@ -1,14 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Any, Type
 
-from pydantic import BaseModel
-
 from steamship.app import post, Response
 from steamship.base import Client
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginService, PluginRequest
-
+from steamship.plugin.config import Config
 
 # Note!
 # =====
@@ -20,10 +18,6 @@ from steamship.plugin.service import PluginService, PluginRequest
 #
 
 
-class Config(BaseModel):
-    def __init__(self, **kwargs):
-        kwargs = {k: v for k, v in kwargs.items() if v}
-        super().__init__(**kwargs)
 
 
 class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC):
@@ -31,21 +25,17 @@ class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC
         if config:
             self.config = self.config_cls()(**config)
 
-    @classmethod
-    def subclass_request_from_dict(
-        cls, d: Any, client: Client = None
-    ) -> RawDataPluginInput:
-        return RawDataPluginInput.from_dict(d, client=client)
-
     @abstractmethod
     def config_cls(self) -> Type[Config]:
         raise NotImplementedError()
 
     @abstractmethod
-    def run(self, request: PluginRequest[RawDataPluginInput]):
+    def run(self, request: PluginRequest[RawDataPluginInput]) -> Response[BlockAndTagPluginOutput]:
         raise NotImplementedError()
 
     @post("blockify")
-    def blockify(self, **kwargs) -> Response:
-        raw_data_plugin_input = Blockifier.parse_request(request=kwargs)
-        return self.run(raw_data_plugin_input)
+    def blockify(self, **kwargs) -> Response[BlockAndTagPluginOutput]:
+        """Exposes the Corpus Importer's `run` operation to the Steamship Engine via the expected HTTP path POST /import"""
+        return self.run(
+            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=RawDataPluginInput.from_dict)
+        )
