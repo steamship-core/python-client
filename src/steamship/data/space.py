@@ -19,7 +19,6 @@ class SignedUrl:
         userData = "userData"
         pluginData = "pluginData"
         appData = "appData"
-        models = "models"
 
     class Operation:
         read = "Read"

@@ -7,12 +7,12 @@ from steamship.base import Client
 @dataclass
 class TrainPluginInput:
     """
-    This is the object passed as input to a training operation, stored as the `input` field of a `train` task.
+    This is the object passed as input to a trainable operation, stored as the `input` field of a `train` task.
     """
 
-    # The tenant in which training is happening
+    # The tenant in which trainable is happening
     tenantId: str = None
-    # The space in which training is happening
+    # The space in which trainable is happening
     spaceId: str = None
 
     # The plugin instance being trained (this is the handle)
@@ -30,7 +30,7 @@ class TrainPluginInput:
     # A URL that has been pre-signed, permitting upload to that location
     modelUploadUrl: str = None
 
-    # How may epochs of training to perform, if relevant and supported
+    # How may epochs of trainable to perform, if relevant and supported
     trainingEpochs: int = None
     # How much data to hold out for testing & reporting, if relevant and supported.
     testingHoldoutPercent: float = None
@@ -40,11 +40,14 @@ class TrainPluginInput:
     # Arbitrary key-valued data to provide to the particular `modelName` trainer.
     trainingParams: dict = None
     # Arbitrary key-valued data to provide to the inference runner in the TrainPluginOutput object.
-    # The training process will have the opportunity to amend this before writing it to the output
+    # The trainable process will have the opportunity to amend this before writing it to the output
     inferenceParams: dict = None
 
-    # A pre-signed URL at which the training data can be found
+    # A pre-signed URL at which the trainable data can be found
     trainingDataUrl: str = None
+
+    # Task ID for updates
+    trainTaskId: str = None
 
     @staticmethod
     def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainPluginInput]":
@@ -65,6 +68,7 @@ class TrainPluginInput:
             trainingParams=d.get("trainingParams", None),
             inferenceParams=d.get("inferenceParams", None),
             trainingDataUrl=d.get("trainingDataUrl", None),
+            trainTaskId=d.get("trainTaskId", None)
         )
 
     def to_dict(self) -> Dict:
@@ -82,4 +86,5 @@ class TrainPluginInput:
             trainingParams=self.trainingParams,
             inferenceParams=self.inferenceParams,
             trainingDataUrl=self.trainingDataUrl,
+            trainTaskId=self.trainTaskId
         )

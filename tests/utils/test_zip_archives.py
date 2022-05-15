@@ -4,6 +4,8 @@ __license__ = "MIT"
 import shutil
 import tempfile
 import os
+from pathlib import Path
+
 from tests import TEST_ASSETS_PATH
 from steamship.utils.zip_archives import zip_folder, unzip_folder
 
@@ -15,7 +17,7 @@ def test_zip_unzip():
     shutil.copytree(TEST_ASSETS_PATH, os.path.join(tempbase, "src"))
 
     # Zip that folder
-    zip_folder(os.path.join(tempbase, "src"))
+    zip_folder(Path(tempbase) / "src")
 
     # Verify that on disk, src.zip exists
     assert (os.path.exists(os.path.join(tempbase, "src.zip")) == True)
@@ -29,7 +31,7 @@ def test_zip_unzip():
     assert (os.path.exists(os.path.join(tempbase, "dest")) == False)
 
     # Unzip that folder
-    unzip_folder(os.path.join(tempbase, "dest.zip"))
+    unzip_folder(Path(tempbase) / "dest.zip")
 
     # Verify that on disk, dest/ exists
     assert (os.path.exists(os.path.join(tempbase, "dest")) == True)

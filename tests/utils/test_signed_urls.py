@@ -14,7 +14,7 @@ from tests.utils.random import random_name
 from steamship.utils.signed_urls import upload_to_signed_url, download_from_signed_url
 
 def test_upload_download():
-    """This test simulates some of the operations models must do when training/loading.
+    """This test simulates some of the operations models must do when trainable/loading.
 
     It performs the following steps:
 
@@ -33,7 +33,8 @@ def test_upload_download():
     # Zip that folder
     zip_folder(os.path.join(tempbase, "src"))
     zip_path = os.path.join(tempbase, "src.zip")
-    download_path = os.path.join(tempbase, "out.zip")
+    download_filename = "out.zip"
+    download_path = os.path.join(tempbase, download_filename)
 
     # Verify that on disk, src.zip exists
     assert (os.path.exists(zip_path) == True)
@@ -65,7 +66,7 @@ def test_upload_download():
     assert (download_resp.data.signedUrl is not None)
 
     # Download the zip file to the URL
-    download_from_signed_url(download_resp.data.signedUrl, desired_filename=download_path)
+    download_from_signed_url(download_resp.data.signedUrl, into_folder=tempbase, to_filename=download_filename)
 
     # Verify the download URL is there
     assert (os.path.exists(download_path) == True)

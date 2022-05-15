@@ -18,7 +18,7 @@ from ..utils.deployables import deploy_plugin
 
 
 def test_get_training_parameters():
-    """Any trainable plugin needs a Python+Lambda component that can report its training params.
+    """Any trainable plugin needs a Python+Lambda component that can report its trainable params.
     This tests that all the plumbing works for that to be returned"""
     client = get_steamship_client()
     tagger_path = APPS_PATH / "plugins" / "taggers" / "plugin_trainable_tagger.py"

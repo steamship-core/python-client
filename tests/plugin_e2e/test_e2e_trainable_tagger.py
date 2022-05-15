@@ -44,7 +44,7 @@ def test_e2e_trainable_tagger_ecs_training():
         APPS_PATH / "plugins" / "taggers" / "plugin_trainable_tagger.py"
     )
 
-    # Make a blockifier which will generate our training corpus
+    # Make a blockifier which will generate our trainable corpus
     with deploy_plugin(
         client,
         csv_blockifier_path,

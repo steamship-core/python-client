@@ -25,6 +25,12 @@ U = TypeVar("U")
 @dataclass
 class PluginRequest(Generic[T]):
     data: T = None
+    plugin_id: str = None
+    plugin_handle: str = None
+    plugin_version_id: str = None
+    plugin_version_handle: str = None
+    plugin_instance_id: str = None
+    plugin_instance_handle: str = None
 
     @staticmethod
     def from_dict(
@@ -46,13 +52,29 @@ class PluginRequest(Generic[T]):
                 raise SteamshipError(
                     message="No `wrapped_object_from_dict` provided to parse inbound dict request."
                 )
-        return PluginRequest(data=data)
+        return PluginRequest(
+            data=data,
+            plugin_id=d.get("pluginId", None),
+            plugin_handle=d.get("pluginHandle", None),
+            plugin_version_id=d.get("pluginVersionId", None),
+            plugin_version_handle=d.get("pluginVersionHandle", None),
+            plugin_instance_id=d.get("pluginInstanceId", None),
+            plugin_instance_handle=d.get("pluginInstanceHandle", None)
+        )
 
     def to_dict(self) -> dict:
         if self.data is None:
             return {}
         else:
-            return {"data": self.data.to_dict()}
+            return {
+                "data": self.data.to_dict(),
+                "pluginId": self.plugin_id,
+                "pluginHandle": self.plugin_handle,
+                "pluginVersionId": self.plugin_version_id,
+                "pluginVersionHandle": self.plugin_version_handle,
+                "pluginInstanceId": self.plugin_instance_id,
+                "pluginInstanceHandle": self.plugin_instance_handle
+            }
 
 
 class PluginService(ABC, Generic[T, U]):
@@ -70,7 +92,7 @@ class PluginService(ABC, Generic[T, U]):
 
     Other plugins have state but in a very controlled way:
     - they can be trained,
-    - this training process produces a "model",
+    - this trainable process produces a "model",
     - that model acts as the state on which the `run` method is conditioned
 
     This model is stored in the Steamship Space that owns the Plugin Instance, and access to it is provided by the
@@ -92,11 +114,11 @@ class PluginService(ABC, Generic[T, U]):
         pass
 
     def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
-        """Produces the training parameters for this plugin.
+        """Produces the trainable parameters for this plugin.
 
         - If the plugin is not trainable, the subclass simply doesn't override this method.
         - If the plugin is trainable, this gives the hard-coded plugin implementation an opportunity to refine
-          any training parameters supplied by the end-user before training begins.
+          any trainable parameters supplied by the end-user before trainable begins.
         """
         raise SteamshipError(
             message="get_training_parameters has not been implemented on this plugin.",
@@ -106,11 +128,11 @@ class PluginService(ABC, Generic[T, U]):
         )
 
     def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
-        """Produces the training parameters for this plugin.
+        """Produces the trainable parameters for this plugin.
 
         - If the plugin is not trainable, the subclass simply doesn't override this method.
         - If the plugin is trainable, this gives the hard-coded plugin implementation an opportunity to refine
-          any training parameters supplied by the end-user before training begins.
+          any trainable parameters supplied by the end-user before trainable begins.
         """
         raise SteamshipError(
             message="train has not been implemented on this plugin.",

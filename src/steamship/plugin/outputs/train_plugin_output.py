@@ -7,12 +7,12 @@ from steamship.base import Client
 @dataclass
 class TrainPluginOutput:
     """
-    This is the object produced by a completed training operation, stored as the `output` field of a `train` task.
+    This is the object produced by a completed trainable operation, stored as the `output` field of a `train` task.
     """
 
-    # The tenant in which training is happening
+    # The tenant in which trainable is happening
     tenantId: str = None
-    # The space in which training is happening
+    # The space in which trainable is happening
     spaceId: str = None
     #  The name of the model being trained
     modelName: str = None
@@ -25,7 +25,7 @@ class TrainPluginOutput:
     modelUploadUrl: str = None
 
     # Arbitrary key-valued data to provide to the inference runner.
-    # The training process will have the opportunity to amend this before writing it to the output
+    # The trainable process will have the opportunity to amend this before writing it to the output
     inferenceParams: dict = None
 
     progress: dict = None

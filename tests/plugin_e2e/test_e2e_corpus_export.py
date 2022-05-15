@@ -48,7 +48,7 @@ def test_e2e_corpus_export():
 
     csv_blockifier_path = APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
 
-    # Make a blockifier which will generate our training corpus
+    # Make a blockifier which will generate our trainable corpus
     with deploy_plugin(
         client,
         csv_blockifier_path,

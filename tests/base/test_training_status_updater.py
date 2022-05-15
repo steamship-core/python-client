@@ -8,7 +8,7 @@ __license__ = "MIT"
 from steamship.base.tasks import TaskState
 from tests.utils.client import get_steamship_client
 from tests.base.test_task import NoOpResult
-from steamship.base.training_task_updater import TrainingTaskUpdater
+from steamship.plugin.trainable.model_trainer import ModelTrainer
 
 
 def test_training_progress_wrapper():
@@ -30,7 +30,7 @@ def test_training_progress_wrapper():
     # Let's experiment with some calls
 
     # Call 1: Fail
-    updater = TrainingTaskUpdater(result_2.task)
+    updater = ModelTrainer(result_2.task)
 
     error = SteamshipError(message="Oh no!")
     updater.record_training_failed(error=error)

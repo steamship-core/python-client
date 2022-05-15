@@ -1,3 +1,7 @@
+import json
+from pathlib import Path
+from typing import List
+
 from steamship import SteamshipError
 from steamship.app import App, Response, create_handler, post
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
@@ -10,16 +14,36 @@ from steamship.plugin.outputs.training_parameter_plugin_output import (
 )
 from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import Tagger
-
+from steamship.plugin.trainable.model_loader import ModelLoader
+from steamship.plugin.trainable.model_trainer import ModelTrainer
 
 FEATURES = ["roses", "chocolate", "sweet"]
+
+class TrainableTagger:
+    """This is the model itself."""
+    FEATURE_FILE = "features.json"
+
+    features: List[str] = None
+
+    def __init__(self, path: Path):
+        self.path = path
+        with open(path / TrainableTagger.FEATURE_FILE, 'r') as f:
+            self.features = json.loads(f.read())
+
+    def run(
+        self, request: PluginRequest[BlockAndTagPluginInput]
+    ) -> Response[BlockAndTagPluginOutput]:
+        """Tags any instance of the strings found in `FEATURE_FILE`"""
+        # TODO: Tag each instance of the located features.
+        pass
+
 
 class TestTrainableTaggerPlugin(Tagger, App):
     """Tests the Trainable Tagger lifecycle.
 
-    - This tagger produces a FIXED set of training parameters.
-    - These parameters (and not the training data!) fully parameterize the trained model.
-    - The trained model (and not the training parameters!) fully parameterize the running model.
+    - This tagger produces a FIXED set of trainable parameters.
+    - These parameters (and not the trainable data!) fully parameterize the trained model.
+    - The trained model (and not the trainable parameters!) fully parameterize the running model.
     - The model simply tags keywords that it finds in the text.
 
     Taken together, this plugin can be seen as a reference implementation of the data/process lifecycle of a trainable
@@ -40,12 +64,20 @@ class TestTrainableTaggerPlugin(Tagger, App):
         )
     )
 
+    TRAIN_RESPONSE = TrainPluginOutput(
+    )
+
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
-        raise SteamshipError(
-            message="Inference on this tagger is performed by the Steamship Inference Cloud."
+        """Downloads the model file from the provided space"""
+        loader = ModelLoader(
+            self.client,
+            plugin_instance_id=request.plugin_instance_id,
+            model_constructor=TrainableTagger.__init__
         )
+        model = loader.get_model()
+        return model.run(request)
 
 
     def get_training_parameters(
@@ -57,23 +89,36 @@ class TestTrainableTaggerPlugin(Tagger, App):
     def train(
         self, request: PluginRequest[TrainPluginInput]
     ) -> Response[TrainPluginOutput]:
-        """Since training can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
-        return Response(data=TestTrainableTaggerPlugin.TRAINING_PARAMETERS)
+        """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
 
-
-
-
-    @post("train")
-    def train(self, **kwargs) -> Response[TrainPluginInput]:
-        train_plugin_input = TrainPluginInput.from_dict(kwargs)
-        return Response(
-            data=TrainPluginOutput(
-                tenantId=train_plugin_input.tenantId,
-                spaceId=train_plugin_input.spaceId,
-                modelUploadUrl=train_plugin_input.modelUploadUrl,
-                modelFilename=train_plugin_input.modelFilename,
-            )
+        trainer = ModelTrainer(
+            self.client,
+            plugin_instance_id=request.plugin_instance_id,
+            train_plugin_input=request.data
         )
 
+        # Example of having recorded that training started
+        trainer.record_training_started()
+
+        # Example of recording training progress
+        trainer.record_training_progress(
+            progress_dict={
+                "status": "Anything can go here!"
+            }
+        )
+
+        # Example of saving a checkpoint of the model
+        checkpoint = trainer.create_model_checkpoint("V1")
+        with open(checkpoint.folder_path_on_disk() / TrainableTagger.FEATURE_FILE, 'w') as f:
+            f.write(json.dumps(FEATURES))
+
+        # Example of recording training completion
+        trainer.record_training_complete(output_dict={
+            "status": "Anything can go here, too"
+        })
+
+        # TODO: We need to decide what the relationship is between TrainPluginOutput,
+        # a status update, and a completion update is.
+        return Response(data=TestTrainableTaggerPlugin.TRAIN_RESPONSE)
 
 handler = create_handler(TestTrainableTaggerPlugin)
