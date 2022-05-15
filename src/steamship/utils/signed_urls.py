@@ -47,7 +47,7 @@ def upload_to_signed_url(url: str, bytes: Optional[bytes] = None, filepath: Opti
             suggestion="Please provide either the `bytes` or the `filepath` argument"
         )
 
-    files = {'file': (filepath, bytes)}
+    files = {'file': (str(filepath), bytes)}
     parsed_url = urllib.parse.urlparse(url)
 
     if "amazonaws.com" in parsed_url.netloc:

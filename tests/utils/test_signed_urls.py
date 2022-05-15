@@ -4,6 +4,7 @@ __license__ = "MIT"
 import shutil
 import tempfile
 import os
+from pathlib import Path
 
 from steamship import Space
 from steamship.data.space import SignedUrl
@@ -27,14 +28,12 @@ def test_upload_download():
 
     """
     # Copy the test assets to a temp folder
-    tempbase = tempfile.mkdtemp()
+    tempbase = Path(tempfile.mkdtemp())
     shutil.copytree(TEST_ASSETS_PATH, os.path.join(tempbase, "src"))
 
     # Zip that folder
-    zip_folder(os.path.join(tempbase, "src"))
-    zip_path = os.path.join(tempbase, "src.zip")
-    download_filename = "out.zip"
-    download_path = os.path.join(tempbase, download_filename)
+    zip_path = tempbase / Path("src.zip")
+    zip_folder(tempbase / Path("src"), into_file=zip_path)
 
     # Verify that on disk, src.zip exists
     assert (os.path.exists(zip_path) == True)
@@ -44,7 +43,7 @@ def test_upload_download():
     space = Space.get(client=client).data
     upload_name = random_name()
     url_resp =space.create_signed_url(SignedUrl.Request(
-        bucket=SignedUrl.Bucket.models,
+        bucket=SignedUrl.Bucket.pluginData,
         filepath=upload_name,
         operation=SignedUrl.Operation.write
     ))
@@ -56,8 +55,8 @@ def test_upload_download():
     upload_to_signed_url(url_resp.data.signedUrl, filepath=zip_path)
 
     # Now create a download signed URL
-    download_resp =space.create_signed_url(SignedUrl.Request(
-        bucket=SignedUrl.Bucket.models,
+    download_resp = space.create_signed_url(SignedUrl.Request(
+        bucket=SignedUrl.Bucket.pluginData,
         filepath=upload_name,
         operation=SignedUrl.Operation.read
     ))
@@ -66,7 +65,8 @@ def test_upload_download():
     assert (download_resp.data.signedUrl is not None)
 
     # Download the zip file to the URL
-    download_from_signed_url(download_resp.data.signedUrl, into_folder=tempbase, to_filename=download_filename)
+    download_path = tempbase / Path("out.zip")
+    download_from_signed_url(download_resp.data.signedUrl, to_file=download_path)
 
     # Verify the download URL is there
     assert (os.path.exists(download_path) == True)
