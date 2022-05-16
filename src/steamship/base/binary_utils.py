@@ -1,6 +1,7 @@
 import base64
 import dataclasses
 import io
+import json as jsonlib
 import logging
 from typing import Any, Tuple, Union
 
@@ -62,13 +63,16 @@ def flexi_create(
             ret_data, ret_mime = string, mime_type or MimeTypes.TXT
 
         elif json is not None:
-            if dataclasses.is_dataclass(json):
-                ret_data, ret_mime = (
-                    dataclasses.asdict(json),
-                    mime_type or MimeTypes.JSON,
-                )
+            ret_mime = mime_type or MimeTypes.JSON
+
+            if hasattr(json, "to_dict"):
+                ret_dict = getattr(json, "to_dict")()
+                ret_data = ret_dict
+            elif dataclasses.is_dataclass(json):
+                ret_dict = dataclasses.asdict(json)
+                ret_data = ret_dict
             else:
-                ret_data, ret_mime = json, mime_type or MimeTypes.JSON
+                ret_data = json
 
         elif _bytes is not None:
             if isinstance(_bytes, io.BytesIO):
@@ -81,12 +85,17 @@ def flexi_create(
             ret_encoding = ContentEncodings.BASE64
 
         if ret_data is not None:
-            logging.error("had ret data")
             if force_base64 is False:
                 return ret_data, ret_mime, ret_encoding
             if is_b64 is True:
                 return ret_data, ret_mime, ContentEncodings.BASE64
             else:
+                if json is not None:
+                    # If it was JSON, we need to dump the object first!
+                    # Otherwise it will end up getting turned to the Python's object representation format
+                    # which will result in invalid JSON
+                    ret_data = jsonlib.dumps(ret_data)
+
                 return (
                     to_b64(ret_data),
                     ret_mime or MimeTypes.BINARY,

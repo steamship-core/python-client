@@ -33,6 +33,18 @@ class SignedUrl:
         expiresInMinutes: int = None
         signedUrl: str = None
 
+        @staticmethod
+        def from_dict(d: dict, client: Client):
+            if d is None:
+                return None
+            return SignedUrl.Response(
+                bucket=d.get('bucket', None),
+                filepath=d.get('filepath', None),
+                operation=d.get('operation', None),
+                expiresInMinutes=d.get('expiresInMinutes', None),
+                signedUrl=d.get('signedUrl', None),
+            )
+
 
 @dataclass
 class Space:
@@ -65,13 +77,13 @@ class Space:
 
     @staticmethod
     def get(
-        client: Client,
-        id_: str = None,
-        handle: str = None,
-        upsert: bool = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: "Space" = None,
+            client: Client,
+            id_: str = None,
+            handle: str = None,
+            upsert: bool = None,
+            space_id: str = None,
+            space_handle: str = None,
+            space: "Space" = None,
     ) -> "Response[Space]":
         req = GetRequest(id=id_, handle=handle, upsert=upsert)
         return client.post(
@@ -85,12 +97,12 @@ class Space:
 
     @staticmethod
     def create(
-        client: Client,
-        handle: str,
-        external_id: str = None,
-        external_type: str = None,
-        metadata: Any = None,
-        upsert: bool = True,
+            client: Client,
+            handle: str,
+            external_id: str = None,
+            external_type: str = None,
+            metadata: Any = None,
+            upsert: bool = True,
     ) -> "Response[Space]":
         req = Space.CreateRequest(
             handle=handle,
@@ -102,4 +114,6 @@ class Space:
         return client.post("space/create", req, expect=Space)
 
     def create_signed_url(self, request: SignedUrl.Request) -> Response[SignedUrl.Response]:
-        return self.client.post("space/createSignedUrl", payload=request, expect=SignedUrl.Response)
+        return self.client.post("space/createSignedUrl",
+                                payload=request,
+                                expect=SignedUrl.Response)

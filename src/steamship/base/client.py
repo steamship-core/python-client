@@ -120,6 +120,7 @@ class Client:
         app_owner: str = None,
         app_id: str = None,
         app_instance_id: str = None,
+        as_background_task: bool = False,
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
@@ -138,6 +139,13 @@ class Client:
                 headers["X-App-Id"] = app_id
             if app_instance_id:
                 headers["X-App-Instance-Id"] = app_instance_id
+
+        if as_background_task:
+            # Will result in the engine persisting the inbound HTTP request as a Task for deferred
+            # execution. The client will receive task information back instead of the synchronous API response.
+            # That task can be polled for eventual completion.
+            headers["X-Task-Background"] = "true"
+
         return headers
 
     @staticmethod
@@ -217,6 +225,7 @@ class Client:
         app_owner: str = None,
         app_id: str = None,
         app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
+        as_background_task: bool = False,
     ) -> Union[Any, Response[T]]:
         # TODO (Enias): Make shorter
         # TODO (Enias): Review naming convention
@@ -262,6 +271,7 @@ class Client:
             app_owner=app_owner,
             app_id=app_id,
             app_instance_id=app_instance_id,
+            as_background_task=as_background_task
         )
 
         data = self._data(verb=verb, file=file, payload=payload)
@@ -350,6 +360,7 @@ class Client:
         app_owner: str = None,
         app_id: str = None,
         app_instance_id: str = None,
+        as_background_task: bool = False,
     ) -> Union[Any, Response[T]]:
         return self.call(
             verb="POST",
@@ -368,6 +379,7 @@ class Client:
             app_owner=app_owner,
             app_id=app_id,
             app_instance_id=app_instance_id,
+            as_background_task=as_background_task,
         )
 
     def get(
@@ -387,6 +399,7 @@ class Client:
         app_owner: str = None,
         app_id: str = None,
         app_instance_id: str = None,
+        as_background_task: bool = False,
     ) -> Union[Any, Response[T]]:
         return self.call(
             verb="GET",
@@ -405,4 +418,5 @@ class Client:
             app_owner=app_owner,
             app_id=app_id,
             app_instance_id=app_instance_id,
+            as_background_task=as_background_task,
         )

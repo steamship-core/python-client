@@ -44,6 +44,6 @@ class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC
         raise NotImplementedError()
 
     @post("blockify")
-    def blockify(self, **kwargs) -> Response:
+    def blockify(self, **kwargs) -> Response[BlockAndTagPluginOutput]:
         raw_data_plugin_input = Blockifier.parse_request(request=kwargs)
         return self.run(raw_data_plugin_input)
