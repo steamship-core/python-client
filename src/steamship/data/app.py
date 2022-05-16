@@ -37,7 +37,7 @@ class App:
     def from_dict(d: Any, client: Client = None) -> "App":
         if "app" in d:
             d = d["app"]
-        return App(client=client, id=d.get("id", None), handle=d.get("handle"))
+        return App(client=client, id=d.get("id"), handle=d.get("handle"))
 
     @staticmethod
     def create(client: Client, handle: str = None, upsert: bool = None) -> "Response[App]":

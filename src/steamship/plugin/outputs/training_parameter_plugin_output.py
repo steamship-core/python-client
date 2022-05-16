@@ -27,14 +27,14 @@ class TrainingParameterPluginOutput:
             return None
 
         return TrainingParameterPluginOutput(
-            machineType=d.get("machineType", None),
-            modelName=d.get("modelName", None),
-            modelFilename=d.get("modelFilename", None),
-            trainingEpochs=d.get("trainingEpochs", None),
-            testingHoldoutPercent=d.get("testingHoldoutPercent", None),
-            testSplitSeed=d.get("testSplitSeed", None),
-            trainingParams=d.get("trainingParams", None),
-            exportRequest=ExportPluginInput.from_dict(d.get("exportPluginInput", None), client),
+            machineType=d.get("machineType"),
+            modelName=d.get("modelName"),
+            modelFilename=d.get("modelFilename"),
+            trainingEpochs=d.get("trainingEpochs"),
+            testingHoldoutPercent=d.get("testingHoldoutPercent"),
+            testSplitSeed=d.get("testSplitSeed"),
+            trainingParams=d.get("trainingParams"),
+            exportRequest=ExportPluginInput.from_dict(d.get("exportPluginInput"), client),
         )
 
     def to_dict(self) -> Dict:

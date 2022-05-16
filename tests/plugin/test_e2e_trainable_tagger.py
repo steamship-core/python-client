@@ -63,7 +63,7 @@ def test_e2e_trainable_tagger_ecs_training():
                 training_request = TrainingParameterPluginInput(
                     pluginInstance=taggerInstance.handle,
                     exportRequest=ExportPluginInput(
-                        plugin_instance=EXPORTER_HANDLE, type="corpus", handle="default"
+                        pluginInstance=EXPORTER_HANDLE, type="corpus", handle="default"
                     ),
                 )
 

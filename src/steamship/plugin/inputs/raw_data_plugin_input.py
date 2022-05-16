@@ -37,7 +37,7 @@ class RawDataPluginInput:
         # TODO: We need to do a pass on proper encoding across the engine and clients.
         # if data is not None and d.get('isBase64', False):
         #     data_bytes = base64.b64decode(data)
-        #     if d.get('defaultMimeType', None) in TEXT_MIME_TYPES:
+        #     if d.get('defaultMimeType') in TEXT_MIME_TYPES:
         #         data = data_bytes.decode('utf-8')
         #     else:
         #         data = data_bytes

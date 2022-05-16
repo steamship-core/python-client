@@ -271,7 +271,7 @@ class Client:
             app_owner=app_owner,
             app_id=app_id,
             app_instance_id=app_instance_id,
-            as_background_task=as_background_task
+            as_background_task=as_background_task,
         )
 
         data = self._data(verb=verb, file=file, payload=payload)

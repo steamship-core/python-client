@@ -114,7 +114,7 @@ class File:
         # noinspection PyUnusedLocal
         @staticmethod
         def from_dict(d: Any, client: Client = None) -> "File.CreateResponse":
-            return File.CreateResponse(data=d.get("data", None), mime_type=d.get("mimeType"))
+            return File.CreateResponse(data=d.get("data"), mime_type=d.get("mimeType"))
 
         def to_dict(self) -> dict:
             return dict(data=self.data, mimeType=self.mimeType)

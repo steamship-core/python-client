@@ -121,7 +121,7 @@ class IndexItemId:
     # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "IndexItemId":
-        return IndexItemId(indexId=d.get("indexId", None), id=d.get("id"))
+        return IndexItemId(indexId=d.get("indexId"), id=d.get("id"))
 
 
 @dataclass
@@ -176,7 +176,7 @@ class IndexSnapshotResponse:
     # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "IndexSnapshotResponse":
-        return IndexSnapshotResponse(id=d.get("id", None), snapshotId=d.get("snapshotId"))
+        return IndexSnapshotResponse(id=d.get("id"), snapshotId=d.get("snapshotId"))
 
 
 @dataclass
