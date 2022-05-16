@@ -1,12 +1,12 @@
+import logging
+
 from steamship import SteamshipError
 from steamship.app import App, Response, create_handler, post
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
-from steamship.plugin.outputs.training_parameter_plugin_output import (
-    TrainingParameterPluginOutput,
-)
+from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import Tagger
 
@@ -30,9 +30,8 @@ class TestTrainableTaggerPlugin(Tagger, App):
 
     # noinspection PyUnusedLocal
     @post("getTrainingParameters")
-    def get_training_parameters(
-        self, **kwargs
-    ) -> Response[TrainingParameterPluginOutput]:
+    def get_training_parameters(self, **kwargs) -> Response[TrainingParameterPluginOutput]:
+        logging.info(f"get training parameters {TestTrainableTaggerPlugin.RESPONSE}")
         return Response(data=TestTrainableTaggerPlugin.RESPONSE)
 
     @post("train")
@@ -40,10 +39,10 @@ class TestTrainableTaggerPlugin(Tagger, App):
         train_plugin_input = TrainPluginInput.from_dict(kwargs)
         return Response(
             data=TrainPluginOutput(
-                tenantId=train_plugin_input.tenantId,
-                spaceId=train_plugin_input.spaceId,
-                modelUploadUrl=train_plugin_input.modelUploadUrl,
-                modelFilename=train_plugin_input.modelFilename,
+                tenant_id=train_plugin_input.tenant_id,
+                space_id=train_plugin_input.space_id,
+                model_upload_url=train_plugin_input.model_upload_url,
+                model_filename=train_plugin_input.model_filename,
             )
         )
 

@@ -31,11 +31,11 @@ class Block:
         @staticmethod
         def from_dict(d: Any, client: Client = None) -> "Block.CreateRequest":
             return Block.CreateRequest(
-                id=d.get("id", None),
-                fileId=d.get("fileId", None),
-                text=d.get("text", None),
+                id=d.get("id"),
+                fileId=d.get("fileId"),
+                text=d.get("text"),
                 tags=[Tag.CreateRequest.from_dict(tag) for tag in d.get("tags", [])],
-                upsert=d.get("upsert", None),
+                upsert=d.get("upsert"),
             )
 
         def to_dict(self) -> dict:
@@ -66,10 +66,7 @@ class Block:
             if d is None:
                 return None
             return Block.ListResponse(
-                blocks=[
-                    Block.from_dict(x, client=client)
-                    for x in (d.get("blocks", []) or [])
-                ]
+                blocks=[Block.from_dict(x, client=client) for x in (d.get("blocks", []) or [])]
             )
 
     @staticmethod
@@ -78,12 +75,10 @@ class Block:
             return None
         return Block(
             client=client,
-            id=d.get("id", None),
-            fileId=d.get("fileId", None),
-            text=d.get("text", None),
-            tags=list(
-                map(lambda tag: Tag.from_dict(tag, client=client), d.get("tags", []))
-            ),
+            id=d.get("id"),
+            fileId=d.get("fileId"),
+            text=d.get("text"),
+            tags=list(map(lambda tag: Tag.from_dict(tag, client=client), d.get("tags", []))),
         )
 
     def to_dict(self) -> dict:
@@ -179,7 +174,5 @@ class BlockQueryResponse:
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "BlockQueryResponse":
         return BlockQueryResponse(
-            blocks=[
-                Block.from_dict(block, client=client) for block in d.get("blocks", [])
-            ]
+            blocks=[Block.from_dict(block, client=client) for block in d.get("blocks", [])]
         )

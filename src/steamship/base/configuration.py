@@ -133,9 +133,7 @@ class Configuration:
                     self.merge_dict(j)
                 else:
                     if "profiles" not in j or profile not in j["profiles"]:
-                        raise Exception(
-                            f"Profile {profile} requested but not found in {filepath}"
-                        )
+                        raise Exception(f"Profile {profile} requested but not found in {filepath}")
                     self.merge_dict(j["profiles"][profile])
 
         except Exception as err:

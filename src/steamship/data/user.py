@@ -18,8 +18,8 @@ class User:
 
         return User(
             client=client,
-            id=d.get("id", None),
-            handle=d.get("handle", None),
+            id=d.get("id"),
+            handle=d.get("handle"),
         )
 
     def to_dict(self) -> dict:

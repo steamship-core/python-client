@@ -25,9 +25,7 @@ def zip_deployable(file_path: Path) -> bytes:
 
     package_paths = [
         SRC_PATH / "steamship",
-        SRC_PATH
-        / ".."
-        / "tests",  # This is included to test plugin development using inheritance
+        SRC_PATH / ".." / "tests",  # This is included to test plugin development using inheritance
         dependencies_path / "setuptools_scm",
         dependencies_path / "requests",
         dependencies_path / "charset_normalizer",
@@ -47,9 +45,7 @@ def zip_deployable(file_path: Path) -> bytes:
             for root, _, files in os.walk(package_path):
                 for file in files:
                     pypi_file = Path(root) / file
-                    zip_file.write(
-                        pypi_file, pypi_file.relative_to(package_path.parent)
-                    )
+                    zip_file.write(pypi_file, pypi_file.relative_to(package_path.parent))
 
     return zip_buffer.getvalue()
 

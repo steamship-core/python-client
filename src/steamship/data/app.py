@@ -37,12 +37,10 @@ class App:
     def from_dict(d: Any, client: Client = None) -> "App":
         if "app" in d:
             d = d["app"]
-        return App(client=client, id=d.get("id", None), handle=d.get("handle", None))
+        return App(client=client, id=d.get("id", None), handle=d.get("handle"))
 
     @staticmethod
-    def create(
-        client: Client, handle: str = None, upsert: bool = None
-    ) -> "Response[App]":
+    def create(client: Client, handle: str = None, upsert: bool = None) -> "Response[App]":
         req = CreateAppRequest(handle=handle, upsert=upsert)
         return client.post("app/create", payload=req, expect=App)
 

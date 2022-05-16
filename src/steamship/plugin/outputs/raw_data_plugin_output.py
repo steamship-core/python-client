@@ -31,7 +31,7 @@ class RawDataPluginOutput:
         self,
         base64string: str = None,
         string: str = None,
-        bytes: Union[bytes, io.BytesIO] = None,
+        _bytes: Union[bytes, io.BytesIO] = None,
         json: Any = None,
         mime_type: str = None,
     ):
@@ -44,7 +44,7 @@ class RawDataPluginOutput:
                 base64string=base64string,
                 string=string,
                 json=json,
-                _bytes=bytes,
+                _bytes=_bytes,
                 mime_type=mime_type,
                 force_base64=True,
             )
@@ -54,9 +54,7 @@ class RawDataPluginOutput:
     def from_dict(d: any, client: Client = None) -> "RawDataPluginOutput":
         # We expect the serialized version of this object to always include a Base64 encoded string,
         # so we present it to the constructor as such.
-        return RawDataPluginOutput(
-            base64string=d.get("data", None), mime_type=d.get("mimeType", None)
-        )
+        return RawDataPluginOutput(base64string=d.get("data", None), mime_type=d.get("mimeType"))
 
     def to_dict(self) -> dict:
         return dict(data=self.data, mimeType=self.mimeType)

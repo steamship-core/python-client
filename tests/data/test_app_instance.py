@@ -75,9 +75,9 @@ def test_instance_invoke():
         # resp_404 = get_raw("doesnt_exist")
         # json_404 = resp_404.json()
         # assert isinstance(json_404, dict)
-        # assert json_404.get("status", None) is not None
-        # assert json_404.get("status", None) is not None
-        # assert json_404.get("status", dict()).get("state", None) == TaskState.failed
+        # assert json_404.get("status") is not None
+        # assert json_404.get("status") is not None
+        # assert json_404.get("status", dict()).get("state") == TaskState.failed
         # # assert "No handler" in json_404.get("status", dict()).get("statusMessage", "")
         # assert resp_404.status_code == 404
         #

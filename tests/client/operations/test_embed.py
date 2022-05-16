@@ -55,10 +55,7 @@ def basic_embedding_search(steamship: Steamship, plugin_instance: str):
     query = "Who should I talk to about new employee setup?"
     results = steamship.embed_and_search(query, docs, plugin_instance=plugin_instance)
     assert len(results.data.items) == 1
-    assert (
-        results.data.items[0].value.value
-        == "Jonathan can help you with new employee onboarding"
-    )
+    assert results.data.items[0].value.value == "Jonathan can help you with new employee onboarding"
 
 
 def test_basic_embedding_search():

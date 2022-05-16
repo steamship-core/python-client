@@ -12,7 +12,7 @@ class EmbeddedItemsPluginOutput:
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "EmbeddedItemsPluginOutput":
         return EmbeddedItemsPluginOutput(
-            embeddings=d.get("embeddings", None),
+            embeddings=d.get("embeddings"),
         )
 
     def to_dict(self) -> dict:

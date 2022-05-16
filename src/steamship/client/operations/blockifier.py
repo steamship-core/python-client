@@ -16,9 +16,9 @@ class BlockifyRequest:
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "BlockifyRequest":
         return BlockifyRequest(
-            type=d.get("type", None),
-            pluginInstance=d.get("pluginInstance", None),
-            id=d.get("id", None),
-            handle=d.get("handle", None),
-            name=d.get("name", None),
+            type=d.get("type"),
+            pluginInstance=d.get("pluginInstance"),
+            id=d.get("id"),
+            handle=d.get("handle"),
+            name=d.get("name"),
         )

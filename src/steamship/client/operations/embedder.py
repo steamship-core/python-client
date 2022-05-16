@@ -15,7 +15,7 @@ class EmbedRequest:
     def from_dict(d: Any, client: Client = None) -> "EmbedRequest":
         # TODO (enias): Review these _: Client lines
         return EmbedRequest(
-            docs=d.get("docs", None),
-            pluginInstance=d.get("pluginInstance", None),
+            docs=d.get("docs"),
+            pluginInstance=d.get("pluginInstance"),
             metadata=d.get("metadata", {}),
         )

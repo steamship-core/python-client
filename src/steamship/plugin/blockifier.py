@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Type, Dict
+from typing import Any, Dict, Type
 
 from pydantic import BaseModel
 
@@ -8,7 +8,6 @@ from steamship.base import Client
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest, PluginService
-
 
 # Note!
 # =====
@@ -33,9 +32,7 @@ class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC
             self.config = self.config_cls()(**config)
 
     @classmethod
-    def subclass_request_from_dict(
-        cls, d: Any, client: Client = None
-    ) -> RawDataPluginInput:
+    def subclass_request_from_dict(cls, d: Any, client: Client = None) -> RawDataPluginInput:
         return RawDataPluginInput.from_dict(d, client=client)
 
     @abstractmethod
