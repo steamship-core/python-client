@@ -21,9 +21,7 @@ release = version
 
 # -- Path setup --------------------------------------------------------------
 
-__location__ = os.path.join(
-    os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe()))
-)
+__location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -49,9 +47,7 @@ try:
     # noinspection PyPackageRequirements
     import sphinx
 
-    cmd_line_template = (
-        "sphinx-apidoc --implicit-namespaces -f -o {outputdir} {moduledir}"
-    )
+    cmd_line_template = "sphinx-apidoc --implicit-namespaces -f -o {outputdir} {moduledir}"
     cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
 
     args = cmd_line.split(" ")
@@ -97,7 +93,8 @@ master_doc = "index"
 
 # General information about the project.
 project = "steamship"
-copyright = "2021, Edward Benson"
+# noinspection PyShadowingBuiltins
+copyright = "2022, Steamship Inc."
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -11,14 +11,12 @@ class BlockAndTagPluginOutput:
     file: File.CreateRequest = None
 
     @staticmethod
-    def from_dict(
-        d: Any = None, client: Client = None
-    ) -> "Optional[BlockAndTagPluginOutput]":
+    def from_dict(d: Any = None, client: Client = None) -> "Optional[BlockAndTagPluginOutput]":
         if d is None:
             return None
 
         return BlockAndTagPluginOutput(
-            file=File.CreateRequest.from_dict(d.get("file", None), client=client)
+            file=File.CreateRequest.from_dict(d.get("file"), client=client)
         )
 
     def to_dict(self) -> Dict:

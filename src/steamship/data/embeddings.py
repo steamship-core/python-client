@@ -26,9 +26,7 @@ class QueryResult:
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "QueryResult":
         value = Hit.from_dict(d.get("value", {}))
-        return QueryResult(
-            value=value, score=d.get("score"), index=d.get("index"), id=d.get("id")
-        )
+        return QueryResult(value=value, score=d.get("score"), index=d.get("index"), id=d.get("id"))
 
 
 @dataclass
@@ -78,16 +76,16 @@ class EmbeddedItem:
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "EmbeddedItem":
         return EmbeddedItem(
-            id=d.get("id", None),
-            indexId=d.get("indexId", None),
-            fileId=d.get("fileId", None),
-            blockId=d.get("blockId", None),
-            tagId=d.get("tagId", None),
-            value=d.get("value", None),
-            externalId=d.get("externalId", None),
-            externalType=d.get("externalType", None),
-            metadata=d.get("metadata", None),
-            embedding=d.get("embedding", None),
+            id=d.get("id"),
+            indexId=d.get("indexId"),
+            fileId=d.get("fileId"),
+            blockId=d.get("blockId"),
+            tagId=d.get("tagId"),
+            value=d.get("value"),
+            externalId=d.get("externalId"),
+            externalType=d.get("externalType"),
+            metadata=d.get("metadata"),
+            embedding=d.get("embedding"),
         )
 
 
@@ -123,7 +121,7 @@ class IndexItemId:
     # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "IndexItemId":
-        return IndexItemId(indexId=d.get("indexId", None), id=d.get("id", None))
+        return IndexItemId(indexId=d.get("indexId"), id=d.get("id"))
 
 
 @dataclass
@@ -150,7 +148,7 @@ class IndexEmbedResponse:
     # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "IndexEmbedResponse":
-        return IndexEmbedResponse(id=d.get("id", None))
+        return IndexEmbedResponse(id=d.get("id"))
 
 
 @dataclass
@@ -178,9 +176,7 @@ class IndexSnapshotResponse:
     # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "IndexSnapshotResponse":
-        return IndexSnapshotResponse(
-            id=d.get("id", None), snapshotId=d.get("snapshotId", None)
-        )
+        return IndexSnapshotResponse(id=d.get("id"), snapshotId=d.get("snapshotId"))
 
 
 @dataclass
@@ -194,12 +190,9 @@ class ListSnapshotsResponse:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "IndexSnapshotResponse":
-        return IndexSnapshotResponse(
-            snapshots=[
-                IndexSnapshotResponse.from_dict(dd)
-                for dd in (d.get("snapshots", []) or [])
-            ]
+    def from_dict(d: Any, client: Client = None) -> "ListSnapshotsResponse":
+        return ListSnapshotsResponse(
+            snapshots=[IndexSnapshotResponse.from_dict(dd) for dd in (d.get("snapshots", []) or [])]
         )
 
 
@@ -410,9 +403,7 @@ class EmbeddingIndex:
         space_handle: str = None,
         space: Any = None,
     ) -> Response[ListItemsResponse]:
-        req = ListItemsRequest(
-            id=self.id, fileId=file_id, blockId=block_id, spanId=span_id
-        )
+        req = ListItemsRequest(id=self.id, fileId=file_id, blockId=block_id, spanId=span_id)
         return self.client.post(
             "embedding-index/item/list",
             req,
@@ -461,13 +452,9 @@ class EmbeddingIndex:
         space: Any = None,
     ) -> Response[QueryResults]:
         if type(query) == list:
-            req = IndexSearchRequest(
-                self.id, queries=query, k=k, includeMetadata=include_metadata
-            )
+            req = IndexSearchRequest(self.id, queries=query, k=k, includeMetadata=include_metadata)
         else:
-            req = IndexSearchRequest(
-                self.id, query=query, k=k, includeMetadata=include_metadata
-            )
+            req = IndexSearchRequest(self.id, query=query, k=k, includeMetadata=include_metadata)
         ret = self.client.post(
             "embedding-index/search",
             req,
@@ -478,7 +465,6 @@ class EmbeddingIndex:
         )
 
         return ret
-
 
     @staticmethod
     def create(

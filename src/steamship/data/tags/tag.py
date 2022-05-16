@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import Any, List, Optional, Dict
+from typing import Any, Dict, List, Optional
 
 from steamship.base import Client, Request, Response
 
@@ -82,9 +82,7 @@ class Tag:  # TODO (enias): Make pep8 compatible
             if d is None:
                 return None
             return Tag.ListResponse(
-                tags=[
-                    Tag.from_dict(x, client=client) for x in (d.get("tags", []) or [])
-                ]
+                tags=[Tag.from_dict(x, client=client) for x in (d.get("tags", []) or [])]
             )
 
     @staticmethod

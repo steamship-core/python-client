@@ -2,7 +2,7 @@ import logging
 import os
 import tempfile
 import urllib
-from urllib.parse import urlparse, parse_qs
+from urllib.parse import parse_qs, urlparse
 
 import requests
 
@@ -16,7 +16,7 @@ def download_from_signed_url(url: str, desired_filename: str) -> str:
     logging.info(f"Downloading: {url} to {desired_filename} in a temporary directory")
     tempdir = tempfile.mkdtemp()
     file_path = os.path.join(tempdir, desired_filename)
-    with open(file_path, 'wb') as f:
+    with open(file_path, "wb") as f:
         resp = requests.get(url)
         logging.info(f"Got contents of: {url}")
         content = resp.content
@@ -33,15 +33,15 @@ def upload_to_signed_url(url: str, bytes: bytes = None, filepath: str = None):
         logging.info(f"Uploading provided bytes to: {url}")
     elif filepath is not None:
         logging.info(f"Uploading file at {filepath} to: {url}")
-        with open(filepath, 'rb') as f:
+        with open(filepath, "rb") as f:
             bytes = f.read()
     else:
         raise SteamshipError(
             message="Unable to upload data to signed URL -- neither a filepath nor bytes were provided.",
-            suggestion="Please provide either the `bytes` or the `filepath` argument"
+            suggestion="Please provide either the `bytes` or the `filepath` argument",
         )
 
-    files = {'file': (filepath, bytes)}
+    files = {"file": (filepath, bytes)}
     parsed_url = urllib.parse.urlparse(url)
 
     if "amazonaws.com" in parsed_url.netloc:
@@ -64,9 +64,9 @@ def upload_to_signed_url(url: str, bytes: bytes = None, filepath: str = None):
         # The key, and a selected subset of the former query args, become multi-part mime data
         key = "/".join(path_parts[1:])
         data = {
-            'key': key,
-            'AWSAccessKeyId': params['X-Amz-Credential'].split('/')[0],
-            'signature': params['X-Amz-Signature']
+            "key": key,
+            "AWSAccessKeyId": params["X-Amz-Credential"].split("/")[0],
+            "signature": params["X-Amz-Signature"],
         }
         http_response = requests.post(newurl, data=data, files=files)
 

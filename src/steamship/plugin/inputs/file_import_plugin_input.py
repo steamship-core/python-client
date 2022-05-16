@@ -14,18 +14,16 @@ class FileImportPluginInput:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(
-        d: Any = None, client: Client = None
-    ) -> "Optional[FileImportPluginInput]":
+    def from_dict(d: Any = None, client: Client = None) -> "Optional[FileImportPluginInput]":
         if d is None:
             return None
 
         return FileImportPluginInput(
-            value=d.get("value", None),
-            data=d.get("data", None),
-            url=d.get("url", None),
-            pluginInstance=d.get("pluginInstance", None),
-            mimeType=d.get("mimeType", None),
+            value=d.get("value"),
+            data=d.get("data"),
+            url=d.get("url"),
+            pluginInstance=d.get("pluginInstance"),
+            mimeType=d.get("mimeType"),
         )
 
     def to_dict(self) -> Dict:

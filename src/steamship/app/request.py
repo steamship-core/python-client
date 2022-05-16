@@ -37,10 +37,10 @@ class Invocation:
     @staticmethod
     def from_dict(d: dict) -> "Invocation":
         return Invocation(
-            httpVerb=d.get("httpVerb", None),
-            appPath=d.get("appPath", None),
-            arguments=d.get("arguments", None),
-            config=d.get("config", None),
+            httpVerb=d.get("httpVerb"),
+            appPath=d.get("appPath"),
+            arguments=d.get("arguments"),
+            config=d.get("config"),
         )
 
 

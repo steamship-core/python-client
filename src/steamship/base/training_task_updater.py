@@ -26,10 +26,10 @@ class TrainingTaskUpdater:
             output = json.dumps(output_dict)
         except Exception as ex:
             logging.error(
-                f"Error serializing training progress to JSON for recording on task {self.task}." +
-                f"Progress was: {output_dict}" +
-                f"Serialization exception was:" +
-                f"{ex}"
+                f"Error serializing training progress to JSON for recording on task {self.task}."
+                + f"Progress was: {output_dict}"
+                + f"Serialization exception was:"
+                + f"{ex}"
             )
             output = f"{output_dict}"
         self.task.output = output
@@ -45,9 +45,9 @@ class TrainingTaskUpdater:
             output = json.dumps(error.to_dict())
         except Exception as ex:
             logging.error(
-                f"Error serializing SteamshipError to JSON for recording on task {self.task}." +
-                f"Serialization exception was:" +
-                f"{error}"
+                f"Error serializing SteamshipError to JSON for recording on task {self.task}."
+                + f"Serialization exception was:"
+                + f"{error}"
             )
             output = f"{error}"
         self.task.output = output
@@ -58,9 +58,9 @@ class TrainingTaskUpdater:
             output = json.dumps(progress_dict)
         except Exception as ex:
             logging.error(
-                f"Error serializing training progress to JSON for recording on task {self.task}." +
-                f"Progress was: {progress_dict}. " +
-                f"Serialization exception was: {ex}"
+                f"Error serializing training progress to JSON for recording on task {self.task}."
+                + f"Progress was: {progress_dict}. "
+                + f"Serialization exception was: {ex}"
             )
             output = f"{progress_dict}"
 

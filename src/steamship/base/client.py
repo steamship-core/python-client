@@ -100,11 +100,7 @@ class Client:
                     suggestion="This should automatically have a good default setting. "
                     "Reach out to our Steamship support.",
                 )
-            if (
-                "localhost" not in base
-                and "127.0.0.1" not in base
-                and "0:0:0:0" not in base
-            ):
+            if "localhost" not in base and "127.0.0.1" not in base and "0:0:0:0" not in base:
                 # We want to prepend the user handle
                 parts = base.split("//")
                 base = f"{parts[0]}//{app_owner}.{'//'.join(parts[1:])}"
@@ -275,7 +271,7 @@ class Client:
             app_owner=app_owner,
             app_id=app_id,
             app_instance_id=app_instance_id,
-            as_background_task=as_background_task
+            as_background_task=as_background_task,
         )
 
         data = self._data(verb=verb, file=file, payload=payload)
@@ -328,9 +324,7 @@ class Client:
         if error is None:
             ret_obj = obj
 
-        ret = Response[T](
-            expect=expect, task=task, data=ret_obj, error=error, client=self
-        )
+        ret = Response[T](expect=expect, task=task, data=ret_obj, error=error, client=self)
 
         if ret.task is None and ret.data is None and ret.error is None:
             raise Exception("No data, task status, or error found in response")

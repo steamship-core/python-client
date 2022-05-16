@@ -3,9 +3,7 @@ from typing import Any
 
 from steamship.base import Client
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
-from steamship.plugin.outputs.embedded_items_plugin_output import (
-    EmbeddedItemsPluginOutput,
-)
+from steamship.plugin.outputs.embedded_items_plugin_output import EmbeddedItemsPluginOutput
 from steamship.plugin.service import PluginRequest, PluginService
 
 

@@ -114,9 +114,7 @@ class App:
         return path
 
     @classmethod
-    def _register_mapping(
-        cls, name: str, verb: Optional[Verb] = None, path: str = ""
-    ) -> None:
+    def _register_mapping(cls, name: str, verb: Optional[Verb] = None, path: str = "") -> None:
         """Registering a mapping permits the method to be invoked via HTTP."""
 
         verb = verb or Verb.GET
@@ -137,9 +135,7 @@ class App:
             )
 
         if request.invocation is None:
-            return Response.error(
-                code=HTTPStatus.NOT_FOUND, message="No invocation was found."
-            )
+            return Response.error(code=HTTPStatus.NOT_FOUND, message="No invocation was found.")
 
         verb = Verb.safely_from_str(request.invocation.httpVerb)
         path = request.invocation.appPath

@@ -55,12 +55,12 @@ class Corpus:
 
         return Corpus(
             client=client,
-            id=d.get("id", None),
-            handle=d.get("handle", None),
-            description=d.get("description", None),
-            externalId=d.get("externalId", None),
-            externalType=d.get("externalType", None),
-            metadata=str_to_metadata(d.get("metadata", None)),
+            id=d.get("id"),
+            handle=d.get("handle"),
+            description=d.get("description"),
+            externalId=d.get("externalId"),
+            externalType=d.get("externalType"),
+            metadata=str_to_metadata(d.get("metadata")),
         )
 
     @staticmethod

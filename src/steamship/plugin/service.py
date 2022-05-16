@@ -51,9 +51,7 @@ class PluginService(ABC, Generic[T, U]):
 
     @classmethod
     @abstractmethod
-    def subclass_request_from_dict(
-        cls, d: Any, client: Client = None
-    ) -> PluginRequest[T]:
+    def subclass_request_from_dict(cls, d: Any, client: Client = None) -> PluginRequest[T]:
         pass
 
     @classmethod
@@ -64,15 +62,11 @@ class PluginService(ABC, Generic[T, U]):
                     request, subclass_request_from_dict=cls.subclass_request_from_dict
                 )
             except Exception as error:
-                raise SteamshipError(
-                    message="Unable to parse input request.", error=error
-                )
+                raise SteamshipError(message=f"Unable to parse input request. {error}", error=error)
         return request
 
     @classmethod
-    def response_to_dict(
-        cls, response: Union[SteamshipError, Response[U], U, dict]
-    ) -> Response[U]:
+    def response_to_dict(cls, response: Union[SteamshipError, Response[U], U, dict]) -> Response[U]:
         try:
             if type(response) == Response:
                 return response

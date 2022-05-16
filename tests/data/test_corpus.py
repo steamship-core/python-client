@@ -16,9 +16,7 @@ def test_corpus_create():
 
     corpus = Corpus.create(client).data
 
-    a = File.create(
-        client, content="A", corpus_id=corpus.id, mime_type=MimeTypes.MKD
-    ).data
+    a = File.create(client, content="A", corpus_id=corpus.id, mime_type=MimeTypes.MKD).data
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
     assert a.corpus_id == corpus.id
@@ -79,15 +77,13 @@ def test_corpus_delete_cascade():
 
     corpus1 = Corpus.create(client=client).data
 
-    a = File.create(
-        client=client, corpus_id=corpus1.id, content="A", mime_type=MimeTypes.MKD
-    ).data
+    a = File.create(client=client, corpus_id=corpus1.id, content="A", mime_type=MimeTypes.MKD).data
 
     _ = a.refresh()
     corpus1.delete()
 
     # Now verify the file isn't there!
-    aa = File.get(client, id=a.id)
+    aa = File.get(client, _id=a.id)
     assert aa.data is None
     assert aa.error is not None
 
