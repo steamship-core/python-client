@@ -10,6 +10,7 @@ from steamship.data.plugin import PluginTargetType
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
 
+# TODO (enias): This is a hacky way to get around circular imports
 def upload(
     client: Client,
     filename: str = None,
@@ -21,17 +22,13 @@ def upload(
     space: Any = None,
 ) -> "Response[File]":
     if filename is None and content is None:
-        raise Exception(
-            "Either filename or content must be provided."
-        )  # TODO (Enias): Review
+        raise Exception("Either filename or content must be provided.")  # TODO (Enias): Review
 
     if filename is not None:
         with open(filename, "rb") as f:
             content = f.read()
 
-    req = File.CreateRequest(
-        type=FileUploadType.file, corpusId=corpus_id, mimeType=mime_type
-    )
+    req = File.CreateRequest(type=FileUploadType.file, corpusId=corpus_id, mimeType=mime_type)
 
     return client.post(
         "file/create",
@@ -69,9 +66,7 @@ def tag(
     space_handle: str = None,
     space: Any = None,
 ) -> Response[Tag]:
-    req = TagRequest(
-        type=PluginTargetType.file, id=self.id, pluginInstance=plugin_instance
-    )
+    req = TagRequest(type=PluginTargetType.file, id=self.id, pluginInstance=plugin_instance)
 
     return self.client.post(
         "plugin/instance/tag",

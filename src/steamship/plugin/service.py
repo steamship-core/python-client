@@ -50,9 +50,7 @@ class PluginService(ABC, Generic[T, U]):
         pass
 
     @classmethod
-    def response_to_dict(
-            cls, response: Union[SteamshipError, Response[U], U, dict]
-    ) -> Response[U]:
+    def response_to_dict(cls, response: Union[SteamshipError, Response[U], U, dict]) -> Response[U]:
         try:
             if type(response) == Response:
                 return response

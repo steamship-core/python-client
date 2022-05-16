@@ -2,18 +2,13 @@ from typing import Any
 
 from steamship import File
 from steamship.app import App, Response, create_handler, post
-from steamship.client.operations.corpus_importer import (
-    CorpusImportRequest,
-    CorpusImportResponse,
-)
+from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from steamship.plugin.corpus_importer import CorpusImporter
 from steamship.plugin.service import PluginRequest
 
 
 class TestCorpusImporterPlugin(CorpusImporter, App):
-    def run(
-        self, request: PluginRequest[CorpusImportRequest]
-    ) -> Response[CorpusImportResponse]:
+    def run(self, request: PluginRequest[CorpusImportRequest]) -> Response[CorpusImportResponse]:
         return Response(
             data=CorpusImportResponse(
                 file_import_requests=[

@@ -83,14 +83,12 @@ def embed(s: str) -> List[float]:
 def _embed_to_tag(s: str) -> Tag.CreateRequest:
     embedding = embed(s)
     return Tag.CreateRequest(
-        kind=TagKind.text, name=TextTag.embedding, value={TextTag.embedding: embedding}
+        kind=TagKind.text, name=TextTag.Embedding, value={TextTag.Embedding: embedding}
     )
 
 
 def _embed_block(block: Block) -> Block.CreateRequest:
-    return Block.CreateRequest(
-        id=block.id, text=block.text, tags=[_embed_to_tag(block.text)]
-    )
+    return Block.CreateRequest(id=block.id, text=block.text, tags=[_embed_to_tag(block.text)])
 
 
 class TestEmbedderPlugin(Embedder, App):

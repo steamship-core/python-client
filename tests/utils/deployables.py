@@ -33,14 +33,12 @@ def zip_deployable(file_path: Path) -> bytes:
 
     package_paths = [
         SRC_PATH / "steamship",
-        SRC_PATH
-        / ".."
-        / "tests",  # This is included to test plugin development using inheritance
+        SRC_PATH / ".." / "tests",  # This is included to test plugin development using inheritance
     ]
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(
-            file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
+        file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
     ) as zip_file:
         zip_file.write(file_path, "api.py")
 
@@ -49,9 +47,7 @@ def zip_deployable(file_path: Path) -> bytes:
             for root, _, files in os.walk(package_path):
                 for file in files:
                     pypi_file = Path(root) / file
-                    zip_file.write(
-                        pypi_file, pypi_file.relative_to(package_path.parent)
-                    )
+                    zip_file.write(pypi_file, pypi_file.relative_to(package_path.parent))
 
         # Copy in package paths from pip
         with tempfile.TemporaryDirectory() as package_dir:
@@ -64,27 +60,25 @@ def zip_deployable(file_path: Path) -> bytes:
                 "urllib3",
                 "idna",
                 "pydantic",
-                "typing_extensions"
+                "typing_extensions",
             ]:
                 install_package(package, into_folder=package_dir)
             # Now write that whole folder
             for root, _, files in os.walk(package_dir):
                 for file in files:
                     pypi_file = Path(root) / file
-                    zip_file.write(
-                        pypi_file, pypi_file.relative_to(package_dir)
-                    )
+                    zip_file.write(pypi_file, pypi_file.relative_to(package_dir))
 
     return zip_buffer.getvalue()
 
 
 @contextlib.contextmanager
 def deploy_app(
-        client: Steamship,
-        py_path: Path,
-        version_config_template: Dict[str, Any] = None,
-        instance_config: Dict[str, Any] = None,
-        space_id: str = None,
+    client: Steamship,
+    py_path: Path,
+    version_config_template: Dict[str, Any] = None,
+    instance_config: Dict[str, Any] = None,
+    space_id: str = None,
 ):
     app = App.create(client)
     assert app.error is None
@@ -101,7 +95,11 @@ def deploy_app(
 
     version = _wait_for_version(version)
     instance = AppInstance.create(
-        client, app_id=app.id, app_version_id=version.id, config=instance_config, space_id=space_id
+        client,
+        app_id=app.id,
+        app_version_id=version.id,
+        config=instance_config,
+        space_id=space_id,
     )
     instance = _wait_for_instance(instance)
 
@@ -117,12 +115,12 @@ def deploy_app(
 
 @contextlib.contextmanager
 def deploy_plugin(
-        client: Steamship,
-        py_path: Path,
-        plugin_type: str,
-        version_config_template: Dict[str, Any] = None,
-        instance_config: Dict[str, Any] = None,
-        training_platform: str = None,
+    client: Steamship,
+    py_path: Path,
+    plugin_type: str,
+    version_config_template: Dict[str, Any] = None,
+    instance_config: Dict[str, Any] = None,
+    training_platform: str = None,
 ):
     import importlib.util
 
