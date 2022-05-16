@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from steamship.base import Client
 
@@ -11,53 +11,54 @@ class TrainPluginOutput:
     """
 
     # The tenant in which trainable is happening
-    tenantId: str = None
+    tenant_id: str = None
     # The space in which trainable is happening
-    spaceId: str = None
+    space_id: str = None
     #  The name of the model being trained
-    modelName: str = None
+    model_name: str = None
 
     # The desired filename of the output model parameters.
     # This will be uploaded to the "Models" section of the Space's storage bucket
-    modelFilename: str = None
+    model_filename: str = None
 
     # A URL that has been pre-signed, permitting upload to that location
-    modelUploadUrl: str = None
+    model_upload_url: str = None
 
     # Arbitrary key-valued data to provide to the inference runner.
     # The trainable process will have the opportunity to amend this before writing it to the output
-    inferenceParams: dict = None
+    inference_params: dict = None
 
     progress: dict = None
-    resultData: dict = None
+    result_data: dict = None
     error: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any = None, client: Client = None) -> "TrainPluginOutput":
+    def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainPluginOutput]":
         if d is None:
             return None
 
         return TrainPluginOutput(
-            tenantId=d.get("tenantId", None),
-            spaceId=d.get("spaceId", None),
-            modelName=d.get("modelName", None),
-            modelFilename=d.get("modelFilename", None),
-            modelUploadUrl=d.get("modelUploadUrl", None),
-            inferenceParams=d.get("inferenceParams", None),
-            progress=d.get("progress", None),
-            resultData=d.get("resultData", None),
-            error=d.get("error", None),
+            tenant_id=d.get("tenantId"),
+            space_id=d.get("spaceId"),
+            model_name=d.get("modelName"),
+            model_filename=d.get("modelFilename"),
+            model_upload_url=d.get("modelUploadUrl"),
+            inference_params=d.get("inferenceParams"),
+            progress=d.get("progress"),
+            result_data=d.get("resultData"),
+            error=d.get("error"),
         )
 
     def to_dict(self) -> Dict:
         return dict(
-            tenantId=self.tenantId,
-            spaceId=self.spaceId,
-            modelName=self.modelName,
-            modelFilename=self.modelFilename,
-            modelUploadUrl=self.modelUploadUrl,
-            inferenceParams=self.inferenceParams,
+            tenantId=self.tenant_id,
+            spaceId=self.space_id,
+            modelName=self.model_name,
+            modelFilename=self.model_filename,
+            modelUploadUrl=self.model_upload_url,
+            inferenceParams=self.inference_params,
             progress=self.progress,
-            resultData=self.resultData,
+            resultData=self.result_data,
             error=self.error,
         )

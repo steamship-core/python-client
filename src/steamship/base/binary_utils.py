@@ -3,7 +3,6 @@ import dataclasses
 import io
 import json as jsonlib
 import logging
-import json as jsonlib
 from typing import Any, Tuple, Union
 
 from steamship.base.error import SteamshipError
@@ -30,13 +29,13 @@ def to_b64(obj: Any) -> str:
 
 
 def flexi_create(
-        base64string: str = None,
-        data: Any = None,
-        string: str = None,
-        json: Any = None,
-        bytes: Union[bytes, io.BytesIO] = None,
-        mime_type=None,
-        force_base64=False,
+    base64string: str = None,
+    data: Any = None,
+    string: str = None,
+    json: Any = None,
+    _bytes: Union[bytes, io.BytesIO] = None,
+    mime_type=None,
+    force_base64=False,
 ) -> Tuple[Any, Union[None, str], Union[None, str]]:  # TODO (Enias): Review
     """
     It's convenient for some constructors to accept a variety of input types:
@@ -75,11 +74,11 @@ def flexi_create(
             else:
                 ret_data = json
 
-        elif bytes is not None:
-            if isinstance(bytes, io.BytesIO):
-                bytes = bytes.getvalue()  # Turn it into regular bytes
+        elif _bytes is not None:
+            if isinstance(_bytes, io.BytesIO):
+                _bytes = _bytes.getvalue()  # Turn it into regular bytes
             ret_data, ret_mime = (
-                base64.b64encode(bytes).decode("utf-8"),
+                base64.b64encode(_bytes).decode("utf-8"),
                 mime_type or ret_mime or MimeTypes.BINARY,
             )
             is_b64 = True

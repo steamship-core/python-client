@@ -11,80 +11,81 @@ class TrainPluginInput:
     """
 
     # The tenant in which trainable is happening
-    tenantId: str = None
+    tenant_id: str = None
     # The space in which trainable is happening
-    spaceId: str = None
+    space_id: str = None
 
     # The plugin instance being trained (this is the handle)
-    pluginInstance: str = None
+    plugin_instance: str = None
     # The plugin instance being trained (this is the UUID)
-    pluginInstanceId: str = None
+    plugin_instance_id: str = None
 
     #  The name of the model to train; e.g. "DistilBERT"
-    modelName: str = None
+    model_name: str = None
 
     # The desired filename of the output model parameters.
     # This will be uploaded to the "Models" section of the Space's storage bucket
-    modelFilename: str = None
+    model_filename: str = None
 
     # A URL that has been pre-signed, permitting upload to that location
-    modelUploadUrl: str = None
+    model_upload_url: str = None
 
     # How may epochs of trainable to perform, if relevant and supported
-    trainingEpochs: int = None
+    training_epochs: int = None
     # How much data to hold out for testing & reporting, if relevant and supported.
-    testingHoldoutPercent: float = None
+    testing_holdout_percent: float = None
     # An optional seed for the train-test split
-    testSplitSeed: int = None
+    test_split_seed: int = None
 
     # Arbitrary key-valued data to provide to the particular `modelName` trainer.
-    trainingParams: dict = None
+    training_params: dict = None
     # Arbitrary key-valued data to provide to the inference runner in the TrainPluginOutput object.
     # The trainable process will have the opportunity to amend this before writing it to the output
-    inferenceParams: dict = None
+    inference_params: dict = None
 
     # A pre-signed URL at which the trainable data can be found
-    trainingDataUrl: str = None
+    training_data_url: str = None
 
     # Task ID for updates
     trainTaskId: str = None
 
+    # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainPluginInput]":
         if d is None:
             return None
 
         return TrainPluginInput(
-            tenantId=d.get("tenantId", None),
-            spaceId=d.get("spaceId", None),
-            pluginInstance=d.get("pluginInstance", None),
-            pluginInstanceId=d.get("pluginInstanceId", None),
-            modelName=d.get("modelName", None),
-            modelFilename=d.get("modelFilename", None),
-            modelUploadUrl=d.get("modelUploadUrl", None),
-            trainingEpochs=d.get("trainingEpochs", None),
-            testingHoldoutPercent=d.get("testingHoldoutPercent", None),
-            testSplitSeed=d.get("testSplitSeed", None),
-            trainingParams=d.get("trainingParams", None),
-            inferenceParams=d.get("inferenceParams", None),
-            trainingDataUrl=d.get("trainingDataUrl", None),
+            tenant_id=d.get("tenantId"),
+            space_id=d.get("spaceId"),
+            plugin_instance=d.get("pluginInstance"),
+            plugin_instance_id=d.get("pluginInstanceId"),
+            model_name=d.get("modelName"),
+            model_filename=d.get("modelFilename"),
+            model_upload_url=d.get("modelUploadUrl"),
+            training_epochs=d.get("trainingEpochs"),
+            testing_holdout_percent=d.get("testingHoldoutPercent"),
+            test_split_seed=d.get("testSplitSeed"),
+            training_params=d.get("trainingParams"),
+            inference_params=d.get("inferenceParams"),
+            training_data_url=d.get("trainingDataUrl"),
             trainTaskId=d.get("trainTaskId", None)
         )
 
     def to_dict(self) -> Dict:
         return dict(
-            tenantId=self.tenantId,
-            spaceId=self.spaceId,
-            pluginInstance=self.pluginInstance,
-            pluginInstanceId=self.pluginInstanceId,
-            modelName=self.modelName,
-            modelFilename=self.modelFilename,
-            modelUploadUrl=self.modelUploadUrl,
-            trainingEpochs=self.trainingEpochs,
-            testingHoldoutPercent=self.testingHoldoutPercent,
-            testSplitSeed=self.testSplitSeed,
-            trainingParams=self.trainingParams,
-            inferenceParams=self.inferenceParams,
-            trainingDataUrl=self.trainingDataUrl,
+            tenantId=self.tenant_id,
+            spaceId=self.space_id,
+            pluginInstance=self.plugin_instance,
+            pluginInstanceId=self.plugin_instance_id,
+            modelName=self.model_name,
+            modelFilename=self.model_filename,
+            modelUploadUrl=self.model_upload_url,
+            trainingEpochs=self.training_epochs,
+            testingHoldoutPercent=self.testing_holdout_percent,
+            testSplitSeed=self.test_split_seed,
+            trainingParams=self.training_params,
+            inferenceParams=self.inference_params,
+            trainingDataUrl=self.training_data_url,
             trainTaskId=self.trainTaskId
         )

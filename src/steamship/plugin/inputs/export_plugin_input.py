@@ -15,19 +15,17 @@ class ExportPluginInput:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(
-            d: Any = None, client: Client = None
-    ) -> "Optional[ExportPluginInput]":
+    def from_dict(d: Any = None, client: Client = None) -> "Optional[ExportPluginInput]":
         if d is None:
             return None
 
         return ExportPluginInput(
-            pluginInstance=d.get("pluginInstance", None),
-            id=d.get("id", None),
-            handle=d.get("id", None),
-            type=d.get("type", None),
-            filename=d.get("filename", None),
-            query=d.get("query", None),
+            pluginInstance=d.get("pluginInstance"),
+            id=d.get("id"),
+            handle=d.get("id"),
+            type=d.get("type"),
+            filename=d.get("filename"),
+            query=d.get("query"),
         )
 
     def to_dict(self) -> Dict:

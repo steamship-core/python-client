@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from steamship.base import Client
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
@@ -11,17 +11,13 @@ class TrainingParameterPluginInput:
     exportRequest: ExportPluginInput = None
 
     @staticmethod
-    def from_dict(
-            d: Any = None, client: Client = None
-    ) -> "TrainingParameterPluginInput":
+    def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainingParameterPluginInput]":
         if d is None:
             return None
 
         return TrainingParameterPluginInput(
-            pluginInstance=d.get("pluginInstance", None),
-            exportRequest=ExportPluginInput.from_dict(
-                d.get("exportPluginInput", None), client
-            ),
+            pluginInstance=d.get("pluginInstance"),
+            exportRequest=ExportPluginInput.from_dict(d.get("exportPluginInput"), client),
         )
 
     def to_dict(self) -> Dict:

@@ -1,9 +1,9 @@
 import io
 import logging
 from dataclasses import dataclass
-from typing import Any, List, Union, Optional
+from typing import Any, List, Optional, Union
 
-from steamship.base import Client, Response, Request
+from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
 from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
@@ -14,7 +14,9 @@ class FileUploadType:
     file = "file"  # The CreateRequest contains a file upload that should be used
     url = "url"  # The CreateRequest contains a url that should be scraped
     value = "value"  # The Create Request contains a `text` field that should be used
-    fileImporter = "fileImporter"  # The CreateRequest contains a fileImporter handle that should be used
+    fileImporter = (
+        "fileImporter"  # The CreateRequest contains a fileImporter handle that should be used
+    )
     blocks = "blocks"  # The CreateRequest contains blocks and tags that should be read in directly
 
 
@@ -72,11 +74,8 @@ class File:
                     Block.CreateRequest.from_dict(block, client=client)
                     for block in d.get("blocks", [])
                 ],
-                tags=[
-                    Tag.CreateRequest.from_dict(tag, client=client)
-                    for tag in d.get("tags", [])
-                ],
-                filename=d.get("filename", None),
+                tags=[Tag.CreateRequest.from_dict(tag, client=client) for tag in d.get("tags", [])],
+                filename=d.get("filename"),
             )
 
         def to_dict(self) -> dict:
@@ -88,9 +87,7 @@ class File:
                 mimeType=self.mimeType,
                 corpusId=self.corpusId,
                 pluginInstance=self.pluginInstance,
-                blocks=[block.to_dict() for block in self.blocks]
-                if self.blocks
-                else [],
+                blocks=[block.to_dict() for block in self.blocks] if self.blocks else [],
                 tags=[tag.to_dict() for tag in self.tags] if self.tags else [],
                 filename=self.filename,
             )
@@ -104,12 +101,12 @@ class File:
             self,
             data: Any = None,
             string: str = None,
-            bytes: Union[bytes, io.BytesIO] = None,
+            _bytes: Union[bytes, io.BytesIO] = None,
             json: io.BytesIO = None,
             mime_type: str = None,
         ):
             data, mime_type, encoding = flexi_create(
-                data=data, string=string, json=json, bytes=bytes, mime_type=mime_type
+                data=data, string=string, json=json, _bytes=_bytes, mime_type=mime_type
             )
             self.data = data
             self.mimeType = mime_type
@@ -117,9 +114,7 @@ class File:
         # noinspection PyUnusedLocal
         @staticmethod
         def from_dict(d: Any, client: Client = None) -> "File.CreateResponse":
-            return File.CreateResponse(
-                data=d.get("data", None), mime_type=d.get("mimeType", None)
-            )
+            return File.CreateResponse(data=d.get("data"), mime_type=d.get("mimeType"))
 
         def to_dict(self) -> dict:
             return dict(data=self.data, mimeType=self.mimeType)
@@ -156,9 +151,7 @@ class File:
             mime_type=d.get("mimeType"),
             corpus_id=d.get("corpusId"),
             space_id=d.get("spaceId"),
-            blocks=[
-                Block.from_dict(block, client=client) for block in d.get("blocks", [])
-            ],
+            blocks=[Block.from_dict(block, client=client) for block in d.get("blocks", [])],
             tags=[Tag.from_dict(tag, client=client) for tag in d.get("tags", [])],
         )
 
@@ -202,7 +195,7 @@ class File:
     @staticmethod
     def get(
         client: Client,
-        id: str = None,
+        _id: str = None,
         handle: str = None,
         space_id: str = None,
         space_handle: str = None,
@@ -210,7 +203,7 @@ class File:
     ) -> Response["File"]:  # TODO (Enias): Why is this a staticmethod?
         return client.post(
             "file/get",
-            IdentifierRequest(id=id, handle=handle),
+            IdentifierRequest(id=_id, handle=handle),
             expect=File,
             space_id=space_id,
             space_handle=space_handle,
@@ -240,9 +233,7 @@ class File:
             and plugin_instance is None
             and blocks is None
         ):
-            raise Exception(
-                "Either filename, content, url, or plugin Instance must be provided."
-            )
+            raise Exception("Either filename, content, url, or plugin Instance must be provided.")
 
         if blocks is not None:
             upload_type = FileUploadType.blocks

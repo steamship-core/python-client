@@ -25,14 +25,14 @@ class CorpusImportRequest:  # TODO (enias): Depricate
         # noinspection PyArgumentEqualDefault
         return CorpusImportRequest(
             client=client,
-            id=d.get("id", None),
-            handle=d.get("handle", None),
+            id=d.get("id"),
+            handle=d.get("handle"),
             type="corpus",
-            value=d.get("value", None),
-            data=d.get("data", None),
-            url=d.get("url", None),
-            pluginInstance=d.get("pluginInstance", None),
-            fileImporterPluginInstance=d.get("fileImporterPluginInstance", None),
+            value=d.get("value"),
+            data=d.get("data"),
+            url=d.get("url"),
+            pluginInstance=d.get("pluginInstance"),
+            fileImporterPluginInstance=d.get("fileImporterPluginInstance"),
         )
 
     def to_dict(self) -> dict:
@@ -66,8 +66,7 @@ class CorpusImportResponse:
         return CorpusImportResponse(
             client=client,
             file_import_requests=[
-                File.CreateRequest.from_dict(req)
-                for req in d.get("fileImportRequests", [])
+                File.CreateRequest.from_dict(req) for req in d.get("fileImportRequests", [])
             ],
         )
 

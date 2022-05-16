@@ -23,28 +23,28 @@ def is_base64(sb):
 
 @dataclass
 class RawDataPluginInput:
-    pluginInstance: str = None
+    plugin_instance: str = None
     data: Any = None
-    defaultMimeType: str = None
+    default_mime_type: str = None
 
     # noinspection PyUnusedLocal
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "Optional[RawDataPluginInput]":
         if d is None:
             return None
-        data = d.get("data", None)
+        data = d.get("data")
 
         if data is not None and is_base64(data):
             data_bytes = base64.b64decode(data)
-            if d.get("defaultMimeType", None) in TEXT_MIME_TYPES:
+            if d.get("defaultMimeType") in TEXT_MIME_TYPES:
                 data = data_bytes.decode("utf-8")
             else:
                 data = data_bytes
 
         return RawDataPluginInput(
-            pluginInstance=d.get("pluginInstance", None),
+            plugin_instance=d.get("pluginInstance"),
             data=data,
-            defaultMimeType=d.get("defaultMimeType", None),
+            default_mime_type=d.get("defaultMimeType"),
         )
 
     def to_dict(self):

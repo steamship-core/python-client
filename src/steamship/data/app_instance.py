@@ -83,11 +83,7 @@ class AppInstance:
         return self.client.post("app/instance/delete", payload=req, expect=AppInstance)
 
     def load_missing_vals(self):
-        if (
-            self.client is not None
-            and self.space_handle is None
-            and self.space_id is not None
-        ):
+        if self.client is not None and self.space_handle is None and self.space_id is not None:
             # Get the spaceHandle
             space = Space.get(self.client, id_=self.space_id)
             if space and space.data:

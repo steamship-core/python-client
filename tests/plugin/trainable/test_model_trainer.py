@@ -17,17 +17,13 @@ def test_trainer_status_updates():
     client = get_steamship_client()
 
     # Create a task that is running in the background
-    result_2 = client.post(
-        "task/noop",
-        expect=NoOpResult,
-        as_background_task=True
-    )
-    assert (result_2.task is not None)
-    assert (result_2.task.state == TaskState.waiting)
+    result_2 = client.post("task/noop", expect=NoOpResult, as_background_task=True)
+    assert result_2.task is not None
+    assert result_2.task.state == TaskState.waiting
 
     # Allow it to complete
     result_2.wait()
-    assert (result_2.task.state == TaskState.succeeded)
+    assert result_2.task.state == TaskState.succeeded
 
     # Let's experiment with some calls. We'll start a trainer with a dummy plugin instance ID
     # and pass it the task ID to update to.
@@ -46,21 +42,21 @@ def test_trainer_status_updates():
     trainer.record_training_failed(error=error)
 
     result_2.check()
-    assert (result_2.task.state == TaskState.failed)
-    assert (result_2.task.output == json.dumps(error.to_dict()))
+    assert result_2.task.state == TaskState.failed
+    assert result_2.task.output == json.dumps(error.to_dict())
 
     # Call 2: Succeed
     output_dict = {"meaning_of_life": 42}
     trainer.record_training_complete(output_dict=output_dict)
 
     result_2.check()
-    assert (result_2.task.state == TaskState.succeeded)
-    assert (result_2.task.output == json.dumps(output_dict))
+    assert result_2.task.state == TaskState.succeeded
+    assert result_2.task.output == json.dumps(output_dict)
 
     # Call 3: Update
     output_dict_2 = {"meaning_of_life": "uncertain"}
     trainer.record_training_progress(progress_dict=output_dict_2)
 
     result_2.check()
-    assert (result_2.task.state == TaskState.succeeded)
-    assert (result_2.task.output == json.dumps(output_dict_2))
+    assert result_2.task.state == TaskState.succeeded
+    assert result_2.task.output == json.dumps(output_dict_2)

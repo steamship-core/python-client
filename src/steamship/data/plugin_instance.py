@@ -4,13 +4,9 @@ from typing import Any, Dict
 from steamship.base import Client, Request
 from steamship.base.response import Response
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import (
-    TrainingParameterPluginInput,
-)
+from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
-from steamship.plugin.outputs.training_parameter_plugin_output import (
-    TrainingParameterPluginOutput,
-)
+from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
 
 class PluginInstance:
@@ -52,13 +48,13 @@ class PluginInstance:
 
         return PluginInstance(
             client=client,
-            id=d.get("id", None),
-            handle=d.get("handle", None),
-            plugin_id=d.get("pluginId", None),
-            plugin_version_id=d.get("pluginVersionId", None),
-            config=d.get("config", None),
-            user_id=d.get("userId", None),
-            spaceId=d.get("spaceId", None),
+            id=d.get("id"),
+            handle=d.get("handle"),
+            plugin_id=d.get("pluginId"),
+            plugin_version_id=d.get("pluginVersionId"),
+            config=d.get("config"),
+            user_id=d.get("userId"),
+            spaceId=d.get("spaceId"),
         )
 
     @staticmethod
@@ -83,28 +79,31 @@ class PluginInstance:
             config=config,
         )
 
-        return client.post("plugin/instance/create", payload=req, expect=PluginInstance, space_id=space_id)
+        return client.post(
+            "plugin/instance/create",
+            payload=req,
+            expect=PluginInstance,
+            space_id=space_id,
+        )
 
     def delete(self) -> PluginInstance:
         req = DeletePluginInstanceRequest(id=self.id)
+        return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
+
+    def export(self, plugin_input: ExportPluginInput) -> Response[RawDataPluginOutput]:
+        plugin_input.pluginInstance = self.handle
         return self.client.post(
-            "plugin/instance/delete", payload=req, expect=PluginInstance
+            "plugin/instance/export", payload=plugin_input, expect=RawDataPluginOutput
         )
 
-    def export(self, input: ExportPluginInput) -> Response[RawDataPluginOutput]:
-        input.pluginInstance = self.handle
-        return self.client.post(
-            "plugin/instance/export", payload=input, expect=RawDataPluginOutput
-        )
-
-    def train(self, training_request: TrainingParameterPluginInput) -> PluginInstance:
+    def train(self, training_request: TrainingParameterPluginInput) -> Response[PluginInstance]:
         return self.client.post(
             "plugin/instance/train", payload=training_request, expect=PluginInstance
         )
 
     def get_training_parameters(
         self, training_request: TrainingParameterPluginInput
-    ) -> PluginInstance:
+    ) -> Response[TrainingParameterPluginOutput]:
         return self.client.post(
             "plugin/instance/getTrainingParameters",
             payload=training_request,

@@ -1,9 +1,7 @@
 from steamship.data.plugin import TrainingPlatform
 from steamship.data.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import (
-    TrainingParameterPluginInput,
-)
+from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 
 from tests import APPS_PATH
 
@@ -25,9 +23,7 @@ def test_e2e_trainable_tagger_ecs_training():
         tag_columns=dict(type="string"),
         tag_kind=dict(type="string"),
     )
-    instance_config = dict(
-        text_column="Message", tag_columns="Category", tag_kind="Intent"
-    )
+    instance_config = dict(text_column="Message", tag_columns="Category", tag_kind="Intent")
 
     exporter_plugin_r = PluginInstance.create(
         client=client,
@@ -40,9 +36,7 @@ def test_e2e_trainable_tagger_ecs_training():
     assert exporter_plugin.handle is not None
 
     csv_blockifier_path = APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
-    trainable_tagger_path = (
-        APPS_PATH / "plugins" / "taggers" / "plugin_trainable_tagger.py"
-    )
+    trainable_tagger_path = APPS_PATH / "plugins" / "taggers" / "plugin_trainable_tagger.py"
 
     # Make a blockifier which will generate our trainable corpus
     with deploy_plugin(

@@ -19,11 +19,11 @@ class TagRequest(Request):
     def from_dict(d: Any, client: Client = None) -> "TagRequest":
 
         return TagRequest(
-            type=d.get("type", None),
-            id=d.get("id", None),
-            name=d.get("name", None),
-            handle=d.get("handle", None),
-            pluginInstance=d.get("pluginInstance", None),
+            type=d.get("type"),
+            id=d.get("id"),
+            name=d.get("name"),
+            handle=d.get("handle"),
+            pluginInstance=d.get("pluginInstance"),
             file=File.CreateRequest.from_dict(d.get("file", {})),
         )
 

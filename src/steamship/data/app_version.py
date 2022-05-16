@@ -38,9 +38,9 @@ class AppVersion:
 
         return AppVersion(
             client=client,
-            id=d.get("id", None),
-            handle=d.get("handle", None),
-            configTemplate=d.get("configTemplate", None),
+            id=d.get("id"),
+            handle=d.get("handle"),
+            configTemplate=d.get("configTemplate"),
         )
 
     @staticmethod

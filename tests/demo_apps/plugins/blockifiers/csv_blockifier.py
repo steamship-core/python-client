@@ -2,7 +2,7 @@
 
 import csv
 import io
-from typing import List, Optional, Union, Type
+from typing import List, Optional, Type, Union
 
 from pydantic import constr
 
@@ -63,9 +63,7 @@ class CsvBlockifier(Blockifier, App):
     ) -> Union[Response, Response[BlockAndTagPluginOutput]]:
         if request is None or request.data is None or request.data.data is None:
             return Response(
-                error=SteamshipError(
-                    message="Missing data field on the incoming request."
-                )
+                error=SteamshipError(message="Missing data field on the incoming request.")
             )
         data = request.data.data  # TODO (enias): Simplify
         if isinstance(data, bytes):
@@ -73,9 +71,7 @@ class CsvBlockifier(Blockifier, App):
 
         if type(data) != str:
             return Response(
-                error=SteamshipError(
-                    message="The incoming data was not of expected String type"
-                )
+                error=SteamshipError(message="The incoming data was not of expected String type")
             )
 
         reader = csv.DictReader(

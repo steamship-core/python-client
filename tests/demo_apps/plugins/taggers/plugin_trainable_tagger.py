@@ -1,4 +1,5 @@
 import json
+import logging
 from pathlib import Path
 from typing import List
 
@@ -9,9 +10,7 @@ from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
-from steamship.plugin.outputs.training_parameter_plugin_output import (
-    TrainingParameterPluginOutput,
-)
+from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import Tagger
 from steamship.plugin.trainable.model_loader import ModelLoader
@@ -117,11 +116,9 @@ class TestTrainableTaggerPlugin(Tagger, App):
         return model.run(request)
 
 
-    def get_training_parameters(
-        self, request: PluginRequest[TrainingParameterPluginInput]
-    ) -> Response[TrainingParameterPluginOutput]:
+    def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
+        logging.info(f"get training parameters {TestTrainableTaggerPlugin.RESPONSE}")
         return Response(data=TestTrainableTaggerPlugin.TRAINING_PARAMETERS)
-
 
     def train(
         self, request: PluginRequest[TrainPluginInput]

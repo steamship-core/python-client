@@ -12,8 +12,8 @@ def zip_folder(folder: Path, into_file: Optional[Path]) -> Path:
     It contains only the children of that folder as its root elements.
     """
     logging.info(f"Zipping: {folder}")
-    shutil.make_archive(str(folder).rstrip('/'), 'zip', folder)
-    ret = str(folder).rstrip('/') + '.zip'
+    shutil.make_archive(str(folder).rstrip("/"), "zip", folder)
+    ret = str(folder).rstrip("/") + ".zip"
     logging.info(f"Zipped: {ret}")
 
     if into_file is None:
