@@ -2,10 +2,7 @@ from abc import ABC
 from typing import Any
 
 from steamship.base import Client
-from steamship.client.operations.corpus_importer import (
-    CorpusImportRequest,
-    CorpusImportResponse,
-)
+from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from steamship.plugin.service import PluginRequest, PluginService
 
 

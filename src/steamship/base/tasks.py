@@ -156,7 +156,7 @@ class Task(Generic[T]):
     space_id: str = None  # The space in which this task is executing
 
     input: str = None  # The input provided to the task
-    output: str = None # The output of the task
+    output: str = None  # The output of the task
     state: str = None  # A value in class TaskState
 
     status_message: str = None  # User-facing message concerning task status
@@ -321,7 +321,6 @@ class Task(Generic[T]):
         # The Task ID must always be present
         body["taskId"] = self.task_id
         return self.client.post("task/update", body, expect=Task)
-
 
     @staticmethod
     def delete_comment(comment: TaskComment = None) -> IResponse[TaskComment]:

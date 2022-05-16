@@ -39,7 +39,7 @@ class Response(Generic[T]):
         data: Any = None,
         string: str = None,
         json: Any = None,
-        bytes: Union[bytes, io.BytesIO] = None,
+        _bytes: Union[bytes, io.BytesIO] = None,
         mime_type=None,
     ):
         # Note:
@@ -53,7 +53,7 @@ class Response(Generic[T]):
         # Handle the core data
         try:
             data, mime_type, encoding = flexi_create(
-                data=data, string=string, json=json, bytes=bytes, mime_type=mime_type
+                data=data, string=string, json=json, _bytes=_bytes, mime_type=mime_type
             )
 
             self.data = data
@@ -77,9 +77,7 @@ class Response(Generic[T]):
                 else:
                     error.message = f"Unable to serialize data to response. {ex}"
             else:
-                error = SteamshipError(
-                    message=f"Unable to serialize data to response. {ex}"
-                )
+                error = SteamshipError(message=f"Unable to serialize data to response. {ex}")
             logging.error(error)
 
         # Handle the task provided
@@ -126,9 +124,7 @@ class Response(Generic[T]):
             else:
                 error.message = f"{error.message}. {exception}"
 
-        return Response(
-            error=error or SteamshipError(message=message), http=Http(status=code)
-        )
+        return Response(error=error or SteamshipError(message=message), http=Http(status=code))
 
     @staticmethod
     def from_obj(obj: Any) -> "Response":
@@ -144,7 +140,7 @@ class Response(Generic[T]):
         elif obj_t == Exception:
             return Response.error(500, error=SteamshipError(error=obj))
         elif obj_t == io.BytesIO:
-            return Response(bytes=obj)
+            return Response(_bytes=obj)
         elif obj_t == dict:
             return Response(json=obj)
         elif obj_t == str:

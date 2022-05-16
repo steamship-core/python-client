@@ -43,9 +43,7 @@ def _snapshot(index, window_size=None):
 def test_snapshot_create():
     steamship = get_steamship_client()
 
-    plugin_instance = PluginInstance.create(
-        steamship, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     index = steamship.create_index(plugin_instance=plugin_instance.handle).data
 
     _insert(index, ["Oranges are orange."])
@@ -99,10 +97,7 @@ def test_snapshot_create():
     search_results = index.search(sent, include_metadata=True)
     assert len(search_results.data.items) == 1
     assert search_results.data.items[0].value.index_source == "index"
-    assert (
-        search_results.data.items[0].value.value
-        == "Orange number 13 is as good as the last"
-    )
+    assert search_results.data.items[0].value.value == "Orange number 13 is as good as the last"
     assert search_results.data.items[0].value.external_id == "TestId"
     assert search_results.data.items[0].value.external_type == "TestType"
     assert len(search_results.data.items[0].value.metadata) == 3
@@ -111,10 +106,7 @@ def test_snapshot_create():
     search_results = index.search(sent, include_metadata=True)
     assert len(search_results.data.items) == 1
     assert search_results.data.items[0].value.index_source == "snapshot"
-    assert (
-        search_results.data.items[0].value.value
-        == "Orange number 13 is as good as the last"
-    )
+    assert search_results.data.items[0].value.value == "Orange number 13 is as good as the last"
     assert search_results.data.items[0].value.external_id == "TestId"
     assert search_results.data.items[0].value.external_type == "TestType"
     assert len(search_results.data.items[0].value.metadata) == 3

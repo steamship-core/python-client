@@ -8,10 +8,7 @@ __license__ = "MIT"
 
 import base64
 
-from tests.demo_apps.plugins.importers.plugin_file_importer import (
-    TEST_DOC,
-    TestFileImporterPlugin,
-)
+from tests.demo_apps.plugins.importers.plugin_file_importer import TEST_DOC, TestFileImporterPlugin
 
 TEST_REQ = File.CreateRequest(value="Hi there.")
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)

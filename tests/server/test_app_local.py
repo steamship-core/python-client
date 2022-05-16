@@ -21,9 +21,7 @@ def test_invoke_app_with_request():
     assert res.data == RES_EMPTY
 
     req = Request(
-        invocation=Invocation(
-            httpVerb="POST", appPath="greet", arguments=dict(name=NAME)
-        )
+        invocation=Invocation(httpVerb="POST", appPath="greet", arguments=dict(name=NAME))
     )
     res = app(req)
     assert res.data == RES_NAME
@@ -34,8 +32,6 @@ def test_invoke_app_with_handler():
     res = handler(event)
     assert res["data"] == RES_EMPTY
 
-    event = dict(
-        invocation=dict(httpVerb="POST", appPath="greet", arguments=dict(name=NAME))
-    )
+    event = dict(invocation=dict(httpVerb="POST", appPath="greet", arguments=dict(name=NAME)))
     res = handler(event)
     assert res["data"] == RES_NAME

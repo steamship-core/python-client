@@ -6,11 +6,7 @@ from steamship.base import Client, Response
 from steamship.client.operations.tagger import TagRequest
 from steamship.client.tasks import Tasks
 from steamship.data import File
-from steamship.data.embeddings import (
-    EmbedAndSearchRequest,
-    EmbeddingIndex,
-    QueryResults,
-)
+from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
 from steamship.data.space import Space
 
 __copyright__ = "Steamship"
@@ -115,9 +111,7 @@ class Steamship(Client):
         space_handle: str = None,
         space: Space = None,
     ) -> Response[File]:
-        return File.scrape(
-            self, url, space_id=space_id, space_handle=space_handle, space=space
-        )
+        return File.scrape(self, url, space_id=space_id, space_handle=space_handle, space=space)
 
     def embed_and_search(
         self,
@@ -129,9 +123,7 @@ class Steamship(Client):
         space_handle: str = None,
         space: Space = None,
     ) -> Response[QueryResults]:
-        req = EmbedAndSearchRequest(
-            query=query, docs=docs, pluginInstance=plugin_instance, k=k
-        )
+        req = EmbedAndSearchRequest(query=query, docs=docs, pluginInstance=plugin_instance, k=k)
         return self.post(
             "plugin/instance/embeddingSearch",
             req,

@@ -7,7 +7,7 @@
 
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from steamship.base.client import Client
 from steamship.base.request import Request
@@ -58,9 +58,7 @@ class ListPluginsResponse(Request):
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "ListPluginsResponse":
         return ListPluginsResponse(
-            plugins=[
-                Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])
-            ]
+            plugins=[Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])]
         )
 
 
@@ -116,14 +114,14 @@ class Plugin:
 
         return Plugin(
             client=client,
-            id=d.get("id", None),
-            type=d.get("type", None),
-            transport=d.get("transport", None),
-            isPublic=d.get("isPublic", None),
-            trainingPlatform=d.get("trainingPlatform", None),
-            handle=d.get("handle", None),
-            description=d.get("description", None),
-            metadata=d.get("metadata", None),
+            id=d.get("id"),
+            type=d.get("type"),
+            transport=d.get("transport"),
+            isPublic=d.get("isPublic"),
+            trainingPlatform=d.get("trainingPlatform"),
+            handle=d.get("handle"),
+            description=d.get("description"),
+            metadata=d.get("metadata"),
         )
 
     @staticmethod

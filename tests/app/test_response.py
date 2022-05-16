@@ -11,18 +11,16 @@ __license__ = "MIT"
 
 
 def check_mime(d: dict, mime: str):
-    assert (
-        d.get("http", dict()).get("headers", dict()).get("Content-Type", None) == mime
-    )
+    assert d.get("http", dict()).get("headers", dict()).get("Content-Type") == mime
 
 
 def check_type(d: dict, t: Any):
-    data = d.get("data", None)
+    data = d.get("data")
     assert isinstance(data, t)
 
 
 def check_val(d: dict, val: Any):
-    data = d.get("data", None)
+    data = d.get("data")
     assert data == val
 
 

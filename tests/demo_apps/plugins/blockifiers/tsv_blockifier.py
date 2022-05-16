@@ -2,7 +2,7 @@
 
 from typing import Any, Dict
 
-from steamship.app import App, Response, create_handler, post
+from steamship.app import App, create_handler
 from steamship.plugin.blockifier import Blockifier
 from tests.demo_apps.plugins.blockifiers.csv_blockifier import CsvBlockifier
 

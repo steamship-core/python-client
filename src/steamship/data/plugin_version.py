@@ -6,8 +6,19 @@ from steamship.base.response import Response
 from steamship.data.plugin import ListPluginsResponse
 
 
+@dataclass
 class PluginVersion:
-    pass
+    # TODO: This might be a good entry point into using Pydantic with automatic camelCase to snake-case conversion
+    client: Client = None
+    id: str = None
+    pluginId: str = None
+    handle: str = None
+    hostingMemory: str = None
+    hostingTimeout: str = None
+    hostingHandler: str = None
+    isPublic: bool = None
+    isDefault: bool = None
+    configTemplate: Dict[str, Any] = None
 
 
 @dataclass
@@ -75,14 +86,14 @@ class PluginVersion:
 
         return PluginVersion(
             client=client,
-            id=d.get("id", None),
-            handle=d.get("handle", None),
-            hostingMemory=d.get("hostingMemory", None),
-            hostingTimeout=d.get("hostingTimeout", None),
-            hostingHandler=d.get("hostingHandler", None),
-            isPublic=d.get("isPublic", None),
-            isDefault=d.get("isDefault", None),
-            configTemplate=d.get("configTemplate", None),
+            id=d.get("id"),
+            handle=d.get("handle"),
+            hostingMemory=d.get("hostingMemory"),
+            hostingTimeout=d.get("hostingTimeout"),
+            hostingHandler=d.get("hostingHandler"),
+            isPublic=d.get("isPublic"),
+            isDefault=d.get("isDefault"),
+            configTemplate=d.get("configTemplate"),
         )
 
     @staticmethod
@@ -131,9 +142,7 @@ class PluginVersion:
 
     def delete(self) -> "PluginVersion":
         req = DeletePluginVersionRequest(id=self.id)
-        return self.client.post(
-            "plugin/version/delete", payload=req, expect=PluginVersion
-        )
+        return self.client.post("plugin/version/delete", payload=req, expect=PluginVersion)
 
     @staticmethod
     def get_public(client: Client, plugin_id: str, handle: str):

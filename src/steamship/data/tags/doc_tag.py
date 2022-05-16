@@ -43,47 +43,47 @@ class DocTag:
 
         name = tagname.lower().strip()
 
-        if name == 'p':
+        if name == "p":
             return DocTag.paragraph
-        elif name == 'h1':
+        elif name == "h1":
             return DocTag.h1
-        elif name == 'h2':
+        elif name == "h2":
             return DocTag.h2
-        elif name == 'h3':
+        elif name == "h3":
             return DocTag.h3
-        elif name == 'h4':
+        elif name == "h4":
             return DocTag.h4
-        elif name == 'h5':
+        elif name == "h5":
             return DocTag.h5
-        elif name == 'ul':
+        elif name == "ul":
             return DocTag.list
-        elif name == 'li':
+        elif name == "li":
             return DocTag.list_item
-        elif name == 'a':
+        elif name == "a":
             return DocTag.link
-        elif name == 'div':
+        elif name == "div":
             return DocTag.div
-        elif name == 'img':
+        elif name == "img":
             return DocTag.image
-        elif name == 'span':
+        elif name == "span":
             return DocTag.span
-        elif name == 'pre':
+        elif name == "pre":
             return DocTag.pre
-        elif name == 'code':
+        elif name == "code":
             return DocTag.blockcode
-        elif name == 'blockquote':
+        elif name == "blockquote":
             return DocTag.blockquote
-        elif name == 'strong':
+        elif name == "strong":
             return DocTag.strong
-        elif name == 'b':
+        elif name == "b":
             return DocTag.strong
-        elif name == 'emph':
+        elif name == "emph":
             return DocTag.emph
-        elif name == 'i':
+        elif name == "i":
             return DocTag.emph
-        elif name == 'u':
+        elif name == "u":
             return DocTag.underline
-        elif name == 'tt':
+        elif name == "tt":
             return DocTag.teletype
 
         return None
