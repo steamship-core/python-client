@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import List
 
-from steamship import SteamshipError
+from steamship import SteamshipError, File, Tag
 from steamship.app import App, Response, create_handler, post
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -18,6 +18,43 @@ from steamship.plugin.trainable.model_loader import ModelLoader
 from steamship.plugin.trainable.model_trainer import ModelTrainer
 
 FEATURES = ["roses", "chocolate", "sweet"]
+
+
+class Model:
+    """This is the model itself."""
+    FEATURE_FILE = "features.json"
+    features: List[str] = None
+
+    def __init__(self, path: Path):
+        self.path = path
+
+    @staticmethod
+    def load_from_disk(path: Path):
+        model = Model(path)
+        model.load()
+        return model
+
+    def load(self):
+        """Loads from the folder it was given"""
+        with open(self.path / TrainableTagger.FEATURE_FILE, 'r') as f:
+            self.features = json.loads(f.read())
+
+    def train(self):
+        """Loads from the """
+        with open(self.path / Model.FEATURE_FILE, 'w') as f:
+            f.write(json.dumps(FEATURES))
+
+    def run(
+        self, request: PluginRequest[BlockAndTagPluginInput]
+    ) -> Response[BlockAndTagPluginOutput]:
+        return Response(
+            data=BlockAndTagPluginOutput(
+                file=File.CreateRequest(
+                    tags=list(map(lambda word: Tag.CreateRequest(name=word), self.features))
+                )
+            )
+        )
+
 
 class TrainableTagger:
     """This is the model itself."""

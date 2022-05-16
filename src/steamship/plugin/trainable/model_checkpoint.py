@@ -11,10 +11,6 @@ from steamship.utils.signed_urls import download_from_signed_url, upload_to_sign
 from steamship.utils.zip_archives import zip_folder, unzip_folder
 
 
-# The default model checkpoint handle unless one is provided.
-DEFAULT_CHECKPOINT_HANDLE = "default"
-
-
 def _get_space(client: Client) -> Space:
     # We should probably add a hard-coded tway to get this. The client in a Steamship Plugin/App comes
     # pre-configured with an API key and the Space in which this client should be operating.
@@ -31,6 +27,9 @@ def _get_space(client: Client) -> Space:
 
 @dataclasses.dataclass
 class ModelCheckpoint():
+    # The default model checkpoint handle unless one is provided.
+    DEFAULT_HANDLE = "default"
+
     """Represents the saved state of a trained PluginInstance.
     """
     client: Client
@@ -155,5 +154,5 @@ class ModelCheckpoint():
             # specified. This means that we need to double-upload some checkpoints:
             # - Once under the actual checkpoint name (e.g. `epoch-10`)
             # - Again under the name: default
-            self._upload_model_zip(as_handle=DEFAULT_CHECKPOINT_HANDLE)
+            self._upload_model_zip(as_handle=ModelCheckpoint.DEFAULT_HANDLE)
 

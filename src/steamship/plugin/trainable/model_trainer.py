@@ -6,7 +6,7 @@ from steamship import SteamshipError, PluginInstance
 from steamship.base import Client
 from steamship.base.tasks import Task, TaskState
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.trainable.model_checkpoint import ModelCheckpoint, DEFAULT_CHECKPOINT_HANDLE
+from steamship.plugin.trainable.model_checkpoint import ModelCheckpoint
 from steamship.plugin.trainable.model_loader import ModelConstructor
 
 
@@ -40,7 +40,7 @@ class ModelTrainer:
         self.train_plugin_input = train_plugin_input
 
 
-    def create_model_checkpoint(self, handle: str = DEFAULT_CHECKPOINT_HANDLE) -> ModelCheckpoint:
+    def create_model_checkpoint(self, handle: str = ModelCheckpoint.DEFAULT_HANDLE) -> ModelCheckpoint:
         """Creates a model checkpoint used for persisting the model state to Steamship."""
         return ModelCheckpoint(
             client=self.client,

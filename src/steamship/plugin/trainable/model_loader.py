@@ -2,13 +2,14 @@
 
 # Global variable for reuse between lambda invocations when possible
 from pathlib import Path
-from typing import TypeVar, Generic, Callable, Dict, TypeAlias
+from typing import TypeVar, Generic, Callable, Dict
+from typing_extensions import TypeAlias
 
 from steamship import PluginInstance, SteamshipError
 from steamship.base import Client
 
 # Generic type that represents "The Model", whatever it actually is.
-from steamship.plugin.trainable.model_checkpoint import ModelCheckpoint, DEFAULT_CHECKPOINT_HANDLE
+from steamship.plugin.trainable.model_checkpoint import ModelCheckpoint
 
 Model = TypeVar("Model")
 
@@ -29,7 +30,7 @@ class ModelLoader(Generic[Model]):
             client: Client,
             plugin_instance_id: str,
             model_constructor: ModelConstructor,
-            checkpoint_handle: str = DEFAULT_CHECKPOINT_HANDLE,
+            checkpoint_handle: str = ModelCheckpoint.DEFAULT_HANDLE,
             checkpoint_parent_directory: Path = None
     ):
         if client is None:
