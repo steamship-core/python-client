@@ -3,9 +3,9 @@ from tests.client.operations.test_tag_file import tag_file
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-from .. import APPS_PATH
-from ..utils.client import get_steamship_client
-from ..utils.deployables import deploy_plugin
+from tests import APPS_PATH
+from tests.utils.client import get_steamship_client
+from tests.utils.deployables import deploy_plugin
 
 
 def test_e2e_tagger():

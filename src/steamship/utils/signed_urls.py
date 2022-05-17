@@ -1,7 +1,10 @@
 import logging
 import os
+import uuid
 import tempfile
 import urllib
+from pathlib import Path
+from typing import Optional
 from urllib.parse import parse_qs, urlparse
 
 import requests
@@ -9,23 +12,26 @@ import requests
 from steamship import SteamshipError
 
 
-def download_from_signed_url(url: str, desired_filename: str) -> str:
+def download_from_signed_url(url: str, to_file: Path = None) -> Path:
     """
     Downloads the Signed URL to the filename `desired_filename` in a temporary directory on disk.
     """
-    logging.info(f"Downloading: {url} to {desired_filename} in a temporary directory")
-    tempdir = tempfile.mkdtemp()
-    file_path = os.path.join(tempdir, desired_filename)
-    with open(file_path, "wb") as f:
+    logging.info(f"Downloading: {url} to {to_file} in a temporary directory")
+
+    # Ensure the path to the desired file exists
+    if not os.path.exists(to_file.parent):
+        os.makedirs(to_file.parent)
+
+    with open(to_file, "wb") as f:
         resp = requests.get(url)
         logging.info(f"Got contents of: {url}")
         content = resp.content
         f.write(content)
-        logging.info(f"Wrote contents of: {url} to {file_path}")
-    return file_path
+        logging.info(f"Wrote contents of: {url} to {to_file}")
+    return Path(to_file)
 
 
-def upload_to_signed_url(url: str, bytes: bytes = None, filepath: str = None):
+def upload_to_signed_url(url: str, bytes: Optional[bytes] = None, filepath: Optional[Path] = None):
     """
     Uploads either the bytes or filepath contents to the provided Signed URL.
     """
@@ -41,7 +47,7 @@ def upload_to_signed_url(url: str, bytes: bytes = None, filepath: str = None):
             suggestion="Please provide either the `bytes` or the `filepath` argument",
         )
 
-    files = {"file": (filepath, bytes)}
+    files = {"file": (str(filepath), bytes)}
     parsed_url = urllib.parse.urlparse(url)
 
     if "amazonaws.com" in parsed_url.netloc:

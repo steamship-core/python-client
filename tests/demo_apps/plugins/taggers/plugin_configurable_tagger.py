@@ -8,7 +8,7 @@ from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import Tagger
 
 
-class TestParserPlugin(Tagger, App):
+class TestParserPlugin(Tagger):
     # For testing; mirrors TestConfigurableTagger in Swift
 
     def run(

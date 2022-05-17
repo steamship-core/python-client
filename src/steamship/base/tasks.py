@@ -248,7 +248,7 @@ class Task(Generic[T]):
             retries=self.retries,
         )
 
-    def update(self, other: "Task"):
+    def refresh(self, other: "Task"):
         """Incorporates a `Task` into this object."""
         # TODO (Enias): Simplify with operations on __dict__
         if other is not None:

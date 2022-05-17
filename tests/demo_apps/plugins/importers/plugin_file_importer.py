@@ -16,7 +16,7 @@ TEST_S3 = "Sugar is sweet, and I love you."
 TEST_DOC = f"# {TEST_H1}\n\n{TEST_S1} {TEST_S2}\n\n{TEST_S3}\n"
 
 
-class TestFileImporterPlugin(FileImporter, App):
+class TestFileImporterPlugin(FileImporter):
     def run(self, request: PluginRequest[FileImportPluginInput]) -> Response[RawDataPluginOutput]:
         return Response(data=RawDataPluginOutput(string=TEST_DOC, mime_type=MimeTypes.MKD))
 

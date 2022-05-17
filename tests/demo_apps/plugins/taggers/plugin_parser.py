@@ -34,7 +34,7 @@ def _make_test_response(request: BlockAndTagPluginInput) -> BlockAndTagPluginOut
     return response
 
 
-class TestParserPlugin(Tagger, App):
+class TestParserPlugin(Tagger):
     # TODO: WARNING! We will need to implement some logic that prevents
     # a distributed endless loop. E.g., a parser plugin returning the results
     # of using the Steamship client to call parse.. via itself!
