@@ -4,6 +4,8 @@ __license__ = "MIT"
 import os
 import shutil
 import tempfile
+import os
+from pathlib import Path
 
 from steamship import Space
 from steamship.data.space import SignedUrl
@@ -15,7 +17,7 @@ from tests.utils.random import random_name
 
 
 def test_upload_download():
-    """This test simulates some of the operations models must do when training/loading.
+    """This test simulates some of the operations models must do when trainable/loading.
 
     It performs the following steps:
 
@@ -28,13 +30,12 @@ def test_upload_download():
 
     """
     # Copy the test assets to a temp folder
-    tempbase = tempfile.mkdtemp()
+    tempbase = Path(tempfile.mkdtemp())
     shutil.copytree(TEST_ASSETS_PATH, os.path.join(tempbase, "src"))
 
     # Zip that folder
-    zip_folder(os.path.join(tempbase, "src"))
-    zip_path = os.path.join(tempbase, "src.zip")
-    download_path = os.path.join(tempbase, "out.zip")
+    zip_path = tempbase / Path("src.zip")
+    zip_folder(tempbase / Path("src"), into_file=zip_path)
 
     # Verify that on disk, src.zip exists
     assert os.path.exists(zip_path) == True
@@ -45,7 +46,7 @@ def test_upload_download():
     upload_name = random_name()
     url_resp = space.create_signed_url(
         SignedUrl.Request(
-            bucket=SignedUrl.Bucket.models,
+            bucket=SignedUrl.Bucket.pluginData,
             filepath=upload_name,
             operation=SignedUrl.Operation.write,
         )
@@ -60,7 +61,7 @@ def test_upload_download():
     # Now create a download signed URL
     download_resp = space.create_signed_url(
         SignedUrl.Request(
-            bucket=SignedUrl.Bucket.models, filepath=upload_name, operation=SignedUrl.Operation.read
+            bucket=SignedUrl.Bucket.pluginData, filepath=upload_name, operation=SignedUrl.Operation.read
         )
     )
     assert download_resp is not None
@@ -68,7 +69,8 @@ def test_upload_download():
     assert download_resp.data.signedUrl is not None
 
     # Download the zip file to the URL
-    download_from_signed_url(download_resp.data.signedUrl, desired_filename=download_path)
+    download_path = tempbase / Path("out.zip")
+    download_from_signed_url(download_resp.data.signedUrl, to_file=download_path)
 
     # Verify the download URL is there
     assert os.path.exists(download_path) == True

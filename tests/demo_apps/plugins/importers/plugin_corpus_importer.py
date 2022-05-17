@@ -7,7 +7,7 @@ from steamship.plugin.corpus_importer import CorpusImporter
 from steamship.plugin.service import PluginRequest
 
 
-class TestCorpusImporterPlugin(CorpusImporter, App):
+class TestCorpusImporterPlugin(CorpusImporter):
     def run(self, request: PluginRequest[CorpusImportRequest]) -> Response[CorpusImportResponse]:
         return Response(
             data=CorpusImportResponse(
