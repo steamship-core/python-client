@@ -102,13 +102,8 @@ class Response(Generic[T]):
 
         self.data = data
 
-        if mime_type is None:
-            mime_type = MimeTypes.BINARY
-
-        if mime_type is not None:
-            if self.http.headers is None:
-                self.http.headers = {}
-            self.http.headers["Content-Type"] = mime_type
+        self.http.headers = self.http.headers or {}
+        self.http.headers["Content-Type"] = mime_type or MimeTypes.BINARY
 
         if encoding == ContentEncodings.BASE64:
             self.http.base64Wrapped = True
@@ -172,9 +167,17 @@ class Response(Generic[T]):
         return dataclasses.asdict(self)
 
     def post_update(self, client: Client):
-        """Pushes an update to the client, as opposed to returning one when the client polls.
+        """Pushes this response object to the correspondikng Task on the Steamship Engine.
 
-        Note that this requires
+        Typically apps and plugins return their results to the Engine synchronously via HTTP.
+        But sometimes that's not practice -- for example:
+
+        - Microsoft's OCR endpoint returns a Job Token that can be exchanged for updates, and eventually a result.
+        - Google's AutoML can take 20-30 minutes to train.
+        - Fine-tuning BERT on ECS can take an arbitrarily long amount of time.
+
+        In these cases, it can be useful for the app/plugin to occasionally post updates to the Engine outside
+        of the Engine's initial synchronous request-response conversation.
         """
         if self.status is None or self.status.task_id is None:
             raise SteamshipError(message="An App/Plugin response can only be pushed to the Steamship Engine if "+

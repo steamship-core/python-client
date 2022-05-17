@@ -13,19 +13,19 @@ def zip_folder(folder: Path, into_file: Optional[Path]) -> Path:
     """
     logging.info(f"Zipping: {folder}")
     shutil.make_archive(str(folder).rstrip("/"), "zip", folder)
-    ret = str(folder).rstrip("/") + ".zip"
-    logging.info(f"Zipped: {ret}")
+    zip_path_str = str(folder).rstrip("/") + ".zip"
+    logging.info(f"Zipped: {zip_path_str}")
 
     if into_file is None:
-        return Path(ret)
+        return Path(zip_path_str)
 
     # Move the archive to the desired destination
 
     # Ensure the path to the desired extraction folder exists
-    if not os.path.exists(into_file.parent):
-        os.makedirs(into_file.parent)
+    if not into_file.parent.exists():
+        into_file.parent.mkdir(parents=True, exists_ok=True)
 
-    shutil.move(ret, into_file)
+    shutil.move(zip_path_str, into_file)
     return into_file
 
 
@@ -36,8 +36,8 @@ def unzip_folder(zip_file: Path, into_folder: Optional[Path]) -> Path:
         into_folder = zip_file.with_suffix('') # Strips the '.zip' suffix
 
     # Ensure the path to the desired extraction folder exists
-    if not os.path.exists(into_folder.parent):
-        os.makedirs(into_folder.parent)
+    if not into_folder.parent.exists():
+        into_folder.parent.mkdir(parents=True, exists_ok=True)
 
     shutil.unpack_archive(zip_file, into_folder, 'zip')
     logging.info(f"Unzipped: {into_folder}")
