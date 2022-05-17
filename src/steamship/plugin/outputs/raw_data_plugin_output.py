@@ -23,7 +23,6 @@ class RawDataPluginOutput:
     The `mimeType` field of this object should always be filled in if known. The Steamship Engine makes use of it
     to proactively select defaults for handling the data returned.
     """
-
     data: Optional[str] = None  # Note: This is **always** Base64 encoded.
     mimeType: Optional[str] = None
 

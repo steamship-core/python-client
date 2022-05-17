@@ -1,7 +1,6 @@
-from abc import ABC
-from typing import Any
+from abc import ABC, abstractmethod
 
-from steamship.base import Client
+from steamship.app import Response, post
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.embedded_items_plugin_output import EmbeddedItemsPluginOutput
 from steamship.plugin.service import PluginRequest, PluginService
@@ -16,8 +15,15 @@ from steamship.plugin.service import PluginRequest, PluginService
 # of this file.
 #
 class Embedder(PluginService[BlockAndTagPluginInput, EmbeddedItemsPluginOutput], ABC):
-    @classmethod
-    def subclass_request_from_dict(
-        cls, d: Any, client: Client = None
-    ) -> PluginRequest[BlockAndTagPluginInput]:
-        return BlockAndTagPluginInput.from_dict(d, client=client)
+    @abstractmethod
+    def run(
+            self, request: PluginRequest[BlockAndTagPluginInput]
+    ) -> Response[EmbeddedItemsPluginOutput]:
+        raise NotImplementedError()
+
+    @post("tag")
+    def run_endpoint(self, **kwargs) -> Response[EmbeddedItemsPluginOutput]:
+        """Exposes the Embedder's `run` operation to the Steamship Engine via the expected HTTP path POST /tag"""
+        return self.run(
+            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=BlockAndTagPluginInput.from_dict)
+        )
