@@ -6,7 +6,7 @@ from steamship.base import Client
 
 
 @dataclass
-class CorpusImportRequest:  # TODO (enias): Depricate
+class CorpusImportRequest:
     # The Corpus Identifiers
     client: Client = None
     id: str = None
