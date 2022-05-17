@@ -7,7 +7,7 @@ import tempfile
 import time
 import zipfile
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from steamship import App, AppInstance, AppVersion, Steamship
 from steamship.data.plugin import Plugin
@@ -15,7 +15,7 @@ from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
 from tests import SRC_PATH, VENV_PATH
-
+from steamship.data.plugin import TrainingPlatform, InferencePlatform
 
 def install_package(package: str, into_folder: str):
     logging.info(f"Installing {package} into: {into_folder}")
@@ -120,7 +120,8 @@ def deploy_plugin(
     plugin_type: str,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
-    training_platform: str = None,
+    training_platform: Optional[TrainingPlatform] = None,
+    inference_platform: Optional[InferencePlatform] = None,
 ):
     import importlib.util
 
@@ -130,6 +131,7 @@ def deploy_plugin(
     plugin = Plugin.create(
         client,
         training_platform=training_platform,
+        inference_platform=inference_platform,
         description="test",
         type_=plugin_type,
         transport="jsonOverHttp",

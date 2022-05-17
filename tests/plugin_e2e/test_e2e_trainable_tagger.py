@@ -1,22 +1,25 @@
-from steamship.data.plugin import TrainingPlatform
+from steamship.data.plugin import TrainingPlatform, InferencePlatform
 from steamship.data.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 
 from tests import APPS_PATH
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
 from tests.utils.file import upload_file
+import tempfile
+from steamship.utils.signed_urls import download_from_signed_url
+from steamship.data.space import Space, SignedUrl
+from pathlib import Path
 
 EXPORTER_HANDLE = "signed-url-exporter"
 
 
-def test_e2e_trainable_tagger_ecs_training():
+def test_e2e_trainable_tagger_lambda_training():
     client = get_steamship_client()
+    spaceR = Space.get(client)
+    assert spaceR.data is not None
+    space = spaceR.data
 
     version_config_template = dict(
         text_column=dict(type="string"),
@@ -57,7 +60,8 @@ def test_e2e_trainable_tagger_ecs_training():
                 client,
                 trainable_tagger_path,
                 "tagger",
-                training_platform=TrainingPlatform.managed,
+                training_platform=TrainingPlatform.LAMBDA,
+                inference_platform=InferencePlatform.LAMBDA
             ) as (tagger, taggerVersion, taggerInstance):
                 # Now train the plugin
                 training_request = TrainingParameterPluginInput(
@@ -69,3 +73,20 @@ def test_e2e_trainable_tagger_ecs_training():
 
                 train_result = taggerInstance.train(training_request)
                 train_result.wait()
+
+                # At this point, the PluginInstance will have written a parameter file to disk. We should be able to
+                # retrieve it since we know that it is tagged as the `default`.
+
+                urlR = space.create_signed_url(SignedUrl.Request(
+                    bucket=SignedUrl.Bucket.PLUGIN_DATA,
+                    filepath=f"{taggerInstance.id}/default.zip",
+                    operation=SignedUrl.Operation.READ
+                ))
+                assert urlR.data is not None
+                assert urlR.data.signedUrl is not None
+
+                with tempfile.TemporaryDirectory() as tmpdirname:
+                    filename = Path(tmpdirname) / "default.zip"
+                    download_from_signed_url(urlR.data.signedUrl, filename)
+                    assert filename.exists()
+

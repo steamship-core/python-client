@@ -96,9 +96,9 @@ class ModelCheckpoint():
     def download_model_bundle(self) -> Path:
         """Download's the model from Steamship and unzips to `parent_directory`"""
         download_resp = self.space.create_signed_url(SignedUrl.Request(
-            bucket=SignedUrl.Bucket.pluginData,
+            bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=self.archive_path_in_steamship(),
-            operation=SignedUrl.Operation.read
+            operation=SignedUrl.Operation.READ
         ))
         if not download_resp.data or not download_resp.data.signedUrl:
             raise SteamshipError(message=f"Received empty Signed URL for model download of '{self.handle}.")
@@ -118,9 +118,9 @@ class ModelCheckpoint():
         This is an internal function. Please use upload_model_bundle as an caller."""
         signed_url_resp = self.space.create_signed_url(
             SignedUrl.Request(
-                bucket=SignedUrl.Bucket.pluginData,
+                bucket=SignedUrl.Bucket.PLUGIN_DATA,
                 filepath=self.archive_path_in_steamship(as_handle=as_handle),
-                operation=SignedUrl.Operation.write
+                operation=SignedUrl.Operation.WRITE
             )
         )
 

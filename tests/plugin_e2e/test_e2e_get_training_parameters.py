@@ -18,7 +18,7 @@ def test_get_training_parameters():
             client,
             tagger_path,
             "tagger",
-            training_platform=TrainingPlatform.managed,
+            training_platform=TrainingPlatform.ECS,
     ) as (tagger, taggerVersion, taggerInstance):
         training_request = TrainingParameterPluginInput(pluginInstance=taggerInstance.handle)
         res = taggerInstance.get_training_parameters(training_request)

@@ -46,9 +46,9 @@ def test_upload_download():
     upload_name = random_name()
     url_resp = space.create_signed_url(
         SignedUrl.Request(
-            bucket=SignedUrl.Bucket.pluginData,
+            bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=upload_name,
-            operation=SignedUrl.Operation.write,
+            operation=SignedUrl.Operation.WRITE,
         )
     )
     assert url_resp is not None
@@ -61,7 +61,7 @@ def test_upload_download():
     # Now create a download signed URL
     download_resp = space.create_signed_url(
         SignedUrl.Request(
-            bucket=SignedUrl.Bucket.pluginData, filepath=upload_name, operation=SignedUrl.Operation.read
+            bucket=SignedUrl.Bucket.PLUGIN_DATA, filepath=upload_name, operation=SignedUrl.Operation.READ
         )
     )
     assert download_resp is not None

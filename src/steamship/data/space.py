@@ -3,25 +3,25 @@ from typing import Any
 
 from steamship.base import Client, Request, Response
 from steamship.base.request import GetRequest, IdentifierRequest
-
+from enum import Enum
 
 class SignedUrl:
-    class Bucket:
-        exports = "exports"
-        imports = "imports"
-        userData = "userData"
-        pluginData = "pluginData"
-        appData = "appData"
+    class Bucket(str, Enum):
+        EXPORTS = "exports"
+        IMPORTS = "imports"
+        USER_DATA = "userData"
+        PLUGIN_DATA = "pluginData"
+        APP_DATA = "appData"
 
-    class Operation:
-        read = "Read"
-        write = "Write"
+    class Operation(str, Enum):
+        READ = "Read"
+        WRITE = "Write"
 
     @dataclass
     class Request(Request):
-        bucket: str = None
-        filepath: str = None
-        operation: str = None
+        bucket: "SignedUrl.Bucket"
+        filepath: str
+        operation: "SignedUrl.Operation"
         expiresInMinutes: int = None
 
     @dataclass

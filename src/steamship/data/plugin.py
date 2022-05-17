@@ -12,20 +12,25 @@ from typing import Any, Dict, List, Optional, Union
 from steamship.base.client import Client
 from steamship.base.request import Request
 from steamship.base.response import Response
-
+from enum import Enum
 
 class Plugin:
     pass
 
 
-class TrainingPlatform:
-    custom = "lambda"
-    managed = "ecs"
+class TrainingPlatform(str, Enum):
+    LAMBDA = "lambda"
+    ECS = "ecs"
+
+class InferencePlatform(str, Enum):
+    LAMBDA = "lambda"
+    ECS = "ecs"
 
 
 @dataclass
 class CreatePluginRequest(Request):
-    trainingPlatform: str
+    trainingPlatform: Optional[TrainingPlatform]
+    inferencePlatform: Optional[InferencePlatform]
     id: str = None
     type: str = None
     transport: str = None
@@ -102,7 +107,8 @@ class Plugin:
     type: str = None
     transport: str = None
     isPublic: bool = None
-    trainingPlatform: str = None
+    trainingPlatform: Optional[TrainingPlatform] = None
+    inferencePlatform: Optional[InferencePlatform] = None
     handle: str = None
     description: str = None
     metadata: str = None
@@ -119,6 +125,7 @@ class Plugin:
             transport=d.get("transport"),
             isPublic=d.get("isPublic"),
             trainingPlatform=d.get("trainingPlatform"),
+            inferencePlatform=d.get("inferencePlatform"),
             handle=d.get("handle"),
             description=d.get("description"),
             metadata=d.get("metadata"),
@@ -127,7 +134,8 @@ class Plugin:
     @staticmethod
     def create(
         client: Client,
-        training_platform: Optional[str],
+        training_platform: Optional[TrainingPlatform],
+        inference_platform: Optional[InferencePlatform],
         description: str,
         type_: str,
         transport: str,
@@ -143,6 +151,7 @@ class Plugin:
 
         req = CreatePluginRequest(
             trainingPlatform=training_platform,
+            inferencePlatform=inference_platform,
             type=type_,
             transport=transport,
             isPublic=is_public,
