@@ -40,24 +40,20 @@ class ModelCheckpoint():
     handle: str = None # The handle of this ModelCheckpoint.
     plugin_instance_id: str = None #
 
-    performance_report: dict = None
-
     def __init__(
             self,
             client: Client,
             parent_directory: Optional[Path] = None,
-            handle: str = None,
-            plugin_instance_id: str = None,
-            performance_report: dict = None
+            handle: str = DEFAULT_HANDLE,
+            plugin_instance_id: str = None
     ):
         self.client = client
         self.parent_directory = parent_directory
         self.plugin_instance_id = plugin_instance_id
-        self.handle = handle
-        self.performance_report = performance_report
+        self.handle = handle or ModelCheckpoint.DEFAULT_HANDLE
 
         if self.plugin_instance_id is None:
-            raise SteamshipError("Mull plugin_instance_id provided ModelCheckpoint")
+            raise SteamshipError("Null plugin_instance_id provided ModelCheckpoint")
 
         # Load the space that we're operating within.
         self.space = _get_space(client)
@@ -67,7 +63,7 @@ class ModelCheckpoint():
             self.parent_directory = Path(tempfile.mkdtemp())
 
         # Create the folder path on disk.
-        os.makedirs(self.folder_path_on_disk())
+        os.makedirs(str(self.folder_path_on_disk()))
 
     def folder_path_on_disk(self) -> Path:
         """Returns the path to this checkpoint on the local disk.

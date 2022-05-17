@@ -1,10 +1,11 @@
 import dataclasses
 import io
+import json
 import logging
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, TypeVar, Union
 
-from steamship.base import SteamshipError
+from steamship.base import SteamshipError, Client
 from steamship.base.binary_utils import flexi_create
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 from steamship.base.tasks import Task, TaskState
@@ -50,25 +51,8 @@ class Response(Generic[T]):
         else:
             self.http = Http(status=200, headers={})
 
-        # Handle the core data
         try:
-            data, mime_type, encoding = flexi_create(
-                data=data, string=string, json=json, _bytes=_bytes, mime_type=mime_type
-            )
-
-            self.data = data
-
-            if mime_type is None:
-                mime_type = MimeTypes.BINARY
-
-            if mime_type is not None:
-                if self.http.headers is None:
-                    self.http.headers = {}
-                self.http.headers["Content-Type"] = mime_type
-
-            if encoding == ContentEncodings.BASE64:
-                self.http.base64Wrapped = True
-
+            self.set_data(data=data, string=string, json=json, _bytes=_bytes, mime_type=mime_type)
         except Exception as ex:
             logging.error(f"Exception within Response.__init__. {ex}")
             if error is not None:
@@ -103,6 +87,31 @@ class Response(Generic[T]):
         else:
             if self.status.state is None:
                 self.status.state = TaskState.succeeded
+
+    def set_data(
+        self,
+        data: Any = None,
+        string: str = None,
+        json: Any = None,
+        _bytes: Union[bytes, io.BytesIO] = None,
+        mime_type=None,
+    ):
+        data, mime_type, encoding = flexi_create(
+            data=data, string=string, json=json, _bytes=_bytes, mime_type=mime_type
+        )
+
+        self.data = data
+
+        if mime_type is None:
+            mime_type = MimeTypes.BINARY
+
+        if mime_type is not None:
+            if self.http.headers is None:
+                self.http.headers = {}
+            self.http.headers["Content-Type"] = mime_type
+
+        if encoding == ContentEncodings.BASE64:
+            self.http.base64Wrapped = True
 
     @staticmethod
     def error(
@@ -161,3 +170,38 @@ class Response(Generic[T]):
 
     def to_dict(self) -> Dict:
         return dataclasses.asdict(self)
+
+    def post_update(self, client: Client):
+        """Pushes an update to the client, as opposed to returning one when the client polls.
+
+        Note that this requires
+        """
+        if self.status is None or self.status.task_id is None:
+            raise SteamshipError(message="An App/Plugin response can only be pushed to the Steamship Engine if "+
+                                 "it is associated with a Task. Please set the `status.task_id` field.")
+        if client is None:
+            raise SteamshipError(message="Unable to push Response to Steamship: Associated client is None")
+
+
+        # Create a task object
+        task = Task(client=client, task_id=self.status.task_id)
+        update_fields = []
+
+        if self.status.state is not None:
+            task.state = self.status.state
+            update_fields.append("state")
+
+        if self.status.status_message is not None:
+            task.status_message = self.status.status_message
+            update_fields.append("statusMessage")
+
+        if self.status.status_suggestion is not None:
+            task.status_suggestion = self.status.status_suggestion
+            update_fields.append("statusSuggestion")
+
+        if self.data is not None:
+            # This object itself should always be the output of the Training Task object.
+            task.output = json.dumps(self.data)
+            update_fields.append("output")
+
+        task.post_update(fields=update_fields)

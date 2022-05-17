@@ -2,15 +2,9 @@ import pytest
 
 from steamship.app import Response
 from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
-from steamship.data.file import File
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.service import PluginRequest
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.demo_apps.plugins.importers.plugin_corpus_importer import (
     TestCorpusImporterPlugin,
 )
@@ -25,7 +19,6 @@ def _test_resp(res):
     assert type(res.data) == CorpusImportResponse
     assert res.data.fileImportRequests is not None
     assert len(res.data.fileImportRequests) == 2
-
 
 
 def test_importer():

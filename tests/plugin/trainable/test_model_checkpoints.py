@@ -1,166 +1,118 @@
-import json
 import os
 from pathlib import Path
-from typing import List
 
-from steamship import SteamshipError, File, Tag
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
-from steamship.app import Response
-
-from steamship.base.tasks import TaskState
-from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginRequest
-from steamship.plugin.trainable.model_checkpoint import ModelCheckpoint
-from steamship.plugin.trainable.model_loader import ModelLoader
-from tests.demo_apps.plugins.taggers.plugin_trainable_tagger import TrainableTagger
+from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
+from tests.demo_apps.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerModel, TRAINING_PARAMETERS
+from tests.plugin.trainable.util import create_dummy_training_task
 from tests.utils.client import get_steamship_client
-from tests.base.test_task import NoOpResult
-from steamship.plugin.trainable.model_trainer import ModelTrainer
 
-class Model:
-    """This is the model itself."""
-    FEATURE_FILE = "features.json"
-    features: List[str] = None
 
-    def __init__(self, path: Path, features: List[str] = None):
-        self.path = path
-        self.features = features
+def _test_folders_equal(p1: Path, p2: Path):
+    assert p1 != p2
 
-    @staticmethod
-    def from_disk(path: Path):
-        model = Model(path)
-        model.load()
-        return model
+    p1_files = os.listdir(p1)
+    p2_files = os.listdir(p2)
 
-    def load(self):
-        """Loads from the folder it was given"""
-        with open(self.path / TrainableTagger.FEATURE_FILE, 'r') as f:
-            self.features = json.loads(f.read())
+    assert (p1_files == p2_files)
 
-    def train(self):
-        """Loads from the file in the path given to it"""
-        with open(self.path / Model.FEATURE_FILE, 'w') as f:
-            f.write(json.dumps(self.features))
+    for file in p1_files:
+        with open(p1 / file, 'r') as f1:
+            with open(p2 / file, 'r') as f2:
+                assert f1.read() == f2.read()
 
-    def run(
-        self, request: PluginRequest[BlockAndTagPluginInput]
-    ) -> Response[BlockAndTagPluginOutput]:
-        return Response(
-            data=BlockAndTagPluginOutput(
-                file=File.CreateRequest(
-                    tags=list(map(lambda word: Tag.CreateRequest(name=word), self.features))
-                )
-            )
-        )
 
-def test_trainer_status_updates():
+def test_model_checkpoint_save_load():
+    """A ModelCheckpoint captures the entire state of a model at any given time.
+
+    On disk, it is a folder.
+    - Models are expected to take this folder as their initialization input
+    - Models are expected to persist whatever they need to persist to this folder during training.
+
+    On Steamship, it is a zip archive stored in the associated PluginInstance's "Space Bucket"
+    - Each ModelCheckpoint uploaded has a handle (like V1)
+    - Every ModelCheckpoint uploaded can also become the new default
+    """
     client = get_steamship_client()
+    train_task_response = create_dummy_training_task(client)
+    train_task_id = train_task_response.task.task_id
 
-    # Create a task that is running in the background
-    result_2 = client.post(
-        "task/noop",
-        expect=NoOpResult,
-        as_background_task=True
-    )
-    assert (result_2.task is not None)
-    assert (result_2.task.state == TaskState.waiting)
+    checkpoint_1 = ModelCheckpoint(client=client, handle="epoch1", plugin_instance_id="0000")
+    with open(checkpoint_1.folder_path_on_disk() / "params.json", "w") as f:
+        f.write("HI THERE")
+    checkpoint_1.upload_model_bundle()
 
-    # Allow it to complete
-    result_2.wait()
-    assert (result_2.task.state == TaskState.succeeded)
+    # Now let's download the checkpoint labeled "epoch1" and test that it is equal
+    checkpoint_downloaded = ModelCheckpoint(client=client, handle="epoch1", plugin_instance_id="0000")
+    checkpoint_downloaded.download_model_bundle()
+    _test_folders_equal(checkpoint_1.folder_path_on_disk(), checkpoint_downloaded.folder_path_on_disk())
 
-    # Let's experiment with some calls. We'll start a trainer with a dummy plugin instance ID
-    # and pass it the task ID to update to.
+    # We should also be able to download "default" checkpoint by not providing a handle
+    checkpoint_default_1 = ModelCheckpoint(client=client, plugin_instance_id="0000")
+    checkpoint_default_1.download_model_bundle()
+    _test_folders_equal(checkpoint_1.folder_path_on_disk(), checkpoint_default_1.folder_path_on_disk())
 
-    PLUGIN_INSTANCE_ID = "0000-0000-0000-0000"
-    TASK_ID = result_2.task.task_id
-    TRAIN_PLUGIN_INPUT = TrainPluginInput(trainTaskId=TASK_ID)
+    # Let's create a new checkpoint with our trainer... epoch2
+    checkpoint_2 = ModelCheckpoint(client=client, handle="epoch2", plugin_instance_id="0000")
+    with open(checkpoint_2.folder_path_on_disk() / "params.json", "w") as f:
+        f.write("UPDATED PARAMS")
+    checkpoint_2.upload_model_bundle()
 
-    trainer = ModelTrainer(
-        client=client,
-        plugin_instance_id=PLUGIN_INSTANCE_ID,
-        train_plugin_input=TrainPluginInput(trainTaskId=TASK_ID)
-    )
+    # If we download the new DEFAULT checkpoint, we will now receive the epoch2 files...
+    checkpoint_default_2 = ModelCheckpoint(client=client, plugin_instance_id="0000")
+    checkpoint_default_2.download_model_bundle()
+    _test_folders_equal(checkpoint_2.folder_path_on_disk(), checkpoint_default_2.folder_path_on_disk())
 
-    # Create a model checkpoint
-    checkpoint = trainer.create_model_checkpoint(handle="V1")
 
-    # Create a model, providing some "features" that it will "train" with and a path to save to
-    features = ["roses", "chocolate", "sweet"]
-    model = Model(path=checkpoint.folder_path_on_disk(), features=features)
-    model.train()
+def test_model_can_save_to_and_load_from_checkpoint():
+    """Elaboration of model_checkpoint_save_load in which include an example Model in the loop.
+    """
 
-    # Upload this checkpoint bundle to disk.
-    checkpoint.upload_model_bundle()
+    client = get_steamship_client()
+    train_task_response = create_dummy_training_task(client)
+    plugin_instance_id = "000"
 
-    # Let's download the latest checkpoint and see if the resulting model is the same!
-    loader = ModelLoader(
-        client=client,
-        plugin_instance_id=PLUGIN_INSTANCE_ID,
-        model_constructor=Model.from_disk
-    )
+    # TRAIN PHASE #1
+    # ====================================
 
-    model2 = loader.get_model()
+    # Create a new, empty checkpoint
 
-    # This is testing the test.. We want to make sure we haven't accidentally used the same path
-    assert model2.path != model.path
+    # Create a new model. Train it.
+    model = TestTrainableTaggerModel()
+    model.train(TrainPluginInput(training_params=TRAINING_PARAMETERS))
 
-    # See if this model has the same parameters!
-    # This could only happen if the checkpoint was uploaded and then downloaded!
-    assert model.features == model2.features
+    # Create a checkpoint. Save the model to it. Upload it.
+    model.save_remote(client=client, plugin_instance_id=plugin_instance_id, checkpoint_handle="V1")
+
+    # INFERENCE PHASE #1
+    # ====================================
+
+    # Now we'll create two new copies of the model
+    default_model = TestTrainableTaggerModel.load_remote(client=client, plugin_instance_id=plugin_instance_id)
+    v1_model = TestTrainableTaggerModel.load_remote(client=client, plugin_instance_id=plugin_instance_id,
+                                                    checkpoint_handle="V1")
+
+    # Verify none of these models share the same state folder on disk.
+    assert default_model.path != model.path
+    assert v1_model.path != model.path
+    assert v1_model.path != default_model.path
+
+    # Verify all of these models share the same parameters.
+    # V1 and Default were both loaded from the ModelCheckpoint!
+    assert model.keyword_list == default_model.keyword_list
+    assert v1_model.keyword_list == default_model.keyword_list
+    assert v1_model.keyword_list == default_model.keyword_list
 
     # Let's do some more manual testing of that checkpoint..
-    assert os.path.exists(model.path / Model.FEATURE_FILE)
-    assert os.path.exists(model2.path / Model.FEATURE_FILE)
-    with open(model.path / Model.FEATURE_FILE, 'r') as f1:
-        with open(model2.path / Model.FEATURE_FILE, 'r') as f2:
-            original_model_params = f1.read()
-            downloaded_model_params = f2.read()
-            assert original_model_params == downloaded_model_params
+    assert os.path.exists(model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE)
+    assert os.path.exists(default_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE)
+    assert os.path.exists(v1_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE)
 
-    # Do some triple checking.. let's MANUALLY get two different checkpoints: V1 and "Default"
-    checkpoint_v1 = ModelCheckpoint(client=client, handle="V1", plugin_instance_id=PLUGIN_INSTANCE_ID)
-    checkpoint_default_1 = ModelCheckpoint(client=client, handle=ModelCheckpoint.DEFAULT_HANDLE, plugin_instance_id=PLUGIN_INSTANCE_ID)
-
-    checkpoint_v1.download_model_bundle()
-    checkpoint_default_1.download_model_bundle()
-
-    assert os.path.exists(checkpoint_v1.folder_path_on_disk() / Model.FEATURE_FILE)
-    assert os.path.exists(checkpoint_default_1.folder_path_on_disk() / Model.FEATURE_FILE)
-    with open(checkpoint_v1.folder_path_on_disk() / Model.FEATURE_FILE, 'r') as f1:
-        with open(checkpoint_default_1.folder_path_on_disk() / Model.FEATURE_FILE, 'r') as f2:
-            checkpoint_v1_params = f1.read()
-            checkpoint_default_1_params = f2.read()
-            assert checkpoint_v1_params == checkpoint_default_1_params
-            assert checkpoint_v1_params == original_model_params
-
-
-    # Now let's make a new checkpoint! It will have different model params.
-    checkpoint_2 = trainer.create_model_checkpoint(handle="V2")
-
-    # Create a model, providing some "features" that it will "train" with and a path to save to
-    features = ["lemons", "limes", "grapefruits"]
-    model = Model(path=checkpoint_2.folder_path_on_disk(), features=features)
-    model.train() # Should upload to checkpoint_2!
-
-    # We'll download the new DEFAULT model checkpoint.... and it should be V2!
-
-    checkpoint_default_2 = ModelCheckpoint(client=client, handle=ModelCheckpoint.DEFAULT_HANDLE, plugin_instance_id=PLUGIN_INSTANCE_ID)
-    checkpoint_default_2.download_model_bundle()
-    assert os.path.exists(checkpoint_default_2.folder_path_on_disk() / Model.FEATURE_FILE)
-
-    with open(checkpoint_default_2.folder_path_on_disk() / Model.FEATURE_FILE, 'r') as f1:
-        with open(checkpoint_2.folder_path_on_disk() / Model.FEATURE_FILE, 'r') as f2:
-            checkpoint_default_2_params = f1.read()
-            assert checkpoint_default_2_params != checkpoint_default_1_params
-            assert checkpoint_default_2_params != original_model_params
-
-            # But it IS equal to the new checkpoint!
-            model_2_params = f2.read()
-            assert checkpoint_default_2_params == model_2_params
-
+    with open(model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'r') as f1:
+        with open(default_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'r') as f2:
+            with open(v1_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'r') as f3:
+                original_model_params = f1.read()
+                default_model_params = f2.read()
+                v1_model_params = f3.read()
+                assert original_model_params == default_model_params
+                assert original_model_params == v1_model_params

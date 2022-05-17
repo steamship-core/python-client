@@ -19,7 +19,7 @@ TEST_S3 = "Sugar is sweet, and I love you."
 TEST_DOC = f"# {TEST_H1}\n\n{TEST_S1} {TEST_S2}\n\n{TEST_S3}\n"
 
 
-class DummyBlockifierPlugin(Blockifier, App):
+class DummyBlockifierPlugin(Blockifier):
     class DummyBlockifierConfig(Config):
         pass
 

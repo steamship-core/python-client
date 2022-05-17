@@ -8,10 +8,6 @@ from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.demo_apps.plugins.taggers.plugin_parser import TestParserPlugin
 
 TEST_REQ = BlockAndTagPluginInput(
@@ -20,7 +16,7 @@ TEST_REQ = BlockAndTagPluginInput(
             Block(
                 id="ABC",
                 text="Once upon a time there was a magical ship. "
-                "The ship was powered by STEAM. The ship went to the moon.",
+                     "The ship was powered by STEAM. The ship went to the moon.",
             )
         ]
     )

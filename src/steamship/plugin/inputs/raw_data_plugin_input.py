@@ -49,7 +49,7 @@ class RawDataPluginInput:
 
     def to_dict(self):
         return dict(
-            pluginInstance=self.pluginInstance,
+            pluginInstance=self.plugin_instance,
             data=self.data,
-            defaultMimeType=self.defaultMimeType
+            defaultMimeType=self.default_mime_type
         )

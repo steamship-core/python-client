@@ -39,7 +39,7 @@ def test_dict_response():
     d = r.to_dict()
     check_mime(d, MimeTypes.JSON)
     check_type(d, dict)
-    check_val(d.data, dict(a=1))
+    check_val(d, dict(a=1))
 
 
 def test_resp_response():

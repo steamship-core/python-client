@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Callable, Generic, TypeVar, Union
+from typing import Any, Callable, Generic, TypeVar, Union, Type
 
-from steamship.app import post
+from steamship.app import App
 from steamship.app.response import Response
 from steamship.base import Client
 from steamship.base.response import SteamshipError
-
 # Note!
 # =====
 #
@@ -17,6 +16,7 @@ from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
+from steamship.plugin.trainable_model import TrainableModel
 
 T = TypeVar("T")
 U = TypeVar("U")
@@ -25,6 +25,7 @@ U = TypeVar("U")
 @dataclass
 class PluginRequest(Generic[T]):
     data: T = None
+    task_id: str = None
     plugin_id: str = None
     plugin_handle: str = None
     plugin_version_id: str = None
@@ -54,6 +55,7 @@ class PluginRequest(Generic[T]):
                 )
         return PluginRequest(
             data=data,
+            task_id=d.get("taskId", None),
             plugin_id=d.get("pluginId", None),
             plugin_handle=d.get("pluginHandle", None),
             plugin_version_id=d.get("pluginVersionId", None),
@@ -68,6 +70,7 @@ class PluginRequest(Generic[T]):
         else:
             return {
                 "data": self.data.to_dict(),
+                "taskId": self.task_id,
                 "pluginId": self.plugin_id,
                 "pluginHandle": self.plugin_handle,
                 "pluginVersionId": self.plugin_version_id,
@@ -77,7 +80,7 @@ class PluginRequest(Generic[T]):
             }
 
 
-class PluginService(ABC, Generic[T, U]):
+class PluginService(ABC, App, Generic[T, U]):
     """The Abstract Base Class of a Steamship Plugin.
 
     All Steamship Plugins implement the operation:
@@ -105,6 +108,7 @@ class PluginService(ABC, Generic[T, U]):
     - train(PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]
 
     """
+
     @abstractmethod
     def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
         """Runs the core operation implemented by this plugin: import, export, blockify, tag, etc.
@@ -113,59 +117,50 @@ class PluginService(ABC, Generic[T, U]):
         """
         pass
 
-    def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
+
+class TrainablePluginService(ABC, App, Generic[T, U]):
+
+    @abstractmethod
+    def get_model_class(self) -> Type[TrainableModel]:
+        """Returns the constructor of the TrainableModel this TrainablePluginService uses.
+
+        This is required so the `run` method below can load the model and provide it to the subclass implementor.
+        """
+        pass
+
+    def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
+        """Loads the trainable model before passing the request to the `run_with_model` handler on the subclass."""
+
+        model = self.get_model_class().load_remote(
+            client=self.client,  # This field comes from being a subclass of App
+            plugin_instance_id=request.plugin_instance_id,
+            checkpoint_handle=None,  # Will use default
+            use_cache=True,
+        )
+        return self.run_with_model(request, model)
+
+    @abstractmethod
+    def run_with_model(self, request: PluginRequest[T], model: TrainableModel) -> Union[U, Response[U]]:
+        """Rather than implementing run(request), a TrainablePluginService implements run_with_model(request, model)
+        """
+        pass
+
+    @abstractmethod
+    def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[
+        TrainingParameterPluginOutput]:
         """Produces the trainable parameters for this plugin.
 
-        - If the plugin is not trainable, the subclass simply doesn't override this method.
-        - If the plugin is trainable, this gives the hard-coded plugin implementation an opportunity to refine
-          any trainable parameters supplied by the end-user before trainable begins.
-        """
-        raise SteamshipError(
-            message="get_training_parameters has not been implemented on this plugin.",
-            suggestion="It is possible you are trying to train a plugin which is not trainable. " +
-                       "If you are confident that this plugin IS trainable, then this is likely an " +
-                       "implementation bug: please implement this method."
-        )
+        This method is run by the Steamship Engine prior to training to fetch hyperparameters.
 
+        - The user themselves can provide hyperparameters on the TrainingParameterPluginInput object.
+        - This method then transforms those into the TrainingParameterPluginOutput object, altering the user's values
+          if desired.
+        - The Engine then takes those TrainingParameterPluginOutput and presents them on the TrainPluginInput
+
+        """
+        pass
+
+    @abstractmethod
     def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
-        """Produces the trainable parameters for this plugin.
-
-        - If the plugin is not trainable, the subclass simply doesn't override this method.
-        - If the plugin is trainable, this gives the hard-coded plugin implementation an opportunity to refine
-          any trainable parameters supplied by the end-user before trainable begins.
-        """
-        raise SteamshipError(
-            message="train has not been implemented on this plugin.",
-            suggestion = "It is possible you are trying to train a plugin which is not trainable. " +
-                         "If you are confident that this plugin IS trainable, then this is likely an implementation " +
-                         "bug: please implement this method."
-        )
-
-
-    # HTTP Endpoints
-    # ------------------------------------
-    # We separate out the methods that exposes the Plugin's HTTP endpoint (below) from the method that perform the
-    # actual work (above) for two reasons:
-    #
-    # 1) Isolate separate concerns for testability
-    # 2) Allow plugin implementors to feel as if they're just writing Python (and the web hosting happens automatically)
-    #
-    # The endpoints standard across all plugins are captured below, while the endpoints that have paths specific to a
-    # particular plugin type are captured in the subclasses of `PluginService`, such as `Tagger` or `Blockifier`
-
-    # noinspection PyUnusedLocal
-    @post("getTrainingParameters")
-    def get_training_parameters_endpoint(self, **kwargs) -> Response[TrainingParameterPluginOutput]:
-        """Exposes the Service's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
-        return self.get_training_parameters(
-            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=TrainingParameterPluginInput.from_dict)
-        )
-
-    # noinspection PyUnusedLocal
-    @post("train")
-    def train_endpoint(self, **kwargs) -> Response[TrainPluginOutput]:
-        """Exposes the Service's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
-        return self.train(
-            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=TrainPluginInput.from_dict)
-        )
-
+        """Train the model."""
+        pass

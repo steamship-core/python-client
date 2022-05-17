@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
 from steamship.base import Client
+from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
 
 @dataclass
@@ -27,9 +28,6 @@ class TrainPluginInput:
     # This will be uploaded to the "Models" section of the Space's storage bucket
     model_filename: str = None
 
-    # A URL that has been pre-signed, permitting upload to that location
-    model_upload_url: str = None
-
     # How may epochs of trainable to perform, if relevant and supported
     training_epochs: int = None
     # How much data to hold out for testing & reporting, if relevant and supported.
@@ -38,7 +36,8 @@ class TrainPluginInput:
     test_split_seed: int = None
 
     # Arbitrary key-valued data to provide to the particular `modelName` trainer.
-    training_params: dict = None
+    training_params: TrainingParameterPluginOutput = None
+
     # Arbitrary key-valued data to provide to the inference runner in the TrainPluginOutput object.
     # The trainable process will have the opportunity to amend this before writing it to the output
     inference_params: dict = None
@@ -62,7 +61,6 @@ class TrainPluginInput:
             plugin_instance_id=d.get("pluginInstanceId"),
             model_name=d.get("modelName"),
             model_filename=d.get("modelFilename"),
-            model_upload_url=d.get("modelUploadUrl"),
             training_epochs=d.get("trainingEpochs"),
             testing_holdout_percent=d.get("testingHoldoutPercent"),
             test_split_seed=d.get("testSplitSeed"),
@@ -80,7 +78,6 @@ class TrainPluginInput:
             pluginInstanceId=self.plugin_instance_id,
             modelName=self.model_name,
             modelFilename=self.model_filename,
-            modelUploadUrl=self.model_upload_url,
             trainingEpochs=self.training_epochs,
             testingHoldoutPercent=self.testing_holdout_percent,
             testSplitSeed=self.test_split_seed,

@@ -7,6 +7,7 @@ import tempfile
 import os
 from pathlib import Path
 
+from steamship.utils.zip_archives import zip_folder, unzip_folder
 from tests import TEST_ASSETS_PATH
 
 
