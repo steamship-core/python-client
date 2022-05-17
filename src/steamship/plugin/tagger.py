@@ -1,7 +1,11 @@
 from abc import ABC, abstractmethod
 
+<<<<<<< HEAD
 from steamship.app import post
 from steamship.app.response import Response
+=======
+from steamship.app import Response, post
+>>>>>>> main
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
@@ -21,6 +25,7 @@ from steamship.plugin.trainable_model import TrainableModel
 
 
 class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
+<<<<<<< HEAD
 
     @abstractmethod
     def run(
@@ -67,3 +72,5 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
         return self.train(
             PluginRequest.from_dict(kwargs, wrapped_object_from_dict=TrainPluginInput.from_dict)
         )
+=======
+>>>>>>> main
