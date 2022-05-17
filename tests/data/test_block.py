@@ -30,11 +30,15 @@ def test_query():
     assert b.id is not None
     b = b.refresh().data
 
-    blocks = Block.query(client=client, tag_filter_query='blocktag and name "BlockTag"').data.blocks
+    blocks = Block.query(
+        client=client, tag_filter_query='blocktag and name "BlockTag"'
+    ).data.blocks
     assert len(blocks) == 1
     assert blocks[0].id == a.blocks[0].id
 
-    blocks = Block.query(client=client, tag_filter_query='blocktag and name "Test"').data.blocks
+    blocks = Block.query(
+        client=client, tag_filter_query='blocktag and name "Test"'
+    ).data.blocks
     assert len(blocks) == 1
     assert blocks[0].id == b.blocks[1].id
 

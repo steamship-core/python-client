@@ -1,17 +1,18 @@
+from __future__ import annotations
+
 import json
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
 
 
-@dataclass
 class TagQueryRequest(Request):
     tagFilterQuery: str
 
 
-@dataclass
-class Tag:  # TODO (enias): Make pep8 compatible
+class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
     client: Client = None
     id: str = None
     fileId: str = None
@@ -22,7 +23,6 @@ class Tag:  # TODO (enias): Make pep8 compatible
     startIdx: int = None  # w/r/t block.text. None means 0 if blockId is not None
     endIdx: int = None  # w/r/t block.text. None means -1 if blockId is not None
 
-    @dataclass
     class CreateRequest(Request):
         id: str = None
         fileId: str = None
@@ -36,7 +36,7 @@ class Tag:  # TODO (enias): Make pep8 compatible
 
         # noinspection PyUnusedLocal
         @staticmethod
-        def from_dict(d: Any, client: Client = None) -> "Tag.CreateRequest":
+        def from_dict(d: Any, client: Client = None) -> Tag.CreateRequest:
             return Tag.CreateRequest(
                 id=d.get("id"),
                 fileId=d.get("fileId"),
@@ -62,31 +62,30 @@ class Tag:  # TODO (enias): Make pep8 compatible
                 upsert=self.upsert,
             )
 
-    @dataclass
     class DeleteRequest(Request):
         id: str = None
         fileId: str = None
         blockId: str = None
 
-    @dataclass
     class ListRequest(Request):
         fileId: str = None
         blockId: str = None
 
-    @dataclass
     class ListResponse(Request):
-        tags: List["Tag"] = None
+        tags: List[Tag] = None
 
         @staticmethod
-        def from_dict(d: Any, client: Client = None) -> "Optional[Tag.ListResponse]":
+        def from_dict(d: Any, client: Client = None) -> Optional[Tag.ListResponse]:
             if d is None:
                 return None
             return Tag.ListResponse(
-                tags=[Tag.from_dict(x, client=client) for x in (d.get("tags", []) or [])]
+                tags=[
+                    Tag.from_dict(x, client=client) for x in (d.get("tags", []) or [])
+                ]
             )
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "Tag":
+    def from_dict(d: Any, client: Client = None) -> Tag:
         return Tag(
             client=client,
             id=d.get("id"),
@@ -124,7 +123,7 @@ class Tag:  # TODO (enias): Make pep8 compatible
         upsert: bool = None,
         space_id: str = None,
         space_handle: str = None,
-    ) -> Response["Tag"]:
+    ) -> Response[Tag]:
         if isinstance(value, dict) or isinstance(value, list):
             value = json.dumps(value)
 
@@ -149,7 +148,7 @@ class Tag:  # TODO (enias): Make pep8 compatible
         block_id: str = None,
         space_id: str = None,
         space_handle: str = None,
-    ) -> Response["Tag.ListResponse"]:
+    ) -> Response[Tag.ListResponse]:
         return client.post(
             "tag/list",
             Tag.ListRequest(fileId=file_id, blockId=block_id),
@@ -158,7 +157,7 @@ class Tag:  # TODO (enias): Make pep8 compatible
             space_handle=space_handle,
         )
 
-    def delete(self) -> Response["Tag"]:
+    def delete(self) -> Response[Tag]:
         return self.client.post(
             "tag/delete",
             Tag.DeleteRequest(id=self.id, fileId=self.fileId, blockId=self.blockId),
@@ -172,7 +171,7 @@ class Tag:  # TODO (enias): Make pep8 compatible
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-    ) -> Response["TagQueryResponse"]:
+    ) -> Response[TagQueryResponse]:
 
         req = TagQueryRequest(tagFilterQuery=tag_filter_query)
         res = client.post(
@@ -186,12 +185,14 @@ class Tag:  # TODO (enias): Make pep8 compatible
         return res
 
 
-@dataclass
-class TagQueryResponse:
+class TagQueryResponse(BaseModel):
     tags: List[Tag]
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "TagQueryResponse":
+    def from_dict(d: Any, client: Client = None) -> TagQueryResponse:
         return TagQueryResponse(
             tags=[Tag.from_dict(tag, client=client) for tag in d.get("tags", [])]
         )
+
+
+Tag.ListResponse.update_forward_refs()

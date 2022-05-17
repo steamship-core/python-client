@@ -1,11 +1,13 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client
 
 
-@dataclass
-class FileImportPluginInput:
+class FileImportPluginInput(BaseModel):
     value: str = None
     data: str = None
     url: str = None
@@ -14,7 +16,9 @@ class FileImportPluginInput:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any = None, client: Client = None) -> "Optional[FileImportPluginInput]":
+    def from_dict(
+        d: Any = None, client: Client = None
+    ) -> Optional[FileImportPluginInput]:
         if d is None:
             return None
 

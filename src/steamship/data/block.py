@@ -1,25 +1,25 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, List, Optional, Union
+
+from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
 from steamship.base.request import IdentifierRequest
 from steamship.data.tags.tag import Tag
 
 
-@dataclass
 class BlockQueryRequest(Request):
     tagFilterQuery: str
 
 
-@dataclass
-class Block:
+class Block(BaseModel):
     client: Client = None
     id: str = None
     fileId: str = None
     text: str = None
     tags: List[Tag] = None
 
-    @dataclass
     class CreateRequest(Request):
         id: str = None
         fileId: str = None
@@ -29,7 +29,7 @@ class Block:
 
         # noinspection PyUnusedLocal
         @staticmethod
-        def from_dict(d: Any, client: Client = None) -> "Block.CreateRequest":
+        def from_dict(d: Any, client: Client = None) -> Block.CreateRequest:
             return Block.CreateRequest(
                 id=d.get("id"),
                 fileId=d.get("fileId"),
@@ -49,28 +49,28 @@ class Block:
                 else [],  # TODO (enias): Deprecate
             )
 
-    @dataclass
     class DeleteRequest(Request):
         id: str = None
 
-    @dataclass
     class ListRequest(Request):
         fileId: str = None
 
-    @dataclass
-    class ListResponse(Request):
-        blocks: List["Block"] = None
+    class ListResponse(Response):
+        blocks: List[Block] = None
 
         @staticmethod
-        def from_dict(d: Any, client: Client = None) -> "Optional[Block.ListResponse]":
+        def from_dict(d: Any, client: Client = None) -> Optional[Block.ListResponse]:
             if d is None:
                 return None
             return Block.ListResponse(
-                blocks=[Block.from_dict(x, client=client) for x in (d.get("blocks", []) or [])]
+                blocks=[
+                    Block.from_dict(x, client=client)
+                    for x in (d.get("blocks", []) or [])
+                ]
             )
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> Union["Block", None]:
+    def from_dict(d: Any, client: Client = None) -> Union[Block, None]:
         if d is None:
             return None
         return Block(
@@ -78,7 +78,9 @@ class Block:
             id=d.get("id"),
             fileId=d.get("fileId"),
             text=d.get("text"),
-            tags=list(map(lambda tag: Tag.from_dict(tag, client=client), d.get("tags", []))),
+            tags=list(
+                map(lambda tag: Tag.from_dict(tag, client=client), d.get("tags", []))
+            ),
         )
 
     def to_dict(self) -> dict:
@@ -95,7 +97,7 @@ class Block:
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-    ) -> Response["Block"]:
+    ) -> Response[Block]:
         return client.post(
             "block/get",
             IdentifierRequest(id=_id),
@@ -114,7 +116,7 @@ class Block:
         upsert: bool = None,
         space_id: str = None,
         space_handle: str = None,
-    ) -> Response["Block"]:
+    ) -> Response[Block]:
         req = Block.CreateRequest(fileId=file_id, text=text, tags=tags, upsert=upsert)
         return client.post(
             "block/create",
@@ -130,7 +132,7 @@ class Block:
         file_id: str = None,
         space_id: str = None,
         space_handle: str = None,
-    ) -> Response["Block.ListResponse"]:
+    ) -> Response[Block.ListResponse]:
         return client.post(
             "block/list",
             Block.ListRequest(fileId=file_id),
@@ -139,7 +141,7 @@ class Block:
             space_handle=space_handle,
         )
 
-    def delete(self) -> Response["Block"]:
+    def delete(self) -> Response[Block]:
         return self.client.post(
             "block/delete",
             Block.DeleteRequest(id=self.id),
@@ -153,7 +155,7 @@ class Block:
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-    ) -> Response["BlockQueryResponse"]:
+    ) -> Response[BlockQueryResponse]:
         # TODO: Is this a static method?
         req = BlockQueryRequest(tagFilterQuery=tag_filter_query)
         res = client.post(
@@ -167,12 +169,16 @@ class Block:
         return res
 
 
-@dataclass
-class BlockQueryResponse:
+class BlockQueryResponse(BaseModel):
     blocks: List[Block]
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "BlockQueryResponse":
+    def from_dict(d: Any, client: Client = None) -> BlockQueryResponse:
         return BlockQueryResponse(
-            blocks=[Block.from_dict(block, client=client) for block in d.get("blocks", [])]
+            blocks=[
+                Block.from_dict(block, client=client) for block in d.get("blocks", [])
+            ]
         )
+
+
+Block.ListResponse.update_forward_refs()

@@ -60,7 +60,9 @@ def test_upload_download():
     # Now create a download signed URL
     download_resp = space.create_signed_url(
         SignedUrl.Request(
-            bucket=SignedUrl.Bucket.models, filepath=upload_name, operation=SignedUrl.Operation.read
+            bucket=SignedUrl.Bucket.models,
+            filepath=upload_name,
+            operation=SignedUrl.Operation.read,
         )
     )
     assert download_resp is not None
@@ -68,7 +70,9 @@ def test_upload_download():
     assert download_resp.data.signedUrl is not None
 
     # Download the zip file to the URL
-    download_from_signed_url(download_resp.data.signedUrl, desired_filename=download_path)
+    download_from_signed_url(
+        download_resp.data.signedUrl, desired_filename=download_path
+    )
 
     # Verify the download URL is there
     assert os.path.exists(download_path) == True

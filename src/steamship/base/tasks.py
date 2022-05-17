@@ -1,5 +1,8 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Generic, List, Type, TypeVar, Union
+
+from pydantic import BaseModel
 
 from steamship.base.base import IResponse
 from steamship.base.error import SteamshipError
@@ -9,7 +12,6 @@ from steamship.base.request import Request
 T = TypeVar("T")
 
 
-@dataclass
 class CreateTaskCommentRequest(Request):
     taskId: str
     externalId: str = None
@@ -19,7 +21,6 @@ class CreateTaskCommentRequest(Request):
     upsert: bool = None
 
 
-@dataclass
 class ListTaskCommentRequest(Request):
     taskId: str = None
     externalId: str = None
@@ -27,13 +28,11 @@ class ListTaskCommentRequest(Request):
     externalGroup: str = None
 
 
-@dataclass
 class DeleteTaskCommentRequest(Request):
     id: str = None
 
 
-@dataclass
-class TaskComment:
+class TaskComment(BaseModel):
     client: Any = None
     id: str = None
     user_id: str = None
@@ -53,7 +52,7 @@ class TaskComment:
         external_group: str = None,
         metadata: Any = None,
         upsert: bool = True,
-    ) -> "IResponse[TaskComment]":
+    ) -> IResponse[TaskComment]:
         req = CreateTaskCommentRequest(
             taskId=task_id,
             externalId=external_id,
@@ -75,7 +74,7 @@ class TaskComment:
         external_id: str = None,
         external_type: str = None,
         external_group: str = None,
-    ) -> "IResponse[TaskCommentList]":
+    ) -> IResponse[TaskCommentList]:
         req = ListTaskCommentRequest(
             taskId=task_id,
             externalId=external_id,
@@ -88,8 +87,8 @@ class TaskComment:
             expect=TaskCommentList,
         )
 
-    def delete(self) -> "IResponse[TaskComment]":
-        req = DeleteTaskCommentRequest(self.id)
+    def delete(self) -> IResponse[TaskComment]:
+        req = DeleteTaskCommentRequest(id=self.id)
         return self.client.post(
             "task/comment/delete",
             req,
@@ -97,7 +96,7 @@ class TaskComment:
         )
 
     @staticmethod
-    def from_dict(d: Any, client: Any = None) -> "TaskComment":
+    def from_dict(d: Any, client: Any = None) -> TaskComment:
         return TaskComment(
             client=client,
             id=d.get("id"),
@@ -111,12 +110,11 @@ class TaskComment:
         )
 
 
-@dataclass
-class TaskCommentList:
+class TaskCommentList(BaseModel):
     comments: List[TaskComment]
 
     @staticmethod
-    def from_dict(d: Any, client: Any = None) -> "TaskCommentList":
+    def from_dict(d: Any, client: Any = None) -> TaskCommentList:
         return TaskCommentList(
             comments=[TaskComment.from_dict(dd, client) for dd in d.get("comments", [])]
         )
@@ -135,18 +133,15 @@ class TaskType:
     infer = "infer"
 
 
-@dataclass
 class TaskRunRequest(Request):
     taskId: str
 
 
-@dataclass
 class TaskStatusRequest(Request):
     taskId: str
 
 
-@dataclass
-class Task(Generic[T]):
+class Task(Generic[T], BaseModel):
     """Encapsulates a unit of asynchronously performed work."""
 
     client: Any = None  # Steamship client
@@ -181,7 +176,7 @@ class Task(Generic[T]):
     eventual_result_type: Type[Any] = None
 
     @staticmethod
-    def failure(message: str, suggestion: str, _: str, code: str) -> "Task":
+    def failure(message: str, suggestion: str, _: str, code: str) -> Task:
         return Task(
             state=TaskState.failed,
             status_message=message,
@@ -190,7 +185,7 @@ class Task(Generic[T]):
         )
 
     @staticmethod
-    def from_error(error: Union[SteamshipError, Exception]) -> "Task":
+    def from_error(error: Union[SteamshipError, Exception]) -> Task:
         if type(error) == SteamshipError:
             return Task(
                 state=TaskState.failed,
@@ -202,7 +197,7 @@ class Task(Generic[T]):
             return Task(state=TaskState.failed, status_message=str(error))
 
     @staticmethod
-    def from_dict(d: Any, client: Any = None) -> "Task":  # TODO (Enias): Review
+    def from_dict(d: Any, client: Any = None) -> Task:  # TODO (Enias): Review
         """Last resort if subclass doesn't override: pass through."""
         return Task(
             client=client,
@@ -248,7 +243,7 @@ class Task(Generic[T]):
             retries=self.retries,
         )
 
-    def update(self, other: "Task"):
+    def update(self, other: Task):
         """Incorporates a `Task` into this object."""
         # TODO (Enias): Simplify with operations on __dict__
         if other is not None:
@@ -311,7 +306,7 @@ class Task(Generic[T]):
     def list_comments(self) -> IResponse[TaskCommentList]:
         return TaskComment.list(client=self.client, task_id=self.task_id)
 
-    def post_update(self, fields: List[str] = None) -> "IResponse[Task]":
+    def post_update(self, fields: List[str] = None) -> IResponse[Task]:
         """Updates this task in the Steamship Engine."""
 
         self_dict = self.to_dict()

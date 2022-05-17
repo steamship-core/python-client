@@ -23,7 +23,9 @@ def test_file_upload():
     assert a.id != b.id
 
     c = steamship.upload(content="B", mime_type=MimeTypes.MKD).data
-    assert c.mime_type == MimeTypes.MKD  # The specified format gets precedence over filename
+    assert (
+        c.mime_type == MimeTypes.MKD
+    )  # The specified format gets precedence over filename
 
     d = steamship.upload(
         content="B",
@@ -43,7 +45,9 @@ def test_file_scrape():
     assert a.id is not None
     assert a.mime_type == MimeTypes.HTML
 
-    b = steamship.scrape(url="https://edwardbenson.com/2018/09/case-of-the-murderous-ai").data
+    b = steamship.scrape(
+        url="https://edwardbenson.com/2018/09/case-of-the-murderous-ai"
+    ).data
     assert b.id is not None
     assert a.id != b.id
     assert b.mime_type == MimeTypes.HTML
@@ -119,11 +123,15 @@ def test_query():
     ).data
     assert b.id is not None
 
-    files = File.query(client=client, tag_filter_query='blocktag and name "BlockTag"').data.files
+    files = File.query(
+        client=client, tag_filter_query='blocktag and name "BlockTag"'
+    ).data.files
     assert len(files) == 1
     assert files[0].id == a.id
 
-    files = File.query(client=client, tag_filter_query='filetag and name "FileTag"').data.files
+    files = File.query(
+        client=client, tag_filter_query='filetag and name "FileTag"'
+    ).data.files
     assert len(files) == 1
     assert files[0].id == b.id
 

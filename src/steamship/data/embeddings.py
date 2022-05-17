@@ -1,12 +1,14 @@
+from __future__ import annotations
+
 import json
-from dataclasses import dataclass
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response, metadata_to_str
 from steamship.data.search import Hit
 
 
-@dataclass
 class EmbedAndSearchRequest(Request):
     query: str
     docs: List[str]
@@ -15,34 +17,33 @@ class EmbedAndSearchRequest(Request):
 
 
 # TODO: These types are not generics like the Swift QueryResult/QueryResults.
-@dataclass
-class QueryResult:
-    value: Hit
-    score: float
-    index: int
-    id: str
+class QueryResult(BaseModel):
+    value: Optional[Hit] = None
+    score: Optional[float] = None
+    index: Optional[int] = None
+    id: Optional[str] = None
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "QueryResult":
+    def from_dict(d: Any, client: Client = None) -> QueryResult:
         value = Hit.from_dict(d.get("value", {}))
-        return QueryResult(value=value, score=d.get("score"), index=d.get("index"), id=d.get("id"))
+        return QueryResult(
+            value=value, score=d.get("score"), index=d.get("index"), id=d.get("id")
+        )
 
 
-@dataclass
 class QueryResults(Request):
     items: List[QueryResult] = None
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "QueryResults":
+    def from_dict(d: Any, client: Client = None) -> QueryResults:
         # TODO: Try to always use client through inheritance
         items = [QueryResult.from_dict(h) for h in (d.get("items", []) or [])]
         return QueryResults(items=items)
 
 
-@dataclass
-class EmbeddedItem:
+class EmbeddedItem(BaseModel):
     id: str = None
     indexId: str = None
     fileId: str = None
@@ -54,7 +55,7 @@ class EmbeddedItem:
     metadata: Any = None
     embedding: List[float] = None
 
-    def clone_for_insert(self) -> "EmbeddedItem":
+    def clone_for_insert(self) -> EmbeddedItem:
         """Produces a clone with a string representation of the metadata"""
         ret = EmbeddedItem(
             id=self.id,
@@ -74,7 +75,7 @@ class EmbeddedItem:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "EmbeddedItem":
+    def from_dict(d: Any, client: Client = None) -> EmbeddedItem:
         return EmbeddedItem(
             id=d.get("id"),
             indexId=d.get("indexId"),
@@ -89,7 +90,6 @@ class EmbeddedItem:
         )
 
 
-@dataclass
 class IndexCreateRequest(Request):
     handle: str = None
     name: str = None
@@ -100,7 +100,6 @@ class IndexCreateRequest(Request):
     metadata: Any = None
 
 
-@dataclass
 class IndexInsertRequest(Request):
     indexId: str
     items: List[EmbeddedItem] = None
@@ -113,45 +112,40 @@ class IndexInsertRequest(Request):
     reindex: bool = True
 
 
-@dataclass
-class IndexItemId:
+class IndexItemId(BaseModel):
     indexId: str = None
     id: str = None
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "IndexItemId":
+    def from_dict(d: Any, client: Client = None) -> IndexItemId:
         return IndexItemId(indexId=d.get("indexId"), id=d.get("id"))
 
 
-@dataclass
-class IndexInsertResponse:
+class IndexInsertResponse(BaseModel):
     itemIds: List[IndexItemId] = None
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "IndexInsertResponse":
+    def from_dict(d: Any, client: Client = None) -> IndexInsertResponse:
         return IndexInsertResponse(
             itemIds=[IndexItemId.from_dict(x) for x in (d.get("itemIds", []) or [])]
         )
 
 
-@dataclass
 class IndexEmbedRequest(Request):
     id: str
 
 
-@dataclass
-class IndexEmbedResponse:
-    id: str
+class IndexEmbedResponse(BaseModel):
+    id: Optional[str] = None
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "IndexEmbedResponse":
+    def from_dict(d: Any, client: Client = None) -> IndexEmbedResponse:
         return IndexEmbedResponse(id=d.get("id"))
 
 
-@dataclass
 class IndexSearchRequest(Request):
     id: str
     query: str = None
@@ -160,7 +154,6 @@ class IndexSearchRequest(Request):
     includeMetadata: bool = False
 
 
-@dataclass
 class IndexSnapshotRequest(Request):
     indexId: str
     # This variable is intended only to support
@@ -168,35 +161,34 @@ class IndexSnapshotRequest(Request):
     windowSize: int = None
 
 
-@dataclass
-class IndexSnapshotResponse:
-    id: str
+class IndexSnapshotResponse(BaseModel):
+    id: Optional[str] = None
     snapshotId: str
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "IndexSnapshotResponse":
+    def from_dict(d: Any, client: Client = None) -> IndexSnapshotResponse:
         return IndexSnapshotResponse(id=d.get("id"), snapshotId=d.get("snapshotId"))
 
 
-@dataclass
 class ListSnapshotsRequest(Request):
     id: str = None
 
 
-@dataclass
-class ListSnapshotsResponse:
+class ListSnapshotsResponse(BaseModel):
     snapshots: List[IndexSnapshotResponse]
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "ListSnapshotsResponse":
+    def from_dict(d: Any, client: Client = None) -> ListSnapshotsResponse:
         return ListSnapshotsResponse(
-            snapshots=[IndexSnapshotResponse.from_dict(dd) for dd in (d.get("snapshots", []) or [])]
+            snapshots=[
+                IndexSnapshotResponse.from_dict(dd)
+                for dd in (d.get("snapshots", []) or [])
+            ]
         )
 
 
-@dataclass
 class ListItemsRequest(Request):
     id: str = None
     fileId: str = None
@@ -204,35 +196,30 @@ class ListItemsRequest(Request):
     spanId: str = None
 
 
-@dataclass
-class ListItemsResponse:
+class ListItemsResponse(BaseModel):
     items: List[EmbeddedItem]
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "ListItemsResponse":
+    def from_dict(d: Any, client: Client = None) -> ListItemsResponse:
         return ListItemsResponse(
             items=[EmbeddedItem.from_dict(dd) for dd in (d.get("items", []) or [])]
         )
 
 
-@dataclass
 class DeleteSnapshotsRequest(Request):
     snapshotId: str = None
 
 
-@dataclass
 class DeleteSnapshotsResponse(Request):
     snapshotId: str = None
 
 
-@dataclass
 class DeleteEmbeddingIndexRequest(Request):
     id: str
 
 
-@dataclass
-class EmbeddingIndex:
+class EmbeddingIndex(BaseModel):
     """A persistent, read-optimized index over embeddings."""
 
     client: Client = None
@@ -245,7 +232,7 @@ class EmbeddingIndex:
     metadata: str = None
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "EmbeddingIndex":
+    def from_dict(d: Any, client: Client = None) -> EmbeddingIndex:
         if "embeddingIndex" in d:
             d = d["embeddingIndex"]
         elif "index" in d:
@@ -355,7 +342,7 @@ class EmbeddingIndex:
     def embed(
         self, space_id: str = None, space_handle: str = None, space: Any = None
     ) -> Response[IndexEmbedResponse]:
-        req = IndexEmbedRequest(self.id)
+        req = IndexEmbedRequest(id=self.id)
         return self.client.post(
             "embedding-index/embed",
             req,
@@ -403,7 +390,9 @@ class EmbeddingIndex:
         space_handle: str = None,
         space: Any = None,
     ) -> Response[ListItemsResponse]:
-        req = ListItemsRequest(id=self.id, fileId=file_id, blockId=block_id, spanId=span_id)
+        req = ListItemsRequest(
+            id=self.id, fileId=file_id, blockId=block_id, spanId=span_id
+        )
         return self.client.post(
             "embedding-index/item/list",
             req,
@@ -432,7 +421,7 @@ class EmbeddingIndex:
 
     def delete(
         self, space_id: str = None, space_handle: str = None, space: Any = None
-    ) -> "Response[EmbeddingIndex]":
+    ) -> Response[EmbeddingIndex]:
         return self.client.post(
             "embedding-index/delete",
             DeleteEmbeddingIndexRequest(id=self.id),
@@ -452,9 +441,13 @@ class EmbeddingIndex:
         space: Any = None,
     ) -> Response[QueryResults]:
         if type(query) == list:
-            req = IndexSearchRequest(self.id, queries=query, k=k, includeMetadata=include_metadata)
+            req = IndexSearchRequest(
+                id=self.id, queries=query, k=k, includeMetadata=include_metadata
+            )
         else:
-            req = IndexSearchRequest(self.id, query=query, k=k, includeMetadata=include_metadata)
+            req = IndexSearchRequest(
+                id=self.id, query=query, k=k, includeMetadata=include_metadata
+            )
         ret = self.client.post(
             "embedding-index/search",
             req,
@@ -479,7 +472,7 @@ class EmbeddingIndex:
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-    ) -> "Response[EmbeddingIndex]":
+    ) -> Response[EmbeddingIndex]:
         req = IndexCreateRequest(
             handle=handle,
             name=name,

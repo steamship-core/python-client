@@ -26,7 +26,9 @@ class DummyBlockifierPlugin(Blockifier, App):
     def config_cls(self) -> Type[Config]:
         return self.DummyBlockifierConfig
 
-    def run(self, request: PluginRequest[RawDataPluginInput]) -> Response[BlockAndTagPluginOutput]:
+    def run(
+        self, request: PluginRequest[RawDataPluginInput]
+    ) -> Response[BlockAndTagPluginOutput]:
         return Response(
             data=BlockAndTagPluginOutput(
                 file=File.CreateRequest(
@@ -37,15 +39,27 @@ class DummyBlockifierPlugin(Blockifier, App):
                         ),
                         Block.CreateRequest(
                             text=TEST_S1,
-                            tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.sentence)],
+                            tags=[
+                                Tag.CreateRequest(
+                                    kind=TagKind.doc, name=DocTag.sentence
+                                )
+                            ],
                         ),
                         Block.CreateRequest(
                             text=TEST_S2,
-                            tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.sentence)],
+                            tags=[
+                                Tag.CreateRequest(
+                                    kind=TagKind.doc, name=DocTag.sentence
+                                )
+                            ],
                         ),
                         Block.CreateRequest(
                             text=TEST_S3,
-                            tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.paragraph)],
+                            tags=[
+                                Tag.CreateRequest(
+                                    kind=TagKind.doc, name=DocTag.paragraph
+                                )
+                            ],
                         ),
                     ]
                 )

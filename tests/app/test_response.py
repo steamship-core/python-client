@@ -1,4 +1,3 @@
-from dataclasses import asdict
 from typing import Any
 
 from steamship.app.response import Response
@@ -44,9 +43,11 @@ def test_dict_response():
 
 def test_resp_response():
     """Test test response"""
-    o = BlockAndTagPluginOutput(file=File.CreateRequest(value="Foo", blocks=[], tags=[]))
+    o = BlockAndTagPluginOutput(
+        file=File.CreateRequest(value="Foo", blocks=[], tags=[])
+    )
     r = Response(json=o)
     d = r.to_dict()
     check_mime(d, MimeTypes.JSON)
     check_type(d, dict)
-    check_val(d, asdict(o))
+    check_val(d, o.dict())

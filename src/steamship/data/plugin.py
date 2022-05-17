@@ -5,17 +5,16 @@
 #
 #
 
+from __future__ import annotations
+
 import json
-from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Union
+
+from pydantic import BaseModel
 
 from steamship.base.client import Client
 from steamship.base.request import Request
 from steamship.base.response import Response
-
-
-class Plugin:
-    pass
 
 
 class TrainingPlatform:
@@ -23,9 +22,8 @@ class TrainingPlatform:
     managed = "ecs"
 
 
-@dataclass
 class CreatePluginRequest(Request):
-    trainingPlatform: str
+    trainingPlatform: Optional[str] = None
     id: str = None
     type: str = None
     transport: str = None
@@ -36,33 +34,30 @@ class CreatePluginRequest(Request):
     upsert: bool = None
 
 
-@dataclass
 class DeletePluginRequest(Request):
     id: str
 
 
-@dataclass
 class ListPublicPluginsRequest(Request):
-    type: str
+    type: Optional[str] = None
 
 
-@dataclass
 class ListPrivatePluginsRequest(Request):
     type: str
 
 
-@dataclass
 class ListPluginsResponse(Request):
     plugins: List[Plugin]
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "ListPluginsResponse":
+    def from_dict(d: Any, client: Client = None) -> ListPluginsResponse:
         return ListPluginsResponse(
-            plugins=[Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])]
+            plugins=[
+                Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])
+            ]
         )
 
 
-@dataclass
 class GetPluginRequest(Request):
     type: str = None
     id: str = None
@@ -94,8 +89,7 @@ class LimitUnit:
     bytes = "bytes"
 
 
-@dataclass
-class Plugin:
+class Plugin(BaseModel):
     client: Client = None
     id: str = None
     type: str = None
@@ -107,7 +101,7 @@ class Plugin:
     metadata: str = None
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "Plugin":
+    def from_dict(d: Any, client: Client = None) -> Plugin:
         if "plugin" in d:
             d = d["plugin"]
 
@@ -126,12 +120,12 @@ class Plugin:
     @staticmethod
     def create(
         client: Client,
-        training_platform: Optional[str],
         description: str,
         type_: str,
         transport: str,
         is_public: bool,
         handle: str = None,
+        training_platform: Optional[str] = None,
         metadata: Union[str, Dict, List] = None,
         upsert: bool = None,
         space_id: str = None,
@@ -180,3 +174,6 @@ class Plugin:
             DeletePluginRequest(id=self.id),
             expect=Plugin,
         )
+
+
+ListPluginsResponse.update_forward_refs()

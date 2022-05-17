@@ -1,11 +1,13 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Dict
+
+from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
 from steamship.data.space import Space
 
 
-@dataclass
 class CreateAppInstanceRequest(Request):
     id: str = None
     appId: str = None
@@ -16,13 +18,11 @@ class CreateAppInstanceRequest(Request):
     spaceId: str = None
 
 
-@dataclass
 class DeleteAppInstanceRequest(Request):
     id: str
 
 
-@dataclass
-class AppInstance:
+class AppInstance(BaseModel):
     client: Client = None
     id: str = None
     handle: str = None
@@ -37,7 +37,7 @@ class AppInstance:
     space_handle: str = None
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "AppInstance":
+    def from_dict(d: Any, client: Client = None) -> AppInstance:
         if "appInstance" in d:
             d = d["appInstance"]
 
@@ -65,7 +65,7 @@ class AppInstance:
         handle: str = None,
         upsert: bool = None,
         config: Dict[str, Any] = None,
-    ) -> "Response[AppInstance]":
+    ) -> Response[AppInstance]:
 
         req = CreateAppInstanceRequest(
             handle=handle,
@@ -78,12 +78,16 @@ class AppInstance:
 
         return client.post("app/instance/create", payload=req, expect=AppInstance)
 
-    def delete(self) -> "AppInstance":
+    def delete(self) -> AppInstance:
         req = DeleteAppInstanceRequest(id=self.id)
         return self.client.post("app/instance/delete", payload=req, expect=AppInstance)
 
     def load_missing_vals(self):
-        if self.client is not None and self.space_handle is None and self.space_id is not None:
+        if (
+            self.client is not None
+            and self.space_handle is None
+            and self.space_id is not None
+        ):
             # Get the spaceHandle
             space = Space.get(self.client, id_=self.space_id)
             if space and space.data:
@@ -121,6 +125,5 @@ class AppInstance:
         return f"{self.invocation_url}{path}"
 
 
-@dataclass
 class ListPrivateAppInstancesRequest(Request):
     pass

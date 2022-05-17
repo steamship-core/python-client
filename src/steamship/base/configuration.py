@@ -1,14 +1,18 @@
+from __future__ import annotations
+
 import json
 import os
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 _configFile = ".steamship.json"
 
 MAX_DEPTH = 40
 
 
-class Configuration:
+class Configuration(BaseModel):
     # TODO (enias): Review
     api_key: str = None
     api_base: str = None
@@ -16,10 +20,10 @@ class Configuration:
     web_base: str = None
     space_id: str = None
     space_handle: str = None
-    profile: str = None
+    profile: Optional[str] = None
 
     @staticmethod
-    def from_dict(d: dict) -> "Configuration":
+    def from_dict(d: dict) -> Configuration:
         if d is None:
             return Configuration()
 
@@ -44,6 +48,7 @@ class Configuration:
         config_file: str = None,
         config_dict: dict = None,
     ):
+        super().__init__()
         # First set the profile
         if "STEAMSHIP_PROFILE" in os.environ:
             self.profile = os.getenv("STEAMSHIP_PROFILE")
@@ -133,7 +138,9 @@ class Configuration:
                     self.merge_dict(j)
                 else:
                     if "profiles" not in j or profile not in j["profiles"]:
-                        raise Exception(f"Profile {profile} requested but not found in {filepath}")
+                        raise Exception(
+                            f"Profile {profile} requested but not found in {filepath}"
+                        )
                     self.merge_dict(j["profiles"][profile])
 
         except Exception as err:

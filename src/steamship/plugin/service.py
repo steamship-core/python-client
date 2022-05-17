@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Any, Callable, Generic, TypeVar, Union
+
+from pydantic import BaseModel
 
 from steamship.app.response import Response
 from steamship.base import Client
@@ -17,8 +20,7 @@ T = TypeVar("T")
 U = TypeVar("U")
 
 
-@dataclass
-class PluginRequest(Generic[T]):
+class PluginRequest(Generic[T], BaseModel):
     data: T = None
 
     @staticmethod
@@ -26,7 +28,7 @@ class PluginRequest(Generic[T]):
         d: Any,
         subclass_request_from_dict: Callable[[dict, Client], dict] = None,
         client: Client = None,
-    ) -> "PluginRequest[T]":
+    ) -> PluginRequest[T]:
         data = None
         if "data" in d:
             if subclass_request_from_dict is not None:
@@ -51,7 +53,9 @@ class PluginService(ABC, Generic[T, U]):
 
     @classmethod
     @abstractmethod
-    def subclass_request_from_dict(cls, d: Any, client: Client = None) -> PluginRequest[T]:
+    def subclass_request_from_dict(
+        cls, d: Any, client: Client = None
+    ) -> PluginRequest[T]:
         pass
 
     @classmethod
@@ -62,11 +66,15 @@ class PluginService(ABC, Generic[T, U]):
                     request, subclass_request_from_dict=cls.subclass_request_from_dict
                 )
             except Exception as error:
-                raise SteamshipError(message=f"Unable to parse input request. {error}", error=error)
+                raise SteamshipError(
+                    message=f"Unable to parse input request. {error}", error=error
+                )
         return request
 
     @classmethod
-    def response_to_dict(cls, response: Union[SteamshipError, Response[U], U, dict]) -> Response[U]:
+    def response_to_dict(
+        cls, response: Union[SteamshipError, Response[U], U, dict]
+    ) -> Response[U]:
         try:
             if type(response) == Response:
                 return response

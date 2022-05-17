@@ -10,7 +10,9 @@ from ..utils.file import upload_file
 
 def test_e2e_csv_blockifier_plugin():
     client = get_steamship_client()
-    csv_blockifier_plugin_path = APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
+    csv_blockifier_plugin_path = (
+        APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
+    )
 
     version_config_template = dict(
         text_column=dict(type="string"),

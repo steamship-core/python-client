@@ -1,23 +1,29 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 
 
-@dataclass
-class TrainingParameterPluginInput:
+class TrainingParameterPluginInput(BaseModel):
     pluginInstance: str = None
     exportRequest: ExportPluginInput = None
 
     @staticmethod
-    def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainingParameterPluginInput]":
+    def from_dict(
+        d: Any = None, client: Client = None
+    ) -> Optional[TrainingParameterPluginInput]:
         if d is None:
             return None
 
         return TrainingParameterPluginInput(
             pluginInstance=d.get("pluginInstance"),
-            exportRequest=ExportPluginInput.from_dict(d.get("exportPluginInput"), client),
+            exportRequest=ExportPluginInput.from_dict(
+                d.get("exportPluginInput"), client
+            ),
         )
 
     def to_dict(self) -> Dict:

@@ -74,11 +74,15 @@ def test_query():
     assert b.id is not None
     b = b.refresh().data
 
-    tags = Tag.query(client=client, tag_filter_query='blocktag and name "BlockTag"').data.tags
+    tags = Tag.query(
+        client=client, tag_filter_query='blocktag and name "BlockTag"'
+    ).data.tags
     assert len(tags) == 1
     assert tags[0].id == a.blocks[0].tags[0].id
 
-    tags = Tag.query(client=client, tag_filter_query='blocktag and name "Test"').data.tags
+    tags = Tag.query(
+        client=client, tag_filter_query='blocktag and name "Test"'
+    ).data.tags
     assert len(tags) == 1
     assert tags[0].id == b.blocks[1].tags[0].id
 

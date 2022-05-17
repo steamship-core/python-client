@@ -30,6 +30,6 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
         raise NotImplementedError()
 
     @post("tag")
-    def parse(self, **kwargs) -> dict:
+    def parse(self, **kwargs) -> Response[BlockAndTagPluginOutput]:
         parse_request = Tagger.parse_request(request=kwargs)
         return self.run(parse_request)

@@ -63,7 +63,9 @@ class CsvBlockifier(Blockifier, App):
     ) -> Union[Response, Response[BlockAndTagPluginOutput]]:
         if request is None or request.data is None or request.data.data is None:
             return Response(
-                error=SteamshipError(message="Missing data field on the incoming request.")
+                error=SteamshipError(
+                    message="Missing data field on the incoming request."
+                )
             )
         data = request.data.data  # TODO (enias): Simplify
         if isinstance(data, bytes):
@@ -71,7 +73,9 @@ class CsvBlockifier(Blockifier, App):
 
         if type(data) != str:
             return Response(
-                error=SteamshipError(message="The incoming data was not of expected String type")
+                error=SteamshipError(
+                    message="The incoming data was not of expected String type"
+                )
             )
 
         reader = csv.DictReader(
@@ -81,7 +85,7 @@ class CsvBlockifier(Blockifier, App):
             escapechar=self.config.escapechar,
             skipinitialspace=self.config.skipinitialspace,
         )
-        file = File(blocks=[])
+        file = File.CreateRequest(blocks=[])
         for row in reader:
             text = self._get_text(row)
             tag_values = self._get_tags(row)

@@ -1,24 +1,30 @@
+from __future__ import annotations
+
 import logging
 from typing import Any, List
 
 from steamship import Block
 from steamship.base import Client, Response
-from steamship.client.operations.tagger import TagRequest
+from steamship.client.operations.tagger import TagRequest, TagResponse
 from steamship.client.tasks import Tasks
 from steamship.data import File
-from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
+from steamship.data.embeddings import (
+    EmbedAndSearchRequest,
+    EmbeddingIndex,
+    QueryResults,
+)
 from steamship.data.space import Space
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
-
-from steamship.extension.file import TagResponse
 
 _logger = logging.getLogger(__name__)
 
 
 class Steamship(Client):
     """Steamship Python Client."""
+
+    tasks: Tasks = None
 
     def __init__(
         self,
@@ -111,7 +117,9 @@ class Steamship(Client):
         space_handle: str = None,
         space: Space = None,
     ) -> Response[File]:
-        return File.scrape(self, url, space_id=space_id, space_handle=space_handle, space=space)
+        return File.scrape(
+            self, url, space_id=space_id, space_handle=space_handle, space=space
+        )
 
     def embed_and_search(
         self,
@@ -123,7 +131,9 @@ class Steamship(Client):
         space_handle: str = None,
         space: Space = None,
     ) -> Response[QueryResults]:
-        req = EmbedAndSearchRequest(query=query, docs=docs, pluginInstance=plugin_instance, k=k)
+        req = EmbedAndSearchRequest(
+            query=query, docs=docs, pluginInstance=plugin_instance, k=k
+        )
         return self.post(
             "plugin/instance/embeddingSearch",
             req,
