@@ -3,7 +3,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Callable, Generic, Type, TypeVar, Union
-
 from pydantic import BaseModel
 
 from steamship.app import App
