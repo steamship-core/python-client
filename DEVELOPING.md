@@ -8,10 +8,12 @@ For information about *using* this library, please see README.md
 
 ## Basic Information
 
-* The project targets Python3
-* The project is scaffolded via [PyScaffold](https://pyscaffold.org/)
+* The project targets Python 3
+* ✍️ Code formatting with black and isort
+* ♻️ Continuous integration with GitHub Actions
+* ✅ Code linting with pre-commit: bandit, darglint, flake8, mypy, pre-commit-hooks, pydocstyle, pygrep-hooks, pyupgrade, safety, and shellcheck
 * Testing is automated via Pyunit
-* We recommend VS Code as a development environment
+* 🧑‍💻 We recommend PyCharm as a development environment
 
 ## Development Setup
 
@@ -47,30 +49,30 @@ Developers who are:
 
 ### Configuring Test Credentials
 
-This project's unit tests are intended to be performed against a running Steamship server. They all execute by loading the `test` profile from your Steamship client configuration. 
+The tests include integration tests that are intended to be performed against a running Steamship server. They all execute by loading the `test` profile from your Steamship client configuration. 
 
-To establish this profile, edit your `~/.steamship.json` file to ensure it has the following:
+To establish a `test` profile, edit your `~/.steamship.json` file to ensure it has the following:
 
 ```
 {
   "profiles": {
     "test": {
-			"apiKey": "your-testuser-key"
+        "apiKey": "YOUR-TEST-USER-KEY"
     }
   }
 }
 ```
 
-For Steamship employees who may be testing against a server running on localhost, additionally add the following `Client` argument to your `test` profile:
+Steamship employees can test against a server running on localhost by adding the following `apiBase` and `appBase` arguments to your `test` profile:
 
 ```
 {
   "profiles": {
     "test": {
-			"apiKey": "your-testuser-key",
-		  "Client": "http://localhost:8080/api/v1"
-    }
-  }
+      "apiBase": "http://localhost:8080/api/v1/",
+      "appBase": "http://localhost:8081",
+      "apiKey": "CHANGEME"
+    },
 }
 ```
 
@@ -80,16 +82,6 @@ In general, each test should attempt to:
 
 1. Create resources with randomized handles (to avoid collision).
 2. Delete resources after test completion
-
-### Testing in VS Code
-
-This project's configuration should result in automatic test availability for Visual Studio Code. 
-
-1. Click on the chemistry beaker icon at left
-2. Find the test you would like to run
-3. Click either `Run` or `Run with Debug`
-
-That's it: you should see the output in your editing window.
 
 ## Deployment
 
