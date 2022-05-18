@@ -7,15 +7,14 @@ from steamship import File
 from steamship.data import Block, Tag
 from steamship.data.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
-
-from .. import APPS_PATH
+from tests import APPS_PATH
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-from ..utils.client import get_steamship_client
-from ..utils.deployables import deploy_plugin
-from ..utils.file import upload_file
+from tests.utils.client import get_steamship_client
+from tests.utils.deployables import deploy_plugin
+from tests.utils.file import upload_file
 
 EXPORTER_HANDLE = "signed-url-exporter"
 
@@ -46,7 +45,7 @@ def test_e2e_corpus_export():
 
     csv_blockifier_path = APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
 
-    # Make a blockifier which will generate our training corpus
+    # Make a blockifier which will generate our trainable corpus
     with deploy_plugin(
         client,
         csv_blockifier_path,

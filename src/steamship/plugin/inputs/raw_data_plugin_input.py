@@ -35,13 +35,6 @@ class RawDataPluginInput(BaseModel):
             return None
         data = d.get("data")
 
-        # TODO: We need to do a pass on proper encoding across the engine and clients.
-        # if data is not None and d.get('isBase64', False):
-        #     data_bytes = base64.b64decode(data)
-        #     if d.get('defaultMimeType') in TEXT_MIME_TYPES:
-        #         data = data_bytes.decode('utf-8')
-        #     else:
-        #         data = data_bytes
         if data is not None and is_base64(data):
             data_bytes = base64.b64decode(data)
             if d.get("defaultMimeType") in TEXT_MIME_TYPES:
@@ -53,4 +46,11 @@ class RawDataPluginInput(BaseModel):
             plugin_instance=d.get("pluginInstance"),
             data=data,
             default_mime_type=d.get("defaultMimeType"),
+        )
+
+    def to_dict(self):
+        return dict(
+            pluginInstance=self.plugin_instance,
+            data=self.data,
+            defaultMimeType=self.default_mime_type,
         )

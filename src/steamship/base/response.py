@@ -21,7 +21,7 @@ class Response(GenericModel, Generic[T]):
 
     def update(self, response: Response[T]):
         if self.task is not None and response.task is not None:
-            self.task.update(response.task)
+            self.task.refresh(response.task)
         if response.data is not None:
             self.data = response.data
         self.error = response.error

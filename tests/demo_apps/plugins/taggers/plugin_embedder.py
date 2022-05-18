@@ -93,7 +93,7 @@ def _embed_block(block: Block) -> Block.CreateRequest:
     )
 
 
-class TestEmbedderPlugin(Embedder, App):
+class TestEmbedderPlugin(Embedder):
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
@@ -101,11 +101,6 @@ class TestEmbedderPlugin(Embedder, App):
         return Response(
             data=BlockAndTagPluginOutput(file=File.CreateRequest(blocks=updated_blocks))
         )
-
-    @post("tag")
-    def embed(self, **kwargs) -> Response:
-        embed_request = Embedder.parse_request(request=kwargs)
-        return self.run(embed_request)
 
 
 handler = create_handler(TestEmbedderPlugin)

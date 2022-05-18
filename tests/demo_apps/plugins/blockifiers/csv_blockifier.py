@@ -17,7 +17,7 @@ from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPlug
 from steamship.plugin.service import PluginRequest
 
 
-class CsvBlockifier(Blockifier, App):
+class CsvBlockifier(Blockifier):
     """Converts CSV or TSV into Tagged Steamship Blocks.
 
     A CSV file is mapped onto 1 File
