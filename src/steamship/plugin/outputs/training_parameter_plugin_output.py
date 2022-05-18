@@ -10,8 +10,7 @@ from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 
 
-@dataclass
-class TrainingParameterPluginOutput:
+class TrainingParameterPluginOutput(BaseModel):
     machine_type: Optional[str] = None
     training_epochs: int = None
     testing_holdout_percent: float = None
@@ -22,7 +21,7 @@ class TrainingParameterPluginOutput:
     export_request: ExportPluginInput = None
 
     @staticmethod
-    def from_input(input: TrainingParameterPluginInput) -> "TrainingParameterPluginOutput":
+    def from_input(input: TrainingParameterPluginInput) -> TrainingParameterPluginOutput:
         return TrainingParameterPluginOutput(
             export_request=input.export_request,
             training_epochs=input.training_epochs,

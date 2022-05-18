@@ -8,8 +8,7 @@ from steamship.base import Client
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 
 
-@dataclass
-class TrainingParameterPluginInput:
+class TrainingParameterPluginInput(BaseModel):
     # The plugin instance handle that should perform the training.
     plugin_instance: str = None
 
@@ -43,7 +42,7 @@ class TrainingParameterPluginInput:
             testing_holdout_percent=d.get("testingHoldoutPercent"),
             test_split_seed=d.get("testSplitSeed"),
             training_params=d.get("trainingParams"),
-            inference_params=d.get("inferencParams")
+            inference_params=d.get("inferencParams"),
         )
 
     def to_dict(self) -> Dict:

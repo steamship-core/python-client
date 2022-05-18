@@ -7,8 +7,7 @@ from pydantic import BaseModel
 from steamship.base import Client
 
 
-@dataclass
-class ExportPluginInput:
+class ExportPluginInput(BaseModel):
     plugin_instance: str = None
     id: str = None
     handle: str = None

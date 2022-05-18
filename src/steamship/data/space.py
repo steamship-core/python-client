@@ -24,9 +24,9 @@ class SignedUrl:
         WRITE = "Write"
 
     class Request(Request):
-        bucket: "SignedUrl.Bucket"
+        bucket: SignedUrl.Bucket
         filepath: str
-        operation: "SignedUrl.Operation"
+        operation: SignedUrl.Operation
         expiresInMinutes: int = None
 
     class Response(Response):
