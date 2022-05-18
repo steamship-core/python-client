@@ -1,9 +1,6 @@
 from steamship import Block, DocTag, MimeTypes, PluginInstance, Steamship
 from steamship.base.response import TaskState
 
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
 from tests.utils.client import get_steamship_client
@@ -33,7 +30,7 @@ def tag_file(client: Steamship, parser_instance_handle: str):
     p1_2 = "Violets are blue."
     p2_1 = "Sugar is sweet, and I love you."
 
-    content = "# {}\n\n{} {}\n\n{}".format(t, p1_1, p1_2, p2_1)
+    content = f"# {t}\n\n{p1_1} {p1_2}\n\n{p2_1}"
 
     a = client.upload(content=content, mime_type=MimeTypes.MKD).data
     assert a.id is not None

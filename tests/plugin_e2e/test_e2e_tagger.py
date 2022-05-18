@@ -1,9 +1,5 @@
-from tests.client.operations.test_tag_file import tag_file
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests import APPS_PATH
+from tests.client.operations.test_tag_file import tag_file
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
 

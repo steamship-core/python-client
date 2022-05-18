@@ -1,8 +1,8 @@
 import pytest
 
+from steamship import File
 from steamship.app.response import Response
 from steamship.data.block import Block
-from steamship.extension.file import File
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
@@ -16,7 +16,7 @@ TEST_REQ = BlockAndTagPluginInput(
             Block(
                 id="ABC",
                 text="Once upon a time there was a magical ship. "
-                     "The ship was powered by STEAM. The ship went to the moon.",
+                "The ship was powered by STEAM. The ship went to the moon.",
             )
         ]
     )
@@ -46,7 +46,9 @@ def test_parser():
     with pytest.raises(Exception):
         parser.get_training_parameters(PluginRequest(data=TrainingParameterPluginInput()))
     with pytest.raises(Exception):
-        parser.get_training_parameters_endpoint(**PluginRequest(data=TrainingParameterPluginInput()).to_dict())
+        parser.get_training_parameters_endpoint(
+            **PluginRequest(data=TrainingParameterPluginInput()).to_dict()
+        )
 
     # This plugin is not trainable, and thus it refuses train requests
     with pytest.raises(Exception):

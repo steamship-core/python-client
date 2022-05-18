@@ -1,10 +1,6 @@
 from steamship import PluginInstance
 from steamship.base.response import TaskState
 from steamship.data.embeddings import IndexSnapshotRequest, IndexSnapshotResponse
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.utils.client import get_steamship_client
 
 _TEST_EMBEDDER = "test-embedder"
@@ -29,7 +25,7 @@ def _snapshot(index, window_size=None):
     else:
         # We do this manually so as not to clutter the end-user visible
         # API with debug/testing parameters
-        req = IndexSnapshotRequest(index.id, windowSize=window_size)
+        req = IndexSnapshotRequest(indexId=index.id, windowSize=window_size)
         task = index.client.post(
             "embedding-index/snapshot/create",
             req,

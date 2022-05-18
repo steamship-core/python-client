@@ -1,8 +1,4 @@
 from tests import APPS_PATH
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
 from tests.utils.file import upload_file

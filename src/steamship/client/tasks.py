@@ -1,18 +1,20 @@
 import logging
 
+from pydantic import BaseModel
+
 from steamship.base import Client, Response, TaskComment
 from steamship.base.tasks import TaskCommentList
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
 
 _logger = logging.getLogger(__name__)
 
 
-class Tasks:
+class Tasks(BaseModel):
     """Asynchronous background task (and task feedback) management."""
 
+    client: Client = None
+
     def __init__(self, client: Client):
+        super().__init__()
         self.client = client
 
     def list_comments(

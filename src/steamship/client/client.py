@@ -1,24 +1,23 @@
+from __future__ import annotations
+
 import logging
 from typing import Any, List
 
 from steamship import Block
 from steamship.base import Client, Response
-from steamship.client.operations.tagger import TagRequest
+from steamship.client.operations.tagger import TagRequest, TagResponse
 from steamship.client.tasks import Tasks
 from steamship.data import File
 from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
 from steamship.data.space import Space
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
-from steamship.extension.file import TagResponse
 
 _logger = logging.getLogger(__name__)
 
 
 class Steamship(Client):
     """Steamship Python Client."""
+
+    tasks: Tasks = None
 
     def __init__(
         self,

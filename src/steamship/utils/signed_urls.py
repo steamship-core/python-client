@@ -1,7 +1,5 @@
 import logging
 import os
-import uuid
-import tempfile
 import urllib
 from pathlib import Path
 from typing import Optional

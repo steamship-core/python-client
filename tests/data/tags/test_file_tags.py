@@ -1,9 +1,5 @@
 from steamship import Block, File, MimeTypes
 from steamship.data.tags import Tag
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.utils.client import get_steamship_client
 
 
