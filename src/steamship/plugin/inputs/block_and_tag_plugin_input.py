@@ -1,16 +1,18 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 from steamship import File
 from steamship.base import Client
 
 
-@dataclass
-class BlockAndTagPluginInput:
+class BlockAndTagPluginInput(BaseModel):
     file: File = None
 
     @staticmethod
-    def from_dict(d: Any = None, client: Client = None) -> "Optional[BlockAndTagPluginInput]":
+    def from_dict(d: Any = None, client: Client = None) -> Optional[BlockAndTagPluginInput]:
         if d is None:
             return None
 

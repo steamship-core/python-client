@@ -1,9 +1,11 @@
+from __future__ import annotations
+
 import logging
-from dataclasses import dataclass
 from typing import Any, Union
 
+from pydantic import BaseModel
 
-@dataclass
+
 class SteamshipError(Exception):
     message: str = None
     internalMessage: str = None
@@ -19,10 +21,11 @@ class SteamshipError(Exception):
         code: str = None,
         error: Union[Exception, str] = None,
     ):
+        super().__init__()
         self.message = message
         self.suggestion = suggestion
         self.internalMessage = internal_message
-        self.statusCode = code
+        self.code = code
         if error is not None:
             self.error = str(error)
 
@@ -40,7 +43,7 @@ class SteamshipError(Exception):
 
     def log(self):
         logging.error(
-            f"[{self.code}] {self.message}. [Internal: {self.internalMessage}] [Suggestion: { self.suggestion}]"
+            f"[{self.code}] {self.message}. [Internal: {self.internalMessage}] [Suggestion: {self.suggestion}]"
         )
         if self.error:
             logging.error(self.error)
@@ -55,7 +58,7 @@ class SteamshipError(Exception):
         )
 
     @staticmethod
-    def from_dict(d: Any) -> "SteamshipError":
+    def from_dict(d: Any) -> SteamshipError:
         """Last resort if subclass doesn't override: pass through."""
         return SteamshipError(
             message=d.get("statusMessage", d.get("message")),

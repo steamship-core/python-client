@@ -1,11 +1,11 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any
 
-from steamship.base import Client
+from steamship.base import Client, Request
 
 
-@dataclass
-class BlockifyRequest:
+class BlockifyRequest(Request):
     type: str = None
     pluginInstance: str = None
     id: str = None
@@ -14,7 +14,7 @@ class BlockifyRequest:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "BlockifyRequest":
+    def from_dict(d: Any, client: Client = None) -> BlockifyRequest:
         return BlockifyRequest(
             type=d.get("type"),
             pluginInstance=d.get("pluginInstance"),

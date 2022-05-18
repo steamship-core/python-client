@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 import logging
-from dataclasses import dataclass
 from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 
 
-@dataclass
-class TrainingParameterPluginOutput:
+class TrainingParameterPluginOutput(BaseModel):
     machineType: str = None
     modelName: str = None
     modelFilename: str = None
@@ -19,9 +21,7 @@ class TrainingParameterPluginOutput:
     exportRequest: ExportPluginInput = None
 
     @staticmethod
-    def from_dict(
-        d: Any = None, client: Client = None
-    ) -> "Optional[TrainingParameterPluginOutput]":
+    def from_dict(d: Any = None, client: Client = None) -> Optional[TrainingParameterPluginOutput]:
         logging.info(f"from_dict on trainingparampluginoutput: {d}")
         if d is None:
             return None

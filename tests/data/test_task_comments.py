@@ -1,9 +1,5 @@
 from steamship import PluginInstance
 from steamship.data.embeddings import EmbeddedItem
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.utils.client import get_steamship_client
 from tests.utils.random import random_index, random_name
 

@@ -1,11 +1,13 @@
-from dataclasses import asdict, dataclass
+from __future__ import annotations
+
 from typing import Any
+
+from pydantic import BaseModel
 
 from steamship import File
 from steamship.base import Client, Request
 
 
-@dataclass
 class TagRequest(Request):
     type: str = None
     id: str = None
@@ -16,8 +18,7 @@ class TagRequest(Request):
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "TagRequest":
-
+    def from_dict(d: Any, client: Client = None) -> TagRequest:
         return TagRequest(
             type=d.get("type"),
             id=d.get("id"),
@@ -28,17 +29,16 @@ class TagRequest(Request):
         )
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        return self.dict()
 
 
-@dataclass
-class TagResponse:
+class TagResponse(BaseModel):
     file: File = None
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "TagResponse":
+    def from_dict(d: Any, client: Client = None) -> TagResponse:
         return TagResponse(file=File.from_dict(d.get("file", {})))
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        return self.dict()

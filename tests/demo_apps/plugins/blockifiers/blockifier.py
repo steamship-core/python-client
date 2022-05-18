@@ -1,7 +1,7 @@
 from typing import Type
 
 from steamship import Block, File, Tag
-from steamship.app import App, Response, create_handler
+from steamship.app import Response, create_handler
 from steamship.data.tags import DocTag, TagKind
 from steamship.plugin.blockifier import Blockifier, Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput

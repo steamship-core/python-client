@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
 from steamship.app import Response, post
-from steamship.base import Client
 from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from steamship.plugin.service import PluginRequest, PluginService
 
@@ -16,9 +15,7 @@ from steamship.plugin.service import PluginRequest, PluginService
 #
 class CorpusImporter(PluginService[CorpusImportRequest, CorpusImportResponse], ABC):
     @abstractmethod
-    def run(
-            self, request: PluginRequest[CorpusImportRequest]
-    ) -> Response[CorpusImportResponse]:
+    def run(self, request: PluginRequest[CorpusImportRequest]) -> Response[CorpusImportResponse]:
         raise NotImplementedError()
 
     @post("import")

@@ -1,9 +1,10 @@
 import base64
-import dataclasses
 import io
 import json as jsonlib
 import logging
 from typing import Any, Tuple, Union
+
+from pydantic import BaseModel
 
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import ContentEncodings, MimeTypes
@@ -68,8 +69,8 @@ def flexi_create(
             if hasattr(json, "to_dict"):
                 ret_dict = getattr(json, "to_dict")()
                 ret_data = ret_dict
-            elif dataclasses.is_dataclass(json):
-                ret_dict = dataclasses.asdict(json)
+            elif isinstance(json, BaseModel):
+                ret_dict = json.dict()
                 ret_data = ret_dict
             else:
                 ret_data = json

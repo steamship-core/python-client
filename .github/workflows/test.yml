@@ -13,36 +13,45 @@ on:
 jobs:
   test:
     name: Run test suite
-    timeout-minutes: 30
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        python-version: [ "3.8" ]
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      # Setup Python (faster than using Python container)
-      - name: Setup Python
+
+      - name: Set up Python 3.8
         uses: actions/setup-python@v2
         with:
-          python-version: "3.x"
+          python-version: 3.8
+
       - name: Install Virtualenv
-        run: |
-          python3 -m venv .venv
+        run: python3 -m venv .venv
+
       - name: Activate Virtualenv
-        run: |
-          source .venv/bin/activate
+        run: source .venv/bin/activate
+
       - name: Install Development Dependencies
-        run: |
-          python -m pip install -r requirements.dev.txt
+        run: python -m pip install -r requirements.dev.txt
+
+      - name: Lint
+        run: pre-commit run --all-files --color always
+
       - name: Install Local Package
-        run: |
-          python -m pip install -e .
-      - name: Run test suite (Steamship Prod)
+        run: python -m pip install -e .
+
+      - name: Test (Production)
         run: pytest
         if: ${{ github.ref == 'refs/heads/main' }}
         env:
           STEAMSHIP_API_KEY: ${{ secrets.STEAMSHIP_PROD_TEST_KEY }}
           STEAMSHIP_API_BASE: ${{ secrets.STEAMSHIP_PROD_TEST_API_BASE }}
           STEAMSHIP_APP_BASE: ${{ secrets.STEAMSHIP_PROD_TEST_APP_BASE }}
-      - name: Run test suite (Steamship Staging)
+
+      - name: Test (Staging)
         run: pytest
         if: ${{ github.ref == 'refs/heads/staging' }}
         env:

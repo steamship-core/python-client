@@ -2,8 +2,8 @@ import math
 
 from steamship.data.plugin import TrainingPlatform
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-from tests.demo_apps.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
 from tests import APPS_PATH
+from tests.demo_apps.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
 
@@ -15,10 +15,10 @@ def test_get_training_parameters():
     tagger_path = APPS_PATH / "plugins" / "taggers" / "plugin_trainable_tagger.py"
     # Now make a trainable tagger to train on those tags
     with deploy_plugin(
-            client,
-            tagger_path,
-            "tagger",
-            training_platform=TrainingPlatform.managed,
+        client,
+        tagger_path,
+        "tagger",
+        training_platform=TrainingPlatform.managed,
     ) as (tagger, taggerVersion, taggerInstance):
         training_request = TrainingParameterPluginInput(pluginInstance=taggerInstance.handle)
         res = taggerInstance.get_training_parameters(training_request)
