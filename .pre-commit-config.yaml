@@ -44,11 +44,6 @@ repos:
 #        entry: shellcheck --check-sourced --shell=bash
 #        language: system
 #        types: [shell]
-      - id: pycln
-        name: pycln
-        entry: pycln
-        language: system
-        types: [python]
       - id: flake8
         name: flake8
         entry: flake8
@@ -69,3 +64,8 @@ repos:
         entry: env XDG_CONFIG_HOME=.vscode proselint
         language: system
         files: \.(md|rst)$
+      - id: pycln
+        name: pycln
+        entry: pycln
+        language: system
+        types: [python]
