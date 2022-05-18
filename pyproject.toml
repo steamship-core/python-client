@@ -40,6 +40,9 @@ convention = "numpy"
 
 # https://docs.pytest.org/en/latest/customize.html#adding-default-options
 [tool.pytest.ini_options]
-addopts = "-W error -W ignore::DeprecationWarning --doctest-modules --exitfirst --failed-first --strict-config --strict-markers --verbosity=2 --junitxml=reports/pytest.xml"
+# TODO (enias) add back strict -W error
+addopts = "-W ignore::DeprecationWarning --doctest-modules --exitfirst --failed-first --strict-config --strict-markers --verbosity=2 --junitxml=reports/pytest.xml"
 junit_family = "xunit2"
 testpaths = "tests"
+python_functions = "test_*"
+minversion = 7.0
