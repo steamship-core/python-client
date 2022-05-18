@@ -7,30 +7,22 @@ from steamship.base import Client
 @dataclass
 class TrainPluginOutput:
     """
-    This is the object produced by a completed training operation, stored as the `output` field of a `train` task.
+    This is the object produced by a completed trainable operation, stored as the `output` field of a `train` task.
     """
 
-    # The tenant in which training is happening
-    tenant_id: str = None
-    # The space in which training is happening
-    space_id: str = None
-    #  The name of the model being trained
-    model_name: str = None
+    # The PluginInstance ID being trained
+    plugin_instance_id: str = None
 
-    # The desired filename of the output model parameters.
-    # This will be uploaded to the "Models" section of the Space's storage bucket
-    model_filename: str = None
+    # This should always represent the most recent snapshot of the model in Steamship
+    # It is the output of ModelCheckpoint.archive_path_in_steamship
+    archive_path_in_steamship: str = None
 
-    # A URL that has been pre-signed, permitting upload to that location
-    model_upload_url: str = None
-
-    # Arbitrary key-valued data to provide to the inference runner.
-    # The training process will have the opportunity to amend this before writing it to the output
+    # Arbitrary key-valued data to provide to the `run` method when this plugin is Run.
     inference_params: dict = None
 
-    progress: dict = None
-    result_data: dict = None
-    error: str = None
+    # Arbitrary key-valued data to provide information about training status or training results.
+    training_progress: dict = None # For tracking the progress (e.g. 3 / 40 epochs completed)
+    training_results: dict = None # For tracking accuracy (e.g. f1=0.8)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -39,26 +31,18 @@ class TrainPluginOutput:
             return None
 
         return TrainPluginOutput(
-            tenant_id=d.get("tenantId"),
-            space_id=d.get("spaceId"),
-            model_name=d.get("modelName"),
-            model_filename=d.get("modelFilename"),
-            model_upload_url=d.get("modelUploadUrl"),
+            plugin_instance_id=d.get("plugin_instance_id"),
+            archive_path_in_steamship=d.get("archive_path_in_steamship"),
             inference_params=d.get("inferenceParams"),
-            progress=d.get("progress"),
-            result_data=d.get("resultData"),
-            error=d.get("error"),
+            training_progress=d.get("trainingProgress"),
+            training_results=d.get("trainingResults")
         )
 
     def to_dict(self) -> Dict:
         return dict(
-            tenantId=self.tenant_id,
-            spaceId=self.space_id,
-            modelName=self.model_name,
-            modelFilename=self.model_filename,
-            modelUploadUrl=self.model_upload_url,
+            pluginInstanceId=self.plugin_instance_id,
+            archivePath=self.archive_path_in_steamship,
             inferenceParams=self.inference_params,
-            progress=self.progress,
-            resultData=self.result_data,
-            error=self.error,
+            trainingProgress=self.training_progress,
+            trainingResults=self.training_results
         )

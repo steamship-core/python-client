@@ -7,7 +7,7 @@ from steamship.plugin.blockifier import Blockifier
 from tests.demo_apps.plugins.blockifiers.csv_blockifier import CsvBlockifier
 
 
-class TsvBlockifier(CsvBlockifier, Blockifier, App):
+class TsvBlockifier(CsvBlockifier, Blockifier):
     """Converts TSV into Tagged Steamship Blocks.
 
     Implementation is only here to demonstrate how plugins can be built through inheritance.
