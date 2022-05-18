@@ -2,7 +2,7 @@ import json
 import logging
 from typing import Any, Dict, TypeVar, Union
 
-import requests  # type: ignore
+import requests
 from pydantic import BaseModel
 
 from steamship.base.configuration import Configuration
@@ -13,7 +13,7 @@ from steamship.base.response import Response, Task
 
 _logger = logging.getLogger(__name__)
 
-T = TypeVar("T", bound=Response)  # TODO: Do we need this?
+T = TypeVar("T", bound=Response)  # TODO (enias): Do we need this?
 
 
 class Client(BaseModel):

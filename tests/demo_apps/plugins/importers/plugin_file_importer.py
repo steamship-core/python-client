@@ -1,5 +1,5 @@
 from steamship import MimeTypes
-from steamship.app import App, Response, create_handler, post
+from steamship.app import Response, create_handler
 from steamship.plugin.file_importer import FileImporter
 from steamship.plugin.inputs.file_import_plugin_input import FileImportPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput

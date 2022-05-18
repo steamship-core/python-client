@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Optional, Type
 
 from steamship import File, Tag
-from steamship.app import App, Response, create_handler
+from steamship.app import Response, create_handler
 from steamship.base import Client, Task, TaskState
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -111,7 +111,9 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         return self.client
 
     def run_with_model(
-        self, request: PluginRequest[BlockAndTagPluginInput], model: TestTrainableTaggerModel
+        self,
+        request: PluginRequest[BlockAndTagPluginInput],
+        model: TestTrainableTaggerModel,
     ) -> Response[BlockAndTagPluginOutput]:
         """Downloads the model file from the provided space"""
         logging.info(f"run_with_model {request} {model}")

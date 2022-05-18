@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 from typing import Optional
 
-from steamship import PluginInstance, SteamshipError
+from steamship import SteamshipError
 from steamship.base import Client
 from steamship.data.space import SignedUrl, Space
 from steamship.utils.signed_urls import download_from_signed_url, upload_to_signed_url

@@ -6,7 +6,7 @@ from typing import List, Optional, Type, Union
 
 from pydantic import constr
 
-from steamship.app import App, Response, create_handler
+from steamship.app import Response, create_handler
 from steamship.base.error import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
