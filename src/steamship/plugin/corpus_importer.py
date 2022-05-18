@@ -16,9 +16,7 @@ from steamship.plugin.service import PluginRequest, PluginService
 #
 class CorpusImporter(PluginService[CorpusImportRequest, CorpusImportResponse], ABC):
     @abstractmethod
-    def run(
-            self, request: PluginRequest[CorpusImportRequest]
-    ) -> Response[CorpusImportResponse]:
+    def run(self, request: PluginRequest[CorpusImportRequest]) -> Response[CorpusImportResponse]:
         raise NotImplementedError()
 
     @post("import")

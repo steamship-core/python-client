@@ -78,7 +78,7 @@ class Block:
             id=d.get("id"),
             fileId=d.get("fileId"),
             text=d.get("text"),
-            tags=list(map(lambda tag: Tag.from_dict(tag, client=client), d.get("tags", []) or [])),
+            tags=[Tag.from_dict(tag, client=client) for tag in d.get("tags", []) or []],
         )
 
     def to_dict(self) -> dict:

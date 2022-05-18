@@ -85,7 +85,6 @@ class PluginAdapterType:
 
 class PluginTargetType:
     file = "file"
-    corpus = "corpus"
     space = "space"
 
 

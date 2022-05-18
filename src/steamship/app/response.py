@@ -5,7 +5,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Dict, Generic, TypeVar, Union
 
-from steamship.base import SteamshipError, Client
+from steamship.base import Client, SteamshipError
 from steamship.base.binary_utils import flexi_create
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 from steamship.base.tasks import Task, TaskState
@@ -180,11 +180,14 @@ class Response(Generic[T]):
         of the Engine's initial synchronous request-response conversation.
         """
         if self.status is None or self.status.task_id is None:
-            raise SteamshipError(message="An App/Plugin response can only be pushed to the Steamship Engine if "+
-                                 "it is associated with a Task. Please set the `status.task_id` field.")
+            raise SteamshipError(
+                message="An App/Plugin response can only be pushed to the Steamship Engine if "
+                + "it is associated with a Task. Please set the `status.task_id` field."
+            )
         if client is None:
-            raise SteamshipError(message="Unable to push Response to Steamship: Associated client is None")
-
+            raise SteamshipError(
+                message="Unable to push Response to Steamship: Associated client is None"
+            )
 
         # Create a task object
         task = Task(client=client, task_id=self.status.task_id)

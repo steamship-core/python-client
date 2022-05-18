@@ -20,14 +20,11 @@ TRAINING_PARAMETERS = TrainingParameterPluginOutput(
     trainingEpochs=3,
     modelName="pytorch_text_classification",
     testingHoldoutPercent=0.3,
-    trainingParams=dict(
-        keywords=['chocolate', 'roses', 'chanpagne']
-    )
+    trainingParams=dict(keywords=["chocolate", "roses", "chanpagne"]),
 )
 
-TRAIN_RESPONSE = TrainPluginOutput(
-    archive_path_in_steamship = "000/default.zip"
-)
+TRAIN_RESPONSE = TrainPluginOutput(archive_path_in_steamship="000/default.zip")
+
 
 class TestTrainableTaggerModel(TrainableModel):
     """Example of a trainable model.
@@ -48,9 +45,11 @@ class TestTrainableTaggerModel(TrainableModel):
       In this example model, the `from_disk(path: Path)` method provides this functionality.
     """
 
-    KEYWORD_LIST_FILE = "keyword_list.json"  # File, relative to the checkpoint, to save/load features from.
+    KEYWORD_LIST_FILE = (
+        "keyword_list.json"  # File, relative to the checkpoint, to save/load features from.
+    )
     keyword_list: List[str] = None  # Contents of the KEYWORD_LIST_FILE file
-    path: Optional[Path] = None # Save the effective path for testing
+    path: Optional[Path] = None  # Save the effective path for testing
 
     def __init__(self):
         self.path = None
@@ -59,12 +58,12 @@ class TestTrainableTaggerModel(TrainableModel):
     def load_from_folder(self, checkpoint_path: Path):
         """Creates a model instance & loads the provided checkpoint."""
         self.path = checkpoint_path
-        with open(self.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'r') as f:
+        with open(self.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f:
             self.keyword_list = json.loads(f.read())
 
     def save_to_folder(self, checkpoint_path: Path):
         self.path = checkpoint_path
-        with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'w') as f:
+        with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "w") as f:
             f.write(json.dumps(self.keyword_list))
 
     def train(self, input: TrainPluginInput) -> TrainPluginOutput:
@@ -76,7 +75,7 @@ class TestTrainableTaggerModel(TrainableModel):
         return TRAIN_RESPONSE
 
     def run(
-            self, request: PluginRequest[BlockAndTagPluginInput]
+        self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         """Tags the incoming data for any instance of the keywords in the parameter file."""
         return Response(
@@ -119,22 +118,20 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
         return model.run(request)
 
-    def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
+    def get_training_parameters(
+        self, request: PluginRequest[TrainingParameterPluginInput]
+    ) -> Response[TrainingParameterPluginOutput]:
         logging.info(f"get training parameters {TRAINING_PARAMETERS}")
         return Response(data=TRAINING_PARAMETERS)
 
-    def train(
-        self, request: PluginRequest[TrainPluginInput]
-    ) -> Response[TrainPluginOutput]:
+    def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
 
         # Create a Response object at the top with a Task attached. This will let us stream back updates
         # TODO: This is very non-intuitive. We should improve this.
         logging.info(f"train {request}")
 
-        response = Response(status=Task(
-            task_id=request.task_id
-        ))
+        response = Response(status=Task(task_id=request.task_id))
 
         # Example of recording training progress
         response.status.status_message = "About to train!"
@@ -149,8 +146,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
         # Save the model with the `default` handle.
         archive_path_in_steamship = model.save_remote(
-            client=self.client,
-            plugin_instance_id=request.plugin_instance_id
+            client=self.client, plugin_instance_id=request.plugin_instance_id
         )
 
         # Set the model location on the plugin output.
@@ -171,5 +167,6 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         # to indicate that, while the plugin handler has returned, the plugin's execution continues.
 
         return response
+
 
 handler = create_handler(TestTrainableTaggerPlugin)

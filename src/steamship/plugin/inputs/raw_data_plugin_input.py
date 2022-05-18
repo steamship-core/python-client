@@ -51,5 +51,5 @@ class RawDataPluginInput:
         return dict(
             pluginInstance=self.plugin_instance,
             data=self.data,
-            defaultMimeType=self.default_mime_type
+            defaultMimeType=self.default_mime_type,
         )

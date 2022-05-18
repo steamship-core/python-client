@@ -1,4 +1,4 @@
-from typing import Union, Type
+from typing import Type, Union
 
 import pytest
 
@@ -25,11 +25,14 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
     def get_steamship_client(self) -> Client:
         return self.client
 
-    def run_with_model(self, request: PluginRequest[str], model: TrainableModel) -> Union[str, Response[str]]:
+    def run_with_model(
+        self, request: PluginRequest[str], model: TrainableModel
+    ) -> Union[str, Response[str]]:
         pass
 
-    def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[
-        TrainingParameterPluginOutput]:
+    def get_training_parameters(
+        self, request: PluginRequest[TrainingParameterPluginInput]
+    ) -> Response[TrainingParameterPluginOutput]:
         return Response(data=TrainingParameterPluginOutput())
 
     def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
@@ -40,6 +43,7 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
 # Tests plugin initialization
 # --------------------------------------------
 
+
 def test_plugin_service_is_abstract():
     with pytest.raises(Exception):
         service = PluginService()
@@ -47,6 +51,7 @@ def test_plugin_service_is_abstract():
 
 def test_plugin_service_must_implement_run_and_subclass_request_from_dict():
     with pytest.raises(Exception):
+
         class BadPlugin(PluginService):
             pass
 
@@ -59,6 +64,7 @@ def test_plugin_service_must_implement_run_and_subclass_request_from_dict():
 # Tests for the `run` method
 # --------------------------------------------
 
+
 def test_run_succeeds():
     plugin = ValidStringToStringPlugin()
     plugin.run(PluginRequest(data=""))
@@ -70,10 +76,11 @@ def test_run_succeeds():
 # Tests for the `get_training_params` method
 # --------------------------------------------
 
+
 def test_plugin_does_not_have_training_param_endpoint():
     plugin = ValidStringToStringPlugin()
     # It has it from the base class
-    assert (hasattr(plugin, "get_training_parameters") == False)
+    assert hasattr(plugin, "get_training_parameters") == False
 
 
 def test_with_override_get_training_params_succeeds():
@@ -86,10 +93,11 @@ def test_with_override_get_training_params_succeeds():
 # Tests for the `train` method
 # --------------------------------------------
 
+
 def test_non_trainable_plugin_lacks_train():
     plugin = ValidStringToStringPlugin()
     # It has it from the base class
-    assert (hasattr(plugin, "train") == False)
+    assert hasattr(plugin, "train") == False
 
 
 def test_with_override_train_succeeds():

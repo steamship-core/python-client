@@ -1,7 +1,6 @@
 from steamship import File
-from tests.demo_apps.plugins.importers.plugin_file_importer import TEST_DOC
-
 from tests import APPS_PATH
+from tests.demo_apps.plugins.importers.plugin_file_importer import TEST_DOC
 
 __copyright__ = "Steamship"
 __license__ = "MIT"
