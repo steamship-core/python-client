@@ -17,6 +17,8 @@ For information about *using* this library, please see README.md
 
 ## Development Setup
 
+### Set up virtual environment
+
 We highly recommend using virtual environments for development. 
 Set up your virtual environment using the following commands:
 
@@ -30,6 +32,15 @@ python -m pip install -e .
 ```
 
 This will install the required dependencies (runtime and development) and register the project source tree with your virtual environment so that `import steamship` statements will resolve correctly.
+
+### Set up pre-commit-hooks
+
+We use pre-commit hooks to validate coding standards before submission to code review. To make sure your code is always validated before each commit, please install the required git hook scripts as follows: 
+```bash
+pre-commit install
+```
+
+Once completed the pre-commit hooks wil run automatically on `git commit`. 
 
 ## Package Design
 
