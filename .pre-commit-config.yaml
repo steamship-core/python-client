@@ -32,7 +32,7 @@ repos:
       - id: check-toml
       - id: check-vcs-permalinks
       - id: check-xml
-#      - id: check-yaml
+      - id: check-yaml
       - id: debug-statements
       - id: detect-private-key
       - id: fix-byte-order-marker
