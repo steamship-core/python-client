@@ -1,18 +1,18 @@
-import dataclasses
+from __future__ import annotations
+
 import io
 import json
 import logging
-from dataclasses import dataclass
 from typing import Any, Dict, Generic, TypeVar, Union
 
+from pydantic import BaseModel
 from steamship.base import Client, SteamshipError
 from steamship.base.binary_utils import flexi_create
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 from steamship.base.tasks import Task, TaskState
 
 
-@dataclass
-class Http:
+class Http(BaseModel):
     status: int = None
     # If true, we're signaling to the Steamship Proxy that the `data` field of the SteamshipResponse object
     # has been wrapped in base64. In this situation, we can return the bytes within directly to the Proxy
@@ -24,8 +24,7 @@ class Http:
 T = TypeVar("T")
 
 
-@dataclass
-class Response(Generic[T]):
+class Response(BaseModel, Generic[T]):
     """Mirrors the Response object in the Steamship server."""
 
     data: T = None  # Data for successful or synchronous requests.
@@ -43,6 +42,7 @@ class Response(Generic[T]):
         _bytes: Union[bytes, io.BytesIO] = None,
         mime_type=None,
     ):
+        super().__init__()
         # Note:
         # This function has to be very defensively coded since Any errors thrown here will not be returned
         # to the end-user via our proxy (as this is the constructor for the response itself!)
@@ -114,7 +114,7 @@ class Response(Generic[T]):
         message: str = None,
         error: SteamshipError = None,
         exception: Exception = None,
-    ) -> "Response[T]":
+    ) -> Response[T]:
         error = error or SteamshipError(message=message)
 
         if error.message is None:
@@ -131,7 +131,7 @@ class Response(Generic[T]):
         return Response(error=error or SteamshipError(message=message), http=Http(status=code))
 
     @staticmethod
-    def from_obj(obj: Any) -> "Response":
+    def from_obj(obj: Any) -> Response:
         if obj is None:
             return Response.error(500, "Handler provided no response.")
 
@@ -158,13 +158,13 @@ class Response(Generic[T]):
             except Exception as e:
                 logging.error(f"Failed calling to_dict on response object. {obj}\n {e}")
 
-        if dataclasses.is_dataclass(obj):
-            return Response(json=dataclasses.asdict(obj))
+        if isinstance(obj, BaseModel):
+            return Response(json=obj.dict())
 
         return Response.error(500, message="Handler provided unknown response type.")
 
     def to_dict(self) -> Dict:
-        return dataclasses.asdict(self)
+        return self.dict()
 
     def post_update(self, client: Client):
         """Pushes this response object to the correspondikng Task on the Steamship Engine.

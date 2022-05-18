@@ -1,5 +1,6 @@
-from dataclasses import dataclass
 from typing import Any, Dict
+
+from pydantic import BaseModel
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
@@ -9,11 +10,10 @@ from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
 
-class PluginInstance:
+class PluginInstance(BaseModel):
     pass
 
 
-@dataclass
 class CreatePluginInstanceRequest(Request):
     id: str = None
     pluginId: str = None
@@ -25,13 +25,11 @@ class CreatePluginInstanceRequest(Request):
     config: Dict[str, Any] = None
 
 
-@dataclass
 class DeletePluginInstanceRequest(Request):
     id: str
 
 
-@dataclass
-class PluginInstance:
+class PluginInstance(BaseModel):
     client: Client = None
     id: str = None
     handle: str = None
@@ -42,7 +40,7 @@ class PluginInstance:
     spaceId: str = None
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "PluginInstance":
+    def from_dict(d: Any, client: Client = None) -> PluginInstance:
         if "pluginInstance" in d:
             d = d["pluginInstance"]
 
@@ -111,6 +109,5 @@ class PluginInstance:
         )
 
 
-@dataclass
 class ListPrivatePluginInstancesRequest(Request):
     pass

@@ -1,9 +1,9 @@
 from steamship import File, PluginInstance
+from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from tests import APPS_PATH
 from tests.demo_apps.plugins.importers.plugin_file_importer import TEST_DOC
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
-from tests.utils.random import random_corpus
 
 
 def test_e2e_corpus_importer():
@@ -18,21 +18,26 @@ def test_e2e_corpus_importer():
         version,
         instance,
     ):
-        # with PluginVersion.(client, "corpusImporter", "do_import", app, instance) as plugin:
-        with random_corpus(client) as corpus:
-            resp = corpus.do_import(
-                plugin_instance=instance.handle,
-                file_importer_plugin_instance=test_file_importer_instance.handle,
-                value="dummy-value",
-            )
-            resp.wait()
+        corpus_id = "1"
+        req = CorpusImportRequest(
+            type="corpus",
+            value="dummy-value",
+            url=corpus_id,
+            pluginInstance=instance.handle,
+            fileImporterPluginInstance=test_file_importer_instance.handle,
+        )
+        client.post(
+            "plugin/instance/importCorpus",
+            req,
+            expect=CorpusImportResponse,
+        )
 
-            # We should now have two files!
-            files = File.list(client, corpus_id=corpus.id).data
-            assert files.files is not None
-            assert len(files.files) == 2
+        # We should now have two files!
+        files = File.list(client, corpus_id=corpus_id).data
+        assert files.files is not None
+        assert len(files.files) == 2
 
-            for file in files.files:
-                data = file.raw().data
-                assert data.decode("utf-8") == TEST_DOC
-                file.delete()
+        for file in files.files:
+            data = file.raw().data
+            assert data.decode("utf-8") == TEST_DOC
+            file.delete()

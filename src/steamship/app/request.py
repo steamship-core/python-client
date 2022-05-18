@@ -1,5 +1,8 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Dict
+
+from pydantic import BaseModel
 
 from steamship.base.configuration import Configuration
 
@@ -19,6 +22,7 @@ class Verb:
 
     @staticmethod
     def safely_from_str(s: str) -> str:
+        # TODO (enias): Is this needed?
         ss = s.strip().upper()
         if ss == Verb.GET:
             return Verb.GET
@@ -27,15 +31,14 @@ class Verb:
         return s
 
 
-@dataclass
-class Invocation:
+class Invocation(BaseModel):
     httpVerb: str = None
     appPath: str = None  # e.g. /hello/there
     arguments: Dict[str, Any] = None
     config: Dict[str, Any] = None
 
     @staticmethod
-    def from_dict(d: dict) -> "Invocation":
+    def from_dict(d: dict) -> Invocation:
         return Invocation(
             httpVerb=d.get("httpVerb"),
             appPath=d.get("appPath"),
@@ -44,8 +47,7 @@ class Invocation:
         )
 
 
-@dataclass
-class Request:
+class Request(BaseModel):
     """An request of a method on an app instance.
 
     This is the payload sent from the public-facing App Proxy to the
@@ -58,7 +60,7 @@ class Request:
     invocation: Invocation = None
 
     @staticmethod
-    def from_dict(d: dict) -> "Request":
+    def from_dict(d: dict) -> Request:
         invocation = Invocation.from_dict(d.get("invocation", dict()))
         client_config = Configuration.from_dict(
             d.get("clientConfig", dict())

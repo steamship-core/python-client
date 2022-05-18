@@ -1,12 +1,14 @@
+from __future__ import annotations
+
 import json
-from dataclasses import dataclass
 from typing import Any
+
+from pydantic import BaseModel
 
 from steamship.base import Client
 
 
-@dataclass
-class Hit:
+class Hit(BaseModel):
     id: str = None
     index: int = None
     index_source: str = None
@@ -19,7 +21,7 @@ class Hit:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "Hit":
+    def from_dict(d: Any, client: Client = None) -> Hit:
         metadata = d.get("metadata")
         if metadata is not None:
             # noinspection PyBroadException

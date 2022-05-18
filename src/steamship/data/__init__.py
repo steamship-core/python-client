@@ -2,7 +2,6 @@ from .app import App
 from .app_instance import AppInstance
 from .app_version import AppVersion
 from .block import Block
-from .corpus import Corpus
 from .embeddings import EmbeddingIndex
 from .file import File
 from .plugin import Plugin

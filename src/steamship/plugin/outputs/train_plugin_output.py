@@ -1,11 +1,13 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client
 
 
-@dataclass
-class TrainPluginOutput:
+class TrainPluginOutput(BaseModel):
     """
     This is the object produced by a completed trainable operation, stored as the `output` field of a `train` task.
     """
@@ -26,7 +28,7 @@ class TrainPluginOutput:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainPluginOutput]":
+    def from_dict(d: Any = None, client: Client = None) -> Optional[TrainPluginOutput]:
         if d is None:
             return None
 

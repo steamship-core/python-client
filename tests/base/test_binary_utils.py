@@ -1,5 +1,4 @@
 import base64
-import dataclasses
 import json
 
 from steamship.base.binary_utils import flexi_create
@@ -18,15 +17,13 @@ def test_dump_json():
     assert json.dumps(flexi_create(json=[1, 2, 3])[0]) == "[1, 2, 3]"
     assert json.dumps(flexi_create(json={"hi": "there"})[0]) == '{"hi": "there"}'
 
-    @dataclasses.dataclass
-    class Person:
+    class Person(BaseModel):
         name: str
 
     person = Person(name="Ted")
     assert json.dumps(flexi_create(json=person)[0]) == '{"name": "Ted"}'
 
-    @dataclasses.dataclass
-    class Person2:
+    class Person2(BaseModel):
         name: str
 
         def to_dict(self):
@@ -50,8 +47,7 @@ def test_dump_raw_data():
     json_str = _base64_decode(obj.data)
     assert json_str == '{"hi": "there"}'
 
-    @dataclasses.dataclass
-    class Person:
+    class Person(BaseModel):
         name: str
 
     person = Person(name="Ted")

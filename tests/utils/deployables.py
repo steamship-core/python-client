@@ -7,7 +7,7 @@ import tempfile
 import time
 import zipfile
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from steamship import App, AppInstance, AppVersion, Steamship
 from steamship.data.plugin import Plugin
@@ -73,60 +73,14 @@ def zip_deployable(file_path: Path) -> bytes:
 
 
 @contextlib.contextmanager
-def deploy_app(
-    client: Steamship,
-    py_path: Path,
-    version_config_template: Dict[str, Any] = None,
-    instance_config: Dict[str, Any] = None,
-    space_id: str = None,
-):
-    app = App.create(client)
-    assert app.error is None
-    assert app.data is not None
-    app = app.data
-
-    zip_bytes = zip_deployable(py_path)
-    version = AppVersion.create(
-        client,
-        app_id=app.id,
-        filebytes=zip_bytes,
-        config_template=version_config_template,
-    )
-
-    version = _wait_for_version(version)
-    instance = AppInstance.create(
-        client,
-        app_id=app.id,
-        app_version_id=version.id,
-        config=instance_config,
-        space_id=space_id,
-    )
-    instance = _wait_for_instance(instance)
-
-    assert instance.app_id == app.id
-    assert instance.app_version_id == version.id
-
-    _check_user(client, instance)
-
-    yield app, version, instance
-
-    _delete_deployable(instance, version, app)
-
-
-@contextlib.contextmanager
 def deploy_plugin(
     client: Steamship,
     py_path: Path,
     plugin_type: str,
+    training_platform: Optional[str] = None,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
-    training_platform: str = None,
 ):
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("gfg", py_path)
-    foo = importlib.util.module_from_spec(spec)
-
     plugin = Plugin.create(
         client,
         training_platform=training_platform,
@@ -167,6 +121,47 @@ def deploy_plugin(
     yield plugin, version, instance
 
     _delete_deployable(instance, version, plugin)
+
+
+@contextlib.contextmanager
+def deploy_app(
+    client: Steamship,
+    py_path: Path,
+    version_config_template: Dict[str, Any] = None,
+    instance_config: Dict[str, Any] = None,
+    space_id: str = None,
+):
+    app = App.create(client)
+    assert app.error is None
+    assert app.data is not None
+    app = app.data
+
+    zip_bytes = zip_deployable(py_path)
+    version = AppVersion.create(
+        client,
+        app_id=app.id,
+        filebytes=zip_bytes,
+        config_template=version_config_template,
+    )
+
+    version = _wait_for_version(version)
+    instance = AppInstance.create(
+        client,
+        app_id=app.id,
+        app_version_id=version.id,
+        config=instance_config,
+        space_id=space_id,
+    )
+    instance = _wait_for_instance(instance)
+
+    assert instance.app_id == app.id
+    assert instance.app_version_id == version.id
+
+    _check_user(client, instance)
+
+    yield app, version, instance
+
+    _delete_deployable(instance, version, app)
 
 
 def _check_user(client, instance):

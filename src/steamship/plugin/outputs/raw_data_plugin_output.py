@@ -1,13 +1,15 @@
+from __future__ import annotations
+
 import io
-from dataclasses import dataclass
 from typing import Any, Optional, Union
+
+from pydantic import BaseModel
 
 from steamship.base import Client, MimeTypes
 from steamship.base.binary_utils import flexi_create
 
 
-@dataclass
-class RawDataPluginOutput:
+class RawDataPluginOutput(BaseModel):
     """Represents mime-typed raw data that can be returned to the engine.
 
     As a few examples, you can return:
@@ -35,9 +37,10 @@ class RawDataPluginOutput:
         json: Any = None,
         mime_type: str = None,
     ):
+        super().__init__()
         if base64string is not None:
             self.data = base64string
-            self.mime_type = mime_type or MimeTypes.BINARY
+            self.mimeType = mime_type or MimeTypes.BINARY
         else:
             # Base64-encode the data field.
             self.data, self.mimeType, encoding = flexi_create(
@@ -51,7 +54,7 @@ class RawDataPluginOutput:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: any, client: Client = None) -> "RawDataPluginOutput":
+    def from_dict(d: any, client: Client = None) -> RawDataPluginOutput:
         # We expect the serialized version of this object to always include a Base64 encoded string,
         # so we present it to the constructor as such.
         return RawDataPluginOutput(base64string=d.get("data"), mime_type=d.get("mimeType"))

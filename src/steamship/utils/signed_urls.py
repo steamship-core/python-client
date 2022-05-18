@@ -1,6 +1,8 @@
 import logging
 import os
+import tempfile
 import urllib
+import uuid
 from pathlib import Path
 from typing import Optional
 from urllib.parse import parse_qs, urlparse
