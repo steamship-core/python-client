@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
 from typing import Any, Callable, Generic, Type, TypeVar, Union
+
 from pydantic import BaseModel
 
 from steamship.app import App
@@ -26,7 +26,7 @@ T = TypeVar("T")
 U = TypeVar("U")
 
 
-class PluginRequest(Generic[T], BaseModel): # TODO (enias): Make generic
+class PluginRequest(Generic[T], BaseModel):  # TODO (enias): Make generic
     data: T = None
     task_id: str = None
     plugin_id: str = None

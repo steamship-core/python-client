@@ -1,9 +1,3 @@
-from steamship.data.plugin import TrainingPlatform
-from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 import math
 
 from steamship.data.plugin import TrainingPlatform

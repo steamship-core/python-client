@@ -1,5 +1,3 @@
-import json
-
 from steamship import Tag
 from steamship.app import App, Response, create_handler
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
