@@ -3,7 +3,7 @@ import logging
 from dataclasses import asdict
 from typing import Any, Dict, TypeVar, Union
 
-import requests  # type: ignore
+import requests
 
 from steamship.base.configuration import Configuration
 from steamship.base.error import SteamshipError
