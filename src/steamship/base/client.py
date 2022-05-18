@@ -1,4 +1,3 @@
-import dataclasses
 import json
 import logging
 from typing import Any, Dict, TypeVar, Union
@@ -36,7 +35,7 @@ class Client(BaseModel):
         space_handle: str = None,
         profile: str = None,
         config_file: str = None,
-        config_dict: dict = None
+        config_dict: dict = None,
     ):
         super().__init__()
         self.config = Configuration(
@@ -146,13 +145,10 @@ class Client(BaseModel):
             data = {}
         elif isinstance(payload, dict):
             data = payload
-<<<<<<< HEAD
-        elif hasattr(payload, 'to_dict'):
-            data = getattr(payload, 'to_dict')()
-=======
         elif isinstance(payload, BaseModel):
             data = payload.dict()
->>>>>>> main
+        elif hasattr(payload, "to_dict"):
+            data = getattr(payload, "to_dict")()
         else:
             raise RuntimeError(f"Unable to parse payload of type {type(payload)}")
 

@@ -11,9 +11,12 @@ from tests.demo_apps.plugins.taggers.plugin_trainable_tagger import (
     TRAINING_PARAMETERS,
     TestTrainableTaggerPlugin,
 )
+from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import (
+    TRAIN_RESPONSE,
+    TRAINING_PARAMETERS,
+    TestTrainableTaggerPlugin,
+)
 from tests.utils.client import get_steamship_client
-
-from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import TestTrainableTaggerPlugin, TRAINING_PARAMETERS, TRAIN_RESPONSE
 
 TEST_REQ = BlockAndTagPluginInput(
     file=File(
@@ -62,9 +65,7 @@ def test_trainable_tagger():
     # The first part of trainable is to produce your own trainable parameters.
     tagger1 = plugin.train(
         PluginRequest(
-            data=TrainPluginInput(
-                training_params=TRAINING_PARAMETERS.training_params
-            ),
+            data=TrainPluginInput(training_params=TRAINING_PARAMETERS.training_params),
             task_id="000",
             plugin_instance_id="000",
         )
@@ -73,9 +74,7 @@ def test_trainable_tagger():
 
     tagger2 = plugin.train_endpoint(
         **PluginRequest(
-            data=TrainPluginInput(
-                training_params=TRAINING_PARAMETERS.training_params
-            ),
+            data=TrainPluginInput(training_params=TRAINING_PARAMETERS.training_params),
             task_id="000",
             plugin_instance_id="000",
         ).to_dict()

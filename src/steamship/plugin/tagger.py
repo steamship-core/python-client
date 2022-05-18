@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Type
+from typing import Any, Dict, Type
 
 from steamship.app import post
 from steamship.app.response import Response

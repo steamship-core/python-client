@@ -1,10 +1,8 @@
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-import dataclasses
-import json
-from enum import Enum
 from steamship.data.user import User
+
 
 def test_get_steamship_client():
     client = test_get_steamship_client()

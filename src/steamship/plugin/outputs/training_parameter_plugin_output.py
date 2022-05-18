@@ -9,6 +9,7 @@ from steamship.base import Client
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 
+
 @dataclass
 class TrainingParameterPluginOutput:
     machine_type: Optional[str] = None

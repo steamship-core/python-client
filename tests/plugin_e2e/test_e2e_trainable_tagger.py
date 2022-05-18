@@ -1,26 +1,28 @@
+import json
 import logging
+from pathlib import Path
 
-from steamship import File, Block, Tag
+from steamship import Block, File, Tag
 from steamship.base import Response
 from steamship.client.operations.tagger import TagResponse
-from steamship.data.plugin import TrainingPlatform, InferencePlatform
+from steamship.data.plugin import InferencePlatform, TrainingPlatform
 from steamship.data.plugin_instance import PluginInstance
+from steamship.data.space import Space
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from tests import APPS_PATH
+from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import (
+    TestTrainableTaggerModel,
+)
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
-from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import TestTrainableTaggerModel
-from steamship.data.space import Space
-from pathlib import Path
-import json
-
 from tests.utils.file import upload_file
 
 EXPORTER_HANDLE = "signed-url-exporter"
 KEYWORDS = ["product", "coupon"]
+
 
 def test_e2e_trainable_tagger_lambda_training():
     client = get_steamship_client()
@@ -46,7 +48,9 @@ def test_e2e_trainable_tagger_lambda_training():
     assert exporter_plugin.handle is not None
 
     csv_blockifier_path = APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
-    trainable_tagger_path = APPS_PATH / "plugins" / "trainable_taggers" / "plugin_trainable_tagger.py"
+    trainable_tagger_path = (
+        APPS_PATH / "plugins" / "trainable_taggers" / "plugin_trainable_tagger.py"
+    )
 
     # # Make a blockifier which will generate our trainable corpus
     # with deploy_plugin(
@@ -69,7 +73,7 @@ def test_e2e_trainable_tagger_lambda_training():
                 trainable_tagger_path,
                 "tagger",
                 training_platform=TrainingPlatform.LAMBDA,
-                inference_platform=InferencePlatform.LAMBDA
+                inference_platform=InferencePlatform.LAMBDA,
             ) as (tagger, tagger_version, tagger_instance):
                 # Now train the plugin
                 training_request = TrainingParameterPluginInput(
@@ -78,8 +82,8 @@ def test_e2e_trainable_tagger_lambda_training():
                         plugin_instance=EXPORTER_HANDLE, type="corpus", handle="default"
                     ),
                     training_params=dict(
-                        keyword_list=KEYWORDS # This is a key defined by the test model we're training
-                    )
+                        keyword_list=KEYWORDS  # This is a key defined by the test model we're training
+                    ),
                 )
 
                 train_result = tagger_instance.train(training_request)
@@ -97,12 +101,13 @@ def test_e2e_trainable_tagger_lambda_training():
                 assert checkpoint_path.exists()
                 keyword_path = Path(checkpoint_path) / TestTrainableTaggerModel.KEYWORD_LIST_FILE
                 assert keyword_path.exists()
-                with open(keyword_path, 'r') as f:
+                with open(keyword_path, "r") as f:
                     params = json.loads(f.read())
                     assert params == KEYWORDS
 
                 logging.info("Waiting 15 seconds for instance to deploy.")
                 import time
+
                 time.sleep(15)
 
                 # If we're here, we have verified that the plugin instance has correctly recorded its parameters
@@ -115,9 +120,7 @@ def test_e2e_trainable_tagger_lambda_training():
                 # First we'll create a file
                 new_file_r = File.create(
                     client=client,
-                    blocks=[
-                        Block.CreateRequest(text="Some random text")
-                    ],
+                    blocks=[Block.CreateRequest(text="Some random text")],
                 )
                 assert new_file_r.data is not None
                 new_file = new_file_r.data

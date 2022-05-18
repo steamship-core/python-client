@@ -1,7 +1,9 @@
 import json
 import logging
+from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Type
+
 import requests
 
 from steamship import File, Tag
@@ -16,10 +18,10 @@ from steamship.plugin.outputs.training_parameter_plugin_output import TrainingPa
 from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import TrainableTagger
 from steamship.plugin.trainable_model import TrainableModel
-from enum import Enum
 
 # If this isn't present, Localstack won't show logs
 logging.getLogger().setLevel(logging.INFO)
+
 
 class ThirdPartyTrainingStatus(str, Enum):
     TRAINING = "training"
@@ -29,15 +31,18 @@ class ThirdPartyTrainingStatus(str, Enum):
 class ThirdPartyApiMockClient:
     def upload_file_training_file(self, data: Optional[bytes] = None) -> str:
         """Pretends to upload a file and returns an ID representing that file on the remote third-party system"""
-        if data is None: # This is only for PEP8 checks not to complain we're not using the `data` variable.
+        if (
+            data is None
+        ):  # This is only for PEP8 checks not to complain we're not using the `data` variable.
             return "0000-0000-0000-0000"
         else:
             return "0000-0000-0000-0001"
 
-
     def train(self, training_file_id: str) -> str:
         """Pretends to initiate a training process on the third-party system. Returns an ID representing the model ID."""
-        if training_file_id is None: # This is only for PEP8 checks not to complain we're not using the `data` variable.
+        if (
+            training_file_id is None
+        ):  # This is only for PEP8 checks not to complain we're not using the `data` variable.
             return "0000-0000-0000-0000"
         else:
             return "0000-0000-0000-0001"
@@ -46,10 +51,12 @@ class ThirdPartyApiMockClient:
         return ThirdPartyTrainingStatus.TRAINED
 
     def infer(self, text: str) -> List[str]:
-        if text is None: # This is only for PEP8 checks not to complain we're not using the `data` variable.
-            return ['label__none']
+        if (
+            text is None
+        ):  # This is only for PEP8 checks not to complain we're not using the `data` variable.
+            return ["label__none"]
         else:
-            return ['label__hadtext']
+            return ["label__hadtext"]
 
 
 class ThirdPartyModel(TrainableModel):
@@ -71,9 +78,11 @@ class ThirdPartyModel(TrainableModel):
       In this example model, the `from_disk(path: Path)` method provides this functionality.
     """
 
-    KEYWORD_LIST_FILE = "keyword_list.json"  # File, relative to the checkpoint, to save/load features from.
+    KEYWORD_LIST_FILE = (
+        "keyword_list.json"  # File, relative to the checkpoint, to save/load features from.
+    )
     keyword_list: List[str] = None  # Contents of the KEYWORD_LIST_FILE file
-    path: Optional[Path] = None # Save the effective path for testing
+    path: Optional[Path] = None  # Save the effective path for testing
 
     def __init__(self):
         self.path = None
@@ -82,12 +91,12 @@ class ThirdPartyModel(TrainableModel):
     def load_from_folder(self, checkpoint_path: Path):
         """Creates a model instance & loads the provided checkpoint."""
         self.path = checkpoint_path
-        with open(self.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'r') as f:
+        with open(self.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f:
             self.keyword_list = json.loads(f.read())
 
     def save_to_folder(self, checkpoint_path: Path):
         self.path = checkpoint_path
-        with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'w') as f:
+        with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "w") as f:
             f.write(json.dumps(self.keyword_list))
 
     def train(self, input: TrainPluginInput) -> TrainPluginOutput:
@@ -100,7 +109,7 @@ class ThirdPartyModel(TrainableModel):
         return TRAIN_RESPONSE
 
     def run(
-            self, request: PluginRequest[BlockAndTagPluginInput]
+        self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         """Tags the incoming data for any instance of the keywords in the parameter file."""
         return Response(
@@ -143,21 +152,19 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
         return model.run(request)
 
-    def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
+    def get_training_parameters(
+        self, request: PluginRequest[TrainingParameterPluginInput]
+    ) -> Response[TrainingParameterPluginOutput]:
         logging.debug(f"get_training_parameters {request}")
         return Response(data=TRAINING_PARAMETERS)
 
-    def train(
-        self, request: PluginRequest[TrainPluginInput]
-    ) -> Response[TrainPluginOutput]:
+    def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
         logging.debug(f"train {request}")
 
         # Create a Response object at the top with a Task attached. This will let us stream back updates
         # TODO: This is very non-intuitive. We should improve this.
-        response = Response(status=Task(
-            task_id=request.task_id
-        ))
+        response = Response(status=Task(task_id=request.task_id))
 
         # Example of recording training progress
         # response.status.status_message = "About to train!"
@@ -172,8 +179,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
         # Save the model with the `default` handle.
         archive_path_in_steamship = model.save_remote(
-            client=self.client,
-            plugin_instance_id=request.plugin_instance_id
+            client=self.client, plugin_instance_id=request.plugin_instance_id
         )
 
         # Set the model location on the plugin output.
@@ -194,5 +200,6 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         # to indicate that, while the plugin handler has returned, the plugin's execution continues.
 
         return response
+
 
 handler = create_handler(TestTrainableTaggerPlugin)

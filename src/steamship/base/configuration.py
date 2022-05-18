@@ -3,14 +3,11 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-<<<<<<< HEAD
-from typing import Any, Dict
-from steamship.utils.localstack import apply_localstack_url_fix
-=======
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
->>>>>>> main
+
+from steamship.utils.localstack import apply_localstack_url_fix
 
 _configFile = ".steamship.json"
 

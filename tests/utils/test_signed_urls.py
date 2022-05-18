@@ -1,13 +1,11 @@
 import os
 import shutil
 import tempfile
-<<<<<<< HEAD
-import os
-from urllib.parse import urlparse, urlunparse
-=======
->>>>>>> main
 from pathlib import Path
+from urllib.parse import urlparse, urlunparse
+
 import pytest
+
 from steamship import Space
 from steamship.data.space import SignedUrl
 from steamship.utils.signed_urls import download_from_signed_url, upload_to_signed_url
@@ -62,13 +60,9 @@ def test_upload_download():
     # Now create a download signed URL
     download_resp = space.create_signed_url(
         SignedUrl.Request(
-<<<<<<< HEAD
-            bucket=SignedUrl.Bucket.PLUGIN_DATA, filepath=upload_name, operation=SignedUrl.Operation.READ
-=======
-            bucket=SignedUrl.Bucket.pluginData,
+            bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=upload_name,
-            operation=SignedUrl.Operation.read,
->>>>>>> main
+            operation=SignedUrl.Operation.READ,
         )
     )
     assert download_resp is not None

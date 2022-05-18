@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
@@ -15,34 +16,21 @@ from pydantic import BaseModel
 from steamship.base.client import Client
 from steamship.base.request import Request
 from steamship.base.response import Response
-from enum import Enum
-
-<<<<<<< HEAD
-class Plugin:
-    pass
 
 
 class TrainingPlatform(str, Enum):
     LAMBDA = "lambda"
     ECS = "ecs"
 
+
 class InferencePlatform(str, Enum):
     LAMBDA = "lambda"
     ECS = "ecs"
-=======
-class TrainingPlatform:
-    custom = "lambda"
-    managed = "ecs"
->>>>>>> main
 
 
 class CreatePluginRequest(Request):
-<<<<<<< HEAD
-    trainingPlatform: Optional[TrainingPlatform]
-    inferencePlatform: Optional[InferencePlatform]
-=======
-    trainingPlatform: Optional[str] = None
->>>>>>> main
+    trainingPlatform: Optional[TrainingPlatform] = None
+    inferencePlatform: Optional[InferencePlatform] = None
     id: str = None
     type: str = None
     transport: str = None
@@ -139,17 +127,13 @@ class Plugin(BaseModel):
     @staticmethod
     def create(
         client: Client,
-<<<<<<< HEAD
-        training_platform: Optional[TrainingPlatform],
-        inference_platform: Optional[InferencePlatform],
-=======
->>>>>>> main
         description: str,
         type_: str,
         transport: str,
         is_public: bool,
         handle: str = None,
-        training_platform: Optional[str] = None,
+        training_platform: Optional[TrainingPlatform] = None,
+        inference_platform: Optional[InferencePlatform] = None,
         metadata: Union[str, Dict, List] = None,
         upsert: bool = None,
         space_id: str = None,

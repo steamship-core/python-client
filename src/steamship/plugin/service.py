@@ -1,11 +1,8 @@
-import logging
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any, Callable, Generic, TypeVar, Union, Type, Dict
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Generic, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, Type, TypeVar, Union
 
 from pydantic import BaseModel
 
@@ -31,6 +28,7 @@ U = TypeVar("U")
 
 # If this isn't present, Localstack won't show logs
 logging.getLogger().setLevel(logging.INFO)
+
 
 class PluginRequest(Generic[T], BaseModel):  # TODO (enias): Make generic
     data: T = None

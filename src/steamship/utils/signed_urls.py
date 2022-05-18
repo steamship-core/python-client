@@ -1,5 +1,4 @@
 import logging
-import os
 import urllib
 from pathlib import Path
 from typing import Optional
@@ -12,6 +11,7 @@ from steamship.utils.localstack import apply_localstack_url_fix
 
 # If this isn't present, Localstack won't show logs
 logging.getLogger().setLevel(logging.INFO)
+
 
 def download_from_signed_url(url: str, to_file: Path = None) -> Path:
     """

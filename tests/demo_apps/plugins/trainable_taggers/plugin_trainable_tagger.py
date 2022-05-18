@@ -1,7 +1,8 @@
 import json
 import logging
 from pathlib import Path
-from typing import List, Optional, Type, Dict, Any
+from typing import Any, Dict, List, Optional, Type
+
 import requests
 
 from steamship import File, Tag
@@ -24,13 +25,11 @@ logging.getLogger().setLevel(logging.INFO)
 TRAINING_PARAMETERS = TrainingParameterPluginOutput(
     training_epochs=3,
     testing_holdout_percent=0.3,
-    training_params=dict(
-        keywords=['chocolate', 'roses', 'chanpagne']
-    )
+    training_params=dict(keywords=["chocolate", "roses", "chanpagne"]),
 )
 
-TRAIN_RESPONSE = TrainPluginOutput(
-)
+TRAIN_RESPONSE = TrainPluginOutput()
+
 
 class TestTrainableTaggerModel(TrainableModel):
     """Example of a trainable model.
@@ -133,10 +132,14 @@ class TestTrainableTaggerPlugin(TrainableTagger):
     ) -> Response[BlockAndTagPluginOutput]:
         """Downloads the model file from the provided space"""
         logging.debug(f"run_with_model {request} {model}")
-        logging.info(f"TestTrainableTaggerPlugin:run_with_model() got request {request} and model {model}")
+        logging.info(
+            f"TestTrainableTaggerPlugin:run_with_model() got request {request} and model {model}"
+        )
         return model.run(request)
 
-    def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[TrainingParameterPluginOutput]:
+    def get_training_parameters(
+        self, request: PluginRequest[TrainingParameterPluginInput]
+    ) -> Response[TrainingParameterPluginOutput]:
         logging.debug(f"get_training_parameters {request}")
         return Response(data=TRAINING_PARAMETERS)
 
@@ -146,9 +149,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
         # Create a Response object at the top with a Task attached. This will let us stream back updates
         # TODO: This is very non-intuitive. We should improve this.
-        response = Response(status=Task(
-            task_id=request.task_id
-        ))
+        response = Response(status=Task(task_id=request.task_id))
 
         # Example of recording training progress
         # response.status.status_message = "About to train!"
@@ -167,7 +168,9 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         )
 
         # Set the model location on the plugin output.
-        logging.info(f"TestTrainableTaggerPlugin:train() setting model archive path to {archive_path_in_steamship}")
+        logging.info(
+            f"TestTrainableTaggerPlugin:train() setting model archive path to {archive_path_in_steamship}"
+        )
         train_plugin_output.archive_path_in_steamship = archive_path_in_steamship
 
         # Set the response on the `data` field of the object
