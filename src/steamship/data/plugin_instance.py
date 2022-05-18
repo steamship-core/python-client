@@ -5,13 +5,9 @@ from pydantic import BaseModel
 from steamship.base import Client, Request
 from steamship.base.response import Response
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import (
-    TrainingParameterPluginInput,
-)
+from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
-from steamship.plugin.outputs.training_parameter_plugin_output import (
-    TrainingParameterPluginOutput,
-)
+from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
 
 class PluginInstance(BaseModel):
@@ -90,9 +86,7 @@ class PluginInstance(BaseModel):
 
     def delete(self) -> PluginInstance:
         req = DeletePluginInstanceRequest(id=self.id)
-        return self.client.post(
-            "plugin/instance/delete", payload=req, expect=PluginInstance
-        )
+        return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
 
     def export(self, plugin_input: ExportPluginInput) -> Response[RawDataPluginOutput]:
         plugin_input.pluginInstance = self.handle
@@ -100,9 +94,7 @@ class PluginInstance(BaseModel):
             "plugin/instance/export", payload=plugin_input, expect=RawDataPluginOutput
         )
 
-    def train(
-        self, training_request: TrainingParameterPluginInput
-    ) -> Response[PluginInstance]:
+    def train(self, training_request: TrainingParameterPluginInput) -> Response[PluginInstance]:
         return self.client.post(
             "plugin/instance/train", payload=training_request, expect=PluginInstance
         )

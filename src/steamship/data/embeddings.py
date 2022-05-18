@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
 
@@ -27,9 +27,7 @@ class QueryResult(BaseModel):
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> QueryResult:
         value = Hit.from_dict(d.get("value", {}))
-        return QueryResult(
-            value=value, score=d.get("score"), index=d.get("index"), id=d.get("id")
-        )
+        return QueryResult(value=value, score=d.get("score"), index=d.get("index"), id=d.get("id"))
 
 
 class QueryResults(Request):
@@ -182,10 +180,7 @@ class ListSnapshotsResponse(BaseModel):
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> ListSnapshotsResponse:
         return ListSnapshotsResponse(
-            snapshots=[
-                IndexSnapshotResponse.from_dict(dd)
-                for dd in (d.get("snapshots", []) or [])
-            ]
+            snapshots=[IndexSnapshotResponse.from_dict(dd) for dd in (d.get("snapshots", []) or [])]
         )
 
 
@@ -390,9 +385,7 @@ class EmbeddingIndex(BaseModel):
         space_handle: str = None,
         space: Any = None,
     ) -> Response[ListItemsResponse]:
-        req = ListItemsRequest(
-            id=self.id, fileId=file_id, blockId=block_id, spanId=span_id
-        )
+        req = ListItemsRequest(id=self.id, fileId=file_id, blockId=block_id, spanId=span_id)
         return self.client.post(
             "embedding-index/item/list",
             req,
@@ -445,9 +438,7 @@ class EmbeddingIndex(BaseModel):
                 id=self.id, queries=query, k=k, includeMetadata=include_metadata
             )
         else:
-            req = IndexSearchRequest(
-                id=self.id, query=query, k=k, includeMetadata=include_metadata
-            )
+            req = IndexSearchRequest(id=self.id, query=query, k=k, includeMetadata=include_metadata)
         ret = self.client.post(
             "embedding-index/search",
             req,

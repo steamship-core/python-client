@@ -12,9 +12,7 @@ from tests.utils.deployables import deploy_plugin
 
 def test_e2e_parser():
     client = get_steamship_client()
-    tagger_plugin_path = (
-        APPS_PATH / "plugins" / "taggers" / "plugin_configurable_tagger.py"
-    )
+    tagger_plugin_path = APPS_PATH / "plugins" / "taggers" / "plugin_configurable_tagger.py"
     config_template = {
         "tagKind": {"type": "string"},
         "tagName": {"type": "string"},

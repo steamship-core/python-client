@@ -63,9 +63,7 @@ class Space(BaseModel):
         pass
 
     def delete(self) -> Response[Space]:
-        return self.client.post(
-            "space/delete", IdentifierRequest(id=self.id), expect=Space
-        )
+        return self.client.post("space/delete", IdentifierRequest(id=self.id), expect=Space)
 
     @staticmethod
     def from_dict(d: Any, client: Client) -> Space:
@@ -112,9 +110,5 @@ class Space(BaseModel):
         )
         return client.post("space/create", req, expect=Space)
 
-    def create_signed_url(
-        self, request: SignedUrl.Request
-    ) -> Response[SignedUrl.Response]:
-        return self.client.post(
-            "space/createSignedUrl", payload=request, expect=SignedUrl.Response
-        )
+    def create_signed_url(self, request: SignedUrl.Request) -> Response[SignedUrl.Response]:
+        return self.client.post("space/createSignedUrl", payload=request, expect=SignedUrl.Response)

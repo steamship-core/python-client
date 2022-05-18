@@ -47,9 +47,7 @@ def test_file_parse():
     assert len(q2.blocks) == 6
 
     # Now we add the file to the index
-    plugin_instance = PluginInstance.create(
-        steamship, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     with random_index(steamship, plugin_instance=plugin_instance.handle) as index:
         index.insert_file(a.id, reindex=False)
         embed_resp = index.embed()

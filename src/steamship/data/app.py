@@ -39,9 +39,7 @@ class App(BaseModel):
         return App(client=client, id=d.get("id"), handle=d.get("handle"))
 
     @staticmethod
-    def create(
-        client: Client, handle: str = None, upsert: bool = None
-    ) -> Response[App]:
+    def create(client: Client, handle: str = None, upsert: bool = None) -> Response[App]:
         req = CreateAppRequest(handle=handle, upsert=upsert)
         return client.post("app/create", payload=req, expect=App)
 

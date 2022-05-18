@@ -27,6 +27,7 @@ def tag_sentences(block: Block):
     else:
         block.tags = tags
 
+
 class TestParserPlugin(Tagger):
     # TODO: WARNING! We will need to implement some logic that prevents
     # a distributed endless loop. E.g., a parser plugin returning the results

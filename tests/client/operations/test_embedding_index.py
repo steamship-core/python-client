@@ -41,15 +41,11 @@ def test_create_index():
 
 def test_delete_index():
     steamship = get_steamship_client()
-    plugin_instance = PluginInstance.create(
-        steamship, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     index = steamship.create_index(plugin_instance=plugin_instance.handle).data
     assert index.id is not None
 
-    task = steamship.create_index(
-        handle=index.handle, plugin_instance=plugin_instance.handle
-    )
+    task = steamship.create_index(handle=index.handle, plugin_instance=plugin_instance.handle)
     assert task.error is None
     index2 = task.data
     assert index.id == index2.id
@@ -71,9 +67,7 @@ def _list_equal(actual, expected):
 
 def test_insert_many():
     steamship = get_steamship_client()
-    plugin_instance = PluginInstance.create(
-        steamship, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     with random_index(steamship, plugin_instance.handle) as index:
         item1 = EmbeddedItem(
             value="Pizza", externalId="pizza", externalType="food", metadata=[1, 2, 3]
@@ -94,9 +88,7 @@ def test_insert_many():
         assert len(index_items.items) == 2
         assert len(index_items.items[0].embedding) > 0
         assert len(index_items.items[1].embedding) > 0
-        assert len(index_items.items[0].embedding) == len(
-            index_items.items[1].embedding
-        )
+        assert len(index_items.items[0].embedding) == len(index_items.items[1].embedding)
 
         res = index.search(item1.value, include_metadata=True, k=100)
         assert res.data.items is not None
@@ -116,9 +108,7 @@ def test_insert_many():
 
 def test_embed_task():
     steamship = get_steamship_client()
-    plugin_instance = PluginInstance.create(
-        steamship, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     with random_index(steamship, plugin_instance.handle) as index:
         _ = index.insert("test", reindex=False)
         res = index.embed()
@@ -135,9 +125,7 @@ def test_embed_task():
 def test_duplicate_inserts():
     steamship = get_steamship_client()
 
-    plugin_instance = PluginInstance.create(
-        steamship, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     with random_index(steamship, plugin_instance.handle) as index:
         # Test for suppressed re-indexing
         a1 = "Ted can eat an entire block of cheese."
@@ -149,9 +137,7 @@ def test_duplicate_inserts():
 def test_index_usage():
     steamship = get_steamship_client()
 
-    plugin_instance = PluginInstance.create(
-        steamship, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     with random_index(steamship, plugin_instance.handle) as index:
         a1 = "Ted can eat an entire block of cheese."
         q1 = "Who can eat the most cheese"
@@ -181,9 +167,7 @@ def test_index_usage():
             floatVal=1.2,
         )
 
-        _ = index.insert(
-            a2, external_id=a2id, external_type=a2type, metadata=a2metadata
-        )
+        _ = index.insert(a2, external_id=a2id, external_type=a2type, metadata=a2metadata)
         search_results2 = index.search(q2)
         assert len(search_results2.data.items) == 1
         assert search_results2.data.items[0].value.value == a2
@@ -200,9 +184,7 @@ def test_index_usage():
         assert search_results3.data.items[0].value.metadata == a2metadata
         # Because I don't know pytest enough to fully trust the dict comparison..
         assert search_results3.data.items[0].value.metadata["id"] == a2id
-        assert search_results3.data.items[0].value.metadata["idid"] == "{}{}".format(
-            a2id, a2id
-        )
+        assert search_results3.data.items[0].value.metadata["idid"] == "{}{}".format(a2id, a2id)
 
         search_results4 = index.search(q2, k=10)
         assert len(search_results4.data.items) == 2
@@ -213,9 +195,7 @@ def test_index_usage():
 def test_multiple_queries():
     steamship = get_steamship_client()
 
-    plugin_instance = PluginInstance.create(
-        steamship, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     with random_index(steamship, plugin_instance.handle) as index:
         # Test for suppressed re-indexing
         a1 = "Ted can eat an entire block of cheese."
@@ -276,9 +256,7 @@ def test_multiple_queries():
 def test_empty_queries():
     steamship = get_steamship_client()
 
-    plugin_instance = PluginInstance.create(
-        steamship, plugin_handle=_TEST_EMBEDDER
-    ).data
+    plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     with random_index(steamship, plugin_instance.handle) as index:
         a1 = "Ted can eat an entire block of cheese."
         a2 = "Joe can drink an entire glass of water."

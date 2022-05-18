@@ -88,9 +88,7 @@ def _embed_to_tag(s: str) -> Tag.CreateRequest:
 
 
 def _embed_block(block: Block) -> Block.CreateRequest:
-    return Block.CreateRequest(
-        id=block.id, text=block.text, tags=[_embed_to_tag(block.text)]
-    )
+    return Block.CreateRequest(id=block.id, text=block.text, tags=[_embed_to_tag(block.text)])
 
 
 class TestEmbedderPlugin(Embedder):

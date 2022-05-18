@@ -13,17 +13,13 @@ class TrainingParameterPluginInput(BaseModel):
     exportRequest: ExportPluginInput = None
 
     @staticmethod
-    def from_dict(
-        d: Any = None, client: Client = None
-    ) -> Optional[TrainingParameterPluginInput]:
+    def from_dict(d: Any = None, client: Client = None) -> Optional[TrainingParameterPluginInput]:
         if d is None:
             return None
 
         return TrainingParameterPluginInput(
             pluginInstance=d.get("pluginInstance"),
-            exportRequest=ExportPluginInput.from_dict(
-                d.get("exportPluginInput"), client
-            ),
+            exportRequest=ExportPluginInput.from_dict(d.get("exportPluginInput"), client),
         )
 
     def to_dict(self) -> Dict:

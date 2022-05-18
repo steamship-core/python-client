@@ -19,9 +19,7 @@ from tests import SRC_PATH, VENV_PATH
 
 def install_package(package: str, into_folder: str):
     logging.info(f"Installing {package} into: {into_folder}")
-    subprocess.run(
-        ["pip", "install", "--target", into_folder, package], stdout=subprocess.PIPE
-    )
+    subprocess.run(["pip", "install", "--target", into_folder, package], stdout=subprocess.PIPE)
 
 
 def zip_deployable(file_path: Path) -> bytes:
@@ -35,9 +33,7 @@ def zip_deployable(file_path: Path) -> bytes:
 
     package_paths = [
         SRC_PATH / "steamship",
-        SRC_PATH
-        / ".."
-        / "tests",  # This is included to test plugin development using inheritance
+        SRC_PATH / ".." / "tests",  # This is included to test plugin development using inheritance
     ]
 
     zip_buffer = io.BytesIO()
@@ -51,9 +47,7 @@ def zip_deployable(file_path: Path) -> bytes:
             for root, _, files in os.walk(package_path):
                 for file in files:
                     pypi_file = Path(root) / file
-                    zip_file.write(
-                        pypi_file, pypi_file.relative_to(package_path.parent)
-                    )
+                    zip_file.write(pypi_file, pypi_file.relative_to(package_path.parent))
 
         # Copy in package paths from pip
         with tempfile.TemporaryDirectory() as package_dir:

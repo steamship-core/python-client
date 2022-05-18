@@ -21,9 +21,7 @@ class TrainingParameterPluginOutput(BaseModel):
     exportRequest: ExportPluginInput = None
 
     @staticmethod
-    def from_dict(
-        d: Any = None, client: Client = None
-    ) -> Optional[TrainingParameterPluginOutput]:
+    def from_dict(d: Any = None, client: Client = None) -> Optional[TrainingParameterPluginOutput]:
         logging.info(f"from_dict on trainingparampluginoutput: {d}")
         if d is None:
             return None
@@ -36,9 +34,7 @@ class TrainingParameterPluginOutput(BaseModel):
             testingHoldoutPercent=d.get("testingHoldoutPercent"),
             testSplitSeed=d.get("testSplitSeed"),
             trainingParams=d.get("trainingParams"),
-            exportRequest=ExportPluginInput.from_dict(
-                d.get("exportPluginInput"), client
-            ),
+            exportRequest=ExportPluginInput.from_dict(d.get("exportPluginInput"), client),
         )
 
     def to_dict(self) -> Dict:

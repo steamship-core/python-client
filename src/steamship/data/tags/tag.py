@@ -79,9 +79,7 @@ class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
             if d is None:
                 return None
             return Tag.ListResponse(
-                tags=[
-                    Tag.from_dict(x, client=client) for x in (d.get("tags", []) or [])
-                ]
+                tags=[Tag.from_dict(x, client=client) for x in (d.get("tags", []) or [])]
             )
 
     @staticmethod

@@ -63,10 +63,7 @@ class Block(BaseModel):
             if d is None:
                 return None
             return Block.ListResponse(
-                blocks=[
-                    Block.from_dict(x, client=client)
-                    for x in (d.get("blocks", []) or [])
-                ]
+                blocks=[Block.from_dict(x, client=client) for x in (d.get("blocks", []) or [])]
             )
 
     @staticmethod
@@ -173,9 +170,7 @@ class BlockQueryResponse(BaseModel):
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> BlockQueryResponse:
         return BlockQueryResponse(
-            blocks=[
-                Block.from_dict(block, client=client) for block in d.get("blocks", [])
-            ]
+            blocks=[Block.from_dict(block, client=client) for block in d.get("blocks", [])]
         )
 
 

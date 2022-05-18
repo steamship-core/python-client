@@ -21,8 +21,7 @@ def count_tags(blocks: [Block], tag_kind: str, tag_name: str):
     c = 0
     for block in blocks:
         tag_matches = [
-            1 if tag.kind == tag_kind and tag.name == tag_name else 0
-            for tag in block.tags
+            1 if tag.kind == tag_kind and tag.name == tag_name else 0 for tag in block.tags
         ]
         c += sum(tag_matches)
     return c

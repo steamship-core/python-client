@@ -52,9 +52,7 @@ class ListPluginsResponse(Request):
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> ListPluginsResponse:
         return ListPluginsResponse(
-            plugins=[
-                Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])
-            ]
+            plugins=[Plugin.from_dict(x, client=client) for x in (d.get("plugins", []) or [])]
         )
 
 

@@ -12,9 +12,7 @@ class BlockAndTagPluginInput(BaseModel):
     file: File = None
 
     @staticmethod
-    def from_dict(
-        d: Any = None, client: Client = None
-    ) -> Optional[BlockAndTagPluginInput]:
+    def from_dict(d: Any = None, client: Client = None) -> Optional[BlockAndTagPluginInput]:
         if d is None:
             return None
 

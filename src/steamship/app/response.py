@@ -5,10 +5,9 @@ import json
 import logging
 from typing import Any, Dict, Generic, TypeVar, Union
 
-from steamship.base import Client, SteamshipError
 from pydantic import BaseModel
 
-from steamship.base import SteamshipError
+from steamship.base import Client, SteamshipError
 from steamship.base.binary_utils import flexi_create
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 from steamship.base.tasks import Task, TaskState
@@ -63,9 +62,7 @@ class Response(BaseModel, Generic[T]):
                 else:
                     error.message = f"Unable to serialize data to response. {ex}"
             else:
-                error = SteamshipError(
-                    message=f"Unable to serialize data to response. {ex}"
-                )
+                error = SteamshipError(message=f"Unable to serialize data to response. {ex}")
             logging.error(error)
 
         # Handle the task provided
@@ -132,9 +129,7 @@ class Response(BaseModel, Generic[T]):
             else:
                 error.message = f"{error.message}. {exception}"
 
-        return Response(
-            error=error or SteamshipError(message=message), http=Http(status=code)
-        )
+        return Response(error=error or SteamshipError(message=message), http=Http(status=code))
 
     @staticmethod
     def from_obj(obj: Any) -> Response:

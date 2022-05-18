@@ -17,7 +17,9 @@ class FileUploadType:
     file = "file"  # The CreateRequest contains a file upload that should be used
     url = "url"  # The CreateRequest contains a url that should be scraped
     value = "value"  # The Create Request contains a `text` field that should be used
-    fileImporter = "fileImporter"  # The CreateRequest contains a fileImporter handle that should be used
+    fileImporter = (
+        "fileImporter"  # The CreateRequest contains a fileImporter handle that should be used
+    )
     blocks = "blocks"  # The CreateRequest contains blocks and tags that should be read in directly
 
 
@@ -71,10 +73,7 @@ class File(BaseModel):
                     Block.CreateRequest.from_dict(block, client=client)
                     for block in d.get("blocks", [])
                 ],
-                tags=[
-                    Tag.CreateRequest.from_dict(tag, client=client)
-                    for tag in d.get("tags", [])
-                ],
+                tags=[Tag.CreateRequest.from_dict(tag, client=client) for tag in d.get("tags", [])],
                 filename=d.get("filename"),
             )
 
@@ -87,9 +86,7 @@ class File(BaseModel):
                 mimeType=self.mimeType,
                 corpusId=self.corpusId,
                 pluginInstance=self.pluginInstance,
-                blocks=[block.to_dict() for block in self.blocks]
-                if self.blocks
-                else [],
+                blocks=[block.to_dict() for block in self.blocks] if self.blocks else [],
                 tags=[tag.to_dict() for tag in self.tags] if self.tags else [],
                 filename=self.filename,
             )
@@ -150,9 +147,7 @@ class File(BaseModel):
             mime_type=d.get("mimeType"),
             corpus_id=d.get("corpusId"),
             space_id=d.get("spaceId"),
-            blocks=[
-                Block.from_dict(block, client=client) for block in d.get("blocks", [])
-            ],
+            blocks=[Block.from_dict(block, client=client) for block in d.get("blocks", [])],
             tags=[Tag.from_dict(tag, client=client) for tag in d.get("tags", [])],
         )
 
@@ -234,9 +229,7 @@ class File(BaseModel):
             and plugin_instance is None
             and blocks is None
         ):
-            raise Exception(
-                "Either filename, content, url, or plugin Instance must be provided."
-            )
+            raise Exception("Either filename, content, url, or plugin Instance must be provided.")
 
         if blocks is not None:
             upload_type = FileUploadType.blocks
@@ -392,17 +385,13 @@ class File(BaseModel):
         space: Any = None,
     ) -> Response[File]:
         if filename is None and content is None:
-            raise Exception(
-                "Either filename or content must be provided."
-            )  # TODO (Enias): Review
+            raise Exception("Either filename or content must be provided.")  # TODO (Enias): Review
 
         if filename is not None:
             with open(filename, "rb") as f:
                 content = f.read()
 
-        req = File.CreateRequest(
-            type=FileUploadType.file, corpusId=corpus_id, mimeType=mime_type
-        )
+        req = File.CreateRequest(type=FileUploadType.file, corpusId=corpus_id, mimeType=mime_type)
 
         return client.post(
             "file/create",
@@ -416,9 +405,7 @@ class File(BaseModel):
 
     def blockify(self, plugin_instance: str = None):
         from steamship.client.operations.blockifier import BlockifyRequest
-        from steamship.plugin.outputs.block_and_tag_plugin_output import (
-            BlockAndTagPluginOutput,
-        )
+        from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
         req = BlockifyRequest(type="file", id=self.id, pluginInstance=plugin_instance)
 
@@ -438,13 +425,10 @@ class File(BaseModel):
         space: Any = None,
     ) -> Response[Tag]:
         # TODO (enias): Fix Circular imports
-        from steamship.client.operations.tagger import TagRequest
+        from steamship.client.operations.tagger import TagRequest, TagResponse
         from steamship.data.plugin import PluginTargetType
-        from steamship.client.operations.tagger import TagResponse
 
-        req = TagRequest(
-            type=PluginTargetType.file, id=self.id, pluginInstance=plugin_instance
-        )
+        req = TagRequest(type=PluginTargetType.file, id=self.id, pluginInstance=plugin_instance)
 
         return self.client.post(
             "plugin/instance/tag",
@@ -491,9 +475,7 @@ class File(BaseModel):
 
         items = []
         for block in blocks:
-            item = EmbeddedItem(
-                value=block.text, externalId=block.id, externalType="block"
-            )
+            item = EmbeddedItem(value=block.text, externalId=block.id, externalType="block")
             items.append(item)
 
         insert_task = e_index.insert_many(

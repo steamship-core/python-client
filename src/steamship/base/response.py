@@ -34,10 +34,7 @@ class Response(GenericModel, Generic[T]):
 
         self.check()
         if self.task is not None:
-            if (
-                self.task.state == TaskState.succeeded
-                or self.task.state == TaskState.failed
-            ):
+            if self.task.state == TaskState.succeeded or self.task.state == TaskState.failed:
                 return
         else:
             return
@@ -47,10 +44,7 @@ class Response(GenericModel, Generic[T]):
             time.sleep(retry_delay_s)
             self.check()
             if self.task is not None:
-                if (
-                    self.task.state == TaskState.succeeded
-                    or self.task.state == TaskState.failed
-                ):
+                if self.task.state == TaskState.succeeded or self.task.state == TaskState.failed:
                     return
             else:
                 return

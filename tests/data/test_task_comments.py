@@ -152,14 +152,10 @@ def test_task_comment_feedback_reporting():
         g2 = client.tasks.list_comments(external_group=group_name_2)
         assert len(g2.data.comments) == 1
 
-        g1 = client.tasks.list_comments(
-            task_id=res.task.task_id, external_group=group_name_1
-        )
+        g1 = client.tasks.list_comments(task_id=res.task.task_id, external_group=group_name_1)
         assert len(g1.data.comments) == 2
 
-        g2 = client.tasks.list_comments(
-            task_id=res.task.task_id, external_group=group_name_2
-        )
+        g2 = client.tasks.list_comments(task_id=res.task.task_id, external_group=group_name_2)
         assert len(g2.data.comments) == 1
 
         g1 = client.tasks.list_comments(
