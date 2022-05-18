@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
@@ -14,8 +14,8 @@ class PluginInstance(BaseModel):
     pass
 
 class GetPluginInstanceRequest(Request):
-    id: str = None
-    handle: str = None
+    id: Optional[str] = None
+    handle: Optional[str] = None
 
 class CreatePluginInstanceRequest(Request):
     id: str = None
