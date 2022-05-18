@@ -1,5 +1,3 @@
-import json
-
 from steamship import Tag
 from steamship.app import Response, create_handler
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
@@ -16,12 +14,10 @@ class TestParserPlugin(Tagger):
     ) -> Response[BlockAndTagPluginOutput]:
         tag_kind = self.config["tagKind"]  # TODO (enias): Review config loading
         tag_name = self.config["tagName"]
-        tag_value = json.dumps(
-            {
-                "numberValue": self.config["numberValue"],
-                "booleanValue": self.config["booleanValue"],
-            }
-        )
+        tag_value = {
+            "numberValue": self.config["numberValue"],
+            "booleanValue": self.config["booleanValue"],
+        }
 
         if request.data is not None:
             file = request.data.file
@@ -30,7 +26,7 @@ class TestParserPlugin(Tagger):
                 file.tags.append(tag)
             else:
                 file.tags = [tag]
-            return Response(data=BlockAndTagPluginOutput(file))
+            return Response(data=BlockAndTagPluginOutput(file=file))
 
 
 handler = create_handler(TestParserPlugin)

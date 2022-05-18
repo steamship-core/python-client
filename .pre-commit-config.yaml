@@ -43,6 +43,11 @@ repos:
         types: [python]
   - repo: local
     hooks:
+      - id: pycln
+        name: pycln
+        entry: pycln
+        language: system
+        types: [python]
       - id: isort
         name: isort
         entry: isort
@@ -60,11 +65,6 @@ repos:
 #        entry: shellcheck --check-sourced
 #        language: system
 #        types: [shell]
-      - id: pycln
-        name: pycln
-        entry: pycln
-        language: system
-        types: [python]
 #      - id: flake8
 #        name: flake8
 #        entry: flake8

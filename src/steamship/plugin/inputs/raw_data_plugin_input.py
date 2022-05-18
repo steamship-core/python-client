@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import base64
-from dataclasses import dataclass
 from typing import Any, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client
 from steamship.base.mime_types import TEXT_MIME_TYPES
@@ -21,15 +24,14 @@ def is_base64(sb):
         return False
 
 
-@dataclass
-class RawDataPluginInput:
+class RawDataPluginInput(BaseModel):
     plugin_instance: str = None
     data: Any = None
     default_mime_type: str = None
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "Optional[RawDataPluginInput]":
+    def from_dict(d: Any, client: Client = None) -> Optional[RawDataPluginInput]:
         if d is None:
             return None
         data = d.get("data")

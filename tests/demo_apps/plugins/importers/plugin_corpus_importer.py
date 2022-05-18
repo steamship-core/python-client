@@ -12,11 +12,13 @@ class TestCorpusImporterPlugin(CorpusImporter):
                 file_import_requests=[
                     File.CreateRequest(
                         type="fileImporter",
+                        corpusId=request.data.url,
                         pluginInstance=request.data.fileImporterPluginInstance
                         # This is a test importer built into the Steamship Engine
                     ),
                     File.CreateRequest(
                         type="fileImporter",
+                        corpusId=request.data.url,
                         pluginInstance=request.data.fileImporterPluginInstance,
                     ),
                 ]

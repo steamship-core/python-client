@@ -4,6 +4,7 @@ from typing import Callable, Dict, Optional
 
 from typing_extensions import TypeAlias
 
+from steamship import SteamshipError
 from steamship.base import Client
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint

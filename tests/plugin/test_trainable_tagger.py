@@ -1,6 +1,6 @@
+from steamship import File
 from steamship.app.response import Response
 from steamship.data.block import Block
-from steamship.extension.file import File
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput

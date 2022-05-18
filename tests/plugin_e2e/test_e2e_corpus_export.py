@@ -1,12 +1,11 @@
 import base64
 import json
-from dataclasses import asdict
 
 import requests
 
+from steamship import File
 from steamship.data import Block, Tag
 from steamship.data.plugin_instance import PluginInstance
-from steamship.extension.file import File
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from tests import APPS_PATH
 from tests.utils.client import get_steamship_client
@@ -39,7 +38,6 @@ def test_e2e_corpus_export():
     assert exporter_plugin.handle is not None
 
     _input = ExportPluginInput(handle="default", type="corpus")
-    print(asdict(_input))
 
     csv_blockifier_path = APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
 
@@ -94,7 +92,7 @@ def test_e2e_corpus_export_with_query():
 
     # Now export the corpus
     _input = ExportPluginInput(query='filetag and name "FileTag"', type="file")
-    print(asdict(_input))
+    print(_input.dict())
     raw_data_r = exporter_plugin.export(_input)
     assert raw_data_r is not None
 
