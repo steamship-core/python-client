@@ -328,7 +328,6 @@ class Client(BaseModel):
             expect = type(response_data)
 
         ret = Response[expect](expect=expect, task=task, data=data, error=error, client=self)
-
         if ret.task is None and ret.data is None and ret.error is None:
             raise Exception("No data, task status, or error found in response")
 
