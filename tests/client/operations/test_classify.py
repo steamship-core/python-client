@@ -7,8 +7,6 @@
 # from steamship import Steamship, ClassifierModels, Classifier
 # from .helpers import _random_index, _random_name, _steamship
 
-# __copyright__ = "Steamship"
-# __license__ = "MIT"
 
 # def test_classifier_create():
 #   steamship = get_steamship_client()

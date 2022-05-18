@@ -4,9 +4,6 @@
 #
 # from .helpers import _random_name, _steamship
 #
-# __copyright__ = "Steamship"
-# __license__ = "MIT"
-#
 #
 # def test_image_upload():
 #     steamship = get_steamship_client()

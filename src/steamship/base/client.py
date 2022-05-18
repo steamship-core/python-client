@@ -11,9 +11,6 @@ from steamship.base.mime_types import MimeTypes
 from steamship.base.request import Request
 from steamship.base.response import Response, Task
 
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 _logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=Response)  # TODO: Do we need this?

@@ -1,5 +1,3 @@
-from typing import Any
-
 from steamship import File
 from steamship.app import App, Response, create_handler, post
 from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse

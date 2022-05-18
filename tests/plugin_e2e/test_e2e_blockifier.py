@@ -1,6 +1,3 @@
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from steamship import File
 from tests import APPS_PATH
 from tests.utils.client import get_steamship_client

@@ -11,9 +11,6 @@ from steamship.data import File
 from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
 from steamship.data.space import Space
 
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 _logger = logging.getLogger(__name__)
 
 

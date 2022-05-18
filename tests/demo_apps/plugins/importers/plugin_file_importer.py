@@ -1,5 +1,3 @@
-from typing import Any
-
 from steamship import MimeTypes
 from steamship.app import App, Response, create_handler, post
 from steamship.plugin.file_importer import FileImporter

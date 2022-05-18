@@ -1,6 +1,3 @@
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 import os
 import shutil
 import tempfile

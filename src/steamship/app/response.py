@@ -6,6 +6,7 @@ import logging
 from typing import Any, Dict, Generic, TypeVar, Union
 
 from pydantic import BaseModel
+
 from steamship.base import Client, SteamshipError
 from steamship.base.binary_utils import flexi_create
 from steamship.base.mime_types import ContentEncodings, MimeTypes

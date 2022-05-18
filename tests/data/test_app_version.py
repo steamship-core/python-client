@@ -1,8 +1,4 @@
 from steamship import App, AppVersion
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests import APPS_PATH
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import zip_deployable

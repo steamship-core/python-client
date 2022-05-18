@@ -1,8 +1,5 @@
 from steamship import MimeTypes, PluginInstance
 
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
 from tests.utils.client import get_steamship_client
