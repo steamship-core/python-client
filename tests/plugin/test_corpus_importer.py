@@ -7,7 +7,7 @@ from steamship.plugin.inputs.training_parameter_plugin_input import TrainingPara
 from steamship.plugin.service import PluginRequest
 from tests.demo_apps.plugins.importers.plugin_corpus_importer import TestCorpusImporterPlugin
 
-TEST_REQ = CorpusImportRequest()
+TEST_REQ = CorpusImportRequest(url="1")
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
 TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 
