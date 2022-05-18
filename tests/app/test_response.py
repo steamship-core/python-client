@@ -6,9 +6,6 @@ from steamship.base.mime_types import MimeTypes
 from steamship.data.file import File
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 
 def check_mime(d: dict, mime: str):
     assert d.get("http", dict()).get("headers", dict()).get("Content-Type") == mime

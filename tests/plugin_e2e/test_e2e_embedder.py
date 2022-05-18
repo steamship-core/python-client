@@ -1,8 +1,4 @@
 from steamship.data.plugin import PluginType
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests import APPS_PATH
 from tests.client.operations.test_embed import (
     basic_embedding_search,

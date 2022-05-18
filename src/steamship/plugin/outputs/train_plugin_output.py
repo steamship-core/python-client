@@ -21,8 +21,8 @@ class TrainPluginOutput:
     inference_params: dict = None
 
     # Arbitrary key-valued data to provide information about training status or training results.
-    training_progress: dict = None # For tracking the progress (e.g. 3 / 40 epochs completed)
-    training_results: dict = None # For tracking accuracy (e.g. f1=0.8)
+    training_progress: dict = None  # For tracking the progress (e.g. 3 / 40 epochs completed)
+    training_results: dict = None  # For tracking accuracy (e.g. f1=0.8)
 
     # noinspection PyUnusedLocal
     @staticmethod
@@ -35,7 +35,7 @@ class TrainPluginOutput:
             archive_path_in_steamship=d.get("archive_path_in_steamship"),
             inference_params=d.get("inferenceParams"),
             training_progress=d.get("trainingProgress"),
-            training_results=d.get("trainingResults")
+            training_results=d.get("trainingResults"),
         )
 
     def to_dict(self) -> Dict:
@@ -44,5 +44,5 @@ class TrainPluginOutput:
             archivePath=self.archive_path_in_steamship,
             inferenceParams=self.inference_params,
             trainingProgress=self.training_progress,
-            trainingResults=self.training_results
+            trainingResults=self.training_results,
         )

@@ -33,12 +33,12 @@ def unzip_folder(zip_file: Path, into_folder: Optional[Path]) -> Path:
     """Unzips a folder on disk, returning the path to the new folder resulting."""
     logging.info(f"Unzipping: {zip_file}")
     if into_folder is None:
-        into_folder = zip_file.with_suffix('') # Strips the '.zip' suffix
+        into_folder = zip_file.with_suffix("")  # Strips the '.zip' suffix
 
     # Ensure the path to the desired extraction folder exists
     if not into_folder.parent.exists():
         into_folder.parent.mkdir(parents=True, exists_ok=True)
 
-    shutil.unpack_archive(zip_file, into_folder, 'zip')
+    shutil.unpack_archive(zip_file, into_folder, "zip")
     logging.info(f"Unzipped: {into_folder}")
     return Path(into_folder)

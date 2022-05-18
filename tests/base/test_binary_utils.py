@@ -2,9 +2,6 @@ import base64
 import dataclasses
 import json
 
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from steamship.base.binary_utils import flexi_create
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 

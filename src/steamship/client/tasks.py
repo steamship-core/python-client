@@ -3,9 +3,6 @@ import logging
 from steamship.base import Client, Response, TaskComment
 from steamship.base.tasks import TaskCommentList
 
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 _logger = logging.getLogger(__name__)
 
 

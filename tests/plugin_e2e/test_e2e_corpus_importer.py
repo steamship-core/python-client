@@ -1,11 +1,6 @@
 from steamship import File, PluginInstance
-from tests.demo_apps.plugins.importers.plugin_file_importer import TEST_DOC
-
 from tests import APPS_PATH
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
+from tests.demo_apps.plugins.importers.plugin_file_importer import TEST_DOC
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
 from tests.utils.random import random_corpus

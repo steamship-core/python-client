@@ -1,8 +1,4 @@
 from steamship import Corpus, File, MimeTypes
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.utils.client import get_steamship_client
 from tests.utils.random import random_name
 

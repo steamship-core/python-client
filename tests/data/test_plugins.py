@@ -3,10 +3,6 @@ import pytest
 
 from steamship import PluginInstance, Space
 from steamship.data.plugin import Plugin, PluginAdapterType, PluginType
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.utils.client import get_steamship_client
 
 

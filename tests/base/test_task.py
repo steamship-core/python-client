@@ -1,8 +1,5 @@
 import dataclasses
 
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from steamship.base import Client
 from steamship.base.tasks import TaskState
 from tests.utils.client import get_steamship_client

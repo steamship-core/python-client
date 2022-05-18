@@ -8,10 +8,6 @@ from steamship.client.tasks import Tasks
 from steamship.data import File
 from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
 from steamship.data.space import Space
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from steamship.extension.file import TagResponse
 
 _logger = logging.getLogger(__name__)

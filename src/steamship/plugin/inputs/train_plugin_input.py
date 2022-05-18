@@ -67,7 +67,7 @@ class TrainPluginInput:
             training_params=d.get("trainingParams"),
             inference_params=d.get("inferenceParams"),
             training_data_url=d.get("trainingDataUrl"),
-            trainTaskId=d.get("trainTaskId", None)
+            trainTaskId=d.get("trainTaskId", None),
         )
 
     def to_dict(self) -> Dict:
@@ -84,5 +84,5 @@ class TrainPluginInput:
             trainingParams=self.training_params,
             inferenceParams=self.inference_params,
             trainingDataUrl=self.training_data_url,
-            trainTaskId=self.trainTaskId
+            trainTaskId=self.trainTaskId,
         )
