@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 from typing import Any, List
 
+from pydantic import BaseModel
+
 from steamship import File
+from steamship.app import Request
 from steamship.base import Client
 
 
-@dataclass
-class CorpusImportRequest:
+class CorpusImportRequest(Request):
     # The Corpus Identifiers
     client: Client = None
     id: str = None
@@ -48,8 +50,7 @@ class CorpusImportRequest:
         )
 
 
-@dataclass
-class CorpusImportResponse:
+class CorpusImportResponse(BaseModel):
     client: Client = None
     fileImportRequests: List[File.CreateRequest] = None
 
@@ -58,6 +59,7 @@ class CorpusImportResponse:
         client: Client = None,
         file_import_requests: List[File.CreateRequest] = None,
     ):
+        super().__init__()
         self.client = client
         self.fileImportRequests = file_import_requests
 
