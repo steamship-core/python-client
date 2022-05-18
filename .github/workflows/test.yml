@@ -36,11 +36,11 @@ jobs:
       - name: Install Development Dependencies
         run: python -m pip install -r requirements.dev.txt
 
-      - name: Install Local Package
-        run: python -m pip install -e .
-          
       - name: Lint
         run: pre-commit run --all-files --color always
+
+      - name: Install Local Package
+        run: python -m pip install -e .
 
       - name: Test (Production)
         run: pytest

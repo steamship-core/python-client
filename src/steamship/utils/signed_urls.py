@@ -3,7 +3,7 @@ import os
 import urllib
 from pathlib import Path
 from typing import Optional
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import parse_qs
 
 import requests
 

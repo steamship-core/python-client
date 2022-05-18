@@ -1,7 +1,7 @@
 import re
 
 from steamship import Block, DocTag, Tag
-from steamship.app import App, Response, create_handler
+from steamship.app import Response, create_handler
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest

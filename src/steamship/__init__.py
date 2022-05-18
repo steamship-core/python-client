@@ -11,7 +11,6 @@ finally:
 
 from .base import Configuration, MimeTypes, SteamshipError
 from .data import *
-from .plugin import *
 
 from .client import Steamship  # isort:skip
 
