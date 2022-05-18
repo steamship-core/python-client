@@ -13,6 +13,9 @@ from steamship.plugin.outputs.training_parameter_plugin_output import TrainingPa
 class PluginInstance(BaseModel):
     pass
 
+class GetPluginInstanceRequest(Request):
+    id: str = None
+    handle: str = None
 
 class CreatePluginInstanceRequest(Request):
     id: str = None
@@ -83,6 +86,10 @@ class PluginInstance(BaseModel):
             expect=PluginInstance,
             space_id=space_id,
         )
+
+    @staticmethod
+    def get(client: Client, handle: str):
+        return client.post("plugin/instance/get", GetPluginInstanceRequest(handle=handle), expect=PluginInstance)
 
     def delete(self) -> PluginInstance:
         req = DeletePluginInstanceRequest(id=self.id)

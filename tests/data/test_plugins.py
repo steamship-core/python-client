@@ -1,4 +1,6 @@
 # noinspection PyPackageRequirements
+import uuid
+
 import pytest
 
 from steamship import PluginInstance, Space
@@ -104,3 +106,14 @@ def test_deploy_in_space():
     space = Space.create(client, handle="test-non-default-space").data
     instance = PluginInstance.create(client, plugin_handle="test-tagger", space_id=space.id).data
     assert instance.spaceId == space.id
+
+
+def test_plugin_instance_get():
+    steamship = get_steamship_client()
+    handle = f'test_tagger_test_handle{uuid.uuid4()}'
+    instance = PluginInstance.create(steamship, plugin_handle="test-tagger", handle=handle).data
+    assert instance.id is not None
+
+    other_instance = PluginInstance.get(steamship, handle=handle).data
+
+    assert instance.id == other_instance.id
