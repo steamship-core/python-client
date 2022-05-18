@@ -5,7 +5,7 @@ from typing import List, Optional, Type, Dict, Any
 import requests
 
 from steamship import File, Tag
-from steamship.app import App, Response, create_handler
+from steamship.app import Response, create_handler
 from steamship.base import Client, Task, TaskState
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
@@ -51,9 +51,11 @@ class TestTrainableTaggerModel(TrainableModel):
       In this example model, the `from_disk(path: Path)` method provides this functionality.
     """
 
-    KEYWORD_LIST_FILE = "keyword_list.json"  # File, relative to the checkpoint, to save/load features from.
+    KEYWORD_LIST_FILE = (
+        "keyword_list.json"  # File, relative to the checkpoint, to save/load features from.
+    )
     keyword_list: List[str] = None  # Contents of the KEYWORD_LIST_FILE file
-    path: Optional[Path] = None # Save the effective path for testing
+    path: Optional[Path] = None  # Save the effective path for testing
 
     def __init__(self):
         self.path = None
@@ -62,12 +64,12 @@ class TestTrainableTaggerModel(TrainableModel):
     def load_from_folder(self, checkpoint_path: Path):
         """Creates a model instance & loads the provided checkpoint."""
         self.path = checkpoint_path
-        with open(self.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'r') as f:
+        with open(self.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f:
             self.keyword_list = json.loads(f.read())
 
     def save_to_folder(self, checkpoint_path: Path):
         self.path = checkpoint_path
-        with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'w') as f:
+        with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "w") as f:
             f.write(json.dumps(self.keyword_list))
 
     def train(self, input: TrainPluginInput) -> TrainPluginOutput:
@@ -80,7 +82,7 @@ class TestTrainableTaggerModel(TrainableModel):
         return TRAIN_RESPONSE
 
     def run(
-            self, request: PluginRequest[BlockAndTagPluginInput]
+        self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         """Tags the incoming data for any instance of the keywords in the parameter file."""
         logging.info(f"TestTrainableTaggerModel:run() - My keyword list is {self.keyword_list}")
@@ -125,7 +127,9 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         return TestTrainableTaggerModel
 
     def run_with_model(
-        self, request: PluginRequest[BlockAndTagPluginInput], model: TestTrainableTaggerModel
+        self,
+        request: PluginRequest[BlockAndTagPluginInput],
+        model: TestTrainableTaggerModel,
     ) -> Response[BlockAndTagPluginOutput]:
         """Downloads the model file from the provided space"""
         logging.debug(f"run_with_model {request} {model}")
@@ -136,9 +140,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         logging.debug(f"get_training_parameters {request}")
         return Response(data=TRAINING_PARAMETERS)
 
-    def train(
-        self, request: PluginRequest[TrainPluginInput]
-    ) -> Response[TrainPluginOutput]:
+    def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
         logging.debug(f"train {request}")
 
@@ -161,8 +163,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
         # Save the model with the `default` handle.
         archive_path_in_steamship = model.save_remote(
-            client=self.client,
-            plugin_instance_id=request.plugin_instance_id
+            client=self.client, plugin_instance_id=request.plugin_instance_id
         )
 
         # Set the model location on the plugin output.
@@ -184,5 +185,6 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         # to indicate that, while the plugin handler has returned, the plugin's execution continues.
         logging.info(f"TestTrainableTaggerPlugin:train() returning {response}")
         return response
+
 
 handler = create_handler(TestTrainableTaggerPlugin)

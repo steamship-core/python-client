@@ -1,14 +1,14 @@
-from dataclasses import dataclass
 from typing import Any, Dict, List
+
+from pydantic import BaseModel
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
 from steamship.data.plugin import ListPluginsResponse
 
 
-@dataclass
-class PluginVersion:
-    # TODO: This might be a good entry point into using Pydantic with automatic camelCase to snake-case conversion
+class PluginVersion(BaseModel):
+    # TODO (enias): This might be a good entry point into using Pydantic with automatic camelCase to snake-case conversion
     client: Client = None
     id: str = None
     pluginId: str = None
@@ -21,7 +21,6 @@ class PluginVersion:
     configTemplate: Dict[str, Any] = None
 
 
-@dataclass
 class CreatePluginVersionRequest(Request):
     pluginId: str = None
     handle: str = None
@@ -35,29 +34,25 @@ class CreatePluginVersionRequest(Request):
     configTemplate: Dict[str, Any] = None
 
 
-@dataclass
 class DeletePluginVersionRequest(Request):
     id: str
 
 
-@dataclass
 class ListPublicPluginVersionsRequest(Request):
     handle: str
     pluginId: str
 
 
-@dataclass
 class ListPrivatePluginVersionsRequest(Request):
     handle: str
     pluginId: str
 
 
-@dataclass
 class ListPluginVersionsResponse(Request):
     plugins: List[PluginVersion]
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "ListPluginsResponse":
+    def from_dict(d: Any, client: Client = None) -> ListPluginsResponse:
         return ListPluginVersionsResponse(
             plugins=[
                 PluginVersion.from_dict(x, client=client)
@@ -66,8 +61,7 @@ class ListPluginVersionsResponse(Request):
         )
 
 
-@dataclass
-class PluginVersion:
+class PluginVersion(BaseModel):
     client: Client = None
     id: str = None
     pluginId: str = None
@@ -80,7 +74,7 @@ class PluginVersion:
     configTemplate: Dict[str, Any] = None
 
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "PluginVersion":
+    def from_dict(d: Any, client: Client = None) -> PluginVersion:
         if "pluginVersion" in d:
             d = d["pluginVersion"]
 
@@ -140,7 +134,7 @@ class PluginVersion:
             expect=PluginVersion,
         )
 
-    def delete(self) -> "PluginVersion":
+    def delete(self) -> PluginVersion:
         req = DeletePluginVersionRequest(id=self.id)
         return self.client.post("plugin/version/delete", payload=req, expect=PluginVersion)
 

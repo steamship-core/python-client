@@ -1,12 +1,14 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
 
-@dataclass
-class TrainPluginInput:
+class TrainPluginInput(BaseModel):
     """
     This is the object passed as input to a trainable operation, stored as the `input` field of a `train` task.
     """
@@ -30,7 +32,7 @@ class TrainPluginInput:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainPluginInput]":
+    def from_dict(d: Any = None, client: Client = None) -> Optional[TrainPluginInput]:
         if d is None:
             return None
 

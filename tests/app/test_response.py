@@ -1,13 +1,9 @@
-from dataclasses import asdict
 from typing import Any
 
 from steamship.app.response import Response
 from steamship.base.mime_types import MimeTypes
 from steamship.data.file import File
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
 
 
 def check_mime(d: dict, mime: str):
@@ -49,4 +45,4 @@ def test_resp_response():
     d = r.to_dict()
     check_mime(d, MimeTypes.JSON)
     check_type(d, dict)
-    check_val(d, asdict(o))
+    check_val(d, o.dict())

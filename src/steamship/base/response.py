@@ -1,19 +1,25 @@
+from __future__ import annotations
+
 import time
+
+from pydantic.generics import GenericModel
 
 from steamship.base.tasks import *
 
 T = TypeVar("T")  # Declare type variable
 
 
-@dataclass
-class Response(IResponse, Generic[T]):
+class Response(GenericModel, Generic[T]):
     expect: Type[T] = None
     task: Task = None
     data: T = None
     error: SteamshipError = None
     client: Any = None
 
-    def update(self, response: "Response[T]"):
+    class Config:
+        arbitrary_types_allowed = True  # This is required to support SteamshipError
+
+    def update(self, response: Response[T]):
         if self.task is not None and response.task is not None:
             self.task.refresh(response.task)
         if response.data is not None:
@@ -46,7 +52,7 @@ class Response(IResponse, Generic[T]):
     def check(self):
         if self.task is None:
             return
-        req = TaskStatusRequest(self.task.task_id)
+        req = TaskStatusRequest(taskId=self.task.task_id)
         resp = self.client.post("task/status", payload=req, expect=self.expect)
         self.update(resp)
 
@@ -56,7 +62,7 @@ class Response(IResponse, Generic[T]):
         external_type: str = None,
         external_group: str = None,
         metadata: Any = None,
-    ) -> "Response[TaskComment]":
+    ) -> Response[TaskComment]:
         if self.task is not None:
             return self.task.add_comment(
                 external_id=external_id,
@@ -65,10 +71,10 @@ class Response(IResponse, Generic[T]):
                 metadata=metadata,
             )
 
-    def list_comments(self) -> "Response[TaskCommentList]":
+    def list_comments(self) -> Response[TaskCommentList]:
         if self.task is not None:
             return self.task.list_comments()
 
-    def delete_comment(self, comment: "TaskComment" = None) -> "Response[TaskComment]":
+    def delete_comment(self, comment: "TaskComment" = None) -> Response[TaskComment]:
         if self.task is not None:
             return self.task.delete_comment(comment=comment)

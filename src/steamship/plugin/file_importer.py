@@ -16,14 +16,14 @@ from steamship.plugin.service import PluginRequest, PluginService
 #
 class FileImporter(PluginService[FileImportPluginInput, RawDataPluginOutput], ABC):
     @abstractmethod
-    def run(
-            self, request: PluginRequest[FileImportPluginInput]
-    ) -> Response[RawDataPluginOutput]:
+    def run(self, request: PluginRequest[FileImportPluginInput]) -> Response[RawDataPluginOutput]:
         raise NotImplementedError()
 
     @post("import")
     def run_endpoint(self, **kwargs) -> Response[RawDataPluginOutput]:
         """Exposes the File Importer's `run` operation to the Steamship Engine via the expected HTTP path POST /import"""
         return self.run(
-            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=FileImportPluginInput.from_dict)
+            PluginRequest.from_dict(
+                kwargs, wrapped_object_from_dict=FileImportPluginInput.from_dict
+            )
         )

@@ -1,19 +1,20 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from pathlib import Path
 from typing import Callable, Dict, Optional
+
 from typing_extensions import TypeAlias
+
 from steamship import SteamshipError
 from steamship.base import Client
-from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 
 ModelConstructor: TypeAlias = Callable[[], "TrainableModel"]
 
 # Global variable to store the model for reuse in memory.
-MODEL_CACHE: Dict[str, "TrainableModel"] = dict()
+MODEL_CACHE: Dict[str, "TrainableModel"] = {}
 
 
 class TrainableModel(ABC):
@@ -131,7 +132,7 @@ class TrainableModel(ABC):
             client=client,
             parent_directory=model_parent_directory,
             handle=checkpoint_handle,
-            plugin_instance_id=plugin_instance_id
+            plugin_instance_id=plugin_instance_id,
         )
 
         # If we haven't loaded the model, we need to download and start the model
@@ -162,9 +163,8 @@ class TrainableModel(ABC):
             client=client,
             parent_directory=model_parent_directory,
             handle=checkpoint_handle,
-            plugin_instance_id=plugin_instance_id
+            plugin_instance_id=plugin_instance_id,
         )
         self.save_to_folder(checkpoint.folder_path_on_disk())
         checkpoint.upload_model_bundle(set_as_default=set_as_default)
         return checkpoint.archive_path_in_steamship()
-

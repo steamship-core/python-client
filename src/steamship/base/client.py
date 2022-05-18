@@ -1,10 +1,10 @@
 import dataclasses
 import json
 import logging
-from dataclasses import asdict
 from typing import Any, Dict, TypeVar, Union
 
-import requests  # type: ignore
+import requests
+from pydantic import BaseModel
 
 from steamship.base.configuration import Configuration
 from steamship.base.error import SteamshipError
@@ -12,15 +12,12 @@ from steamship.base.mime_types import MimeTypes
 from steamship.base.request import Request
 from steamship.base.response import Response, Task
 
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 _logger = logging.getLogger(__name__)
 
-T = TypeVar("T", bound=Response)
+T = TypeVar("T", bound=Response)  # TODO (enias): Do we need this?
 
 
-class Client:
+class Client(BaseModel):
     """Client base.py class.
 
     Separated primarily as a hack to prevent circular imports.
@@ -41,7 +38,7 @@ class Client:
         config_file: str = None,
         config_dict: dict = None
     ):
-
+        super().__init__()
         self.config = Configuration(
             api_key=api_key,
             api_base=api_base,
@@ -149,11 +146,15 @@ class Client:
             data = {}
         elif isinstance(payload, dict):
             data = payload
+<<<<<<< HEAD
         elif hasattr(payload, 'to_dict'):
             data = getattr(payload, 'to_dict')()
+=======
+        elif isinstance(payload, BaseModel):
+            data = payload.dict()
+>>>>>>> main
         else:
-            # noinspection PyDataclass
-            data = asdict(payload)
+            raise RuntimeError(f"Unable to parse payload of type {type(payload)}")
 
         if verb == "POST" and file is not None:
             # Note: requests seems to have a bug passing boolean (and maybe numeric?)
@@ -296,9 +297,8 @@ class Client:
 
         task = None
         error = None
-        obj = response_data
-
-        if type(response_data) == dict:
+        data = None
+        if isinstance(response_data, dict):
             if "status" in response_data:
                 task = Task.from_dict(response_data["status"], client=self)
                 # if task_resp is not None and task_resp.taskId is not None:
@@ -309,21 +309,27 @@ class Client:
                         error = SteamshipError.from_dict(response_data["status"])
 
             if "data" in response_data:
-                if expect is not None and hasattr(expect, "from_dict"):
-                    obj = expect.from_dict(response_data["data"], client=self)
+                if expect is not None:
+                    if hasattr(expect, "from_dict"):
+                        data = expect.from_dict(response_data["data"], client=self)
+                    elif issubclass(expect, BaseModel):
+                        data = expect.parse_obj(response_data["data"])
+                    else:
+                        raise RuntimeError(f"obj of type {expect} does not have a from_dict method")
                 else:
-                    obj = response_data["data"]
+                    data = response_data["data"]
+                    expect = type(response_data["data"])
+                    print(f"Deriving expect from response data: {type(response_data['data'])}")
 
             if "reason" in response_data:
                 # This is a legacy error reporting field. We should work toward being comfortable
                 # removing this handler.
                 error = SteamshipError(message=response_data["reason"])
+        else:
+            data = response_data
+            expect = type(response_data)
 
-        ret_obj = None
-        if error is None:
-            ret_obj = obj
-
-        ret = Response[T](expect=expect, task=task, data=ret_obj, error=error, client=self)
+        ret = Response[expect](expect=expect, task=task, data=data, error=error, client=self)
 
         if ret.task is None and ret.data is None and ret.error is None:
             raise Exception("No data, task status, or error found in response")

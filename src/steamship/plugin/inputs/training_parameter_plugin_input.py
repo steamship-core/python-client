@@ -1,5 +1,8 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
@@ -29,7 +32,7 @@ class TrainingParameterPluginInput:
     inference_params: Optional[Dict] = None
 
     @staticmethod
-    def from_dict(d: Any = None, client: Client = None) -> "Optional[TrainingParameterPluginInput]":
+    def from_dict(d: Any = None, client: Client = None) -> Optional[TrainingParameterPluginInput]:
         if d is None:
             return None
 

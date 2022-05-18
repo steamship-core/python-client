@@ -3,13 +3,12 @@ from typing import Any, Dict, Type
 
 from pydantic import BaseModel
 
-from steamship.app import post, Response
+from steamship.app import Response, post
 from steamship.base import Client
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginService, PluginRequest
-
+from steamship.plugin.service import PluginRequest, PluginService
 
 # Note!
 # =====

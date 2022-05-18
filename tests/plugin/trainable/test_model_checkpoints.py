@@ -14,11 +14,11 @@ def _test_folders_equal(p1: Path, p2: Path):
     p1_files = os.listdir(p1)
     p2_files = os.listdir(p2)
 
-    assert (p1_files == p2_files)
+    assert p1_files == p2_files
 
     for file in p1_files:
-        with open(p1 / file, 'r') as f1:
-            with open(p2 / file, 'r') as f2:
+        with open(p1 / file, "r") as f1:
+            with open(p2 / file, "r") as f2:
                 assert f1.read() == f2.read()
 
 
@@ -43,14 +43,20 @@ def test_model_checkpoint_save_load():
     checkpoint_1.upload_model_bundle()
 
     # Now let's download the checkpoint labeled "epoch1" and test that it is equal
-    checkpoint_downloaded = ModelCheckpoint(client=client, handle="epoch1", plugin_instance_id="0000")
+    checkpoint_downloaded = ModelCheckpoint(
+        client=client, handle="epoch1", plugin_instance_id="0000"
+    )
     checkpoint_downloaded.download_model_bundle()
-    _test_folders_equal(checkpoint_1.folder_path_on_disk(), checkpoint_downloaded.folder_path_on_disk())
+    _test_folders_equal(
+        checkpoint_1.folder_path_on_disk(), checkpoint_downloaded.folder_path_on_disk()
+    )
 
     # We should also be able to download "default" checkpoint by not providing a handle
     checkpoint_default_1 = ModelCheckpoint(client=client, plugin_instance_id="0000")
     checkpoint_default_1.download_model_bundle()
-    _test_folders_equal(checkpoint_1.folder_path_on_disk(), checkpoint_default_1.folder_path_on_disk())
+    _test_folders_equal(
+        checkpoint_1.folder_path_on_disk(), checkpoint_default_1.folder_path_on_disk()
+    )
 
     # Let's create a new checkpoint with our trainer... epoch2
     checkpoint_2 = ModelCheckpoint(client=client, handle="epoch2", plugin_instance_id="0000")
@@ -61,12 +67,13 @@ def test_model_checkpoint_save_load():
     # If we download the new DEFAULT checkpoint, we will now receive the epoch2 files...
     checkpoint_default_2 = ModelCheckpoint(client=client, plugin_instance_id="0000")
     checkpoint_default_2.download_model_bundle()
-    _test_folders_equal(checkpoint_2.folder_path_on_disk(), checkpoint_default_2.folder_path_on_disk())
+    _test_folders_equal(
+        checkpoint_2.folder_path_on_disk(), checkpoint_default_2.folder_path_on_disk()
+    )
 
 
 def test_model_can_save_to_and_load_from_checkpoint():
-    """Elaboration of model_checkpoint_save_load in which include an example Model in the loop.
-    """
+    """Elaboration of model_checkpoint_save_load in which include an example Model in the loop."""
 
     client = get_steamship_client()
     train_task_response = create_dummy_training_task(client)
@@ -88,9 +95,12 @@ def test_model_can_save_to_and_load_from_checkpoint():
     # ====================================
 
     # Now we'll create two new copies of the model
-    default_model = TestTrainableTaggerModel.load_remote(client=client, plugin_instance_id=plugin_instance_id)
-    v1_model = TestTrainableTaggerModel.load_remote(client=client, plugin_instance_id=plugin_instance_id,
-                                                    checkpoint_handle="V1")
+    default_model = TestTrainableTaggerModel.load_remote(
+        client=client, plugin_instance_id=plugin_instance_id
+    )
+    v1_model = TestTrainableTaggerModel.load_remote(
+        client=client, plugin_instance_id=plugin_instance_id, checkpoint_handle="V1"
+    )
 
     # Verify none of these models share the same state folder on disk.
     assert default_model.path != model.path
@@ -108,9 +118,9 @@ def test_model_can_save_to_and_load_from_checkpoint():
     assert os.path.exists(default_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE)
     assert os.path.exists(v1_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE)
 
-    with open(model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'r') as f1:
-        with open(default_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'r') as f2:
-            with open(v1_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, 'r') as f3:
+    with open(model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f1:
+        with open(default_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f2:
+            with open(v1_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f3:
                 original_model_params = f1.read()
                 default_model_params = f2.read()
                 v1_model_params = f3.read()

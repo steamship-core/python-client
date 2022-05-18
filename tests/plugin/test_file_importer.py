@@ -8,10 +8,7 @@ from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.service import PluginRequest
-from tests.demo_apps.plugins.importers.plugin_file_importer import (
-    TEST_DOC,
-    TestFileImporterPlugin,
-)
+from tests.demo_apps.plugins.importers.plugin_file_importer import TEST_DOC, TestFileImporterPlugin
 
 TEST_REQ = File.CreateRequest(value="Hi there.")
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
@@ -38,7 +35,9 @@ def test_importer():
     with pytest.raises(Exception):
         importer.get_training_parameters(PluginRequest(data=TrainingParameterPluginInput()))
     with pytest.raises(Exception):
-        importer.get_training_parameters_endpoint(**PluginRequest(data=TrainingParameterPluginInput()).to_dict())
+        importer.get_training_parameters_endpoint(
+            **PluginRequest(data=TrainingParameterPluginInput()).to_dict()
+        )
 
     # This plugin is not trainable, and thus it refuses train requests
     with pytest.raises(Exception):

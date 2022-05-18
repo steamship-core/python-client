@@ -1,8 +1,4 @@
 from steamship.data.user import User
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.utils.client import get_steamship_client
 
 

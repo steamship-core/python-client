@@ -37,7 +37,7 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
 
     @abstractmethod
     def run(
-            self, request: PluginRequest[BlockAndTagPluginInput]
+        self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         raise NotImplementedError()
 
@@ -45,7 +45,9 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
     def run_endpoint(self, **kwargs) -> Response[BlockAndTagPluginOutput]:
         """Exposes the Tagger's `run` operation to the Steamship Engine via the expected HTTP path POST /tag"""
         return self.run(
-            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=BlockAndTagPluginInput.from_dict)
+            PluginRequest.from_dict(
+                kwargs, wrapped_object_from_dict=BlockAndTagPluginInput.from_dict
+            )
         )
 
 
@@ -62,7 +64,7 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
 
     @abstractmethod
     def run_with_model(
-            self, request: PluginRequest[BlockAndTagPluginInput], model: TrainableModel
+        self, request: PluginRequest[BlockAndTagPluginInput], model: TrainableModel
     ) -> Response[BlockAndTagPluginOutput]:
         raise NotImplementedError()
 
@@ -71,7 +73,9 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
     def run_endpoint(self, **kwargs) -> Response[BlockAndTagPluginOutput]:
         """Exposes the Tagger's `run` operation to the Steamship Engine via the expected HTTP path POST /tag"""
         return self.run(
-            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=BlockAndTagPluginInput.from_dict)
+            PluginRequest.from_dict(
+                kwargs, wrapped_object_from_dict=BlockAndTagPluginInput.from_dict
+            )
         )
 
     # noinspection PyUnusedLocal
@@ -80,7 +84,9 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
         """Exposes the Service's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
         print("get_training_parameters")
         return self.get_training_parameters(
-            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=TrainingParameterPluginInput.from_dict)
+            PluginRequest.from_dict(
+                kwargs, wrapped_object_from_dict=TrainingParameterPluginInput.from_dict
+            )
         )
 
     # noinspection PyUnusedLocal

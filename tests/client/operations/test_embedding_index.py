@@ -2,10 +2,6 @@ from steamship.base import Client
 from steamship.base.response import TaskState
 from steamship.data.embeddings import EmbeddedItem
 from steamship.data.plugin_instance import PluginInstance
-
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 from tests.utils.client import get_steamship_client
 from tests.utils.random import random_index
 
