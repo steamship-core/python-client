@@ -1,18 +1,16 @@
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 
-class Request:
+class Request(BaseModel):
     pass
 
 
-@dataclass
 class GetRequest(Request):
     id: str = None
     handle: str = None
     upsert: bool = None
 
 
-@dataclass
 class IdentifierRequest(Request):
     id: str = None
     handle: str = None

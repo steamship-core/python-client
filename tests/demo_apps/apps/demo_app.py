@@ -1,15 +1,15 @@
 import base64
 import io
-from dataclasses import dataclass
 from typing import Any, Dict
+
+from pydantic import BaseModel
 
 from steamship.app import App, Response, create_handler, get, post
 from steamship.base import Client
 from steamship.base.mime_types import MimeTypes
 
 
-@dataclass
-class TestObj:
+class TestObj(BaseModel):
     name: str
 
 

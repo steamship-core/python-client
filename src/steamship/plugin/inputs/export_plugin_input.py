@@ -1,11 +1,13 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
+
+from pydantic import BaseModel
 
 from steamship.base import Client
 
 
-@dataclass
-class ExportPluginInput:
+class ExportPluginInput(BaseModel):
     pluginInstance: str = None
     id: str = None
     handle: str = None
@@ -15,7 +17,7 @@ class ExportPluginInput:
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any = None, client: Client = None) -> "Optional[ExportPluginInput]":
+    def from_dict(d: Any = None, client: Client = None) -> Optional[ExportPluginInput]:
         if d is None:
             return None
 

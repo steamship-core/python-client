@@ -1,8 +1,7 @@
-from steamship.extension.file import File
-
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
+from steamship import File
 from tests import APPS_PATH
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin

@@ -29,7 +29,7 @@ def _snapshot(index, window_size=None):
     else:
         # We do this manually so as not to clutter the end-user visible
         # API with debug/testing parameters
-        req = IndexSnapshotRequest(index.id, windowSize=window_size)
+        req = IndexSnapshotRequest(indexId=index.id, windowSize=window_size)
         task = index.client.post(
             "embedding-index/snapshot/create",
             req,

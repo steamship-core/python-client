@@ -1,18 +1,18 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any, Dict, List
 
-from steamship.base import Client
+from steamship.base import Client, Request
 
 
-@dataclass
-class EmbedRequest:
+class EmbedRequest(Request):
     docs: List[str]
     pluginInstance: str
     metadata: Dict = None
 
     # noinspection PyUnusedLocal
     @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "EmbedRequest":
+    def from_dict(d: Any, client: Client = None) -> EmbedRequest:
         # TODO (enias): Review these _: Client lines
         return EmbedRequest(
             docs=d.get("docs"),

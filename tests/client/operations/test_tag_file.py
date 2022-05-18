@@ -33,7 +33,7 @@ def tag_file(client: Steamship, parser_instance_handle: str):
     p1_2 = "Violets are blue."
     p2_1 = "Sugar is sweet, and I love you."
 
-    content = "# {}\n\n{} {}\n\n{}".format(t, p1_1, p1_2, p2_1)
+    content = f"# {t}\n\n{p1_1} {p1_2}\n\n{p2_1}"
 
     a = client.upload(content=content, mime_type=MimeTypes.MKD).data
     assert a.id is not None

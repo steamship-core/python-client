@@ -1,5 +1,8 @@
-from dataclasses import dataclass
+from __future__ import annotations
+
 from typing import Any
+
+from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
 from steamship.base.request import GetRequest, IdentifierRequest
@@ -17,14 +20,12 @@ class SignedUrl:
         read = "Read"
         write = "Write"
 
-    @dataclass
     class Request(Request):
         bucket: str = None
         filepath: str = None
         operation: str = None
         expiresInMinutes: int = None
 
-    @dataclass
     class Response(Response):
         bucket: str = None
         filepath: str = None
@@ -45,13 +46,11 @@ class SignedUrl:
             )
 
 
-@dataclass
-class Space:
+class Space(BaseModel):
     client: Client = None
     id: str = None
     handle: str = None
 
-    @dataclass
     class CreateRequest(Request):
         id: str = None
         handle: str = None
@@ -60,15 +59,14 @@ class Space:
         externalType: str = None
         metadata: str = None
 
-    @dataclass
     class ListRequest(Request):
         pass
 
-    def delete(self) -> "Response[Space]":
+    def delete(self) -> Response[Space]:
         return self.client.post("space/delete", IdentifierRequest(id=self.id), expect=Space)
 
     @staticmethod
-    def from_dict(d: Any, client: Client) -> "Space":
+    def from_dict(d: Any, client: Client) -> Space:
         if "space" in d:
             d = d["space"]
 
@@ -83,7 +81,7 @@ class Space:
         space_id: str = None,
         space_handle: str = None,
         space: "Space" = None,
-    ) -> "Response[Space]":
+    ) -> Response[Space]:
         req = GetRequest(id=id_, handle=handle, upsert=upsert)
         return client.post(
             "space/get",
@@ -102,7 +100,7 @@ class Space:
         external_type: str = None,
         metadata: Any = None,
         upsert: bool = True,
-    ) -> "Response[Space]":
+    ) -> Response[Space]:
         req = Space.CreateRequest(
             handle=handle,
             upsert=upsert,

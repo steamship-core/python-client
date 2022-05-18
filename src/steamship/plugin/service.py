@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Callable, Generic, Type, TypeVar, Union
+from pydantic import BaseModel
 
 from steamship.app import App
 from steamship.app.response import Response
@@ -23,8 +26,7 @@ T = TypeVar("T")
 U = TypeVar("U")
 
 
-@dataclass
-class PluginRequest(Generic[T]):
+class PluginRequest(Generic[T], BaseModel):
     data: T = None
     task_id: str = None
     plugin_id: str = None
@@ -39,7 +41,7 @@ class PluginRequest(Generic[T]):
         d: Any,
         wrapped_object_from_dict: Callable[[dict, Client], T] = None,
         client: Client = None,
-    ) -> "PluginRequest[T]":
+    ) -> PluginRequest[T]:
         """Create a PluginRequest[T] from a Python dictionary.
 
         This `from_dict` method differs from others in this module in that it additionally requires the
