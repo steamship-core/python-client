@@ -2,7 +2,6 @@ from steamship.data.plugin import TrainingPlatform
 from steamship.data.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-
 from tests import APPS_PATH
 
 __copyright__ = "Steamship"

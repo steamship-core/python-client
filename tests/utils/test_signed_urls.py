@@ -4,7 +4,6 @@ __license__ = "MIT"
 import os
 import shutil
 import tempfile
-import os
 from pathlib import Path
 
 from steamship import Space
@@ -61,7 +60,9 @@ def test_upload_download():
     # Now create a download signed URL
     download_resp = space.create_signed_url(
         SignedUrl.Request(
-            bucket=SignedUrl.Bucket.pluginData, filepath=upload_name, operation=SignedUrl.Operation.read
+            bucket=SignedUrl.Bucket.pluginData,
+            filepath=upload_name,
+            operation=SignedUrl.Operation.read,
         )
     )
     assert download_resp is not None

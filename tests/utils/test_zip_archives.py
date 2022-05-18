@@ -4,13 +4,10 @@ __license__ = "MIT"
 import os
 import shutil
 import tempfile
-import os
 from pathlib import Path
 
-from steamship.utils.zip_archives import zip_folder, unzip_folder
+from steamship.utils.zip_archives import unzip_folder, zip_folder
 from tests import TEST_ASSETS_PATH
-from steamship.utils.zip_archives import zip_folder, unzip_folder
-
 
 
 def test_zip_unzip():

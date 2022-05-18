@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Callable, Generic, TypeVar, Union, Type
+from typing import Any, Callable, Generic, Type, TypeVar, Union
 
 from steamship.app import App
 from steamship.app.response import Response
 from steamship.base import Client
 from steamship.base.response import SteamshipError
+
 # Note!
 # =====
 #
@@ -35,9 +36,9 @@ class PluginRequest(Generic[T]):
 
     @staticmethod
     def from_dict(
-            d: Any,
-            wrapped_object_from_dict: Callable[[dict, Client], T] = None,
-            client: Client = None,
+        d: Any,
+        wrapped_object_from_dict: Callable[[dict, Client], T] = None,
+        client: Client = None,
     ) -> "PluginRequest[T]":
         """Create a PluginRequest[T] from a Python dictionary.
 
@@ -61,7 +62,7 @@ class PluginRequest(Generic[T]):
             plugin_version_id=d.get("pluginVersionId", None),
             plugin_version_handle=d.get("pluginVersionHandle", None),
             plugin_instance_id=d.get("pluginInstanceId", None),
-            plugin_instance_handle=d.get("pluginInstanceHandle", None)
+            plugin_instance_handle=d.get("pluginInstanceHandle", None),
         )
 
     def to_dict(self) -> dict:
@@ -76,7 +77,7 @@ class PluginRequest(Generic[T]):
                 "pluginVersionId": self.plugin_version_id,
                 "pluginVersionHandle": self.plugin_version_handle,
                 "pluginInstanceId": self.plugin_instance_id,
-                "pluginInstanceHandle": self.plugin_instance_handle
+                "pluginInstanceHandle": self.plugin_instance_handle,
             }
 
 
@@ -119,7 +120,6 @@ class PluginService(ABC, App, Generic[T, U]):
 
 
 class TrainablePluginService(ABC, App, Generic[T, U]):
-
     @abstractmethod
     def get_model_class(self) -> Type[TrainableModel]:
         """Returns the constructor of the TrainableModel this TrainablePluginService uses.
@@ -140,14 +140,16 @@ class TrainablePluginService(ABC, App, Generic[T, U]):
         return self.run_with_model(request, model)
 
     @abstractmethod
-    def run_with_model(self, request: PluginRequest[T], model: TrainableModel) -> Union[U, Response[U]]:
-        """Rather than implementing run(request), a TrainablePluginService implements run_with_model(request, model)
-        """
+    def run_with_model(
+        self, request: PluginRequest[T], model: TrainableModel
+    ) -> Union[U, Response[U]]:
+        """Rather than implementing run(request), a TrainablePluginService implements run_with_model(request, model)"""
         pass
 
     @abstractmethod
-    def get_training_parameters(self, request: PluginRequest[TrainingParameterPluginInput]) -> Response[
-        TrainingParameterPluginOutput]:
+    def get_training_parameters(
+        self, request: PluginRequest[TrainingParameterPluginInput]
+    ) -> Response[TrainingParameterPluginOutput]:
         """Produces the trainable parameters for this plugin.
 
         This method is run by the Steamship Engine prior to training to fetch hyperparameters.

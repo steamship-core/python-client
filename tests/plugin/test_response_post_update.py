@@ -6,7 +6,7 @@ import json
 import pytest
 
 from steamship.app import Response
-from steamship.base.tasks import TaskState, Task
+from steamship.base.tasks import Task, TaskState
 from tests.plugin.trainable.util import create_dummy_training_task
 from tests.utils.client import get_steamship_client
 
