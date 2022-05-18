@@ -26,7 +26,7 @@ def _get_space(client: Client) -> Space:
 
 
 @dataclasses.dataclass
-class ModelCheckpoint():
+class ModelCheckpoint:
     # The default model checkpoint handle unless one is provided.
     DEFAULT_HANDLE = "default"
 

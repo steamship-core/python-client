@@ -6,7 +6,7 @@ from steamship.base import Client
 
 @dataclass
 class ExportPluginInput:
-    pluginInstance: str = None
+    plugin_instance: str = None
     id: str = None
     handle: str = None
     type: str = None
@@ -20,7 +20,7 @@ class ExportPluginInput:
             return None
 
         return ExportPluginInput(
-            pluginInstance=d.get("pluginInstance"),
+            plugin_instance=d.get("pluginInstance"),
             id=d.get("id"),
             handle=d.get("id"),
             type=d.get("type"),
@@ -30,7 +30,7 @@ class ExportPluginInput:
 
     def to_dict(self) -> Dict:
         return dict(
-            pluginInstance=self.pluginInstance,
+            pluginInstance=self.plugin_instance,
             id=self.id,
             handle=self.handle,
             type=self.type,

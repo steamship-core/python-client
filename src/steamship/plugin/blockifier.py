@@ -24,6 +24,7 @@ from steamship.plugin.service import PluginService, PluginRequest
 class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC):
     # noinspection PyUnusedLocal
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+        super().__init__()
         if config:
             self.config = self.config_cls()(**config)
 

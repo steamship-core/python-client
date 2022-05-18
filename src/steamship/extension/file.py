@@ -52,7 +52,6 @@ def blockify(self, plugin_instance: str = None):
         payload=req,
         expect=BlockAndTagPluginOutput,
         asynchronous=True,
-        id_query=self,
     )
 
 
@@ -73,7 +72,6 @@ def tag(
         payload=req,
         expect=TagResponse,
         asynchronous=True,
-        id_query=self,
         space_id=space_id,
         space_handle=space_handle,
         space=space,

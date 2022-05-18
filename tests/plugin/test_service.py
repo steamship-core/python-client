@@ -10,7 +10,7 @@ from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 from steamship.plugin.service import PluginRequest, PluginService
 from steamship.plugin.tagger import TrainableTagger
-from tests.demo_apps.plugins.taggers.plugin_trainable_tagger import TrainableModel
+from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import TrainableModel
 
 
 class ValidStringToStringPlugin(PluginService):
@@ -19,7 +19,7 @@ class ValidStringToStringPlugin(PluginService):
 
 
 class ValidTrainableStringToStringPlugin(TrainableTagger):
-    def get_model_class(self) -> Type[TrainableModel]:
+    def model_cls(self) -> Type[TrainableModel]:
         return TrainableModel
 
     def get_steamship_client(self) -> Client:

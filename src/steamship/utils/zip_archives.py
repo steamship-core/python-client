@@ -23,7 +23,7 @@ def zip_folder(folder: Path, into_file: Optional[Path]) -> Path:
 
     # Ensure the path to the desired extraction folder exists
     if not into_file.parent.exists():
-        into_file.parent.mkdir(parents=True, exists_ok=True)
+        into_file.parent.mkdir(parents=True, exist_ok=True)
 
     shutil.move(zip_path_str, into_file)
     return into_file
@@ -37,7 +37,7 @@ def unzip_folder(zip_file: Path, into_folder: Optional[Path]) -> Path:
 
     # Ensure the path to the desired extraction folder exists
     if not into_folder.parent.exists():
-        into_folder.parent.mkdir(parents=True, exists_ok=True)
+        into_folder.parent.mkdir(parents=True, exist_ok=True)
 
     shutil.unpack_archive(zip_file, into_folder, 'zip')
     logging.info(f"Unzipped: {into_folder}")

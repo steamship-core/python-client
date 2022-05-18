@@ -1,19 +1,27 @@
+import logging
+
+from steamship import File, Block, Tag
+from steamship.base import Response
+from steamship.client.operations.tagger import TagResponse
 from steamship.data.plugin import TrainingPlatform, InferencePlatform
 from steamship.data.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
+from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
+from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 
 from tests import APPS_PATH
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
-from tests.utils.file import upload_file
-import tempfile
-from steamship.utils.signed_urls import download_from_signed_url
-from steamship.data.space import Space, SignedUrl
+from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import TestTrainableTaggerModel
+from steamship.data.space import Space
 from pathlib import Path
+import json
+
+from tests.utils.file import upload_file
 
 EXPORTER_HANDLE = "signed-url-exporter"
-
+KEYWORDS = ["product", "coupon"]
 
 def test_e2e_trainable_tagger_lambda_training():
     client = get_steamship_client()
@@ -39,22 +47,23 @@ def test_e2e_trainable_tagger_lambda_training():
     assert exporter_plugin.handle is not None
 
     csv_blockifier_path = APPS_PATH / "plugins" / "blockifiers" / "csv_blockifier.py"
-    trainable_tagger_path = APPS_PATH / "plugins" / "taggers" / "plugin_trainable_tagger.py"
+    trainable_tagger_path = APPS_PATH / "plugins" / "trainable_taggers" / "plugin_trainable_tagger.py"
 
-    # Make a blockifier which will generate our trainable corpus
-    with deploy_plugin(
-        client,
-        csv_blockifier_path,
-        "blockifier",
-        version_config_template=version_config_template,
-        instance_config=instance_config,
-    ) as (plugin, version, instance):
-        with upload_file(client, "utterances.csv") as file:
-            assert len(file.refresh().data.blocks) == 0
-            # Use the plugin we just registered
-            file.blockify(plugin_instance=instance.handle).wait()
-            assert len(file.refresh().data.blocks) == 5
-
+    # # Make a blockifier which will generate our trainable corpus
+    # with deploy_plugin(
+    #     client,
+    #     csv_blockifier_path,
+    #     "blockifier",
+    #     version_config_template=version_config_template,
+    #     instance_config=instance_config,
+    # ) as (plugin, version, instance):
+    #     with upload_file(client, "utterances.csv") as file:
+    #         assert len(file.refresh().data.blocks) == 0
+    #         # Use the plugin we just registered
+    #         file.blockify(plugin_instance=instance.handle).wait()
+    #         assert len(file.refresh().data.blocks) == 5
+    if True:
+        if True:
             # Now make a trainable tagger to train on those tags
             with deploy_plugin(
                 client,
@@ -62,31 +71,68 @@ def test_e2e_trainable_tagger_lambda_training():
                 "tagger",
                 training_platform=TrainingPlatform.LAMBDA,
                 inference_platform=InferencePlatform.LAMBDA
-            ) as (tagger, taggerVersion, taggerInstance):
+            ) as (tagger, tagger_version, tagger_instance):
                 # Now train the plugin
                 training_request = TrainingParameterPluginInput(
-                    pluginInstance=taggerInstance.handle,
-                    exportRequest=ExportPluginInput(
-                        pluginInstance=EXPORTER_HANDLE, type="corpus", handle="default"
+                    plugin_instance=tagger_instance.handle,
+                    export_request=ExportPluginInput(
+                        plugin_instance=EXPORTER_HANDLE, type="corpus", handle="default"
                     ),
+                    training_params=dict(
+                        keyword_list=KEYWORDS # This is a key defined by the test model we're training
+                    )
                 )
 
-                train_result = taggerInstance.train(training_request)
+                train_result = tagger_instance.train(training_request)
                 train_result.wait()
 
                 # At this point, the PluginInstance will have written a parameter file to disk. We should be able to
                 # retrieve it since we know that it is tagged as the `default`.
 
-                urlR = space.create_signed_url(SignedUrl.Request(
-                    bucket=SignedUrl.Bucket.PLUGIN_DATA,
-                    filepath=f"{taggerInstance.id}/default.zip",
-                    operation=SignedUrl.Operation.READ
-                ))
-                assert urlR.data is not None
-                assert urlR.data.signedUrl is not None
+                checkpoint = ModelCheckpoint(
+                    client=client,
+                    handle="default",
+                    plugin_instance_id=tagger_instance.id,
+                )
+                checkpoint_path = checkpoint.download_model_bundle()
+                assert checkpoint_path.exists()
+                keyword_path = Path(checkpoint_path) / TestTrainableTaggerModel.KEYWORD_LIST_FILE
+                assert keyword_path.exists()
+                with open(keyword_path, 'r') as f:
+                    params = json.loads(f.read())
+                    assert params == KEYWORDS
 
-                with tempfile.TemporaryDirectory() as tmpdirname:
-                    filename = Path(tmpdirname) / "default.zip"
-                    download_from_signed_url(urlR.data.signedUrl, filename)
-                    assert filename.exists()
+                logging.info("Waiting 15 seconds for instance to deploy.")
+                import time
+                time.sleep(15)
 
+                # If we're here, we have verified that the plugin instance has correctly recorded its parameters
+                # into the pluginData bucket under a path unique to the PluginInstnace/ModelCheckpoint.
+
+                # Now we'll attempt to USE this plugin. This plugin's behavior is to simply tag any file with the
+                # tags that parameter it. Since those tags are (see above) ["product", "coupon"] we should expect
+                # this tagger to apply those tags to any file provided to it.
+
+                # First we'll create a file
+                new_file_r = File.create(
+                    client=client,
+                    blocks=[
+                        Block.CreateRequest(text="Some random text")
+                    ],
+                )
+                assert new_file_r.data is not None
+                new_file = new_file_r.data
+
+                # Now we'll tag the file
+                tag_resp_wrapper: Response[TagResponse] = new_file.tag(
+                    plugin_instance=tagger_instance.handle
+                )
+                tag_resp_wrapper.wait()
+
+                assert tag_resp_wrapper.data is not None
+                tag_resp = tag_resp_wrapper.data
+
+                assert tag_resp.file is not None
+                assert tag_resp.file.tags is not None
+                assert len(tag_resp.file.tags) == len(KEYWORDS)
+                assert sorted([tag.name for tag in tag_resp.file.tags]) == sorted(KEYWORDS)

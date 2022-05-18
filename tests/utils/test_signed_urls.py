@@ -1,12 +1,10 @@
-__copyright__ = "Steamship"
-__license__ = "MIT"
-
 import os
 import shutil
 import tempfile
 import os
+from urllib.parse import urlparse, urlunparse
 from pathlib import Path
-
+import pytest
 from steamship import Space
 from steamship.data.space import SignedUrl
 from steamship.utils.signed_urls import download_from_signed_url, upload_to_signed_url
@@ -67,6 +65,18 @@ def test_upload_download():
     assert download_resp is not None
     assert download_resp.data is not None
     assert download_resp.data.signedUrl is not None
+
+    # Verify that we get an exception when downloading something that doesn't exist
+    # TODO: Follow up after we get a firmer understaing of the failure semantics of Localstack 404 errors with
+    # pre-signed URLs versus AWS Actual errors with pre-signed URLs. Localstack seems to reply with an HTTP 200
+    # containing an XML string that contains an error message.
+
+    # url = download_resp.data.signedUrl
+    # parsed_url = urlparse(url)
+    # bad_url = urlunparse(parsed_url._replace(path=f"{parsed_url.path}BOOGA"))
+    # bad_download_path = tempbase / Path("bad.zip")
+    # with pytest.raises(Exception):
+    #     download_from_signed_url(download_resp.data.signedUrl, to_file=bad_download_path)
 
     # Download the zip file to the URL
     download_path = tempbase / Path("out.zip")

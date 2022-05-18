@@ -1,3 +1,4 @@
+import dataclasses
 import json
 import logging
 from dataclasses import asdict
@@ -29,9 +30,6 @@ class Client:
     # default space on the
     config: Configuration = None
 
-    # Interaction prototype.
-    dQuery: bool = False
-
     def __init__(  # TODO (Enias): Do we need all the default parameters?
         self,
         api_key: str = None,
@@ -41,8 +39,7 @@ class Client:
         space_handle: str = None,
         profile: str = None,
         config_file: str = None,
-        config_dict: dict = None,
-        d_query: bool = False,
+        config_dict: dict = None
     ):
 
         self.config = Configuration(
@@ -55,8 +52,6 @@ class Client:
             config_file=config_file,
             config_dict=config_dict,
         )
-
-        self.dQuery = d_query
 
     def _url(
         self,
@@ -154,6 +149,8 @@ class Client:
             data = {}
         elif isinstance(payload, dict):
             data = payload
+        elif hasattr(payload, 'to_dict'):
+            data = getattr(payload, 'to_dict')()
         else:
             # noinspection PyDataclass
             data = asdict(payload)
@@ -219,7 +216,6 @@ class Client:
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-        id_query: bool = None,
         raw_response: bool = False,
         app_call: bool = False,
         app_owner: str = None,
@@ -276,6 +272,7 @@ class Client:
 
         data = self._data(verb=verb, file=file, payload=payload)
 
+        logging.info(f"Steamship Client making {verb} to {url}")
         if verb == "POST":
             if file is not None:
                 files = self.make_file_dict(data, file)
@@ -286,6 +283,8 @@ class Client:
             resp = requests.get(url, params=data, headers=headers)
         else:
             raise Exception(f"Unsupported verb: {verb}")
+
+        logging.info(f"Steamship Client received HTTP {resp.status_code} from {verb} to {url}")
 
         if debug is True:
             print("Response", resp)
@@ -329,24 +328,12 @@ class Client:
         if ret.task is None and ret.data is None and ret.error is None:
             raise Exception("No data, task status, or error found in response")
 
-        if self.dQuery is True and asynchronous:
-            # This is an experimental UI for jQuery-style chaining.
-            ret.wait()
-            # In dQuery mode we throw an error to stop the chain
-            if ret.error is not None:
-                raise ret.error
-
-        if self.dQuery is True and id_query is not None:
-            if ret.error is not None:
-                raise ret.error
-            return id_query
-
         return ret
 
     def post(
         self,
         operation: str,
-        payload: Union[Request, dict] = None,
+        payload: Union[Request, dict, dataclasses.dataclass] = None,
         file: Any = None,
         expect: Any = None,
         asynchronous: bool = False,
@@ -354,7 +341,6 @@ class Client:
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-        id_query: bool = None,
         raw_response: bool = False,
         app_call: bool = False,
         app_owner: str = None,
@@ -373,7 +359,6 @@ class Client:
             space_id=space_id,
             space_handle=space_handle,
             space=space,
-            id_query=id_query,
             raw_response=raw_response,
             app_call=app_call,
             app_owner=app_owner,
@@ -393,7 +378,6 @@ class Client:
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-        id_query: bool = None,
         raw_response: bool = False,
         app_call: bool = False,
         app_owner: str = None,
@@ -412,7 +396,6 @@ class Client:
             space_id=space_id,
             space_handle=space_handle,
             space=space,
-            id_query=id_query,
             raw_response=raw_response,
             app_call=app_call,
             app_owner=app_owner,

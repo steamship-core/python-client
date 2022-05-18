@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
@@ -7,7 +7,7 @@ from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
-
+from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 
 class PluginInstance:
     pass
@@ -37,9 +37,30 @@ class PluginInstance:
     handle: str = None
     plugin_id: str = None
     plugin_version_id: str = None
+    space_id: Optional[str] = None
     user_id: str = None
     config: Dict[str, Any] = None
-    spaceId: str = None
+    hosting_platform: Optional[str] = None
+    hosting_cpu: Optional[str] = None
+    hosting_memory: Optional[str] = None
+    hosting_timeout: Optional[str] = None
+    hosting_type: Optional[str] = None
+
+    def to_dict(self) -> dict:
+        return dict(
+            id=self.id,
+            handle=self.handle,
+            pluginId=self.plugin_id,
+            pluginVersionId=self.plugin_version_id,
+            spaceId=self.space_id,
+            userId=self.user_id,
+            config=self.config,
+            hostingPlatform=self.hosting_platform,
+            hostingCpu=self.hosting_cpu,
+            hostingMemory=self.hosting_memory,
+            hostingTimeout=self.hosting_timeout,
+            hostingType=self.hosting_type,
+        )
 
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> "PluginInstance":
@@ -54,7 +75,12 @@ class PluginInstance:
             plugin_version_id=d.get("pluginVersionId"),
             config=d.get("config"),
             user_id=d.get("userId"),
-            spaceId=d.get("spaceId"),
+            space_id=d.get("spaceId"),
+            hosting_platform=d.get("hostingPlatform"),
+            hosting_cpu=d.get("hostingCpu"),
+            hosting_memory=d.get("hostingMemory"),
+            hosting_timeout=d.get("hostingTimeout"),
+            hosting_type=d.get("hostingType"),
         )
 
     @staticmethod
@@ -96,9 +122,9 @@ class PluginInstance:
             "plugin/instance/export", payload=plugin_input, expect=RawDataPluginOutput
         )
 
-    def train(self, training_request: TrainingParameterPluginInput) -> Response[PluginInstance]:
+    def train(self, training_request: TrainingParameterPluginInput) -> Response[TrainPluginOutput]:
         return self.client.post(
-            "plugin/instance/train", payload=training_request, expect=PluginInstance
+            "plugin/instance/train", payload=training_request, expect=TrainPluginOutput
         )
 
     def get_training_parameters(

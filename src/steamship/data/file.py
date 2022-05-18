@@ -186,7 +186,6 @@ class File:
             "file/clear",
             IdentifierRequest(id=self.id),
             expect=FileClearResponse,
-            id_query=self,
             space_id=space_id,
             space_handle=space_handle,
             space=space,

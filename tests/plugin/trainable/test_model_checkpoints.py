@@ -3,7 +3,7 @@ from pathlib import Path
 
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
-from tests.demo_apps.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerModel, TRAINING_PARAMETERS
+from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import TestTrainableTaggerModel, TRAINING_PARAMETERS
 from tests.plugin.trainable.util import create_dummy_training_task
 from tests.utils.client import get_steamship_client
 

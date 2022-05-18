@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 from typing import Any, Dict
+from steamship.utils.localstack import apply_localstack_url_fix
 
 _configFile = ".steamship.json"
 
@@ -86,6 +87,10 @@ class Configuration:
         if self.web_base[len(self.web_base) - 1] != "/":
             self.web_base = f"{self.web_base}/"
 
+        self.api_base = apply_localstack_url_fix(self.api_base)
+        self.app_base = apply_localstack_url_fix(self.app_base)
+        self.web_base = apply_localstack_url_fix(self.web_base)
+
     def merge_dict(self, d: Dict[str, Any]):
         api_key = d.get("apiKey")
         if api_key is not None:
@@ -114,6 +119,10 @@ class Configuration:
         space_handle = d.get("spaceHandle")
         if space_handle is not None:
             self.space_handle = space_handle
+
+        self.api_base = apply_localstack_url_fix(self.api_base)
+        self.app_base = apply_localstack_url_fix(self.app_base)
+        self.web_base = apply_localstack_url_fix(self.web_base)
 
     def load_from_file(self, filepath: str, profile: str = None, throw_on_error=True):
         if not os.path.exists(filepath):

@@ -8,7 +8,7 @@ from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPlug
 from steamship.plugin.service import PluginRequest
 from tests.utils.client import get_steamship_client
 
-from tests.demo_apps.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerPlugin, TRAINING_PARAMETERS, TRAIN_RESPONSE
+from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import TestTrainableTaggerPlugin, TRAINING_PARAMETERS, TRAIN_RESPONSE
 
 TEST_REQ = BlockAndTagPluginInput(
     file=File(
@@ -34,7 +34,10 @@ def _test_resp(res):
 
 def test_trainable_tagger():
     client = get_steamship_client()
+    assert client is not None
+
     plugin = TestTrainableTaggerPlugin(client=client)
+    assert plugin.client is not None
 
     # STEP 1. Training Parameters
     # The first part of trainable is to produce trainable parameters. The end-user may offer inputs to this,
@@ -61,7 +64,7 @@ def test_trainable_tagger():
     tagger1 = plugin.train(
         PluginRequest(
             data=TrainPluginInput(
-                training_params=TRAINING_PARAMETERS
+                training_params=TRAINING_PARAMETERS.training_params
             ),
             task_id="000",
             plugin_instance_id="000"
@@ -72,7 +75,7 @@ def test_trainable_tagger():
     tagger2 = plugin.train_endpoint(
         **PluginRequest(
             data=TrainPluginInput(
-                training_params=TRAINING_PARAMETERS
+                training_params=TRAINING_PARAMETERS.training_params
             ),
             task_id="000",
             plugin_instance_id="000"

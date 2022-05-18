@@ -65,6 +65,7 @@ def create_handler(app_cls: Type[App]):
             return Response.from_obj(se)
         except Exception as ex:
             logging.error(ex)
+            print(ex)
             app_verb = None
             app_path = None
             if request:

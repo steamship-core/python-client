@@ -1,9 +1,11 @@
+import logging
 from dataclasses import dataclass
 from typing import Any
 
 from steamship.base import Client, Request, Response
 from steamship.base.request import GetRequest, IdentifierRequest
 from enum import Enum
+from steamship.utils.localstack import apply_localstack_url_fix
 
 class SignedUrl:
     class Bucket(str, Enum):
@@ -113,4 +115,8 @@ class Space:
         return client.post("space/create", req, expect=Space)
 
     def create_signed_url(self, request: SignedUrl.Request) -> Response[SignedUrl.Response]:
-        return self.client.post("space/createSignedUrl", payload=request, expect=SignedUrl.Response)
+        import requests
+        logging.info(f"Requesting signed URL: {request}")
+        ret = self.client.post("space/createSignedUrl", payload=request, expect=SignedUrl.Response)
+        logging.info(f"Got signed URL: {ret}")
+        return ret
