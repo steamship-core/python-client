@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import logging
+from enum import Enum
 from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
@@ -10,17 +11,18 @@ from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
 from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
+from steamship.data.embeddings import EmbeddingIndex
 from steamship.data.tags import Tag
 
 
-class FileUploadType:
-    file = "file"  # The CreateRequest contains a file upload that should be used
-    url = "url"  # The CreateRequest contains a url that should be scraped
-    value = "value"  # The Create Request contains a `text` field that should be used
-    fileImporter = (
+class FileUploadType(str, Enum):
+    FILE = "file"  # The CreateRequest contains a file upload that should be used
+    URL = "url"  # The CreateRequest contains a url that should be scraped
+    VALUE = "value"  # The Create Request contains a `text` field that should be used
+    FILE_IMPORTER = (
         "fileImporter"  # The CreateRequest contains a fileImporter handle that should be used
     )
-    blocks = "blocks"  # The CreateRequest contains blocks and tags that should be read in directly
+    BLOCKS = "blocks"  # The CreateRequest contains blocks and tags that should be read in directly
 
 
 _logger = logging.getLogger(__name__)
@@ -52,7 +54,7 @@ class File(BaseModel):
         data: str = None
         url: str = None
         filename: str = None
-        type: str = None  # FileUploadType: fileImporter | value | url | data
+        type: FileUploadType = None
         mimeType: str = None  # TODO: This should work
         corpusId: str = None
         blocks: List[Block.CreateRequest] = None
@@ -82,7 +84,8 @@ class File(BaseModel):
                 value=self.value,
                 data=self.data,
                 url=self.url,
-                type=self.type,
+                # `self.type.value` necessary when serializing. Otherwise Enum classname will be prepended
+                type=self.type.value if self.type else None,
                 mimeType=self.mimeType,
                 corpusId=self.corpusId,
                 pluginInstance=self.pluginInstance,
@@ -231,16 +234,16 @@ class File(BaseModel):
             raise Exception("Either filename, content, url, or plugin Instance must be provided.")
 
         if blocks is not None:
-            upload_type = FileUploadType.blocks
+            upload_type = FileUploadType.BLOCKS
         elif plugin_instance is not None:
-            upload_type = FileUploadType.fileImporter
+            upload_type = FileUploadType.FILE_IMPORTER
         elif content is not None:
             # We're still going to use the file upload method for file uploads
-            upload_type = FileUploadType.file
+            upload_type = FileUploadType.FILE
         elif filename is not None:
             with open(filename, "rb") as f:
                 content = f.read()
-            upload_type = FileUploadType.file
+            upload_type = FileUploadType.FILE
         else:
             if url is not None:
                 raise Exception(
@@ -266,7 +269,7 @@ class File(BaseModel):
             "file/create",
             payload=req,
             file=(file_part_name, content, "multipart/form-data")
-            if upload_type != FileUploadType.blocks
+            if upload_type != FileUploadType.BLOCKS
             else None,
             expect=File,
             space_id=space_id,
@@ -302,7 +305,7 @@ class File(BaseModel):
         space_handle: str = None,
         space: Any = None,
     ) -> Response[File]:
-        req = File.CreateRequest(type=FileUploadType.url, url=url, corpusId=corpus_id)
+        req = File.CreateRequest(type=FileUploadType.URL, url=url, corpusId=corpus_id)
 
         return client.post(
             "file/create",
@@ -361,28 +364,6 @@ class File(BaseModel):
         space_handle: str = None,
         space: Any = None,
     ) -> Response[File]:
-        pass
-
-    def tag(
-        self,
-        plugin_instance: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ):
-        pass
-
-    @staticmethod
-    def upload(
-        client: Client,
-        filename: str = None,
-        content: str = None,
-        mime_type: str = None,
-        corpus_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ) -> Response[File]:
         if filename is None and content is None:
             raise Exception("Either filename or content must be provided.")  # TODO (Enias): Review
 
@@ -390,7 +371,7 @@ class File(BaseModel):
             with open(filename, "rb") as f:
                 content = f.read()
 
-        req = File.CreateRequest(type=FileUploadType.file, corpusId=corpus_id, mimeType=mime_type)
+        req = File.CreateRequest(type=FileUploadType.FILE, corpusId=corpus_id, mimeType=mime_type)
 
         return client.post(
             "file/create",
@@ -413,7 +394,6 @@ class File(BaseModel):
             payload=req,
             expect=BlockAndTagPluginOutput,
             asynchronous=True,
-            id_query=self,
         )
 
     def tag(
@@ -434,7 +414,6 @@ class File(BaseModel):
             payload=req,
             expect=TagResponse,
             asynchronous=True,
-            id_query=self,
             space_id=space_id,
             space_handle=space_handle,
             space=space,
@@ -444,12 +423,12 @@ class File(BaseModel):
         self,
         plugin_instance: str = None,
         index_id: str = None,
-        e_index: "EmbeddingIndex" = None,
+        e_index: EmbeddingIndex = None,
         reindex: bool = True,
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-    ) -> "EmbeddingIndex":
+    ) -> EmbeddingIndex:
         # TODO: This should really be done all on the app, but for now we'll do it in the client
         # to facilitate demos.
         from steamship import EmbeddingIndex
@@ -459,7 +438,8 @@ class File(BaseModel):
             index_id = e_index.id
 
         if index_id is None and e_index is None:
-            e_index = self.client.create_index(
+            e_index = EmbeddingIndex.create(
+                client=self.client,
                 plugin_instance=plugin_instance,
                 upsert=True,
                 space_id=space_id,

@@ -19,9 +19,9 @@ Set the following environment variables for testing:
 1. **Your Steamship API Domain**. If you are using `steamship.com`, this step is not necessary. If you have a private Steamship installation, use the API domain you normally use.
 
 ```
-export STEAMSHIP_DOMAIN=http://api.steamship.yourcompany.com/
+export STEAMSHIP_DOMAIN=https://api.steamship.yourcompany.com/
 export STEAMSHIP_DOMAIN=http://localhost:8080
-export STEAMSHIP_DOMAIN=http://api.staging.steamship.com/
+export STEAMSHIP_DOMAIN=https://api.staging.steamship.com/
 ```
 
 

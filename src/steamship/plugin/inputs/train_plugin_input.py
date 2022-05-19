@@ -5,7 +5,6 @@ from typing import Any, Dict, Optional
 from pydantic import BaseModel
 
 from steamship.base import Client
-from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
 
 class TrainPluginInput(BaseModel):
@@ -13,10 +12,14 @@ class TrainPluginInput(BaseModel):
     This is the object passed as input to a trainable operation, stored as the `input` field of a `train` task.
     """
 
+    plugin_instance: str
+
     # How may epochs of trainable to perform, if relevant and supported
     training_epochs: Optional[int] = None
+
     # How much data to hold out for testing & reporting, if relevant and supported.
     testing_holdout_percent: Optional[float] = None
+
     # An optional seed for the train-test split
     test_split_seed: Optional[int] = None
 
@@ -37,20 +40,22 @@ class TrainPluginInput(BaseModel):
             return None
 
         return TrainPluginInput(
+            plugin_instance=d.get("pluginInstance"),
             training_epochs=d.get("trainingEpochs"),
             testing_holdout_percent=d.get("testingHoldoutPercent"),
             test_split_seed=d.get("testSplitSeed"),
             training_params=d.get("trainingParams"),
             inference_params=d.get("inferenceParams"),
-            training_data_url=d.get("trainingDataUrl")
+            training_data_url=d.get("trainingDataUrl"),
         )
 
     def to_dict(self) -> Dict:
         return dict(
+            pluginInstance=self.plugin_instance,
             trainingEpochs=self.training_epochs,
             testingHoldoutPercent=self.testing_holdout_percent,
             testSplitSeed=self.test_split_seed,
             trainingParams=self.training_params,
             inferenceParams=self.inference_params,
-            trainingDataUrl=self.training_data_url
+            trainingDataUrl=self.training_data_url,
         )

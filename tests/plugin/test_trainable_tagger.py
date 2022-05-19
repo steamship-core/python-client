@@ -6,11 +6,6 @@ from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
-from tests.demo_apps.plugins.taggers.plugin_trainable_tagger import (
-    TRAIN_RESPONSE,
-    TRAINING_PARAMETERS,
-    TestTrainableTaggerPlugin,
-)
 from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import (
     TRAIN_RESPONSE,
     TRAINING_PARAMETERS,
@@ -65,7 +60,9 @@ def test_trainable_tagger():
     # The first part of trainable is to produce your own trainable parameters.
     tagger1 = plugin.train(
         PluginRequest(
-            data=TrainPluginInput(training_params=TRAINING_PARAMETERS.training_params),
+            data=TrainPluginInput(
+                plugin_instance="foo", training_params=TRAINING_PARAMETERS.training_params
+            ),
             task_id="000",
             plugin_instance_id="000",
         )
@@ -74,7 +71,9 @@ def test_trainable_tagger():
 
     tagger2 = plugin.train_endpoint(
         **PluginRequest(
-            data=TrainPluginInput(training_params=TRAINING_PARAMETERS.training_params),
+            data=TrainPluginInput(
+                plugin_instance="foo", training_params=TRAINING_PARAMETERS.training_params
+            ),
             task_id="000",
             plugin_instance_id="000",
         ).to_dict()

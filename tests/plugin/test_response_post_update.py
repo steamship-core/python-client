@@ -40,7 +40,7 @@ def test_response_post_update_can_update_task():
 
     response.status.state = new_state
     response.status.status_message = new_message
-    response.status.new_output = new_output
+    response.status.output = new_output
 
     # Sanity check: we'll prove that caling task.check() resets this..
     task_result.check()

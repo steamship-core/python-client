@@ -3,7 +3,6 @@ import math
 from steamship.data.plugin import TrainingPlatform
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from tests import APPS_PATH
-from tests.demo_apps.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
 from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin

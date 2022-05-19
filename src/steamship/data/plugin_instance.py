@@ -116,7 +116,7 @@ class PluginInstance(BaseModel):
         return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
 
     def export(self, plugin_input: ExportPluginInput) -> Response[RawDataPluginOutput]:
-        plugin_input.pluginInstance = self.handle
+        plugin_input.plugin_instance = self.handle
         return self.client.post(
             "plugin/instance/export", payload=plugin_input, expect=RawDataPluginOutput
         )

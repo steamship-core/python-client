@@ -2,7 +2,7 @@ import json
 import logging
 from pathlib import Path
 
-from steamship import Block, File, Tag
+from steamship import Block, File
 from steamship.base import Response
 from steamship.client.operations.tagger import TagResponse
 from steamship.data.plugin import InferencePlatform, TrainingPlatform
@@ -10,7 +10,6 @@ from steamship.data.plugin_instance import PluginInstance
 from steamship.data.space import Space
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from tests import APPS_PATH
 from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import (
@@ -18,7 +17,6 @@ from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import (
 )
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
-from tests.utils.file import upload_file
 
 EXPORTER_HANDLE = "signed-url-exporter"
 KEYWORDS = ["product", "coupon"]

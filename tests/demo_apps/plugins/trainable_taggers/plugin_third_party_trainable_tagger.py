@@ -4,11 +4,9 @@ from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Type
 
-import requests
-
 from steamship import File, Tag
-from steamship.app import App, Response, create_handler
-from steamship.base import Client, Task, TaskState
+from steamship.app import Response, create_handler
+from steamship.base import Client, Task
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
@@ -18,6 +16,11 @@ from steamship.plugin.outputs.training_parameter_plugin_output import TrainingPa
 from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import TrainableTagger
 from steamship.plugin.trainable_model import TrainableModel
+from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import (
+    TRAIN_RESPONSE,
+    TRAINING_PARAMETERS,
+    TestTrainableTaggerModel,
+)
 
 # If this isn't present, Localstack won't show logs
 logging.getLogger().setLevel(logging.INFO)

@@ -29,8 +29,8 @@ class InferencePlatform(str, Enum):
 
 
 class CreatePluginRequest(Request):
-    trainingPlatform: Optional[TrainingPlatform] = None
-    inferencePlatform: Optional[InferencePlatform] = None
+    training_platform: Optional[TrainingPlatform] = None
+    inference_platform: Optional[InferencePlatform] = None
     id: str = None
     type: str = None
     transport: str = None
@@ -39,6 +39,20 @@ class CreatePluginRequest(Request):
     description: str = None
     metadata: str = None
     upsert: bool = None
+
+    def to_dict(self):
+        return dict(
+            trainingPlatform=self.training_platform.value if self.training_platform else None,
+            inferencePlatform=self.inference_platform.value if self.inference_platform else None,
+            id=self.id,
+            type=self.type,
+            transport=self.transport,
+            isPublic=self.isPublic,
+            handle=self.handle,
+            description=self.description,
+            metadata=self.metadata,
+            upsert=self.upsert,
+        )
 
 
 class DeletePluginRequest(Request):
@@ -143,8 +157,8 @@ class Plugin(BaseModel):
             metadata = json.dumps(metadata)
 
         req = CreatePluginRequest(
-            trainingPlatform=training_platform,
-            inferencePlatform=inference_platform,
+            training_platform=training_platform,
+            inference_platform=inference_platform,
             type=type_,
             transport=transport,
             isPublic=is_public,

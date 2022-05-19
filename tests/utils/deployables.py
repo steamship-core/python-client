@@ -77,7 +77,7 @@ def deploy_plugin(
     client: Steamship,
     py_path: Path,
     plugin_type: str,
-    training_platform: Optional[str] = None,
+    training_platform: Optional[TrainingPlatform] = None,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
     inference_platform: Optional[InferencePlatform] = None,
@@ -88,6 +88,7 @@ def deploy_plugin(
         inference_platform=inference_platform,
         type_=plugin_type,
         transport="jsonOverHttp",
+        description="A Plugin (python client tests)",
         is_public=False,
     )
     assert plugin.error is None

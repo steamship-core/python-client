@@ -5,7 +5,6 @@ from typing import Callable, Dict, Optional
 
 from typing_extensions import TypeAlias
 
-from steamship import SteamshipError
 from steamship.base import Client
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
@@ -107,12 +106,12 @@ class TrainableModel(ABC):
 
     @classmethod
     def load_remote(
-            cls,
-            client: Client,
-            plugin_instance_id: str,
-            checkpoint_handle: Optional[str] = None,
-            use_cache: bool = True,
-            model_parent_directory: Path = None,
+        cls,
+        client: Client,
+        plugin_instance_id: str,
+        checkpoint_handle: Optional[str] = None,
+        use_cache: bool = True,
+        model_parent_directory: Path = None,
     ):
         if checkpoint_handle is None:
             # For some reason doing this defaulting in the signature wasn't working.
@@ -148,12 +147,12 @@ class TrainableModel(ABC):
         return model
 
     def save_remote(
-            self,
-            client: Client,
-            plugin_instance_id: str,
-            checkpoint_handle: Optional[str] = None,
-            model_parent_directory: Path = None,
-            set_as_default: bool = True,
+        self,
+        client: Client,
+        plugin_instance_id: str,
+        checkpoint_handle: Optional[str] = None,
+        model_parent_directory: Path = None,
+        set_as_default: bool = True,
     ) -> str:
         if checkpoint_handle is None:
             # For some reason doing this defaulting in the signature wasn't working.

@@ -1,5 +1,5 @@
 import dataclasses
-import os
+import logging
 import tempfile
 from pathlib import Path
 from typing import Optional
@@ -17,10 +17,12 @@ def _get_space(client: Client) -> Space:
     # This is a way to load the model object for that space.
     space = Space.get(client, id_=client.config.space_id, handle=client.config.space_handle)
     if not space.data:
+        logging.error(f"Unable to get space.")
         raise SteamshipError(
             message="Error while retrieving the Space associated with this client config.",
             internal_message=f"space_id={client.config.space_id}   space_handle={client.config.space_handle}",
         )
+    logging.info(f"Got space: {space.data.id}")
     return space.data
 
 
@@ -62,7 +64,8 @@ class ModelCheckpoint:
             self.parent_directory = Path(tempfile.mkdtemp())
 
         # Create the folder path on disk.
-        os.makedirs(str(self.folder_path_on_disk()))
+        logging.info(f"Making sure Checkpoint path exists: {self.folder_path_on_disk()}")
+        self.folder_path_on_disk().mkdir(parents=True, exist_ok=True)
 
     def folder_path_on_disk(self) -> Path:
         """Returns the path to this checkpoint on the local disk.
@@ -94,21 +97,19 @@ class ModelCheckpoint:
 
     def download_model_bundle(self) -> Path:
         """Download's the model from Steamship and unzips to `parent_directory`"""
-        download_resp = self.space.create_signed_url(SignedUrl.Request(
-            bucket=SignedUrl.Bucket.PLUGIN_DATA,
-            filepath=self.archive_path_in_steamship(),
-            operation=SignedUrl.Operation.READ
-        ))
+        download_resp = self.space.create_signed_url(
+            SignedUrl.Request(
+                bucket=SignedUrl.Bucket.PLUGIN_DATA,
+                filepath=self.archive_path_in_steamship(),
+                operation=SignedUrl.Operation.READ,
+            )
+        )
         if not download_resp.data or not download_resp.data.signedUrl:
-            raise SteamshipError(message=f"Received empty Signed URL for model download of '{self.handle}.")
-        download_from_signed_url(
-            download_resp.data.signedUrl,
-            to_file=self.archive_path_on_disk()
-        )
-        unzip_folder(
-            self.archive_path_on_disk(),
-            into_folder=self.folder_path_on_disk()
-        )
+            raise SteamshipError(
+                message=f"Received empty Signed URL for model download of '{self.handle}."
+            )
+        download_from_signed_url(download_resp.data.signedUrl, to_file=self.archive_path_on_disk())
+        unzip_folder(self.archive_path_on_disk(), into_folder=self.folder_path_on_disk())
         if not download_resp.data or not download_resp.data.signedUrl:
             raise SteamshipError(
                 message=f"Received empty Signed URL for model download of '{self.handle}."
@@ -121,11 +122,12 @@ class ModelCheckpoint:
         """Assumes a pre-zipped model, uploads to the requested zip.
 
         This is an internal function. Please use upload_model_bundle as an caller."""
+        logging.info(f"ModelCheckpoint:_upload_model_zip - handle={as_handle}")
         signed_url_resp = self.space.create_signed_url(
             SignedUrl.Request(
                 bucket=SignedUrl.Bucket.PLUGIN_DATA,
                 filepath=self.archive_path_in_steamship(as_handle=as_handle),
-                operation=SignedUrl.Operation.WRITE
+                operation=SignedUrl.Operation.WRITE,
             )
         )
 
@@ -144,7 +146,7 @@ class ModelCheckpoint:
 
     def upload_model_bundle(self, set_as_default: bool = True):
         """Zips and uploads the Model to steamship"""
-
+        logging.info("ModelCheckpoint:upload_model_bundle")
         zip_folder(self.folder_path_on_disk(), into_file=self.archive_path_on_disk())
         self._upload_model_zip()
 

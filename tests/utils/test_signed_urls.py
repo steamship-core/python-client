@@ -2,9 +2,6 @@ import os
 import shutil
 import tempfile
 from pathlib import Path
-from urllib.parse import urlparse, urlunparse
-
-import pytest
 
 from steamship import Space
 from steamship.data.space import SignedUrl

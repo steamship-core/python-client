@@ -3,11 +3,9 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
-import requests
-
 from steamship import File, Tag
 from steamship.app import Response, create_handler
-from steamship.base import Client, Task, TaskState
+from steamship.base import Client, Task
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -62,11 +60,13 @@ class TestTrainableTaggerModel(TrainableModel):
 
     def load_from_folder(self, checkpoint_path: Path):
         """Creates a model instance & loads the provided checkpoint."""
+        logging.info(f"Model:save_to_folder {checkpoint_path}")
         self.path = checkpoint_path
         with open(self.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f:
             self.keyword_list = json.loads(f.read())
 
     def save_to_folder(self, checkpoint_path: Path):
+        logging.info(f"Model:save_to_folder {checkpoint_path}")
         self.path = checkpoint_path
         with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "w") as f:
             f.write(json.dumps(self.keyword_list))
@@ -145,7 +145,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
     def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
-        logging.debug(f"train {request}")
+        logging.info(f"TestTrainableTaggerPlugin:train() {request}")
 
         # Create a Response object at the top with a Task attached. This will let us stream back updates
         # TODO: This is very non-intuitive. We should improve this.
@@ -156,7 +156,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         # response.post_update(client=self.client)
 
         # Let's create an instance of our model. We'll use get_model_class() here for copy-paste safety.
-        model = self.model_cls()()
+        model = TestTrainableTaggerModel()
 
         # Train the model
         train_plugin_input = request.data

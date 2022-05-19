@@ -262,7 +262,7 @@ latex_documents = [
 # -- External mapping --------------------------------------------------------
 python_version = ".".join(map(str, sys.version_info[0:2]))
 intersphinx_mapping = {
-    "sphinx": ("http://www.sphinx-doc.org/en/stable", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/stable", None),
     "python": ("https://docs.python.org/" + python_version, None),
     "pyscaffold": ("https://pyscaffold.org/en/stable", None),
 }

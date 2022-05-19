@@ -82,7 +82,6 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
     @post("getTrainingParameters")
     def get_training_parameters_endpoint(self, **kwargs) -> Response[TrainingParameterPluginOutput]:
         """Exposes the Service's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
-        print("get_training_parameters")
         return self.get_training_parameters(
             PluginRequest.from_dict(
                 kwargs, wrapped_object_from_dict=TrainingParameterPluginInput.from_dict
@@ -93,9 +92,6 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
     @post("train")
     def train_endpoint(self, **kwargs) -> Response[TrainPluginOutput]:
         """Exposes the Service's `train` operation to the Steamship Engine via the expected HTTP path POST /train"""
-        print(f"Tagger:train_endpoint called. Calling train() {kwargs}")
         logging.info(f"Tagger:train_endpoint called. Calling train {kwargs}")
         arg = PluginRequest.from_dict(kwargs, wrapped_object_from_dict=TrainPluginInput.from_dict)
-        print(f"arg {arg}")
-        print(f"dir self: {dir(self)}")
         return self.train(arg)
