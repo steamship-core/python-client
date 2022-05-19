@@ -10,7 +10,7 @@ from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.service import PluginRequest
 from tests.demo_apps.plugins.importers.plugin_file_importer import TEST_DOC, TestFileImporterPlugin
 
-TEST_REQ = File.CreateRequest(value="Hi there.")
+TEST_REQ = File.CreateRequest()
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
 TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 
