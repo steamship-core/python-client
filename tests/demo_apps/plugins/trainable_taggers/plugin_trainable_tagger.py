@@ -59,13 +59,14 @@ class TestTrainableTaggerModel(TrainableModel):
         self.keyword_list = []
 
     def load_from_folder(self, checkpoint_path: Path):
-        """Creates a model instance & loads the provided checkpoint."""
+        """[Required by TrainableModel] Load state from the provided path."""
         logging.info(f"Model:save_to_folder {checkpoint_path}")
         self.path = checkpoint_path
         with open(self.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f:
             self.keyword_list = json.loads(f.read())
 
     def save_to_folder(self, checkpoint_path: Path):
+        """[Required by TrainableModel] Save state to the provided path."""
         logging.info(f"Model:save_to_folder {checkpoint_path}")
         self.path = checkpoint_path
         with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "w") as f:
