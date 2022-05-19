@@ -1,11 +1,12 @@
 import json
 import logging
 from pathlib import Path
-from typing import List, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 from steamship import File, Tag
 from steamship.app import Response, create_handler
-from steamship.base import Client, Task, TaskState
+from steamship.base import Client, Task
+from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
@@ -16,14 +17,16 @@ from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import TrainableTagger
 from steamship.plugin.trainable_model import TrainableModel
 
+# If this isn't present, Localstack won't show logs
+logging.getLogger().setLevel(logging.INFO)
+
 TRAINING_PARAMETERS = TrainingParameterPluginOutput(
-    trainingEpochs=3,
-    modelName="pytorch_text_classification",
-    testingHoldoutPercent=0.3,
-    trainingParams=dict(keywords=["chocolate", "roses", "chanpagne"]),
+    training_epochs=3,
+    testing_holdout_percent=0.3,
+    training_params=dict(keywords=["chocolate", "roses", "chanpagne"]),
 )
 
-TRAIN_RESPONSE = TrainPluginOutput(archive_path_in_steamship="000/default.zip")
+TRAIN_RESPONSE = TrainPluginOutput()
 
 
 class TestTrainableTaggerModel(TrainableModel):
@@ -56,12 +59,15 @@ class TestTrainableTaggerModel(TrainableModel):
         self.keyword_list = []
 
     def load_from_folder(self, checkpoint_path: Path):
-        """Creates a model instance & loads the provided checkpoint."""
+        """[Required by TrainableModel] Load state from the provided path."""
+        logging.info(f"Model:save_to_folder {checkpoint_path}")
         self.path = checkpoint_path
         with open(self.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f:
             self.keyword_list = json.loads(f.read())
 
     def save_to_folder(self, checkpoint_path: Path):
+        """[Required by TrainableModel] Save state to the provided path."""
+        logging.info(f"Model:save_to_folder {checkpoint_path}")
         self.path = checkpoint_path
         with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "w") as f:
             f.write(json.dumps(self.keyword_list))
@@ -71,20 +77,24 @@ class TestTrainableTaggerModel(TrainableModel):
 
         This allows us to test that we're properly passing through the training parameters to the train process.
         """
-        self.keyword_list = input.training_params.trainingParams.get("keyword_list", [])
+        logging.info("TestTrainableTaggerModel:train()")
+        self.keyword_list = input.training_params.get("keyword_list", [])
         return TRAIN_RESPONSE
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         """Tags the incoming data for any instance of the keywords in the parameter file."""
-        return Response(
+        logging.info(f"TestTrainableTaggerModel:run() - My keyword list is {self.keyword_list}")
+        response = Response(
             data=BlockAndTagPluginOutput(
                 file=File.CreateRequest(
-                    tags=list(map(lambda word: Tag.CreateRequest(name=word), self.keyword_list))
+                    tags=[Tag.CreateRequest(name=word) for word in self.keyword_list]
                 )
             )
         )
+        logging.info(f"TestTrainableTaggerModel:run() returning {response}")
+        return response
 
 
 class TestTrainableTaggerPlugin(TrainableTagger):
@@ -104,11 +114,17 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
     """
 
-    def get_model_class(self) -> Type[TestTrainableTaggerModel]:
-        return TestTrainableTaggerModel
+    def __init__(self, client: Client, config: Dict[str, Any] = None):
+        super().__init__(client, config)
 
-    def get_steamship_client(self) -> Client:
-        return self.client
+    class EmptyConfig(Config):
+        pass
+
+    def config_cls(self) -> Type[Config]:
+        return self.EmptyConfig
+
+    def model_cls(self) -> Type[TestTrainableTaggerModel]:
+        return TestTrainableTaggerModel
 
     def run_with_model(
         self,
@@ -116,31 +132,33 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         model: TestTrainableTaggerModel,
     ) -> Response[BlockAndTagPluginOutput]:
         """Downloads the model file from the provided space"""
-        logging.info(f"run_with_model {request} {model}")
-
+        logging.debug(f"run_with_model {request} {model}")
+        logging.info(
+            f"TestTrainableTaggerPlugin:run_with_model() got request {request} and model {model}"
+        )
         return model.run(request)
 
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
     ) -> Response[TrainingParameterPluginOutput]:
-        logging.info(f"get training parameters {TRAINING_PARAMETERS}")
-        return Response(data=TRAINING_PARAMETERS)
+        ret = Response(data=TRAINING_PARAMETERS)
+        logging.info(f"Returning toDict: {ret.to_dict()}")
+        return ret
 
     def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
+        logging.info(f"TestTrainableTaggerPlugin:train() {request}")
 
         # Create a Response object at the top with a Task attached. This will let us stream back updates
         # TODO: This is very non-intuitive. We should improve this.
-        logging.info(f"train {request}")
-
         response = Response(status=Task(task_id=request.task_id))
 
         # Example of recording training progress
-        response.status.status_message = "About to train!"
-        response.post_update(client=self.client)
+        # response.status.status_message = "About to train!"
+        # response.post_update(client=self.client)
 
         # Let's create an instance of our model. We'll use get_model_class() here for copy-paste safety.
-        model = self.get_model_class()()
+        model = TestTrainableTaggerModel()
 
         # Train the model
         train_plugin_input = request.data
@@ -152,22 +170,25 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         )
 
         # Set the model location on the plugin output.
+        logging.info(
+            f"TestTrainableTaggerPlugin:train() setting model archive path to {archive_path_in_steamship}"
+        )
         train_plugin_output.archive_path_in_steamship = archive_path_in_steamship
 
         # Set the response on the `data` field of the object
         response.set_data(json=train_plugin_output)
 
         # If we want we can post this to the Engine
-        response.status.status_message = "Done!"
-        response.status.state = TaskState.succeeded
-        response.post_update(client=self.client)
+        # response.status.status_message = "Done!"
+        # response.status.state = TaskState.succeeded
+        # response.post_update(client=self.client)
 
         # Or, if this training really did happen synchronously, we return it.
         # Some models (e.g. those running on ECS, or on a third party system) will not have completed by the time
         # the Lambda function finishes. For now, let's just pretend they're synchronous. But in a future PR when we
         # have a better method of handling such situations, the response below would include a `status` of type `running`
         # to indicate that, while the plugin handler has returned, the plugin's execution continues.
-
+        logging.info(f"TestTrainableTaggerPlugin:train() returning {response}")
         return response
 
 

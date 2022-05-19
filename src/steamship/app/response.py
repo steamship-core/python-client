@@ -12,6 +12,9 @@ from steamship.base.binary_utils import flexi_create
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 from steamship.base.tasks import Task, TaskState
 
+# If this isn't present, Localstack won't show logs
+logging.getLogger().setLevel(logging.INFO)
+
 
 class Http(BaseModel):
     status: int = None

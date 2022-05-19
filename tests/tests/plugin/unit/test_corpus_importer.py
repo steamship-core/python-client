@@ -14,9 +14,9 @@ TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 
 def _test_resp(res):
     assert type(res) == Response
-    assert type(res.data) == CorpusImportResponse
-    assert res.data.fileImportRequests is not None
-    assert len(res.data.fileImportRequests) == 2
+    assert type(res.data) == dict
+    assert res.data["fileImportRequests"] is not None
+    assert len(res.data["fileImportRequests"]) == 2
 
 
 def test_importer():
@@ -27,17 +27,3 @@ def test_importer():
     # The endpoints take a kwargs block which is transformed into the appropriate JSON object
     res2 = importer.run_endpoint(**TEST_PLUGIN_REQ_DICT)
     _test_resp(res2)
-
-    # This plugin is not trainable, and thus it refuses trainable parameters requests
-    with pytest.raises(Exception):
-        importer.get_training_parameters(PluginRequest(data=TrainingParameterPluginInput()))
-    with pytest.raises(Exception):
-        importer.get_training_parameters_endpoint(
-            **PluginRequest(data=TrainingParameterPluginInput()).to_dict()
-        )
-
-    # This plugin is not trainable, and thus it refuses train requests
-    with pytest.raises(Exception):
-        importer.train(PluginRequest(data=TrainPluginInput()))
-    with pytest.raises(Exception):
-        importer.train_endpoint(**PluginRequest(data=TrainPluginInput()).to_dict())

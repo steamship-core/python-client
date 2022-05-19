@@ -1,32 +1,44 @@
 from __future__ import annotations
 
-from typing import Any
+import logging
+from enum import Enum
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response
+from steamship.base import Client
+from steamship.base import Request as SteamshipRequest
+from steamship.base import Response as SteamshipResponse
 from steamship.base.request import GetRequest, IdentifierRequest
 
 
 class SignedUrl:
-    class Bucket:
-        exports = "exports"
-        imports = "imports"
-        userData = "userData"
-        pluginData = "pluginData"
-        appData = "appData"
+    class Bucket(str, Enum):
+        EXPORTS = "exports"
+        IMPORTS = "imports"
+        USER_DATA = "userData"
+        PLUGIN_DATA = "pluginData"
+        APP_DATA = "appData"
 
-    class Operation:
-        read = "Read"
-        write = "Write"
+    class Operation(str, Enum):
+        READ = "Read"
+        WRITE = "Write"
 
-    class Request(Request):
-        bucket: str = None
-        filepath: str = None
-        operation: str = None
+    class Request(SteamshipRequest):
+        bucket: SignedUrl.Bucket
+        filepath: str
+        operation: SignedUrl.Operation
         expiresInMinutes: int = None
 
-    class Response(Response):
+        def to_dict(self):
+            return dict(
+                bucket=self.bucket.value if self.bucket else None,
+                filepath=self.filepath,
+                operation=self.operation if self.operation else None,
+                expiresInMinutes=self.expiresInMinutes,
+            )
+
+    class Response(SteamshipResponse):
         bucket: str = None
         filepath: str = None
         operation: str = None
@@ -51,18 +63,18 @@ class Space(BaseModel):
     id: str = None
     handle: str = None
 
-    class CreateRequest(Request):
-        id: str = None
-        handle: str = None
-        upsert: bool = None
-        externalId: str = None
-        externalType: str = None
-        metadata: str = None
+    class CreateRequest(SteamshipRequest):
+        id: Optional[str] = None
+        handle: Optional[str] = None
+        upsert: Optional[bool] = None
+        externalId: Optional[str] = None
+        externalType: Optional[str] = None
+        metadata: Optional[str] = None
 
-    class ListRequest(Request):
+    class ListRequest(SteamshipRequest):
         pass
 
-    def delete(self) -> Response[Space]:
+    def delete(self) -> SteamshipResponse[Space]:
         return self.client.post("space/delete", IdentifierRequest(id=self.id), expect=Space)
 
     @staticmethod
@@ -81,7 +93,7 @@ class Space(BaseModel):
         space_id: str = None,
         space_handle: str = None,
         space: "Space" = None,
-    ) -> Response[Space]:
+    ) -> SteamshipResponse[Space]:
         req = GetRequest(id=id_, handle=handle, upsert=upsert)
         return client.post(
             "space/get",
@@ -95,12 +107,12 @@ class Space(BaseModel):
     @staticmethod
     def create(
         client: Client,
-        handle: str,
-        external_id: str = None,
-        external_type: str = None,
+        handle: Optional[str] = None,
+        external_id: Optional[str] = None,
+        external_type: Optional[str] = None,
         metadata: Any = None,
         upsert: bool = True,
-    ) -> Response[Space]:
+    ) -> SteamshipResponse[Space]:
         req = Space.CreateRequest(
             handle=handle,
             upsert=upsert,
@@ -110,5 +122,13 @@ class Space(BaseModel):
         )
         return client.post("space/create", req, expect=Space)
 
-    def create_signed_url(self, request: SignedUrl.Request) -> Response[SignedUrl.Response]:
-        return self.client.post("space/createSignedUrl", payload=request, expect=SignedUrl.Response)
+    def create_signed_url(
+        self, request: SignedUrl.Request
+    ) -> SteamshipResponse[SignedUrl.Response]:
+        logging.info(f"Requesting signed URL: {request}")
+        ret = self.client.post("space/createSignedUrl", payload=request, expect=SignedUrl.Response)
+        logging.info(f"Got signed URL: {ret}")
+        return ret
+
+
+SignedUrl.Request.update_forward_refs()
