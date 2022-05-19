@@ -156,8 +156,6 @@ def test_file_embed_lookup():
 
         # Now we list the items
         itemsa = index.list_items(file_id=a.id).data
-        for item in itemsa.items:
-            print("File {} - Value {}".format(item.fileId, item.value))
         assert len(itemsa.items) == 1
         assert len(itemsa.items[0].embedding) > 0
         assert itemsa.items[0].value == content_a

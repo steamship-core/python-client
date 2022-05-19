@@ -3,8 +3,6 @@ from __future__ import annotations
 import logging
 from typing import Any, Union
 
-from pydantic import BaseModel
-
 
 class SteamshipError(Exception):
     message: str = None

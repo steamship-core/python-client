@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Type
 
-from pydantic import BaseModel
-
 from steamship.app import Response, post
 from steamship.base import Client
 from steamship.plugin.config import Config
@@ -23,6 +21,7 @@ from steamship.plugin.service import PluginRequest, PluginService
 class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC):
     # noinspection PyUnusedLocal
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+        super().__init__()
         if config:
             self.config = self.config_cls()(**config)
 
