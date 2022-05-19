@@ -26,8 +26,6 @@ Set up your virtual environment using the following commands:
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.dev.txt
-python -m pip install -e .
-./bin/tox
 ```
 
 This will install the required dependencies (runtime and development) and register the project source tree with your virtual environment so that `import steamship` statements will resolve correctly.
