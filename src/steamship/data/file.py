@@ -52,6 +52,7 @@ class File(BaseModel):
     class CreateRequest(Request):
         value: str = None
         data: str = None
+        id: str = None
         url: str = None
         filename: str = None
         type: FileUploadType = None
@@ -67,6 +68,7 @@ class File(BaseModel):
                 value=d.get("value"),
                 data=d.get("data"),
                 url=d.get("url"),
+                id=d.get("id"),
                 type=d.get("type"),
                 mimeType=d.get("mimeType"),
                 corpusId=d.get("corpusId"),
@@ -81,6 +83,7 @@ class File(BaseModel):
 
         def to_dict(self) -> dict:
             return dict(
+                id=self.id,
                 value=self.value,
                 data=self.data,
                 url=self.url,
@@ -347,7 +350,7 @@ class File(BaseModel):
         return self.client.post(
             "file/raw",
             payload=req,
-            space_id=space_id,
+            space_id=space_id or self.space_id,
             space_handle=space_handle,
             space=space,
             raw_response=True,
@@ -477,3 +480,6 @@ class FileQueryResponse(BaseModel):
         return FileQueryResponse(
             files=[File.from_dict(file, client=client) for file in d.get("files", [])]
         )
+
+
+File.ListResponse.update_forward_refs()

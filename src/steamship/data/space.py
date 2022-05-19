@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
@@ -64,12 +64,12 @@ class Space(BaseModel):
     handle: str = None
 
     class CreateRequest(SteamshipRequest):
-        id: str = None
-        handle: str = None
-        upsert: bool = None
-        externalId: str = None
-        externalType: str = None
-        metadata: str = None
+        id: Optional[str] = None
+        handle: Optional[str] = None
+        upsert: Optional[bool] = None
+        externalId: Optional[str] = None
+        externalType: Optional[str] = None
+        metadata: Optional[str] = None
 
     class ListRequest(SteamshipRequest):
         pass
@@ -107,9 +107,9 @@ class Space(BaseModel):
     @staticmethod
     def create(
         client: Client,
-        handle: str,
-        external_id: str = None,
-        external_type: str = None,
+        handle: Optional[str] = None,
+        external_id: Optional[str] = None,
+        external_type: Optional[str] = None,
         metadata: Any = None,
         upsert: bool = True,
     ) -> SteamshipResponse[Space]:

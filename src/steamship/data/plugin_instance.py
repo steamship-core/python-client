@@ -4,7 +4,13 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
-from steamship.data.plugin import PlatformCpu, PlatformMemory, PlatformType
+from steamship.data.plugin import (
+    HostingCpu,
+    HostingEnvironment,
+    HostingMemory,
+    HostingTimeout,
+    HostingType,
+)
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
@@ -21,12 +27,11 @@ class PluginInstance(BaseModel):
     space_id: Optional[str] = None
     user_id: str = None
     config: Dict[str, Any] = None
-    hosting_platform: Optional[PlatformType] = None
-    hosting_cpu: Optional[PlatformCpu] = None
-    hosting_memory: Optional[PlatformMemory] = None
-    hosting_timeout: Optional[str] = None
-    hosting_type: Optional[str] = None
-
+    hosting_type: Optional[HostingType] = None
+    hosting_cpu: Optional[HostingCpu] = None
+    hosting_memory: Optional[HostingMemory] = None
+    hosting_timeout: Optional[HostingTimeout] = None
+    hosting_environment: Optional[HostingEnvironment] = None
 
 
 class CreatePluginInstanceRequest(Request):
@@ -53,11 +58,11 @@ class PluginInstance(BaseModel):
     space_id: Optional[str] = None
     user_id: str = None
     config: Dict[str, Any] = None
-    hosting_platform: Optional[PlatformType] = None
-    hosting_cpu: Optional[PlatformCpu] = None
-    hosting_memory: Optional[PlatformMemory] = None
-    hosting_timeout: Optional[str] = None
-    hosting_type: Optional[str] = None
+    hosting_type: Optional[HostingType] = None
+    hosting_cpu: Optional[HostingCpu] = None
+    hosting_memory: Optional[HostingMemory] = None
+    hosting_timeout: Optional[HostingTimeout] = None
+    hosting_environment: Optional[HostingEnvironment] = None
 
     def to_dict(self) -> dict:
         return dict(
@@ -68,11 +73,11 @@ class PluginInstance(BaseModel):
             spaceId=self.space_id,
             userId=self.user_id,
             config=self.config,
-            hostingPlatform=self.hosting_platform,
+            hostingType=self.hosting_type,
             hostingCpu=self.hosting_cpu,
             hostingMemory=self.hosting_memory,
             hostingTimeout=self.hosting_timeout,
-            hostingType=self.hosting_type,
+            hostingEnvironment=self.hosting_environment,
         )
 
     @staticmethod
@@ -89,11 +94,11 @@ class PluginInstance(BaseModel):
             config=d.get("config"),
             user_id=d.get("userId"),
             space_id=d.get("spaceId"),
-            hosting_platform=d.get("hostingPlatform"),
+            hosting_type=d.get("hostingType"),
             hosting_cpu=d.get("hostingCpu"),
             hosting_memory=d.get("hostingMemory"),
             hosting_timeout=d.get("hostingTimeout"),
-            hosting_type=d.get("hostingType"),
+            hosting_environment=d.get("hostingEnvironment"),
         )
 
     @staticmethod

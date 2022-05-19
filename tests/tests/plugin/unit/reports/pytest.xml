@@ -1,1 +1,81 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="16" time="9.577" timestamp="2022-05-18T22:40:55.580766" hostname="Steamship.local"><testcase classname="tests.plugin.test_blockifier" name="test_resp" time="0.001" /><testcase classname="tests.plugin.test_corpus_importer" name="test_importer" time="0.001" /><testcase classname="tests.plugin.test_file_importer" name="test_importer" time="0.000" /><testcase classname="tests.plugin.test_response_post_update" name="test_response_post_update_fails_when_no_task_present" time="0.000" /><testcase classname="tests.plugin.test_response_post_update" name="test_response_post_update_can_update_task" time="3.333" /><testcase classname="tests.plugin.test_service" name="test_plugin_service_is_abstract" time="0.001" /><testcase classname="tests.plugin.test_service" name="test_plugin_service_must_implement_run_and_subclass_request_from_dict" time="0.001" /><testcase classname="tests.plugin.test_service" name="test_run_succeeds" time="0.001" /><testcase classname="tests.plugin.test_service" name="test_plugin_does_not_have_training_param_endpoint" time="0.001" /><testcase classname="tests.plugin.test_service" name="test_with_override_get_training_params_succeeds" time="0.001" /><testcase classname="tests.plugin.test_service" name="test_non_trainable_plugin_lacks_train" time="0.000" /><testcase classname="tests.plugin.test_service" name="test_with_override_train_succeeds" time="0.002" /><testcase classname="tests.plugin.test_tagger" name="test_parser" time="0.001" /><testcase classname="tests.plugin.test_trainable_tagger" name="test_trainable_tagger" time="0.232" /><testcase classname="tests.plugin.trainable.test_model_checkpoints" name="test_model_checkpoint_save_load" time="2.492" /><testcase classname="tests.plugin.trainable.test_model_checkpoints" name="test_model_can_save_to_and_load_from_checkpoint" time="3.355" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="16" time="265.774" timestamp="2022-05-19T16:47:33.727240" hostname="Steamship.local"><testcase classname="tests.tests.plugin.unit.trainable.test_model_checkpoints" name="test_model_can_save_to_and_load_from_checkpoint" time="2.339" /><testcase classname="tests.tests.plugin.unit.test_blockifier" name="test_resp" time="0.001"><failure message="AttributeError: 'dict' object has no attribute 'file'">def test_resp():
+        blockifier = DummyBlockifierPlugin()
+        request = PluginRequest(data=TEST_REQ)
+        res = blockifier.run(request)
+&gt;       _test_resp(res)
+
+test_blockifier.py:24: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+res = Response(data={'file': {'value': None, 'data': None, 'url': None, 'type': None, 'mimeType': None, 'corpusId': None, 'p...e, eventual_result_type=None), http=Http(status=200, base64Wrapped=None, headers={'Content-Type': 'application/json'}))
+
+    def _test_resp(res):
+        assert res.data is not None
+&gt;       assert res.data.file is not None
+E       AttributeError: 'dict' object has no attribute 'file'
+
+test_blockifier.py:16: AttributeError</failure></testcase><testcase classname="tests.tests.plugin.unit.test_corpus_importer" name="test_importer" time="0.003"><failure message="AssertionError: assert == failed. [pytest-clarity diff shown]&#10;  #x1B[0m&#10;  #x1B[0m#x1B[32mLHS#x1B[0m vs #x1B[31mRHS#x1B[0m shown below&#10;  #x1B[0m&#10;  #x1B[0m#x1B[32m&lt;class 'dict'&gt;#x1B[0m&#10;  #x1B[0m#x1B[31m&lt;class 'steamship.client.operations.corpus_importer.CorpusImportResponse'&gt;#x1B[0m&#10;  #x1B[0m">def test_importer():
+        importer = TestCorpusImporterPlugin()
+        res = importer.run(TEST_PLUGIN_REQ)
+&gt;       _test_resp(res)
+
+test_corpus_importer.py:25: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+res = Response(data={'fileImportRequests': [CreateRequest(value=None, data=None, url=None, filename=None, type=&lt;FileUploadTy...e, eventual_result_type=None), http=Http(status=200, base64Wrapped=None, headers={'Content-Type': 'application/json'}))
+
+    def _test_resp(res):
+        assert type(res) == Response
+&gt;       assert type(res.data) == CorpusImportResponse
+E       AssertionError: assert == failed. [pytest-clarity diff shown]
+E         #x1B[0m
+E         #x1B[0m#x1B[32mLHS#x1B[0m vs #x1B[31mRHS#x1B[0m shown below
+E         #x1B[0m
+E         #x1B[0m#x1B[32m&lt;class 'dict'&gt;#x1B[0m
+E         #x1B[0m#x1B[31m&lt;class 'steamship.client.operations.corpus_importer.CorpusImportResponse'&gt;#x1B[0m
+E         #x1B[0m
+
+test_corpus_importer.py:17: AssertionError</failure></testcase><testcase classname="tests.tests.plugin.unit.test_file_importer" name="test_importer" time="0.001"><failure message="AssertionError: assert == failed. [pytest-clarity diff shown]&#10;  #x1B[0m&#10;  #x1B[0m#x1B[32mLHS#x1B[0m vs #x1B[31mRHS#x1B[0m shown below&#10;  #x1B[0m&#10;  #x1B[0m#x1B[32m&lt;class 'dict'&gt;#x1B[0m&#10;  #x1B[0m#x1B[31m&lt;class 'steamship.plugin.outputs.raw_data_plugin_output.RawDataPluginOutput'&gt;#x1B[0m&#10;  #x1B[0m">def test_importer():
+        importer = TestFileImporterPlugin()
+        res = importer.run(TEST_PLUGIN_REQ)
+&gt;       _test_resp(res)
+
+test_file_importer.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+res = Response(data={'data': 'IyBBIFBvZW0KClJvc2VzIGFyZSByZWQuIFZpb2xldHMgYXJlIGJsdWUuCgpTdWdhciBpcyBzd2VldCwgYW5kIEkgbG92ZS...e, eventual_result_type=None), http=Http(status=200, base64Wrapped=None, headers={'Content-Type': 'application/json'}))
+
+    def _test_resp(res):
+        assert type(res) == Response
+&gt;       assert type(res.data) == RawDataPluginOutput
+E       AssertionError: assert == failed. [pytest-clarity diff shown]
+E         #x1B[0m
+E         #x1B[0m#x1B[32mLHS#x1B[0m vs #x1B[31mRHS#x1B[0m shown below
+E         #x1B[0m
+E         #x1B[0m#x1B[32m&lt;class 'dict'&gt;#x1B[0m
+E         #x1B[0m#x1B[31m&lt;class 'steamship.plugin.outputs.raw_data_plugin_output.RawDataPluginOutput'&gt;#x1B[0m
+E         #x1B[0m
+
+test_file_importer.py:20: AssertionError</failure></testcase><testcase classname="tests.tests.plugin.unit.test_response_post_update" name="test_response_post_update_fails_when_no_task_present" time="0.001" /><testcase classname="tests.tests.plugin.unit.test_response_post_update" name="test_response_post_update_can_update_task" time="250.944" /><testcase classname="tests.tests.plugin.unit.test_service" name="test_plugin_service_is_abstract" time="0.000" /><testcase classname="tests.tests.plugin.unit.test_service" name="test_plugin_service_must_implement_run_and_subclass_request_from_dict" time="0.000" /><testcase classname="tests.tests.plugin.unit.test_service" name="test_run_succeeds" time="0.000" /><testcase classname="tests.tests.plugin.unit.test_service" name="test_plugin_does_not_have_training_param_endpoint" time="0.001" /><testcase classname="tests.tests.plugin.unit.test_service" name="test_with_override_get_training_params_succeeds" time="0.001" /><testcase classname="tests.tests.plugin.unit.test_service" name="test_non_trainable_plugin_lacks_train" time="0.000" /><testcase classname="tests.tests.plugin.unit.test_service" name="test_with_override_train_succeeds" time="0.000" /><testcase classname="tests.tests.plugin.unit.test_tagger" name="test_parser" time="0.002"><failure message="AssertionError: assert == failed. [pytest-clarity diff shown]&#10;  #x1B[0m&#10;  #x1B[0m#x1B[32mLHS#x1B[0m vs #x1B[31mRHS#x1B[0m shown below&#10;  #x1B[0m&#10;  #x1B[0m#x1B[32m&lt;class 'dict'&gt;#x1B[0m&#10;  #x1B[0m#x1B[31m&lt;class #x1B[0m&#10;  #x1B[0m#x1B[31m'steamship.plugin.outputs.block_and_tag_plugin_output.BlockAndTagPluginOutput'&gt;#x1B[0m&#10;  #x1B[0m">def test_parser():
+        parser = TestParserPlugin()
+        res = parser.run(TEST_PLUGIN_REQ)
+&gt;       _test_resp(res)
+
+test_tagger.py:39: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+res = Response(data={'file': {'value': None, 'data': None, 'url': None, 'type': None, 'mimeType': None, 'corpusId': None, 'p...e, eventual_result_type=None), http=Http(status=200, base64Wrapped=None, headers={'Content-Type': 'application/json'}))
+
+    def _test_resp(res):
+        assert type(res) == Response
+&gt;       assert type(res.data) == dict
+E       AssertionError: assert == failed. [pytest-clarity diff shown]
+E         #x1B[0m
+E         #x1B[0m#x1B[32mLHS#x1B[0m vs #x1B[31mRHS#x1B[0m shown below
+E         #x1B[0m
+E         #x1B[0m#x1B[32m&lt;class 'dict'&gt;#x1B[0m
+E         #x1B[0m#x1B[31m&lt;class #x1B[0m
+E         #x1B[0m#x1B[31m'steamship.plugin.outputs.block_and_tag_plugin_output.BlockAndTagPluginOutput'&gt;#x1B[0m
+E         #x1B[0m
+
+test_tagger.py:30: AssertionError</failure></testcase><testcase classname="tests.tests.plugin.unit.test_trainable_tagger" name="test_trainable_tagger" time="0.140" /><testcase classname="tests.tests.plugin.unit.trainable.test_model_checkpoints" name="test_model_checkpoint_save_load" time="12.159" /></testsuite></testsuites>

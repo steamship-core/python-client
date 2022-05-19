@@ -48,7 +48,7 @@ class TrainingParameterPluginOutput(BaseModel):
         )
 
     def to_dict(self) -> Dict:
-        logging.info(f"from_dict on trainingparampluginoutput: {self.__dict__}")
+        logging.info(f"to_dict on trainingparampluginoutput: {self.__dict__}")
         export_request = None
         if self.export_request is not None:
             export_request = self.export_request.to_dict()

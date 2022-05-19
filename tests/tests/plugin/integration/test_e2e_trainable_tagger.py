@@ -5,7 +5,7 @@ from pathlib import Path
 from assets.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerModel
 from utils.file import upload_file
 
-from steamship.data.plugin import PlatformType
+from steamship.data.plugin import HostingType
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.space import Space
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
@@ -61,11 +61,7 @@ def test_e2e_trainable_tagger_lambda_training():
 
             # Now make a trainable tagger to train on those tags
             with deploy_plugin(
-                client,
-                trainable_tagger_path,
-                "tagger",
-                training_platform=PlatformType.LAMBDA,
-                inference_platform=PlatformType.LAMBDA,
+                client, trainable_tagger_path, "tagger", training_platform=HostingType.LAMBDA
             ) as (tagger, tagger_version, tagger_instance):
                 # Now train the plugin
                 training_request = TrainingParameterPluginInput(

@@ -10,6 +10,9 @@ from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPlug
 from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import Tagger
 
+# If this isn't present, Localstack won't show logs
+logging.getLogger().setLevel(logging.INFO)
+
 
 def tag_sentences(block: Block):
     """Splits the document into sentences by assuming a period is a sentence divider."""
@@ -48,7 +51,9 @@ class TestParserPlugin(Tagger):
         for block in file.blocks:
             tag_sentences(block)
         if request.data is not None:
-            return Response(data=BlockAndTagPluginOutput(file=file))
+            ret = Response(data=BlockAndTagPluginOutput(file=file))
+            logging.info(f"Ret: {ret}")
+            return ret
 
 
 handler = create_handler(TestParserPlugin)

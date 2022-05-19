@@ -18,12 +18,26 @@ from steamship.base.request import Request
 from steamship.base.response import Response
 
 
-class PlatformType(str, Enum):
+class HostingType(str, Enum):
+    """The type of hosting provider to deploy to."""
+
     LAMBDA = "lambda"
     ECS = "ecs"
 
 
-class PlatformMemory(str, Enum):
+class HostingEnvironment(str, Enum):
+    """The software environment required for deployment."""
+
+    PYTHON38 = "python38"
+    STEAMSHIP_PYTORCH_CPU = "inferenceCpu"
+
+
+class HostingMemory(str, Enum):
+    """The amount of memory required for deployment.
+
+    This is mapped to a value dependent on the HostingType it is combined with.
+    """
+
     MIN = "min"
     XXS = "xxs"
     XS = "xs"
@@ -35,7 +49,12 @@ class PlatformMemory(str, Enum):
     MAX = "max"
 
 
-class PlatformCpu(str, Enum):
+class HostingCpu(str, Enum):
+    """The amount of CPU required for deployment.
+
+    This is mapped to a value dependent on the HostingType it is combined with.
+    """
+
     MIN = "min"
     XXS = "xxs"
     XS = "xs"
@@ -47,7 +66,12 @@ class PlatformCpu(str, Enum):
     MAX = "max"
 
 
-class PlatformTimeout(str, Enum):
+class HostingTimeout(str, Enum):
+    """The request timeout required for deployment.
+
+    This is mapped to a value dependent on the HostingType it is combined with.
+    """
+
     MIN = "min"
     XXS = "xxs"
     XS = "xs"
@@ -60,8 +84,7 @@ class PlatformTimeout(str, Enum):
 
 
 class CreatePluginRequest(Request):
-    training_platform: Optional[PlatformType] = None
-    inference_platform: Optional[PlatformType] = None
+    training_platform: Optional[HostingType] = None
     id: str = None
     type: str = None
     transport: str = None
@@ -74,7 +97,6 @@ class CreatePluginRequest(Request):
     def to_dict(self):
         return dict(
             trainingPlatform=self.training_platform.value if self.training_platform else None,
-            inferencePlatform=self.inference_platform.value if self.inference_platform else None,
             id=self.id,
             type=self.type,
             transport=self.transport,
@@ -145,8 +167,7 @@ class Plugin(BaseModel):
     type: str = None
     transport: str = None
     isPublic: bool = None
-    trainingPlatform: Optional[PlatformType] = None
-    inferencePlatform: Optional[PlatformType] = None
+    trainingPlatform: Optional[HostingType] = None
     handle: str = None
     description: str = None
     metadata: str = None
@@ -163,7 +184,6 @@ class Plugin(BaseModel):
             transport=d.get("transport"),
             isPublic=d.get("isPublic"),
             trainingPlatform=d.get("trainingPlatform"),
-            inferencePlatform=d.get("inferencePlatform"),
             handle=d.get("handle"),
             description=d.get("description"),
             metadata=d.get("metadata"),
@@ -177,8 +197,7 @@ class Plugin(BaseModel):
         transport: str,
         is_public: bool,
         handle: str = None,
-        training_platform: Optional[PlatformType] = None,
-        inference_platform: Optional[PlatformType] = None,
+        training_platform: Optional[HostingType] = None,
         metadata: Union[str, Dict, List] = None,
         upsert: bool = None,
         space_id: str = None,
@@ -189,7 +208,6 @@ class Plugin(BaseModel):
 
         req = CreatePluginRequest(
             training_platform=training_platform,
-            inference_platform=inference_platform,
             type=type_,
             transport=transport,
             isPublic=is_public,

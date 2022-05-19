@@ -1,1 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="49.387" timestamp="2022-05-19T14:10:09.177270" hostname="Steamship.local"><testcase classname="tests.tests.app.integration.test_app_instance" name="test_instance_invoke" time="27.050" /><testcase time="0.000" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="0" time="0.196" timestamp="2022-05-19T17:22:03.286812" hostname="Steamship.local" /></testsuites>

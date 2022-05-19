@@ -2,8 +2,9 @@ import math
 
 from assets.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
 
-from steamship.data.plugin import PlatformType
+from steamship.data.plugin import HostingType
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
+from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 from tests import PLUGINS_PATH
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
@@ -19,19 +20,18 @@ def test_get_training_parameters():
         client,
         tagger_path,
         "tagger",
-        training_platform=PlatformType.ECS,
+        training_platform=HostingType.LAMBDA,
     ) as (tagger, taggerVersion, taggerInstance):
         training_request = TrainingParameterPluginInput(plugin_instance=taggerInstance.handle)
         res = taggerInstance.get_training_parameters(training_request)
         assert res.data is not None
-        params = res.data
+        params: TrainingParameterPluginOutput = res.data
 
-        assert params.trainingEpochs is not None
-        assert params.trainingEpochs == TRAINING_PARAMETERS.trainingEpochs
-        assert params.modelName == TRAINING_PARAMETERS.modelName
+        assert params.training_epochs is not None
+        assert params.training_epochs == TRAINING_PARAMETERS.training_epochs
         assert math.isclose(
-            params.testingHoldoutPercent,
-            TRAINING_PARAMETERS.testingHoldoutPercent,
+            params.testing_holdout_percent,
+            TRAINING_PARAMETERS.testing_holdout_percent,
             abs_tol=0.0001,
         )
-        assert params.trainingParams == TRAINING_PARAMETERS.trainingParams
+        assert params.training_params == TRAINING_PARAMETERS.training_params

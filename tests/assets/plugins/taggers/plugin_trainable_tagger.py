@@ -141,8 +141,9 @@ class TestTrainableTaggerPlugin(TrainableTagger):
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
     ) -> Response[TrainingParameterPluginOutput]:
-        logging.debug(f"get_training_parameters {request}")
-        return Response(data=TRAINING_PARAMETERS)
+        ret = Response(data=TRAINING_PARAMETERS)
+        logging.info(f"Returning toDict: {ret.to_dict()}")
+        return ret
 
     def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
