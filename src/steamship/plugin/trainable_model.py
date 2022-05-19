@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Callable, Dict, Optional
@@ -108,15 +109,22 @@ class TrainableModel(ABC):
         cls,
         client: Client,
         plugin_instance_id: str,
-        checkpoint_handle: Optional[str] = ModelCheckpoint.DEFAULT_HANDLE,
+        checkpoint_handle: Optional[str] = None,
         use_cache: bool = True,
         model_parent_directory: Path = None,
     ):
+        if checkpoint_handle is None:
+            # For some reason doing this defaulting in the signature wasn't working.
+            checkpoint_handle = ModelCheckpoint.DEFAULT_HANDLE
+
         model_key = f"{plugin_instance_id}/{checkpoint_handle}"
+        logging.info(f"TrainableModel:load_remote - Model Key: {model_key}")
+
         global MODEL_CACHE
 
         if use_cache:
             if model_key in MODEL_CACHE:
+                logging.info(f"TrainableModel:load_remote - Returning cached: {model_key}")
                 return MODEL_CACHE[model_key]
 
         checkpoint = ModelCheckpoint(
@@ -127,8 +135,11 @@ class TrainableModel(ABC):
         )
 
         # If we haven't loaded the model, we need to download and start the model
+        logging.info(f"TrainableModel:load_remote - Downloading: {model_key}")
         checkpoint.download_model_bundle()
+        logging.info(f"TrainableModel:load_remote - Loading: {model_key}")
         model = cls.load_from_local_checkpoint(checkpoint)
+        logging.info(f"TrainableModel:load_remote - Loaded: {model_key}")
 
         if use_cache:
             MODEL_CACHE[model_key] = model
@@ -139,10 +150,14 @@ class TrainableModel(ABC):
         self,
         client: Client,
         plugin_instance_id: str,
-        checkpoint_handle: Optional[str] = ModelCheckpoint.DEFAULT_HANDLE,
+        checkpoint_handle: Optional[str] = None,
         model_parent_directory: Path = None,
         set_as_default: bool = True,
     ) -> str:
+        if checkpoint_handle is None:
+            # For some reason doing this defaulting in the signature wasn't working.
+            checkpoint_handle = ModelCheckpoint.DEFAULT_HANDLE
+
         checkpoint = ModelCheckpoint(
             client=client,
             parent_directory=model_parent_directory,

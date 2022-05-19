@@ -21,7 +21,7 @@ def test_plugin_create():
         is_public=True,
     )
 
-    required_fields = {"name", "description", "type_"}
+    required_fields = {"description", "type_"}
     for required_field in required_fields:
         with pytest.raises(Exception):
             del plugin_args[required_field]
@@ -99,8 +99,7 @@ def test_plugin_public():
 
 
 def test_deploy_in_space():
-
     client = get_steamship_client()
     space = Space.create(client, handle="test-non-default-space").data
     instance = PluginInstance.create(client, plugin_handle="test-tagger", space_id=space.id).data
-    assert instance.spaceId == space.id
+    assert instance.space_id == space.id

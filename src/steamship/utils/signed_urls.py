@@ -1,5 +1,4 @@
 import logging
-import os
 import urllib
 from pathlib import Path
 from typing import Optional
@@ -8,20 +7,39 @@ from urllib.parse import parse_qs
 import requests
 
 from steamship import SteamshipError
+from steamship.utils.localstack import apply_localstack_url_fix
+
+# If this isn't present, Localstack won't show logs
+logging.getLogger().setLevel(logging.INFO)
 
 
 def download_from_signed_url(url: str, to_file: Path = None) -> Path:
     """
     Downloads the Signed URL to the filename `desired_filename` in a temporary directory on disk.
     """
+    url = apply_localstack_url_fix(url)
     logging.info(f"Downloading: {url} to {to_file} in a temporary directory")
 
-    # Ensure the path to the desired file exists
-    if not os.path.exists(to_file.parent):
-        os.makedirs(to_file.parent)
+    resp = requests.get(url)
+    if resp.status_code != 200:
+        # TODO: At least Localstack seend to reply with HTTP 200 even if the file isn't found!
+        # The full response contains:
+        # <Error>
+        #     <Code>NoSuchKey</Code>
+        # So we **could** check the response text even in the event of 200 but that seems wrong..
+        if "<Code>NoSuchKey</Code>" in resp.text:
+            raise SteamshipError(
+                message=f"The file at signed URL {url} did not exist. HTTP {resp.status_code}. Content: {resp.text}"
+            )
+        else:
+            raise SteamshipError(
+                message=f"There was an error downloading from the signed url: {url}. HTTP {resp.status_code}. Content: {resp.text}"
+            )
+
+    if not to_file.parent.exists():
+        to_file.parent.mkdir(parents=True, exist_ok=True)
 
     with open(to_file, "wb") as f:
-        resp = requests.get(url)
         logging.info(f"Got contents of: {url}")
         content = resp.content
         f.write(content)
@@ -33,6 +51,7 @@ def upload_to_signed_url(url: str, bytes: Optional[bytes] = None, filepath: Opti
     """
     Uploads either the bytes or filepath contents to the provided Signed URL.
     """
+
     if bytes is not None:
         logging.info(f"Uploading provided bytes to: {url}")
     elif filepath is not None:

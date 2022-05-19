@@ -97,7 +97,6 @@ def test_instance_invoke():
 
 
 def test_deploy_in_space():
-
     client = get_steamship_client()
     demo_app_path = APPS_PATH / "demo_app.py"
 

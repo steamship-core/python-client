@@ -1,17 +1,37 @@
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
+from steamship.data.plugin import (
+    HostingCpu,
+    HostingEnvironment,
+    HostingMemory,
+    HostingTimeout,
+    HostingType,
+)
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
+from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
 
 class PluginInstance(BaseModel):
-    pass
+    client: Client = None
+    id: str = None
+    handle: str = None
+    plugin_id: str = None
+    plugin_version_id: str = None
+    space_id: Optional[str] = None
+    user_id: str = None
+    config: Dict[str, Any] = None
+    hosting_type: Optional[HostingType] = None
+    hosting_cpu: Optional[HostingCpu] = None
+    hosting_memory: Optional[HostingMemory] = None
+    hosting_timeout: Optional[HostingTimeout] = None
+    hosting_environment: Optional[HostingEnvironment] = None
 
 
 class CreatePluginInstanceRequest(Request):
@@ -35,9 +55,30 @@ class PluginInstance(BaseModel):
     handle: str = None
     plugin_id: str = None
     plugin_version_id: str = None
+    space_id: Optional[str] = None
     user_id: str = None
     config: Dict[str, Any] = None
-    spaceId: str = None
+    hosting_type: Optional[HostingType] = None
+    hosting_cpu: Optional[HostingCpu] = None
+    hosting_memory: Optional[HostingMemory] = None
+    hosting_timeout: Optional[HostingTimeout] = None
+    hosting_environment: Optional[HostingEnvironment] = None
+
+    def to_dict(self) -> dict:
+        return dict(
+            id=self.id,
+            handle=self.handle,
+            pluginId=self.plugin_id,
+            pluginVersionId=self.plugin_version_id,
+            spaceId=self.space_id,
+            userId=self.user_id,
+            config=self.config,
+            hostingType=self.hosting_type,
+            hostingCpu=self.hosting_cpu,
+            hostingMemory=self.hosting_memory,
+            hostingTimeout=self.hosting_timeout,
+            hostingEnvironment=self.hosting_environment,
+        )
 
     @staticmethod
     def from_dict(d: Any, client: Client = None) -> PluginInstance:
@@ -52,7 +93,12 @@ class PluginInstance(BaseModel):
             plugin_version_id=d.get("pluginVersionId"),
             config=d.get("config"),
             user_id=d.get("userId"),
-            spaceId=d.get("spaceId"),
+            space_id=d.get("spaceId"),
+            hosting_type=d.get("hostingType"),
+            hosting_cpu=d.get("hostingCpu"),
+            hosting_memory=d.get("hostingMemory"),
+            hosting_timeout=d.get("hostingTimeout"),
+            hosting_environment=d.get("hostingEnvironment"),
         )
 
     @staticmethod
@@ -89,14 +135,14 @@ class PluginInstance(BaseModel):
         return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
 
     def export(self, plugin_input: ExportPluginInput) -> Response[RawDataPluginOutput]:
-        plugin_input.pluginInstance = self.handle
+        plugin_input.plugin_instance = self.handle
         return self.client.post(
             "plugin/instance/export", payload=plugin_input, expect=RawDataPluginOutput
         )
 
-    def train(self, training_request: TrainingParameterPluginInput) -> Response[PluginInstance]:
+    def train(self, training_request: TrainingParameterPluginInput) -> Response[TrainPluginOutput]:
         return self.client.post(
-            "plugin/instance/train", payload=training_request, expect=PluginInstance
+            "plugin/instance/train", payload=training_request, expect=TrainPluginOutput
         )
 
     def get_training_parameters(

@@ -29,8 +29,7 @@ class Steamship(Client):
         profile: str = None,
         config_file: str = None,
         config_dict: dict = None,
-        d_query: bool = False,
-    ):  # TODO (Enias): What is d_query?
+    ):
         # TODO (Enias): Do we need config file and config dict?
         super().__init__(
             api_key=api_key,
@@ -41,21 +40,9 @@ class Steamship(Client):
             profile=profile,
             config_file=config_file,
             config_dict=config_dict,
-            d_query=d_query,
         )
         """
         The base.py class will properly detect and set the defaults. They should be None here.
-
-        dQuery is a Beta option that will return chainable responses, like:
-          file.upload()
-              .blockify()
-              .parse()
-              .embed()
-              .query()
-
-        It offers no new functionality -- in fact at the moment it's slightly less in that you
-        are given the syntactically convenient response object for chaining rather than the actual
-        response object of the invocation.
         """
         self.tasks = Tasks(self)
 
