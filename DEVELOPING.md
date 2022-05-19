@@ -23,7 +23,6 @@ We highly recommend using virtual environments for development.
 Set up your virtual environment using the following commands:
 
 ```
-cd $PROJECT_DIR
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.dev.txt

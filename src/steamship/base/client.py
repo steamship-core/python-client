@@ -327,10 +327,7 @@ class Client(BaseModel):
             data = response_data
             expect = type(response_data)
 
-        # TODO: Return the Response[expect] typing once we solve the bug in which this produces
-        # an error: `name 'Type' is not defined` when running in Localstack
-        ret = Response(expect=expect, task=task, data=data, error=error, client=self)
-
+        ret = Response[expect](expect=expect, task=task, data=data, error=error, client=self)
         if ret.task is None and ret.data is None and ret.error is None:
             raise Exception("No data, task status, or error found in response")
 
