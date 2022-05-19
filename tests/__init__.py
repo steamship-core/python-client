@@ -4,5 +4,7 @@ from pathlib import Path
 ROOT_PATH = Path(__file__).parent.parent
 VENV_PATH = ROOT_PATH / ".venv"
 SRC_PATH = ROOT_PATH / "src"
-TEST_ASSETS_PATH = ROOT_PATH / "test_assets"
-APPS_PATH = Path(__file__).parent / "demo_apps"
+TEST_PATH = Path(__file__).parent
+TEST_ASSETS_PATH = TEST_PATH / "assets"
+APPS_PATH = TEST_ASSETS_PATH / "apps"
+PLUGINS_PATH = TEST_ASSETS_PATH / "plugins"
