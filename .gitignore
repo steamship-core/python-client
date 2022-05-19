@@ -151,3 +151,9 @@ fabric.properties
 
 # VS Code
 .vscode/
+
+# Tox
+.tox/
+
+# Coverage
+.coverage/
