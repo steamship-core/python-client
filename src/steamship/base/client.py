@@ -287,25 +287,16 @@ class Client(BaseModel):
         if debug is True:
             logging.debug(f"Got response {resp}")
 
-        logging.info("3")
-
         response_data = self._response_data(resp, raw_response=raw_response)
-
-        logging.info("2")
 
         if debug is True:
             logging.debug(f"Response JSON {response_data}")
-
-        logging.info("1")
 
         task = None
         error = None
         data = None
 
-        logging.info("1")
         if isinstance(response_data, dict):
-            logging.info("2")
-
             if "status" in response_data:
                 task = Task.from_dict(response_data["status"], client=self)
                 # if task_resp is not None and task_resp.taskId is not None:
@@ -316,7 +307,6 @@ class Client(BaseModel):
                         error = SteamshipError.from_dict(response_data["status"])
                         logging.error(f"Client received error from server: {error}")
 
-            logging.info("3")
             if "data" in response_data:
                 if expect is not None:
                     if hasattr(expect, "from_dict"):
@@ -327,35 +317,23 @@ class Client(BaseModel):
                         raise RuntimeError(f"obj of type {expect} does not have a from_dict method")
                 else:
                     data = response_data["data"]
-                    logging.info(f"expect {expect}")
                     expect = type(data)
-                    logging.info(f"expect {expect}")
-                    logging.info(f"Deriving expect from response data: {expect}")
 
-            logging.info("4")
             if "reason" in response_data:
                 # This is a legacy error reporting field. We should work toward being comfortable
                 # removing this handler.
-                logging.info("5")
                 error = SteamshipError(message=response_data["reason"])
                 logging.error(f"Client received error from server: {error}")
         else:
-            logging.info("6")
             data = response_data
-            logging.info("7")
             expect = type(response_data)
-            logging.info("8")
 
-        logging.info(f"Response JSON {expect} {task} {data}")
-
+        # TODO: Return the Response[expect] typing once we solve the bug in which this produces
+        # an error: `name 'Type' is not defined` when running in Localstack
         ret = Response(expect=expect, task=task, data=data, error=error, client=self)
-
-        logging.info(f"RET {ret}")
 
         if ret.task is None and ret.data is None and ret.error is None:
             raise Exception("No data, task status, or error found in response")
-
-        logging.info(f"Teturning")
 
         return ret
 

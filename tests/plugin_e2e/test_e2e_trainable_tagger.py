@@ -116,23 +116,12 @@ def test_e2e_trainable_tagger_lambda_training():
                 # this tagger to apply those tags to any file provided to it.
 
                 # First we'll create a file
-                new_file_r = File.create(
-                    client=client,
-                    blocks=[Block.CreateRequest(text="Some random text")],
-                )
-                assert new_file_r.data is not None
-                new_file = new_file_r.data
-
-                # Now we'll tag the file
-                tag_resp_wrapper: Response[TagResponse] = new_file.tag(
-                    plugin_instance=tagger_instance.handle
-                )
-                tag_resp_wrapper.wait()
-
-                assert tag_resp_wrapper.data is not None
-                tag_resp = tag_resp_wrapper.data
-
-                assert tag_resp.file is not None
-                assert tag_resp.file.tags is not None
-                assert len(tag_resp.file.tags) == len(KEYWORDS)
-                assert sorted([tag.name for tag in tag_resp.file.tags]) == sorted(KEYWORDS)
+                test_doc = "Hi there"
+                res = client.tag(doc=test_doc, plugin_instance=tagger_instance.handle)
+                res.wait()
+                assert res.error is None
+                assert res.data is not None
+                assert res.data.file is not None
+                assert res.data.file.tags is not None
+                assert len(res.data.file.tags) == len(KEYWORDS)
+                assert sorted([tag.name for tag in res.data.file.tags]) == sorted(KEYWORDS)
