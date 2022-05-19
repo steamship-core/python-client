@@ -2,12 +2,9 @@ import json
 import logging
 from pathlib import Path
 
-from assets.plugins.trainable_taggers.plugin_trainable_tagger import TestTrainableTaggerModel
+from assets.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerModel
 from utils.file import upload_file
 
-from steamship import Block, File
-from steamship.base import Response
-from steamship.client.operations.tagger import TagResponse
 from steamship.data.plugin import PlatformType
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.space import Space

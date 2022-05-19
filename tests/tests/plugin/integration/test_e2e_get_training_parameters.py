@@ -1,9 +1,10 @@
 import math
 
+from assets.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
+
 from steamship.data.plugin import PlatformType
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from tests import PLUGINS_PATH
-from tests.assets.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
 
