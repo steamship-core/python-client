@@ -7,8 +7,6 @@ from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
-from steamship.utils.localstack import apply_localstack_url_fix
-
 _configFile = ".steamship.json"
 
 MAX_DEPTH = 40
@@ -93,10 +91,6 @@ class Configuration(BaseModel):
         if self.web_base[len(self.web_base) - 1] != "/":
             self.web_base = f"{self.web_base}/"
 
-        self.api_base = apply_localstack_url_fix(self.api_base)
-        self.app_base = apply_localstack_url_fix(self.app_base)
-        self.web_base = apply_localstack_url_fix(self.web_base)
-
     def merge_dict(self, d: Dict[str, Any]):
         api_key = d.get("apiKey")
         if api_key is not None:
@@ -125,10 +119,6 @@ class Configuration(BaseModel):
         space_handle = d.get("spaceHandle")
         if space_handle is not None:
             self.space_handle = space_handle
-
-        self.api_base = apply_localstack_url_fix(self.api_base)
-        self.app_base = apply_localstack_url_fix(self.app_base)
-        self.web_base = apply_localstack_url_fix(self.web_base)
 
     def load_from_file(self, filepath: str, profile: str = None, throw_on_error=True):
         if not os.path.exists(filepath):

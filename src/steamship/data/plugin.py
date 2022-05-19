@@ -18,19 +18,38 @@ from steamship.base.request import Request
 from steamship.base.response import Response
 
 
-class TrainingPlatform(str, Enum):
+class HostingPlatform(str, Enum):
     LAMBDA = "lambda"
     ECS = "ecs"
 
 
-class InferencePlatform(str, Enum):
-    LAMBDA = "lambda"
-    ECS = "ecs"
+class StandardSizes(str, Enum):
+    MIN = "min"
+    XXS = "xxs"
+    XS = "xs"
+    SM = "sm"
+    MD = "md"
+    LG = "lg"
+    XL = "xl"
+    XXL = "xxl"
+    MAX = "max"
+
+
+class HostingMemory(str, Enum, StandardSizes):
+    pass
+
+
+class HostingCpu(str, Enum, StandardSizes):
+    pass
+
+
+class HostingTimeout(str, Enum, StandardSizes):
+    pass
 
 
 class CreatePluginRequest(Request):
-    training_platform: Optional[TrainingPlatform] = None
-    inference_platform: Optional[InferencePlatform] = None
+    training_platform: Optional[HostingPlatform] = None
+    inference_platform: Optional[HostingPlatform] = None
     id: str = None
     type: str = None
     transport: str = None
@@ -114,8 +133,8 @@ class Plugin(BaseModel):
     type: str = None
     transport: str = None
     isPublic: bool = None
-    trainingPlatform: Optional[TrainingPlatform] = None
-    inferencePlatform: Optional[InferencePlatform] = None
+    trainingPlatform: Optional[HostingPlatform] = None
+    inferencePlatform: Optional[HostingPlatform] = None
     handle: str = None
     description: str = None
     metadata: str = None
@@ -146,8 +165,8 @@ class Plugin(BaseModel):
         transport: str,
         is_public: bool,
         handle: str = None,
-        training_platform: Optional[TrainingPlatform] = None,
-        inference_platform: Optional[InferencePlatform] = None,
+        training_platform: Optional[HostingPlatform] = None,
+        inference_platform: Optional[HostingPlatform] = None,
         metadata: Union[str, Dict, List] = None,
         upsert: bool = None,
         space_id: str = None,

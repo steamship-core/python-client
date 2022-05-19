@@ -7,7 +7,7 @@ def apply_localstack_url_fix(url: Optional[str]) -> Optional[str]:
     logging.debug(f"URL {url}")
     if url and "host.docker.internal" in url:
         LOCALSTACK_HOSTNAME = environ.get("LOCALSTACK_HOSTNAME")
-        if LOCALSTACK_HOSTNAME and LOCALSTACK_HOSTNAME != "localhost":
+        if LOCALSTACK_HOSTNAME != "localhost":
             logging.info(f"Replacing domain in {url} with {LOCALSTACK_HOSTNAME}")
             return url.replace("host.docker.internal", LOCALSTACK_HOSTNAME)
     return url

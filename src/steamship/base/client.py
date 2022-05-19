@@ -1,4 +1,3 @@
-import dataclasses
 import json
 import logging
 from typing import Any, Dict, Type, TypeVar, Union
@@ -340,7 +339,7 @@ class Client(BaseModel):
     def post(
         self,
         operation: str,
-        payload: Union[Request, dict, dataclasses.dataclass] = None,
+        payload: Union[Request, dict, BaseModel] = None,
         file: Any = None,
         expect: Any = None,
         asynchronous: bool = False,
