@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 from steamship import App, AppInstance, AppVersion, Steamship
-from steamship.data.plugin import InferencePlatform, Plugin, TrainingPlatform
+from steamship.data.plugin import PlatformType, Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
@@ -77,10 +77,10 @@ def deploy_plugin(
     client: Steamship,
     py_path: Path,
     plugin_type: str,
-    training_platform: Optional[TrainingPlatform] = None,
+    training_platform: Optional[PlatformType] = None,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
-    inference_platform: Optional[InferencePlatform] = None,
+    inference_platform: Optional[PlatformType] = None,
 ):
     plugin = Plugin.create(
         client,

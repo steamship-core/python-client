@@ -18,12 +18,12 @@ from steamship.base.request import Request
 from steamship.base.response import Response
 
 
-class HostingPlatform(str, Enum):
+class PlatformType(str, Enum):
     LAMBDA = "lambda"
     ECS = "ecs"
 
 
-class StandardSizes(str, Enum):
+class PlatformMemory(str, Enum):
     MIN = "min"
     XXS = "xxs"
     XS = "xs"
@@ -35,21 +35,33 @@ class StandardSizes(str, Enum):
     MAX = "max"
 
 
-class HostingMemory(str, Enum, StandardSizes):
-    pass
+class PlatformCpu(str, Enum):
+    MIN = "min"
+    XXS = "xxs"
+    XS = "xs"
+    SM = "sm"
+    MD = "md"
+    LG = "lg"
+    XL = "xl"
+    XXL = "xxl"
+    MAX = "max"
 
 
-class HostingCpu(str, Enum, StandardSizes):
-    pass
-
-
-class HostingTimeout(str, Enum, StandardSizes):
-    pass
+class PlatformTimeout(str, Enum):
+    MIN = "min"
+    XXS = "xxs"
+    XS = "xs"
+    SM = "sm"
+    MD = "md"
+    LG = "lg"
+    XL = "xl"
+    XXL = "xxl"
+    MAX = "max"
 
 
 class CreatePluginRequest(Request):
-    training_platform: Optional[HostingPlatform] = None
-    inference_platform: Optional[HostingPlatform] = None
+    training_platform: Optional[PlatformType] = None
+    inference_platform: Optional[PlatformType] = None
     id: str = None
     type: str = None
     transport: str = None
@@ -133,8 +145,8 @@ class Plugin(BaseModel):
     type: str = None
     transport: str = None
     isPublic: bool = None
-    trainingPlatform: Optional[HostingPlatform] = None
-    inferencePlatform: Optional[HostingPlatform] = None
+    trainingPlatform: Optional[PlatformType] = None
+    inferencePlatform: Optional[PlatformType] = None
     handle: str = None
     description: str = None
     metadata: str = None
@@ -165,8 +177,8 @@ class Plugin(BaseModel):
         transport: str,
         is_public: bool,
         handle: str = None,
-        training_platform: Optional[HostingPlatform] = None,
-        inference_platform: Optional[HostingPlatform] = None,
+        training_platform: Optional[PlatformType] = None,
+        inference_platform: Optional[PlatformType] = None,
         metadata: Union[str, Dict, List] = None,
         upsert: bool = None,
         space_id: str = None,

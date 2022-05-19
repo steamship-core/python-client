@@ -5,7 +5,7 @@ from pathlib import Path
 from steamship import Block, File
 from steamship.base import Response
 from steamship.client.operations.tagger import TagResponse
-from steamship.data.plugin import InferencePlatform, TrainingPlatform
+from steamship.data.plugin import PlatformType
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.space import Space
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
@@ -70,8 +70,8 @@ def test_e2e_trainable_tagger_lambda_training():
                 client,
                 trainable_tagger_path,
                 "tagger",
-                training_platform=TrainingPlatform.LAMBDA,
-                inference_platform=InferencePlatform.LAMBDA,
+                training_platform=PlatformType.LAMBDA,
+                inference_platform=PlatformType.LAMBDA,
             ) as (tagger, tagger_version, tagger_instance):
                 # Now train the plugin
                 training_request = TrainingParameterPluginInput(

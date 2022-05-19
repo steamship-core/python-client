@@ -4,12 +4,29 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
-from steamship.data.plugin import HostingCpu, HostingMemory, HostingPlatform
+from steamship.data.plugin import PlatformCpu, PlatformMemory, PlatformType
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
+
+
+class PluginInstance(BaseModel):
+    client: Client = None
+    id: str = None
+    handle: str = None
+    plugin_id: str = None
+    plugin_version_id: str = None
+    space_id: Optional[str] = None
+    user_id: str = None
+    config: Dict[str, Any] = None
+    hosting_platform: Optional[PlatformType] = None
+    hosting_cpu: Optional[PlatformCpu] = None
+    hosting_memory: Optional[PlatformMemory] = None
+    hosting_timeout: Optional[str] = None
+    hosting_type: Optional[str] = None
+
 
 
 class CreatePluginInstanceRequest(Request):
@@ -36,9 +53,9 @@ class PluginInstance(BaseModel):
     space_id: Optional[str] = None
     user_id: str = None
     config: Dict[str, Any] = None
-    hosting_platform: Optional[HostingPlatform] = None
-    hosting_cpu: Optional[HostingCpu] = None
-    hosting_memory: Optional[HostingMemory] = None
+    hosting_platform: Optional[PlatformType] = None
+    hosting_cpu: Optional[PlatformCpu] = None
+    hosting_memory: Optional[PlatformMemory] = None
     hosting_timeout: Optional[str] = None
     hosting_type: Optional[str] = None
 

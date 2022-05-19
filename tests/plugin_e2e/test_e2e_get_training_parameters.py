@@ -1,6 +1,6 @@
 import math
 
-from steamship.data.plugin import TrainingPlatform
+from steamship.data.plugin import PlatformType
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from tests import APPS_PATH
 from tests.demo_apps.plugins.trainable_taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
@@ -18,7 +18,7 @@ def test_get_training_parameters():
         client,
         tagger_path,
         "tagger",
-        training_platform=TrainingPlatform.ECS,
+        training_platform=PlatformType.ECS,
     ) as (tagger, taggerVersion, taggerInstance):
         training_request = TrainingParameterPluginInput(plugin_instance=taggerInstance.handle)
         res = taggerInstance.get_training_parameters(training_request)

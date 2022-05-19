@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request
 from steamship.base.response import Response
-from steamship.data.plugin import HostingMemory, HostingTimeout, ListPluginsResponse
+from steamship.data.plugin import PlatformMemory, PlatformTimeout, ListPluginsResponse
 
 
 class PluginVersion(BaseModel):
@@ -13,8 +13,8 @@ class PluginVersion(BaseModel):
     id: str = None
     pluginId: str = None
     handle: str = None
-    hostingMemory: Optional[HostingMemory] = None
-    hostingTimeout: Optional[HostingTimeout] = None
+    hostingMemory: Optional[PlatformMemory] = None
+    hostingTimeout: Optional[PlatformTimeout] = None
     hostingHandler: str = None
     isPublic: bool = None
     isDefault: bool = None
@@ -25,8 +25,8 @@ class CreatePluginVersionRequest(Request):
     pluginId: str = None
     handle: str = None
     upsert: bool = None
-    hostingMemory: Optional[HostingMemory] = None
-    hostingTimeout: Optional[HostingTimeout] = None
+    hostingMemory: Optional[PlatformMemory] = None
+    hostingTimeout: Optional[PlatformTimeout] = None
     hostingHandler: str = None
     isPublic: bool = None
     isDefault: bool = None
@@ -81,8 +81,8 @@ class PluginVersion(BaseModel):
     id: str = None
     pluginId: str = None
     handle: str = None
-    hostingMemory: Optional[HostingMemory] = None
-    hostingTimeout: Optional[HostingTimeout] = None
+    hostingMemory: Optional[PlatformMemory] = None
+    hostingTimeout: Optional[PlatformTimeout] = None
     hostingHandler: str = None
     isPublic: bool = None
     isDefault: bool = None
@@ -127,8 +127,8 @@ class PluginVersion(BaseModel):
         filename: str = None,
         filebytes: bytes = None,
         upsert: bool = None,
-        hosting_memory: Optional[HostingMemory] = None,
-        hosting_timeout: Optional[HostingTimeout] = None,
+        hosting_memory: Optional[PlatformMemory] = None,
+        hosting_timeout: Optional[PlatformTimeout] = None,
         hosting_handler: str = None,
         is_public: bool = None,
         is_default: bool = None,
