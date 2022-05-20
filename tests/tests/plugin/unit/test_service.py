@@ -4,6 +4,7 @@ import pytest
 
 from steamship.app.response import Response
 from steamship.base import Client
+from steamship.plugin.config import Config
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -19,7 +20,13 @@ class ValidStringToStringPlugin(PluginService):
 
 
 class ValidTrainableStringToStringPlugin(TrainableTagger):
-    def get_model_class(self) -> Type[TrainableModel]:
+    class EmptyConfig(Config):
+        pass
+
+    def config_cls(self) -> Type[Config]:
+        return self.EmptyConfig
+
+    def model_cls(self) -> Type[TrainableModel]:
         return TrainableModel
 
     def get_steamship_client(self) -> Client:
@@ -102,5 +109,5 @@ def test_non_trainable_plugin_lacks_train():
 
 def test_with_override_train_succeeds():
     trainable_plugin = ValidTrainableStringToStringPlugin()
-    trainable_plugin.train(PluginRequest(data=TrainPluginInput()))
+    trainable_plugin.train(PluginRequest(data=TrainPluginInput(plugin_instance="Foo")))
     trainable_plugin.train_endpoint()

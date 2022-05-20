@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+from enum import Enum
 from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel
@@ -17,13 +18,73 @@ from steamship.base.request import Request
 from steamship.base.response import Response
 
 
-class TrainingPlatform:
-    custom = "lambda"
-    managed = "ecs"
+class HostingType(str, Enum):
+    """The type of hosting provider to deploy to."""
+
+    LAMBDA = "lambda"
+    ECS = "ecs"
+
+
+class HostingEnvironment(str, Enum):
+    """The software environment required for deployment."""
+
+    PYTHON38 = "python38"
+    STEAMSHIP_PYTORCH_CPU = "inferenceCpu"
+
+
+class HostingMemory(str, Enum):
+    """The amount of memory required for deployment.
+
+    This is mapped to a value dependent on the HostingType it is combined with.
+    """
+
+    MIN = "min"
+    XXS = "xxs"
+    XS = "xs"
+    SM = "sm"
+    MD = "md"
+    LG = "lg"
+    XL = "xl"
+    XXL = "xxl"
+    MAX = "max"
+
+
+class HostingCpu(str, Enum):
+    """The amount of CPU required for deployment.
+
+    This is mapped to a value dependent on the HostingType it is combined with.
+    """
+
+    MIN = "min"
+    XXS = "xxs"
+    XS = "xs"
+    SM = "sm"
+    MD = "md"
+    LG = "lg"
+    XL = "xl"
+    XXL = "xxl"
+    MAX = "max"
+
+
+class HostingTimeout(str, Enum):
+    """The request timeout required for deployment.
+
+    This is mapped to a value dependent on the HostingType it is combined with.
+    """
+
+    MIN = "min"
+    XXS = "xxs"
+    XS = "xs"
+    SM = "sm"
+    MD = "md"
+    LG = "lg"
+    XL = "xl"
+    XXL = "xxl"
+    MAX = "max"
 
 
 class CreatePluginRequest(Request):
-    trainingPlatform: Optional[str] = None
+    training_platform: Optional[HostingType] = None
     id: str = None
     type: str = None
     transport: str = None
@@ -32,6 +93,19 @@ class CreatePluginRequest(Request):
     description: str = None
     metadata: str = None
     upsert: bool = None
+
+    def to_dict(self):
+        return dict(
+            trainingPlatform=self.training_platform.value if self.training_platform else None,
+            id=self.id,
+            type=self.type,
+            transport=self.transport,
+            isPublic=self.isPublic,
+            handle=self.handle,
+            description=self.description,
+            metadata=self.metadata,
+            upsert=self.upsert,
+        )
 
 
 class DeletePluginRequest(Request):
@@ -93,7 +167,7 @@ class Plugin(BaseModel):
     type: str = None
     transport: str = None
     isPublic: bool = None
-    trainingPlatform: str = None
+    trainingPlatform: Optional[HostingType] = None
     handle: str = None
     description: str = None
     metadata: str = None
@@ -123,7 +197,7 @@ class Plugin(BaseModel):
         transport: str,
         is_public: bool,
         handle: str = None,
-        training_platform: Optional[str] = None,
+        training_platform: Optional[HostingType] = None,
         metadata: Union[str, Dict, List] = None,
         upsert: bool = None,
         space_id: str = None,
@@ -133,7 +207,7 @@ class Plugin(BaseModel):
             metadata = json.dumps(metadata)
 
         req = CreatePluginRequest(
-            trainingPlatform=training_platform,
+            training_platform=training_platform,
             type=type_,
             transport=transport,
             isPublic=is_public,

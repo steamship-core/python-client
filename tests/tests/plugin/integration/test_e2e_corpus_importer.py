@@ -1,3 +1,5 @@
+from utils.random import temporary_space
+
 from steamship import File, PluginInstance
 from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from tests import PLUGINS_PATH
@@ -16,34 +18,33 @@ def test_e2e_corpus_importer():
     client = get_steamship_client()
     corpus_importer_path = PLUGINS_PATH / "importers" / "plugin_corpus_importer.py"
 
-    test_file_importer_instance = PluginInstance.create(
-        client, plugin_handle="test-fileImporter-valueOrData", upsert=True
-    ).data
-    with deploy_plugin(client, corpus_importer_path, "corpusImporter") as (
-        plugin,
-        version,
-        instance,
-    ):
-        corpus_id = "1"
-        req = CorpusImportRequest(
-            type="corpus",
-            value="dummy-value",
-            url=corpus_id,
-            pluginInstance=instance.handle,
-            fileImporterPluginInstance=test_file_importer_instance.handle,
-        )
-        client.post(
-            "plugin/instance/importCorpus",
-            req,
-            expect=CorpusImportResponse,
-        )
+    with temporary_space(client) as space:
+        test_file_importer_instance = PluginInstance.create(
+            client, plugin_handle="test-fileImporter-valueOrData", upsert=True, space_id=space.id
+        ).data
+        with deploy_plugin(client, corpus_importer_path, "corpusImporter", space_id=space.id) as (
+            plugin,
+            version,
+            instance,
+        ):
+            req = CorpusImportRequest(
+                type="corpus",  # TODO: This will be repaced with a tag reference
+                handle="default",  # The default corpus
+                value="dummy-value",
+                pluginInstance=instance.handle,
+                fileImporterPluginInstance=test_file_importer_instance.handle,
+            )
+            res = client.post(
+                "plugin/instance/importCorpus", req, expect=CorpusImportResponse, space_id=space.id
+            )
+            res.wait()
 
-        # We should now have two files!
-        files = File.list(client, corpus_id=corpus_id).data
-        assert files.files is not None
-        assert len(files.files) == 2
+            # We should now have two files!
+            files = File.list(client, space_id=space.id).data
+            assert files.files is not None
+            assert len(files.files) == 2
 
-        for file in files.files:
-            data = file.raw().data
-            assert data.decode("utf-8") == TEST_DOC
-            file.delete()
+            for file in files.files:
+                data = file.raw().data
+                assert data.decode("utf-8") == TEST_DOC
+                file.delete()

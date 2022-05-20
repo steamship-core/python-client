@@ -8,11 +8,11 @@ For information about *using* this library, please see README.md
 
 ## Basic Information
 
-* The project targets Python 3
-* ✍️ Code formatting with black and isort
-* ♻️ Continuous integration with GitHub Actions
-* ✅ Code linting with pre-commit: bandit, darglint, flake8, mypy, pre-commit-hooks, pydocstyle, pygrep-hooks, pyupgrade, safety, and shellcheck
-* Testing is automated via Pyunit
+* 🐍 The project targets Python 3
+* ✍️ Code formatting is performed with black and isort
+* ♻️ Continuous integration is performed via GitHub Actions
+* ✅ Code linting is automated via pre-commit hooks: bandit, darglint, flake8, mypy, pre-commit-hooks, pydocstyle, pygrep-hooks, pyupgrade, safety, and shellcheck
+* 📋 Testing is automated via Pyunit
 * 🧑‍💻 We recommend PyCharm as a development environment
 
 ## Development Setup
@@ -23,12 +23,9 @@ We highly recommend using virtual environments for development.
 Set up your virtual environment using the following commands:
 
 ```
-cd $PROJECT_DIR
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.dev.txt
-python -m pip install -e .
-./bin/tox
 ```
 
 This will install the required dependencies (runtime and development) and register the project source tree with your virtual environment so that `import steamship` statements will resolve correctly.
@@ -41,6 +38,13 @@ pre-commit install
 ```
 
 Once completed the pre-commit hooks wil run automatically on `git commit`. 
+
+When pre-commit hooks make file modifications, the `git commit` command that triggered them will fail and need to be run again. Simply run the command multiple times until it succeeds.
+
+You can run the pre-commit hooks manually via:
+```bash
+pre-commit run --all-files
+```
 
 ## Package Design
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from typing import Generic, Type, TypeVar
 
 from pydantic.generics import GenericModel
 
@@ -62,7 +63,7 @@ class Response(GenericModel, Generic[T]):
         external_type: str = None,
         external_group: str = None,
         metadata: Any = None,
-    ) -> Response[TaskComment]:
+    ) -> IResponse[TaskComment]:
         if self.task is not None:
             return self.task.add_comment(
                 external_id=external_id,
@@ -71,10 +72,10 @@ class Response(GenericModel, Generic[T]):
                 metadata=metadata,
             )
 
-    def list_comments(self) -> Response[TaskCommentList]:
+    def list_comments(self) -> IResponse[TaskCommentList]:
         if self.task is not None:
             return self.task.list_comments()
 
-    def delete_comment(self, comment: "TaskComment" = None) -> Response[TaskComment]:
+    def delete_comment(self, comment: TaskComment = None) -> IResponse[TaskComment]:
         if self.task is not None:
             return self.task.delete_comment(comment=comment)
