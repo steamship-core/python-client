@@ -58,7 +58,14 @@ def flexi_create(
         is_b64 = False
 
         if data is not None:
-            ret_data, ret_mime = data, mime_type or guess_mime(data, mime_type)
+            if hasattr(data, "to_dict"):
+                ret_data = getattr(data, "to_dict")()
+                ret_mime = MimeTypes.JSON
+            elif isinstance(data, BaseModel):
+                ret_data = data.dict()
+                ret_mime = MimeTypes.JSON
+            else:
+                ret_data, ret_mime = data, mime_type or guess_mime(data, mime_type)
 
         elif string is not None:
             ret_data, ret_mime = string, mime_type or MimeTypes.TXT
@@ -91,7 +98,7 @@ def flexi_create(
             if is_b64 is True:
                 return ret_data, ret_mime, ContentEncodings.BASE64
             else:
-                if json is not None:
+                if json is not None or (data is not None and ret_mime == MimeTypes.JSON):
                     # If it was JSON, we need to dump the object first!
                     # Otherwise it will end up getting turned to the Python's object representation format
                     # which will result in invalid JSON

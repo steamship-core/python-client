@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import logging
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Generic, Type, TypeVar, Union
+from typing import Any, Callable, Dict, Generic, Type, TypeVar, Union
 
 from pydantic import BaseModel
 
@@ -24,6 +25,9 @@ from steamship.plugin.trainable_model import TrainableModel
 
 T = TypeVar("T")
 U = TypeVar("U")
+
+# If this isn't present, Localstack won't show logs
+logging.getLogger().setLevel(logging.INFO)
 
 
 class PluginRequest(Generic[T], BaseModel):  # TODO (enias): Make generic
@@ -112,6 +116,10 @@ class PluginService(ABC, App, Generic[T, U]):
 
     """
 
+    # noinspection PyUnusedLocal
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+        super().__init__(client, config)
+
     @abstractmethod
     def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
         """Runs the core operation implemented by this plugin: import, export, blockify, tag, etc.
@@ -121,9 +129,13 @@ class PluginService(ABC, App, Generic[T, U]):
         pass
 
 
-class TrainablePluginService(ABC, App, Generic[T, U]):
+class TrainablePluginService(App, ABC, Generic[T, U]):
+    # noinspection PyUnusedLocal
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+        super().__init__(client, config)
+
     @abstractmethod
-    def get_model_class(self) -> Type[TrainableModel]:
+    def model_cls(self) -> Type[TrainableModel]:
         """Returns the constructor of the TrainableModel this TrainablePluginService uses.
 
         This is required so the `run` method below can load the model and provide it to the subclass implementor.
@@ -132,13 +144,14 @@ class TrainablePluginService(ABC, App, Generic[T, U]):
 
     def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
         """Loads the trainable model before passing the request to the `run_with_model` handler on the subclass."""
-
-        model = self.get_model_class().load_remote(
+        logging.info("TrainablePluginService:run() - Loading model")
+        model = self.model_cls().load_remote(
             client=self.client,  # This field comes from being a subclass of App
             plugin_instance_id=request.plugin_instance_id,
             checkpoint_handle=None,  # Will use default
             use_cache=True,
         )
+        logging.info("TrainablePluginService:run() - Loaded model; invoking run_with_model")
         return self.run_with_model(request, model)
 
     @abstractmethod

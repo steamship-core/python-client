@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Dict, TypeVar, Union
+from typing import Any, Dict, Type, TypeVar, Union
 
 import requests
 from pydantic import BaseModel
@@ -26,9 +26,6 @@ class Client(BaseModel):
     # default space on the
     config: Configuration = None
 
-    # Interaction prototype.
-    dQuery: bool = False
-
     def __init__(  # TODO (Enias): Do we need all the default parameters?
         self,
         api_key: str = None,
@@ -39,7 +36,6 @@ class Client(BaseModel):
         profile: str = None,
         config_file: str = None,
         config_dict: dict = None,
-        d_query: bool = False,
     ):
         super().__init__()
         self.config = Configuration(
@@ -52,8 +48,6 @@ class Client(BaseModel):
             config_file=config_file,
             config_dict=config_dict,
         )
-
-        self.dQuery = d_query
 
     def _url(
         self,
@@ -151,6 +145,8 @@ class Client(BaseModel):
             data = {}
         elif isinstance(payload, dict):
             data = payload
+        elif hasattr(payload, "to_dict"):
+            data = getattr(payload, "to_dict")()
         elif isinstance(payload, BaseModel):
             data = payload.dict()
         else:
@@ -211,13 +207,12 @@ class Client(BaseModel):
         operation: str,
         payload: Union[Request, dict] = None,
         file: Any = None,
-        expect: Any = None,
+        expect: Type[T] = None,
         asynchronous: bool = False,
         debug: bool = False,
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-        id_query: bool = None,
         raw_response: bool = False,
         app_call: bool = False,
         app_owner: str = None,
@@ -274,6 +269,7 @@ class Client(BaseModel):
 
         data = self._data(verb=verb, file=file, payload=payload)
 
+        logging.info(f"Steamship Client making {verb} to {url}")
         if verb == "POST":
             if file is not None:
                 files = self.make_file_dict(data, file)
@@ -285,17 +281,20 @@ class Client(BaseModel):
         else:
             raise Exception(f"Unsupported verb: {verb}")
 
+        logging.info(f"Steamship Client received HTTP {resp.status_code} from {verb} to {url}")
+
         if debug is True:
-            print("Response", resp)
+            logging.debug(f"Got response {resp}")
 
         response_data = self._response_data(resp, raw_response=raw_response)
 
         if debug is True:
-            print("Response JSON", response_data)
+            logging.debug(f"Response JSON {response_data}")
 
         task = None
         error = None
         data = None
+
         if isinstance(response_data, dict):
             if "status" in response_data:
                 task = Task.from_dict(response_data["status"], client=self)
@@ -305,6 +304,7 @@ class Client(BaseModel):
                 if "state" in response_data["status"]:
                     if response_data["status"]["state"] == "failed":
                         error = SteamshipError.from_dict(response_data["status"])
+                        logging.error(f"Client received error from server: {error}")
 
             if "data" in response_data:
                 if expect is not None:
@@ -316,13 +316,13 @@ class Client(BaseModel):
                         raise RuntimeError(f"obj of type {expect} does not have a from_dict method")
                 else:
                     data = response_data["data"]
-                    expect = type(response_data["data"])
-                    print(f"Deriving expect from response data: {type(response_data['data'])}")
+                    expect = type(data)
 
             if "reason" in response_data:
                 # This is a legacy error reporting field. We should work toward being comfortable
                 # removing this handler.
                 error = SteamshipError(message=response_data["reason"])
+                logging.error(f"Client received error from server: {error}")
         else:
             data = response_data
             expect = type(response_data)
@@ -331,24 +331,12 @@ class Client(BaseModel):
         if ret.task is None and ret.data is None and ret.error is None:
             raise Exception("No data, task status, or error found in response")
 
-        if self.dQuery is True and asynchronous:
-            # This is an experimental UI for jQuery-style chaining.
-            ret.wait()
-            # In dQuery mode we throw an error to stop the chain
-            if ret.error is not None:
-                raise ret.error
-
-        if self.dQuery is True and id_query is not None:
-            if ret.error is not None:
-                raise ret.error
-            return id_query
-
         return ret
 
     def post(
         self,
         operation: str,
-        payload: Union[Request, dict] = None,
+        payload: Union[Request, dict, BaseModel] = None,
         file: Any = None,
         expect: Any = None,
         asynchronous: bool = False,
@@ -356,7 +344,6 @@ class Client(BaseModel):
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-        id_query: bool = None,
         raw_response: bool = False,
         app_call: bool = False,
         app_owner: str = None,
@@ -375,7 +362,6 @@ class Client(BaseModel):
             space_id=space_id,
             space_handle=space_handle,
             space=space,
-            id_query=id_query,
             raw_response=raw_response,
             app_call=app_call,
             app_owner=app_owner,
@@ -395,7 +381,6 @@ class Client(BaseModel):
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-        id_query: bool = None,
         raw_response: bool = False,
         app_call: bool = False,
         app_owner: str = None,
@@ -414,7 +399,6 @@ class Client(BaseModel):
             space_id=space_id,
             space_handle=space_handle,
             space=space,
-            id_query=id_query,
             raw_response=raw_response,
             app_call=app_call,
             app_owner=app_owner,
