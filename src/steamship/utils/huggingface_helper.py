@@ -7,6 +7,7 @@ import asyncio
 import json
 import logging
 import time
+from http import HTTPStatus
 from typing import List
 
 import aiohttp
@@ -25,7 +26,7 @@ async def _model_call(session, text: str, api_url, headers) -> list:
     """
     while True:
         async with session.post(api_url, headers=headers, data=data) as response:
-            if response.status == 200 and response.content_type == "application/json":
+            if response.status == HTTPStatus.OK and response.content_type == "application/json":
                 json_response = await response.json()
                 logging.info(json_response)
                 return json_response
