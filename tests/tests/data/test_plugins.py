@@ -110,7 +110,7 @@ def test_deploy_in_space():
 
 def test_plugin_instance_get():
     steamship = get_steamship_client()
-    handle = f'test_tagger_test_handle{uuid.uuid4()}'
+    handle = f"test_tagger_test_handle{uuid.uuid4()}"
     instance = PluginInstance.create(steamship, plugin_handle="test-tagger", handle=handle).data
     assert instance.id is not None
 
