@@ -25,17 +25,19 @@ async def _model_call(session, text: str, api_url, headers) -> list:
     """
     while True:
         async with session.post(api_url, headers=headers, data=data) as response:
-            if response.status == 200 and response.content_type == 'application/json':
-                    json_response = await response.json()
-                    logging.info(json_response)
-                    return json_response
+            if response.status == 200 and response.content_type == "application/json":
+                json_response = await response.json()
+                logging.info(json_response)
+                return json_response
             else:
                 text_response = await response.text()
                 if "is currently loading" not in text_response:
-                    logging.info(f"received text response [{text_response}] for input text [{text}]")
+                    logging.info(
+                        f"received text response [{text_response}] for input text [{text}]"
+                    )
                     raise SteamshipError(
                         message="Unable to query Hugging Face model",
-                        internal_message=f'HF returned error: {text_response}',
+                        internal_message=f"HF returned error: {text_response}",
                     )
                 else:
                     await asyncio.sleep(1)
