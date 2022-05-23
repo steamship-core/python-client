@@ -164,7 +164,7 @@ class Block(BaseModel):
         return res
 
 
-class BlockQueryResponse(BaseModel):
+class BlockQueryResponse(Request):
     blocks: List[Block]
 
     @staticmethod

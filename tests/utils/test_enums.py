@@ -1,9 +1,10 @@
 __copyright__ = "Steamship"
 __license__ = "MIT"
 
-import dataclasses
 import json
 from enum import Enum
+
+from pydantic import BaseModel
 
 
 class TrainingPlatform(str, Enum):
@@ -13,8 +14,7 @@ class TrainingPlatform(str, Enum):
     LAMBDA = "lambda"
 
 
-@dataclasses.dataclass
-class PluginInstance:
+class PluginInstance(BaseModel):
     training_platform: TrainingPlatform
 
     @staticmethod

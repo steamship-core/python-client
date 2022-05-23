@@ -183,7 +183,7 @@ class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
         return res
 
 
-class TagQueryResponse(BaseModel):
+class TagQueryResponse(Request):
     tags: List[Tag]
 
     @staticmethod
