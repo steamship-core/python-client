@@ -91,7 +91,12 @@ class Client(BaseModel):
                     suggestion="This should automatically have a good default setting. "
                     "Reach out to our Steamship support.",
                 )
-            if "localhost" not in base and "127.0.0.1" not in base and "0:0:0:0" not in base:
+            if (
+                "localhost" not in base
+                and "127.0.0.1" not in base
+                and "0:0:0:0" not in base
+                and "host.docker.internal" not in base
+            ):
                 # We want to prepend the user handle
                 parts = base.split("//")
                 base = f"{parts[0]}//{app_owner}.{'//'.join(parts[1:])}"
@@ -327,7 +332,7 @@ class Client(BaseModel):
             data = response_data
             expect = type(response_data)
 
-        ret = Response[expect](expect=expect, task=task, data=data, error=error, client=self)
+        ret = Response(expect=expect, task=task, data=data, error=error, client=self)
         if ret.task is None and ret.data is None and ret.error is None:
             raise Exception("No data, task status, or error found in response")
 
