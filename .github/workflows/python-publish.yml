@@ -29,7 +29,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install --upgrade build flint
+        pip install --upgrade build flit
     - name: Build package
       run: python -m build
     - name: Publish package
