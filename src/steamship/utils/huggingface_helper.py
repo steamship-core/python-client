@@ -11,6 +11,7 @@ from http import HTTPStatus
 from typing import List
 
 import aiohttp
+from aiohttp import ClientTimeout
 
 from steamship import Block, SteamshipError
 
@@ -45,7 +46,7 @@ async def _model_call(session, text: str, api_url, headers) -> list:
 
 
 async def _model_calls(texts: List[str], api_url: str, headers) -> List[list]:
-    async with aiohttp.ClientSession() as session:
+    async with aiohttp.ClientSession(timeout=ClientTimeout(total=10)) as session:
         tasks = []
         for text in texts:
             tasks.append(
