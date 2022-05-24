@@ -55,6 +55,7 @@ dist/
 
 # pytest
 .pytest_cache/
+*reports/pytest.xml
 
 # Python
 __pycache__/
