@@ -28,7 +28,7 @@ class FileUploadType(str, Enum):
 _logger = logging.getLogger(__name__)
 
 
-class FileClearResponse(Request):
+class FileClearResponse(Response):
     id: str
 
 
@@ -97,7 +97,7 @@ class File(BaseModel):
                 filename=self.filename,
             )
 
-    class CreateResponse(Request):
+    class CreateResponse(Response):
         data: Any = None
         mimeType: str = None
 
@@ -127,7 +127,7 @@ class File(BaseModel):
     class ListRequest(Request):
         corpusId: str = None
 
-    class ListResponse(Request):
+    class ListResponse(Response):
         files: List["File"]
 
         @staticmethod
@@ -472,7 +472,7 @@ class File(BaseModel):
         return e_index
 
 
-class FileQueryResponse(Request):
+class FileQueryResponse(Response):
     files: List[File]
 
     @staticmethod

@@ -6,7 +6,6 @@ reports/
 *.rej
 
 # Data
-*.csv*
 *.dat*
 *.pickle*
 *.pkl*

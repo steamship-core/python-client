@@ -30,7 +30,7 @@ class TagRequest(Request):
         return self.dict()
 
 
-class TagResponse(Request):
+class TagResponse(Response):
     file: File = None
 
     # noinspection PyUnusedLocal

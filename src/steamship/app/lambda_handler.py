@@ -16,10 +16,10 @@ def create_handler(app_cls: Type[App]):
         try:
             client = Steamship(config_dict=event.get("clientConfig"))
         except SteamshipError as se:
-            logging.error(se)
+            logging.exception(se)
             return Response.from_obj(se)
         except Exception as ex:
-            logging.error(ex)
+            logging.exception(ex)
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 message="Plugin/App handler was unable to create Steamship client.",
@@ -29,10 +29,10 @@ def create_handler(app_cls: Type[App]):
         try:
             request = Request.from_dict(event)
         except SteamshipError as se:
-            logging.error(se)
+            logging.exception(se)
             return Response.from_obj(se)
         except Exception as ex:
-            logging.error(ex)
+            logging.exception(ex)
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 message="Plugin/App handler was unable to parse inbound request.",
@@ -44,7 +44,7 @@ def create_handler(app_cls: Type[App]):
         except SteamshipError as se:
             return Response.from_obj(se)
         except Exception as ex:
-            logging.error(ex)
+            logging.exception(ex)
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 message="Handler was unable to initialize plugin/app.",
@@ -61,10 +61,10 @@ def create_handler(app_cls: Type[App]):
             response = app(request)
             return Response.from_obj(response)
         except SteamshipError as se:
-            logging.error(se)
+            logging.exception(se)
             return Response.from_obj(se)
         except Exception as ex:
-            logging.error(ex)
+            logging.exception(ex)
             app_verb = None
             app_path = None
             if request:

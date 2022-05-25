@@ -46,6 +46,15 @@ You can run the pre-commit hooks manually via:
 pre-commit run --all-files
 ```
 
+### Set your IDE to use proper Docstrings
+
+Steamship uses PyCharm for Python development. 
+
+In PyCharm:
+
+* Navigate to Preferences -> Tools -> Python Integrated Tools -> Docstring Format
+* Select "NumPy" as the Docstring Format.
+
 ## Package Design
 
 * `base` depends on nothing.

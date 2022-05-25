@@ -49,7 +49,7 @@ class CorpusImportRequest(Request):
         )
 
 
-class CorpusImportResponse(Request):
+class CorpusImportResponse(Response):
     client: Client = None
     fileImportRequests: List[File.CreateRequest] = None
 
