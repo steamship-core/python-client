@@ -25,7 +25,7 @@ class Client(BaseModel, ABC):
 
     config: Configuration = None
 
-    def __init__(  # TODO (Enias): Do we need all the default parameters?
+    def __init__(
         self,
         api_key: str = None,
         api_base: str = None,
@@ -34,7 +34,6 @@ class Client(BaseModel, ABC):
         space_handle: str = None,
         profile: str = None,
         config_file: str = None,
-        config_dict: dict = None,
     ):
         super().__init__()
         self.config = Configuration(
@@ -45,7 +44,6 @@ class Client(BaseModel, ABC):
             space_handle=space_handle,
             profile=profile,
             config_file=config_file,
-            config_dict=config_dict,
         )
 
     def _url(
