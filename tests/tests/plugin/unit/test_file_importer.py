@@ -16,10 +16,10 @@ TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 
 
 def _test_resp(res):
-    assert type(res) == Response
-    assert type(res.data) == dict
+    assert isinstance(res, Response)
+    assert isinstance(res.data, RawDataPluginOutput)
     b64 = base64.b64encode(TEST_DOC.encode("utf-8")).decode("utf-8")
-    assert res.data["data"] == b64
+    assert res.data.data == b64
 
 
 def test_importer():
