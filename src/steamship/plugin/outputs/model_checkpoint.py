@@ -1,8 +1,9 @@
-import dataclasses
 import logging
 import tempfile
 from pathlib import Path
-from typing import Optional
+from typing import Optional, ClassVar
+
+from pydantic import BaseModel, Field
 
 from steamship import SteamshipError
 from steamship.base import Client
@@ -26,10 +27,9 @@ def _get_space(client: Client) -> Space:
     return space.data
 
 
-@dataclasses.dataclass
-class ModelCheckpoint:
+class ModelCheckpoint(BaseModel):
     # The default model checkpoint handle unless one is provided.
-    DEFAULT_HANDLE = "default"
+    DEFAULT_HANDLE: ClassVar[str] = "default"
 
     """Represents the saved state of a trained PluginInstance.
     """
@@ -48,16 +48,11 @@ class ModelCheckpoint:
         handle: str = DEFAULT_HANDLE,
         plugin_instance_id: str = None,
     ):
-        self.client = client
-        self.parent_directory = parent_directory
-        self.plugin_instance_id = plugin_instance_id
-        self.handle = handle or ModelCheckpoint.DEFAULT_HANDLE
+        super().__init__(client=client, parent_directory=parent_directory, plugin_instance_id=plugin_instance_id,
+                         handle = handle or ModelCheckpoint.DEFAULT_HANDLE, space=_get_space(client))
 
         if self.plugin_instance_id is None:
             raise SteamshipError("Null plugin_instance_id provided ModelCheckpoint")
-
-        # Load the space that we're operating within.
-        self.space = _get_space(client)
 
         if parent_directory is None:
             # TODO(ted): We may want to not use a tempdir so that we can cache it.
