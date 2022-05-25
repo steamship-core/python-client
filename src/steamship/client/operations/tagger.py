@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from steamship import File
-from steamship.base import Client, Request
+from steamship.base import Client, Request, Response
 
 
 class TagRequest(Request):

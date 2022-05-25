@@ -1,7 +1,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import Optional, ClassVar
+from typing import ClassVar, Optional
 
 from pydantic import BaseModel
 
@@ -48,17 +48,16 @@ class ModelCheckpoint(BaseModel):
         handle: str = DEFAULT_HANDLE,
         plugin_instance_id: str = None,
     ):
-        super().__init__(client=client,
-                         parent_directory=parent_directory,
-                         plugin_instance_id=plugin_instance_id,
-                         handle=handle or ModelCheckpoint.DEFAULT_HANDLE
-                         )
+        super().__init__(
+            client=client,
+            parent_directory=parent_directory,
+            space=_get_space(client),
+            plugin_instance_id=plugin_instance_id,
+            handle=handle or ModelCheckpoint.DEFAULT_HANDLE,
+        )
 
         if self.plugin_instance_id is None:
             raise SteamshipError("Null plugin_instance_id provided ModelCheckpoint")
-
-        # Load the space that we're operating within.
-        self.space = _get_space(client)
 
         if parent_directory is None:
             # TODO(ted): We may want to not use a tempdir so that we can cache it.
