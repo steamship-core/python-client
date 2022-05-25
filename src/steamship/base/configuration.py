@@ -44,9 +44,9 @@ class Configuration(CamelModel):
         return Configuration.parse_obj(d)
 
     def __init__(
-            self,
-            config_file: Optional[Path] = None,
-            **kwargs,
+        self,
+        config_file: Optional[Path] = None,
+        **kwargs,
     ):
         super().__init__(**kwargs)
         # First set the profile
