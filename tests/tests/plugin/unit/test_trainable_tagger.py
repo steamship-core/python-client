@@ -18,7 +18,7 @@ TEST_REQ = BlockAndTagPluginInput(
             Block(
                 id="ABC",
                 text="Once upon a time there was a magical ship. "
-                     "The ship was powered by STEAM. The ship went to the moon.",
+                "The ship was powered by STEAM. The ship went to the moon.",
             )
         ]
     )

@@ -1,7 +1,7 @@
 import logging
 import tempfile
 from pathlib import Path
-from typing import Optional, ClassVar
+from typing import ClassVar, Optional
 
 from pydantic import BaseModel, Field
 
@@ -48,8 +48,13 @@ class ModelCheckpoint(BaseModel):
         handle: str = DEFAULT_HANDLE,
         plugin_instance_id: str = None,
     ):
-        super().__init__(client=client, parent_directory=parent_directory, plugin_instance_id=plugin_instance_id,
-                         handle = handle or ModelCheckpoint.DEFAULT_HANDLE, space=_get_space(client))
+        super().__init__(
+            client=client,
+            parent_directory=parent_directory,
+            plugin_instance_id=plugin_instance_id,
+            handle=handle or ModelCheckpoint.DEFAULT_HANDLE,
+            space=_get_space(client),
+        )
 
         if self.plugin_instance_id is None:
             raise SteamshipError("Null plugin_instance_id provided ModelCheckpoint")

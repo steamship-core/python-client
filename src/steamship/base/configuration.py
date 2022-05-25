@@ -36,16 +36,16 @@ class Configuration(BaseModel):
         )
 
     def __init__(
-            self,
-            api_key: str = None,
-            api_base: str = None,
-            app_base: str = None,
-            web_base: str = None,
-            space_id: str = None,
-            space_handle: str = None,
-            profile: str = None,
-            config_file: str = None,
-            config_dict: dict = None,
+        self,
+        api_key: str = None,
+        api_base: str = None,
+        app_base: str = None,
+        web_base: str = None,
+        space_id: str = None,
+        space_handle: str = None,
+        profile: str = None,
+        config_file: str = None,
+        config_dict: dict = None,
     ):
         super().__init__()
         # First set the profile
@@ -182,13 +182,13 @@ class Configuration(BaseModel):
             self.space_handle = os.getenv("STEAMSHIP_SPACE_HANDLE")
 
     def apply_invocation_overrides(
-            self,
-            api_key: str = None,
-            api_base: str = None,
-            app_base: str = None,
-            web_base: str = None,
-            space_id: str = None,
-            space_handle: str = None,
+        self,
+        api_key: str = None,
+        api_base: str = None,
+        app_base: str = None,
+        web_base: str = None,
+        space_id: str = None,
+        space_handle: str = None,
     ):
         if api_key is not None:
             self.api_key = api_key
