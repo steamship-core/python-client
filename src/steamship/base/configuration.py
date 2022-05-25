@@ -24,7 +24,13 @@ ENVIRONMENT_VARIABLES_TO_PROPERTY = {
 DEFAULT_CONFIG_FILE = Path.home() / ".steamship.json"
 
 
-class Configuration(BaseModel):
+class CamelModel(BaseModel):
+    class Config:
+        alias_generator = to_camel
+        allow_population_by_field_name = True
+
+
+class Configuration(CamelModel):
     api_key: str = None
     api_base: str = None
     app_base: str = None
@@ -33,17 +39,14 @@ class Configuration(BaseModel):
     space_handle: str = None
     profile: Optional[str] = None
 
-    class Config:
-        alias_generator = to_camel
-
     @staticmethod
     def from_dict(d: dict) -> Configuration:
         return Configuration.parse_obj(d)
 
     def __init__(
-        self,
-        config_file: Optional[Path] = None,
-        **kwargs,
+            self,
+            config_file: Optional[Path] = None,
+            **kwargs,
     ):
         super().__init__(**kwargs)
         # First set the profile
