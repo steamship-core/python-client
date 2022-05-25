@@ -46,19 +46,19 @@ repos:
       - id: pycln
         name: pycln
         entry: pycln
-        language: system
+        language: python
         types: [python]
       - id: isort
         name: isort
         entry: isort
         require_serial: true
-        language: system
+        language: python
         types: [python]
       - id: black
         name: black
         entry: black
         require_serial: true
-        language: system
+        language: python
         types: [python]
 #      - id: shellcheck
 #        name: shellcheck

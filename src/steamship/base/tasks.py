@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from typing import Any, Generic, List, Type, TypeVar, Union
+from typing import Any, Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel
 
 from steamship.base.base import IResponse
-from steamship.base.error import SteamshipError
 from steamship.base.metadata import metadata_to_str, str_to_metadata
 from steamship.base.request import Request
 
@@ -45,7 +44,7 @@ class TaskComment(BaseModel):
 
     @staticmethod
     def create(
-        client: Any,  # TODO (Enias): Isn't this Steamship client?
+        client: Any,  # TODO (Enias): Fix circular dependency so that we can put Steamship here
         task_id: str = None,
         external_id: str = None,
         external_type: str = None,
@@ -170,32 +169,6 @@ class Task(Generic[T], BaseModel):
     max_retries: int = None  # The maximum number of retries allowed for this task
     retries: int = None  # The number of retries already used.
 
-    # This is typed wrong, but I'm not sure how to type it..
-    # This is a local object, for use in Python only, that helps deserialize the task
-    # to a python object upon completion.
-    eventual_result_type: Type[Any] = None
-
-    @staticmethod
-    def failure(message: str, suggestion: str, _: str, code: str) -> Task:
-        return Task(
-            state=TaskState.failed,
-            status_message=message,
-            status_suggestion=suggestion,
-            status_code=code,
-        )
-
-    @staticmethod
-    def from_error(error: Union[SteamshipError, Exception]) -> Task:
-        if type(error) == SteamshipError:
-            return Task(
-                state=TaskState.failed,
-                status_message=error.message,
-                status_suggestion=error.suggestion,
-                status_code=error.code,
-            )
-        else:
-            return Task(state=TaskState.failed, status_message=str(error))
-
     @staticmethod
     def from_dict(d: Any, client: Any = None) -> Task:  # TODO (Enias): Review
         """Last resort if subclass doesn't override: pass through."""
@@ -243,47 +216,11 @@ class Task(Generic[T], BaseModel):
             retries=self.retries,
         )
 
-    def refresh(self, other: "Task"):
+    def update(self, other: Optional[Task] = None):
         """Incorporates a `Task` into this object."""
-        # TODO (Enias): Simplify with operations on __dict__
-        if other is not None:
-            self.task_id = other.task_id
-            self.user_id = other.user_id
-            self.space_id = other.space_id
-            self.input = other.input
-            self.output = other.output
-            self.state = other.state
-            self.status_message = other.status_message
-            self.status_suggestion = other.status_suggestion
-            self.status_code = other.status_code
-            self.status_created_on = other.status_created_on
-            self.task_type = other.task_type
-            self.task_executor = other.task_executor
-            self.task_created_on = other.task_created_on
-            self.task_last_modified_on = other.task_last_modified_on
-            self.assigned_worker = other.assigned_worker
-            self.started_at = other.started_at
-            self.max_retries = other.max_retries
-            self.retries = other.retries
-        else:
-            self.task_id = None  # TODO (enias): Review typing
-            self.user_id = None
-            self.space_id = None
-            self.input = None
-            self.output = None
-            self.state = None
-            self.status_message = None
-            self.status_suggestion = None
-            self.status_code = None
-            self.status_created_on = None
-            self.task_type = None
-            self.task_executor = None
-            self.task_created_on = None
-            self.task_last_modified_on = None
-            self.assigned_worker = None
-            self.started_at = None
-            self.max_retries = None
-            self.retries = None
+        other = other or Task()
+        for k, v in other.__dict__.items():
+            self.__dict__[k] = v
 
     def add_comment(
         self,

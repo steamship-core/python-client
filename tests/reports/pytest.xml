@@ -1,1 +1,212 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="0" time="80889.556" timestamp="2022-05-19T17:22:10.876842" hostname="Steamship.local"><testcase time="0.000" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="10" time="208.712" timestamp="2022-05-25T14:58:46.247542" hostname="Eniass-MacBook-Pro.local"><testcase classname="tests.tests.client.operations.test_blockify" name="test_file_upload_then_parse" time="4.540" /><testcase classname="tests.tests.client.operations.test_embedding_index_snapshot" name="test_snapshot_create" time="4.439"><failure message="AssertionError: assert 'index' == 'snapshot'&#10;  - snapshot&#10;  + index">def test_snapshot_create():
+        steamship = get_steamship_client()
+    
+        plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
+        index = steamship.create_index(plugin_instance=plugin_instance.handle).data
+    
+        _insert(index, ["Oranges are orange."])
+        search_results = index.search("What color are oranges?", include_metadata=True)
+        assert len(search_results.data.items) == 1
+        assert search_results.data.items[0].value.index_source == "index"
+        assert search_results.data.items[0].value.value == "Oranges are orange."
+        assert search_results.data.items[0].value.external_id == "TestId"
+        assert search_results.data.items[0].value.external_type == "TestType"
+        assert len(search_results.data.items[0].value.metadata) == 3
+    
+        _snapshot(index)
+        search_results = index.search("What color are oranges?", include_metadata=True)
+        assert len(search_results.data.items) == 1
+&gt;       assert search_results.data.items[0].value.index_source == "snapshot"
+E       AssertionError: assert 'index' == 'snapshot'
+E         - snapshot
+E         + index
+
+tests/client/operations/test_embedding_index_snapshot.py:57: AssertionError</failure></testcase><testcase classname="tests.tests.data.test_block" name="test_query" time="0.326"><failure message="AssertionError: assert 13 == 1&#10; +  where 13 = len([Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='C6DC0520-BA55-4630-9101-742EC288DE08', fileId='5DD58795-E47D-4107-A242-54009E04E146', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='35070F48-6F68-43E9-9823-CF4630555A27', fileId='5DD58795-E47D-4107-A242-54009E04E146', blockId='C6DC0520-BA55-4630-9101-742EC288DE08', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='6931E5F2-153B-457B-8B0C-F8B6CA034D26', fileId='D959893A-FAC5-4D58-AECB-7FE06E883A19', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D58C6FD2-3A90-4741-A516-398985806041', fileId='D959893A-FAC5-4D58-AECB-7FE06E883A19', blockId='6931E5F2-153B-457B-8B0C-F8B6CA034D26', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='53B3B77B-A2CB-4E38-9479-D999577C71A7', fileId='D874717A-5173-47A3-B3F4-16B435140A89', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='55F2E60E-2C8C-4EE4-AF6E-F91598051495', fileId='D874717A-5173-47A3-B3F4-16B435140A89', blockId='53B3B77B-A2CB-4E38-9479-D999577C71A7', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='73C4E743-8F05-4F71-A9F0-1C7C13AF9BB8', fileId='D70BA9BB-A279-44C3-94A0-943A703B59B3', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D9314EDB-3D2F-4E39-92D8-138C0B212D13', fileId='D70BA9BB-A279-44C3-94A0-943A703B59B3', blockId='73C4E743-8F05-4F71-A9F0-1C7C13AF9BB8', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='BA7B95D7-4600-47D7-8C9B-D629AD37972F', fileId='2A19B8F1-A75A-499F-8AB5-B4DA576B2335', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='3969B04F-8394-4D6A-AE9E-996035E4D370', fileId='2A19B8F1-A75A-499F-8AB5-B4DA576B2335', blockId='BA7B95D7-4600-47D7-8C9B-D629AD37972F', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='817EE849-5201-4B09-B4A6-5366A07E022B', fileId='F7EC79CF-0D58-468C-958B-FBC513E7D6E6', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='92E9D734-6DAD-49EC-8F20-6298DEC07E58', fileId='F7EC79CF-0D58-468C-958B-FBC513E7D6E6', blockId='817EE849-5201-4B09-B4A6-5366A07E022B', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), ...])">def test_query():
+        client = get_steamship_client()
+        a = File.create(
+            client=client,
+            blocks=[
+                Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
+                Block.CreateRequest(text="B"),
+            ],
+        ).data
+        assert a.id is not None
+        a = a.refresh().data
+        b = File.create(
+            client=client,
+            blocks=[
+                Block.CreateRequest(text="A"),
+                Block.CreateRequest(text="B", tags=[Tag.CreateRequest(name="Test")]),
+            ],
+            tags=[Tag.CreateRequest(name="FileTag")],
+        ).data
+        assert b.id is not None
+        b = b.refresh().data
+    
+        blocks = Block.query(client=client, tag_filter_query='blocktag and name "BlockTag"').data.blocks
+&gt;       assert len(blocks) == 1
+E       AssertionError: assert 13 == 1
+E        +  where 13 = len([Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='C6DC0520-BA55-4630-9101-742EC288DE08', fileId='5DD58795-E47D-4107-A242-54009E04E146', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='35070F48-6F68-43E9-9823-CF4630555A27', fileId='5DD58795-E47D-4107-A242-54009E04E146', blockId='C6DC0520-BA55-4630-9101-742EC288DE08', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='6931E5F2-153B-457B-8B0C-F8B6CA034D26', fileId='D959893A-FAC5-4D58-AECB-7FE06E883A19', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D58C6FD2-3A90-4741-A516-398985806041', fileId='D959893A-FAC5-4D58-AECB-7FE06E883A19', blockId='6931E5F2-153B-457B-8B0C-F8B6CA034D26', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='53B3B77B-A2CB-4E38-9479-D999577C71A7', fileId='D874717A-5173-47A3-B3F4-16B435140A89', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='55F2E60E-2C8C-4EE4-AF6E-F91598051495', fileId='D874717A-5173-47A3-B3F4-16B435140A89', blockId='53B3B77B-A2CB-4E38-9479-D999577C71A7', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='73C4E743-8F05-4F71-A9F0-1C7C13AF9BB8', fileId='D70BA9BB-A279-44C3-94A0-943A703B59B3', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D9314EDB-3D2F-4E39-92D8-138C0B212D13', fileId='D70BA9BB-A279-44C3-94A0-943A703B59B3', blockId='73C4E743-8F05-4F71-A9F0-1C7C13AF9BB8', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='BA7B95D7-4600-47D7-8C9B-D629AD37972F', fileId='2A19B8F1-A75A-499F-8AB5-B4DA576B2335', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='3969B04F-8394-4D6A-AE9E-996035E4D370', fileId='2A19B8F1-A75A-499F-8AB5-B4DA576B2335', blockId='BA7B95D7-4600-47D7-8C9B-D629AD37972F', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), Block(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='817EE849-5201-4B09-B4A6-5366A07E022B', fileId='F7EC79CF-0D58-468C-958B-FBC513E7D6E6', text='A', tags=[Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='92E9D734-6DAD-49EC-8F20-6298DEC07E58', fileId='F7EC79CF-0D58-468C-958B-FBC513E7D6E6', blockId='817EE849-5201-4B09-B4A6-5366A07E022B', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None)]), ...])
+
+tests/data/test_block.py:30: AssertionError</failure></testcase><testcase classname="tests.tests.data.test_file" name="test_query" time="0.222"><failure message="AssertionError: assert 14 == 1&#10; +  where 14 = len([File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='5DD58795-E47D-4107-A242-54009E04E146', handle='mutual-ball-o3ap2', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D959893A-FAC5-4D58-AECB-7FE06E883A19', handle='strong-water-jqzuc', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D874717A-5173-47A3-B3F4-16B435140A89', handle='expert-guru-oo2sz', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='2A19B8F1-A75A-499F-8AB5-B4DA576B2335', handle='social-car-rys5y', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='19030A6D-9F9C-4E37-AEF3-F5B29B3A978C', handle='secret-sun-09lzk', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D70BA9BB-A279-44C3-94A0-943A703B59B3', handle='famous-painting-6bhhi', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), ...])">def test_query():
+        client = get_steamship_client()
+        a = File.create(
+            client=client,
+            blocks=[
+                Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
+                Block.CreateRequest(text="B"),
+            ],
+        ).data
+        assert a.id is not None
+        b = File.create(
+            client=client,
+            blocks=[Block.CreateRequest(text="A"), Block.CreateRequest(text="B")],
+            tags=[Tag.CreateRequest(name="FileTag")],
+        ).data
+        assert b.id is not None
+    
+        files = File.query(client=client, tag_filter_query='blocktag and name "BlockTag"').data.files
+&gt;       assert len(files) == 1
+E       AssertionError: assert 14 == 1
+E        +  where 14 = len([File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='5DD58795-E47D-4107-A242-54009E04E146', handle='mutual-ball-o3ap2', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D959893A-FAC5-4D58-AECB-7FE06E883A19', handle='strong-water-jqzuc', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D874717A-5173-47A3-B3F4-16B435140A89', handle='expert-guru-oo2sz', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='2A19B8F1-A75A-499F-8AB5-B4DA576B2335', handle='social-car-rys5y', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='19030A6D-9F9C-4E37-AEF3-F5B29B3A978C', handle='secret-sun-09lzk', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), File(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D70BA9BB-A279-44C3-94A0-943A703B59B3', handle='famous-painting-6bhhi', mime_type='fileJson', space_id='D4CD1D3C-8CB7-4365-BDA4-EE98FEBFC033', corpus_id='5AE4F66F-1B24-4EF5-9372-8D9BEE1E5033', blocks=[], tags=[], filename=None), ...])
+
+tests/data/test_file.py:119: AssertionError</failure></testcase><testcase classname="tests.tests.data.tags.test_file_tags" name="test_query" time="0.259"><failure message="AssertionError: assert 15 == 1&#10; +  where 15 = len([Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='5BDBD9D8-DC39-4E47-A23A-A678B9E1B067', fileId='19030A6D-9F9C-4E37-AEF3-F5B29B3A978C', blockId='7E47E221-3D66-43B1-9600-857C14071BC8', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='5B632084-E41C-4C5C-B2FA-F86A17C37ABE', fileId='42B4632B-D73C-48BE-B08A-5F52987C63DA', blockId='5ADFC376-8CB0-4524-837E-01F8167FDE26', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='91696EBC-6C50-4B2B-BA45-8029A405705C', fileId='B130651B-CC66-45F8-A2A3-3DF20065AC9B', blockId='5A331FA0-FCAD-4AAB-B116-D2F7F6C43EFE', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='35070F48-6F68-43E9-9823-CF4630555A27', fileId='5DD58795-E47D-4107-A242-54009E04E146', blockId='C6DC0520-BA55-4630-9101-742EC288DE08', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D58C6FD2-3A90-4741-A516-398985806041', fileId='D959893A-FAC5-4D58-AECB-7FE06E883A19', blockId='6931E5F2-153B-457B-8B0C-F8B6CA034D26', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='55F2E60E-2C8C-4EE4-AF6E-F91598051495', fileId='D874717A-5173-47A3-B3F4-16B435140A89', blockId='53B3B77B-A2CB-4E38-9479-D999577C71A7', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), ...])">def test_query():
+        client = get_steamship_client()
+        a = File.create(
+            client=client,
+            blocks=[
+                Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
+                Block.CreateRequest(text="B"),
+            ],
+        ).data
+        assert a.id is not None
+        a = a.refresh().data
+        b = File.create(
+            client=client,
+            blocks=[
+                Block.CreateRequest(text="A"),
+                Block.CreateRequest(text="B", tags=[Tag.CreateRequest(name="Test")]),
+            ],
+            tags=[Tag.CreateRequest(name="FileTag")],
+        ).data
+        assert b.id is not None
+        b = b.refresh().data
+    
+        tags = Tag.query(client=client, tag_filter_query='blocktag and name "BlockTag"').data.tags
+&gt;       assert len(tags) == 1
+E       AssertionError: assert 15 == 1
+E        +  where 15 = len([Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='5BDBD9D8-DC39-4E47-A23A-A678B9E1B067', fileId='19030A6D-9F9C-4E37-AEF3-F5B29B3A978C', blockId='7E47E221-3D66-43B1-9600-857C14071BC8', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='5B632084-E41C-4C5C-B2FA-F86A17C37ABE', fileId='42B4632B-D73C-48BE-B08A-5F52987C63DA', blockId='5ADFC376-8CB0-4524-837E-01F8167FDE26', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='91696EBC-6C50-4B2B-BA45-8029A405705C', fileId='B130651B-CC66-45F8-A2A3-3DF20065AC9B', blockId='5A331FA0-FCAD-4AAB-B116-D2F7F6C43EFE', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='35070F48-6F68-43E9-9823-CF4630555A27', fileId='5DD58795-E47D-4107-A242-54009E04E146', blockId='C6DC0520-BA55-4630-9101-742EC288DE08', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='D58C6FD2-3A90-4741-A516-398985806041', fileId='D959893A-FAC5-4D58-AECB-7FE06E883A19', blockId='6931E5F2-153B-457B-8B0C-F8B6CA034D26', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), Tag(client=Steamship(config=Configuration(api_key='CHANGEME', api_base='http://host.docker.internal:8080/api/v1/', app_base='http://host.docker.internal:8081/', web_base='http://host.docker.internal:3000/', space_id=None, space_handle=None, profile='test'), tasks=Tasks()), id='55F2E60E-2C8C-4EE4-AF6E-F91598051495', fileId='D874717A-5173-47A3-B3F4-16B435140A89', blockId='53B3B77B-A2CB-4E38-9479-D999577C71A7', kind=None, name='BlockTag', value=None, startIdx=None, endIdx=None), ...])
+
+tests/data/tags/test_file_tags.py:74: AssertionError</failure></testcase><testcase classname="tests.tests.plugin.integration.test_e2e_corpus_export" name="test_e2e_corpus_export" time="66.086" /><testcase classname="tests.tests.plugin.integration.test_e2e_corpus_export" name="test_e2e_corpus_export_with_query" time="3.289"><failure message="AssertionError: assert 14 == 1&#10; +  where 14 = len([File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='Test', value=None, startIdx=None, endIdx=None)])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='Test', value=None, startIdx=None, endIdx=None)])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), ...])">def test_e2e_corpus_export_with_query():
+        client = get_steamship_client()
+        exporter_plugin_r = PluginInstance.create(
+            client=client,
+            handle=EXPORTER_HANDLE,
+            plugin_handle=EXPORTER_HANDLE,
+            upsert=True,
+        )
+        assert exporter_plugin_r.data is not None
+        exporter_plugin = exporter_plugin_r.data
+        assert exporter_plugin.handle is not None
+    
+        a = File.create(
+            client=client,
+            blocks=[
+                Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
+                Block.CreateRequest(text="B"),
+            ],
+        ).data
+        assert a.id is not None
+        b = File.create(
+            client=client,
+            blocks=[Block.CreateRequest(text="A"), Block.CreateRequest(text="B")],
+            tags=[Tag.CreateRequest(name="FileTag")],
+        ).data
+        assert b.id is not None
+    
+        # Now export the corpus
+        _input = ExportPluginInput(query='filetag and name "FileTag"', type="file")
+        print(_input.dict())
+        raw_data_r = exporter_plugin.export(_input)
+        assert raw_data_r is not None
+    
+        # The results of a corpus exporter are MD5 encoded!
+        raw_data_r.wait()
+        raw_data = raw_data_r.data.data
+        # decode base64 to get URL at url json property
+        decoded_data = json.loads(base64.b64decode(raw_data))
+        url = decoded_data["url"]
+    
+        # fetch the URL via requests.get
+        content = requests.get(url).text
+    
+        # Look at lines of jsonl file
+        files = [File.from_dict(json.loads(line)) for line in content.splitlines()]
+&gt;       assert len(files) == 1
+E       AssertionError: assert 14 == 1
+E        +  where 14 = len([File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='Test', value=None, startIdx=None, endIdx=None)])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), File(client=None, id=None, handle=None, mime_type=None, space_id=None, corpus_id=None, blocks=[Block(client=None, id=None, fileId=None, text='A', tags=[]), Block(client=None, id=None, fileId=None, text='B', tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='Test', value=None, startIdx=None, endIdx=None)])], tags=[Tag(client=None, id=None, fileId=None, blockId=None, kind=None, name='FileTag', value=None, startIdx=None, endIdx=None)], filename=None), ...])
+
+tests/plugin/integration/test_e2e_corpus_export.py:111: AssertionError</failure></testcase><testcase classname="tests.tests.plugin.integration.test_e2e_trainable_tagger" name="test_e2e_trainable_tagger_lambda_training" time="53.771"><failure message="AttributeError: 'File' object has no attribute 'update'">def test_e2e_trainable_tagger_lambda_training():
+        client = get_steamship_client()
+        spaceR = Space.get(client)
+        assert spaceR.data is not None
+        space = spaceR.data
+    
+        version_config_template = dict(
+            text_column=dict(type="string"),
+            tag_columns=dict(type="string"),
+            tag_kind=dict(type="string"),
+        )
+        instance_config = dict(text_column="Message", tag_columns="Category", tag_kind="Intent")
+    
+        exporter_plugin_r = PluginInstance.create(
+            client=client,
+            handle=EXPORTER_HANDLE,
+            plugin_handle=EXPORTER_HANDLE,
+            upsert=True,
+        )
+        assert exporter_plugin_r.data is not None
+        exporter_plugin = exporter_plugin_r.data
+        assert exporter_plugin.handle is not None
+    
+        csv_blockifier_path = PLUGINS_PATH / "blockifiers" / "csv_blockifier.py"
+        trainable_tagger_path = PLUGINS_PATH / "taggers" / "plugin_trainable_tagger.py"
+    
+        # Make a blockifier which will generate our trainable corpus
+        with deploy_plugin(
+            client,
+            csv_blockifier_path,
+            "blockifier",
+            version_config_template=version_config_template,
+            instance_config=instance_config,
+        ) as (plugin, version, instance):
+            with upload_file(client, "utterances.csv") as file:
+&gt;               assert len(file.update().data.blocks) == 0
+E               AttributeError: 'File' object has no attribute 'update'
+
+tests/plugin/integration/test_e2e_trainable_tagger.py:57: AttributeError</failure></testcase><testcase classname="tests.tests.plugin.integration.test_e2e_tsv_blockifier" name="test_e2e_tsv_blockifier_plugin" time="74.943"><failure message="AttributeError: 'File' object has no attribute 'update'">def test_e2e_tsv_blockifier_plugin():
+        csv_blockifier_plugin_path = PLUGINS_PATH / "blockifiers" / "tsv_blockifier.py"
+        client = get_steamship_client()
+    
+        version_config_template = dict(
+            text_column=dict(type="string"),
+            tag_columns=dict(type="string"),
+            tag_kind=dict(type="string"),
+        )
+        instance_config = dict(  # Has to match up
+            text_column="Message",
+            tag_columns="Category",
+            tag_kind="Intent",
+        )
+        with deploy_plugin(
+            client,
+            csv_blockifier_plugin_path,
+            "blockifier",
+            version_config_template=version_config_template,
+            instance_config=instance_config,
+        ) as (plugin, version, instance):
+            with upload_file(client, "utterances.tsv") as file:
+&gt;               assert len(file.update().data.blocks) == 0
+E               AttributeError: 'File' object has no attribute 'update'
+
+tests/plugin/integration/test_e2e_tsv_blockifier.py:29: AttributeError</failure></testcase><testcase classname="tests.tests.plugin.unit.test_tagger" name="test_parser" time="0.031" /></testsuite></testsuites>
