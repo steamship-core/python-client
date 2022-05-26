@@ -2,7 +2,7 @@ from steamship.base import Client
 from steamship.base.response import TaskState
 from steamship.data.embeddings import EmbeddedItem
 from steamship.data.plugin_instance import PluginInstance
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 from tests.utils.random import random_index
 
 _TEST_EMBEDDER = "test-embedder"

@@ -1,6 +1,6 @@
 from steamship import Block, File, MimeTypes
 from steamship.data.tags import Tag
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_file_tag():

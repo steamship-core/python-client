@@ -12,8 +12,8 @@ from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from tests import PLUGINS_PATH
-from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
+from tests.utils.fixtures import get_steamship_client
 
 EXPORTER_HANDLE = "signed-url-exporter"
 KEYWORDS = ["product", "coupon"]

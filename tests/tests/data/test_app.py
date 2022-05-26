@@ -1,5 +1,5 @@
 from steamship import App
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_app_create():

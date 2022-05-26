@@ -1,1 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="0" time="80889.556" timestamp="2022-05-19T17:22:10.876842" hostname="Steamship.local"><testcase time="0.000" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="2" failures="0" skipped="0" tests="2" time="1.077" timestamp="2022-05-25T20:02:33.850901" hostname="Steamship.local"><testcase classname="tests.tests.plugin.integration.test_e2e_corpus_export" name="test_e2e_corpus_export_with_query" time="0.545"><error message="failed on setup with &quot;AttributeError: 'Steamship' object has no attribute 'for_space'&quot;">@pytest.fixture
+    def client() -&gt; Steamship:
+        """
+        Returns a client rooted in a new space, then deletes that space afterwards.
+        """
+        steamship = get_steamship_client()
+        space = Space.create(client=steamship).data
+&gt;       new_client = steamship.for_space(space_id=space.id)
+E       AttributeError: 'Steamship' object has no attribute 'for_space'
+
+utils/fixtures.py:14: AttributeError</error></testcase><testcase classname="tests.tests.plugin.integration.test_e2e_corpus_export" name="test_e2e_corpus_export" time="0.398"><error message="failed on setup with &quot;AttributeError: 'Steamship' object has no attribute 'for_space'&quot;">@pytest.fixture
+    def client() -&gt; Steamship:
+        """
+        Returns a client rooted in a new space, then deletes that space afterwards.
+        """
+        steamship = get_steamship_client()
+        space = Space.create(client=steamship).data
+&gt;       new_client = steamship.for_space(space_id=space.id)
+E       AttributeError: 'Steamship' object has no attribute 'for_space'
+
+utils/fixtures.py:14: AttributeError</error></testcase></testsuite></testsuites>
