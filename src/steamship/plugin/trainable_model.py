@@ -1,7 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, Generic, Optional, TypeVar
 
 from typing_extensions import TypeAlias
 
@@ -15,8 +15,10 @@ ModelConstructor: TypeAlias = Callable[[], "TrainableModel"]
 # Global variable to store the model for reuse in memory.
 MODEL_CACHE: Dict[str, "TrainableModel"] = {}
 
+ConfigType = TypeVar("ConfigType")
 
-class TrainableModel(ABC):
+
+class TrainableModel(ABC, Generic[ConfigType]):
     """Base class for trainable models.
 
     Trainable models are not plugins. They are a thin wrapper around the state of a model designed to be **used with**
@@ -89,7 +91,7 @@ class TrainableModel(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def load_from_folder(self, checkpoint_path: Path):
+    def load_from_folder(self, checkpoint_path: Path, config: ConfigType = None):
         """Load 100% of the state of this model to the provided path."""
         raise NotImplementedError()
 
@@ -99,9 +101,9 @@ class TrainableModel(ABC):
         raise NotImplementedError()
 
     @classmethod
-    def load_from_local_checkpoint(cls, checkpoint: ModelCheckpoint):
+    def load_from_local_checkpoint(cls, checkpoint: ModelCheckpoint, config: ConfigType = None):
         model = cls()
-        model.load_from_folder(checkpoint.folder_path_on_disk())
+        model.load_from_folder(checkpoint.folder_path_on_disk(), config)
         return model
 
     @classmethod
@@ -112,6 +114,7 @@ class TrainableModel(ABC):
         checkpoint_handle: Optional[str] = None,
         use_cache: bool = True,
         model_parent_directory: Path = None,
+        config: ConfigType = None,
     ):
         if checkpoint_handle is None:
             # For some reason doing this defaulting in the signature wasn't working.
@@ -138,7 +141,7 @@ class TrainableModel(ABC):
         logging.info(f"TrainableModel:load_remote - Downloading: {model_key}")
         checkpoint.download_model_bundle()
         logging.info(f"TrainableModel:load_remote - Loading: {model_key}")
-        model = cls.load_from_local_checkpoint(checkpoint)
+        model = cls.load_from_local_checkpoint(checkpoint, config)
         logging.info(f"TrainableModel:load_remote - Loaded: {model_key}")
 
         if use_cache:

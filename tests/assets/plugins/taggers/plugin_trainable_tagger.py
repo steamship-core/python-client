@@ -29,7 +29,11 @@ TRAINING_PARAMETERS = TrainingParameterPluginOutput(
 TRAIN_RESPONSE = TrainPluginOutput()
 
 
-class TestTrainableTaggerModel(TrainableModel):
+class EmptyConfig(Config):
+    pass
+
+
+class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
     """Example of a trainable model.
 
     At some point, may want to evolve this into an abstract base class, but for the time being, here is the
@@ -58,7 +62,7 @@ class TestTrainableTaggerModel(TrainableModel):
         self.path = None
         self.keyword_list = []
 
-    def load_from_folder(self, checkpoint_path: Path):
+    def load_from_folder(self, checkpoint_path: Path, config: EmptyConfig):
         """[Required by TrainableModel] Load state from the provided path."""
         logging.info(f"Model:save_to_folder {checkpoint_path}")
         self.path = checkpoint_path
@@ -116,9 +120,6 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
     def __init__(self, client: Client, config: Dict[str, Any] = None):
         super().__init__(client, config)
-
-    class EmptyConfig(Config):
-        pass
 
     def config_cls(self) -> Type[Config]:
         return self.EmptyConfig
