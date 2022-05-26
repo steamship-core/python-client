@@ -1,27 +1,27 @@
 import json
 
 from steamship import MimeTypes
+from steamship.client import Steamship
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import client  # noqa: F401
 
 
-def test_file_upload():
-    steamship = get_steamship_client()
-    a = steamship.upload(content="A", mime_type=MimeTypes.MKD).data
+def test_file_upload(client: Steamship):
+    a = client.upload(content="A", mime_type=MimeTypes.MKD).data
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
 
-    b = steamship.upload(content="B", mime_type=MimeTypes.TXT).data
+    b = client.upload(content="B", mime_type=MimeTypes.TXT).data
     assert b.id is not None
     assert b.mime_type == MimeTypes.TXT
     assert a.id != b.id
 
-    c = steamship.upload(content="B", mime_type=MimeTypes.MKD).data
+    c = client.upload(content="B", mime_type=MimeTypes.MKD).data
     assert c.mime_type == MimeTypes.MKD  # The specified format gets precedence over filename
 
-    d = steamship.upload(
+    d = client.upload(
         content="B",
     ).data
     assert d.mime_type == MimeTypes.TXT  # The filename is used in a pinch.
@@ -32,14 +32,12 @@ def test_file_upload():
     d.delete()
 
 
-def test_file_scrape():
-    steamship = get_steamship_client()
-
-    a = steamship.scrape(url="https://edwardbenson.com/2020/10/gpt3-travel-agent").data
+def test_file_scrape(client: Steamship):
+    a = client.scrape(url="https://edwardbenson.com/2020/10/gpt3-travel-agent").data
     assert a.id is not None
     assert a.mime_type == MimeTypes.HTML
 
-    b = steamship.scrape(url="https://edwardbenson.com/2018/09/case-of-the-murderous-ai").data
+    b = client.scrape(url="https://edwardbenson.com/2018/09/case-of-the-murderous-ai").data
     assert b.id is not None
     assert a.id != b.id
     assert b.mime_type == MimeTypes.HTML
@@ -64,8 +62,7 @@ def test_file_import_response_bytes_serialization():
     assert as_dict_again == to_dict
 
 
-def test_file_upload_with_blocks():
-    client = get_steamship_client()
+def test_file_upload_with_blocks(client: Steamship):
     a = File.create(
         client=client,
         blocks=[
@@ -98,8 +95,7 @@ def test_file_upload_with_blocks():
     a.delete()
 
 
-def test_query():
-    client = get_steamship_client()
+def test_query(client: Steamship):
     a = File.create(
         client=client,
         blocks=[

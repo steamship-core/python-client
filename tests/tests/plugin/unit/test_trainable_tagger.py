@@ -12,7 +12,7 @@ from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 TEST_REQ = BlockAndTagPluginInput(
     file=File(

@@ -1,6 +1,6 @@
 from steamship import PluginInstance
 from steamship.data.embeddings import EmbeddedItem
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 from tests.utils.random import random_index, random_name
 
 
