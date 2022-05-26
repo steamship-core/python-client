@@ -1,11 +1,11 @@
+from steamship.client import Steamship
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
-from tests.utils.fixtures import get_steamship_client
+from tests.utils.fixtures import client  # noqa: F401
 
 
-def test_query():
-    client = get_steamship_client()
+def test_query(client: Steamship):
     a = File.create(
         client=client,
         blocks=[
