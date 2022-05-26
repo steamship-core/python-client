@@ -4,18 +4,19 @@ import json
 import requests
 
 from steamship import File
+from steamship.client import Steamship
 from steamship.data import Block, Tag
 from steamship.data.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from tests import PLUGINS_PATH
 from tests.utils.deployables import deploy_plugin
 from tests.utils.file import upload_file
-from tests.utils.fixtures import client, get_steamship_client
+from tests.utils.fixtures import client  # noqa: F401
 
 EXPORTER_HANDLE = "signed-url-exporter"
 
 
-def test_e2e_corpus_export(client):
+def test_e2e_corpus_export(client: Steamship):
     version_config_template = dict(
         text_column=dict(type="string"),
         tag_columns=dict(type="string"),
