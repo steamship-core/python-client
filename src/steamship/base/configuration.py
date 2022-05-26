@@ -203,3 +203,16 @@ class Configuration(BaseModel):
             self.space_id = space_id
         if space_handle is not None:
             self.space_handle = space_handle
+
+    def for_space(
+        self, space_id: Optional[str] = None, space_handle: Optional[str] = None
+    ) -> Configuration:
+        """Return a new Configuration, identical to this, but anchored in a different space."""
+        return Configuration(
+            api_key=self.api_key,
+            api_base=self.api_base,
+            app_base=self.app_base,
+            web_base=self.web_base,
+            space_id=space_id,
+            space_handle=space_handle,
+        )
