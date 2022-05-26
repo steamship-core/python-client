@@ -29,8 +29,8 @@ def test_instance_invoke():
                 headers=dict(authorization=f"Bearer {client.config.api_key}"),
             )
 
-        # res = instance.get("greet").data
-        # assert res == "Hello, Person!"
+        res = instance.get("greet").data
+        assert res == "Hello, Person!"
         #
         # resp = get_raw("greet")
         # assert resp.text == "Hello, Person!"

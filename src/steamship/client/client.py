@@ -1,13 +1,16 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, List
+from typing import Any, Dict, List
 
 from steamship import Block
 from steamship.base import Client, Response
+from steamship.base.error import SteamshipError
 from steamship.client.operations.tagger import TagRequest, TagResponse
 from steamship.client.tasks import Tasks
 from steamship.data import File
+from steamship.data.app import App
+from steamship.data.app_instance import AppInstance
 from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
 from steamship.data.space import Space
 
@@ -140,6 +143,30 @@ class Steamship(Client):
             space_handle=space_handle,
             space=space,
         )
+
+    def app(
+        self, app_handle: str, handle: str = None, config: Dict[str, Any] = None
+    ) -> AppInstance:
+        """Convenience function for creating or loading an instance of an app."""
+
+        # TODO: The Engine API should permit App Handles to avoid having this extra round trip.
+        app = App.get(client=self, handle=app_handle)
+        if app.error:
+            raise app.error
+        if not app.data:
+            raise SteamshipError(f"A Steamship App with handle {app_handle} was not found.")
+
+        instance = AppInstance.create(
+            client=self, app_id=app.id, handle=handle, upsert=True, config=config
+        )
+        if instance.error:
+            raise instance.error
+        if not instance.data:
+            raise SteamshipError(
+                f"Unable to create an instance of App {app_handle} with handle {handle}."
+            )
+
+        return instance.data
 
     def for_space(self, space_id: str = None, space_handle: str = None) -> Steamship:
         """Returns a new Steamship client anchored in the provided space as its default.

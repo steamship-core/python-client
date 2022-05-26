@@ -66,7 +66,6 @@ class AppInstance(BaseModel):
         upsert: bool = None,
         config: Dict[str, Any] = None,
     ) -> Response[AppInstance]:
-
         req = CreateAppInstanceRequest(
             handle=handle,
             appId=app_id,
