@@ -207,7 +207,10 @@ class Configuration(BaseModel):
     def for_space(
         self, space_id: Optional[str] = None, space_handle: Optional[str] = None
     ) -> Configuration:
-        """Return a new Configuration, identical to this, but anchored in a different space."""
+        """Return a new Configuration, identical to this, but anchored in a different space.
+
+        Providing either `space_id` or `space_handle` will work; both need not be provided.
+        """
         return Configuration(
             api_key=self.api_key,
             api_base=self.api_base,
