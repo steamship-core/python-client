@@ -2,7 +2,7 @@ from steamship import MimeTypes, PluginInstance
 
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 from tests.utils.random import random_index
 
 _TEST_EMBEDDER = "test-embedder"
