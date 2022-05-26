@@ -4,6 +4,8 @@ import requests
 
 from steamship import Space
 from steamship.base.mime_types import MimeTypes
+from steamship.base.tasks import TaskState
+from steamship.data.app_instance import AppInstance
 from tests import APPS_PATH, TEST_ASSETS_PATH
 from tests.utils.deployables import deploy_app
 from tests.utils.fixtures import get_steamship_client
@@ -31,54 +33,50 @@ def test_instance_invoke():
 
         res = instance.get("greet").data
         assert res == "Hello, Person!"
-        #
-        # resp = get_raw("greet")
-        # assert resp.text == "Hello, Person!"
-        #
-        # res = instance.get("greet", name="Ted").data
-        # assert res == "Hello, Ted!"
-        # url = instance.full_url_for("greet?name=Ted")
-        # resp = requests.get(
-        #     url, headers=dict(authorization=f"Bearer {client.config.api_key}")
-        # )
-        # assert resp.text == "Hello, Ted!"
-        #
-        # res = instance.post("greet").data
-        # assert res == "Hello, Person!"
-        # url = instance.full_url_for("greet")
-        # resp = requests.post(
-        #     url, headers=dict(authorization=f"Bearer {client.config.api_key}")
-        # )
-        # assert resp.text == "Hello, Person!"
-        #
-        # res = instance.post("greet", name="Ted").data
-        # assert res == "Hello, Ted!"
-        # url = instance.full_url_for("greet")
-        # resp = requests.post(
-        #     url,
-        #     json=dict(name="Ted"),
-        #     headers=dict(authorization=f"Bearer {client.config.api_key}"),
-        # )
-        # assert resp.text == "Hello, Ted!"
-        #
-        # # Now we test different return types
-        # resp_string = get_raw("resp_string")
-        # assert resp_string.text == "A String"
-        #
-        # resp_dict = get_raw("resp_dict")
-        # assert resp_dict.json() == dict(string="A String", int=10)
 
-        # resp_404 = get_raw("doesnt_exist")
-        # json_404 = resp_404.json()
-        # assert isinstance(json_404, dict)
-        # assert json_404.get("status") is not None
-        # assert json_404.get("status") is not None
-        # assert json_404.get("status", dict()).get("state") == TaskState.failed
-        # # assert "No handler" in json_404.get("status", dict()).get("statusMessage", "")
-        # assert resp_404.status_code == 404
-        #
-        # resp_obj = get_raw("resp_obj")
-        # assert resp_obj.json() == dict(name="Foo")
+        resp = get_raw("greet")
+        assert resp.text == "Hello, Person!"
+
+        res = instance.get("greet", name="Ted").data
+        assert res == "Hello, Ted!"
+        url = instance.full_url_for("greet?name=Ted")
+        resp = requests.get(url, headers=dict(authorization=f"Bearer {client.config.api_key}"))
+        assert resp.text == "Hello, Ted!"
+
+        res = instance.post("greet").data
+        assert res == "Hello, Person!"
+        url = instance.full_url_for("greet")
+        resp = requests.post(url, headers=dict(authorization=f"Bearer {client.config.api_key}"))
+        assert resp.text == "Hello, Person!"
+
+        res = instance.post("greet", name="Ted").data
+        assert res == "Hello, Ted!"
+        url = instance.full_url_for("greet")
+        resp = requests.post(
+            url,
+            json=dict(name="Ted"),
+            headers=dict(authorization=f"Bearer {client.config.api_key}"),
+        )
+        assert resp.text == "Hello, Ted!"
+
+        # Now we test different return types
+        resp_string = get_raw("resp_string")
+        assert resp_string.text == "A String"
+
+        resp_dict = get_raw("resp_dict")
+        assert resp_dict.json() == dict(string="A String", int=10)
+
+        resp_404 = get_raw("doesnt_exist")
+        json_404 = resp_404.json()
+        assert isinstance(json_404, dict)
+        assert json_404.get("status") is not None
+        assert json_404.get("status") is not None
+        assert json_404.get("status", dict()).get("state") == TaskState.failed
+        # assert "No handler" in json_404.get("status", dict()).get("statusMessage", "")
+        assert resp_404.status_code == 404
+
+        resp_obj = get_raw("resp_obj")
+        assert resp_obj.json() == dict(name="Foo")
 
         resp_binary = get_raw("resp_binary")
         base64_binary = base64.b64encode(resp_binary.content).decode("utf-8")
@@ -94,6 +92,18 @@ def test_instance_invoke():
         base64_image = base64.b64encode(resp_image.content).decode("utf-8")
         assert base64_image == base64_palm
         assert resp_image.headers.get("Content-Type") == MimeTypes.PNG
+
+        # We can load this app, and it is the same app!, via the client helper.
+        quick_loaded = client.app(app.handle, instance.handle)
+        assert quick_loaded.id == instance.id
+        assert type(quick_loaded) == AppInstance
+
+        # We can quickly create a NEW instance of this app by simply passing the client helper a different handle
+        quick_created_2 = client.app(app.handle, f"{instance.handle}-2")
+        assert quick_created_2.id != instance.id
+        assert type(quick_created_2) == AppInstance
+        assert quick_created_2.post("greet", name="Ted").data == "Hello, Ted!"
+        quick_created_2.delete()
 
 
 def test_deploy_in_space():

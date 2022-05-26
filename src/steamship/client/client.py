@@ -157,7 +157,7 @@ class Steamship(Client):
             raise SteamshipError(f"A Steamship App with handle {app_handle} was not found.")
 
         instance = AppInstance.create(
-            client=self, app_id=app.id, handle=handle, upsert=True, config=config
+            client=self, app_id=app.data.id, handle=handle, upsert=True, config=config
         )
         if instance.error:
             raise instance.error
