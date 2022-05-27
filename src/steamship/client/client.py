@@ -134,3 +134,12 @@ class Steamship(Client):
             space_handle=space_handle,
             space=space,
         )
+
+    def for_space(self, space_id: str = None, space_handle: str = None) -> Steamship:
+        """Returns a new Steamship client anchored in the provided space as its default.
+
+        Providing either `space_id` or `space_handle` will work; both need not be provided.
+        """
+        client = Steamship()
+        client.config = self.config.for_space(space_id=space_id, space_handle=space_handle)
+        return client

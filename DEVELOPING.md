@@ -102,10 +102,33 @@ Steamship employees can test against a server running on localhost by adding the
 
 ### Testing Style
 
-In general, each test should attempt to:
+Many of the tests in this project are integration tests against a running, persistent version of Steamship, which means
+that care must be taken to destroy the resources created by a test.
 
-1. Create resources with randomized handles (to avoid collision).
-2. Delete resources after test completion
+That can be done using the `client` fixture, which yields a Steamship client anchored in a new Space and then
+deletes the space and all of its resources after the test has been run.
+
+To use it, write your tests like this:
+
+```python
+from steamship.client import Steamship
+from tests.utils.fixtures import client # noqa: F401
+
+def test_e2e_corpus_export(client: Steamship):
+    # You can use the provided client to create resources, and those resources
+    # will be cleaned up after completion
+    pass
+```
+
+Note that some resources do not live within a space:
+
+* Apps
+* App Versions
+* Plugins
+* Plugin Versions
+
+As such, these resources will not be automatically cleaned up after the test, and your test must take care
+to destroy them manually.
 
 ## Deployment
 

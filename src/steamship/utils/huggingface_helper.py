@@ -20,12 +20,15 @@ async def _model_call(session, text: str, api_url, headers) -> list:
     json_input = dict(inputs=text, wait_for_model=True)
     data = json.dumps(json_input)
 
+    max_error_retries = 3
+
     """
     Hugging Face returns an error that says that the model is currently loading
     if it believes you have 'too many' requests simultaneously, so the logic retries in this case, but fails on
     other errors.
     """
     while True:
+        tries = 0
         async with session.post(api_url, headers=headers, data=data) as response:
             if response.status == HTTPStatus.OK and response.content_type == "application/json":
                 json_response = await response.json()
@@ -35,12 +38,15 @@ async def _model_call(session, text: str, api_url, headers) -> list:
                 text_response = await response.text()
                 if "is currently loading" not in text_response:
                     logging.info(
-                        f"received text response [{text_response}] for input text [{text}]"
+                        f"received text response [{text_response}] for input text [{text}], attempt {tries}"
                     )
-                    raise SteamshipError(
-                        message="Unable to query Hugging Face model",
-                        internal_message=f"HF returned error: {text_response}",
-                    )
+                    if tries >= max_error_retries:
+                        raise SteamshipError(
+                            message="Unable to query Hugging Face model",
+                            internal_message=f"HF returned error: {text_response} after {tries} attempts",
+                        )
+                    else:
+                        tries += 1
                 else:
                     await asyncio.sleep(1)
 
