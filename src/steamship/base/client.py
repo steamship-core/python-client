@@ -1,5 +1,6 @@
 import json
 import logging
+from abc import ABC
 from typing import Any, Dict, Type, TypeVar, Union
 
 import requests
@@ -16,17 +17,15 @@ _logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=Response)  # TODO (enias): Do we need this?
 
 
-class Client(BaseModel):
+class Client(BaseModel, ABC):
     """Client base.py class.
 
     Separated primarily as a hack to prevent circular imports.
     """
 
-    # A client is always scoped by its space. A null space resolves to the
-    # default space on the
     config: Configuration = None
 
-    def __init__(  # TODO (Enias): Do we need all the default parameters?
+    def __init__(
         self,
         api_key: str = None,
         api_base: str = None,
@@ -35,7 +34,6 @@ class Client(BaseModel):
         space_handle: str = None,
         profile: str = None,
         config_file: str = None,
-        config_dict: dict = None,
     ):
         super().__init__()
         self.config = Configuration(
@@ -46,7 +44,6 @@ class Client(BaseModel):
             space_handle=space_handle,
             profile=profile,
             config_file=config_file,
-            config_dict=config_dict,
         )
 
     def _url(

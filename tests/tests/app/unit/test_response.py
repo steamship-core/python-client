@@ -21,7 +21,6 @@ def check_val(d: dict, val: Any):
 
 
 def test_text_response():
-    """Test test response"""
     r = Response.from_obj("Hi there")
     d = r.to_dict()
     check_mime(d, MimeTypes.TXT)
@@ -30,7 +29,6 @@ def test_text_response():
 
 
 def test_dict_response():
-    """Test test response"""
     r = Response.from_obj(dict(a=1))
     d = r.to_dict()
     check_mime(d, MimeTypes.JSON)
@@ -39,7 +37,6 @@ def test_dict_response():
 
 
 def test_resp_response():
-    """Test test response"""
     o = BlockAndTagPluginOutput(file=File.CreateRequest(value="Foo", blocks=[], tags=[]))
     r = Response(json=o)
     d = r.to_dict()

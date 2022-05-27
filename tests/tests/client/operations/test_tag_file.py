@@ -3,7 +3,7 @@ from steamship.base.response import TaskState
 
 # TODO: It should fail if the docs field is empty.
 # TODO: It should fail if the file hasn't been converted.
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 def count_blocks_with_tag(blocks: [Block], tag_kind: str, tag_name: str):

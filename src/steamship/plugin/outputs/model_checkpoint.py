@@ -51,9 +51,9 @@ class ModelCheckpoint(BaseModel):
         super().__init__(
             client=client,
             parent_directory=parent_directory,
-            space=_get_space(client),
             plugin_instance_id=plugin_instance_id,
             handle=handle or ModelCheckpoint.DEFAULT_HANDLE,
+            space=_get_space(client),
         )
 
         if self.plugin_instance_id is None:
