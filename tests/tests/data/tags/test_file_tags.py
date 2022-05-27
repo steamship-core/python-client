@@ -1,18 +1,19 @@
 from steamship import Block, File, MimeTypes
+from steamship.client import Steamship
 from steamship.data.tags import Tag
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import client  # noqa: F401
+from tests.utils.fixtures import get_steamship_client
 
 
-def test_file_tag():
-    steamship = get_steamship_client()
-    a = steamship.upload(content="A", mime_type=MimeTypes.MKD).data
+def test_file_tag(client: Steamship):
+    a = client.upload(content="A", mime_type=MimeTypes.MKD).data
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
 
-    _ = Tag.create(steamship, file_id=a.id, name="test1").data
-    _ = Tag.create(steamship, file_id=a.id, name="test2").data
+    _ = Tag.create(client, file_id=a.id, name="test1").data
+    _ = Tag.create(client, file_id=a.id, name="test2").data
 
-    tags = Tag.list_public(steamship, file_id=a.id)
+    tags = Tag.list_public(client, file_id=a.id)
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 2
@@ -27,7 +28,7 @@ def test_file_tag():
         if tag.name == "test1":
             tag.delete()
 
-    tags = Tag.list_public(steamship, file_id=a.id)
+    tags = Tag.list_public(client, file_id=a.id)
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 1
@@ -40,7 +41,7 @@ def test_file_tag():
 
     tags.data.tags[0].delete()
 
-    tags = Tag.list_public(steamship, file_id=a.id)
+    tags = Tag.list_public(client, file_id=a.id)
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 0
@@ -48,8 +49,7 @@ def test_file_tag():
     a.delete()
 
 
-def test_query():
-    client = get_steamship_client()
+def test_query(client: Steamship):
     a = File.create(
         client=client,
         blocks=[

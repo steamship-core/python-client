@@ -6,8 +6,8 @@ from tests.tests.client.operations.test_embed import (
     count_embeddings,
 )
 from tests.tests.client.operations.test_embedding_index import create_index
-from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_e2e_embedder():

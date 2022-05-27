@@ -1,7 +1,7 @@
 from steamship import PluginInstance
 from steamship.base.response import TaskState
 from steamship.data.embeddings import IndexSnapshotRequest, IndexSnapshotResponse
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -13,7 +13,7 @@ def _insert(index, items):
     # Now embed
     task = index.embed()
     task.wait()
-    task.check()
+    task.refresh()
     assert task.task.state == TaskState.succeeded
 
 
@@ -21,7 +21,7 @@ def _snapshot(index, window_size=None):
     if window_size is None:
         task = index.create_snapshot()
         task.wait()
-        task.check()
+        task.refresh()
     else:
         # We do this manually so as not to clutter the end-user visible
         # API with debug/testing parameters
@@ -33,7 +33,7 @@ def _snapshot(index, window_size=None):
             asynchronous=True,
         )
         task.wait()
-        task.check()
+        task.refresh()
 
 
 def test_snapshot_create():

@@ -2,7 +2,7 @@ __copyright__ = "Steamship"
 __license__ = "MIT"
 
 from steamship.data.user import User
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_get_steamship_client():

@@ -1,8 +1,11 @@
+import pytest
+
+from steamship import SteamshipError
 from steamship.base import Client
 from steamship.base.response import TaskState
 from steamship.data.embeddings import EmbeddedItem
 from steamship.data.plugin_instance import PluginInstance
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 from tests.utils.random import random_index
 
 _TEST_EMBEDDER = "test-embedder"
@@ -14,7 +17,6 @@ def create_index(_: Client, plugin_instance: str):
     # Should require plugin
     task = steamship.create_index()
     assert task.error is not None
-    assert task.data is None
 
     index = steamship.create_index(plugin_instance=plugin_instance).data
     assert index is not None
@@ -24,7 +26,6 @@ def create_index(_: Client, plugin_instance: str):
         handle=index.handle, plugin_instance=plugin_instance, upsert=False
     )
     assert task.error is not None
-    assert task.data is None
 
     index.delete()
 
@@ -143,7 +144,7 @@ def test_index_usage():
         # Now embed
         task = index.embed()
         task.wait()
-        task.check()
+        task.refresh()
         assert task.task.state == TaskState.succeeded
 
         search_results = index.search(q1)
@@ -261,7 +262,6 @@ def test_empty_queries():
 
         search_results = index.search(None)
         assert search_results.error is not None
-        assert search_results.data is None
 
         # These technically don't count as empty. Leaving this test in here
         # to encode and capture that in case we want to change it.

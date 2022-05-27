@@ -1,7 +1,7 @@
 from steamship import AppInstance
 from tests import APPS_PATH
-from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_app
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_configurable_instance_invoke():

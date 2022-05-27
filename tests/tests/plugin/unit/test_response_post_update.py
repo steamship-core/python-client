@@ -8,7 +8,7 @@ import pytest
 from steamship.app import Response
 from steamship.base.tasks import Task, TaskState
 from tests.tests.plugin.unit.trainable.util import create_dummy_training_task
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_response_post_update_fails_when_no_task_present():
@@ -43,7 +43,7 @@ def test_response_post_update_can_update_task():
     response.status.output = new_output
 
     # Sanity check: we'll prove that caling task.check() resets this..
-    task_result.check()
+    task_result.refresh()
 
     # Assert not equal
     assert task.state != new_state
@@ -59,7 +59,7 @@ def test_response_post_update_can_update_task():
     response.post_update(client)
 
     # Call task.check
-    task_result.check()
+    task_result.refresh()
 
     # Assert equal
     assert task.state == new_state

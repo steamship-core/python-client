@@ -58,14 +58,7 @@ def flexi_create(
         is_b64 = False
 
         if data is not None:
-            if hasattr(data, "to_dict"):
-                ret_data = getattr(data, "to_dict")()
-                ret_mime = MimeTypes.JSON
-            elif isinstance(data, BaseModel):
-                ret_data = data.dict()
-                ret_mime = MimeTypes.JSON
-            else:
-                ret_data, ret_mime = data, mime_type or guess_mime(data, mime_type)
+            ret_data, ret_mime = data, mime_type or guess_mime(data, mime_type)
 
         elif string is not None:
             ret_data, ret_mime = string, mime_type or MimeTypes.TXT

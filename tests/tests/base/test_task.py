@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from steamship.base import Client
 from steamship.base.tasks import TaskState
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 class NoOpResult(BaseModel):
@@ -69,7 +69,7 @@ def test_task_update():
     result_2.task.post_update(fields=["statusMessage"])
 
     # This will refresh the task.
-    result_2.check()
+    result_2.refresh()
 
     # The original input is unchanged; the local modifications have been overwritten by the remote state, which
     # was not updated.

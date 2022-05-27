@@ -5,7 +5,7 @@ import pytest
 
 from steamship import PluginInstance, Space
 from steamship.data.plugin import Plugin, PluginAdapterType, PluginType
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_plugin_create():
@@ -55,7 +55,6 @@ def test_plugin_create():
         is_public=False,
     )
     assert plugin_x.error is not None
-    assert plugin_x.data is None
 
     # Upsert does work
     plugin2 = Plugin.create(
@@ -97,7 +96,6 @@ def test_plugin_public():
     # Make sure they can't be deleted.
     res = plugins[0].delete()
     assert res.error is not None
-    assert res.data is None
 
 
 def test_deploy_in_space():
