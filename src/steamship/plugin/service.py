@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Callable, Dict, Generic, Type, TypeVar, Union
 
 from pydantic import BaseModel
+from pydantic.generics import GenericModel
 
 from steamship.app import App
 from steamship.app.response import Response
@@ -30,7 +31,7 @@ U = TypeVar("U")
 logging.getLogger().setLevel(logging.INFO)
 
 
-class PluginRequest(Generic[T], BaseModel):  # TODO (enias): Make generic
+class PluginRequest(GenericModel, Generic[T]):
     data: T = None
     task_id: str = None
     plugin_id: str = None

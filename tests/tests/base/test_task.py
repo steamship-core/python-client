@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 from steamship.base import Client
 from steamship.base.tasks import TaskState
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 class NoOpResult(BaseModel):

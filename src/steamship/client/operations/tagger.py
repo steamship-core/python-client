@@ -2,10 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from pydantic import BaseModel
-
 from steamship import File
-from steamship.base import Client, Request
+from steamship.base import Client, Request, Response
 
 
 class TagRequest(Request):
@@ -32,7 +30,7 @@ class TagRequest(Request):
         return self.dict()
 
 
-class TagResponse(BaseModel):
+class TagResponse(Response):
     file: File = None
 
     # noinspection PyUnusedLocal

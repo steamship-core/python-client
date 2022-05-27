@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any, Generic, List, Optional, TypeVar
 
 from pydantic import BaseModel
+from pydantic.generics import GenericModel
 
 from steamship.base.base import IResponse
 from steamship.base.metadata import metadata_to_str, str_to_metadata
@@ -44,7 +45,7 @@ class TaskComment(BaseModel):
 
     @staticmethod
     def create(
-        client: Any,  # TODO (Enias): Fix circular dependency so that we can put Steamship here
+        client: Any,  # TODO (Enias): Solve circular dependency
         task_id: str = None,
         external_id: str = None,
         external_type: str = None,
@@ -140,7 +141,7 @@ class TaskStatusRequest(Request):
     taskId: str
 
 
-class Task(Generic[T], BaseModel):
+class Task(GenericModel, Generic[T]):
     """Encapsulates a unit of asynchronously performed work."""
 
     client: Any = None  # Steamship client

@@ -13,10 +13,10 @@ TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
 
 
 def _test_resp(res):
-    assert type(res) == Response
-    assert type(res.data) == dict
-    assert res.data["fileImportRequests"] is not None
-    assert len(res.data["fileImportRequests"]) == 2
+    assert isinstance(res, Response)
+    assert isinstance(res.data, CorpusImportResponse)
+    assert res.data.fileImportRequests is not None
+    assert len(res.data.fileImportRequests) == 2
 
 
 def test_importer():

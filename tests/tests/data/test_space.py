@@ -1,7 +1,5 @@
-import pytest
-
-from steamship import Space, SteamshipError
-from tests.utils.client import get_steamship_client
+from steamship import Space
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_default_space():

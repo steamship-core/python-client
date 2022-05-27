@@ -8,7 +8,7 @@ import pytest
 from steamship.app import Response
 from steamship.base.tasks import Task, TaskState
 from tests.tests.plugin.unit.trainable.util import create_dummy_training_task
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_response_post_update_fails_when_no_task_present():

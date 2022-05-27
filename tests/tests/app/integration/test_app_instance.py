@@ -5,8 +5,8 @@ import requests
 from steamship import Space
 from steamship.base.mime_types import MimeTypes
 from tests import APPS_PATH, TEST_ASSETS_PATH
-from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_app
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_instance_invoke():

@@ -9,7 +9,7 @@ from assets.plugins.taggers.plugin_trainable_tagger import (
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from tests.tests.plugin.unit.trainable.util import create_dummy_training_task
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 def _test_folders_equal(p1: Path, p2: Path):

@@ -4,19 +4,19 @@ import json
 import requests
 
 from steamship import File
+from steamship.client import Steamship
 from steamship.data import Block, Tag
 from steamship.data.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from tests import PLUGINS_PATH
-from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
 from tests.utils.file import upload_file
+from tests.utils.fixtures import client  # noqa: F401
 
 EXPORTER_HANDLE = "signed-url-exporter"
 
 
-def test_e2e_corpus_export():
-    client = get_steamship_client()
+def test_e2e_corpus_export(client: Steamship):
     version_config_template = dict(
         text_column=dict(type="string"),
         tag_columns=dict(type="string"),
@@ -63,8 +63,7 @@ def test_e2e_corpus_export():
             _ = raw_data_r.data
 
 
-def test_e2e_corpus_export_with_query():
-    client = get_steamship_client()
+def test_e2e_corpus_export_with_query(client):
     exporter_plugin_r = PluginInstance.create(
         client=client,
         handle=EXPORTER_HANDLE,
@@ -92,7 +91,6 @@ def test_e2e_corpus_export_with_query():
 
     # Now export the corpus
     _input = ExportPluginInput(query='filetag and name "FileTag"', type="file")
-    print(_input.dict())
     raw_data_r = exporter_plugin.export(_input)
     assert raw_data_r is not None
 

@@ -5,7 +5,7 @@ import pytest
 
 from steamship import PluginInstance, Space
 from steamship.data.plugin import Plugin, PluginAdapterType, PluginType
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_plugin_create():
