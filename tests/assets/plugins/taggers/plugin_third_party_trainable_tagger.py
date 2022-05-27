@@ -37,11 +37,6 @@ from tests.assets.plugins.taggers.plugin_trainable_tagger import (
 logging.getLogger().setLevel(logging.INFO)
 
 
-class ThirdPartyTrainingStatus(str, Enum):
-    TRAINING = "training"
-    TRAINED = "trained"
-
-
 class MockClient:
     """This is a simulation of what a third-party client to an AutoML-style API might look like.
 
@@ -51,6 +46,10 @@ class MockClient:
     * The ability to check on that training job
     * The ability to run the resulting trained model.
     """
+
+    class ThirdPartyTrainingStatus(str, Enum):
+        TRAINING = "training"
+        TRAINED = "trained"
 
     LABELS = ["label__mock"]
     FAKE_TRAINING_FILE_ID = "0000-0000-0000-0000"
@@ -65,7 +64,7 @@ class MockClient:
         return self.FAKE_MODEL_ID
 
     def training_status(self, model_id: str) -> ThirdPartyTrainingStatus:
-        return ThirdPartyTrainingStatus.TRAINED
+        return self.ThirdPartyTrainingStatus.TRAINED
 
     def infer(self, text: str, model_id) -> List[str]:
         return self.LABELS
