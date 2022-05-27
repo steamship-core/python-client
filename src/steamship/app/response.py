@@ -6,6 +6,7 @@ import logging
 from typing import Any, Dict, Generic, TypeVar, Union
 
 from pydantic import BaseModel
+from pydantic.generics import GenericModel
 
 from steamship.base import Client, SteamshipError
 from steamship.base.binary_utils import flexi_create
@@ -28,7 +29,7 @@ class Http(BaseModel):
 T = TypeVar("T")
 
 
-class Response(BaseModel, Generic[T]):
+class Response(GenericModel, Generic[T]):
     """Mirrors the Response object in the Steamship server."""
 
     data: T = None  # Data for successful or synchronous requests.

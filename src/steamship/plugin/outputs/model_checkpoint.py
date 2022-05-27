@@ -3,7 +3,7 @@ import tempfile
 from pathlib import Path
 from typing import ClassVar, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from steamship import SteamshipError
 from steamship.base import Client

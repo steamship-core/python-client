@@ -120,7 +120,7 @@ class IndexItemId(BaseModel):
         return IndexItemId(indexId=d.get("indexId"), id=d.get("id"))
 
 
-class IndexInsertResponse(BaseModel):
+class IndexInsertResponse(Response):
     itemIds: List[IndexItemId] = None
 
     # noinspection PyUnusedLocal
@@ -135,7 +135,7 @@ class IndexEmbedRequest(Request):
     id: str
 
 
-class IndexEmbedResponse(BaseModel):
+class IndexEmbedResponse(Response):
     id: Optional[str] = None
 
     # noinspection PyUnusedLocal
@@ -159,7 +159,7 @@ class IndexSnapshotRequest(Request):
     windowSize: int = None
 
 
-class IndexSnapshotResponse(BaseModel):
+class IndexSnapshotResponse(Response):
     id: Optional[str] = None
     snapshotId: str
 
@@ -173,7 +173,7 @@ class ListSnapshotsRequest(Request):
     id: str = None
 
 
-class ListSnapshotsResponse(BaseModel):
+class ListSnapshotsResponse(Response):
     snapshots: List[IndexSnapshotResponse]
 
     # noinspection PyUnusedLocal
@@ -191,7 +191,7 @@ class ListItemsRequest(Request):
     spanId: str = None
 
 
-class ListItemsResponse(BaseModel):
+class ListItemsResponse(Response):
     items: List[EmbeddedItem]
 
     # noinspection PyUnusedLocal
@@ -206,7 +206,7 @@ class DeleteSnapshotsRequest(Request):
     snapshotId: str = None
 
 
-class DeleteSnapshotsResponse(Request):
+class DeleteSnapshotsResponse(Response):
     snapshotId: str = None
 
 

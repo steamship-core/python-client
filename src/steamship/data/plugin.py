@@ -120,7 +120,7 @@ class ListPrivatePluginsRequest(Request):
     type: str
 
 
-class ListPluginsResponse(Request):
+class ListPluginsResponse(Response):
     plugins: List[Plugin]
 
     @staticmethod
