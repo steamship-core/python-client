@@ -1,5 +1,5 @@
 from steamship.base.response import TaskState
-from tests.utils.client import get_steamship_client
+from tests.utils.fixtures import get_steamship_client
 
 
 def test_file_upload_then_parse():

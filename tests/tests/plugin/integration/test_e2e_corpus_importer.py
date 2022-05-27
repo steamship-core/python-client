@@ -3,8 +3,8 @@ from utils.random import temporary_space
 from steamship import File, PluginInstance
 from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from tests import PLUGINS_PATH
-from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
+from tests.utils.fixtures import get_steamship_client
 
 HANDLE = "test-importer-plugin-v1"
 TEST_H1 = "A Poem"

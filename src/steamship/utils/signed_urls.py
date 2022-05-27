@@ -47,29 +47,30 @@ def download_from_signed_url(url: str, to_file: Path = None) -> Path:
     return Path(to_file)
 
 
-def upload_to_signed_url(url: str, bytes: Optional[bytes] = None, filepath: Optional[Path] = None):
+def upload_to_signed_url(url: str, _bytes: Optional[bytes] = None, filepath: Optional[Path] = None):
     """
     Uploads either the bytes or filepath contents to the provided Signed URL.
     """
 
-    if bytes is not None:
+    if _bytes is not None:
         logging.info(f"Uploading provided bytes to: {url}")
     elif filepath is not None:
         logging.info(f"Uploading file at {filepath} to: {url}")
         with open(filepath, "rb") as f:
-            bytes = f.read()
+            _bytes = f.read()
     else:
         raise SteamshipError(
             message="Unable to upload data to signed URL -- neither a filepath nor bytes were provided.",
             suggestion="Please provide either the `bytes` or the `filepath` argument",
         )
 
-    files = {"file": (str(filepath), bytes)}
     parsed_url = urllib.parse.urlparse(url)
 
     if "amazonaws.com" in parsed_url.netloc:
         # When uploading to AWS Production, the format of the URL should be https://BUCKET.DOMAIN/KEY
-        http_response = requests.put(url, data={}, files=files)
+        http_response = requests.put(
+            url, data=_bytes, headers={"Content-Type": "application/octet-stream"}
+        )
     else:
         # When uploading to AWS Localstack, the format of the URL should be https://DOMAIN/BUCKET
         # And we must, in addition, re-format the POST request. This appears to be a quick of using Localstack
@@ -91,6 +92,7 @@ def upload_to_signed_url(url: str, bytes: Optional[bytes] = None, filepath: Opti
             "AWSAccessKeyId": params["X-Amz-Credential"].split("/")[0],
             "signature": params["X-Amz-Signature"],
         }
+        files = {"file": _bytes}
         http_response = requests.post(newurl, data=data, files=files)
 
     # S3 returns 204 upon success; we include 200 here for safety.

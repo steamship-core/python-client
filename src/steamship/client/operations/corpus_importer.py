@@ -72,4 +72,4 @@ class CorpusImportResponse(BaseModel):
         )
 
     def to_dict(self) -> dict:
-        return dict(fileImportRequests=self.fileImportRequests)
+        return dict(fileImportRequests=[request.to_dict() for request in self.fileImportRequests])
