@@ -32,4 +32,3 @@ def test_enum_serialization_behavior():
     assert t2.training_platform == TrainingPlatform.LAMBDA
     assert t1.training_platform == "ecs"
     assert t2.training_platform == "lambda"
-    assert str(t2.training_platform) == "lambda"
