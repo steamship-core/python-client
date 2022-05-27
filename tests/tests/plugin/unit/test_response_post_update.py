@@ -43,7 +43,7 @@ def test_response_post_update_can_update_task():
     response.status.output = new_output
 
     # Sanity check: we'll prove that caling task.check() resets this..
-    task_result.check()
+    task_result.refresh()
 
     # Assert not equal
     assert task.state != new_state
@@ -59,7 +59,7 @@ def test_response_post_update_can_update_task():
     response.post_update(client)
 
     # Call task.check
-    task_result.check()
+    task_result.refresh()
 
     # Assert equal
     assert task.state == new_state

@@ -19,7 +19,6 @@ def test_delete_space():
 
     space1.delete()
     space1a = Space.get(client=client, space_id=space1.id)
-    assert space1a.data is None
     assert space1a.error is not None
 
     space1 = Space.create(client=client, handle="test").data
@@ -33,7 +32,6 @@ def test_delete_space():
 
     space1.delete()
     space1a = Space.get(client=client, space_id=space1.id)
-    assert space1a.data is None
     assert space1a.error is not None
 
 
@@ -72,19 +70,15 @@ def test_create_use_delete_space():
     assert space1.id == space1c.id
 
     space1ad = space1a.delete()
-    assert space1ad.data is not None
     assert space1ad.error is None
 
     # These two are the same space! You can't delete twice!
     space1bd = space1b.delete()
-    assert space1bd.data is None
     assert space1bd.error is not None
     space1cd = space1c.delete()
-    assert space1cd.data is None
     assert space1cd.error is not None
 
     space2.delete()
 
     space1a_deleted = Space.get(client=client, space_id=space1.id)
-    assert space1a_deleted.data is None
     assert space1a_deleted.error is not None

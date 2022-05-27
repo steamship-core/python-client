@@ -157,7 +157,7 @@ class Response(GenericModel, Generic[T]):
         elif obj_t in [float, int, bool]:
             return Response(json=obj)
 
-        if getattr(obj, "to_dict"):
+        if hasattr(obj, "to_dict"):
             try:
                 return Response(json=getattr(obj, "to_dict")())
             except Exception as e:
