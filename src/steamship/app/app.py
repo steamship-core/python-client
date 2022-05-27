@@ -14,8 +14,6 @@ from steamship.app.request import Request, Verb
 from steamship.app.response import Response
 from steamship.base import Client
 
-print("hello")
-
 
 def make_registering_decorator(decorator):  # TODO (Enias): Review
     """
