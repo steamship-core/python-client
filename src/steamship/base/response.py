@@ -5,9 +5,8 @@ from typing import Any, Generic, Type, TypeVar
 
 from pydantic.generics import GenericModel
 
-from steamship.base.base import IResponse
 from steamship.base.error import SteamshipError
-from steamship.base.tasks import Task, TaskComment, TaskCommentList, TaskState, TaskStatusRequest
+from steamship.base.tasks import Task, TaskState, TaskStatusRequest
 
 T = TypeVar("T")  # Declare type variable
 
@@ -51,27 +50,4 @@ class Response(GenericModel, Generic[T]):
         if self.task is not None:
             req = TaskStatusRequest(taskId=self.task.task_id)
             resp = self.client.post("task/status", payload=req, expect=self.expect)
-            self.update(resp)  # TODO (enias): Do we get client here?
-
-    def add_comment(  # TODO (enias): Review if we need add_comment here
-        self,
-        external_id: str = None,
-        external_type: str = None,
-        external_group: str = None,
-        metadata: Any = None,
-    ) -> IResponse[TaskComment]:
-        if self.task is not None:
-            return self.task.add_comment(
-                external_id=external_id,
-                external_type=external_type,
-                external_group=external_group,
-                metadata=metadata,
-            )
-
-    def list_comments(self) -> IResponse[TaskCommentList]:
-        if self.task is not None:
-            return self.task.list_comments()
-
-    def delete_comment(self, comment: TaskComment = None) -> IResponse[TaskComment]:
-        if self.task is not None:
-            return self.task.delete_comment(comment=comment)
+            self.update(resp)
