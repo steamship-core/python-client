@@ -1,10 +1,8 @@
 from typing import Any, List
 
-from pydantic import BaseModel
-
 from steamship import File
 from steamship.app import Request
-from steamship.base import Client
+from steamship.base import Client, Response
 
 
 class CorpusImportRequest(Request):
@@ -49,7 +47,7 @@ class CorpusImportRequest(Request):
         )
 
 
-class CorpusImportResponse(BaseModel):
+class CorpusImportResponse(Response):
     client: Client = None
     fileImportRequests: List[File.CreateRequest] = None
 

@@ -1,9 +1,10 @@
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request
-from steamship.base.response import Response
+from steamship.base import Client, Request, Response
 from steamship.data.plugin import (
     HostingCpu,
     HostingEnvironment,
@@ -16,22 +17,6 @@ from steamship.plugin.inputs.training_parameter_plugin_input import TrainingPara
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
-
-
-class PluginInstance(BaseModel):
-    client: Client = None
-    id: str = None
-    handle: str = None
-    plugin_id: str = None
-    plugin_version_id: str = None
-    space_id: Optional[str] = None
-    user_id: str = None
-    config: Dict[str, Any] = None
-    hosting_type: Optional[HostingType] = None
-    hosting_cpu: Optional[HostingCpu] = None
-    hosting_memory: Optional[HostingMemory] = None
-    hosting_timeout: Optional[HostingTimeout] = None
-    hosting_environment: Optional[HostingEnvironment] = None
 
 
 class GetPluginInstanceRequest(Request):

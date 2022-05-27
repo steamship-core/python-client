@@ -14,7 +14,7 @@ from steamship.data.plugin import HostingType, Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
-from tests import SRC_PATH, VENV_PATH
+from tests import SRC_PATH
 
 
 def install_package(package: str, into_folder: str):
@@ -24,12 +24,6 @@ def install_package(package: str, into_folder: str):
 
 def zip_deployable(file_path: Path) -> bytes:
     """Prepare and zip a Steamship plugin."""
-
-    # TODO: This is very dependent on the setup of the local machine.
-    # Might be good to find a more machine-invariant solution here.
-    # The goal is to copy in all the dependencies of the lambda package.
-    # Which are: steamship (current repo), setuptools_scm, requests
-    dependencies_path = VENV_PATH / "lib" / "python3.9" / "site-packages"
 
     package_paths = [
         SRC_PATH / "steamship",
@@ -59,8 +53,9 @@ def zip_deployable(file_path: Path) -> bytes:
                 "certifi",
                 "urllib3",
                 "idna",
-                "pydantic",
+                "pydantic==1.9.0",
                 "typing_extensions",
+                "inflection",
             ]:
                 install_package(package, into_folder=package_dir)
             # Now write that whole folder

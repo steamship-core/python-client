@@ -27,7 +27,7 @@ def test_basic_task_comment():
         task.wait()
 
         res2 = index.search(item1.value, include_metadata=True, k=1)
-        res2.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
+        res2.task.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
         # We don't return to Res2 until the end to make sure we aren't co-mingling comments!
 
         res = index.search(item1.value, include_metadata=True, k=1)
@@ -39,9 +39,9 @@ def test_basic_task_comment():
         assert res.data.items[0].value.external_type == item1.externalType
         _list_equal(res.data.items[0].value.metadata, item1.metadata)
 
-        res.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
+        res.task.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
 
-        comments = res.list_comments()
+        comments = res.task.list_comments()
         assert len(comments.data.comments) == 1
 
         comment = comments.data.comments[0]
@@ -49,16 +49,16 @@ def test_basic_task_comment():
         assert comment.external_type == "Bar"
         _list_equal(comment.metadata, [1, 2])
 
-        res.delete_comment(comment)
+        res.task.delete_comment(comment)
 
-        comments = res.list_comments()
+        comments = res.task.list_comments()
         assert len(comments.data.comments) == 0
 
         # Now let's add one
-        res.add_comment(external_id="Foo1", external_type="Bar1", metadata=[1, 2, 3])
-        res.add_comment(external_id="Foo2", external_type="Bar2", metadata=[1, 2, 3, 4])
+        res.task.add_comment(external_id="Foo1", external_type="Bar1", metadata=[1, 2, 3])
+        res.task.add_comment(external_id="Foo2", external_type="Bar2", metadata=[1, 2, 3, 4])
 
-        comments = res.list_comments()
+        comments = res.task.list_comments()
         assert len(comments.data.comments) == 2
 
         comment = comments.data.comments[0]
@@ -71,21 +71,21 @@ def test_basic_task_comment():
         assert comment.external_type == "Bar2"
         _list_equal(comment.metadata, [1, 2, 3, 4])
 
-        res.delete_comment(comments.data.comments[0])
-        res.delete_comment(comments.data.comments[1])
+        res.task.delete_comment(comments.data.comments[0])
+        res.task.delete_comment(comments.data.comments[1])
 
-        comments = res.list_comments()
+        comments = res.task.list_comments()
         assert len(comments.data.comments) == 0
 
         # Now we handle res2
-        comments = res2.list_comments()
+        comments = res2.task.list_comments()
         assert len(comments.data.comments) == 1
         comment = comments.data.comments[0]
         assert comment.external_id == "Foo"
         assert comment.external_type == "Bar"
         _list_equal(comment.metadata, [1, 2])
-        res.delete_comment(comments.data.comments[0])
-        comments = res.list_comments()
+        res.task.delete_comment(comments.data.comments[0])
+        comments = res.task.list_comments()
         assert len(comments.data.comments) == 0
 
 
@@ -120,26 +120,26 @@ def test_task_comment_feedback_reporting():
         task.wait()
 
         res = index.search(item1.value, include_metadata=True, k=1)
-        res.add_comment(
+        res.task.add_comment(
             external_id="Foo1",
             external_type="Bar1",
             external_group=group_name_1,
             metadata=[1, 2, 3],
         )
-        res.add_comment(
+        res.task.add_comment(
             external_id="Foo2",
             external_type="Bar1",
             external_group=group_name_1,
             metadata=[1, 2, 3],
         )
-        res.add_comment(
+        res.task.add_comment(
             external_id="Foo2",
             external_type="Bar1",
             external_group=group_name_2,
             metadata=[1, 2, 3],
         )
 
-        comments = res.list_comments()
+        comments = res.task.list_comments()
         assert len(comments.data.comments) == 3
 
         g1 = client.tasks.list_comments(external_group=group_name_1)
@@ -164,9 +164,9 @@ def test_task_comment_feedback_reporting():
         )
         assert len(g2.data.comments) == 0
 
-        res.delete_comment(comments.data.comments[0])
-        res.delete_comment(comments.data.comments[1])
-        res.delete_comment(comments.data.comments[2])
+        res.task.delete_comment(comments.data.comments[0])
+        res.task.delete_comment(comments.data.comments[1])
+        res.task.delete_comment(comments.data.comments[2])
 
         g1 = client.tasks.list_comments(external_group=group_name_1)
         assert len(g1.data.comments) == 0

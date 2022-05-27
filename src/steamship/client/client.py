@@ -28,9 +28,7 @@ class Steamship(Client):
         space_handle: str = None,
         profile: str = None,
         config_file: str = None,
-        config_dict: dict = None,
     ):
-        # TODO (Enias): Do we need config file and config dict?
         super().__init__(
             api_key=api_key,
             api_base=api_base,
@@ -39,11 +37,7 @@ class Steamship(Client):
             space_handle=space_handle,
             profile=profile,
             config_file=config_file,
-            config_dict=config_dict,
         )
-        """
-        The base.py class will properly detect and set the defaults. They should be None here.
-        """
         self.tasks = Tasks(self)
 
     def create_index(

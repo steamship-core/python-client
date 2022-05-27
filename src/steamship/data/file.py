@@ -28,7 +28,7 @@ class FileUploadType(str, Enum):
 _logger = logging.getLogger(__name__)
 
 
-class FileClearResponse(BaseModel):
+class FileClearResponse(Response):
     id: str
 
 
@@ -97,8 +97,8 @@ class File(BaseModel):
                 filename=self.filename,
             )
 
-    class CreateResponse(BaseModel):
-        data: Any = None
+    class CreateResponse(Response):
+        data_: Any = None
         mimeType: str = None
 
         def __init__(
@@ -113,7 +113,7 @@ class File(BaseModel):
             data, mime_type, encoding = flexi_create(
                 data=data, string=string, json=json, _bytes=_bytes, mime_type=mime_type
             )
-            self.data = data
+            self.data_ = data
             self.mimeType = mime_type
 
         # noinspection PyUnusedLocal
@@ -122,12 +122,12 @@ class File(BaseModel):
             return File.CreateResponse(data=d.get("data"), mime_type=d.get("mimeType"))
 
         def to_dict(self) -> dict:
-            return dict(data=self.data, mimeType=self.mimeType)
+            return dict(data=self.data_, mimeType=self.mimeType)
 
     class ListRequest(Request):
         corpusId: str = None
 
-    class ListResponse(BaseModel):
+    class ListResponse(Response):
         files: List["File"]
 
         @staticmethod
@@ -472,7 +472,7 @@ class File(BaseModel):
         return e_index
 
 
-class FileQueryResponse(BaseModel):
+class FileQueryResponse(Response):
     files: List[File]
 
     @staticmethod
