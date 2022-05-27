@@ -5,12 +5,10 @@ from assets.plugins.taggers.plugin_trainable_tagger import (
 )
 
 from steamship import File
-from steamship.app.response import Response
 from steamship.data.block import Block
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
 from tests.utils.fixtures import get_steamship_client
 
@@ -48,14 +46,14 @@ def test_trainable_tagger():
     tagger1 = plugin.get_training_parameters(
         PluginRequest(data=TrainingParameterPluginInput(), task_id="000", plugin_instance_id="000")
     )
-    assert tagger1.data == TRAINING_PARAMETERS.to_dict()
+    assert tagger1.data.to_dict() == TRAINING_PARAMETERS.to_dict()
     tagger2 = plugin.get_training_parameters_endpoint(
         **PluginRequest(
             data=TrainingParameterPluginInput(), task_id="000", plugin_instance_id="000"
         ).to_dict()
     )
-    assert tagger2.data == TRAINING_PARAMETERS.to_dict()
-    assert tagger2.data["trainingEpochs"] == TRAINING_PARAMETERS.training_epochs
+    assert tagger2.data.to_dict() == TRAINING_PARAMETERS.to_dict()
+    assert tagger2.data.training_epochs == TRAINING_PARAMETERS.training_epochs
 
     # STEP 2. Training
     # The first part of trainable is to produce your own trainable parameters.

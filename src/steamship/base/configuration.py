@@ -13,7 +13,6 @@ MAX_DEPTH = 40
 
 
 class Configuration(BaseModel):
-    # TODO (enias): Review
     api_key: str = None
     api_base: str = None
     app_base: str = None
