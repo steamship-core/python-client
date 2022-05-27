@@ -87,7 +87,7 @@ class TestTrainableTaggerModel(TrainableModel):
         """Tags the incoming data for any instance of the keywords in the parameter file."""
         logging.info(f"TestTrainableTaggerModel:run() - My keyword list is {self.keyword_list}")
         response = Response(
-            data=BlockAndTagPluginOutput(
+            data_=BlockAndTagPluginOutput(
                 file=File.CreateRequest(
                     tags=[Tag.CreateRequest(name=word) for word in self.keyword_list]
                 )
@@ -141,8 +141,14 @@ class TestTrainableTaggerPlugin(TrainableTagger):
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
     ) -> Response[TrainingParameterPluginOutput]:
-        ret = Response(data=TRAINING_PARAMETERS)
-        logging.info(f"Returning toDict: {ret.to_dict()}")
+        ret = Response[TrainingParameterPluginOutput](
+            json=TrainingParameterPluginOutput(
+                training_epochs=3,
+                testing_holdout_percent=0.3,
+                training_params=dict(keywords=["chocolate", "roses", "chanpagne"]),
+            )
+        )
+        logging.info(f"Returning new new toDict: {ret.dict()}")
         return ret
 
     def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:

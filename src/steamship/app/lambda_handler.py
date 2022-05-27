@@ -6,6 +6,7 @@ from steamship.app.app import App
 from steamship.app.request import Request
 from steamship.app.response import Response
 from steamship.base import SteamshipError
+from steamship.base.utils import to_snake_case
 from steamship.client.client import Steamship
 
 
@@ -14,7 +15,9 @@ def create_handler(app_cls: Type[App]):
 
     def _handler(event: Dict, _: Dict = None) -> Response:
         try:
-            client = Steamship(**event.get("clientConfig", {}))
+            client = Steamship(
+                **{to_snake_case(k): v for k, v in event.get("clientConfig", {}).items()}
+            )
         except SteamshipError as se:
             logging.exception(se)
             return Response.from_obj(se)

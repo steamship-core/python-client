@@ -2,8 +2,7 @@ from typing import Any, Dict, Optional
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request
-from steamship.base.response import Response
+from steamship.base import Client, Request, Response
 from steamship.data.plugin import (
     HostingCpu,
     HostingEnvironment,

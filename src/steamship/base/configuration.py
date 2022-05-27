@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import os
 from pathlib import Path
 from typing import Optional
@@ -53,7 +54,11 @@ class Configuration(CamelModel):
         self.profile = self.profile or os.getenv("STEAMSHIP_PROFILE")
 
         # Then load configuration from a file if provided
-        config_dict = self._load_from_file(config_file or DEFAULT_CONFIG_FILE, self.profile)
+        config_dict = self._load_from_file(
+            config_file or DEFAULT_CONFIG_FILE,
+            self.profile,
+            raise_on_exception=config_file is not None,
+        )
         config_dict.update(self._get_config_dict_from_environment())
         self.update(config_dict)
 
@@ -74,7 +79,31 @@ class Configuration(CamelModel):
                     setattr(self, k, v)
 
     @staticmethod
-    def _load_from_file(file: Path, profile: str = None) -> Optional[dict]:
+    def find_config_file() -> str:
+        """
+        Tries folders from cwd up to root.
+        """
+        paths = []
+        cwd = Path(os.getcwd()).absolute()
+        i = 0
+        while len(str(cwd)) > 0 and str(cwd) != os.path.sep:
+            paths.append(os.path.join(cwd, ".steamship.json"))
+            cwd = cwd.parent.absolute()
+            i += 1
+            if i > 40:
+                print("ERROR: Max depth exceeded in config search recursion.")
+                break
+
+        paths.append(os.path.join(str(Path.home()), ".steamship.json"))
+        for filepath in paths:
+            if os.path.exists(filepath):
+                logging.info(f"Found filepath: {filepath}")
+                return filepath
+
+    @staticmethod
+    def _load_from_file(
+        file: Path, profile: str = None, raise_on_exception: bool = False
+    ) -> Optional[dict]:
         try:
             with file.open() as f:
                 config_file = json.load(f)
@@ -85,9 +114,12 @@ class Configuration(CamelModel):
                 else:
                     return config_file
         except FileNotFoundError as _:
-            raise Exception(f"Tried to load configuration file at {file} but it did not exist.")
+            if raise_on_exception:
+                raise Exception(f"Tried to load configuration file at {file} but it did not exist.")
         except Exception as err:
-            raise err
+            if raise_on_exception:
+                raise err
+        return {}
 
     @staticmethod
     def _get_config_dict_from_environment():

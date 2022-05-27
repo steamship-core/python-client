@@ -98,7 +98,7 @@ class File(BaseModel):
             )
 
     class CreateResponse(Response):
-        data: Any = None
+        data_: Any = None
         mimeType: str = None
 
         def __init__(
@@ -113,7 +113,7 @@ class File(BaseModel):
             data, mime_type, encoding = flexi_create(
                 data=data, string=string, json=json, _bytes=_bytes, mime_type=mime_type
             )
-            self.data = data
+            self.data_ = data
             self.mimeType = mime_type
 
         # noinspection PyUnusedLocal
@@ -122,7 +122,7 @@ class File(BaseModel):
             return File.CreateResponse(data=d.get("data"), mime_type=d.get("mimeType"))
 
         def to_dict(self) -> dict:
-            return dict(data=self.data, mimeType=self.mimeType)
+            return dict(data=self.data_, mimeType=self.mimeType)
 
     class ListRequest(Request):
         corpusId: str = None
