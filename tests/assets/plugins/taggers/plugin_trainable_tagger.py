@@ -62,7 +62,7 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
         self.path = None
         self.keyword_list = []
 
-    def load_from_folder(self, checkpoint_path: Path, config: EmptyConfig):
+    def load_from_folder(self, checkpoint_path: Path):
         """[Required by TrainableModel] Load state from the provided path."""
         logging.info(f"Model:save_to_folder {checkpoint_path}")
         self.path = checkpoint_path
@@ -122,7 +122,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         super().__init__(client, config)
 
     def config_cls(self) -> Type[Config]:
-        return self.EmptyConfig
+        return EmptyConfig
 
     def model_cls(self) -> Type[TestTrainableTaggerModel]:
         return TestTrainableTaggerModel
@@ -146,7 +146,9 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         logging.info(f"Returning toDict: {ret.dict()}")
         return ret
 
-    def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
+    def train(
+        self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerModel
+    ) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
         logging.info(f"TestTrainableTaggerPlugin:train() {request}")
 
@@ -157,9 +159,6 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         # Example of recording training progress
         # response.status.status_message = "About to train!"
         # response.post_update(client=self.client)
-
-        # Let's create an instance of our model. We'll use get_model_class() here for copy-paste safety.
-        model = TestTrainableTaggerModel()
 
         # Train the model
         train_plugin_input = request.data

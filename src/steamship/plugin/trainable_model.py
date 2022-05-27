@@ -85,13 +85,19 @@ class TrainableModel(ABC, Generic[ConfigType]):
 
     """
 
+    config: ConfigType = None
+
+    def receive_config(self, config: ConfigType):
+        """Stores config from plugin instance, so it is accessible by model on load or train."""
+        self.config = config
+
     @abstractmethod
     def save_to_folder(self, checkpoint_path: Path):
         """Saves 100% of the state of this model to the provided path."""
         raise NotImplementedError()
 
     @abstractmethod
-    def load_from_folder(self, checkpoint_path: Path, config: ConfigType = None):
+    def load_from_folder(self, checkpoint_path: Path):
         """Load 100% of the state of this model to the provided path."""
         raise NotImplementedError()
 
@@ -101,9 +107,10 @@ class TrainableModel(ABC, Generic[ConfigType]):
         raise NotImplementedError()
 
     @classmethod
-    def load_from_local_checkpoint(cls, checkpoint: ModelCheckpoint, config: ConfigType = None):
+    def load_from_local_checkpoint(cls, checkpoint: ModelCheckpoint, config: ConfigType):
         model = cls()
-        model.load_from_folder(checkpoint.folder_path_on_disk(), config)
+        model.receive_config(config=config)
+        model.load_from_folder(checkpoint.folder_path_on_disk())
         return model
 
     @classmethod
@@ -114,7 +121,7 @@ class TrainableModel(ABC, Generic[ConfigType]):
         checkpoint_handle: Optional[str] = None,
         use_cache: bool = True,
         model_parent_directory: Path = None,
-        config: ConfigType = None,
+        plugin_instance_config: ConfigType = None,
     ):
         if checkpoint_handle is None:
             # For some reason doing this defaulting in the signature wasn't working.
@@ -141,7 +148,7 @@ class TrainableModel(ABC, Generic[ConfigType]):
         logging.info(f"TrainableModel:load_remote - Downloading: {model_key}")
         checkpoint.download_model_bundle()
         logging.info(f"TrainableModel:load_remote - Loading: {model_key}")
-        model = cls.load_from_local_checkpoint(checkpoint, config)
+        model = cls.load_from_local_checkpoint(checkpoint, plugin_instance_config)
         logging.info(f"TrainableModel:load_remote - Loaded: {model_key}")
 
         if use_cache:
