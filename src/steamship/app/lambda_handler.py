@@ -62,6 +62,8 @@ def create_handler(app_cls: Type[App]):
 
         try:
             response = app(request)
+            logging.info(f"Calling response {Response.from_obj(response)}")
+            logging.info(f"Calling response {type(Response.from_obj(response))}")
             return Response.from_obj(response)
         except SteamshipError as se:
             logging.exception(se)
@@ -82,6 +84,8 @@ def create_handler(app_cls: Type[App]):
 
     def handler(event: Dict, context: Dict = None) -> dict:
         response = _handler(event, context)
+        logging.info(f"to dict in handler: {type(response)}")
+        logging.info(f"to dict in handler: {response.to_dict()}")
         return response.to_dict()
 
     return handler
