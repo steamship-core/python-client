@@ -17,7 +17,6 @@ class TrainingParameterPluginOutput(BaseModel):
     test_split_seed: int = None
     training_params: Dict[str, Any] = None
     inference_params: Dict[str, Any] = None
-
     export_request: ExportPluginInput = None
 
     @staticmethod

@@ -63,7 +63,7 @@ class ListPrivatePluginVersionsRequest(Request):
     pluginId: str
 
 
-class ListPluginVersionsResponse(Request):
+class ListPluginVersionsResponse(Response):
     plugins: List[PluginVersion]
 
     @staticmethod

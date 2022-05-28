@@ -71,7 +71,7 @@ class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
         fileId: str = None
         blockId: str = None
 
-    class ListResponse(Request):
+    class ListResponse(Response):
         tags: List[Tag] = None
 
         @staticmethod
@@ -183,7 +183,7 @@ class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
         return res
 
 
-class TagQueryResponse(BaseModel):
+class TagQueryResponse(Response):
     tags: List[Tag]
 
     @staticmethod
