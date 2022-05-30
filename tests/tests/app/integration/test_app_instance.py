@@ -96,12 +96,12 @@ def test_instance_invoke():
         # We can load this app, and it is the same app!, via the client helper.
         quick_loaded = client.app(app.handle, instance.handle)
         assert quick_loaded.id == instance.id
-        assert type(quick_loaded) == AppInstance
+        assert isinstance(quick_loaded, AppInstance)
 
         # We can quickly create a NEW instance of this app by simply passing the client helper a different handle
         quick_created_2 = client.app(app.handle, f"{instance.handle}-2")
         assert quick_created_2.id != instance.id
-        assert type(quick_created_2) == AppInstance
+        assert isinstance(quick_created_2, AppInstance)
         assert quick_created_2.post("greet", name="Ted").data == "Hello, Ted!"
         quick_created_2.delete()
 
