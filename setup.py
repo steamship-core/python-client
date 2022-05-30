@@ -9,7 +9,7 @@ from setuptools import setup
 
 if __name__ == "__main__":
     try:
-        setup(use_scm_version={"version_scheme": "release-branch-semver"})
+        setup(use_scm_version={"version_scheme": "no-guess-dev"})
     except Exception as e:
         print(
             "\n\nAn error occurred while building the project, "

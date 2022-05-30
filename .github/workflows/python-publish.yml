@@ -8,20 +8,24 @@
 
 name: Upload Python Package
 
+#on:
+#  release:
+#    types: [published]
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
 
 permissions:
   contents: read
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
+    - name: Fetch all history for all tags and branches for setuptools use_scm_version
+      run: git fetch --prune --unshallow
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
@@ -38,4 +42,4 @@ jobs:
         user: __token__
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
-
+        verbose: true
