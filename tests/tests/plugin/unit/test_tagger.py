@@ -22,7 +22,7 @@ TEST_REQ = BlockAndTagPluginInput(
     )
 )
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
-TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
 
 def _test_resp(res):

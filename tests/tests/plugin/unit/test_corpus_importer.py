@@ -9,14 +9,14 @@ from tests.assets.plugins.importers.plugin_corpus_importer import TestCorpusImpo
 
 TEST_REQ = CorpusImportRequest(url="1")
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
-TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
 
 def _test_resp(res):
     assert isinstance(res, Response)
     assert isinstance(res.data, CorpusImportResponse)
-    assert res.data.fileImportRequests is not None
-    assert len(res.data.fileImportRequests) == 2
+    assert res.data.file_import_requests is not None
+    assert len(res.data.file_import_requests) == 2
 
 
 def test_importer():

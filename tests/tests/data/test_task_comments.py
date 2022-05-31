@@ -14,13 +14,13 @@ def test_basic_task_comment():
     embedder = PluginInstance.create(steamship, plugin_handle="test-embedder").data
     with random_index(steamship, embedder.handle) as index:
         item1 = EmbeddedItem(
-            value="Pizza", externalId="pizza", externalType="food", metadata=[1, 2, 3]
+            value="Pizza", external_id="pizza", external_type="food", metadata=[1, 2, 3]
         )
 
         index.insert(
             item1.value,
-            external_id=item1.externalId,
-            external_type=item1.externalType,
+            external_id=item1.external_id,
+            external_type=item1.external_type,
             metadata=item1.metadata,
         )
         task = index.embed()
@@ -35,8 +35,8 @@ def test_basic_task_comment():
         assert res.data.items is not None
         assert len(res.data.items) == 1
         assert res.data.items[0].value.value == item1.value
-        assert res.data.items[0].value.external_id == item1.externalId
-        assert res.data.items[0].value.external_type == item1.externalType
+        assert res.data.items[0].value.external_id == item1.external_id
+        assert res.data.items[0].value.external_type == item1.external_type
         _list_equal(res.data.items[0].value.metadata, item1.metadata)
 
         res.task.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
@@ -49,7 +49,7 @@ def test_basic_task_comment():
         assert comment.external_type == "Bar"
         _list_equal(comment.metadata, [1, 2])
 
-        res.task.delete_comment(comment)
+        comment.delete()
 
         comments = res.task.list_comments()
         assert len(comments.data.comments) == 0
@@ -71,8 +71,8 @@ def test_basic_task_comment():
         assert comment.external_type == "Bar2"
         _list_equal(comment.metadata, [1, 2, 3, 4])
 
-        res.task.delete_comment(comments.data.comments[0])
-        res.task.delete_comment(comments.data.comments[1])
+        comments.data.comments[0].delete()
+        comments.data.comments[1].delete()
 
         comments = res.task.list_comments()
         assert len(comments.data.comments) == 0
@@ -84,7 +84,7 @@ def test_basic_task_comment():
         assert comment.external_id == "Foo"
         assert comment.external_type == "Bar"
         _list_equal(comment.metadata, [1, 2])
-        res.task.delete_comment(comments.data.comments[0])
+        comments.data.comments[0].delete()
         comments = res.task.list_comments()
         assert len(comments.data.comments) == 0
 
@@ -104,7 +104,7 @@ def test_task_comment_feedback_reporting():
     embedder = PluginInstance.create(client, plugin_handle="test-embedder").data
     with random_index(client, plugin_instance=embedder.handle) as index:
         item1 = EmbeddedItem(
-            value="Pizza", externalId="pizza", externalType="food", metadata=[1, 2, 3]
+            value="Pizza", external_id="pizza", external_type="food", metadata=[1, 2, 3]
         )
 
         group_name_1 = random_name()
@@ -112,8 +112,8 @@ def test_task_comment_feedback_reporting():
 
         index.insert(
             item1.value,
-            external_id=item1.externalId,
-            external_type=item1.externalType,
+            external_id=item1.external_id,
+            external_type=item1.external_type,
             metadata=item1.metadata,
         )
         task = index.embed()
@@ -164,9 +164,9 @@ def test_task_comment_feedback_reporting():
         )
         assert len(g2.data.comments) == 0
 
-        res.task.delete_comment(comments.data.comments[0])
-        res.task.delete_comment(comments.data.comments[1])
-        res.task.delete_comment(comments.data.comments[2])
+        comments.data.comments[0].delete()
+        comments.data.comments[1].delete()
+        comments.data.comments[2].delete()
 
         g1 = client.tasks.list_comments(external_group=group_name_1)
         assert len(g1.data.comments) == 0

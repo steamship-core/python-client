@@ -32,7 +32,6 @@ async def _model_call(session, text: str, api_url, headers) -> list:
         async with session.post(api_url, headers=headers, data=data) as response:
             if response.status == HTTPStatus.OK and response.content_type == "application/json":
                 json_response = await response.json()
-                logging.info(json_response)
                 return json_response
             else:
                 text_response = await response.text()

@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import json
+from json import JSONDecodeError
 from typing import Any
 
-from pydantic import BaseModel
-
-from steamship.base import Client
+from steamship.base.configuration import CamelModel
 
 
-class Hit(BaseModel):
+class Hit(CamelModel):
     id: str = None
     index: int = None
     index_source: str = None
@@ -19,25 +18,11 @@ class Hit(BaseModel):
     metadata: Any = None
     query: str = None
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> Hit:
-        metadata = d.get("metadata")
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        metadata = kwargs.get("metadata")
         if metadata is not None:
-            # noinspection PyBroadException
             try:
-                metadata = json.loads(metadata)
-            except Exception as _:
+                self.metadata = json.loads(metadata)
+            except JSONDecodeError as _:
                 pass
-
-        return Hit(
-            id=d.get("id"),
-            index=d.get("index"),
-            index_source=d.get("indexSource"),
-            value=d.get("value", d.get("text")),
-            score=d.get("score"),
-            external_id=d.get("externalId"),
-            external_type=d.get("externalType"),
-            metadata=metadata,
-            query=d.get("query"),
-        )

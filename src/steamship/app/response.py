@@ -10,6 +10,7 @@ from pydantic.generics import GenericModel
 
 from steamship.base import Client, SteamshipError
 from steamship.base.binary_utils import flexi_create
+from steamship.base.configuration import CamelModel
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 from steamship.base.tasks import Task, TaskState
 
@@ -17,12 +18,12 @@ from steamship.base.tasks import Task, TaskState
 logging.getLogger().setLevel(logging.INFO)
 
 
-class Http(BaseModel):
+class Http(CamelModel):
     status: int = None
     # If true, we're signaling to the Steamship Proxy that the `data` field of the SteamshipResponse object
     # has been wrapped in base64. In this situation, we can return the bytes within directly to the Proxy
     # caller without interpreting it.
-    base64Wrapped: bool = None
+    base64_wrapped: bool = None
     headers: Dict[str, str] = None
 
 
@@ -111,7 +112,7 @@ class Response(GenericModel, Generic[T]):
         self.http.headers["Content-Type"] = mime_type or MimeTypes.BINARY
 
         if encoding == ContentEncodings.BASE64:
-            self.http.base64Wrapped = True
+            self.http.base64_wrapped = True
 
     @staticmethod
     def error(
@@ -142,7 +143,7 @@ class Response(GenericModel, Generic[T]):
 
         obj_t = type(obj)
 
-        if obj_t == Response:
+        if isinstance(obj, Response):
             return obj
         elif obj_t == SteamshipError:
             return Response.error(500, error=obj)
@@ -167,9 +168,6 @@ class Response(GenericModel, Generic[T]):
             return Response(json=obj.dict())
 
         return Response.error(500, message="Handler provided unknown response type.")
-
-    def to_dict(self) -> Dict:
-        return self.dict()
 
     def post_update(self, client: Client):
         """Pushes this response object to the correspondikng Task on the Steamship Engine.
@@ -196,23 +194,23 @@ class Response(GenericModel, Generic[T]):
 
         # Create a task object
         task = Task(client=client, task_id=self.status.task_id)
-        update_fields = []
+        update_fields = set()
 
         if self.status.state is not None:
             task.state = self.status.state
-            update_fields.append("state")
+            update_fields.add("state")
 
         if self.status.status_message is not None:
             task.status_message = self.status.status_message
-            update_fields.append("statusMessage")
+            update_fields.add("status_message")
 
         if self.status.status_suggestion is not None:
             task.status_suggestion = self.status.status_suggestion
-            update_fields.append("statusSuggestion")
+            update_fields.add("status_suggestion")
 
         if self.data is not None:
             # This object itself should always be the output of the Training Task object.
             task.output = json.dumps(self.data)
-            update_fields.append("output")
+            update_fields.add("output")
 
         task.post_update(fields=update_fields)

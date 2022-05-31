@@ -22,8 +22,4 @@ class FileImporter(PluginService[FileImportPluginInput, RawDataPluginOutput], AB
     @post("import")
     def run_endpoint(self, **kwargs) -> Response[RawDataPluginOutput]:
         """Exposes the File Importer's `run` operation to the Steamship Engine via the expected HTTP path POST /import"""
-        return self.run(
-            PluginRequest.from_dict(
-                kwargs, wrapped_object_from_dict=FileImportPluginInput.from_dict
-            )
-        )
+        return self.run(PluginRequest[FileImportPluginInput](**kwargs))

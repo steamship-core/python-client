@@ -1,9 +1,9 @@
 import logging
+from typing import List
 
 from pydantic import BaseModel, Field
 
 from steamship.base import Client, Response, TaskComment
-from steamship.base.tasks import TaskCommentList
 
 _logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class Tasks(BaseModel):
         external_id: str = None,
         external_type: str = None,
         external_group: str = None,
-    ) -> Response[TaskCommentList]:
+    ) -> Response[List[TaskComment]]:
         return TaskComment.list(
             client=self.client,
             task_id=task_id,

@@ -12,7 +12,7 @@ from tests.assets.plugins.importers.plugin_file_importer import TEST_DOC, TestFi
 
 TEST_REQ = File.CreateRequest()
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
-TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
 
 def _test_resp(res):

@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
+from steamship.base.configuration import CamelModel
 from steamship.data.space import Space
 
 
 class CreateAppInstanceRequest(Request):
     id: str = None
-    appId: str = None
+    app_id: str = None
     appVersionId: str = None
     handle: str = None
     upsert: bool = None
@@ -22,7 +23,7 @@ class DeleteAppInstanceRequest(Request):
     id: str
 
 
-class AppInstance(BaseModel):
+class AppInstance(CamelModel):
     client: Client = None
     id: str = None
     handle: str = None
@@ -36,25 +37,11 @@ class AppInstance(BaseModel):
     space_id: str = None
     space_handle: str = None
 
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> AppInstance:
-        if "appInstance" in d:
-            d = d["appInstance"]
-
-        return AppInstance(
-            client=client,
-            id=d.get("id"),
-            handle=d.get("handle"),
-            app_id=d.get("appId"),
-            app_handle=d.get("appHandle"),
-            user_handle=d.get("userHandle"),
-            app_version_id=d.get("appVersionId"),
-            user_id=d.get("userId"),
-            invocation_url=d.get("invocationURL"),
-            config=d.get("config"),
-            space_id=d.get("spaceId"),
-            space_handle=d.get("spaceHandle"),
-        )
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["appInstance"] if "appInstance" in obj else obj
+        return super().parse_obj(obj)
 
     @staticmethod
     def create(
@@ -69,7 +56,7 @@ class AppInstance(BaseModel):
 
         req = CreateAppInstanceRequest(
             handle=handle,
-            appId=app_id,
+            app_id=app_id,
             appVersionId=app_version_id,
             upsert=upsert,
             config=config,

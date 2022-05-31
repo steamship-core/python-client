@@ -103,7 +103,7 @@ class Steamship(Client):
         space_handle: str = None,
         space: Space = None,
     ) -> Response[QueryResults]:
-        req = EmbedAndSearchRequest(query=query, docs=docs, pluginInstance=plugin_instance, k=k)
+        req = EmbedAndSearchRequest(query=query, docs=docs, plugin_instance=plugin_instance, k=k)
         return self.post(
             "plugin/instance/embeddingSearch",
             req,
@@ -124,7 +124,7 @@ class Steamship(Client):
         req = TagRequest(
             type="inline",
             file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
-            pluginInstance=plugin_instance,
+            plugin_instance=plugin_instance,
         )
         return self.post(
             "plugin/instance/tag",

@@ -1,112 +1,49 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List, Optional
-
-from pydantic import BaseModel
+from typing import Any, Dict, List
 
 from steamship.base import Client, Request, Response
+from steamship.base.configuration import CamelModel
 
 
 class TagQueryRequest(Request):
-    tagFilterQuery: str
+    tag_filter_query: str
 
 
-class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
+class Tag(CamelModel):
     client: Client = None
     id: str = None
-    fileId: str = None
-    blockId: str = None
+    file_id: str = None
+    block_id: str = None
     kind: str = None  # E.g. ner
     name: str = None  # E.g. person
     value: Dict[str, Any] = None  # JSON Metadata
-    startIdx: int = None  # w/r/t block.text. None means 0 if blockId is not None
-    endIdx: int = None  # w/r/t block.text. None means -1 if blockId is not None
+    start_idx: int = None  # w/r/t block.text. None means 0 if blockId is not None
+    end_idx: int = None  # w/r/t block.text. None means -1 if blockId is not None
 
     class CreateRequest(Request):
         id: str = None
-        fileId: str = None
-        blockId: str = None
+        file_id: str = None
+        block_id: str = None
         kind: str = None
         name: str = None
-        startIdx: int = None
-        endIdx: int = None
+        start_idx: int = None
+        end_idx: int = None
         value: Dict[str, Any] = None
         upsert: bool = None
 
-        # noinspection PyUnusedLocal
-        @staticmethod
-        def from_dict(d: Any, client: Client = None) -> Tag.CreateRequest:
-            return Tag.CreateRequest(
-                id=d.get("id"),
-                fileId=d.get("fileId"),
-                blockId=d.get("blockId"),
-                kind=d.get("kind"),
-                name=d.get("name"),
-                startIdx=d.get("startIdx"),
-                endIdx=d.get("endIdx"),
-                value=d.get("value"),
-                upsert=d.get("upsert"),
-            )
-
-        def to_dict(self):
-            return dict(
-                id=self.id,
-                fileId=self.fileId,
-                blockId=self.blockId,
-                kind=self.kind,
-                name=self.name,
-                startIdx=self.startIdx,
-                endIdx=self.endIdx,
-                value=self.value,
-                upsert=self.upsert,
-            )
-
     class DeleteRequest(Request):
         id: str = None
-        fileId: str = None
-        blockId: str = None
+        file_id: str = None
+        block_id: str = None
 
     class ListRequest(Request):
-        fileId: str = None
-        blockId: str = None
+        file_id: str = None
+        block_id: str = None
 
     class ListResponse(Response):
         tags: List[Tag] = None
-
-        @staticmethod
-        def from_dict(d: Any, client: Client = None) -> Optional[Tag.ListResponse]:
-            if d is None:
-                return None
-            return Tag.ListResponse(
-                tags=[Tag.from_dict(x, client=client) for x in (d.get("tags", []) or [])]
-            )
-
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> Tag:
-        return Tag(
-            client=client,
-            id=d.get("id"),
-            fileId=d.get("fileId"),
-            blockId=d.get("blockId"),
-            kind=d.get("kind"),
-            name=d.get("name"),
-            startIdx=d.get("startIdx"),
-            endIdx=d.get("endIdx"),
-            value=d.get("value"),
-        )
-
-    def to_dict(self) -> dict:
-        return dict(
-            id=self.id,
-            fileId=self.fileId,
-            blockId=self.blockId,
-            kind=self.kind,
-            name=self.name,
-            startIdx=self.startIdx,
-            endIdx=self.endIdx,
-            value=self.value,
-        )
 
     @staticmethod
     def create(
@@ -126,12 +63,12 @@ class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
             value = json.dumps(value)
 
         req = Tag.CreateRequest(
-            fileId=file_id,
-            blockId=block_id,
+            file_id=file_id,
+            block_id=block_id,
             kind=kind,
             name=name,
-            startIdx=start_idx,
-            endIdx=end_idx,
+            start_idx=start_idx,
+            end_idx=end_idx,
             value=value,
             upsert=upsert,
         )
@@ -149,7 +86,7 @@ class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
     ) -> Response[Tag.ListResponse]:
         return client.post(
             "tag/list",
-            Tag.ListRequest(fileId=file_id, blockId=block_id),
+            Tag.ListRequest(file_id=file_id, block_id=block_id),
             expect=Tag.ListResponse,
             space_id=space_id,
             space_handle=space_handle,
@@ -158,7 +95,7 @@ class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
     def delete(self) -> Response[Tag]:
         return self.client.post(
             "tag/delete",
-            Tag.DeleteRequest(id=self.id, fileId=self.fileId, blockId=self.blockId),
+            Tag.DeleteRequest(id=self.id, file_id=self.file_id, block_id=self.block_id),
             expect=Tag,
         )
 
@@ -170,8 +107,7 @@ class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
         space_handle: str = None,
         space: Any = None,
     ) -> Response[TagQueryResponse]:
-
-        req = TagQueryRequest(tagFilterQuery=tag_filter_query)
+        req = TagQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
             "tag/query",
             payload=req,
@@ -185,12 +121,6 @@ class Tag(BaseModel):  # TODO (enias): Make pep8 compatible
 
 class TagQueryResponse(Response):
     tags: List[Tag]
-
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> TagQueryResponse:
-        return TagQueryResponse(
-            tags=[Tag.from_dict(tag, client=client) for tag in d.get("tags", [])]
-        )
 
 
 Tag.ListResponse.update_forward_refs()

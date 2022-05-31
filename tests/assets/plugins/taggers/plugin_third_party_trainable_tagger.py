@@ -195,7 +195,7 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
         )
 
         # Set the model location on the plugin output.
-        train_plugin_output.archive_path_in_steamship = archive_path_in_steamship
+        train_plugin_output.archive_path = archive_path_in_steamship
 
         # Set the response on the `data` field of the object
         response.set_data(json=train_plugin_output)

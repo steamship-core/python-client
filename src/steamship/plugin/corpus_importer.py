@@ -21,6 +21,4 @@ class CorpusImporter(PluginService[CorpusImportRequest, CorpusImportResponse], A
     @post("import")
     def run_endpoint(self, **kwargs) -> Response[CorpusImportResponse]:
         """Exposes the Corpus Importer's `run` operation to the Steamship Engine via the expected HTTP path POST /import"""
-        return self.run(
-            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=CorpusImportRequest.from_dict)
-        )
+        return self.run(PluginRequest[CorpusImportRequest].parse_obj(kwargs))

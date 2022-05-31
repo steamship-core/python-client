@@ -36,6 +36,4 @@ class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC
     @post("blockify")
     def run_endpoint(self, **kwargs) -> Response[BlockAndTagPluginOutput]:
         """Exposes the Corpus Importer's `run` operation to the Steamship Engine via the expected HTTP path POST /import"""
-        return self.run(
-            PluginRequest.from_dict(kwargs, wrapped_object_from_dict=RawDataPluginInput.from_dict)
-        )
+        return self.run(PluginRequest[RawDataPluginInput].parse_obj(kwargs))
