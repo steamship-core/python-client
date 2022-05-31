@@ -23,7 +23,7 @@ def test_e2e_corpus_importer():
         # test_file_importer_instance = PluginInstance.create(
         #     client, plugin_handle="test-fileImporter-valueOrData", upsert=True, space_id=space.id
         # ).data
-        with deploy_plugin(client, file_importer_path, "fileImporter") as (
+        with deploy_plugin(client, file_importer_path, "fileImporter", space_id=space.id) as (
             _,
             _,
             fi_instance,

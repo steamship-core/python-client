@@ -109,5 +109,6 @@ def test_non_trainable_plugin_lacks_train():
 
 def test_with_override_train_succeeds():
     trainable_plugin = ValidTrainableStringToStringPlugin()
-    trainable_plugin.train(PluginRequest(data=TrainPluginInput(plugin_instance="Foo")))
+    model = trainable_plugin.model_cls()()
+    trainable_plugin.train(PluginRequest(data=TrainPluginInput(plugin_instance="Foo")), model)
     trainable_plugin.train_endpoint()
