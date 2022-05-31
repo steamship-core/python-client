@@ -319,12 +319,9 @@ class Client(BaseModel, ABC):
                 else:
                     data = response_data["data"]
                     expect = type(data)
+            else:
+                data = response_data
 
-            if "reason" in response_data:
-                # This is a legacy error reporting field. We should work toward being comfortable
-                # removing this handler.
-                error = SteamshipError(message=response_data["reason"])
-                logging.error(f"Client received error from server: {error}")
         else:
             data = response_data
             expect = type(response_data)
