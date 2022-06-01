@@ -3,8 +3,7 @@ from __future__ import annotations
 from typing import Any, Dict, List
 
 from steamship import File
-from steamship.app import Request
-from steamship.base import Client, Response
+from steamship.base import Client, Request, Response
 
 
 class CorpusImportRequest(Request):

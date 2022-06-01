@@ -39,8 +39,8 @@ def test_e2e_corpus_importer():
                     type="corpus",  # TODO: This will be replaced with a tag reference
                     handle="default",  # The default corpus
                     value="dummy-value",
-                    pluginInstance=instance.handle,
-                    fileImporterPluginInstance=fi_instance.handle,
+                    plugin_instance=instance.handle,
+                    file_importer_plugin_instance=fi_instance.handle,
                 )
                 res = client.post(
                     "plugin/instance/importCorpus",
