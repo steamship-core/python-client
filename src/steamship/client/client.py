@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Any, List
 
-from steamship import Block, SteamshipError
+from steamship import Block, Configuration, SteamshipError
 from steamship.base import Client, Response
 from steamship.client.operations.tagger import TagRequest, TagResponse
 from steamship.client.tasks import Tasks
@@ -17,7 +17,7 @@ _logger = logging.getLogger(__name__)
 class Steamship(Client):
     """Steamship Python Client."""
 
-    tasks: Tasks = None
+    tasks: Tasks = None  # TODO (enias): Ignore during serialisation
 
     def __init__(
         self,
@@ -28,6 +28,8 @@ class Steamship(Client):
         space_handle: str = None,
         profile: str = None,
         config_file: str = None,
+        config: Configuration = None,
+        **kwargs,
     ):
         super().__init__(
             api_key=api_key,
@@ -37,6 +39,7 @@ class Steamship(Client):
             space_handle=space_handle,
             profile=profile,
             config_file=config_file,
+            config=config,
         )
         self.tasks = Tasks(self)
 

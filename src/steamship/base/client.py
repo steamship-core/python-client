@@ -41,6 +41,7 @@ class Client(CamelModel, ABC):
         profile: str = None,
         config_file: str = None,
         config: Configuration = None,
+        **kwargs,
     ):
         super().__init__()
         self.config = config or Configuration(
