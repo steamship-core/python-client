@@ -1,13 +1,9 @@
-from assets.plugins.taggers.plugin_trainable_tagger_config import (
-    TRAIN_RESPONSE,
-    TestTrainableTaggerConfigPlugin,
-)
+from assets.plugins.taggers.plugin_trainable_tagger_config import TestTrainableTaggerConfigPlugin
 
 from steamship import File
 from steamship.data.block import Block
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.service import PluginRequest
 from tests.utils.fixtures import get_steamship_client
 
@@ -23,7 +19,7 @@ TEST_REQ = BlockAndTagPluginInput(
     )
 )
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ, plugin_instance_id="000")
-TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
 
 def test_trainable_tagger():
@@ -42,7 +38,7 @@ def test_trainable_tagger():
             data=TrainPluginInput(plugin_instance="foo", training_params=None),
             task_id="000",
             plugin_instance_id="000",
-        ).to_dict()
+        ).dict()
     )
 
     # Make sure plugin model gets its config while 'running'

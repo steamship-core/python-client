@@ -42,7 +42,7 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
     ) -> Response[TrainingParameterPluginOutput]:
         return Response(data=TrainingParameterPluginOutput())
 
-    def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
+    def train(self, request: PluginRequest[TrainPluginInput], model) -> Response[TrainPluginOutput]:
         return Response(data=TrainPluginOutput())
 
 
@@ -109,6 +109,5 @@ def test_non_trainable_plugin_lacks_train():
 
 def test_with_override_train_succeeds():
     trainable_plugin = ValidTrainableStringToStringPlugin()
-    model = trainable_plugin.model_cls()()
-    trainable_plugin.train(PluginRequest(data=TrainPluginInput(plugin_instance="Foo")), model)
+    trainable_plugin.train(PluginRequest(data=TrainPluginInput(plugin_instance="Foo")), None)
     trainable_plugin.train_endpoint()
