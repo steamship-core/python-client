@@ -2,9 +2,9 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Type
 
-from steamship import File, Tag
+from steamship import File
 from steamship.app import Response, create_handler
-from steamship.base import Client, Task
+from steamship.base import Client
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
