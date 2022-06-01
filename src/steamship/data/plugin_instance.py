@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional, Type, Union
 
 from pydantic import BaseModel
 
@@ -18,6 +18,10 @@ from steamship.plugin.inputs.training_parameter_plugin_input import TrainingPara
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
+
+from .block import Block
+from .file import File
+from .operations.tagger import TagRequest, TagResponse
 
 
 class GetPluginInstanceRequest(Request):
@@ -94,6 +98,21 @@ class PluginInstance(CamelModel):
     def get(client: Client, handle: str):
         return client.post(
             "plugin/instance/get", GetPluginInstanceRequest(handle=handle), expect=PluginInstance
+        )
+
+    def tag(
+        self,
+        doc: Union[str, File],
+    ) -> Response[TagResponse]:
+        req = TagRequest(
+            type="inline",
+            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
+            plugin_instance=self.handle,
+        )
+        return self.client.post(
+            "plugin/instance/tag",
+            req,
+            expect=TagResponse,
         )
 
     def delete(self) -> PluginInstance:

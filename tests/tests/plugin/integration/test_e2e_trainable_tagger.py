@@ -103,7 +103,7 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
 
                 # First we'll create a file
                 test_doc = "Hi there"
-                res = client.tag(doc=test_doc, plugin_instance=tagger_instance.handle)
+                res = tagger_instance.tag(doc=test_doc)
                 res.wait()
                 assert res.error is None
                 assert res.data is not None

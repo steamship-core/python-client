@@ -271,7 +271,7 @@ class File(CamelModel):
         )
 
     def blockify(self, plugin_instance: str = None):
-        from steamship.client.operations.blockifier import BlockifyRequest
+        from steamship.data.operations.blockifier import BlockifyRequest
         from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
         req = BlockifyRequest(type="file", id=self.id, plugin_instance=plugin_instance)
@@ -291,11 +291,10 @@ class File(CamelModel):
         space: Any = None,
     ) -> Response[Tag]:
         # TODO (enias): Fix Circular imports
-        from steamship.client.operations.tagger import TagRequest, TagResponse
+        from steamship.data.operations.tagger import TagRequest, TagResponse
         from steamship.data.plugin import PluginTargetType
 
         req = TagRequest(type=PluginTargetType.file, id=self.id, plugin_instance=plugin_instance)
-
         return self.client.post(
             "plugin/instance/tag",
             payload=req,

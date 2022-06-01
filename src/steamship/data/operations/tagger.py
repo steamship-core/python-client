@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from steamship import File
 from steamship.base import Request, Response
+
+from ..file import File
 
 
 class TagRequest(Request):
