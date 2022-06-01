@@ -40,9 +40,10 @@ class Client(CamelModel, ABC):
         space_handle: str = None,
         profile: str = None,
         config_file: str = None,
+        config: Configuration = None,
     ):
         super().__init__()
-        self.config = Configuration(
+        self.config = config or Configuration(
             api_key=api_key,
             api_base=api_base,
             app_base=app_base,
