@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional, Type
+
+from pydantic import BaseModel
 
 from steamship.base.configuration import CamelModel
 
@@ -30,3 +32,9 @@ class TrainPluginInput(CamelModel):
 
     # A pre-signed URL at which the trainable data can be found
     training_data_url: Optional[str] = None
+
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (dkolas): Engine should return trainingDataURL instead of trainingDataUrl
+        obj["trainingDataURL"] = obj["trainingDataUrl"] if "trainingDataUrl" in obj else None
+        return super().parse_obj(obj)
