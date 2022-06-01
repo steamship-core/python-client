@@ -13,16 +13,16 @@ from steamship.base.mime_types import ContentEncodings, MimeTypes
 def guess_mime(obj: Any, provided_mime: str = None) -> str:
     if provided_mime is not None:
         return provided_mime
-    if type(obj) in [str, int, float, bool]:
+    if isinstance(obj, (str, int, float, bool)):
         return MimeTypes.TXT
     return MimeTypes.BINARY
 
 
 def to_b64(obj: Any) -> str:
     ret_bytes = obj
-    if type(obj) == bytes:
+    if isinstance(obj, bytes):
         ret_bytes = obj
-    elif type(obj) == str:
+    elif isinstance(obj, str):
         ret_bytes = ret_bytes.encode("utf-8")
     else:
         ret_bytes = str(obj).encode("utf-8")
