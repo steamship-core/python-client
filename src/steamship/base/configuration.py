@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
 from pathlib import Path
 from typing import Optional
@@ -77,28 +76,6 @@ class Configuration(CamelModel):
             if hasattr(self, k) and v:
                 if not getattr(self, k) or override:
                     setattr(self, k, v)
-
-    @staticmethod
-    def find_config_file() -> str:
-        """
-        Tries folders from cwd up to root.
-        """
-        paths = []
-        cwd = Path(os.getcwd()).absolute()
-        i = 0
-        while len(str(cwd)) > 0 and str(cwd) != os.path.sep:
-            paths.append(os.path.join(cwd, ".steamship.json"))
-            cwd = cwd.parent.absolute()
-            i += 1
-            if i > 40:
-                print("ERROR: Max depth exceeded in config search recursion.")
-                break
-
-        paths.append(os.path.join(str(Path.home()), ".steamship.json"))
-        for filepath in paths:
-            if os.path.exists(filepath):
-                logging.info(f"Found filepath: {filepath}")
-                return filepath
 
     @staticmethod
     def _load_from_file(
