@@ -3,10 +3,9 @@ import tempfile
 from pathlib import Path
 from typing import ClassVar, Optional
 
-from pydantic import BaseModel
-
 from steamship import SteamshipError
 from steamship.base import Client
+from steamship.base.configuration import CamelModel
 from steamship.data.space import SignedUrl, Space
 from steamship.utils.signed_urls import download_from_signed_url, upload_to_signed_url
 from steamship.utils.zip_archives import unzip_folder, zip_folder
@@ -27,14 +26,14 @@ def _get_space(client: Client) -> Space:
     return space.data
 
 
-class ModelCheckpoint(BaseModel):
+class ModelCheckpoint(CamelModel):
     # The default model checkpoint handle unless one is provided.
     DEFAULT_HANDLE: ClassVar[str] = "default"
 
     """Represents the saved state of a trained PluginInstance.
     """
     client: Client
-    space: Space
+    space: Optional[Space] = None
     plugin_instance_id: str
 
     parent_directory: Optional[Path] = None  # e.g. /tmp
@@ -53,11 +52,12 @@ class ModelCheckpoint(BaseModel):
             parent_directory=parent_directory,
             plugin_instance_id=plugin_instance_id,
             handle=handle or ModelCheckpoint.DEFAULT_HANDLE,
-            space=_get_space(client),
         )
 
         if self.plugin_instance_id is None:
             raise SteamshipError("Null plugin_instance_id provided ModelCheckpoint")
+
+        self.space = _get_space(client)
 
         if parent_directory is None:
             # TODO(ted): We may want to not use a tempdir so that we can cache it.

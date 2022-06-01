@@ -1,11 +1,7 @@
 import base64
 
-import pytest
-
 from steamship.app import Response
 from steamship.data.file import File
-from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.service import PluginRequest
 from tests.assets.plugins.importers.plugin_file_importer import TEST_DOC, TestFileImporterPlugin

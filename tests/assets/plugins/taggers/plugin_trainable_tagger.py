@@ -142,7 +142,6 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         self, request: PluginRequest[TrainingParameterPluginInput]
     ) -> Response[TrainingParameterPluginOutput]:
         ret = Response[TrainingParameterPluginOutput](data=TRAINING_PARAMETERS)
-        logging.info(f"Returning toDict: {ret.dict()}")
         return ret
 
     def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:

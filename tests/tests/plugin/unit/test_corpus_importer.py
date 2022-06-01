@@ -1,9 +1,5 @@
-import pytest
-
 from steamship.app import Response
 from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
-from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.service import PluginRequest
 from tests.assets.plugins.importers.plugin_corpus_importer import TestCorpusImporterPlugin
 

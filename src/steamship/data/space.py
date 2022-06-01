@@ -13,32 +13,6 @@ from steamship.base.configuration import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest
 
 
-class SignedUrl:
-    class Bucket(str, Enum):
-        EXPORTS = "exports"
-        IMPORTS = "imports"
-        USER_DATA = "userData"
-        PLUGIN_DATA = "pluginData"
-        APP_DATA = "appData"
-
-    class Operation(str, Enum):
-        READ = "Read"
-        WRITE = "Write"
-
-    class Request(SteamshipRequest):
-        bucket: SignedUrl.Bucket
-        filepath: str
-        operation: SignedUrl.Operation
-        expires_in_minutes: int = None
-
-    class Response(SteamshipResponse):
-        bucket: str = None
-        filepath: str = None
-        operation: str = None
-        expires_in_minutes: int = None
-        signed_url: str = Field(None, alias="signedUrl")
-
-
 class Space(CamelModel):
     client: Client = None
     id: str = None
@@ -72,7 +46,7 @@ class Space(CamelModel):
         upsert: bool = None,
         space_id: str = None,
         space_handle: str = None,
-        space: "Space" = None,
+        space: Space = None,
     ) -> SteamshipResponse[Space]:
         req = GetRequest(id=id_, handle=handle, upsert=upsert)
         return client.post(
@@ -109,6 +83,32 @@ class Space(CamelModel):
         ret = self.client.post("space/createSignedUrl", payload=request, expect=SignedUrl.Response)
         logging.info(f"Got signed URL: {ret}")
         return ret
+
+
+class SignedUrl:
+    class Bucket(str, Enum):
+        EXPORTS = "exports"
+        IMPORTS = "imports"
+        USER_DATA = "userData"
+        PLUGIN_DATA = "pluginData"
+        APP_DATA = "appData"
+
+    class Operation(str, Enum):
+        READ = "Read"
+        WRITE = "Write"
+
+    class Request(SteamshipRequest):
+        bucket: SignedUrl.Bucket
+        filepath: str
+        operation: SignedUrl.Operation
+        expires_in_minutes: int = None
+
+    class Response(SteamshipResponse):
+        bucket: str = None
+        filepath: str = None
+        operation: str = None
+        expires_in_minutes: int = None
+        signed_url: str = Field(None, alias="signedUrl")
 
 
 SignedUrl.Request.update_forward_refs()

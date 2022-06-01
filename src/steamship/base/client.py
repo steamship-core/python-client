@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 import logging
 import typing
@@ -218,10 +220,17 @@ class Client(CamelModel, ABC):
                     for k, v in response_data.items():
                         self._add_client_to_response(expect, v)
                 elif issubclass(expect, BaseModel):
-                    key_to_type = typing.get_type_hints(expect)
                     response_data["client"] = self
-                    for k, v in response_data.items():
-                        self._add_client_to_response(key_to_type.get(inflection.underscore(k)), v)
+                    try:
+                        key_to_type = typing.get_type_hints(expect)
+                        for k, v in response_data.items():
+                            self._add_client_to_response(
+                                key_to_type.get(inflection.underscore(k)), v
+                            )
+                    except NameError:
+                        # typing.get_type_hints fails for Space
+                        # TODO (enias): Fix NameError on typing.get_type_hints(expect)
+                        pass
         elif isinstance(response_data, list):
             for el in response_data:
                 typing_parameters = typing.get_args(expect)

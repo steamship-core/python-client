@@ -8,10 +8,9 @@ from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 
 class TrainingParameterPluginInput(CamelModel):
     # The plugin instance handle that should perform the training.
-    plugin_instance: str = None
-
+    plugin_instance: Optional[str] = None
     # An export request to produce the training data file, if training data is required.
-    export_request: Optional[ExportPluginInput] = None
+    export_plugin_input: Optional[ExportPluginInput] = None
 
     # How many epochs to train (if supported by the supplied `pluginInstance`)
     training_epochs: Optional[int] = None

@@ -4,7 +4,6 @@ from tests import PLUGINS_PATH
 from tests.assets.plugins.blockifiers.blockifier import TEST_DOC
 from tests.utils.deployables import deploy_plugin
 from tests.utils.fixtures import client  # noqa: F401
-from tests.utils.fixtures import get_steamship_client
 
 
 def test_e2e_importer(client: Steamship):

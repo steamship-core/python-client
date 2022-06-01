@@ -1,6 +1,3 @@
-import pytest
-
-from steamship import SteamshipError
 from steamship.base import Client
 from steamship.base.response import TaskState
 from steamship.data.embeddings import EmbeddedItem

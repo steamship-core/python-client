@@ -16,7 +16,7 @@ from typing import Dict, List, Optional, Type
 
 from steamship import Block, File, SteamshipError, Tag
 from steamship.app import Response, create_handler
-from steamship.base import Client, Task
+from steamship.base import Task
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -28,7 +28,6 @@ from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import TrainableTagger
 from steamship.plugin.trainable_model import TrainableModel
 from tests.assets.plugins.taggers.plugin_trainable_tagger import (
-    TRAIN_RESPONSE,
     TRAINING_PARAMETERS,
     TestTrainableTaggerModel,
 )
