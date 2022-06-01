@@ -84,15 +84,6 @@ class Steamship(Client):
             space=space,
         )
 
-    def scrape(
-        self,
-        url: str,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
-    ) -> Response[File]:
-        return File.scrape(self, url, space_id=space_id, space_handle=space_handle, space=space)
-
     def embed_and_search(
         self,
         query: str,

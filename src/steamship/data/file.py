@@ -233,26 +233,6 @@ class File(CamelModel):
         )
         return res
 
-    @staticmethod
-    def scrape(
-        client: Client,
-        url: str,
-        corpus_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ) -> Response[File]:
-        req = File.CreateRequest(type=FileUploadType.URL, url=url, corpusId=corpus_id)
-
-        return client.post(
-            "file/create",
-            payload=req,
-            expect=File,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
-        )
-
     def refresh(self):
         return File.get(self.client, self.id)
 
@@ -288,36 +268,6 @@ class File(CamelModel):
             space_handle=space_handle,
             space=space,
             raw_response=True,
-        )
-
-    @staticmethod
-    def upload(
-        client: Client,
-        filename: str = None,
-        content: str = None,
-        mime_type: str = None,
-        corpus_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ) -> Response[File]:
-        if filename is None and content is None:
-            raise Exception("Either filename or content must be provided.")  # TODO (Enias): Review
-
-        if filename is not None:
-            with open(filename, "rb") as f:
-                content = f.read()
-
-        req = File.CreateRequest(type=FileUploadType.FILE, corpusId=corpus_id, mime_type=mime_type)
-
-        return client.post(
-            "file/create",
-            payload=req,
-            file=(content, "multipart/form-data"),
-            expect=File,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def blockify(self, plugin_instance: str = None):

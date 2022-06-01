@@ -212,7 +212,7 @@ class EmbeddingIndex(CamelModel):
     ) -> Response[IndexInsertResponse]:
         new_items = []
         for item in items:
-            if type(item) == str:
+            if isinstance(item, str):
                 new_items.append(EmbeddedItem(value=item))
             else:
                 new_items.append(item)
@@ -359,7 +359,7 @@ class EmbeddingIndex(CamelModel):
         space_handle: str = None,
         space: Any = None,
     ) -> Response[QueryResults]:
-        if type(query) == list:
+        if isinstance(query, list):
             req = IndexSearchRequest(
                 id=self.id, queries=query, k=k, include_metadata=include_metadata
             )

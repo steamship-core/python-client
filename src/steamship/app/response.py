@@ -73,7 +73,7 @@ class Response(GenericModel, Generic[T]):
         # Handle the task provided
         if status is None:
             self.status = Task()
-        elif type(status) == Task:
+        elif isinstance(status, Task):
             self.status = status
         else:
             self.status = Task()
