@@ -1,55 +1,43 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response, metadata_to_str
+from steamship.base.configuration import CamelModel
 from steamship.data.search import Hit
 
 
 class EmbedAndSearchRequest(Request):
     query: str
     docs: List[str]
-    pluginInstance: str
+    plugin_instance: str
     k: int = 1
 
 
 # TODO: These types are not generics like the Swift QueryResult/QueryResults.
-class QueryResult(BaseModel):
+class QueryResult(CamelModel):
     value: Optional[Hit] = None
     score: Optional[float] = None
     index: Optional[int] = None
     id: Optional[str] = None
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> QueryResult:
-        value = Hit.from_dict(d.get("value", {}))
-        return QueryResult(value=value, score=d.get("score"), index=d.get("index"), id=d.get("id"))
-
 
 class QueryResults(Request):
     items: List[QueryResult] = None
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> QueryResults:
-        # TODO: Try to always use client through inheritance
-        items = [QueryResult.from_dict(h) for h in (d.get("items", []) or [])]
-        return QueryResults(items=items)
 
-
-class EmbeddedItem(BaseModel):
+class EmbeddedItem(CamelModel):
     id: str = None
-    indexId: str = None
-    fileId: str = None
-    blockId: str = None
-    tagId: str = None
+    index_id: str = None
+    file_id: str = None
+    block_id: str = None
+    tag_id: str = None
     value: str = None
-    externalId: str = None
-    externalType: str = None
+    external_id: str = None
+    external_type: str = None
     metadata: Any = None
     embedding: List[float] = None
 
@@ -57,13 +45,13 @@ class EmbeddedItem(BaseModel):
         """Produces a clone with a string representation of the metadata"""
         ret = EmbeddedItem(
             id=self.id,
-            indexId=self.indexId,
-            fileId=self.fileId,
-            blockId=self.blockId,
-            tagId=self.tagId,
+            index_id=self.index_id,
+            file_id=self.file_id,
+            block_id=self.block_id,
+            tag_id=self.tag_id,
             value=self.value,
-            externalId=self.externalId,
-            externalType=self.externalType,
+            external_id=self.external_id,
+            external_type=self.external_type,
             metadata=self.metadata,
             embedding=self.embedding,
         )
@@ -71,64 +59,36 @@ class EmbeddedItem(BaseModel):
             ret.metadata = json.dumps(ret.metadata)
         return ret
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> EmbeddedItem:
-        return EmbeddedItem(
-            id=d.get("id"),
-            indexId=d.get("indexId"),
-            fileId=d.get("fileId"),
-            blockId=d.get("blockId"),
-            tagId=d.get("tagId"),
-            value=d.get("value"),
-            externalId=d.get("externalId"),
-            externalType=d.get("externalType"),
-            metadata=d.get("metadata"),
-            embedding=d.get("embedding"),
-        )
-
 
 class IndexCreateRequest(Request):
     handle: str = None
     name: str = None
-    pluginInstance: str = None
+    plugin_instance: str = None
     upsert: bool = True
-    externalId: str = None
-    externalType: str = None
+    external_id: str = None
+    external_type: str = None
     metadata: Any = None
 
 
 class IndexInsertRequest(Request):
-    indexId: str
+    index_id: str
     items: List[EmbeddedItem] = None
     value: str = None
-    fileId: str = None
+    file_id: str = None
     blockType: str = None
-    externalId: str = None
-    externalType: str = None
+    external_id: str = None
+    external_type: str = None
     metadata: Any = None
     reindex: bool = True
 
 
-class IndexItemId(BaseModel):
-    indexId: str = None
+class IndexItemId(CamelModel):
+    index_id: str = None
     id: str = None
-
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> IndexItemId:
-        return IndexItemId(indexId=d.get("indexId"), id=d.get("id"))
 
 
 class IndexInsertResponse(Response):
     itemIds: List[IndexItemId] = None
-
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> IndexInsertResponse:
-        return IndexInsertResponse(
-            itemIds=[IndexItemId.from_dict(x) for x in (d.get("itemIds", []) or [])]
-        )
 
 
 class IndexEmbedRequest(Request):
@@ -138,35 +98,23 @@ class IndexEmbedRequest(Request):
 class IndexEmbedResponse(Response):
     id: Optional[str] = None
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> IndexEmbedResponse:
-        return IndexEmbedResponse(id=d.get("id"))
-
 
 class IndexSearchRequest(Request):
     id: str
     query: str = None
     queries: List[str] = None
     k: int = 1
-    includeMetadata: bool = False
+    include_metadata: bool = False
 
 
 class IndexSnapshotRequest(Request):
-    indexId: str
-    # This variable is intended only to support
-    # unit testing.
-    windowSize: int = None
+    index_id: str
+    window_size: int = None  # Used for unit testing
 
 
 class IndexSnapshotResponse(Response):
     id: Optional[str] = None
-    snapshotId: str
-
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> IndexSnapshotResponse:
-        return IndexSnapshotResponse(id=d.get("id"), snapshotId=d.get("snapshotId"))
+    snapshot_id: str
 
 
 class ListSnapshotsRequest(Request):
@@ -176,30 +124,16 @@ class ListSnapshotsRequest(Request):
 class ListSnapshotsResponse(Response):
     snapshots: List[IndexSnapshotResponse]
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> ListSnapshotsResponse:
-        return ListSnapshotsResponse(
-            snapshots=[IndexSnapshotResponse.from_dict(dd) for dd in (d.get("snapshots", []) or [])]
-        )
-
 
 class ListItemsRequest(Request):
     id: str = None
-    fileId: str = None
-    blockId: str = None
+    file_id: str = None
+    block_id: str = None
     spanId: str = None
 
 
 class ListItemsResponse(Response):
     items: List[EmbeddedItem]
-
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> ListItemsResponse:
-        return ListItemsResponse(
-            items=[EmbeddedItem.from_dict(dd) for dd in (d.get("items", []) or [])]
-        )
 
 
 class DeleteSnapshotsRequest(Request):
@@ -207,14 +141,14 @@ class DeleteSnapshotsRequest(Request):
 
 
 class DeleteSnapshotsResponse(Response):
-    snapshotId: str = None
+    snapshot_id: str = None
 
 
 class DeleteEmbeddingIndexRequest(Request):
     id: str
 
 
-class EmbeddingIndex(BaseModel):
+class EmbeddingIndex(CamelModel):
     """A persistent, read-optimized index over embeddings."""
 
     client: Client = None
@@ -226,22 +160,14 @@ class EmbeddingIndex(BaseModel):
     external_type: str = None
     metadata: str = None
 
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> EmbeddingIndex:
-        if "embeddingIndex" in d:
-            d = d["embeddingIndex"]
-        elif "index" in d:
-            d = d["index"]
-        return EmbeddingIndex(
-            client=client,
-            id=d.get("id"),
-            handle=d.get("handle"),
-            name=d.get("name"),
-            plugin=d.get("plugin"),
-            external_id=d.get("externalId"),
-            external_type=d.get("externalType"),
-            metadata=d.get("metadata"),
-        )
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        if "embeddingIndex" in obj:
+            obj = obj["embeddingIndex"]
+        elif "index" in obj:
+            obj = obj["index"]
+        return super().parse_obj(obj)
 
     def insert_file(
         self,
@@ -259,11 +185,11 @@ class EmbeddingIndex(BaseModel):
             metadata = json.dumps(metadata)
 
         req = IndexInsertRequest(
-            indexId=self.id,
-            fileId=file_id,
+            index_id=self.id,
+            file_id=file_id,
             blockType=block_type,
-            externalId=external_id,
-            externalType=external_type,
+            external_id=external_id,
+            external_type=external_type,
             metadata=metadata,
             reindex=reindex,
         )
@@ -292,7 +218,7 @@ class EmbeddingIndex(BaseModel):
                 new_items.append(item)
 
         req = IndexInsertRequest(
-            indexId=self.id,
+            index_id=self.id,
             items=[item.clone_for_insert() for item in new_items],
             reindex=reindex,
         )
@@ -318,10 +244,10 @@ class EmbeddingIndex(BaseModel):
     ) -> Response[IndexInsertResponse]:
 
         req = IndexInsertRequest(
-            indexId=self.id,
+            index_id=self.id,
             value=value,
-            externalId=external_id,
-            externalType=external_type,
+            external_id=external_id,
+            external_type=external_type,
             metadata=metadata_to_str(metadata),
             reindex=reindex,
         )
@@ -351,7 +277,7 @@ class EmbeddingIndex(BaseModel):
     def create_snapshot(
         self, space_id: str = None, space_handle: str = None, space: Any = None
     ) -> Response[IndexSnapshotResponse]:
-        req = IndexSnapshotRequest(indexId=self.id)
+        req = IndexSnapshotRequest(index_id=self.id)
         return self.client.post(
             "embedding-index/snapshot/create",
             req,
@@ -385,7 +311,7 @@ class EmbeddingIndex(BaseModel):
         space_handle: str = None,
         space: Any = None,
     ) -> Response[ListItemsResponse]:
-        req = ListItemsRequest(id=self.id, fileId=file_id, blockId=block_id, spanId=span_id)
+        req = ListItemsRequest(id=self.id, file_id=file_id, block_id=block_id, spanId=span_id)
         return self.client.post(
             "embedding-index/item/list",
             req,
@@ -435,10 +361,12 @@ class EmbeddingIndex(BaseModel):
     ) -> Response[QueryResults]:
         if isinstance(query, list):
             req = IndexSearchRequest(
-                id=self.id, queries=query, k=k, includeMetadata=include_metadata
+                id=self.id, queries=query, k=k, include_metadata=include_metadata
             )
         else:
-            req = IndexSearchRequest(id=self.id, query=query, k=k, includeMetadata=include_metadata)
+            req = IndexSearchRequest(
+                id=self.id, query=query, k=k, include_metadata=include_metadata
+            )
         ret = self.client.post(
             "embedding-index/search",
             req,
@@ -467,10 +395,10 @@ class EmbeddingIndex(BaseModel):
         req = IndexCreateRequest(
             handle=handle,
             name=name,
-            pluginInstance=plugin_instance,
+            plugin_instance=plugin_instance,
             upsert=upsert,
-            externalId=external_id,
-            externalType=external_type,
+            external_id=external_id,
+            external_type=external_type,
             metadata=metadata,
         )
         return client.post(

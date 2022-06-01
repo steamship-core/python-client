@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
+from steamship.base.configuration import CamelModel
 
 
 class CreateAppVersionRequest(Request):
-    appId: str = None
+    app_id: str = None
     handle: str = None
     upsert: bool = None
     type: str = "file"
-    configTemplate: Dict[str, Any] = None
+    config_template: Dict[str, Any] = None
 
 
 class DeleteAppVersionRequest(Request):
@@ -23,24 +24,18 @@ class ListPrivateAppVersionsRequest(Request):
     pass
 
 
-class AppVersion(BaseModel):
+class AppVersion(CamelModel):
     client: Client = None
     id: str = None
-    appId: str = None
+    app_id: str = None
     handle: str = None
-    configTemplate: Dict[str, Any] = None
+    config_template: Dict[str, Any] = None
 
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> AppVersion:
-        if "appVersion" in d:
-            d = d["appVersion"]
-
-        return AppVersion(
-            client=client,
-            id=d.get("id"),
-            handle=d.get("handle"),
-            configTemplate=d.get("configTemplate"),
-        )
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["appVersion"] if "appVersion" in obj else obj
+        return super().parse_obj(obj)
 
     @staticmethod
     def create(
@@ -63,7 +58,7 @@ class AppVersion(BaseModel):
                 filebytes = f.read()
 
         req = CreateAppVersionRequest(
-            handle=handle, appId=app_id, upsert=upsert, configTemplate=config_template
+            handle=handle, app_id=app_id, upsert=upsert, config_template=config_template
         )
 
         return client.post(

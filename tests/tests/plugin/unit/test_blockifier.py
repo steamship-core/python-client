@@ -8,7 +8,7 @@ from tests.assets.plugins.blockifiers.blockifier import DummyBlockifierPlugin
 
 TEST_REQ = RawDataPluginInput(data="Hi there")
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
-TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
 
 def _test_resp(res):
@@ -32,11 +32,11 @@ def test_resp():
         blockifier.get_training_parameters(PluginRequest(data=TrainingParameterPluginInput()))
     with pytest.raises(Exception):
         blockifier.get_training_parameters_endpoint(
-            **PluginRequest(data=TrainingParameterPluginInput()).to_dict()
+            **PluginRequest(data=TrainingParameterPluginInput()).dict()
         )
 
     # This plugin is not trainable, and thus it refuses train requests
     with pytest.raises(Exception):
         blockifier.train(PluginRequest(data=TrainPluginInput()))
     with pytest.raises(Exception):
-        blockifier.train_endpoint(**PluginRequest(data=TrainPluginInput()).to_dict())
+        blockifier.train_endpoint(**PluginRequest(data=TrainPluginInput()).dict())

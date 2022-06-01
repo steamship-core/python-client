@@ -24,8 +24,4 @@ class Embedder(PluginService[BlockAndTagPluginInput, EmbeddedItemsPluginOutput],
     @post("tag")
     def run_endpoint(self, **kwargs) -> Response[EmbeddedItemsPluginOutput]:
         """Exposes the Embedder's `run` operation to the Steamship Engine via the expected HTTP path POST /tag"""
-        return self.run(
-            PluginRequest.from_dict(
-                kwargs, wrapped_object_from_dict=BlockAndTagPluginInput.from_dict
-            )
-        )
+        return self.run(PluginRequest[BlockAndTagPluginInput](**kwargs))

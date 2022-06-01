@@ -35,7 +35,6 @@ def test_plugin_create():
 
     plugin = Plugin.create(
         client=steamship,
-        training_platform=None,
         description="This is just for test",
         type_=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
@@ -47,7 +46,6 @@ def test_plugin_create():
     # No upsert doesn't work
     plugin_x = Plugin.create(
         client=steamship,
-        training_platform=None,
         handle=plugin.handle,
         description="This is just for test",
         type_=PluginType.tagger,
@@ -59,7 +57,6 @@ def test_plugin_create():
     # Upsert does work
     plugin2 = Plugin.create(
         client=steamship,
-        training_platform=None,
         handle=plugin.handle,
         description="This is just for test 2",
         type_=PluginType.tagger,

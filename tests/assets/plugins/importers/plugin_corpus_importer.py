@@ -22,13 +22,13 @@ class TestCorpusImporterPlugin(CorpusImporter):
                     File.CreateRequest(
                         type="fileImporter",
                         corpusId=request.data.url,
-                        pluginInstance=request.data.fileImporterPluginInstance
+                        plugin_instance=request.data.file_importer_plugin_instance
                         # This is a test importer built into the Steamship Engine
                     ),
                     File.CreateRequest(
                         type="fileImporter",
                         corpusId=request.data.url,
-                        pluginInstance=request.data.fileImporterPluginInstance,
+                        plugin_instance=request.data.file_importer_plugin_instance,
                     ),
                 ]
             )

@@ -4,7 +4,6 @@ from assets.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
 
 from steamship.data.plugin import HostingType
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 from tests import PLUGINS_PATH
 from tests.utils.deployables import deploy_plugin
 from tests.utils.fixtures import get_steamship_client
@@ -23,9 +22,11 @@ def test_get_training_parameters():
         training_platform=HostingType.LAMBDA,
     ) as (tagger, taggerVersion, taggerInstance):
         training_request = TrainingParameterPluginInput(plugin_instance=taggerInstance.handle)
-        res = taggerInstance.get_training_parameters(training_request)
+        res = taggerInstance.get_training_parameters(
+            training_request
+        )  # TODO (enias): How is this working?
         assert res.data is not None
-        params: TrainingParameterPluginOutput = res.data
+        params = res.data
 
         assert params.training_epochs is not None
         assert params.training_epochs == TRAINING_PARAMETERS.training_epochs

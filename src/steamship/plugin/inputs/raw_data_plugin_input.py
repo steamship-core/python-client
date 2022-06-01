@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 import base64
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel
 
-from steamship.base import Client
 from steamship.base.mime_types import TEXT_MIME_TYPES
 
 
@@ -29,29 +28,14 @@ class RawDataPluginInput(BaseModel):
     data: Any = None
     default_mime_type: str = None
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> Optional[RawDataPluginInput]:
-        if d is None:
-            return None
-        data = d.get("data")
+    def __init__(self, **kwargs):
+        data = kwargs.get("data")
 
         if data is not None and is_base64(data):
             data_bytes = base64.b64decode(data)
-            if d.get("defaultMimeType") in TEXT_MIME_TYPES:
-                data = data_bytes.decode("utf-8")
+            if kwargs.get("defaultMimeType") in TEXT_MIME_TYPES:
+                kwargs["data"] = data_bytes.decode("utf-8")
             else:
-                data = data_bytes
+                kwargs["data"] = data_bytes
 
-        return RawDataPluginInput(
-            plugin_instance=d.get("pluginInstance"),
-            data=data,
-            default_mime_type=d.get("defaultMimeType"),
-        )
-
-    def to_dict(self):
-        return dict(
-            pluginInstance=self.plugin_instance,
-            data=self.data,
-            defaultMimeType=self.default_mime_type,
-        )
+        super().__init__(**kwargs)

@@ -1,22 +1,18 @@
-import pytest
-
 from steamship.app import Response
 from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
-from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.service import PluginRequest
 from tests.assets.plugins.importers.plugin_corpus_importer import TestCorpusImporterPlugin
 
 TEST_REQ = CorpusImportRequest(url="1")
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
-TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
 
 def _test_resp(res):
     assert isinstance(res, Response)
     assert isinstance(res.data, CorpusImportResponse)
-    assert res.data.fileImportRequests is not None
-    assert len(res.data.fileImportRequests) == 2
+    assert res.data.file_import_requests is not None
+    assert len(res.data.file_import_requests) == 2
 
 
 def test_importer():

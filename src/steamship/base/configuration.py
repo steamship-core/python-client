@@ -39,10 +39,6 @@ class Configuration(CamelModel):
     space_handle: str = None
     profile: Optional[str] = None
 
-    @staticmethod
-    def from_dict(d: dict) -> Configuration:
-        return Configuration.parse_obj(d)
-
     def __init__(
         self,
         config_file: Optional[Path] = None,
@@ -114,6 +110,7 @@ class Configuration(CamelModel):
 
         Providing either `space_id` or `space_handle` will work; both need not be provided.
         """
+        logging.info(f"Loading Configuration for_space: {self.api_key}")
         return Configuration(
             api_key=self.api_key,
             api_base=self.api_base,

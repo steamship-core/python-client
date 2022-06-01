@@ -49,9 +49,9 @@ def test_file_scrape(client: Steamship):
 def test_file_import_response_dict():
     resp = File.CreateResponse(_bytes=b"some bytes", mime_type=MimeTypes.BINARY)
     to_dict = resp.to_dict()
-    from_dict = File.CreateResponse.from_dict(to_dict)
-    assert resp.data == from_dict.data
-    assert resp.mimeType == from_dict.mimeType
+    file_create_response = File.CreateResponse.parse_obj(to_dict)
+    assert resp.data == file_create_response.data
+    assert resp.mime_type == file_create_response.mime_type
 
 
 def test_file_import_response_bytes_serialization():
