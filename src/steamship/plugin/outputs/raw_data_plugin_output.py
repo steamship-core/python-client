@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import io
-from typing import Any, Optional, Union
+from typing import Any, Optional, Type, Union
 
 from pydantic import BaseModel
 
-from steamship.base import Client, MimeTypes
+from steamship.base import MimeTypes
 from steamship.base.binary_utils import flexi_create
+from steamship.base.configuration import CamelModel
 
 
-class RawDataPluginOutput(BaseModel):
+class RawDataPluginOutput(CamelModel):
     """Represents mime-typed raw data that can be returned to the engine.
 
     As a few examples, you can return:
@@ -27,7 +28,7 @@ class RawDataPluginOutput(BaseModel):
     """
 
     data: Optional[str] = None  # Note: This is **always** Base64 encoded.
-    mimeType: Optional[str] = None
+    mime_type: Optional[str] = None
 
     def __init__(
         self,
@@ -36,14 +37,15 @@ class RawDataPluginOutput(BaseModel):
         _bytes: Union[bytes, io.BytesIO] = None,
         json: Any = None,
         mime_type: str = None,
+        **kwargs,
     ):
         super().__init__()
         if base64string is not None:
             self.data = base64string
-            self.mimeType = mime_type or MimeTypes.BINARY
+            self.mime_type = mime_type or MimeTypes.BINARY
         else:
             # Base64-encode the data field.
-            self.data, self.mimeType, encoding = flexi_create(
+            self.data, self.mime_type, encoding = flexi_create(
                 base64string=base64string,
                 string=string,
                 json=json,
@@ -52,12 +54,7 @@ class RawDataPluginOutput(BaseModel):
                 force_base64=True,
             )
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: any, client: Client = None) -> RawDataPluginOutput:
-        # We expect the serialized version of this object to always include a Base64 encoded string,
-        # so we present it to the constructor as such.
-        return RawDataPluginOutput(base64string=d.get("data"), mime_type=d.get("mimeType"))
-
-    def to_dict(self) -> dict:
-        return dict(data=self.data, mimeType=self.mimeType)
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        obj["base64string"] = obj.get("data")
+        return super().parse_obj(obj)

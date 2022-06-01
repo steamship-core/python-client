@@ -10,7 +10,9 @@ def test_e2e_tagger():
     # TODO (enias): Use Enum for plugin type
     with deploy_plugin(client, parser_path, "tagger") as (plugin, version, instance):
         test_doc = "Hi there"
-        res = client.tag(doc=test_doc, plugin_instance=instance.handle)
+        res = client.tag(
+            doc=test_doc, plugin_instance=instance.handle
+        )  # TODO client.tag can be depricated
         res.wait()
         assert res.error is None
         assert res.data is not None

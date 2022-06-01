@@ -32,26 +32,12 @@ def test_file_upload(client: Steamship):
     d.delete()
 
 
-def test_file_scrape(client: Steamship):
-    a = client.scrape(url="https://edwardbenson.com/2020/10/gpt3-travel-agent").data
-    assert a.id is not None
-    assert a.mime_type == MimeTypes.HTML
-
-    b = client.scrape(url="https://edwardbenson.com/2018/09/case-of-the-murderous-ai").data
-    assert b.id is not None
-    assert a.id != b.id
-    assert b.mime_type == MimeTypes.HTML
-
-    a.delete()
-    b.delete()
-
-
 def test_file_import_response_dict():
     resp = File.CreateResponse(_bytes=b"some bytes", mime_type=MimeTypes.BINARY)
     to_dict = resp.to_dict()
-    from_dict = File.CreateResponse.from_dict(to_dict)
-    assert resp.data == from_dict.data
-    assert resp.mimeType == from_dict.mimeType
+    file_create_response = File.CreateResponse.parse_obj(to_dict)
+    assert resp.data == file_create_response.data
+    assert resp.mime_type == file_create_response.mime_type
 
 
 def test_file_import_response_bytes_serialization():

@@ -142,8 +142,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
     ) -> Response[TrainingParameterPluginOutput]:
-        ret = Response(data=TRAINING_PARAMETERS)
-        logging.info(f"Returning toDict: {ret.dict()}")
+        ret = Response[TrainingParameterPluginOutput](data=TRAINING_PARAMETERS)
         return ret
 
     def train(
@@ -173,7 +172,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         logging.info(
             f"TestTrainableTaggerPlugin:train() setting model archive path to {archive_path_in_steamship}"
         )
-        train_plugin_output.archive_path_in_steamship = archive_path_in_steamship
+        train_plugin_output.archive_path = archive_path_in_steamship
 
         # Set the response on the `data` field of the object
         response.set_data(json=train_plugin_output)

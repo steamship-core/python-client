@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Generic, List, Optional, TypeVar
+from typing import Any, Dict, List, Optional, Set, Type, TypeVar
 
 from pydantic import BaseModel
-from pydantic.generics import GenericModel
 
 from steamship.base.base import IResponse
+from steamship.base.configuration import CamelModel
 from steamship.base.metadata import metadata_to_str, str_to_metadata
 from steamship.base.request import Request
 
@@ -14,8 +14,8 @@ T = TypeVar("T")
 
 class CreateTaskCommentRequest(Request):
     taskId: str
-    externalId: str = None
-    externalType: str = None
+    external_id: str = None
+    external_type: str = None
     externalGroup: str = None
     metadata: str = None
     upsert: bool = None
@@ -23,8 +23,8 @@ class CreateTaskCommentRequest(Request):
 
 class ListTaskCommentRequest(Request):
     taskId: str = None
-    externalId: str = None
-    externalType: str = None
+    external_id: str = None
+    external_type: str = None
     externalGroup: str = None
 
 
@@ -32,7 +32,7 @@ class DeleteTaskCommentRequest(Request):
     id: str = None
 
 
-class TaskComment(BaseModel):
+class TaskComment(CamelModel):
     client: Any = None
     id: str = None
     user_id: str = None
@@ -42,6 +42,16 @@ class TaskComment(BaseModel):
     external_group: str = None
     metadata: Any = None
     created_at: str = None
+
+    def __init__(self, **kwargs):
+        kwargs["metadata"] = str_to_metadata(kwargs.get("metadata"))
+        super().__init__(**kwargs)
+
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["taskComment"] if "taskComment" in obj else obj
+        return super().parse_obj(obj)
 
     @staticmethod
     def create(
@@ -55,8 +65,8 @@ class TaskComment(BaseModel):
     ) -> IResponse[TaskComment]:
         req = CreateTaskCommentRequest(
             taskId=task_id,
-            externalId=external_id,
-            externalType=external_type,
+            external_id=external_id,
+            external_type=external_type,
             externalGroup=external_group,
             metadata=metadata_to_str(metadata),
             upsert=upsert,
@@ -77,8 +87,8 @@ class TaskComment(BaseModel):
     ) -> IResponse[TaskCommentList]:
         req = ListTaskCommentRequest(
             taskId=task_id,
-            externalId=external_id,
-            externalType=external_type,
+            external_id=external_id,
+            external_type=external_type,
             externalGroup=external_group,
         )
         return client.post(
@@ -95,29 +105,10 @@ class TaskComment(BaseModel):
             expect=TaskComment,
         )
 
-    @staticmethod
-    def from_dict(d: Any, client: Any = None) -> TaskComment:
-        return TaskComment(
-            client=client,
-            id=d.get("id"),
-            user_id=d.get("userId"),
-            task_id=d.get("taskId"),
-            external_id=d.get("externalId"),
-            external_type=d.get("externalType"),
-            external_group=d.get("externalGroup"),
-            metadata=str_to_metadata(d.get("metadata")),
-            created_at=d.get("createdAt"),
-        )
-
 
 class TaskCommentList(BaseModel):
+    # TODO (enias): Not needed
     comments: List[TaskComment]
-
-    @staticmethod
-    def from_dict(d: Any, client: Any = None) -> TaskCommentList:
-        return TaskCommentList(
-            comments=[TaskComment.from_dict(dd, client) for dd in d.get("comments", [])]
-        )
 
 
 class TaskState:
@@ -141,7 +132,7 @@ class TaskStatusRequest(Request):
     taskId: str
 
 
-class Task(GenericModel, Generic[T]):
+class Task(CamelModel):
     """Encapsulates a unit of asynchronously performed work."""
 
     client: Any = None  # Steamship client
@@ -170,52 +161,17 @@ class Task(GenericModel, Generic[T]):
     max_retries: int = None  # The maximum number of retries allowed for this task
     retries: int = None  # The number of retries already used.
 
-    @staticmethod
-    def from_dict(d: Any, client: Any = None) -> Task:  # TODO (Enias): Review
-        """Last resort if subclass doesn't override: pass through."""
-        return Task(
-            client=client,
-            task_id=d.get("taskId"),
-            user_id=d.get("userId"),
-            space_id=d.get("spaceId"),
-            input=d.get("input"),
-            output=d.get("output"),
-            state=d.get("state"),
-            status_message=d.get("statusMessage"),
-            status_suggestion=d.get("statusSuggestion"),
-            status_code=d.get("statusCode"),
-            status_created_on=d.get("statusCreatedOn"),
-            task_type=d.get("taskType"),
-            task_executor=d.get("taskExecutor"),
-            task_created_on=d.get("taskCreatedOn"),
-            task_last_modified_on=d.get("taskLastModifiedOn"),
-            assigned_worker=d.get("assignedWorker"),
-            started_at=d.get("startedAt"),
-            max_retries=d.get("maxRetries"),
-            retries=d.get("retries"),
-        )
-
-    def to_dict(self) -> dict:
-        return dict(
-            taskId=self.task_id,
-            userId=self.user_id,
-            spaceId=self.space_id,
-            input=self.input,
-            output=self.output,
-            state=self.state,
-            statusMessage=self.status_message,
-            statusSuggestion=self.status_suggestion,
-            statusCode=self.status_code,
-            statusCreatedOn=self.status_created_on,
-            taskType=self.task_type,
-            taskExecutor=self.task_executor,
-            taskCreatedOn=self.task_created_on,
-            taskLastModifiedOn=self.task_last_modified_on,
-            assignedWorker=self.assigned_worker,
-            startedAt=self.started_at,
-            maxRetries=self.max_retries,
-            retries=self.retries,
-        )
+    def dict(self, **kwargs) -> Dict[str, Any]:
+        if "exclude" in kwargs:
+            kwargs["exclude"] = {*(kwargs.get("exclude", set()) or set()), "client"}
+        else:
+            kwargs = {
+                **kwargs,
+                "exclude": {
+                    "client",
+                },
+            }
+        return super().dict(**kwargs)
 
     def update(self, other: Optional[Task] = None):
         """Incorporates a `Task` into this object."""
@@ -244,17 +200,9 @@ class Task(GenericModel, Generic[T]):
     def list_comments(self) -> IResponse[TaskCommentList]:
         return TaskComment.list(client=self.client, task_id=self.task_id)
 
-    def post_update(self, fields: List[str] = None) -> IResponse[Task]:
+    def post_update(self, fields: Set[str] = None) -> IResponse[Task]:
         """Updates this task in the Steamship Engine."""
-
-        self_dict = self.to_dict()
-        fields = fields or self_dict.keys()
-        body = {field: self_dict[field] for field in fields if field in self_dict}
-
-        # The Task ID must always be present
-        body["taskId"] = self.task_id
+        if not isinstance(fields, set):
+            raise RuntimeError(f'Unexpected type of "fields": {type(fields)}. Expected type set.')
+        body = self.dict(by_alias=True, include={*fields, "task_id"})
         return self.client.post("task/update", body, expect=Task)
-
-    @staticmethod
-    def delete_comment(comment: TaskComment = None) -> IResponse[TaskComment]:
-        return comment.delete()

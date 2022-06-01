@@ -2,15 +2,13 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, Generic, Type, TypeVar, Union
+from typing import Any, Dict, Generic, Type, TypeVar, Union
 
-from pydantic import BaseModel
 from pydantic.generics import GenericModel
 
 from steamship.app import App
 from steamship.app.response import Response
 from steamship.base import Client
-from steamship.base.response import SteamshipError
 
 # Note!
 # =====
@@ -18,6 +16,7 @@ from steamship.base.response import SteamshipError
 # This the files in this package are for Plugin Implementors.
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
+from steamship.base.utils import to_camel
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -41,51 +40,9 @@ class PluginRequest(GenericModel, Generic[T]):
     plugin_instance_id: str = None
     plugin_instance_handle: str = None
 
-    @staticmethod
-    def from_dict(
-        d: Any,
-        wrapped_object_from_dict: Callable[[dict, Client], T] = None,
-        client: Client = None,
-    ) -> PluginRequest[T]:
-        """Create a PluginRequest[T] from a Python dictionary.
-
-        This `from_dict` method differs from others in this module in that it additionally requires the
-        `from_dict` method of the inner object that the Request wraps. Because of the way Python's type system
-        works, it is not possible to fetch this function pointer from the `T` TypeVar that represents the wrapped type.
-        """
-        data = None
-        if "data" in d:
-            if wrapped_object_from_dict is not None:
-                data = wrapped_object_from_dict(d["data"], client)
-            else:
-                raise SteamshipError(
-                    message="No `wrapped_object_from_dict` provided to parse inbound dict request."
-                )
-        return PluginRequest(
-            data=data,
-            task_id=d.get("taskId", None),
-            plugin_id=d.get("pluginId", None),
-            plugin_handle=d.get("pluginHandle", None),
-            plugin_version_id=d.get("pluginVersionId", None),
-            plugin_version_handle=d.get("pluginVersionHandle", None),
-            plugin_instance_id=d.get("pluginInstanceId", None),
-            plugin_instance_handle=d.get("pluginInstanceHandle", None),
-        )
-
-    def to_dict(self) -> dict:
-        if self.data is None:
-            return {}
-        else:
-            return {
-                "data": self.data.to_dict(),
-                "taskId": self.task_id,
-                "pluginId": self.plugin_id,
-                "pluginHandle": self.plugin_handle,
-                "pluginVersionId": self.plugin_version_id,
-                "pluginVersionHandle": self.plugin_version_handle,
-                "pluginInstanceId": self.plugin_instance_id,
-                "pluginInstanceHandle": self.plugin_instance_handle,
-            }
+    class Config:
+        alias_generator = to_camel
+        allow_population_by_field_name = True
 
 
 class PluginService(ABC, App, Generic[T, U]):

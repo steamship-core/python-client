@@ -55,7 +55,7 @@ def zip_deployable(file_path: Path) -> bytes:
                 "idna",
                 "pydantic==1.9.0",
                 "typing_extensions",
-                "inflection",
+                "inflection==0.5.1",
             ]:
                 install_package(package, into_folder=package_dir)
             # Now write that whole folder

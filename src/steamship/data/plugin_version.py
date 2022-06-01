@@ -1,51 +1,40 @@
-from typing import Any, Dict, List, Optional
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
 from steamship.base import Client, Request
+from steamship.base.configuration import CamelModel
 from steamship.base.response import Response
-from steamship.data.plugin import HostingMemory, HostingTimeout, ListPluginsResponse
-
-
-class PluginVersion(BaseModel):
-    # TODO (enias): This might be a good entry point into using Pydantic with automatic camelCase to snake-case conversion
-    client: Client = None
-    id: str = None
-    pluginId: str = None
-    handle: str = None
-    hostingMemory: Optional[HostingMemory] = None
-    hostingTimeout: Optional[HostingTimeout] = None
-    hostingHandler: str = None
-    isPublic: bool = None
-    isDefault: bool = None
-    configTemplate: Dict[str, Any] = None
+from steamship.data.plugin import HostingMemory, HostingTimeout
 
 
 class CreatePluginVersionRequest(Request):
-    pluginId: str = None
+    plugin_id: str = None
     handle: str = None
     upsert: bool = None
-    hostingMemory: Optional[HostingMemory] = None
-    hostingTimeout: Optional[HostingTimeout] = None
-    hostingHandler: str = None
-    isPublic: bool = None
-    isDefault: bool = None
+    hosting_memory: Optional[HostingMemory] = None
+    hosting_timeout: Optional[HostingTimeout] = None
+    hosting_handler: str = None
+    is_public: bool = None
+    is_default: bool = None
     type: str = "file"
-    configTemplate: Dict[str, Any] = None
+    config_template: Dict[str, Any] = None
 
     def to_dict(self):
         # Note: the to_dict is necessary here to properly serialize the enum values.
         return dict(
-            pluginId=self.pluginId,
+            pluginId=self.plugin_id,
             handle=self.handle,
             upsert=self.upsert,
-            hostingMemory=self.hostingMemory.value if self.hostingMemory else None,
-            hostingTimeout=self.hostingTimeout.value if self.hostingTimeout else None,
-            hostingHandler=self.hostingHandler,
-            isPublic=self.isPublic,
-            isDefault=self.isDefault,
+            hostingMemory=self.hosting_memory.value if self.hosting_memory else None,
+            hostingTimeout=self.hosting_timeout.value if self.hosting_timeout else None,
+            hostingHandler=self.hosting_handler,
+            isPublic=self.is_public,
+            isDefault=self.is_default,
             type=self.type,
-            configTemplate=self.configTemplate,
+            configTemplate=self.config_template,
         )
 
 
@@ -55,69 +44,35 @@ class DeletePluginVersionRequest(Request):
 
 class ListPublicPluginVersionsRequest(Request):
     handle: str
-    pluginId: str
+    plugin_id: str
 
 
 class ListPrivatePluginVersionsRequest(Request):
     handle: str
-    pluginId: str
+    plugin_id: str
 
 
 class ListPluginVersionsResponse(Response):
     plugins: List[PluginVersion]
 
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "ListPluginVersionsResponse":
-        return ListPluginVersionsResponse(
-            plugins=[
-                PluginVersion.from_dict(x, client=client)
-                for x in (d.get("pluginVersions", []) or [])
-            ]
-        )
 
-
-class PluginVersion(BaseModel):
+class PluginVersion(CamelModel):
     client: Client = None
     id: str = None
-    pluginId: str = None
+    plugin_id: str = None
     handle: str = None
-    hostingMemory: Optional[HostingMemory] = None
-    hostingTimeout: Optional[HostingTimeout] = None
-    hostingHandler: str = None
-    isPublic: bool = None
-    isDefault: bool = None
-    configTemplate: Dict[str, Any] = None
+    hosting_memory: Optional[HostingMemory] = None
+    hosting_timeout: Optional[HostingTimeout] = None
+    hosting_handler: str = None
+    is_public: bool = None
+    is_default: bool = None
+    config_template: Dict[str, Any] = None
 
-    def to_dict(self):
-        # Note: the to_dict is necessary here to properly serialize the enum values.
-        return dict(
-            id=self.id,
-            pluginId=self.pluginId,
-            handle=self.handle,
-            hostingMemory=self.hostingMemory.value if self.hostingMemory else None,
-            hostingTimeout=self.hostingTimeout.value if self.hostingTimeout else None,
-            hostingHandler=self.hostingHandler,
-            isPublic=self.isPublic,
-            isDefault=self.isDefault,
-            configTemplate=self.configTemplate,
-        )
-
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> PluginVersion:
-        if "pluginVersion" in d:
-            d = d["pluginVersion"]
-
-        return PluginVersion(
-            client=client,
-            id=d.get("id"),
-            handle=d.get("handle"),
-            hostingMemory=d.get("hostingMemory"),
-            hostingTimeout=d.get("hostingTimeout"),
-            hostingHandler=d.get("hostingHandler"),
-            isPublic=d.get("isPublic"),
-            isDefault=d.get("isDefault"),
-            configTemplate=d.get("configTemplate"),
-        )
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["pluginVersion"] if "pluginVersion" in obj else obj
+        return super().parse_obj(obj)
 
     @staticmethod
     def create(
@@ -146,14 +101,14 @@ class PluginVersion(BaseModel):
 
         req = CreatePluginVersionRequest(
             handle=handle,
-            pluginId=plugin_id,
+            plugin_id=plugin_id,
             upsert=upsert,
-            hostingMemory=hosting_memory,
-            hostingTimeout=hosting_timeout,
-            hostingHandler=hosting_handler,
-            isPublic=is_public,
-            isDefault=is_default,
-            configTemplate=config_template,
+            hosting_memory=hosting_memory,
+            hosting_timeout=hosting_timeout,
+            hosting_handler=hosting_handler,
+            is_public=is_public,
+            is_default=is_default,
+            config_template=config_template,
         )
 
         return client.post(
@@ -183,7 +138,7 @@ class PluginVersion(BaseModel):
     ) -> Response[ListPluginVersionsResponse]:
         return client.post(
             "plugin/version/public",
-            ListPublicPluginVersionsRequest(handle=handle, pluginId=plugin_id),
+            ListPublicPluginVersionsRequest(handle=handle, plugin_id=plugin_id),
             expect=ListPluginVersionsResponse,
         )
 
@@ -193,6 +148,6 @@ class PluginVersion(BaseModel):
     ) -> Response[ListPluginVersionsResponse]:
         return client.post(
             "plugin/version/private",
-            ListPrivatePluginVersionsRequest(handle=handle, pluginId=plugin_id),
+            ListPrivatePluginVersionsRequest(handle=handle, plugin_id=plugin_id),
             expect=ListPluginVersionsResponse,
         )

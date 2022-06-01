@@ -2,17 +2,12 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from steamship.base import Client
 from steamship.base.tasks import TaskState
 from tests.utils.fixtures import get_steamship_client
 
 
 class NoOpResult(BaseModel):
     pass
-
-    @staticmethod
-    def from_dict(d: dict, client: Client = None) -> NoOpResult:
-        return NoOpResult()
 
 
 def test_background_task_call():
@@ -66,7 +61,11 @@ def test_task_update():
     result_2.task.status_message = STATUS
 
     # Only update the output field.
-    result_2.task.post_update(fields=["statusMessage"])
+    result_2.task.post_update(
+        fields={
+            "status_message",
+        }
+    )
 
     # This will refresh the task.
     result_2.refresh()
