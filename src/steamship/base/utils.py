@@ -1,3 +1,5 @@
+import re
+
 import inflection
 
 
@@ -12,4 +14,5 @@ def to_snake_case(s: str) -> str:
 
 
 def to_camel(s: str) -> str:
+    s = re.sub("_(url)$", lambda m: f"_{m.group(1).upper()}", s)
     return inflection.camelize(s, uppercase_first_letter=False)

@@ -7,6 +7,7 @@ from pydantic.generics import GenericModel
 
 from steamship.base.error import SteamshipError
 from steamship.base.tasks import Task, TaskState, TaskStatusRequest
+from steamship.base.utils import to_camel
 
 T = TypeVar("T")  # Declare type variable
 
@@ -20,6 +21,8 @@ class Response(GenericModel, Generic[T]):
 
     class Config:
         arbitrary_types_allowed = True  # This is required to support SteamshipError
+        alias_generator = to_camel
+        allow_population_by_field_name = True
 
     @property
     def data(self):

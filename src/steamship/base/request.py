@@ -1,8 +1,9 @@
-from pydantic import BaseModel
+from steamship.base.configuration import CamelModel
 
 
-class Request(BaseModel):
-    pass
+class Request(CamelModel):
+    class Config:
+        use_enum_values = True
 
 
 class GetRequest(Request):

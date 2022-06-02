@@ -1,4 +1,6 @@
-from typing import Any, List
+from __future__ import annotations
+
+from typing import Any, Dict, List
 
 from steamship import File
 from steamship.app import Request
@@ -16,58 +18,23 @@ class CorpusImportRequest(Request):
     value: str = None
     data: str = None
     url: str = None
-    pluginInstance: str = None
-    fileImporterPluginInstance: str = None
+    plugin_instance: str = None
+    file_importer_plugin_instance: str = None
 
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "CorpusImportRequest":
-        # noinspection PyArgumentEqualDefault
-        return CorpusImportRequest(
-            client=client,
-            id=d.get("id"),
-            handle=d.get("handle"),
-            type="corpus",
-            value=d.get("value"),
-            data=d.get("data"),
-            url=d.get("url"),
-            pluginInstance=d.get("pluginInstance"),
-            fileImporterPluginInstance=d.get("fileImporterPluginInstance"),
-        )
-
-    def to_dict(self) -> dict:
-        return dict(
-            id=self.id,
-            handle=self.handle,
-            type=self.type,
-            value=self.value,
-            data=self.data,
-            url=self.url,
-            pluginInstance=self.pluginInstance,
-            fileImporterPluginInstance=self.fileImporterPluginInstance,
-        )
+    def dict(self, **kwargs) -> Dict[str, Any]:
+        # TODO (enias): This can probably be bumped up the inheritance chain
+        if "exclude" in kwargs:
+            kwargs["exclude"] = {*(kwargs.get("exclude", set()) or set()), "client"}
+        else:
+            kwargs = {
+                **kwargs,
+                "exclude": {
+                    "client",
+                },
+            }
+        return super().dict(**kwargs)
 
 
 class CorpusImportResponse(Response):
     client: Client = None
-    fileImportRequests: List[File.CreateRequest] = None
-
-    def __init__(
-        self,
-        client: Client = None,
-        file_import_requests: List[File.CreateRequest] = None,
-    ):
-        super().__init__()
-        self.client = client
-        self.fileImportRequests = file_import_requests
-
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> "CorpusImportResponse":
-        return CorpusImportResponse(
-            client=client,
-            file_import_requests=[
-                File.CreateRequest.from_dict(req) for req in d.get("fileImportRequests", [])
-            ],
-        )
-
-    def to_dict(self) -> dict:
-        return dict(fileImportRequests=[request.to_dict() for request in self.fileImportRequests])
+    file_import_requests: List[File.CreateRequest] = None

@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Type
 
 from pydantic import BaseModel
 
@@ -37,11 +37,11 @@ class App(BaseModel):
     id: str = None
     handle: str = None
 
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> App:
-        if "app" in d:
-            d = d["app"]
-        return App(client=client, id=d.get("id"), handle=d.get("handle"))
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["app"] if "app" in obj else obj
+        return super().parse_obj(obj)
 
     @staticmethod
     def create(client: Client, handle: str = None, upsert: bool = None) -> Response[App]:

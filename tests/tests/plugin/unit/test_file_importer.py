@@ -1,18 +1,14 @@
 import base64
 
-import pytest
-
 from steamship.app import Response
 from steamship.data.file import File
-from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.service import PluginRequest
 from tests.assets.plugins.importers.plugin_file_importer import TEST_DOC, TestFileImporterPlugin
 
 TEST_REQ = File.CreateRequest()
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
-TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
 
 def _test_resp(res):
