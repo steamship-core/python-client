@@ -14,7 +14,7 @@ from tests.utils.fixtures import get_steamship_client
 def _fix_url(s: str) -> str:
     """Homogenize references to `this machine` for the purpose of comparing remote configuration and local
     configuration. The goal of the below tests isn't to check that your machine has been configured in the
-    "approved wayt" (which is to use host.docker.internal). It is merely to make sure that the environment
+    "approved way" (which is to use host.docker.internal). It is merely to make sure that the environment
     has been passed to the app instance correctly."""
     s = s.replace("localhost", "host.docker.internal").replace("127.0.0.1", "host.docker.internal")
     s = s.removesuffix("/")
