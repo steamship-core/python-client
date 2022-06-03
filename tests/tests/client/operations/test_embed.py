@@ -13,23 +13,23 @@ def count_embeddings(file: File):
     return embeddings
 
 
-def basic_embeddings(steamship: Steamship, plugin_instance: str):
-    e1 = steamship.tag("This is a test", plugin_instance=plugin_instance)
-    e1b = steamship.tag("Banana", plugin_instance=plugin_instance)
+def basic_embeddings(plugin_instance: PluginInstance):
+    e1 = plugin_instance.tag("This is a test")
+    e1b = plugin_instance.tag("Banana")
     e1.wait()
     e1b.wait()
     assert count_embeddings(e1.data.file) == 1
     assert count_embeddings(e1b.data.file) == 1
     assert len(e1.data.file.blocks[0].tags[0].value["embedding"]) > 1
 
-    e2 = steamship.tag("This is a test", plugin_instance=plugin_instance)
+    e2 = plugin_instance.tag("This is a test")
     e2.wait()
     assert count_embeddings(e2.data.file) == 1
     assert len(e2.data.file.blocks[0].tags[0].value["embedding"]) == len(
         e1.data.file.blocks[0].tags[0].value["embedding"]
     )
 
-    e4 = steamship.tag("This is a test", plugin_instance=plugin_instance)
+    e4 = plugin_instance.tag("This is a test")
     e4.wait()
     assert count_embeddings(e4.data.file) == 1
 
@@ -37,7 +37,7 @@ def basic_embeddings(steamship: Steamship, plugin_instance: str):
 def test_basic_embeddings():
     client = get_steamship_client()
     plugin_instance = PluginInstance.create(client, plugin_handle=_TEST_EMBEDDER).data
-    basic_embeddings(client, plugin_instance.handle)
+    basic_embeddings(plugin_instance)
 
 
 def basic_embedding_search(steamship: Steamship, plugin_instance: str):

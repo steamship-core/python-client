@@ -28,7 +28,7 @@ def test_e2e_parser():
         instance_config=instance_config1,
     ) as (plugin, version, instance):
         test_doc = "Hi there"
-        res = client.tag(doc=test_doc, plugin_instance=instance.handle)
+        res = instance.tag(doc=test_doc)
         res.wait()
         assert res.error is None
         assert res.data is not None
@@ -62,7 +62,7 @@ def test_e2e_parser():
         assert instance2.data is not None
         instance2 = instance2.data
 
-        res = client.tag(doc=test_doc, plugin_instance=instance2.handle)
+        res = instance2.tag(doc=test_doc)
         res.wait()
         assert res.error is None
         assert res.data is not None

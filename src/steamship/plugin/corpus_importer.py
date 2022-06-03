@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from steamship.app import Response, post
-from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
+from steamship.data.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from steamship.plugin.service import PluginRequest, PluginService
 
 
