@@ -108,7 +108,10 @@ class PluginInstance(CamelModel):
 
     def train(self, training_request: TrainingParameterPluginInput) -> Response[TrainPluginOutput]:
         return self.client.post(
-            "plugin/instance/train", payload=training_request, expect=TrainPluginOutput
+            "plugin/instance/train",
+            space_id=self.space_id,
+            payload=training_request,
+            expect=TrainPluginOutput,
         )
 
     def get_training_parameters(
