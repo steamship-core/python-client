@@ -25,28 +25,28 @@ def test_file_parse():
     content2 = "# {}\n\n{} {}\n\n{} {}".format(T2, P3_1, P3_2, P4_1, P4_2)
     content = "{}\n\n{}".format(content1, content2)
 
-    a = steamship.upload(content=content, mime_type=MimeTypes.MKD).data
-    assert a.id is not None
-    assert a.mime_type == MimeTypes.MKD
+    file = steamship.upload(content=content, mime_type=MimeTypes.MKD).data
+    assert file.id is not None
+    assert file.mime_type == MimeTypes.MKD
 
-    blockify_resp = a.blockify(plugin_instance="markdown-blockifier-default-1.0")
+    blockify_resp = file.blockify(plugin_instance="markdown-blockifier-default-1.0")
     assert blockify_resp.error is None
     blockify_resp.wait()
 
     # Now we parse
     parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
-    parse_resp = a.tag(plugin_instance=parser.handle)
+    parse_resp = file.tag(plugin_instance=parser.handle)
     assert parse_resp.error is None
     parse_resp.wait()
 
     # Now the sentences should be parsed!
-    q2 = a.refresh().data
+    q2 = file.refresh().data
     assert len(q2.blocks) == 6
 
     # Now we add the file to the index
     plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     with random_index(steamship, plugin_instance=plugin_instance.handle) as index:
-        index.insert_file(a.id, reindex=False)
+        index.insert_file(file.id, reindex=False)
         embed_resp = index.embed()
         assert embed_resp.error is None
         embed_resp.wait()
@@ -56,7 +56,7 @@ def test_file_parse():
         # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
         assert res.items[0].value.value == " ".join([P1_1, P1_2])
 
-    a.delete()
+    file.delete()
 
 
 def test_file_index():
@@ -76,28 +76,28 @@ def test_file_index():
     content2 = f"# {t2}\n\n{p3_1} {p3_2}\n\n{p4_1} {p4_2}"
     content = f"{content1}\n\n{content2}"
 
-    a = steamship.upload(content=content, mime_type=MimeTypes.MKD).data
-    assert a.id is not None
-    assert a.mime_type == MimeTypes.MKD
+    file = steamship.upload(content=content, mime_type=MimeTypes.MKD).data
+    assert file.id is not None
+    assert file.mime_type == MimeTypes.MKD
 
-    blockify_resp = a.blockify(plugin_instance="markdown-blockifier-default-1.0")
+    blockify_resp = file.blockify(plugin_instance="markdown-blockifier-default-1.0")
     assert blockify_resp.error is None
     blockify_resp.wait()
 
     # Now we parse
     parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
-    parse_resp = a.tag(plugin_instance=parser.handle)
+    parse_resp = file.tag(plugin_instance=parser.handle)
     assert parse_resp.error is None
     parse_resp.wait()
 
     # Now the sentences should be parsed!
-    q2 = a.refresh().data
+    q2 = file.refresh().data
     assert len(q2.blocks) == 6
 
     # Now we add the file to the index via the shortcut.
     embedder = PluginInstance.create(steamship, plugin_handle="test-embedder").data
     # noinspection PyUnresolvedReferences
-    index = a.index(plugin_instance=embedder.handle)
+    index = file.index(plugin_instance=embedder.handle)
 
     res = index.search("What color are roses?").data
     assert len(res.items) == 1
@@ -110,7 +110,7 @@ def test_file_index():
     assert res.items[0].value.value == " ".join([p4_1, p4_2])
 
     index.delete()
-    a.delete()
+    file.delete()
 
 
 def test_file_embed_lookup():
@@ -119,14 +119,14 @@ def test_file_embed_lookup():
     content_a = "Ted likes to run."
     content_b = "Grace likes to bike."
 
-    a = steamship.upload(content=content_a, mime_type=MimeTypes.MKD).data
+    file = steamship.upload(content=content_a, mime_type=MimeTypes.MKD).data
 
-    blockify_res = a.blockify(plugin_instance="markdown-blockifier-default-1.0")
+    blockify_res = file.blockify(plugin_instance="markdown-blockifier-default-1.0")
     assert blockify_res.error is None
     blockify_res.wait()
 
     parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
-    parse_res = a.tag(plugin_instance=parser.handle)
+    parse_res = file.tag(plugin_instance=parser.handle)
     assert parse_res.error is None
     parse_res.wait()
 
@@ -143,7 +143,7 @@ def test_file_embed_lookup():
     embedder = PluginInstance.create(steamship, plugin_handle="test-embedder").data
     # Now we add the file to the index
     with random_index(steamship, embedder.handle) as index:
-        index.insert_file(a.id, block_type="sentence", reindex=True)
+        index.insert_file(file.id, block_type="sentence", reindex=True)
         index.insert_file(b.id, block_type="sentence", reindex=True)
 
         res = index.search("What does Ted like to do?").data
@@ -155,7 +155,7 @@ def test_file_embed_lookup():
         assert res.items[0].value.value == content_b
 
         # Now we list the items
-        itemsa = index.list_items(file_id=a.id).data
+        itemsa = index.list_items(file_id=file.id).data
         assert len(itemsa.items) == 1
         assert len(itemsa.items[0].embedding) > 0
         assert itemsa.items[0].value == content_a

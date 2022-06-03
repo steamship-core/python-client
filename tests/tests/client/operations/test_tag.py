@@ -5,7 +5,7 @@ from tests.utils.fixtures import get_steamship_client
 def test_parsing():
     steamship = get_steamship_client()
     parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
-    resp = steamship.tag("This is a test", plugin_instance=parser.handle)
+    resp = parser.tag("This is a test")
     resp.wait()
     resp = resp.data
     assert len(resp.file.blocks) == 1
