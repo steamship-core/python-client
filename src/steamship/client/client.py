@@ -3,11 +3,12 @@ from __future__ import annotations
 import logging
 from typing import Any, List
 
-from steamship import Configuration, SteamshipError
+from steamship import Block, Configuration, SteamshipError
 from steamship.base import Client, Response
-from steamship.client.tasks import Tasks
+from steamship.base.tasks import TaskComment, TaskCommentList
 from steamship.data import File
 from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
+from steamship.data.operations.tagger import TagRequest, TagResponse
 from steamship.data.space import Space
 
 _logger = logging.getLogger(__name__)
@@ -15,8 +16,6 @@ _logger = logging.getLogger(__name__)
 
 class Steamship(Client):
     """Steamship Python Client."""
-
-    tasks: Tasks = None  # TODO (enias): Ignore during serialisation
 
     def __init__(
         self,
@@ -40,7 +39,6 @@ class Steamship(Client):
             config_file=config_file,
             config=config,
         )
-        self.tasks = Tasks(self)
 
     def create_index(
         self,
@@ -106,6 +104,28 @@ class Steamship(Client):
             space=space,
         )
 
+    def tag(
+        self,
+        doc: str,
+        plugin_instance: str = None,
+        space_id: str = None,
+        space_handle: str = None,
+        space: Space = None,
+    ) -> Response[TagResponse]:
+        req = TagRequest(
+            type="inline",
+            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
+            plugin_instance=plugin_instance,
+        )
+        return self.post(
+            "plugin/instance/tag",
+            req,
+            expect=TagResponse,
+            space_id=space_id,
+            space_handle=space_handle,
+            space=space,
+        )
+
     def for_space(self, space_id: str = None, space_handle: str = None) -> Steamship:
         """Returns a new Steamship client anchored in the provided space as its default.
 
@@ -129,3 +149,18 @@ class Steamship(Client):
             )
         logging.info(f"Got space: {space.data.id}")
         return space.data
+
+    def list_comments(
+        self,
+        task_id: str = None,
+        external_id: str = None,
+        external_type: str = None,
+        external_group: str = None,
+    ) -> Response[TaskCommentList]:
+        return TaskComment.list(
+            client=self,
+            task_id=task_id,
+            external_id=external_id,
+            external_type=external_type,
+            external_group=external_group,
+        )
