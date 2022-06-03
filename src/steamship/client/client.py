@@ -3,9 +3,8 @@ from __future__ import annotations
 import logging
 from typing import Any, List
 
-from steamship import Block, Configuration, SteamshipError
+from steamship import Configuration, SteamshipError
 from steamship.base import Client, Response
-from steamship.client.operations.tagger import TagRequest, TagResponse
 from steamship.client.tasks import Tasks
 from steamship.data import File
 from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
@@ -102,28 +101,6 @@ class Steamship(Client):
             "plugin/instance/embeddingSearch",
             req,
             expect=QueryResults,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
-        )
-
-    def tag(
-        self,
-        doc: str,
-        plugin_instance: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
-    ) -> Response[TagResponse]:
-        req = TagRequest(
-            type="inline",
-            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
-            plugin_instance=plugin_instance,
-        )
-        return self.post(
-            "plugin/instance/tag",
-            req,
-            expect=TagResponse,
             space_id=space_id,
             space_handle=space_handle,
             space=space,

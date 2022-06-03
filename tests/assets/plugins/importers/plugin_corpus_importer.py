@@ -2,7 +2,7 @@ from typing import Type
 
 from steamship import File
 from steamship.app import Response, create_handler
-from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
+from steamship.data.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from steamship.plugin.config import Config
 from steamship.plugin.corpus_importer import CorpusImporter
 from steamship.plugin.service import PluginRequest
