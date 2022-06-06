@@ -173,16 +173,15 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
         logging.debug(f"get_training_parameters {request}")
         return Response(data=TRAINING_PARAMETERS)
 
-    def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
+    def train(
+        self, request: PluginRequest[TrainPluginInput], model: ThirdPartyModel
+    ) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
         logging.debug(f"train {request}")
 
         # Create a Response object at the top with a Task attached. This will let us stream back updates
         # TODO: This is very non-intuitive. We should improve this.
         response = Response(status=Task(task_id=request.task_id))
-
-        # Create an instance of our model
-        model = self.model_cls()()
 
         # Train the model
         train_plugin_input = request.data
