@@ -3,12 +3,13 @@ from __future__ import annotations
 import io
 import logging
 from enum import Enum
-from typing import Any, List, Optional, Union
+from typing import Any, List, Type, Union
 
 from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
+from steamship.base.configuration import CamelModel
 from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
@@ -33,10 +34,10 @@ class FileClearResponse(Response):
 
 
 class FileQueryRequest(Request):
-    tagFilterQuery: str
+    tag_filter_query: str
 
 
-class File(BaseModel):
+class File(CamelModel):
     """A file."""
 
     client: Client = None
@@ -56,50 +57,18 @@ class File(BaseModel):
         url: str = None
         filename: str = None
         type: FileUploadType = None
-        mimeType: str = None  # TODO: This should work
+        mime_type: str = None
         corpusId: str = None
         blocks: List[Block.CreateRequest] = None
         tags: List[Tag.CreateRequest] = None
-        pluginInstance: str = None
+        plugin_instance: str = None
 
-        @staticmethod
-        def from_dict(d: Any, client: Client = None) -> File.CreateRequest:
-            return File.CreateRequest(
-                value=d.get("value"),
-                data=d.get("data"),
-                url=d.get("url"),
-                id=d.get("id"),
-                type=d.get("type"),
-                mimeType=d.get("mimeType"),
-                corpusId=d.get("corpusId"),
-                pluginInstance=d.get("pluginInstance"),
-                blocks=[
-                    Block.CreateRequest.from_dict(block, client=client)
-                    for block in d.get("blocks", [])
-                ],
-                tags=[Tag.CreateRequest.from_dict(tag, client=client) for tag in d.get("tags", [])],
-                filename=d.get("filename"),
-            )
-
-        def to_dict(self) -> dict:
-            return dict(
-                id=self.id,
-                value=self.value,
-                data=self.data,
-                url=self.url,
-                # `self.type.value` necessary when serializing. Otherwise Enum classname will be prepended
-                type=self.type.value if self.type else None,
-                mimeType=self.mimeType,
-                corpusId=self.corpusId,
-                pluginInstance=self.pluginInstance,
-                blocks=[block.to_dict() for block in self.blocks] if self.blocks else [],
-                tags=[tag.to_dict() for tag in self.tags] if self.tags else [],
-                filename=self.filename,
-            )
+        class Config:
+            use_enum_values = True
 
     class CreateResponse(Response):
         data_: Any = None
-        mimeType: str = None
+        mime_type: str = None
 
         def __init__(
             self,
@@ -114,60 +83,25 @@ class File(BaseModel):
                 data=data, string=string, json=json, _bytes=_bytes, mime_type=mime_type
             )
             self.data_ = data
-            self.mimeType = mime_type
-
-        # noinspection PyUnusedLocal
-        @staticmethod
-        def from_dict(d: Any, client: Client = None) -> File.CreateResponse:
-            return File.CreateResponse(data=d.get("data"), mime_type=d.get("mimeType"))
+            self.mime_type = mime_type
 
         def to_dict(self) -> dict:
-            return dict(data=self.data_, mimeType=self.mimeType)
+            return dict(data=self.data_, mime_type=self.mime_type)
 
     class ListRequest(Request):
         corpusId: str = None
 
     class ListResponse(Response):
-        files: List["File"]
-
-        @staticmethod
-        def from_dict(d: Any, client: Client = None) -> File.ListResponse:
-            return File.ListResponse(
-                files=[File.from_dict(f, client=client) for f in d.get("files", [])]
-            )
+        files: List[File]
 
     class RawRequest(Request):
         id: str
 
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> Optional[File]:
-        # TODO (enias): Resolve code duplication
-        if d is None:
-            return None
-        if "file" in d:
-            d = d["file"]
-        return File(
-            client=client,
-            id=d.get("id"),
-            handle=d.get("handle"),
-            mime_type=d.get("mimeType"),
-            corpus_id=d.get("corpusId"),
-            space_id=d.get("spaceId"),
-            blocks=[Block.from_dict(block, client=client) for block in d.get("blocks", [])],
-            tags=[Tag.from_dict(tag, client=client) for tag in d.get("tags", [])],
-        )
-
-    def to_dict(self) -> dict:
-        # TODO (enias): Resolve code duplication
-        return dict(
-            id=self.id,
-            handle=self.handle,
-            mimeType=self.mime_type,
-            corpusId=self.corpus_id,
-            spaceId=self.space_id,
-            blocks=[block.to_dict() for block in self.blocks] if self.blocks else [],
-            tags=[tag.to_dict() for tag in self.tags] if self.tags else [],
-        )
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["file"] if "file" in obj else obj
+        return super().parse_obj(obj)
 
     def delete(
         self, space_id: str = None, space_handle: str = None, space: Any = None
@@ -259,8 +193,8 @@ class File(BaseModel):
             type=upload_type,
             corpusId=corpus_id,
             url=url,
-            mimeType=mime_type,
-            pluginInstance=plugin_instance,
+            mime_type=mime_type,
+            plugin_instance=plugin_instance,
             blocks=blocks,
             tags=tags,
             filename=filename,
@@ -299,26 +233,6 @@ class File(BaseModel):
         )
         return res
 
-    @staticmethod
-    def scrape(
-        client: Client,
-        url: str,
-        corpus_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ) -> Response[File]:
-        req = File.CreateRequest(type=FileUploadType.URL, url=url, corpusId=corpus_id)
-
-        return client.post(
-            "file/create",
-            payload=req,
-            expect=File,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
-        )
-
     def refresh(self):
         return File.get(self.client, self.id)
 
@@ -331,7 +245,7 @@ class File(BaseModel):
         space: Any = None,
     ) -> Response[FileQueryResponse]:
 
-        req = FileQueryRequest(tagFilterQuery=tag_filter_query)
+        req = FileQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
             "file/query",
             payload=req,
@@ -356,41 +270,11 @@ class File(BaseModel):
             raw_response=True,
         )
 
-    @staticmethod
-    def upload(
-        client: Client,
-        filename: str = None,
-        content: str = None,
-        mime_type: str = None,
-        corpus_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ) -> Response[File]:
-        if filename is None and content is None:
-            raise Exception("Either filename or content must be provided.")  # TODO (Enias): Review
-
-        if filename is not None:
-            with open(filename, "rb") as f:
-                content = f.read()
-
-        req = File.CreateRequest(type=FileUploadType.FILE, corpusId=corpus_id, mimeType=mime_type)
-
-        return client.post(
-            "file/create",
-            payload=req,
-            file=(content, "multipart/form-data"),
-            expect=File,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
-        )
-
     def blockify(self, plugin_instance: str = None):
-        from steamship.client.operations.blockifier import BlockifyRequest
+        from steamship.data.operations.blockifier import BlockifyRequest
         from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
-        req = BlockifyRequest(type="file", id=self.id, pluginInstance=plugin_instance)
+        req = BlockifyRequest(type="file", id=self.id, plugin_instance=plugin_instance)
 
         return self.client.post(
             "plugin/instance/blockify",
@@ -407,11 +291,10 @@ class File(BaseModel):
         space: Any = None,
     ) -> Response[Tag]:
         # TODO (enias): Fix Circular imports
-        from steamship.client.operations.tagger import TagRequest, TagResponse
+        from steamship.data.operations.tagger import TagRequest, TagResponse
         from steamship.data.plugin import PluginTargetType
 
-        req = TagRequest(type=PluginTargetType.file, id=self.id, pluginInstance=plugin_instance)
-
+        req = TagRequest(type=PluginTargetType.file, id=self.id, plugin_instance=plugin_instance)
         return self.client.post(
             "plugin/instance/tag",
             payload=req,
@@ -457,7 +340,7 @@ class File(BaseModel):
 
         items = []
         for block in blocks:
-            item = EmbeddedItem(value=block.text, externalId=block.id, externalType="block")
+            item = EmbeddedItem(value=block.text, external_id=block.id, external_type="block")
             items.append(item)
 
         insert_task = e_index.insert_many(
@@ -474,12 +357,6 @@ class File(BaseModel):
 
 class FileQueryResponse(Response):
     files: List[File]
-
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> FileQueryResponse:
-        return FileQueryResponse(
-            files=[File.from_dict(file, client=client) for file in d.get("files", [])]
-        )
 
 
 File.ListResponse.update_forward_refs()

@@ -23,8 +23,8 @@ def tag_sentences(block: Block):
             Tag(
                 kind=DocTag.doc,
                 name=DocTag.sentence,
-                startIdx=m.start(),
-                endIdx=m.end() + 1,
+                start_idx=m.start(),
+                end_idx=m.end() + 1,
             )
         )
     if block.tags:

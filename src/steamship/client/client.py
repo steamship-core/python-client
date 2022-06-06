@@ -3,9 +3,8 @@ from __future__ import annotations
 import logging
 from typing import Any, List
 
-from steamship import Block
+from steamship import Configuration, SteamshipError
 from steamship.base import Client, Response
-from steamship.client.operations.tagger import TagRequest, TagResponse
 from steamship.client.tasks import Tasks
 from steamship.data import File
 from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
@@ -17,7 +16,7 @@ _logger = logging.getLogger(__name__)
 class Steamship(Client):
     """Steamship Python Client."""
 
-    tasks: Tasks = None
+    tasks: Tasks = None  # TODO (enias): Ignore during serialisation
 
     def __init__(
         self,
@@ -28,6 +27,8 @@ class Steamship(Client):
         space_handle: str = None,
         profile: str = None,
         config_file: str = None,
+        config: Configuration = None,
+        **kwargs,
     ):
         super().__init__(
             api_key=api_key,
@@ -37,6 +38,7 @@ class Steamship(Client):
             space_handle=space_handle,
             profile=profile,
             config_file=config_file,
+            config=config,
         )
         self.tasks = Tasks(self)
 
@@ -84,15 +86,6 @@ class Steamship(Client):
             space=space,
         )
 
-    def scrape(
-        self,
-        url: str,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
-    ) -> Response[File]:
-        return File.scrape(self, url, space_id=space_id, space_handle=space_handle, space=space)
-
     def embed_and_search(
         self,
         query: str,
@@ -103,33 +96,11 @@ class Steamship(Client):
         space_handle: str = None,
         space: Space = None,
     ) -> Response[QueryResults]:
-        req = EmbedAndSearchRequest(query=query, docs=docs, pluginInstance=plugin_instance, k=k)
+        req = EmbedAndSearchRequest(query=query, docs=docs, plugin_instance=plugin_instance, k=k)
         return self.post(
             "plugin/instance/embeddingSearch",
             req,
             expect=QueryResults,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
-        )
-
-    def tag(
-        self,
-        doc: str,
-        plugin_instance: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
-    ) -> Response[TagResponse]:
-        req = TagRequest(
-            type="inline",
-            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
-            pluginInstance=plugin_instance,
-        )
-        return self.post(
-            "plugin/instance/tag",
-            req,
-            expect=TagResponse,
             space_id=space_id,
             space_handle=space_handle,
             space=space,
@@ -143,3 +114,18 @@ class Steamship(Client):
         client = Steamship()
         client.config = self.config.for_space(space_id=space_id, space_handle=space_handle)
         return client
+
+    def get_space(self) -> Space:
+        # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes
+        # pre-configured with an API key and the Space in which this client should be operating.
+        # This is a way to load the model object for that space.
+        logging.info("New client get_space")
+        space = Space.get(self, id_=self.config.space_id, handle=self.config.space_handle)
+        if not space.data:
+            logging.error(f"Unable to get space.")
+            raise SteamshipError(
+                message="Error while retrieving the Space associated with this client config.",
+                internal_message=f"space_id={self.config.space_id}   space_handle={self.config.space_handle}",
+            )
+        logging.info(f"Got space: {space.data.id}")
+        return space.data

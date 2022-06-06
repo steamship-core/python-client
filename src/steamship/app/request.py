@@ -13,7 +13,7 @@ def event_to_config(event: dict) -> Configuration:
     if "invocationContext" not in event:
         raise Exception("invocationContext not in event")
 
-    return Configuration.from_dict(event["invocationContext"])
+    return Configuration.parse_obj(event["invocationContext"])
 
 
 class Verb:
@@ -37,15 +37,6 @@ class Invocation(BaseModel):
     arguments: Dict[str, Any] = None
     config: Dict[str, Any] = None
 
-    @staticmethod
-    def from_dict(d: dict) -> Invocation:
-        return Invocation(
-            httpVerb=d.get("httpVerb"),
-            appPath=d.get("appPath"),
-            arguments=d.get("arguments"),
-            config=d.get("config"),
-        )
-
 
 class Request(BaseModel):
     """An request of a method on an app instance.
@@ -58,11 +49,3 @@ class Request(BaseModel):
 
     clientConfig: Configuration = None
     invocation: Invocation = None
-
-    @staticmethod
-    def from_dict(d: dict) -> Request:
-        invocation = Invocation.from_dict(d.get("invocation", dict()))
-        client_config = Configuration.from_dict(
-            d.get("clientConfig", dict())
-        )  # TODO (enias): Review config dict
-        return Request(clientConfig=client_config, invocation=invocation)

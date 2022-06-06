@@ -1,13 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Optional
 
-from pydantic import BaseModel
-
-from steamship.base import Client
+from steamship.base.configuration import CamelModel
 
 
-class TrainPluginInput(BaseModel):
+class TrainPluginInput(CamelModel):
     """
     This is the object passed as input to a trainable operation, stored as the `input` field of a `train` task.
     """
@@ -32,30 +30,3 @@ class TrainPluginInput(BaseModel):
 
     # A pre-signed URL at which the trainable data can be found
     training_data_url: Optional[str] = None
-
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any = None, client: Client = None) -> Optional[TrainPluginInput]:
-        if d is None:
-            return None
-
-        return TrainPluginInput(
-            plugin_instance=d.get("pluginInstance"),
-            training_epochs=d.get("trainingEpochs"),
-            testing_holdout_percent=d.get("testingHoldoutPercent"),
-            test_split_seed=d.get("testSplitSeed"),
-            training_params=d.get("trainingParams"),
-            inference_params=d.get("inferenceParams"),
-            training_data_url=d.get("trainingDataUrl"),
-        )
-
-    def to_dict(self) -> Dict:
-        return dict(
-            pluginInstance=self.plugin_instance,
-            trainingEpochs=self.training_epochs,
-            testingHoldoutPercent=self.testing_holdout_percent,
-            testSplitSeed=self.test_split_seed,
-            trainingParams=self.training_params,
-            inferenceParams=self.inference_params,
-            trainingDataUrl=self.training_data_url,
-        )
