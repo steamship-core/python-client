@@ -15,6 +15,10 @@ def create_handler(app_cls: Type[App]):
 
     def _handler(event: Dict, _: Dict = None) -> Response:
         try:
+            logging.error(event.get("clientConfig", {}))
+            items = {to_snake_case(k): v for k, v in event.get("clientConfig", {}).items()}
+            logging.error(f"{items}")
+
             client = Steamship(
                 **{to_snake_case(k): v for k, v in event.get("clientConfig", {}).items()}
             )
