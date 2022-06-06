@@ -17,7 +17,7 @@ from steamship import Block, SteamshipError
 
 
 async def _model_call(session, text: str, api_url, headers, additional_params: dict = None) -> list:
-    json_input = dict(inputs=text, wait_for_model=True, parameters=additional_params)
+    json_input = dict(inputs=text, wait_for_model=False, parameters=additional_params)
     data = json.dumps(json_input)
 
     max_error_retries = 3
