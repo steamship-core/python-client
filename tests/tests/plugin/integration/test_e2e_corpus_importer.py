@@ -1,7 +1,7 @@
 from utils.random import temporary_space
 
 from steamship import File
-from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
+from steamship.data.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from tests import PLUGINS_PATH
 from tests.utils.deployables import deploy_plugin
 from tests.utils.fixtures import get_steamship_client
