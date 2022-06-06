@@ -54,7 +54,7 @@ async def _model_call(session, text: str, api_url, headers, additional_params: d
 async def _model_calls(
     texts: List[str], api_url: str, headers, additional_params: dict = None
 ) -> List[list]:
-    async with aiohttp.ClientSession(timeout=ClientTimeout(total=10)) as session:
+    async with aiohttp.ClientSession(timeout=ClientTimeout(total=30)) as session:
         tasks = []
         for text in texts:
             tasks.append(
