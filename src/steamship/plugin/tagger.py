@@ -82,4 +82,6 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
         """Exposes the Service's `train` operation to the Steamship Engine via the expected HTTP path POST /train"""
         logging.info(f"Tagger:train_endpoint called. Calling train {kwargs}")
         arg = PluginRequest[TrainPluginInput].parse_obj(kwargs)
-        return self.train(arg)
+        model = self.model_cls()()
+        model.receive_config(config=self.config)
+        return self.train(arg, model)

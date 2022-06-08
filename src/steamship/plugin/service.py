@@ -108,6 +108,7 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
             plugin_instance_id=request.plugin_instance_id,
             checkpoint_handle=None,  # Will use default
             use_cache=True,
+            plugin_instance_config=self.config,
         )
         logging.info("TrainablePluginService:run() - Loaded model; invoking run_with_model")
         return self.run_with_model(request, model)
@@ -136,6 +137,8 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
         pass
 
     @abstractmethod
-    def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
+    def train(
+        self, request: PluginRequest[TrainPluginInput], model: TrainableModel
+    ) -> Response[TrainPluginOutput]:
         """Train the model."""
         pass

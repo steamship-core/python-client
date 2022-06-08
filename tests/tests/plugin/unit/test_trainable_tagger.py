@@ -57,6 +57,7 @@ def test_trainable_tagger():
 
     # STEP 2. Training
     # The first part of trainable is to produce your own trainable parameters.
+    model = plugin.model_cls()()
     tagger1 = plugin.train(
         PluginRequest(
             data=TrainPluginInput(
@@ -64,7 +65,8 @@ def test_trainable_tagger():
             ),
             task_id="000",
             plugin_instance_id="000",
-        )
+        ),
+        model,
     )
     assert tagger1.data == TRAIN_RESPONSE.dict()
 
