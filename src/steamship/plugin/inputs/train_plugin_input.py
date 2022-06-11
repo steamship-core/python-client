@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Optional
 
+from pydantic import Field
+
 from steamship.base.configuration import CamelModel
 
 
@@ -29,4 +31,4 @@ class TrainPluginInput(CamelModel):
     inference_params: Optional[dict] = None
 
     # A pre-signed URL at which the trainable data can be found
-    training_data_url: Optional[str] = None
+    training_data_url: Optional[str] = Field(None, alias="trainingDataUrl")

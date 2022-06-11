@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Type, Union
 
 import pytest
@@ -19,15 +20,27 @@ class ValidStringToStringPlugin(PluginService):
         pass
 
 
-class ValidTrainableStringToStringPlugin(TrainableTagger):
-    class EmptyConfig(Config):
+class EmptyConfig(Config):
+    pass
+
+
+class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
+    def load_from_folder(self, checkpoint_path: Path):
         pass
 
+    def train(self, input: TrainPluginInput) -> TrainPluginOutput:
+        pass
+
+    def save_to_folder(self, checkpoint_path: Path):
+        pass
+
+
+class ValidTrainableStringToStringPlugin(TrainableTagger):
     def config_cls(self) -> Type[Config]:
-        return self.EmptyConfig
+        return EmptyConfig
 
     def model_cls(self) -> Type[TrainableModel]:
-        return TrainableModel
+        return ValidTrainableStringToStringModel
 
     def get_steamship_client(self) -> Client:
         return self.client
@@ -42,7 +55,7 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
     ) -> Response[TrainingParameterPluginOutput]:
         return Response(data=TrainingParameterPluginOutput())
 
-    def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
+    def train(self, request: PluginRequest[TrainPluginInput], model) -> Response[TrainPluginOutput]:
         return Response(data=TrainPluginOutput())
 
 
@@ -109,5 +122,6 @@ def test_non_trainable_plugin_lacks_train():
 
 def test_with_override_train_succeeds():
     trainable_plugin = ValidTrainableStringToStringPlugin()
-    trainable_plugin.train(PluginRequest(data=TrainPluginInput(plugin_instance="Foo")))
+    model = trainable_plugin.model_cls()()
+    trainable_plugin.train(PluginRequest(data=TrainPluginInput(plugin_instance="Foo")), model)
     trainable_plugin.train_endpoint()

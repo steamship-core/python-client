@@ -39,5 +39,4 @@ def test_zip_unzip():
     # Verify that the contents of dest are the contents of src
     src_files = os.listdir(Path(tempbase) / Path("src"))
     dest_files = os.listdir(dest_folder)
-    assert len(src_files) == 6
     assert src_files == dest_files
