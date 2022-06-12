@@ -16,7 +16,7 @@ from steamship import SteamshipError
 
 def get_value_at_keypath(
     input_dict: Optional[Dict],
-    keypath: List[str],
+    keypath: List[Union[str, int]],
     expect_type: Optional[Any] = None,
     required: bool = True,
 ) -> Optional[Any]:
@@ -34,13 +34,25 @@ def get_value_at_keypath(
                     message=f"[get_keypath] After traversing keypath {traversed_keypath} in object, found null instead of container for expected key {key}."
                 )
             return None
-        if key not in pointer:
-            if required:
-                raise SteamshipError(
-                    message=f"[get_keypath] After traversing keypath {traversed_keypath} in object, unable to find expected key {key}."
-                )
-            return None
-        pointer = pointer.get(key)
+
+        if isinstance(pointer, dict):
+            if key not in pointer:
+                if required:
+                    raise SteamshipError(
+                        message=f"[get_keypath] After traversing keypath {traversed_keypath} in object, unable to find expected key {key}."
+                    )
+                return None
+            traversed_keypath.append(key)
+            pointer = pointer.get(key, None)
+        elif isinstance(pointer, list):
+            if key < 0 or key >= len(pointer):
+                if required:
+                    raise SteamshipError(
+                        message=f"[get_keypath] After traversing keypath {traversed_keypath} in object, key {key} was out of range of list of length {len(pointer)}."
+                    )
+                return None
+            traversed_keypath.append(key)
+            pointer = pointer[key]
 
     # Final check for None
     if pointer is None:
@@ -70,7 +82,7 @@ class Mapping:
         - If both are None, an error is thrown.
     """
 
-    keypath: Optional[List[str]] = None
+    keypath: Optional[List[Union[str, int]]] = None
     expect_type: Optional[Any] = None
     required: bool = True
     const: Optional[Any] = None
@@ -109,7 +121,7 @@ def reshape_dict(
 
 def reshape_array_of_dicts(
     input_dict: Dict,
-    array_keypath: List[str],
+    array_keypath: List[Union[str, int]],
     array_required: bool,
     mappings: Dict[str, Mapping],
     into_base_model: Optional[Type[BaseModel]] = None,

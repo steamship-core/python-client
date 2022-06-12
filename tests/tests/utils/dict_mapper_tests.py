@@ -101,6 +101,55 @@ def test_reshape_dict():
     assert t1.end_idx == 2
 
 
+E1span = {"entity": {"kind": "ORG", "span": [1, 2]}}
+
+E_MAPPINGspan = {
+    "kind": Mapping(const="TEST"),
+    "name": Mapping(keypath=["entity", "kind"]),
+    "start_idx": Mapping(keypath=["entity", "span", 0], expect_type=int, required=False),
+    "end_idx": Mapping(keypath=["entity", "span", 1], expect_type=int, required=False),
+}
+
+
+def test_reshape_dict_span():
+    # As a RawDict
+    d1 = reshape_dict(E1span, mappings=E_MAPPINGspan)
+    assert d1["kind"] == "TEST"
+    assert d1["name"] == "ORG"
+    assert d1["start_idx"] == 1
+    assert d1["end_idx"] == 2
+
+    # Cast as a BaseModel
+    t1 = cast(
+        Tag.CreateRequest,
+        reshape_dict(E1span, mappings=E_MAPPINGspan, into_base_model=Tag.CreateRequest),
+    )
+    assert t1.kind == "TEST"
+    assert t1.name == "ORG"
+    assert t1.start_idx == 1
+    assert t1.end_idx == 2
+
+    # Array out of bounds just returns None if not required
+    BAD_NONE = {
+        "kind": Mapping(const="TEST"),
+        "name": Mapping(keypath=["entity", "kind"]),
+        "start_idx": Mapping(keypath=["entity", "span", 0], expect_type=int, required=False),
+        "end_idx": Mapping(keypath=["entity", "span", 2], expect_type=int, required=False),
+    }
+    d1 = reshape_dict(E1span, mappings=BAD_NONE)
+    assert d1["end_idx"] is None
+
+    # Array out of bounds throws if required
+    with pytest.raises(SteamshipError):
+        BAD = {
+            "kind": Mapping(const="TEST"),
+            "name": Mapping(keypath=["entity", "kind"]),
+            "start_idx": Mapping(keypath=["entity", "span", 0], expect_type=int, required=True),
+            "end_idx": Mapping(keypath=["entity", "span", 2], expect_type=int, required=True),
+        }
+        d1 = reshape_dict(E1span, mappings=BAD)
+
+
 def test_reshape_array_of_dicts():
     # As dicts
     ds = reshape_array_of_dicts(
