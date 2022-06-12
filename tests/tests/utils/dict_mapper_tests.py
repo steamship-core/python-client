@@ -1,9 +1,16 @@
 from __future__ import annotations
 
+from typing import cast
+
 import pytest
 
-from steamship import SteamshipError
-from steamship.utils.dict_mapper import Mapping, get_value_at_keypath
+from steamship import SteamshipError, Tag
+from steamship.utils.dict_mapper import (
+    Mapping,
+    get_value_at_keypath,
+    reshape_array_of_dicts,
+    reshape_dict,
+)
 
 
 def test_get_value_at_keypath_required_arg():
@@ -61,3 +68,69 @@ def test_mapping():
 
     with pytest.raises(SteamshipError):
         assert Mapping(keypath=["foo", "bar"], expect_type=int, required=True).resolve_against(DICT)
+
+
+E1 = {"entity": {"kind": "ORG", "start": 1, "end": 2}}
+E2 = {"entity": {"kind": "GEO"}}
+E3 = {"entity": {"kind": "PER", "start": 1}}
+ES = {"entities": [E1, E2, E3]}
+
+E_MAPPING = {
+    "kind": Mapping(const="TEST"),
+    "name": Mapping(keypath=["entity", "kind"]),
+    "start_idx": Mapping(keypath=["entity", "start"], expect_type=int, required=False),
+    "end_idx": Mapping(keypath=["entity", "end"], expect_type=int, required=False),
+}
+
+
+def test_reshape_dict():
+    # As a RawDict
+    d1 = reshape_dict(E1, mappings=E_MAPPING)
+    assert d1["kind"] == "TEST"
+    assert d1["name"] == "ORG"
+    assert d1["start_idx"] == 1
+    assert d1["end_idx"] == 2
+
+    # Cast as a BaseModel
+    t1 = cast(
+        Tag.CreateRequest, reshape_dict(E1, mappings=E_MAPPING, into_base_model=Tag.CreateRequest)
+    )
+    assert t1.kind == "TEST"
+    assert t1.name == "ORG"
+    assert t1.start_idx == 1
+    assert t1.end_idx == 2
+
+
+def test_reshape_array_of_dicts():
+    # As dicts
+    ds = reshape_array_of_dicts(
+        ES, array_keypath=["entities"], array_required=True, mappings=E_MAPPING
+    )
+
+    assert len(ds) == 3
+    d1 = ds[0]
+    assert d1["kind"] == "TEST"
+    assert d1["name"] == "ORG"
+    assert d1["start_idx"] == 1
+    assert d1["end_idx"] == 2
+
+    # As dicts
+    ts = reshape_array_of_dicts(
+        ES,
+        array_keypath=["entities"],
+        array_required=True,
+        mappings=E_MAPPING,
+        into_base_model=Tag.CreateRequest,
+    )
+
+    assert len(ts) == 3
+    t1 = cast(Tag.CreateRequest, ts[0])
+    assert t1.kind == "TEST"
+    assert t1.name == "ORG"
+    assert t1.start_idx == 1
+    assert t1.end_idx == 2
+
+
+def test_reshape_array_of_dicts_failures():
+    with pytest.raises(SteamshipError):
+        reshape_array_of_dicts(ES, array_keypath=["d"], array_required=True, mappings=E_MAPPING)

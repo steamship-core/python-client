@@ -92,7 +92,9 @@ class Mapping:
 
 
 def reshape_dict(
-    input_dict: Dict, mappings: Dict[str, Mapping], into_base_model: Optional[Type[BaseModel]]
+    input_dict: Dict,
+    mappings: Dict[str, Mapping],
+    into_base_model: Optional[Type[BaseModel]] = None,
 ) -> Union[Dict, BaseModel]:
     """Produces a new, 1-level deep, dictionary or BaseModel from a set of mappings against `input_dict`
 
