@@ -28,6 +28,15 @@ class Response(GenericModel, Generic[T]):
     def data(self):
         if self.error:
             raise self.error
+        if self.task is not None:
+            if self.task.state == TaskState.failed:
+                raise SteamshipError(
+                    "Asynchronous call failed. No error available. Please contact support."
+                )
+            if self.task.state != TaskState.succeeded and self.data_ is None:
+                raise SteamshipError(
+                    "Data not available yet for asynchronous call. Please call .wait() before accessing .data"
+                )
         return self.data_
 
     def update(self, response: Response[T]):
