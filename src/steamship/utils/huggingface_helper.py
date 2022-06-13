@@ -16,8 +16,14 @@ from aiohttp import ClientTimeout
 from steamship import Block, SteamshipError
 
 
-async def _model_call(session, text: str, api_url, headers, additional_params: dict = None) -> list:
-    json_input = dict(inputs=text, wait_for_model=False, parameters=additional_params)
+async def _model_call(
+    session, text: str, api_url, headers, additional_params: dict = None, use_gpu: bool = False
+) -> list:
+    json_input = dict(
+        inputs=text,
+        parameters=additional_params,
+        options=dict(use_gpu=use_gpu, wait_for_model=False),
+    )
     data = json.dumps(json_input)
 
     max_error_retries = 3
@@ -57,6 +63,7 @@ async def _model_calls(
     headers,
     timeout_seconds: int,
     additional_params: dict = None,
+    use_gpu: bool = False,
 ) -> List[list]:
     async with aiohttp.ClientSession(timeout=ClientTimeout(total=timeout_seconds)) as session:
         tasks = []
@@ -64,7 +71,12 @@ async def _model_calls(
             tasks.append(
                 asyncio.ensure_future(
                     _model_call(
-                        session, text, api_url, headers=headers, additional_params=additional_params
+                        session,
+                        text,
+                        api_url,
+                        headers=headers,
+                        additional_params=additional_params,
+                        use_gpu=use_gpu,
                     )
                 )
             )
@@ -79,6 +91,7 @@ def get_huggingface_results(
     hf_bearer_token: str,
     additional_params: dict = None,
     timeout_seconds: int = 30,
+    use_gpu: bool = False,
 ) -> List[list]:
     api_url = f"https://api-inference.huggingface.co/models/{hf_model_path}"
     headers = {"Authorization": f"Bearer {hf_bearer_token}"}
@@ -90,6 +103,7 @@ def get_huggingface_results(
             headers,
             timeout_seconds=timeout_seconds,
             additional_params=additional_params,
+            use_gpu=use_gpu,
         )
     )
     total_time = time.perf_counter() - start_time
