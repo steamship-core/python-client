@@ -46,8 +46,8 @@ class File(CamelModel):
     mime_type: str = None
     space_id: str = None
     corpus_id: str = None
-    blocks: List[Block] = None
-    tags: List[Tag] = None
+    blocks: List[Block] = []
+    tags: List[Tag] = []
     filename: str = None
 
     class CreateRequest(Request):
@@ -59,8 +59,8 @@ class File(CamelModel):
         type: FileUploadType = None
         mime_type: str = None
         corpusId: str = None
-        blocks: List[Block.CreateRequest] = None
-        tags: List[Tag.CreateRequest] = None
+        blocks: List[Block.CreateRequest] = []
+        tags: List[Tag.CreateRequest] = []
         plugin_instance: str = None
 
         class Config:
