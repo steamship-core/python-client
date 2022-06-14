@@ -116,7 +116,7 @@ def reshape_dict(
 
     if into_base_model is not None:
         return into_base_model(**ret)
-    return ret
+    return ret if into_base_model is None else into_base_model(**ret)
 
 
 def reshape_array_of_dicts(
