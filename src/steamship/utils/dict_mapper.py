@@ -112,7 +112,7 @@ def reshape_dict(
 
     - If `into_pydantic` is not None, the resulting dictionary will be parsed into the provided Pydantic class.
     """
-    ret = {key: mappings[key].resolve_against(input_dict) for key in mappings}
+    ret = {key: mapping.resolve_against(input_dict) for key, mapping in mappings.items()}
 
     if into_base_model is not None:
         return into_base_model(**ret)
