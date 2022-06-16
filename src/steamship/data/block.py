@@ -17,13 +17,13 @@ class Block(CamelModel):
     id: str = None
     file_id: str = None
     text: str = None
-    tags: List[Tag] = None
+    tags: List[Tag] = []
 
     class CreateRequest(Request):
         id: str = None
         file_id: str = None
         text: str = None
-        tags: List[Tag.CreateRequest] = None
+        tags: List[Tag.CreateRequest] = []
         upsert: bool = None
 
     class DeleteRequest(Request):
@@ -33,7 +33,7 @@ class Block(CamelModel):
         file_id: str = None
 
     class ListResponse(Response):
-        blocks: List[Block] = None
+        blocks: List[Block] = []
 
     @staticmethod
     def get(
