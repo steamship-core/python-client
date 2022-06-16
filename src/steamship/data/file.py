@@ -3,7 +3,7 @@ from __future__ import annotations
 import io
 import logging
 from enum import Enum
-from typing import Any, List, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from pydantic import BaseModel
 
@@ -59,8 +59,8 @@ class File(CamelModel):
         type: FileUploadType = None
         mime_type: str = None
         corpusId: str = None
-        blocks: List[Block.CreateRequest] = []
-        tags: List[Tag.CreateRequest] = []
+        blocks: Optional[List[Block.CreateRequest]] = []
+        tags: Optional[List[Tag.CreateRequest]] = []
         plugin_instance: str = None
 
         class Config:
@@ -360,3 +360,4 @@ class FileQueryResponse(Response):
 
 
 File.ListResponse.update_forward_refs()
+File.CreateRequest.update_forward_refs()
