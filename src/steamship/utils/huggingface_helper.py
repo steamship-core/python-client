@@ -7,7 +7,7 @@ import asyncio
 import logging
 import time
 from http import HTTPStatus
-from typing import List
+from typing import List, Optional
 
 import aiohttp
 from aiohttp import ClientTimeout
@@ -17,10 +17,10 @@ from steamship import Block, SteamshipError
 
 async def _model_call(
     session, text: str, api_url, headers, additional_params: dict = None, use_gpu: bool = False
-) -> list:
+) -> Optional[list]:
     additional_params = additional_params or {}
     json_input = dict(
-        inputs=text,
+        inputs=text or "",
         parameters=additional_params,
         options=dict(use_gpu=use_gpu, wait_for_model=False),
     )
