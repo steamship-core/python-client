@@ -9,6 +9,7 @@ from steamship.base import Client, Task
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -23,10 +24,10 @@ logging.getLogger().setLevel(logging.INFO)
 TRAINING_PARAMETERS = TrainingParameterPluginOutput(
     training_epochs=3,
     testing_holdout_percent=0.3,
-    training_params=dict(keywords=["chocolate", "roses", "chanpagne"]),
+    training_params=dict(keywords=["chocolate", "roses", "champagne"]),
 )
 
-TRAIN_RESPONSE = TrainPluginOutput()
+TRAIN_RESPONSE = TrainPluginOutput(training_complete=True)
 
 
 class EmptyConfig(Config):
@@ -189,6 +190,12 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         # to indicate that, while the plugin handler has returned, the plugin's execution continues.
         logging.info(f"TestTrainableTaggerPlugin:train() returning {response}")
         return response
+
+    def train_status(
+        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
+    ) -> Response[TrainPluginOutput]:
+        # This plugin never keeps a training task going beyond one function call.  This method should not be called.
+        raise NotImplementedError()
 
 
 handler = create_handler(TestTrainableTaggerPlugin)

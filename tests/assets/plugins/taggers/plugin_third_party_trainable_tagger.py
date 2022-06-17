@@ -20,6 +20,7 @@ from steamship.base import Task
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -120,7 +121,14 @@ class ThirdPartyModel(TrainableModel):
         model_id = self.client.train(data_file_id)
         self.params["model_id"] = model_id
 
-        return TrainPluginOutput()
+        reference_data = {"num_checkins": 0}
+        return TrainPluginOutput(training_complete=False, training_reference_data=reference_data)
+
+    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+        reference_data = input.training_reference_data
+        reference_data["num_checkins"] += 1
+        complete = reference_data["num_checkins"] > 2
+        return TrainPluginOutput(training_complete=complete, training_reference_data=reference_data)
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]

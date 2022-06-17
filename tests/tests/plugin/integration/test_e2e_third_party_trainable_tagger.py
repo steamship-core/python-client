@@ -51,6 +51,10 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         train_result = tagger_instance.train(training_request)
         train_result.wait()
         assert train_result.data is not None
+        output = train_result.data
+        assert output.training_complete
+        assert output.training_reference_data is not None
+        assert output.training_reference_data["num_checkins"] == 3
 
         logging.info("Waiting 15 seconds for instance to deploy.")
         import time
