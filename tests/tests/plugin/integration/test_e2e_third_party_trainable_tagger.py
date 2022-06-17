@@ -16,14 +16,14 @@ EXPORTER_HANDLE = "signed-url-exporter"
 
 def test_e2e_third_party_trainable_tagger_lambda_training():
     client = get_steamship_client()
-    spaceR = Space.get(client)
+    spaceR = Space.get(client)  # TODO (enias): Remove
     assert spaceR.data is not None
 
     exporter_plugin_r = PluginInstance.create(
         client=client,
         handle=EXPORTER_HANDLE,
         plugin_handle=EXPORTER_HANDLE,
-        upsert=True,
+        upsert=True,  # Don't care if it already exists
     )
     assert exporter_plugin_r.data is not None
     exporter_plugin = exporter_plugin_r.data
@@ -44,10 +44,9 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         training_request = TrainingParameterPluginInput(
             plugin_instance=tagger_instance.handle,
             export_plugin_input=ExportPluginInput(
-                plugin_instance=exporter_plugin.handle, type="corpus", handle="default"
+                plugin_instance=exporter_plugin.handle, type="file", query='kind "foo1"'
             ),
         )
-        # TODO (enias): DEBUG HERE
         train_result = tagger_instance.train(training_request)
         train_result.wait()
         assert train_result.data is not None

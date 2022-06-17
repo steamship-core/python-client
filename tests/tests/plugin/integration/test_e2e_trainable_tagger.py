@@ -63,7 +63,7 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
                 training_request = TrainingParameterPluginInput(
                     plugin_instance=tagger_instance.handle,
                     export_plugin_input=ExportPluginInput(
-                        plugin_instance=EXPORTER_HANDLE, type="corpus", handle="default"
+                        plugin_instance=EXPORTER_HANDLE, type="file", query='kind "foo1"'
                     ),
                     training_params=dict(
                         keyword_list=KEYWORDS  # This is a key defined by the test model we're training

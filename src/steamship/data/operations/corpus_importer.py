@@ -8,10 +8,9 @@ from steamship.base import Client, Request, Response
 
 class CorpusImportRequest(Request):
     # The Corpus Identifiers
-    client: Client = None
     id: str = None
     handle: str = None
-    type: str = "corpus"
+    type: str = "file"
 
     # Data for the plugin
     value: str = None
