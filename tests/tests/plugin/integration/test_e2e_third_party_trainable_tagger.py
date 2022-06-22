@@ -44,7 +44,7 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         training_request = TrainingParameterPluginInput(
             plugin_instance=tagger_instance.handle,
             export_plugin_input=ExportPluginInput(
-                plugin_instance=exporter_plugin.handle, type="corpus", handle="default"
+                plugin_instance=exporter_plugin.handle, type="file", query="all"
             ),
         )
         # TODO (enias): DEBUG HERE
