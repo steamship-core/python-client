@@ -7,6 +7,7 @@ from typing_extensions import TypeAlias
 
 from steamship.base import Client
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 
@@ -104,6 +105,11 @@ class TrainableModel(ABC, Generic[ConfigType]):
     @abstractmethod
     def train(self, input: TrainPluginInput) -> TrainPluginOutput:
         """Train or fine-tune the model, parameterized by the information in the TrainPluginInput object."""
+        raise NotImplementedError()
+
+    @abstractmethod
+    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+        """Check on the status of an in-process training job, if it is running externally asynchronously."""
         raise NotImplementedError()
 
     @classmethod

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List
+from typing import Any, List, Optional
 
 from steamship.base import Client, Request, Response
 from steamship.base.configuration import CamelModel
@@ -17,13 +17,13 @@ class Block(CamelModel):
     id: str = None
     file_id: str = None
     text: str = None
-    tags: List[Tag] = None
+    tags: Optional[List[Tag]] = []
 
     class CreateRequest(Request):
         id: str = None
         file_id: str = None
         text: str = None
-        tags: List[Tag.CreateRequest] = None
+        tags: Optional[List[Tag.CreateRequest]] = []
         upsert: bool = None
 
     class DeleteRequest(Request):
@@ -33,7 +33,7 @@ class Block(CamelModel):
         file_id: str = None
 
     class ListResponse(Response):
-        blocks: List[Block] = None
+        blocks: List[Block] = []
 
     @staticmethod
     def get(
@@ -119,3 +119,4 @@ class BlockQueryResponse(Response):
 
 
 Block.ListResponse.update_forward_refs()
+Block.update_forward_refs()
