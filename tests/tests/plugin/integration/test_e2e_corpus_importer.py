@@ -1,7 +1,7 @@
 from utils.random import temporary_space
 
-from steamship import File, PluginInstance
-from steamship.client.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
+from steamship import File
+from steamship.data.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from tests import PLUGINS_PATH
 from tests.utils.deployables import deploy_plugin
 from tests.utils.fixtures import get_steamship_client
@@ -23,7 +23,7 @@ def test_e2e_corpus_importer():
         # test_file_importer_instance = PluginInstance.create(
         #     client, plugin_handle="test-fileImporter-valueOrData", upsert=True, space_id=space.id
         # ).data
-        with deploy_plugin(client, file_importer_path, "fileImporter") as (
+        with deploy_plugin(client, file_importer_path, "fileImporter", space_id=space.id) as (
             _,
             _,
             fi_instance,
@@ -39,8 +39,8 @@ def test_e2e_corpus_importer():
                     type="corpus",  # TODO: This will be replaced with a tag reference
                     handle="default",  # The default corpus
                     value="dummy-value",
-                    pluginInstance=instance.handle,
-                    fileImporterPluginInstance=fi_instance.handle,
+                    plugin_instance=instance.handle,
+                    file_importer_plugin_instance=fi_instance.handle,
                 )
                 res = client.post(
                     "plugin/instance/importCorpus",

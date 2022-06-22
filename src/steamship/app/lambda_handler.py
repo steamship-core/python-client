@@ -11,10 +11,14 @@ from steamship.client.client import Steamship
 
 
 def create_handler(app_cls: Type[App]):
-    """Wrapper function for an Steamship app within an AWS Lambda function."""
+    """Wrapper function for a Steamship app within an AWS Lambda function."""
 
     def _handler(event: Dict, _: Dict = None) -> Response:
         try:
+            logging.error(event.get("clientConfig", {}))
+            items = {to_snake_case(k): v for k, v in event.get("clientConfig", {}).items()}
+            logging.error(f"{items}")
+
             client = Steamship(
                 **{to_snake_case(k): v for k, v in event.get("clientConfig", {}).items()}
             )
@@ -30,7 +34,7 @@ def create_handler(app_cls: Type[App]):
             )
 
         try:
-            request = Request.from_dict(event)
+            request = Request.parse_obj(event)
         except SteamshipError as se:
             logging.exception(se)
             return Response.from_obj(se)
@@ -62,8 +66,6 @@ def create_handler(app_cls: Type[App]):
 
         try:
             response = app(request)
-            logging.info(f"Calling response {Response.from_obj(response)}")
-            logging.info(f"Calling response {type(Response.from_obj(response))}")
             return Response.from_obj(response)
         except SteamshipError as se:
             logging.exception(se)
@@ -84,8 +86,6 @@ def create_handler(app_cls: Type[App]):
 
     def handler(event: Dict, context: Dict = None) -> dict:
         response = _handler(event, context)
-        logging.info(f"to dict in handler: {type(response)}")
-        logging.info(f"to dict in handler: {response.to_dict()}")
-        return response.to_dict()
+        return response.dict(by_alias=True)
 
     return handler

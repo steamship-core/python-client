@@ -7,6 +7,7 @@ from pydantic.generics import GenericModel
 
 from steamship.base.error import SteamshipError
 from steamship.base.tasks import Task, TaskState, TaskStatusRequest
+from steamship.base.utils import to_camel
 
 T = TypeVar("T")  # Declare type variable
 
@@ -20,11 +21,22 @@ class Response(GenericModel, Generic[T]):
 
     class Config:
         arbitrary_types_allowed = True  # This is required to support SteamshipError
+        alias_generator = to_camel
+        allow_population_by_field_name = True
 
     @property
     def data(self):
         if self.error:
             raise self.error
+        if self.task is not None:
+            if self.task.state == TaskState.failed:
+                raise SteamshipError(
+                    "Asynchronous call failed. No error available. Please contact support."
+                )
+            if self.task.state != TaskState.succeeded and self.data_ is None:
+                raise SteamshipError(
+                    "Data not available yet for asynchronous call. Please call .wait() before accessing .data"
+                )
         return self.data_
 
     def update(self, response: Response[T]):

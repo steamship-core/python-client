@@ -10,14 +10,13 @@ version_scheme = "no-guess-dev"
 [project]
 name = "steamship"
 description = "TEST"
-version = "0.0.1"
 dependencies = [
     "requests==2.27.1",
     "pydantic==1.9.0",
     "aiohttp==3.8.1",
-    "inflection==0.5.1"
+    "inflection==0.5.1",
 ]
-
+dynamic = ["version"]
 
 # https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
 [tool.black]
@@ -57,7 +56,7 @@ convention = "numpy"
 # https://docs.pytest.org/en/latest/customize.html#adding-default-options
 [tool.pytest.ini_options]
 # TODO (enias) add back strict -W error
-addopts = "-W ignore::DeprecationWarning --doctest-modules --failed-first --strict-config --strict-markers --verbosity=2 --junitxml=reports/pytest.xml"
+addopts = "-W ignore::DeprecationWarning --doctest-modules --verbosity=2"
 junit_family = "xunit2"
 testpaths = "tests"
 python_functions = "test_*"

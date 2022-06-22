@@ -17,16 +17,12 @@ class TrainingPlatform(str, Enum):
 class PluginInstance(BaseModel):
     training_platform: TrainingPlatform
 
-    @staticmethod
-    def from_dict(d: dict):
-        return PluginInstance(training_platform=d.get("training_platform"))
-
 
 def test_enum_serialization_behavior():
     assert json.dumps(TrainingPlatform.ECS) == '"ecs"'
 
-    t1 = PluginInstance.from_dict({"training_platform": "ecs"})
-    t2 = PluginInstance.from_dict({"training_platform": "lambda"})
+    t1 = PluginInstance.parse_obj({"training_platform": "ecs"})
+    t2 = PluginInstance.parse_obj({"training_platform": "lambda"})
 
     assert t1.training_platform == TrainingPlatform.ECS
     assert t2.training_platform == TrainingPlatform.LAMBDA

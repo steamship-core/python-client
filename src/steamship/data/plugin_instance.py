@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type, Union
 
 from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
+from steamship.base.configuration import CamelModel
 from steamship.data.plugin import (
     HostingCpu,
     HostingEnvironment,
@@ -18,6 +19,10 @@ from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
+from .block import Block
+from .file import File
+from .operations.tagger import TagRequest, TagResponse
+
 
 class GetPluginInstanceRequest(Request):
     id: Optional[str] = None
@@ -26,10 +31,10 @@ class GetPluginInstanceRequest(Request):
 
 class CreatePluginInstanceRequest(Request):
     id: str = None
-    pluginId: str = None
-    pluginHandle: str = None
-    pluginVersionId: str = None
-    pluginVersionHandle: str = None
+    plugin_id: str = None
+    plugin_handle: str = None
+    plugin_version_id: str = None
+    plugin_version_handle: str = None
     handle: str = None
     upsert: bool = None
     config: Dict[str, Any] = None
@@ -39,7 +44,7 @@ class DeletePluginInstanceRequest(Request):
     id: str
 
 
-class PluginInstance(BaseModel):
+class PluginInstance(CamelModel):
     client: Client = None
     id: str = None
     handle: str = None
@@ -54,42 +59,11 @@ class PluginInstance(BaseModel):
     hosting_timeout: Optional[HostingTimeout] = None
     hosting_environment: Optional[HostingEnvironment] = None
 
-    def to_dict(self) -> dict:
-        return dict(
-            id=self.id,
-            handle=self.handle,
-            pluginId=self.plugin_id,
-            pluginVersionId=self.plugin_version_id,
-            spaceId=self.space_id,
-            userId=self.user_id,
-            config=self.config,
-            hostingType=self.hosting_type,
-            hostingCpu=self.hosting_cpu,
-            hostingMemory=self.hosting_memory,
-            hostingTimeout=self.hosting_timeout,
-            hostingEnvironment=self.hosting_environment,
-        )
-
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> PluginInstance:
-        if "pluginInstance" in d:
-            d = d["pluginInstance"]
-
-        return PluginInstance(
-            client=client,
-            id=d.get("id"),
-            handle=d.get("handle"),
-            plugin_id=d.get("pluginId"),
-            plugin_version_id=d.get("pluginVersionId"),
-            config=d.get("config"),
-            user_id=d.get("userId"),
-            space_id=d.get("spaceId"),
-            hosting_type=d.get("hostingType"),
-            hosting_cpu=d.get("hostingCpu"),
-            hosting_memory=d.get("hostingMemory"),
-            hosting_timeout=d.get("hostingTimeout"),
-            hosting_environment=d.get("hostingEnvironment"),
-        )
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["pluginInstance"] if "pluginInstance" in obj else obj
+        return super().parse_obj(obj)
 
     @staticmethod
     def create(
@@ -105,10 +79,10 @@ class PluginInstance(BaseModel):
     ) -> Response[PluginInstance]:
         req = CreatePluginInstanceRequest(
             handle=handle,
-            pluginId=plugin_id,
-            pluginHandle=plugin_handle,
-            pluginVersionId=plugin_version_id,
-            pluginVersionHandle=plugin_version_handle,
+            plugin_id=plugin_id,
+            plugin_handle=plugin_handle,
+            plugin_version_id=plugin_version_id,
+            plugin_version_handle=plugin_version_handle,
             upsert=upsert,
             config=config,
         )
@@ -126,6 +100,21 @@ class PluginInstance(BaseModel):
             "plugin/instance/get", GetPluginInstanceRequest(handle=handle), expect=PluginInstance
         )
 
+    def tag(
+        self,
+        doc: Union[str, File],
+    ) -> Response[TagResponse]:
+        req = TagRequest(
+            type="inline",
+            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
+            plugin_instance=self.handle,
+        )
+        return self.client.post(
+            "plugin/instance/tag",
+            req,
+            expect=TagResponse,
+        )
+
     def delete(self) -> PluginInstance:
         req = DeletePluginInstanceRequest(id=self.id)
         return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
@@ -138,7 +127,10 @@ class PluginInstance(BaseModel):
 
     def train(self, training_request: TrainingParameterPluginInput) -> Response[TrainPluginOutput]:
         return self.client.post(
-            "plugin/instance/train", payload=training_request, expect=TrainPluginOutput
+            "plugin/instance/train",
+            space_id=self.space_id,
+            payload=training_request,
+            expect=TrainPluginOutput,
         )
 
     def get_training_parameters(

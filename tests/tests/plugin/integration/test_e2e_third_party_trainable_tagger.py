@@ -1,15 +1,12 @@
 import logging
 
 from assets.plugins.taggers.plugin_third_party_trainable_tagger import MockClient
-from assets.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerModel
-from utils.file import upload_file
 
 from steamship.data.plugin import HostingType
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.space import Space
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from tests import PLUGINS_PATH
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
@@ -46,14 +43,18 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         # Now train the plugin
         training_request = TrainingParameterPluginInput(
             plugin_instance=tagger_instance.handle,
-            export_request=ExportPluginInput(
-                plugin_instance=EXPORTER_HANDLE, type="corpus", handle="default"
+            export_plugin_input=ExportPluginInput(
+                plugin_instance=exporter_plugin.handle, type="file", query="all"
             ),
         )
-
+        # TODO (enias): DEBUG HERE
         train_result = tagger_instance.train(training_request)
         train_result.wait()
         assert train_result.data is not None
+        output = train_result.data
+        assert output.training_complete
+        assert output.training_reference_data is not None
+        assert output.training_reference_data["num_checkins"] == 3
 
         logging.info("Waiting 15 seconds for instance to deploy.")
         import time
@@ -65,7 +66,7 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
 
         # First we'll create a file
         test_doc = "Hi there"
-        res = client.tag(doc=test_doc, plugin_instance=tagger_instance.handle)
+        res = tagger_instance.tag(doc=test_doc)
         res.wait()
         assert res.error is None
         assert res.data is not None

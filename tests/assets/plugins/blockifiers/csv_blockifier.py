@@ -69,7 +69,7 @@ class CsvBlockifier(Blockifier):
         if isinstance(data, bytes):
             data = data.decode("utf-8")
 
-        if type(data) != str:
+        if not isinstance(data, str):
             return Response(
                 error=SteamshipError(message="The incoming data was not of expected String type")
             )

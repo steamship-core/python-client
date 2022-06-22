@@ -55,7 +55,7 @@ def zip_deployable(file_path: Path) -> bytes:
                 "idna",
                 "pydantic==1.9.0",
                 "typing_extensions",
-                "inflection",
+                "inflection==0.5.1",
             ]:
                 install_package(package, into_folder=package_dir)
             # Now write that whole folder
@@ -63,6 +63,13 @@ def zip_deployable(file_path: Path) -> bytes:
                 for file in files:
                     pypi_file = Path(root) / file
                     zip_file.write(pypi_file, pypi_file.relative_to(package_dir))
+
+    # Leaving this in as a reminder: this is an easy way to generate the app zip for use in
+    # updating engine unit tests.
+    #
+    # with open("demo_app.zip", 'wb') as f:
+    #     f.write(zip_buffer.getvalue())
+    #
 
     return zip_buffer.getvalue()
 

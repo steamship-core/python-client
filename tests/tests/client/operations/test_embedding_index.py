@@ -1,6 +1,3 @@
-import pytest
-
-from steamship import SteamshipError
 from steamship.base import Client
 from steamship.base.response import TaskState
 from steamship.data.embeddings import EmbeddedItem
@@ -67,12 +64,12 @@ def test_insert_many():
     plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
     with random_index(steamship, plugin_instance.handle) as index:
         item1 = EmbeddedItem(
-            value="Pizza", externalId="pizza", externalType="food", metadata=[1, 2, 3]
+            value="Pizza", external_id="pizza", external_type="food", metadata=[1, 2, 3]
         )
         item2 = EmbeddedItem(
             value="Rocket Ship",
-            externalId="space",
-            externalType="vehicle",
+            external_id="space",
+            external_type="vehicle",
             metadata="Foo",
         )
 
@@ -91,15 +88,15 @@ def test_insert_many():
         assert res.data.items is not None
         assert len(res.data.items) == 2
         assert res.data.items[0].value.value == item1.value
-        assert res.data.items[0].value.external_id == item1.externalId
-        assert res.data.items[0].value.external_type == item1.externalType
+        assert res.data.items[0].value.external_id == item1.external_id
+        assert res.data.items[0].value.external_type == item1.external_type
         _list_equal(res.data.items[0].value.metadata, item1.metadata)
 
         res = index.search(item2.value, include_metadata=True)
         assert res.data.items is not None
         assert res.data.items[0].value.value == item2.value
-        assert res.data.items[0].value.external_id == item2.externalId
-        assert res.data.items[0].value.external_type == item2.externalType
+        assert res.data.items[0].value.external_id == item2.external_id
+        assert res.data.items[0].value.external_type == item2.external_type
         assert res.data.items[0].value.metadata == item2.metadata
 
 

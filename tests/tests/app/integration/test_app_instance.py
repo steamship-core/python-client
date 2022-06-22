@@ -3,12 +3,22 @@ import base64
 import requests
 
 from steamship import Space
+from steamship.base import TaskState
 from steamship.base.mime_types import MimeTypes
-from steamship.base.tasks import TaskState
-from steamship.data.app_instance import AppInstance
+from steamship.data.user import User
 from tests import APPS_PATH, TEST_ASSETS_PATH
 from tests.utils.deployables import deploy_app
 from tests.utils.fixtures import get_steamship_client
+
+
+def _fix_url(s: str) -> str:
+    """Homogenize references to `this machine` for the purpose of comparing remote configuration and local
+    configuration. The goal of the below tests isn't to check that your machine has been configured in the
+    "approved way" (which is to use host.docker.internal). It is merely to make sure that the environment
+    has been passed to the app instance correctly."""
+    s = s.replace("localhost", "host.docker.internal").replace("127.0.0.1", "host.docker.internal")
+    s = s.removesuffix("/")
+    return s
 
 
 def test_instance_invoke():
@@ -93,17 +103,30 @@ def test_instance_invoke():
         assert base64_image == base64_palm
         assert resp_image.headers.get("Content-Type") == MimeTypes.PNG
 
-        # We can load this app, and it is the same app!, via the client helper.
-        quick_loaded = client.app(app.handle, instance.handle)
-        assert quick_loaded.id == instance.id
-        assert isinstance(quick_loaded, AppInstance)
+        # The test app, when executing remotely inside Steamship, should have the same
+        # set of configuration options that we're running with here within the test
+        configuration_within_lambda_resp = instance.get("config")
+        configuration_within_lambda = configuration_within_lambda_resp.data
 
-        # We can quickly create a NEW instance of this app by simply passing the client helper a different handle
-        quick_created_2 = client.app(app.handle, f"{instance.handle}-2")
-        assert quick_created_2.id != instance.id
-        assert isinstance(quick_created_2, AppInstance)
-        assert quick_created_2.post("greet", name="Ted").data == "Hello, Ted!"
-        quick_created_2.delete()
+        myAppBase = _fix_url(client.config.app_base)
+        remoteAppBase = _fix_url(configuration_within_lambda["appBase"])
+
+        myApiBase = _fix_url(client.config.api_base)
+        remoteApiBase = _fix_url(configuration_within_lambda["apiBase"])
+
+        assert myAppBase == remoteAppBase
+        assert myApiBase == remoteApiBase
+        assert configuration_within_lambda["apiKey"] == client.config.api_key
+
+        # SpaceId is an exception. Rather than being the SpaceId of the client, it should be the SpaceId
+        # of the App Instance.
+        assert configuration_within_lambda["spaceId"] == instance.space_id  # SpaceID
+
+        # The test app, when executing remotely inside Steamship, should have the same
+        # user that we're running with here in within the test
+        user_info = instance.post("user_info")
+        user = User.current(client)
+        assert user_info.data["handle"] == user.data.handle
 
 
 def test_deploy_in_space():

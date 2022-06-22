@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
-
-from pydantic import BaseModel
-
-from steamship.base import Client
+from steamship.base.configuration import CamelModel
 
 
-class TrainPluginOutput(BaseModel):
+class TrainPluginOutput(CamelModel):
     """
     This is the object produced by a completed trainable operation, stored as the `output` field of a `train` task.
     """
@@ -17,7 +13,7 @@ class TrainPluginOutput(BaseModel):
 
     # This should always represent the most recent snapshot of the model in Steamship
     # It is the output of ModelCheckpoint.archive_path_in_steamship
-    archive_path_in_steamship: str = None
+    archive_path: str = None
 
     # Arbitrary key-valued data to provide to the `run` method when this plugin is Run.
     inference_params: dict = None
@@ -26,25 +22,10 @@ class TrainPluginOutput(BaseModel):
     training_progress: dict = None  # For tracking the progress (e.g. 3 / 40 epochs completed)
     training_results: dict = None  # For tracking accuracy (e.g. f1=0.8)
 
-    # noinspection PyUnusedLocal
-    @staticmethod
-    def from_dict(d: Any = None, client: Client = None) -> Optional[TrainPluginOutput]:
-        if d is None:
-            return None
+    # Arbitrary key-valued data to provide keys into an async training process, assuming it is not complete
+    # It will be passed back to the plugin in subsequent train_status calls
+    training_reference_data: dict = None
 
-        return TrainPluginOutput(
-            plugin_instance_id=d.get("plugin_instance_id"),
-            archive_path_in_steamship=d.get("archive_path_in_steamship"),
-            inference_params=d.get("inferenceParams"),
-            training_progress=d.get("trainingProgress"),
-            training_results=d.get("trainingResults"),
-        )
-
-    def to_dict(self) -> Dict:
-        return dict(
-            pluginInstanceId=self.plugin_instance_id,
-            archivePath=self.archive_path_in_steamship,
-            inferenceParams=self.inference_params,
-            trainingProgress=self.training_progress,
-            trainingResults=self.training_results,
-        )
+    # Boolean value for stating whether the training completed in this execution.
+    # No default so that it must be explicitly passed in constructor.
+    training_complete: bool

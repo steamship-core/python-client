@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Dict, Type
 
 from pydantic import BaseModel
 
@@ -13,19 +13,23 @@ class User(BaseModel):
     id: str = None
     handle: str = None
 
-    @staticmethod
-    def from_dict(d: Any, client: Client = None) -> User:
-        if d["user"] is not None:
-            d = d["user"]
+    def dict(self, **kwargs) -> Dict[str, Any]:
+        if "exclude" in kwargs:
+            kwargs["exclude"] = {*(kwargs.get("exclude", set()) or set()), "client"}
+        else:
+            kwargs = {
+                **kwargs,
+                "exclude": {
+                    "client",
+                },
+            }
+        return super().dict(**kwargs)
 
-        return User(
-            client=client,
-            id=d.get("id"),
-            handle=d.get("handle"),
-        )
-
-    def to_dict(self) -> dict:
-        return dict(id=self.id, handle=self.handle)
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["user"] if "user" in obj else obj
+        return super().parse_obj(obj)
 
     @staticmethod
     def current(client: Client) -> Response[User]:

@@ -9,6 +9,7 @@ from steamship.base import Client, Task
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -23,13 +24,17 @@ logging.getLogger().setLevel(logging.INFO)
 TRAINING_PARAMETERS = TrainingParameterPluginOutput(
     training_epochs=3,
     testing_holdout_percent=0.3,
-    training_params=dict(keywords=["chocolate", "roses", "chanpagne"]),
+    training_params=dict(keywords=["chocolate", "roses", "champagne"]),
 )
 
-TRAIN_RESPONSE = TrainPluginOutput()
+TRAIN_RESPONSE = TrainPluginOutput(training_complete=True)
 
 
-class TestTrainableTaggerModel(TrainableModel):
+class EmptyConfig(Config):
+    pass
+
+
+class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
     """Example of a trainable model.
 
     At some point, may want to evolve this into an abstract base class, but for the time being, here is the
@@ -117,11 +122,8 @@ class TestTrainableTaggerPlugin(TrainableTagger):
     def __init__(self, client: Client, config: Dict[str, Any] = None):
         super().__init__(client, config)
 
-    class EmptyConfig(Config):
-        pass
-
     def config_cls(self) -> Type[Config]:
-        return self.EmptyConfig
+        return EmptyConfig
 
     def model_cls(self) -> Type[TestTrainableTaggerModel]:
         return TestTrainableTaggerModel
@@ -141,11 +143,12 @@ class TestTrainableTaggerPlugin(TrainableTagger):
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
     ) -> Response[TrainingParameterPluginOutput]:
-        ret = Response(data=TRAINING_PARAMETERS)
-        logging.info(f"Returning toDict: {ret.dict()}")
+        ret = Response[TrainingParameterPluginOutput](data=TRAINING_PARAMETERS)
         return ret
 
-    def train(self, request: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
+    def train(
+        self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerModel
+    ) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
         logging.info(f"TestTrainableTaggerPlugin:train() {request}")
 
@@ -156,9 +159,6 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         # Example of recording training progress
         # response.status.status_message = "About to train!"
         # response.post_update(client=self.client)
-
-        # Let's create an instance of our model. We'll use get_model_class() here for copy-paste safety.
-        model = TestTrainableTaggerModel()
 
         # Train the model
         train_plugin_input = request.data
@@ -173,7 +173,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         logging.info(
             f"TestTrainableTaggerPlugin:train() setting model archive path to {archive_path_in_steamship}"
         )
-        train_plugin_output.archive_path_in_steamship = archive_path_in_steamship
+        train_plugin_output.archive_path = archive_path_in_steamship
 
         # Set the response on the `data` field of the object
         response.set_data(json=train_plugin_output)
@@ -190,6 +190,12 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         # to indicate that, while the plugin handler has returned, the plugin's execution continues.
         logging.info(f"TestTrainableTaggerPlugin:train() returning {response}")
         return response
+
+    def train_status(
+        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
+    ) -> Response[TrainPluginOutput]:
+        # This plugin never keeps a training task going beyond one function call.  This method should not be called.
+        raise NotImplementedError()
 
 
 handler = create_handler(TestTrainableTaggerPlugin)

@@ -38,5 +38,5 @@ def test_configurable_instance_invoke():
         # Test with quick-create
         greeting3 = "Howdy"
         instance_config3 = {"greeting": greeting3}
-        instance3 = client.app(app.handle, f"{instance2.handle}-2", config=instance_config3)
+        instance3 = client.use(app.handle, f"{instance2.handle}-2", config=instance_config3)
         assert instance3.post("greet").data == f"{greeting3}, Person"

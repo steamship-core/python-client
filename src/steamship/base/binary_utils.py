@@ -6,6 +6,7 @@ from typing import Any, Tuple, Union
 
 from pydantic import BaseModel
 
+from steamship.base.configuration import CamelModel
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 
@@ -13,16 +14,16 @@ from steamship.base.mime_types import ContentEncodings, MimeTypes
 def guess_mime(obj: Any, provided_mime: str = None) -> str:
     if provided_mime is not None:
         return provided_mime
-    if type(obj) in [str, int, float, bool]:
+    if isinstance(obj, (str, int, float, bool)):
         return MimeTypes.TXT
     return MimeTypes.BINARY
 
 
 def to_b64(obj: Any) -> str:
     ret_bytes = obj
-    if type(obj) == bytes:
+    if isinstance(obj, bytes):
         ret_bytes = obj
-    elif type(obj) == str:
+    elif isinstance(obj, str):
         ret_bytes = ret_bytes.encode("utf-8")
     else:
         ret_bytes = str(obj).encode("utf-8")
@@ -68,6 +69,9 @@ def flexi_create(
 
             if hasattr(json, "to_dict"):
                 ret_dict = getattr(json, "to_dict")()
+                ret_data = ret_dict
+            elif isinstance(json, CamelModel):
+                ret_dict = json.dict(by_alias=True)
                 ret_data = ret_dict
             elif isinstance(json, BaseModel):
                 ret_dict = json.dict()

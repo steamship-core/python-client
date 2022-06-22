@@ -8,6 +8,7 @@ from steamship.base import Client
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -44,11 +45,7 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
     @post("tag")
     def run_endpoint(self, **kwargs) -> Response[BlockAndTagPluginOutput]:
         """Exposes the Tagger's `run` operation to the Steamship Engine via the expected HTTP path POST /tag"""
-        return self.run(
-            PluginRequest.from_dict(
-                kwargs, wrapped_object_from_dict=BlockAndTagPluginInput.from_dict
-            )
-        )
+        return self.run(PluginRequest[BlockAndTagPluginInput].parse_obj(kwargs))
 
 
 class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
@@ -72,26 +69,29 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
     @post("tag")
     def run_endpoint(self, **kwargs) -> Response[BlockAndTagPluginOutput]:
         """Exposes the Tagger's `run` operation to the Steamship Engine via the expected HTTP path POST /tag"""
-        return self.run(
-            PluginRequest.from_dict(
-                kwargs, wrapped_object_from_dict=BlockAndTagPluginInput.from_dict
-            )
-        )
+        return self.run(PluginRequest[BlockAndTagPluginInput].parse_obj(kwargs))
 
     # noinspection PyUnusedLocal
     @post("getTrainingParameters")
     def get_training_parameters_endpoint(self, **kwargs) -> Response[TrainingParameterPluginOutput]:
         """Exposes the Service's `get_training_parameters` operation to the Steamship Engine via the expected HTTP path POST /getTrainingParameters"""
-        return self.get_training_parameters(
-            PluginRequest.from_dict(
-                kwargs, wrapped_object_from_dict=TrainingParameterPluginInput.from_dict
-            )
-        )
+        return self.get_training_parameters(PluginRequest[TrainingParameterPluginInput](**kwargs))
 
     # noinspection PyUnusedLocal
     @post("train")
     def train_endpoint(self, **kwargs) -> Response[TrainPluginOutput]:
         """Exposes the Service's `train` operation to the Steamship Engine via the expected HTTP path POST /train"""
         logging.info(f"Tagger:train_endpoint called. Calling train {kwargs}")
-        arg = PluginRequest.from_dict(kwargs, wrapped_object_from_dict=TrainPluginInput.from_dict)
-        return self.train(arg)
+        arg = PluginRequest[TrainPluginInput].parse_obj(kwargs)
+        model = self.model_cls()()
+        model.receive_config(config=self.config)
+        return self.train(arg, model)
+
+    @post("train_status")
+    def train_status_endpoint(self, **kwargs) -> Response[TrainPluginOutput]:
+        """Exposes the Service's `train_status` operation to the Steamship Engine via the expected HTTP path POST /train_status"""
+        logging.info(f"Tagger:train_status_endpoint called. Calling train_status {kwargs}")
+        arg = PluginRequest[TrainStatusPluginInput].parse_obj(kwargs)
+        model = self.model_cls()()
+        model.receive_config(config=self.config)
+        return self.train_status(arg, model)

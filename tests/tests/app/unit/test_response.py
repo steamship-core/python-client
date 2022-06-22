@@ -22,7 +22,7 @@ def check_val(d: dict, val: Any):
 
 def test_text_response():
     r = Response.from_obj("Hi there")
-    d = r.to_dict()
+    d = r.dict()
     check_mime(d, MimeTypes.TXT)
     check_type(d, str)
     check_val(d, "Hi there")
@@ -30,7 +30,7 @@ def test_text_response():
 
 def test_dict_response():
     r = Response.from_obj(dict(a=1))
-    d = r.to_dict()
+    d = r.dict()
     check_mime(d, MimeTypes.JSON)
     check_type(d, dict)
     check_val(d, dict(a=1))
@@ -39,7 +39,7 @@ def test_dict_response():
 def test_resp_response():
     o = BlockAndTagPluginOutput(file=File.CreateRequest(value="Foo", blocks=[], tags=[]))
     r = Response(json=o)
-    d = r.to_dict()
+    d = r.dict()
     check_mime(d, MimeTypes.JSON)
     check_type(d, dict)
     check_val(d, o.dict())

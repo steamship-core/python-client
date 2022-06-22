@@ -1,23 +1,29 @@
+from __future__ import annotations
+
 import json
 import logging
+import typing
 from abc import ABC
+from inspect import isclass
 from typing import Any, Dict, Type, TypeVar, Union
 
+import inflection
 import requests
 from pydantic import BaseModel
 
-from steamship.base.configuration import Configuration
+from steamship.base.configuration import CamelModel, Configuration
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes
 from steamship.base.request import Request
 from steamship.base.response import Response, Task
+from steamship.base.utils import to_camel
 
 _logger = logging.getLogger(__name__)
 
 T = TypeVar("T", bound=Response)  # TODO (enias): Do we need this?
 
 
-class Client(BaseModel, ABC):
+class Client(CamelModel, ABC):
     """Client base.py class.
 
     Separated primarily as a hack to prevent circular imports.
@@ -34,9 +40,11 @@ class Client(BaseModel, ABC):
         space_handle: str = None,
         profile: str = None,
         config_file: str = None,
+        config: Configuration = None,
+        **kwargs,
     ):
         super().__init__()
-        self.config = Configuration(
+        self.config = config or Configuration(
             api_key=api_key,
             api_base=api_base,
             app_base=app_base,
@@ -150,7 +158,7 @@ class Client(BaseModel, ABC):
         elif hasattr(payload, "to_dict"):
             data = getattr(payload, "to_dict")()
         elif isinstance(payload, BaseModel):
-            data = payload.dict()
+            data = payload.dict(by_alias=True)
         else:
             raise RuntimeError(f"Unable to parse payload of type {type(payload)}")
 
@@ -202,6 +210,37 @@ class Client(BaseModel, ABC):
                     result[key] = (None, str(val))
         result["file"] = file
         return result
+
+    def _add_client_to_response(self, expect: Type, response_data: Any):
+        if isinstance(response_data, dict):
+            if expect and isclass(expect):
+                if len(response_data.keys()) == 1 and list(response_data.keys())[0] in (
+                    to_camel(expect.__name__),
+                    "index",
+                ):
+                    # TODO (enias): Hack since the engine responds with incosistent formats e.g. {"plugin" : {plugin_fields}}
+                    for k, v in response_data.items():
+                        self._add_client_to_response(expect, v)
+                elif issubclass(expect, BaseModel):
+                    response_data["client"] = self
+                    try:
+                        key_to_type = typing.get_type_hints(expect)
+                        for k, v in response_data.items():
+                            self._add_client_to_response(
+                                key_to_type.get(inflection.underscore(k)), v
+                            )
+                    except NameError:
+                        # typing.get_type_hints fails for Space
+                        # TODO (enias): Fix NameError on typing.get_type_hints(expect)
+                        pass
+        elif isinstance(response_data, list):
+            for el in response_data:
+                typing_parameters = typing.get_args(expect)
+                self._add_client_to_response(
+                    typing_parameters[0] if typing_parameters else None, el
+                )
+
+        return response_data
 
     def call(
         self,
@@ -290,8 +329,7 @@ class Client(BaseModel, ABC):
 
         response_data = self._response_data(resp, raw_response=raw_response)
 
-        if debug is True:
-            logging.debug(f"Response JSON {response_data}")
+        logging.debug(f"Response JSON {response_data}")
 
         task = None
         error = None
@@ -299,7 +337,7 @@ class Client(BaseModel, ABC):
 
         if isinstance(response_data, dict):
             if "status" in response_data:
-                task = Task.from_dict(response_data["status"], client=self)
+                task = Task.parse_obj({**response_data["status"], "client": self})
                 # if task_resp is not None and task_resp.taskId is not None:
                 #     task = Task(client=self)
                 #     task.update(task_resp)
@@ -312,19 +350,21 @@ class Client(BaseModel, ABC):
                 if expect is not None:
                     if hasattr(expect, "from_dict"):
                         data = expect.from_dict(response_data["data"], client=self)
+                    # elif get_origin(expect) and issubclass(get_origin(expect), List):
+                    #     if issubclass(expect.__args__[0], BaseModel):
+                    #         parse_obj_as(expect, self._add_client_to_response( response_data["data"]))
                     elif issubclass(expect, BaseModel):
-                        data = expect.parse_obj(response_data["data"])
+                        data = expect.parse_obj(
+                            self._add_client_to_response(expect, response_data["data"])
+                        )
                     else:
                         raise RuntimeError(f"obj of type {expect} does not have a from_dict method")
                 else:
                     data = response_data["data"]
                     expect = type(data)
+            else:
+                data = response_data
 
-            if "reason" in response_data:
-                # This is a legacy error reporting field. We should work toward being comfortable
-                # removing this handler.
-                error = SteamshipError(message=response_data["reason"])
-                logging.error(f"Client received error from server: {error}")
         else:
             data = response_data
             expect = type(response_data)

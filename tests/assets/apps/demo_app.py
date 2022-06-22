@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from steamship.app import App, Response, create_handler, get, post
 from steamship.base import Client
 from steamship.base.mime_types import MimeTypes
+from steamship.data.user import User
 
 
 class TestObj(BaseModel):
@@ -62,13 +63,19 @@ class TestApp(App):
     def space(self) -> Response:
         return Response(string=self.client.config.space_id)
 
+    @post("user_info")
+    def user_info(self) -> Response:
+        user = User.current(self.client)
+        return Response(json=dict(handle=user.data.handle))
+
     @get("config")
-    def config(self) -> Response:
+    def get_config(self) -> Response:
+        """This is called get_config because there's already `.config` object on the class."""
         return Response(
             json=dict(
                 spaceId=self.client.config.space_id,
                 appBase=self.client.config.app_base,
-                Client=self.client.config.api_base,
+                apiBase=self.client.config.api_base,
                 apiKey=self.client.config.api_key,
             )
         )

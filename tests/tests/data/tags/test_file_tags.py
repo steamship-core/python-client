@@ -2,7 +2,6 @@ from steamship import Block, File, MimeTypes
 from steamship.client import Steamship
 from steamship.data.tags import Tag
 from tests.utils.fixtures import client  # noqa: F401
-from tests.utils.fixtures import get_steamship_client
 
 
 def test_file_tag(client: Steamship):

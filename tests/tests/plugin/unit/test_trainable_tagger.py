@@ -24,7 +24,7 @@ TEST_REQ = BlockAndTagPluginInput(
     )
 )
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ, plugin_instance_id="000")
-TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.to_dict()
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
 
 def _test_resp(res):
@@ -46,17 +46,18 @@ def test_trainable_tagger():
     tagger1 = plugin.get_training_parameters(
         PluginRequest(data=TrainingParameterPluginInput(), task_id="000", plugin_instance_id="000")
     )
-    assert tagger1.data.to_dict() == TRAINING_PARAMETERS.to_dict()
+    assert tagger1.data.dict() == TRAINING_PARAMETERS.dict()
     tagger2 = plugin.get_training_parameters_endpoint(
         **PluginRequest(
             data=TrainingParameterPluginInput(), task_id="000", plugin_instance_id="000"
-        ).to_dict()
+        ).dict()
     )
-    assert tagger2.data.to_dict() == TRAINING_PARAMETERS.to_dict()
+    assert tagger2.data.dict() == TRAINING_PARAMETERS.dict()
     assert tagger2.data.training_epochs == TRAINING_PARAMETERS.training_epochs
 
     # STEP 2. Training
     # The first part of trainable is to produce your own trainable parameters.
+    model = plugin.model_cls()()
     tagger1 = plugin.train(
         PluginRequest(
             data=TrainPluginInput(
@@ -64,9 +65,10 @@ def test_trainable_tagger():
             ),
             task_id="000",
             plugin_instance_id="000",
-        )
+        ),
+        model,
     )
-    assert tagger1.data == TRAIN_RESPONSE.to_dict()
+    assert tagger1.data == TRAIN_RESPONSE.dict()
 
     tagger2 = plugin.train_endpoint(
         **PluginRequest(
@@ -75,9 +77,9 @@ def test_trainable_tagger():
             ),
             task_id="000",
             plugin_instance_id="000",
-        ).to_dict()
+        ).dict()
     )
-    assert tagger2.data == TRAIN_RESPONSE.to_dict()
+    assert tagger2.data == TRAIN_RESPONSE.dict()
 
     # STEP 3. Run
     res = plugin.run(TEST_PLUGIN_REQ)

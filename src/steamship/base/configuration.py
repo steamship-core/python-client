@@ -40,10 +40,6 @@ class Configuration(CamelModel):
     space_handle: str = None
     profile: Optional[str] = None
 
-    @staticmethod
-    def from_dict(d: dict) -> Configuration:
-        return Configuration.parse_obj(d)
-
     def __init__(
         self,
         config_file: Optional[Path] = None,
@@ -77,28 +73,6 @@ class Configuration(CamelModel):
             if hasattr(self, k) and v:
                 if not getattr(self, k) or override:
                     setattr(self, k, v)
-
-    @staticmethod
-    def find_config_file() -> str:
-        """
-        Tries folders from cwd up to root.
-        """
-        paths = []
-        cwd = Path(os.getcwd()).absolute()
-        i = 0
-        while len(str(cwd)) > 0 and str(cwd) != os.path.sep:
-            paths.append(os.path.join(cwd, ".steamship.json"))
-            cwd = cwd.parent.absolute()
-            i += 1
-            if i > 40:
-                print("ERROR: Max depth exceeded in config search recursion.")
-                break
-
-        paths.append(os.path.join(str(Path.home()), ".steamship.json"))
-        for filepath in paths:
-            if os.path.exists(filepath):
-                logging.info(f"Found filepath: {filepath}")
-                return filepath
 
     @staticmethod
     def _load_from_file(
@@ -137,6 +111,7 @@ class Configuration(CamelModel):
 
         Providing either `space_id` or `space_handle` will work; both need not be provided.
         """
+        logging.info(f"Loading Configuration for_space: {self.api_key}")
         return Configuration(
             api_key=self.api_key,
             api_base=self.api_base,

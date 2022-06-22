@@ -105,7 +105,7 @@ def test_e2e_corpus_export_with_query(client):
     content = requests.get(url).text
 
     # Look at lines of jsonl file
-    files = [File.from_dict(json.loads(line)) for line in content.splitlines()]
+    files = [File.parse_obj(json.loads(line)) for line in content.splitlines()]
     assert len(files) == 1
     assert len(files[0].tags) == 1
 

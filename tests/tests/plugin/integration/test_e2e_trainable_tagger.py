@@ -62,7 +62,7 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
                 # Now train the plugin
                 training_request = TrainingParameterPluginInput(
                     plugin_instance=tagger_instance.handle,
-                    export_request=ExportPluginInput(
+                    export_plugin_input=ExportPluginInput(
                         plugin_instance=EXPORTER_HANDLE, type="corpus", handle="default"
                     ),
                     training_params=dict(
@@ -103,7 +103,7 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
 
                 # First we'll create a file
                 test_doc = "Hi there"
-                res = client.tag(doc=test_doc, plugin_instance=tagger_instance.handle)
+                res = tagger_instance.tag(doc=test_doc)
                 res.wait()
                 assert res.error is None
                 assert res.data is not None
