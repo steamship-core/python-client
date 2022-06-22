@@ -126,6 +126,7 @@ class ThirdPartyModel(TrainableModel):
 
     def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
         reference_data = input.training_reference_data
+        logging.info(f'Called train_status with {reference_data["num_checkins"]}')
         reference_data["num_checkins"] += 1
         complete = reference_data["num_checkins"] > 2
         return TrainPluginOutput(training_complete=complete, training_reference_data=reference_data)
