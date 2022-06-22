@@ -8,6 +8,7 @@ from steamship.base import Client
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -39,6 +40,11 @@ class TestTrainableTaggerConfigModel(TrainableModel[TestConfig]):
         assert self.config.testValue2 is not None
 
     def train(self, input: TrainPluginInput) -> TrainPluginOutput:
+        assert self.config is not None
+        assert self.config.testValue1 is not None
+        assert self.config.testValue2 is not None
+
+    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
         assert self.config is not None
         assert self.config.testValue1 is not None
         assert self.config.testValue2 is not None
@@ -105,6 +111,12 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
         train_plugin_input = request.data
         train_plugin_output = model.train(train_plugin_input)
 
+        return None
+
+    def train_status(
+        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
+    ) -> Response[TrainPluginOutput]:
+        model.train_status(request.data)
         return None
 
 

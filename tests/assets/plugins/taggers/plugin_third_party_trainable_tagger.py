@@ -20,6 +20,7 @@ from steamship.base import Task
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -106,21 +107,30 @@ class ThirdPartyModel(TrainableModel):
         if self.client is None:
             raise SteamshipError(message="MockClient was null.")
 
-        # Initialize the parameter bundle we'll eventually save to disk.
-        self.params = {}
+        reference_data = {"num_checkins": 0}
+        return TrainPluginOutput(training_complete=False, training_reference_data=reference_data)
 
-        # Step 1. Simulate preparing data
-        data = None
+    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+        reference_data = input.training_reference_data
+        logging.info(f'Called train_status with {reference_data["num_checkins"]}')
+        reference_data["num_checkins"] += 1
+        complete = reference_data["num_checkins"] > 2
+        if complete:
+            # Initialize the parameter bundle we'll eventually save to disk.
+            self.params = {}
 
-        # Step 2. Simulate uploading data
-        data_file_id = self.client.upload_file_training_file(data)
-        self.params["data_file_id"] = data_file_id
+            # Step 1. Simulate preparing data
+            data = None
 
-        # Step 3. Simulate training
-        model_id = self.client.train(data_file_id)
-        self.params["model_id"] = model_id
+            # Step 2. Simulate uploading data
+            data_file_id = self.client.upload_file_training_file(data)
+            self.params["data_file_id"] = data_file_id
 
-        return TrainPluginOutput()
+            # Step 3. Simulate training
+            model_id = self.client.train(data_file_id)
+            self.params["model_id"] = model_id
+
+        return TrainPluginOutput(training_complete=complete, training_reference_data=reference_data)
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
@@ -187,17 +197,36 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
         train_plugin_input = request.data
         train_plugin_output = model.train(train_plugin_input)
 
-        # Save the model with the `default` handle.
-        archive_path_in_steamship = model.save_remote(
-            client=self.client, plugin_instance_id=request.plugin_instance_id
-        )
+        # Set the response on the `data` field of the object
+        response.set_data(json=train_plugin_output)
+        logging.info(response.dict(by_alias=True))
+        return response
 
-        # Set the model location on the plugin output.
-        train_plugin_output.archive_path = archive_path_in_steamship
+    def train_status(
+        self, request: PluginRequest[TrainStatusPluginInput], model: ThirdPartyModel
+    ) -> Response[TrainPluginOutput]:
+        """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
+        logging.debug(f"train {request}")
+
+        # Create a Response object at the top with a Task attached. This will let us stream back updates
+        # TODO: This is very non-intuitive. We should improve this.
+        response = Response(status=Task(task_id=request.task_id))
+
+        # Call train status
+        train_plugin_output = model.train_status(request.data)
+
+        if train_plugin_output.training_complete:
+            # Save the model with the `default` handle.
+            archive_path_in_steamship = model.save_remote(
+                client=self.client, plugin_instance_id=request.plugin_instance_id
+            )
+
+            # Set the model location on the plugin output.
+            train_plugin_output.archive_path = archive_path_in_steamship
 
         # Set the response on the `data` field of the object
         response.set_data(json=train_plugin_output)
-
+        logging.info(response.dict(by_alias=True))
         return response
 
 
