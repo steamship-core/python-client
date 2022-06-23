@@ -6,6 +6,7 @@ from typing import Any, Tuple, Union
 
 from pydantic import BaseModel
 
+from steamship.base.configuration import CamelModel
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 
@@ -68,6 +69,9 @@ def flexi_create(
 
             if hasattr(json, "to_dict"):
                 ret_dict = getattr(json, "to_dict")()
+                ret_data = ret_dict
+            elif isinstance(json, CamelModel):
+                ret_dict = json.dict(by_alias=True)
                 ret_data = ret_dict
             elif isinstance(json, BaseModel):
                 ret_dict = json.dict()

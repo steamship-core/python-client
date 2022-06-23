@@ -18,6 +18,7 @@ from steamship.base import Client
 #
 from steamship.base.utils import to_camel
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
@@ -139,6 +140,13 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
     @abstractmethod
     def train(
         self, request: PluginRequest[TrainPluginInput], model: TrainableModel
+    ) -> Response[TrainPluginOutput]:
+        """Train the model."""
+        pass
+
+    @abstractmethod
+    def train_status(
+        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
     ) -> Response[TrainPluginOutput]:
         """Train the model."""
         pass
