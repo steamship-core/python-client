@@ -17,6 +17,7 @@ from steamship.base.mime_types import MimeTypes
 from steamship.base.request import Request
 from steamship.base.response import Response, Task
 from steamship.base.utils import to_camel
+from steamship.utils.url import Verb, _is_local
 
 _logger = logging.getLogger(__name__)
 
@@ -53,28 +54,18 @@ class Client(CamelModel, ABC):
             profile=profile,
             config_file=config_file,
         )
+        if self.config.api_key is None:
+            raise Exception("Please set your Steamship API key.")
 
     def _url(
         self,
-        app_call: bool = False,
+        is_app_call: bool = False,
         app_owner: str = None,
         operation: str = None,
-        config: Configuration = None,
-    ):  # TODO (enias): Simplify
-        if not app_call:
+    ):
+        if not is_app_call:
             # Regular API call
-            base = None
-            if self.config and self.config.api_base:
-                base = self.config.api_base
-            if config and config.api_base:
-                base = config.api_base
-            if base is None:
-                return SteamshipError(
-                    code="EndpointMissing",
-                    message="Can not invoke endpoint without the Client variable set.",
-                    suggestion="This should automatically have a good default setting. "
-                    "Reach out to our Steamship support.",
-                )
+            base = self.config.api_base
         else:
             # Do the app version
             if app_owner is None:
@@ -84,28 +75,13 @@ class Client(CamelModel, ABC):
                     suggestion="Provide the appOwner option, or initialize your app with a lookup.",
                 )
 
-            base = None
-            if self.config and self.config.app_base:
-                base = self.config.app_base
-            if config and config.app_base:
-                base = config.app_base
-            if base is None:
-                return SteamshipError(
-                    code="EndpointMissing",
-                    message="Can not invoke an app endpoint without the App Base variable set.",
-                    suggestion="This should automatically have a good default setting. "
-                    "Reach out to our Steamship support.",
-                )
-            if (
-                "localhost" not in base
-                and "127.0.0.1" not in base
-                and "0:0:0:0" not in base
-                and "host.docker.internal" not in base
-            ):
+            base = self.config.app_base
+            if not _is_local(base):
                 # We want to prepend the user handle
                 parts = base.split("//")
                 base = f"{parts[0]}//{app_owner}.{'//'.join(parts[1:])}"
 
+        # Clean leading and trailing "/"
         if base[len(base) - 1] == "/":
             base = base[:-1]
         if operation[0] == "/":
@@ -117,7 +93,7 @@ class Client(CamelModel, ABC):
         self,
         space_id: str = None,
         space_handle: str = None,
-        app_call: bool = False,
+        is_app_call: bool = False,
         app_owner: str = None,
         app_id: str = None,
         app_instance_id: str = None,
@@ -133,7 +109,7 @@ class Client(CamelModel, ABC):
         elif shandle:
             headers["X-Space-Handle"] = shandle
 
-        if app_call:
+        if is_app_call:
             if app_owner:
                 headers["X-App-Owner-Handle"] = app_owner
             if app_id:
@@ -150,7 +126,7 @@ class Client(CamelModel, ABC):
         return headers
 
     @staticmethod
-    def _data(verb: str, file: Any, payload: Union[Request, dict]):
+    def _prepare_data(payload: Union[Request, dict]):
         if payload is None:
             data = {}
         elif isinstance(payload, dict):
@@ -161,17 +137,6 @@ class Client(CamelModel, ABC):
             data = payload.dict(by_alias=True)
         else:
             raise RuntimeError(f"Unable to parse payload of type {type(payload)}")
-
-        if verb == "POST" and file is not None:
-            # Note: requests seems to have a bug passing boolean (and maybe numeric?)
-            # values in the midst of multipart form data. You need to manually convert
-            # it to a string; otherwise it will pass as False or True (with the capital),
-            # which is not standard notation outside of Python.
-            for key in data:
-                if data[key] is False:
-                    data[key] = "false"
-                elif data[key] is True:
-                    data[key] = "true"
 
         return data
 
@@ -199,8 +164,17 @@ class Client(CamelModel, ABC):
                     return resp.content
 
     @staticmethod
-    def make_file_dict(data, file):
-        # TODO (enias): Review
+    def _prepare_multipart_data(data, file):
+        # Note: requests seems to have a bug passing boolean (and maybe numeric?)
+        # values in the midst of multipart form data. You need to manually convert
+        # it to a string; otherwise it will pass as False or True (with the capital),
+        # which is not standard notation outside of Python.
+        for key in data:
+            if data[key] is False:
+                data[key] = "false"
+            elif data[key] is True:
+                data[key] = "true"
+
         result = {}
         for key, val in data.items():
             if val:
@@ -231,7 +205,6 @@ class Client(CamelModel, ABC):
                             )
                     except NameError:
                         # typing.get_type_hints fails for Space
-                        # TODO (enias): Fix NameError on typing.get_type_hints(expect)
                         pass
         elif isinstance(response_data, list):
             for el in response_data:
@@ -255,7 +228,7 @@ class Client(CamelModel, ABC):
         space_handle: str = None,
         space: Any = None,
         raw_response: bool = False,
-        app_call: bool = False,
+        is_app_call: bool = False,
         app_owner: str = None,
         app_id: str = None,
         app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
@@ -277,23 +250,12 @@ class Client(CamelModel, ABC):
         field if present, and we raise an exception if the `error`
         field is filled in.
         """
-        if self.config.api_key is None:
-            raise Exception("Please set your Steamship API key.")
-
-        if space_id is None and space is not None and hasattr(space, "id"):
-            space_id = getattr(space, "id")
-
-        if (
-            space_id is None
-            and space_handle is None
-            and space is not None
-            and hasattr(space, "handle")
-        ):
-            # Backup, if the spaceId transfer was None
-            space_handle = getattr(space, "handle")
+        if space is not None:
+            space_id = getattr(space, "handle", None) if space_id is None else space_id
+            space_handle = getattr(space, "handle", None) if space_handle is None else space_handle
 
         url = self._url(
-            app_call=app_call,
+            is_app_call=is_app_call,
             app_owner=app_owner,
             operation=operation,
         )
@@ -301,23 +263,23 @@ class Client(CamelModel, ABC):
         headers = self._headers(
             space_id=space_id,
             space_handle=space_handle,
-            app_call=app_call,
+            is_app_call=is_app_call,
             app_owner=app_owner,
             app_id=app_id,
             app_instance_id=app_instance_id,
             as_background_task=as_background_task,
         )
 
-        data = self._data(verb=verb, file=file, payload=payload)
+        data = self._prepare_data(payload=payload)
 
         logging.info(f"Steamship Client making {verb} to {url}")
-        if verb == "POST":
+        if verb == Verb.POST:
             if file is not None:
-                files = self.make_file_dict(data, file)
+                files = self._prepare_multipart_data(data, file)
                 resp = requests.post(url, files=files, headers=headers)
             else:
                 resp = requests.post(url, json=data, headers=headers)
-        elif verb == "GET":
+        elif verb == Verb.GET:
             resp = requests.get(url, params=data, headers=headers)
         else:
             raise Exception(f"Unsupported verb: {verb}")
@@ -333,7 +295,6 @@ class Client(CamelModel, ABC):
 
         task = None
         error = None
-        data = None
 
         if isinstance(response_data, dict):
             if "status" in response_data:
@@ -405,7 +366,7 @@ class Client(CamelModel, ABC):
             space_handle=space_handle,
             space=space,
             raw_response=raw_response,
-            app_call=app_call,
+            is_app_call=app_call,
             app_owner=app_owner,
             app_id=app_id,
             app_instance_id=app_instance_id,
@@ -442,7 +403,7 @@ class Client(CamelModel, ABC):
             space_handle=space_handle,
             space=space,
             raw_response=raw_response,
-            app_call=app_call,
+            is_app_call=app_call,
             app_owner=app_owner,
             app_id=app_id,
             app_instance_id=app_instance_id,

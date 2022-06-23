@@ -26,6 +26,10 @@ DEFAULT_CONFIG_FILE = Path.home() / ".steamship.json"
 
 
 class CamelModel(BaseModel):
+    def __init__(self, **kwargs):
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+        super().__init__(**kwargs)
+
     class Config:
         alias_generator = to_camel
         allow_population_by_field_name = True
@@ -56,7 +60,7 @@ class Configuration(CamelModel):
             raise_on_exception=config_file is not None,
         )
         config_dict.update(self._get_config_dict_from_environment())
-        self.update(config_dict)
+        self._update(config_dict)
 
         self.api_base = self.api_base or DEFAULT_API_BASE
         self.api_base = format_uri(self.api_base)
@@ -67,7 +71,7 @@ class Configuration(CamelModel):
         self.web_base = self.web_base or DEFAULT_WEB_BASE
         self.web_base = format_uri(self.web_base)
 
-    def update(self, config_dict: dict, override: bool = False) -> None:
+    def _update(self, config_dict: dict, override: bool = False) -> None:
         config_dict = {inflection.underscore(k): v for k, v in config_dict.items()}
         for k, v in config_dict.items():
             if hasattr(self, k) and v:
