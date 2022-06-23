@@ -38,9 +38,9 @@ class CamelModel(BaseModel):
 
 class Configuration(CamelModel):
     api_key: str
-    api_base: HttpUrl = DEFAULT_API_BASE
-    app_base: HttpUrl = DEFAULT_APP_BASE
-    web_base: HttpUrl = DEFAULT_WEB_BASE
+    api_base: Optional[HttpUrl] = DEFAULT_API_BASE
+    app_base: Optional[HttpUrl] = DEFAULT_APP_BASE
+    web_base: Optional[HttpUrl] = DEFAULT_WEB_BASE
     space_id: str = None
     space_handle: str = None
     profile: Optional[str] = None
@@ -60,7 +60,7 @@ class Configuration(CamelModel):
             raise_on_exception=config_file is not None,
         )
         config_dict.update(self._get_config_dict_from_environment())
-        kwargs.update({k: v for k, v in config_dict.items() if k not in kwargs})
+        kwargs.update({k: v for k, v in config_dict.items() if kwargs.get(k) is None})
 
         kwargs["api_base"] = format_uri(kwargs.get("api_base"))
         kwargs["app_base"] = format_uri(kwargs.get("app_base"))
