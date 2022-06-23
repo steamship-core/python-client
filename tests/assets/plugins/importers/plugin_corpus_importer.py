@@ -9,11 +9,8 @@ from steamship.plugin.service import PluginRequest
 
 
 class TestCorpusImporterPlugin(CorpusImporter):
-    class EmptyConfig(Config):
-        pass
-
     def config_cls(self) -> Type[Config]:
-        return self.EmptyConfig
+        return Config
 
     def run(self, request: PluginRequest[CorpusImportRequest]) -> Response[CorpusImportResponse]:
         return Response(
@@ -22,8 +19,7 @@ class TestCorpusImporterPlugin(CorpusImporter):
                     File.CreateRequest(
                         type="fileImporter",
                         corpusId=request.data.url,
-                        plugin_instance=request.data.file_importer_plugin_instance
-                        # This is a test importer built into the Steamship Engine
+                        plugin_instance=request.data.file_importer_plugin_instance,
                     ),
                     File.CreateRequest(
                         type="fileImporter",
