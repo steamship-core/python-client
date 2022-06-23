@@ -7,6 +7,7 @@ from steamship.app.response import Response
 from steamship.base import Client
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
@@ -25,6 +26,9 @@ class EmptyConfig(Config):
 
 
 class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
+    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+        return TrainPluginOutput(training_complete=True)
+
     def load_from_folder(self, checkpoint_path: Path):
         pass
 
@@ -36,6 +40,11 @@ class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
 
 
 class ValidTrainableStringToStringPlugin(TrainableTagger):
+    def train_status(
+        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
+    ) -> Response[TrainPluginOutput]:
+        return Response(data=TrainPluginOutput(training_complete=True))
+
     def config_cls(self) -> Type[Config]:
         return EmptyConfig
 
@@ -56,7 +65,7 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
         return Response(data=TrainingParameterPluginOutput())
 
     def train(self, request: PluginRequest[TrainPluginInput], model) -> Response[TrainPluginOutput]:
-        return Response(data=TrainPluginOutput())
+        return Response(data=TrainPluginOutput(training_complete=True))
 
 
 #
@@ -117,7 +126,7 @@ def test_with_override_get_training_params_succeeds():
 def test_non_trainable_plugin_lacks_train():
     plugin = ValidStringToStringPlugin()
     # It has it from the base class
-    assert hasattr(plugin, "train") == False
+    assert not hasattr(plugin, "train")
 
 
 def test_with_override_train_succeeds():

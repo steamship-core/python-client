@@ -251,7 +251,7 @@ class Client(CamelModel, ABC):
         field is filled in.
         """
         if space is not None:
-            space_id = getattr(space, "handle", None) if space_id is None else space_id
+            space_id = getattr(space, "id", None) if space_id is None else space_id
             space_handle = getattr(space, "handle", None) if space_handle is None else space_handle
 
         url = self._url(

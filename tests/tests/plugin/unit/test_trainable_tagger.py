@@ -68,7 +68,7 @@ def test_trainable_tagger():
         ),
         model,
     )
-    assert tagger1.data == TRAIN_RESPONSE.dict()
+    assert tagger1.data == TRAIN_RESPONSE.dict(by_alias=True)
 
     tagger2 = plugin.train_endpoint(
         **PluginRequest(
@@ -79,7 +79,7 @@ def test_trainable_tagger():
             plugin_instance_id="000",
         ).dict()
     )
-    assert tagger2.data == TRAIN_RESPONSE.dict()
+    assert tagger2.data == TRAIN_RESPONSE.dict(by_alias=True)
 
     # STEP 3. Run
     res = plugin.run(TEST_PLUGIN_REQ)
