@@ -37,7 +37,7 @@ def test_e2e_corpus_export(client: Steamship):
     exporter_plugin = exporter_plugin_r.data
     assert exporter_plugin.handle is not None
 
-    _input = ExportPluginInput(handle="default", type="corpus")
+    _input = ExportPluginInput(handle="default", type="file")
 
     csv_blockifier_path = PLUGINS_PATH / "blockifiers" / "csv_blockifier.py"
 

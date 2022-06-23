@@ -17,6 +17,8 @@ class MimeTypes:
     RTF = "application/rtf"
     BINARY = "application/octet-stream"
     STEAMSHIP_BLOCK_JSON = "application/vnd.steamship-block.json.v1"
+    WAV = "audio/wav"
+    MP3 = "audio/mp3"
 
 
 class ContentEncodings:
