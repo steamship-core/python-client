@@ -30,7 +30,7 @@ class Client(CamelModel, ABC):
     Separated primarily as a hack to prevent circular imports.
     """
 
-    config: Configuration = None
+    config: Configuration
 
     def __init__(
         self,
@@ -44,8 +44,11 @@ class Client(CamelModel, ABC):
         config: Configuration = None,
         **kwargs,
     ):
-        super().__init__()
-        self.config = config or Configuration(
+        if config is not None and not isinstance(config, Configuration):
+            raise SteamshipError(
+                f"config has to be of type {Configuration}, received {type(config)}."
+            )
+        config = config or Configuration(
             api_key=api_key,
             api_base=api_base,
             app_base=app_base,
@@ -54,8 +57,7 @@ class Client(CamelModel, ABC):
             profile=profile,
             config_file=config_file,
         )
-        if self.config.api_key is None:
-            raise Exception("Please set your Steamship API key.")
+        super().__init__(config=config)
 
     def _url(
         self,
@@ -234,8 +236,6 @@ class Client(CamelModel, ABC):
         app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
         as_background_task: bool = False,
     ) -> Union[Any, Response[T]]:
-        # TODO (Enias): Make shorter
-        # TODO (Enias): Review naming convention
         """Post to the Steamship API.
 
         All responses have the format:
