@@ -12,7 +12,9 @@ from steamship.data.space import Space
 class CreateAppInstanceRequest(Request):
     id: str = None
     app_id: str = None
+    app_handle: str = None
     app_version_id: str = None
+    app_version_handle: str = None
     handle: str = None
     upsert: bool = None
     config: Dict[str, Any] = None
