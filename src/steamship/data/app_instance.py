@@ -12,7 +12,7 @@ from steamship.data.space import Space
 class CreateAppInstanceRequest(Request):
     id: str = None
     app_id: str = None
-    appVersionId: str = None
+    app_version_id: str = None
     handle: str = None
     upsert: bool = None
     config: Dict[str, Any] = None
@@ -48,7 +48,9 @@ class AppInstance(CamelModel):
         client: Client,
         space_id: str = None,
         app_id: str = None,
+        app_handle: str = None,
         app_version_id: str = None,
+        app_version_handle: str = None,
         handle: str = None,
         upsert: bool = None,
         config: Dict[str, Any] = None,
@@ -56,13 +58,17 @@ class AppInstance(CamelModel):
         req = CreateAppInstanceRequest(
             handle=handle,
             app_id=app_id,
-            appVersionId=app_version_id,
+            app_handle=app_handle,
+            app_version_id=app_version_id,
+            app_version_handle=app_version_handle,
             upsert=upsert,
             config=config,
             spaceId=space_id,
         )
 
-        return client.post("app/instance/create", payload=req, expect=AppInstance)
+        return client.post(
+            "app/instance/create", payload=req, expect=AppInstance, space_id=space_id
+        )
 
     def delete(self) -> AppInstance:
         req = DeleteAppInstanceRequest(id=self.id)

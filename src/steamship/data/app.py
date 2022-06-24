@@ -6,11 +6,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Type
+from typing import Any, Type
 
 from pydantic import BaseModel
 
-from steamship import AppInstance, SteamshipError
 from steamship.base import Client, Request, Response
 
 
@@ -52,30 +51,6 @@ class App(BaseModel):
     @staticmethod
     def get(client: Client, handle: str):
         return client.post("app/get", GetAppRequest(handle=handle), expect=App)
-
-    @staticmethod
-    def use(
-        client: Client, app_handle: str, handle: str = None, config: Dict[str, Any] = None
-    ) -> AppInstance:
-        """Convenience function for creating or loading an instance of an app."""
-
-        # TODO: The Engine API should permit App Handles to avoid having this extra round trip.
-        app = App.get(client=client, handle=app_handle)
-        if app.error:
-            raise app.error
-        if not app.data:
-            raise SteamshipError(f"A Steamship App with handle {app_handle} was not found.")
-
-        instance = AppInstance.create(
-            client=client, app_id=app.data.id, handle=handle, upsert=True, config=config
-        )
-        if instance.error:
-            raise instance.error
-        if not instance.data:
-            raise SteamshipError(
-                f"Unable to create an instance of App {app_handle} with handle {handle}."
-            )
-        return instance.data
 
     def delete(self) -> Response[App]:
         req = DeleteAppRequest(id=self.id)

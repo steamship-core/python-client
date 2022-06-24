@@ -3,11 +3,11 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List
 
-from steamship import Block, Configuration, SteamshipError
+from steamship import Block, Configuration, PluginInstance, SteamshipError
 from steamship.base import Client, Response
+from steamship.base.base import IResponse
 from steamship.base.tasks import TaskComment, TaskCommentList
 from steamship.data import File
-from steamship.data.app import App
 from steamship.data.app_instance import AppInstance
 from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
 from steamship.data.operations.tagger import TagRequest, TagResponse
@@ -109,25 +109,41 @@ class Steamship(Client):
     def use(
         self, app_handle: str, handle: str = None, config: Dict[str, Any] = None
     ) -> AppInstance:
-        """Convenience function for creating or loading an instance of an app."""
-
-        # TODO: The Engine API should permit App Handles to avoid having this extra round trip.
-        app = App.get(client=self, handle=app_handle)
-        if app.error:
-            raise app.error
-        if not app.data:
-            raise SteamshipError(f"A Steamship App with handle {app_handle} was not found.")
-
+        """Creates or loads an instance named `handle` of App named `app_handle`."""
         instance = AppInstance.create(
-            client=self, app_id=app.data.id, handle=handle, upsert=True, config=config
+            self,
+            app_handle=app_handle,
+            handle=handle,
+            config=config,
+            upsert=True,  # TODO(ted): Rename `upsert` globally to something semantically appropriate
         )
+
         if instance.error:
             raise instance.error
         if not instance.data:
             raise SteamshipError(
                 f"Unable to create an instance of App {app_handle} with handle {handle}."
             )
+        return instance.data
 
+    def use_plugin(
+        self, plugin_handle: str, handle: str = None, config: Dict[str, Any] = None
+    ) -> PluginInstance:
+        """Creates or loads an instance named `handle` of a Plugin named `plugin_handle`."""
+        instance = PluginInstance.create(
+            self,
+            plugin_handle=plugin_handle,
+            handle=handle,
+            config=config,
+            upsert=True,  # TODO(ted): Rename `upsert` globally to something semantically appropriate
+        )
+
+        if instance.error:
+            raise instance.error
+        if not instance.data:
+            raise SteamshipError(
+                f"Unable to create an instance of Plugin {plugin_handle} with handle {handle}."
+            )
         return instance.data
 
     def tag(
@@ -182,7 +198,7 @@ class Steamship(Client):
         external_id: str = None,
         external_type: str = None,
         external_group: str = None,
-    ) -> Response[TaskCommentList]:
+    ) -> IResponse[TaskCommentList]:
         return TaskComment.list(
             client=self,
             task_id=task_id,
