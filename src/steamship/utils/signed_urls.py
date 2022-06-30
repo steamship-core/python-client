@@ -13,12 +13,20 @@ from steamship.utils.localstack import apply_localstack_url_fix
 logging.getLogger().setLevel(logging.INFO)
 
 
-def download_from_signed_url(url: str, to_file: Path = None) -> Path:
+def url_to_bytes(url: str) -> bytes:
     """
-    Downloads the Signed URL to the filename `desired_filename` in a temporary directory on disk.
+    Downloads the Signed URL and returns the contents as bytes.
+
+    This is a helper function to consolidate Steamship Client URL fetching to ensure a single point of handling for:
+      * Error messages
+      * Any required manipulations for URL signed URLs
+      * Any required manipulations for localstack-based environments
+
+    Note that the base API Client does not use this method on purpose: in the event of error code, it inspects the
+    contents of the response for a SteamshipError.
     """
     url = apply_localstack_url_fix(url)
-    logging.info(f"Downloading: {url} to {to_file} in a temporary directory")
+    logging.info(f"Downloading: {url}.")
 
     resp = requests.get(url)
     if resp.status_code != 200:
@@ -26,6 +34,7 @@ def download_from_signed_url(url: str, to_file: Path = None) -> Path:
         # The full response contains:
         # <Error>
         #     <Code>NoSuchKey</Code>
+        #
         # So we **could** check the response text even in the event of 200 but that seems wrong..
         if "<Code>NoSuchKey</Code>" in resp.text:
             raise SteamshipError(
@@ -35,13 +44,20 @@ def download_from_signed_url(url: str, to_file: Path = None) -> Path:
             raise SteamshipError(
                 message=f"There was an error downloading from the signed url: {url}. HTTP {resp.status_code}. Content: {resp.text}"
             )
+    return resp.content
+
+
+def download_from_signed_url(url: str, to_file: Path = None) -> Path:
+    """
+    Downloads the Signed URL to the filename `desired_filename` in a temporary directory on disk.
+    """
+    content = url_to_bytes(url)
 
     if not to_file.parent.exists():
         to_file.parent.mkdir(parents=True, exist_ok=True)
 
     with open(to_file, "wb") as f:
         logging.info(f"Got contents of: {url}")
-        content = resp.content
         f.write(content)
         logging.info(f"Wrote contents of: {url} to {to_file}")
     return Path(to_file)
