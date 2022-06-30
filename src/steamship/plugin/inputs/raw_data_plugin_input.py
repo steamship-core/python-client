@@ -51,7 +51,7 @@ class RawDataPluginInput(BaseModel):
 
     def __init__(self, **kwargs):
         data = kwargs.get("data")
-        url = kwargs.get("data")
+        url = kwargs.get("url")
 
         if data is not None and is_base64(data):
             data_bytes = base64.b64decode(data)
