@@ -60,6 +60,9 @@ class RawDataPluginInput(BaseModel):
             else:
                 kwargs["data"] = data_bytes
         elif url is not None:
-            self.data = url_to_bytes(url)
+            kwargs["data"] = url_to_bytes(url)  # Resolve the URL into the data field
+            kwargs.pop(
+                "url"
+            )  # Remove the URL field to preserve a simple interface for the consumer
 
         super().__init__(**kwargs)

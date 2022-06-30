@@ -20,7 +20,7 @@ from steamship.plugin.trainable_model import TrainableModel
 # If this isn't present, Localstack won't show logs
 logging.getLogger().setLevel(logging.INFO)
 
-TRAIN_RESPONSE = TrainPluginOutput()
+TRAIN_RESPONSE = TrainPluginOutput(training_complete=True)
 
 
 class TestConfig(Config):
