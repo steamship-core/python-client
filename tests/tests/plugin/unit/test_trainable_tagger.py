@@ -5,6 +5,7 @@ from assets.plugins.taggers.plugin_trainable_tagger import (
 )
 
 from steamship import File
+from steamship.base.utils import to_camel
 from steamship.data.block import Block
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -68,7 +69,7 @@ def test_trainable_tagger():
         ),
         model,
     )
-    assert tagger1.data == TRAIN_RESPONSE.dict()
+    assert tagger1.data == {to_camel(k): v for (k, v) in TRAIN_RESPONSE.dict().items()}
 
     tagger2 = plugin.train_endpoint(
         **PluginRequest(
@@ -79,7 +80,7 @@ def test_trainable_tagger():
             plugin_instance_id="000",
         ).dict()
     )
-    assert tagger2.data == TRAIN_RESPONSE.dict()
+    assert tagger2.data == {to_camel(k): v for (k, v) in TRAIN_RESPONSE.dict().items()}
 
     # STEP 3. Run
     res = plugin.run(TEST_PLUGIN_REQ)
