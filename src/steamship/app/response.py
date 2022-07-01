@@ -3,7 +3,7 @@ from __future__ import annotations
 import io
 import json
 import logging
-from typing import Any, Dict, Generic, TypeVar, Union
+from typing import Any, Dict, Generic, Optional, TypeVar, Union
 
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
@@ -11,6 +11,7 @@ from pydantic.generics import GenericModel
 from steamship.base import Client, SteamshipError
 from steamship.base.binary_utils import flexi_create
 from steamship.base.configuration import CamelModel
+from steamship.base.error import DEFAULT_ERROR_MESSAGE
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 from steamship.base.tasks import Task, TaskState
 
@@ -117,24 +118,43 @@ class Response(GenericModel, Generic[T]):
     @staticmethod
     def error(
         code: int,
-        message: str = None,
-        error: SteamshipError = None,
-        exception: Exception = None,
+        message: Optional[str] = None,
+        error: Optional[SteamshipError] = None,
+        exception: Optional[Exception] = None,
+        prefix: Optional[str] = None,
     ) -> Response[T]:
-        error = error or SteamshipError(message=message)
+        """Merges a number of error channels into one unified Response object.
 
-        if error.message is None:
-            error.message = message
-        else:
-            error.message = f"{error.message}. {message}"
+        Aggregates all possible messages into a single " | "-delimeted error message.
 
+        If the final resulting error message is non-null, prefixes with the provided `prefix`
+        """
+        # Use or create the return error
+        error = error or SteamshipError()
+
+        messages = []
+        if error.message != DEFAULT_ERROR_MESSAGE:
+            messages.append(error.message)
+
+        # Set or append the additional message
+        if message is not None and message not in messages:
+            messages.append(message)
+
+        # Set or append the exception
         if exception is not None:
-            if error.message is None:
-                error.message = f"{exception}"
-            else:
-                error.message = f"{error.message}. {exception}"
+            exception_str = f"{exception}"
+            if exception_str not in messages:
+                messages.append(exception_str)
 
-        return Response(error=error or SteamshipError(message=message), http=Http(status=code))
+        messages = [m.strip() for m in messages if m is not None and len(m.strip())]
+        if len(messages) > 0:
+            error.message = " | ".join(messages)
+
+        # Finally, add the prefix if requested.
+        if prefix and error.message:
+            error.message = f"{prefix}{error.message}"
+
+        return Response(error=error, http=Http(status=code))
 
     @staticmethod
     def from_obj(obj: Any) -> Response:

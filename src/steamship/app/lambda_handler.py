@@ -46,6 +46,11 @@ def create_handler(app_cls: Type[App]):
                 exception=ex,
             )
 
+        if request and request.invocation:
+            error_prefix = f"[ERROR - {request.invocation.httpVerb} {request.invocation.appPath}] "
+        else:
+            error_prefix = f"[ERROR - ?VERB ?PATH] "
+
         try:
             app = app_cls(client=client, config=request.invocation.config)
         except SteamshipError as se:
@@ -54,14 +59,16 @@ def create_handler(app_cls: Type[App]):
             logging.exception(ex)
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Handler was unable to initialize plugin/app.",
+                prefix=error_prefix,
+                message=f"Unable to initialize plugin/app. {ex}",
                 exception=ex,
             )
 
         if not app:
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Handler was unable to construct app/plugin for invocation.",
+                prefix=error_prefix,
+                message=f"Unable to construct app/plugin for invocation.",
             )
 
         try:
@@ -69,18 +76,13 @@ def create_handler(app_cls: Type[App]):
             return Response.from_obj(response)
         except SteamshipError as se:
             logging.exception(se)
+            se.message = f"{error_prefix}{se.message}"
             return Response.from_obj(se)
         except Exception as ex:
             logging.exception(ex)
-            app_verb = None
-            app_path = None
-            if request:
-                if request.invocation:
-                    app_path = request.invocation.appPath
-                    app_verb = request.invocation.httpVerb
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message=f"Handler was unable to run app/plugin method {app_verb} {app_path}",
+                prefix=error_prefix,
                 exception=ex,
             )
 
