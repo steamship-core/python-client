@@ -31,7 +31,7 @@ class RawDataPluginInput(BaseModel):
     - `data` - Raw bytes
     ` `default_mime_type` - The best guess as to `data`'s MIME Type unless otherwise known to be different.
 
-    In practice, however, the lifecycle of this object involves a but more under the hood:
+    In practice, however, the lifecycle of this object involves a bit more under the hood:
 
     - **Potentially Base64 Decoding Data**. When decoding from a dict, the `data` field is assumed to be Base64 encoded.
       This is to support JSON as a transport encoding over the wire. The constructor automatically performs the
