@@ -7,6 +7,7 @@ from steamship.app.response import Response
 from steamship.base import Client
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
@@ -29,6 +30,9 @@ class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
         pass
 
     def train(self, input: TrainPluginInput) -> TrainPluginOutput:
+        pass
+
+    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
         pass
 
     def save_to_folder(self, checkpoint_path: Path):
@@ -56,7 +60,12 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
         return Response(data=TrainingParameterPluginOutput())
 
     def train(self, request: PluginRequest[TrainPluginInput], model) -> Response[TrainPluginOutput]:
-        return Response(data=TrainPluginOutput())
+        return Response(data=TrainPluginOutput(training_complete=True))
+
+    def train_status(
+        self, request: PluginRequest[TrainStatusPluginInput], model
+    ) -> Response[TrainPluginOutput]:
+        return Response(data=TrainPluginOutput(training_complete=True))
 
 
 #
