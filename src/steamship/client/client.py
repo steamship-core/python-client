@@ -107,15 +107,21 @@ class Steamship(Client):
         )
 
     def use(
-        self, app_handle: str, handle: str = None, config: Dict[str, Any] = None
+        self,
+        app_handle: str,
+        handle: str = None,
+        config: Dict[str, Any] = None,
+        version: str = None,
+        reuse: bool = True,
     ) -> AppInstance:
         """Creates or loads an instance named `handle` of App named `app_handle`."""
         instance = AppInstance.create(
             self,
             app_handle=app_handle,
+            app_version_handle=version,
             handle=handle,
             config=config,
-            upsert=True,  # TODO(ted): Rename `upsert` globally to something semantically appropriate
+            upsert=reuse,
         )
 
         if instance.error:
@@ -127,15 +133,21 @@ class Steamship(Client):
         return instance.data
 
     def use_plugin(
-        self, plugin_handle: str, handle: str = None, config: Dict[str, Any] = None
+        self,
+        plugin_handle: str,
+        handle: str = None,
+        config: Dict[str, Any] = None,
+        version: str = None,
+        reuse: bool = True,
     ) -> PluginInstance:
         """Creates or loads an instance named `handle` of a Plugin named `plugin_handle`."""
         instance = PluginInstance.create(
             self,
             plugin_handle=plugin_handle,
+            plugin_version_handle=version,
             handle=handle,
             config=config,
-            upsert=True,  # TODO(ted): Rename `upsert` globally to something semantically appropriate
+            upsert=reuse,
         )
 
         if instance.error:
