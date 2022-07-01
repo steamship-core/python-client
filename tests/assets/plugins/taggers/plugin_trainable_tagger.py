@@ -86,6 +86,14 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
         self.keyword_list = input.training_params.get("keyword_list", [])
         return TRAIN_RESPONSE
 
+    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+        """Training for this model is to set the parameters to those provided in the input object.
+
+        This allows us to test that we're properly passing through the training parameters to the train process.
+        """
+        logging.info("TestTrainableTaggerModel:train()")
+        return TRAIN_RESPONSE
+
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
