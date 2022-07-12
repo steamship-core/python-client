@@ -87,8 +87,8 @@ class PluginService(ABC, App, Generic[T, U]):
 
 class TrainablePluginService(App, ABC, Generic[T, U]):
     # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
-        super().__init__(client, config)
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
+        super().__init__(client, config, logger)
 
     @abstractmethod
     def model_cls(self) -> Type[TrainableModel]:
@@ -108,7 +108,7 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
             use_cache=True,
             plugin_instance_config=self.config,
         )
-        logging.info("TrainablePluginService:run() - Loaded model; invoking run_with_model")
+        self.logger.info("TrainablePluginService:run() - Loaded model; invoking run_with_model")
         return self.run_with_model(request, model)
 
     @abstractmethod

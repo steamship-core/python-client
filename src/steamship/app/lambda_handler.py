@@ -92,7 +92,7 @@ def create_handler(app_cls: Type[App]):
 
     def handler(event: Dict, context: Dict = None) -> dict:
         logger = None
-        loggingConfig = event["loggingConfig"]
+        loggingConfig = event.get("loggingConfig")
 
         if loggingConfig is None:
             return Response.error(
@@ -102,18 +102,6 @@ def create_handler(app_cls: Type[App]):
 
         loggingHost = loggingConfig.get("loggingHost")
         loggingPort = loggingConfig.get("loggingPort")
-
-        if loggingHost is None:
-            return Response.error(
-                code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Plugin/App handler did receive a remote logging config, but it did not include a loggingHost.",
-            ).dict(by_alias=True)
-
-        if loggingPort is None:
-            return Response.error(
-                code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Plugin/App handler did receive a remote logging config, but it did not include a loggingPort.",
-            ).dict(by_alias=True)
 
         logger = logging.getLogger("lambda.handler")
         logging.basicConfig(level=logging.INFO)
@@ -125,6 +113,18 @@ def create_handler(app_cls: Type[App]):
             loggingHost != "none"
         ):  # Key off the string none, not 'is None', to avoid config errors where remote host isn't passed
             # Configure remote logging
+            if loggingHost is None:
+                return Response.error(
+                    code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                    message="Plugin/App handler did receive a remote logging config, but it did not include a loggingHost.",
+                ).dict(by_alias=True)
+
+            if loggingPort is None:
+                return Response.error(
+                    code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                    message="Plugin/App handler did receive a remote logging config, but it did not include a loggingPort.",
+                ).dict(by_alias=True)
+
             custom_format = {
                 "level": "%(levelname)s",
                 "host": "%(hostname)s",

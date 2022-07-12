@@ -88,7 +88,7 @@ class App:
         self.client = client
         self.config = config
         if logger is None:
-            self.logger = self.logger.getLogger("applogger.local")
+            self.logger = logging.getLogger("applogger.local")
         else:
             self.logger = logger
 

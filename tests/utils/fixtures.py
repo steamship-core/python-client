@@ -5,7 +5,7 @@ import pytest
 from steamship import Space, Steamship
 from steamship.app.app import App
 from steamship.app.lambda_handler import create_handler as _create_handler
-from steamship.app.request import Invocation, Request
+from steamship.app.request import Invocation, LoggingConfig, Request
 from tests.utils.client import get_steamship_client
 
 
@@ -60,7 +60,10 @@ def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     def handle(verb: str, app_path: str, arguments: Optional[dict] = None) -> dict:
         _handler = _create_handler(app)
         invocation = Invocation(httpVerb=verb, appPath=app_path, arguments=arguments or dict())
-        request = Request(clientConfig=new_client.config, invocation=invocation)
+        loggingConfig = LoggingConfig(loggingHost="none", loggingPort="none")
+        request = Request(
+            clientConfig=new_client.config, invocation=invocation, loggingConfig=loggingConfig
+        )
         event = request.dict()
         return _handler(event)
 

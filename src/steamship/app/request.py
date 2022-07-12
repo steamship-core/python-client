@@ -38,6 +38,11 @@ class Invocation(BaseModel):
     config: Dict[str, Any] = None
 
 
+class LoggingConfig(BaseModel):
+    loggingHost: str = None
+    loggingPort: str = None
+
+
 class Request(BaseModel):
     """A request as the Steamship Hosting Framework receives it from the Engine.
 
@@ -51,3 +56,4 @@ class Request(BaseModel):
 
     clientConfig: Configuration = None
     invocation: Invocation = None
+    loggingConfig: LoggingConfig = None
