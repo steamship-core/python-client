@@ -56,7 +56,7 @@ def create_handler(app_cls: Type[App]):
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
-                message=f"Unable to initialize plugin/app. {ex}",
+                message=f"Unable to initialize plugin/app.",
                 exception=ex,
             )
 

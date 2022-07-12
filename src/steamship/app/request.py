@@ -49,7 +49,5 @@ class Request(BaseModel):
     is intended to execute.
     """
 
-    # TODO (enias): Is this a replacement for the Request in base?
-    # FROM (ted): No; this is the request object a
     clientConfig: Configuration = None
     invocation: Invocation = None
