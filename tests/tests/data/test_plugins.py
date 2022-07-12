@@ -111,3 +111,19 @@ def test_plugin_instance_get():
     other_instance = PluginInstance.get(steamship, handle=handle).data
 
     assert instance.id == other_instance.id
+
+
+def test_plugin_instance_quick_create():
+    steamship = get_steamship_client()
+
+    handle = f"test_tagger_test_handle{uuid.uuid4()}"
+    handle2 = f"test_tagger_test_handle{uuid.uuid4()}"
+
+    p1 = steamship.use_plugin("test-tagger", handle)
+    p2 = steamship.use_plugin("test-tagger", handle2)
+    p3 = steamship.use_plugin("test-tagger", handle)
+    p4 = steamship.use_plugin("test-tagger")
+
+    assert p1.id == p3.id
+    assert p1.id != p2.id
+    assert p1.id != p4.id

@@ -65,6 +65,13 @@ def zip_deployable(file_path: Path) -> bytes:
                     pypi_file = Path(root) / file
                     zip_file.write(pypi_file, pypi_file.relative_to(package_dir))
 
+    # Leaving this in as a reminder: this is an easy way to generate the app zip for use in
+    # updating engine unit tests.
+    #
+    # with open("demo_app.zip", 'wb') as f:
+    #     f.write(zip_buffer.getvalue())
+    #
+
     return zip_buffer.getvalue()
 
 
@@ -96,7 +103,7 @@ def deploy_plugin(
         "test-version",
         plugin_id=plugin.id,
         filebytes=zip_bytes,
-        config_template=version_config_template,  # TODO: What is this?
+        config_template=version_config_template,
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
@@ -180,8 +187,7 @@ def _wait_for_instance(instance):
     instance.wait()
     assert instance.error is None
     assert instance.data is not None
-    instance = instance.data
-    return instance
+    return instance.data
 
 
 def _wait_for_version(version):
@@ -189,5 +195,4 @@ def _wait_for_version(version):
     version.wait()
     assert version.error is None
     assert version.data is not None
-    version = version.data
-    return version
+    return version.data

@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Union
 
+DEFAULT_ERROR_MESSAGE = "Undefined remote error"
+
 
 class SteamshipError(Exception):
     message: str = None
@@ -13,7 +15,7 @@ class SteamshipError(Exception):
 
     def __init__(
         self,
-        message: str = "Undefined remote error",
+        message: str = DEFAULT_ERROR_MESSAGE,
         internal_message: str = None,
         suggestion: str = None,
         code: str = None,

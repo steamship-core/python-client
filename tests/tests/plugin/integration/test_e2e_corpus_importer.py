@@ -20,9 +20,6 @@ def test_e2e_corpus_importer():
     file_importer_path = PLUGINS_PATH / "importers" / "plugin_file_importer.py"
 
     with temporary_space(client) as space:
-        # test_file_importer_instance = PluginInstance.create(
-        #     client, plugin_handle="test-fileImporter-valueOrData", upsert=True, space_id=space.id
-        # ).data
         with deploy_plugin(client, file_importer_path, "fileImporter", space_id=space.id) as (
             _,
             _,
@@ -36,8 +33,7 @@ def test_e2e_corpus_importer():
                 instance,
             ):
                 req = CorpusImportRequest(
-                    type="corpus",  # TODO: This will be replaced with a tag reference
-                    handle="default",  # The default corpus
+                    type="file",
                     value="dummy-value",
                     plugin_instance=instance.handle,
                     file_importer_plugin_instance=fi_instance.handle,

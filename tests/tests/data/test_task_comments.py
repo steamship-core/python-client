@@ -142,24 +142,24 @@ def test_task_comment_feedback_reporting():
         comments = res.task.list_comments()
         assert len(comments.data.comments) == 3
 
-        g1 = client.tasks.list_comments(external_group=group_name_1)
+        g1 = client.list_comments(external_group=group_name_1)
         assert len(g1.data.comments) == 2
 
-        g2 = client.tasks.list_comments(external_group=group_name_2)
+        g2 = client.list_comments(external_group=group_name_2)
         assert len(g2.data.comments) == 1
 
-        g1 = client.tasks.list_comments(task_id=res.task.task_id, external_group=group_name_1)
+        g1 = client.list_comments(task_id=res.task.task_id, external_group=group_name_1)
         assert len(g1.data.comments) == 2
 
-        g2 = client.tasks.list_comments(task_id=res.task.task_id, external_group=group_name_2)
+        g2 = client.list_comments(task_id=res.task.task_id, external_group=group_name_2)
         assert len(g2.data.comments) == 1
 
-        g1 = client.tasks.list_comments(
+        g1 = client.list_comments(
             task_id=res.task.task_id, external_id="Foo1", external_group=group_name_1
         )
         assert len(g1.data.comments) == 1
 
-        g2 = client.tasks.list_comments(
+        g2 = client.list_comments(
             task_id=res.task.task_id, external_id="Foo1", external_group=group_name_2
         )
         assert len(g2.data.comments) == 0
@@ -168,8 +168,8 @@ def test_task_comment_feedback_reporting():
         comments.data.comments[1].delete()
         comments.data.comments[2].delete()
 
-        g1 = client.tasks.list_comments(external_group=group_name_1)
+        g1 = client.list_comments(external_group=group_name_1)
         assert len(g1.data.comments) == 0
 
-        g2 = client.tasks.list_comments(external_group=group_name_2)
+        g2 = client.list_comments(external_group=group_name_2)
         assert len(g2.data.comments) == 0
