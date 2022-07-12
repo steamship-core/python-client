@@ -129,6 +129,7 @@ class App:
         path = cls._clean_path(path)
 
         cls._method_mappings[verb][path] = name
+        # TODO Dave: this log call is not going to the remote logger, but should
         logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
 
     def __call__(self, request: Request, context: Any = None) -> Response:
