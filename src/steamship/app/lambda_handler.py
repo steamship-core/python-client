@@ -113,29 +113,33 @@ def create_handler(app_cls: Type[App]):
                 message="Plugin/App handler did receive a remote logging config, but it did not include a loggingPort.",
             ).dict(by_alias=True)
 
-        # Configure remote logging
-        custom_format = {
-            "level": "%(levelname)s",
-            "host": "%(hostname)s",
-            "where": "%(module)s.%(funcName)s",
-            "type": "%(levelname)s",
-            "stack_trace": "%(exc_text)s",
-        }
-
+        logger = logging.getLogger("lambda.handler")
         logging.basicConfig(level=logging.INFO)
-
+        loggingHandler = None
         # This log statement intentionally goes to the DEFAULT logging handler, to debug logging configuration issues
         logging.info(f"Logging host: {loggingHost} Logging port: {loggingPort}")
 
-        logger = logging.getLogger("lambda.handler")
-        loggingHandler = fluenthandler.FluentHandler(
-            "steamship.deployed_lambda", host=loggingHost, port=loggingPort
-        )
-        formatter = FluentRecordFormatter(custom_format)
-        loggingHandler.setFormatter(formatter)
-        logger.addHandler(loggingHandler)
+        if (
+            loggingHost != "none"
+        ):  # Key off the string none, not 'is None', to avoid config errors where remote host isn't passed
+            # Configure remote logging
+            custom_format = {
+                "level": "%(levelname)s",
+                "host": "%(hostname)s",
+                "where": "%(module)s.%(funcName)s",
+                "type": "%(levelname)s",
+                "stack_trace": "%(exc_text)s",
+            }
+            loggingHandler = fluenthandler.FluentHandler(
+                "steamship.deployed_lambda", host=loggingHost, port=loggingPort
+            )
+            formatter = FluentRecordFormatter(custom_format)
+            loggingHandler.setFormatter(formatter)
+            logger.addHandler(loggingHandler)
+
         response = _handler(logger, event, context)
-        loggingHandler.close()
+        if loggingHandler is not None:
+            loggingHandler.close()
         return response.dict(by_alias=True)
 
     return handler
