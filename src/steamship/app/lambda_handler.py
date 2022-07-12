@@ -51,7 +51,6 @@ def create_handler(app_cls: Type[App]):
             )
 
         try:
-            logging.error(f"Passed Logger object: {logger}")
             app = app_cls(client=client, config=request.invocation.config, logger=logger)
         except SteamshipError as se:
             return Response.from_obj(se)
@@ -105,17 +104,18 @@ def create_handler(app_cls: Type[App]):
         if loggingHost is None:
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Plugin/App handler did received a remote logging config, but it did not include a loggingHost.",
+                message="Plugin/App handler did receive a remote logging config, but it did not include a loggingHost.",
             ).dict(by_alias=True)
 
         if loggingPort is None:
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Plugin/App handler did received a remote logging config, but it did not include a loggingPort.",
+                message="Plugin/App handler did receive a remote logging config, but it did not include a loggingPort.",
             ).dict(by_alias=True)
 
         # Configure remote logging
         custom_format = {
+            "level": "%(levelname)s",
             "host": "%(hostname)s",
             "where": "%(module)s.%(funcName)s",
             "type": "%(levelname)s",
@@ -123,6 +123,10 @@ def create_handler(app_cls: Type[App]):
         }
 
         logging.basicConfig(level=logging.INFO)
+
+        # This log statement intentionally goes to the DEFAULT logging handler, to debug logging configuration issues
+        logging.info(f"Logging host: {loggingHost} Logging port: {loggingPort}")
+
         logger = logging.getLogger("lambda.handler")
         loggingHandler = fluenthandler.FluentHandler(
             "steamship.deployed_lambda", host=loggingHost, port=loggingPort
