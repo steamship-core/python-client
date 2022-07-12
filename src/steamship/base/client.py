@@ -101,6 +101,7 @@ class Client(CamelModel, ABC):
                 and "127.0.0.1" not in base
                 and "0:0:0:0" not in base
                 and "host.docker.internal" not in base
+                and "/test:" not in base  # http://test:8081 - for use with GitHub actions
             ):
                 # We want to prepend the user handle
                 parts = base.split("//")
