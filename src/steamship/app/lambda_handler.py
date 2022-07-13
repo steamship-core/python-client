@@ -138,6 +138,8 @@ def create_handler(app_cls: Type[App]):
             formatter = FluentRecordFormatter(custom_format)
             loggingHandler.setFormatter(formatter)
             logger.addHandler(loggingHandler)
+            # The below should make it so calls to logging.info etc are also routed to the remote logger
+            logging.root.addHandler(loggingHandler)
 
         response = _handler(logger, event, context)
         if loggingHandler is not None:
