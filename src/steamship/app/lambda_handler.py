@@ -131,6 +131,7 @@ def create_handler(app_cls: Type[App]):
                 "where": "%(module)s.%(funcName)s",
                 "type": "%(levelname)s",
                 "stack_trace": "%(exc_text)s",
+                "component": "app-plugin-lambda",
             }
             loggingHandler = fluenthandler.FluentHandler(
                 "steamship.deployed_lambda", host=loggingHost, port=loggingPort
