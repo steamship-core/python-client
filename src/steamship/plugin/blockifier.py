@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from logging import Logger
 from typing import Any, Dict, Type
 
 from steamship.app import Response, post
@@ -20,8 +21,8 @@ from steamship.plugin.service import PluginRequest, PluginService
 
 class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC):
     # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
-        super().__init__()
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
+        super().__init__(client, config, logger)
         if config:
             self.config = self.config_cls()(**config)
 
