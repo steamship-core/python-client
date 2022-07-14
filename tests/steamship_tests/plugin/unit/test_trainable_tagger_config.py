@@ -2,8 +2,8 @@ from unittest.mock import patch
 
 from assets.plugins.taggers.plugin_trainable_tagger_config import (
     TestConfig,
-    TestTrainableTaggerConfigModel,
-    TestTrainableTaggerConfigPlugin,
+    TrainableTaggerConfigModel,
+    TrainableTaggerConfigPlugin,
 )
 from steamship_tests.utils.fixtures import get_steamship_client
 
@@ -34,13 +34,13 @@ def test_trainable_tagger():
     assert client is not None
 
     def load_remote(**kwargs):
-        model = TestTrainableTaggerConfigModel()
+        model = TrainableTaggerConfigModel()
         model.receive_config(TestConfig(testValue1=1, testValue2=2))
         return model
 
     # There isn't ACTUALLY model data to load..
     with patch.object(TrainableModel, "load_remote", load_remote):
-        plugin = TestTrainableTaggerConfigPlugin(
+        plugin = TrainableTaggerConfigPlugin(
             client=client, config=dict(testValue1="foo", testValue2="bar")
         )
         assert plugin.client is not None

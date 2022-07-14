@@ -1,14 +1,14 @@
 from steamship_tests import APPS_PATH
-from steamship_tests.utils import deploy_app, get_steamship_client
+from steamship_tests.utils import deploy_app
+from steamship_tests.utils.fixtures import client  # noqa: F401
 
 from steamship import AppInstance
 
 
-def test_configurable_instance_invoke():
+def test_configurable_instance_invoke(client):
     greeting1 = "Hola"
     config_template = {"greeting": {"type": "string"}}
     instance_config = {"greeting": greeting1}
-    client = get_steamship_client()
     hello_world_path = APPS_PATH / "configurable_hello_world.py"
 
     with deploy_app(

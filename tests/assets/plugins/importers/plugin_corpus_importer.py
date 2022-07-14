@@ -8,7 +8,7 @@ from steamship.plugin.corpus_importer import CorpusImporter
 from steamship.plugin.service import PluginRequest
 
 
-class TestCorpusImporterPlugin(CorpusImporter):
+class CorpusImporterPlugin(CorpusImporter):
     def config_cls(self) -> Type[Config]:
         return Config
 
@@ -31,4 +31,4 @@ class TestCorpusImporterPlugin(CorpusImporter):
         )
 
 
-handler = create_handler(TestCorpusImporterPlugin)
+handler = create_handler(CorpusImporterPlugin)

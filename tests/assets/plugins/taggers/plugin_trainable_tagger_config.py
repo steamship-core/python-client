@@ -28,7 +28,7 @@ class TestConfig(Config):
     testValue2: str = None
 
 
-class TestTrainableTaggerConfigModel(TrainableModel[TestConfig]):
+class TrainableTaggerConfigModel(TrainableModel[TestConfig]):
     def load_from_folder(self, checkpoint_path: Path):
         assert self.config is not None
         assert self.config.testValue1 is not None
@@ -61,7 +61,7 @@ class TestTrainableTaggerConfigModel(TrainableModel[TestConfig]):
         return response
 
 
-class TestTrainableTaggerConfigPlugin(TrainableTagger):
+class TrainableTaggerConfigPlugin(TrainableTagger):
     """Tests the Trainable Tagger lifecycle.
 
     - This tagger produces a FIXED set of trainable parameters.
@@ -84,13 +84,13 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
     def config_cls(self) -> Type[Config]:
         return TestConfig
 
-    def model_cls(self) -> Type[TestTrainableTaggerConfigModel]:
-        return TestTrainableTaggerConfigModel
+    def model_cls(self) -> Type[TrainableTaggerConfigModel]:
+        return TrainableTaggerConfigModel
 
     def run_with_model(
         self,
         request: PluginRequest[BlockAndTagPluginInput],
-        model: TestTrainableTaggerConfigModel,
+        model: TrainableTaggerConfigModel,
     ) -> Response[BlockAndTagPluginOutput]:
         """Downloads the model file from the provided space"""
         logging.debug(f"run_with_model {request} {model}")
@@ -106,7 +106,7 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
         return ret
 
     def train(
-        self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerConfigModel
+        self, request: PluginRequest[TrainPluginInput], model: TrainableTaggerConfigModel
     ) -> Response[TrainPluginOutput]:
         train_plugin_input = request.data
         train_plugin_output = model.train(train_plugin_input)
@@ -120,4 +120,4 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
         return None
 
 
-handler = create_handler(TestTrainableTaggerConfigPlugin)
+handler = create_handler(TrainableTaggerConfigPlugin)

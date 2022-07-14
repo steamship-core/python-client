@@ -3,7 +3,7 @@ import base64
 import requests
 from steamship_tests import APPS_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_app
-from steamship_tests.utils.fixtures import get_steamship_client
+from steamship_tests.utils.fixtures import client  # noqa: F401
 
 from steamship import Space
 from steamship.base import TaskState
@@ -21,14 +21,13 @@ def _fix_url(s: str) -> str:
     return s
 
 
-def test_instance_invoke():
+def test_instance_invoke(client):
     palm_tree_path = TEST_ASSETS_PATH / "palm_tree.png"
 
     with palm_tree_path.open("rb") as f:
         palm_bytes = f.read()
     base64_palm = base64.b64encode(palm_bytes).decode("utf-8")
 
-    client = get_steamship_client()
     demo_app_path = APPS_PATH / "demo_app.py"
 
     with deploy_app(client, demo_app_path) as (app, version, instance):
@@ -129,8 +128,7 @@ def test_instance_invoke():
         assert user_info.data["handle"] == user.data.handle
 
 
-def test_deploy_in_space():
-    client = get_steamship_client()
+def test_deploy_in_space(client):
     demo_app_path = APPS_PATH / "demo_app.py"
 
     space = Space.create(client, handle="test-non-default-space").data

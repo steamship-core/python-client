@@ -33,7 +33,7 @@ def tag_sentences(block: Block):
         block.tags = tags
 
 
-class TestParserPlugin(Tagger):
+class ParserPlugin(Tagger):
     # TODO: WARNING! We will need to implement some logic that prevents
     # a distributed endless loop. E.g., a parser plugin returning the results
     # of using the Steamship client to call parse.. via itself!
@@ -56,4 +56,4 @@ class TestParserPlugin(Tagger):
             return ret
 
 
-handler = create_handler(TestParserPlugin)
+handler = create_handler(ParserPlugin)

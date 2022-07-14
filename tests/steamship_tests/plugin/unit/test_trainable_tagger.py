@@ -1,7 +1,7 @@
 from assets.plugins.taggers.plugin_trainable_tagger import (
     TRAIN_RESPONSE,
     TRAINING_PARAMETERS,
-    TestTrainableTaggerPlugin,
+    TrainableTaggerPlugin,
 )
 from steamship_tests.utils.fixtures import get_steamship_client
 
@@ -37,7 +37,7 @@ def test_trainable_tagger():
     client = get_steamship_client()
     assert client is not None
 
-    plugin = TestTrainableTaggerPlugin(client=client)
+    plugin = TrainableTaggerPlugin(client=client)
     assert plugin.client is not None
 
     # STEP 1. Training Parameters

@@ -30,7 +30,7 @@ from steamship.plugin.tagger import TrainableTagger
 from steamship.plugin.trainable_model import TrainableModel
 from tests.assets.plugins.taggers.plugin_trainable_tagger import (
     TRAINING_PARAMETERS,
-    TestTrainableTaggerModel,
+    TrainableTaggerModel,
 )
 
 # If this isn't present, Localstack won't show logs
@@ -171,7 +171,7 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
         return ThirdPartyModel
 
     def run_with_model(
-        self, request: PluginRequest[BlockAndTagPluginInput], model: TestTrainableTaggerModel
+        self, request: PluginRequest[BlockAndTagPluginInput], model: TrainableTaggerModel
     ) -> Response[BlockAndTagPluginOutput]:
         """Downloads the model file from the provided space"""
         logging.debug(f"run_with_model {request} {model}")

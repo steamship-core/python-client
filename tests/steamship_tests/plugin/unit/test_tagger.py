@@ -8,7 +8,7 @@ from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
-from tests.assets.plugins.taggers.plugin_parser import TestParserPlugin
+from tests.assets.plugins.taggers.plugin_parser import ParserPlugin
 
 TEST_REQ = BlockAndTagPluginInput(
     file=File(
@@ -34,7 +34,7 @@ def _test_resp(res):
 
 
 def test_parser():
-    parser = TestParserPlugin()
+    parser = ParserPlugin()
     res = parser.run(TEST_PLUGIN_REQ)
     _test_resp(res)
 

@@ -1,10 +1,10 @@
 from steamship_tests import PLUGINS_PATH
-from steamship_tests.utils import deploy_plugin, get_steamship_client, upload_file
+from steamship_tests.utils import deploy_plugin, upload_file
+from steamship_tests.utils.fixtures import client  # noqa: F401
 
 
-def test_e2e_tsv_blockifier_plugin():
+def test_e2e_tsv_blockifier_plugin(client):
     csv_blockifier_plugin_path = PLUGINS_PATH / "blockifiers" / "tsv_blockifier.py"
-    client = get_steamship_client()
 
     version_config_template = dict(
         text_column=dict(type="string"),

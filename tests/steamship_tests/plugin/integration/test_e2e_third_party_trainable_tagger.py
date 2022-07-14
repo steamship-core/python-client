@@ -2,7 +2,8 @@ import logging
 
 from assets.plugins.taggers.plugin_third_party_trainable_tagger import MockClient
 from steamship_tests import PLUGINS_PATH
-from steamship_tests.utils import deploy_plugin, get_steamship_client
+from steamship_tests.utils import deploy_plugin
+from steamship_tests.utils.fixtures import client  # noqa: F401
 
 from steamship.data.plugin import HostingType
 from steamship.data.plugin_instance import PluginInstance
@@ -13,8 +14,7 @@ from steamship.plugin.inputs.training_parameter_plugin_input import TrainingPara
 EXPORTER_HANDLE = "signed-url-exporter"
 
 
-def test_e2e_third_party_trainable_tagger_lambda_training():
-    client = get_steamship_client()
+def test_e2e_third_party_trainable_tagger_lambda_training(client):
     spaceR = Space.get(client)  # TODO (enias): Remove
     assert spaceR.data is not None
 

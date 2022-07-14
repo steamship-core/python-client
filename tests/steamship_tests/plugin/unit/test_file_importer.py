@@ -4,7 +4,7 @@ from steamship.app import Response
 from steamship.data.file import File
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.service import PluginRequest
-from tests.assets.plugins.importers.plugin_file_importer import TEST_DOC, TestFileImporterPlugin
+from tests.assets.plugins.importers.plugin_file_importer import TEST_DOC, FileImporterPlugin
 
 TEST_REQ = File.CreateRequest()
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
@@ -19,7 +19,7 @@ def _test_resp(res):
 
 
 def test_importer():
-    importer = TestFileImporterPlugin()
+    importer = FileImporterPlugin()
     res = importer.run(TEST_PLUGIN_REQ)
     _test_resp(res)
 

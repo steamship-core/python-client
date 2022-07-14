@@ -1,10 +1,7 @@
 import os
 from pathlib import Path
 
-from assets.plugins.taggers.plugin_trainable_tagger import (
-    TRAINING_PARAMETERS,
-    TestTrainableTaggerModel,
-)
+from assets.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS, TrainableTaggerModel
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -89,7 +86,7 @@ def test_model_can_save_to_and_load_from_checkpoint():
     # Create a new, empty checkpoint
 
     # Create a new model. Train it.
-    model = TestTrainableTaggerModel()
+    model = TrainableTaggerModel()
     model.train(TrainPluginInput(plugin_instance="foo", training_params=TRAINING_PARAMETERS))
 
     # Create a checkpoint. Save the model to it. Upload it.
@@ -99,10 +96,10 @@ def test_model_can_save_to_and_load_from_checkpoint():
     # ====================================
 
     # Now we'll create two new copies of the model
-    default_model = TestTrainableTaggerModel.load_remote(
+    default_model = TrainableTaggerModel.load_remote(
         client=client, plugin_instance_id=plugin_instance_id
     )
-    v1_model = TestTrainableTaggerModel.load_remote(
+    v1_model = TrainableTaggerModel.load_remote(
         client=client, plugin_instance_id=plugin_instance_id, checkpoint_handle="V1"
     )
 
@@ -118,13 +115,13 @@ def test_model_can_save_to_and_load_from_checkpoint():
     assert v1_model.keyword_list == default_model.keyword_list
 
     # Let's do some more manual testing of that checkpoint..
-    assert os.path.exists(model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE)
-    assert os.path.exists(default_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE)
-    assert os.path.exists(v1_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE)
+    assert os.path.exists(model.path / TrainableTaggerModel.KEYWORD_LIST_FILE)
+    assert os.path.exists(default_model.path / TrainableTaggerModel.KEYWORD_LIST_FILE)
+    assert os.path.exists(v1_model.path / TrainableTaggerModel.KEYWORD_LIST_FILE)
 
-    with open(model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f1:
-        with open(default_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f2:
-            with open(v1_model.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f3:
+    with open(model.path / TrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f1:
+        with open(default_model.path / TrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f2:
+            with open(v1_model.path / TrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f3:
                 original_model_params = f1.read()
                 default_model_params = f2.read()
                 v1_model_params = f3.read()

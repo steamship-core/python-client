@@ -2,7 +2,7 @@ import json
 import logging
 from pathlib import Path
 
-from assets.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerModel
+from assets.plugins.taggers.plugin_trainable_tagger import TrainableTaggerModel
 from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils import deploy_plugin, upload_file
 from steamship_tests.utils.fixtures import client  # noqa: F401
@@ -81,7 +81,7 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
                 )
                 checkpoint_path = checkpoint.download_model_bundle()
                 assert checkpoint_path.exists()
-                keyword_path = Path(checkpoint_path) / TestTrainableTaggerModel.KEYWORD_LIST_FILE
+                keyword_path = Path(checkpoint_path) / TrainableTaggerModel.KEYWORD_LIST_FILE
                 assert keyword_path.exists()
                 with open(keyword_path, "r") as f:
                     params = json.loads(f.read())

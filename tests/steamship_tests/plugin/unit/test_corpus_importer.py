@@ -1,7 +1,7 @@
 from steamship.app import Response
 from steamship.data.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from steamship.plugin.service import PluginRequest
-from tests.assets.plugins.importers.plugin_corpus_importer import TestCorpusImporterPlugin
+from tests.assets.plugins.importers.plugin_corpus_importer import CorpusImporterPlugin
 
 TEST_REQ = CorpusImportRequest(url="1")
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
@@ -16,7 +16,7 @@ def _test_resp(res):
 
 
 def test_importer():
-    importer = TestCorpusImporterPlugin()
+    importer = CorpusImporterPlugin()
     res = importer.run(TEST_PLUGIN_REQ)
     _test_resp(res)
 

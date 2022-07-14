@@ -32,7 +32,7 @@ class EmptyConfig(Config):
     pass
 
 
-class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
+class TrainableTaggerModel(TrainableModel[EmptyConfig]):
     """Example of a trainable model.
 
     At some point, may want to evolve this into an abstract base class, but for the time being, here is the
@@ -65,14 +65,14 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
         """[Required by TrainableModel] Load state from the provided path."""
         logging.info(f"Model:save_to_folder {checkpoint_path}")
         self.path = checkpoint_path
-        with open(self.path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f:
+        with open(self.path / TrainableTaggerModel.KEYWORD_LIST_FILE, "r") as f:
             self.keyword_list = json.loads(f.read())
 
     def save_to_folder(self, checkpoint_path: Path):
         """[Required by TrainableModel] Save state to the provided path."""
         logging.info(f"Model:save_to_folder {checkpoint_path}")
         self.path = checkpoint_path
-        with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "w") as f:
+        with open(checkpoint_path / TrainableTaggerModel.KEYWORD_LIST_FILE, "w") as f:
             f.write(json.dumps(self.keyword_list))
 
     def train(self, input: TrainPluginInput) -> TrainPluginOutput:
@@ -108,7 +108,7 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
         return response
 
 
-class TestTrainableTaggerPlugin(TrainableTagger):
+class TrainableTaggerPlugin(TrainableTagger):
     """Tests the Trainable Tagger lifecycle.
 
     - This tagger produces a FIXED set of trainable parameters.
@@ -131,13 +131,13 @@ class TestTrainableTaggerPlugin(TrainableTagger):
     def config_cls(self) -> Type[Config]:
         return EmptyConfig
 
-    def model_cls(self) -> Type[TestTrainableTaggerModel]:
-        return TestTrainableTaggerModel
+    def model_cls(self) -> Type[TrainableTaggerModel]:
+        return TrainableTaggerModel
 
     def run_with_model(
         self,
         request: PluginRequest[BlockAndTagPluginInput],
-        model: TestTrainableTaggerModel,
+        model: TrainableTaggerModel,
     ) -> Response[BlockAndTagPluginOutput]:
         """Downloads the model file from the provided space"""
         self.logger.debug(f"run_with_model {request} {model}")
@@ -153,7 +153,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         return ret
 
     def train(
-        self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerModel
+        self, request: PluginRequest[TrainPluginInput], model: TrainableTaggerModel
     ) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
         self.logger.info(f"TestTrainableTaggerPlugin:train() {request}")
@@ -204,4 +204,4 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         raise NotImplementedError()
 
 
-handler = create_handler(TestTrainableTaggerPlugin)
+handler = create_handler(TrainableTaggerPlugin)
