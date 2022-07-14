@@ -1,5 +1,5 @@
+import logging
 from abc import ABC, abstractmethod
-from logging import Logger
 from typing import Any, Dict, Type
 
 from steamship.app import post
@@ -27,8 +27,8 @@ from steamship.plugin.trainable_model import TrainableModel
 #
 class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
     # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
-        super().__init__(client, config, logger)
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+        super().__init__(client, config)
         if config:
             self.config = self.config_cls()(**config)
 
@@ -81,7 +81,7 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
     @post("train")
     def train_endpoint(self, **kwargs) -> Response[TrainPluginOutput]:
         """Exposes the Service's `train` operation to the Steamship Engine via the expected HTTP path POST /train"""
-        self.logger.info(f"Tagger:train_endpoint called. Calling train {kwargs}")
+        logging.info(f"Tagger:train_endpoint called. Calling train {kwargs}")
         arg = PluginRequest[TrainPluginInput].parse_obj(kwargs)
         model = self.model_cls()()
         model.receive_config(config=self.config)
@@ -90,7 +90,7 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
     @post("train_status")
     def train_status_endpoint(self, **kwargs) -> Response[TrainPluginOutput]:
         """Exposes the Service's `train_status` operation to the Steamship Engine via the expected HTTP path POST /train_status"""
-        self.logger.info(f"Tagger:train_status_endpoint called. Calling train_status {kwargs}")
+        logging.info(f"Tagger:train_status_endpoint called. Calling train_status {kwargs}")
         arg = PluginRequest[TrainStatusPluginInput].parse_obj(kwargs)
         model = self.model_cls()()
         model.receive_config(config=self.config)
