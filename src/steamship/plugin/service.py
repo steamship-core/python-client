@@ -87,8 +87,8 @@ class PluginService(ABC, App, Generic[T, U]):
 
 class TrainablePluginService(App, ABC, Generic[T, U]):
     # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
-        super().__init__(client, config, logger)
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+        super().__init__(client, config)
 
     @abstractmethod
     def model_cls(self) -> Type[TrainableModel]:

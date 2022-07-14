@@ -50,8 +50,8 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
 
 class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
     # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
-        super().__init__(client=client, config=config, logger=logger)
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+        super().__init__(client=client, config=config)
         if config:
             self.config = self.config_cls()(**config)
 

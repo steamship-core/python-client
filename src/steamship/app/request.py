@@ -43,6 +43,17 @@ class LoggingConfig(BaseModel):
     loggingPort: str = None
 
 
+class InvocationContext(BaseModel):
+    tenantId: str = None
+    userId: str = None
+    spaceId: str = None
+
+    invocableHandle: str = None
+    invocableVersionHandle: str = None
+    invocableInstanceHandle: str = None
+    invocableType: str = None
+
+
 class Request(BaseModel):
     """A request as the Steamship Hosting Framework receives it from the Engine.
 
@@ -57,3 +68,4 @@ class Request(BaseModel):
     clientConfig: Configuration = None
     invocation: Invocation = None
     loggingConfig: LoggingConfig = None
+    invocationContext: InvocationContext = None

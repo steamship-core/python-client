@@ -6,7 +6,7 @@ from fluent import asynchandler as fluenthandler
 from fluent.handler import FluentRecordFormatter
 
 from steamship.app.app import App
-from steamship.app.request import Request
+from steamship.app.request import InvocationContext, Request
 from steamship.app.response import Response
 from steamship.base import SteamshipError
 from steamship.base.utils import to_snake_case
@@ -102,8 +102,18 @@ def create_handler(app_cls: Type[App]):
 
         logging.basicConfig(level=logging.INFO)
         logging_handler = None
-        # This log statement intentionally goes to the DEFAULT logging handler, to debug logging configuration issues
+
+        invocation_context_dict = event.get("invocationContext")
+        if invocation_context_dict is None:
+            return Response.error(
+                code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                message="Plugin/App handler did not receive an invocation context.",
+            ).dict(by_alias=True)
+
+        invocation_context = InvocationContext.parse_obj(invocation_context_dict)
+        # These log statements intentionally go to the logging handler pre-remote attachment, to debug logging configuration issues
         logging.info(f"Logging host: {logging_host} Logging port: {logging_port}")
+        logging.info(f"Invocation context: {invocation_context}")
 
         if (
             logging_host != "none"
@@ -128,6 +138,15 @@ def create_handler(app_cls: Type[App]):
                 "type": "%(levelname)s",
                 "stack_trace": "%(exc_text)s",
                 "component": "app-plugin-lambda",
+                "userId": invocation_context.userId,
+                "spaceId": invocation_context.spaceId,
+                "tenantId": invocation_context.tenantId,
+                "invocableHandle": invocation_context.invocableHandle,
+                "invocableVersionHandle": invocation_context.invocableVersionHandle,
+                "invocableType": invocation_context.invocableType,
+                "path": event.get("invocation").get("appPath")
+                if event.get("invocation") is not None
+                else None,
             }
             logging_handler = fluenthandler.FluentHandler(
                 "steamship.deployed_lambda", host=logging_host, port=logging_port
