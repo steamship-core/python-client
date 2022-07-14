@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 
 from assets.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerModel
+from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils import deploy_plugin, upload_file
 from steamship_tests.utils.fixtures import client  # noqa: F401
 
@@ -12,14 +13,12 @@ from steamship.data.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
-from tests import PLUGINS_PATH
 
 EXPORTER_HANDLE = "signed-url-exporter"
 KEYWORDS = ["product", "coupon"]
 
 
 def test_e2e_trainable_tagger_lambda_training(client: Steamship):
-
     version_config_template = dict(
         text_column=dict(type="string"),
         tag_columns=dict(type="string"),

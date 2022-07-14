@@ -1,8 +1,6 @@
-from steamship_tests.utils import deploy_plugin
-from steamship_tests.utils.fixtures import get_steamship_client
-
-from tests import PLUGINS_PATH
-from tests.steamship_tests.client.operations.test_tag_file import tag_file
+from steamship_tests import PLUGINS_PATH
+from steamship_tests.client.operations.test_tag_file import tag_file
+from steamship_tests.utils import deploy_plugin, get_steamship_client
 
 
 def test_e2e_tagger():

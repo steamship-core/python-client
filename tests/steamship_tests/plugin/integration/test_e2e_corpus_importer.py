@@ -1,10 +1,8 @@
-from steamship_tests.utils import deploy_plugin
-from steamship_tests.utils.fixtures import get_steamship_client
-from steamship_tests.utils.random import temporary_space
+from steamship_tests import PLUGINS_PATH
+from steamship_tests.utils import deploy_plugin, get_steamship_client, temporary_space
 
 from steamship import File
 from steamship.data.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
-from tests import PLUGINS_PATH
 
 HANDLE = "test-importer-plugin-v1"
 TEST_H1 = "A Poem"

@@ -3,8 +3,9 @@ import shutil
 import tempfile
 from pathlib import Path
 
+from steamship_tests import TEST_ASSETS_PATH
+
 from steamship.utils.zip_archives import unzip_folder, zip_folder
-from tests import TEST_ASSETS_PATH
 
 
 def test_zip_unzip():

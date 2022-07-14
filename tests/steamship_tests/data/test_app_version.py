@@ -1,8 +1,7 @@
-from steamship_tests.utils import zip_deployable
-from steamship_tests.utils.fixtures import get_steamship_client
+from steamship_tests import APPS_PATH
+from steamship_tests.utils import get_steamship_client, zip_deployable
 
 from steamship import App, AppVersion
-from tests import APPS_PATH
 
 
 def test_version_create():

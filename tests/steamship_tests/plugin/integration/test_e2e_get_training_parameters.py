@@ -1,12 +1,11 @@
 import math
 
 from assets.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
-from steamship_tests.utils import deploy_plugin
-from steamship_tests.utils.fixtures import get_steamship_client
+from steamship_tests import PLUGINS_PATH
+from steamship_tests.utils import deploy_plugin, get_steamship_client
 
 from steamship.data.plugin import HostingType
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-from tests import PLUGINS_PATH
 
 
 def test_get_training_parameters():

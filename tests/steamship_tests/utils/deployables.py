@@ -9,12 +9,13 @@ import zipfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from steamship_tests import SRC_PATH
+
 from steamship import App, AppInstance, AppVersion, Steamship
 from steamship.data.plugin import HostingType, Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
-from tests import SRC_PATH
 
 
 def install_package(package: str, into_folder: str):

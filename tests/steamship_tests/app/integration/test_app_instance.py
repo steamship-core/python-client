@@ -1,14 +1,14 @@
 import base64
 
 import requests
-from steamship_tests.utils import deploy_app
+from steamship_tests import APPS_PATH, TEST_ASSETS_PATH
+from steamship_tests.utils.deployables import deploy_app
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import Space
 from steamship.base import TaskState
 from steamship.base.mime_types import MimeTypes
 from steamship.data.user import User
-from tests import APPS_PATH, TEST_ASSETS_PATH
 
 
 def _fix_url(s: str) -> str:

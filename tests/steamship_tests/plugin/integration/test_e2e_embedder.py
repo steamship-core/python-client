@@ -1,14 +1,13 @@
-from steamship_tests.utils import deploy_plugin
-from steamship_tests.utils.fixtures import get_steamship_client
-
-from steamship.data.plugin import PluginType
-from tests import PLUGINS_PATH
-from tests.steamship_tests.client.operations.test_embed import (
+from steamship_tests import PLUGINS_PATH
+from steamship_tests.client.operations.test_embed import (
     basic_embedding_search,
     basic_embeddings,
     count_embeddings,
 )
-from tests.steamship_tests.client.operations.test_embedding_index import create_index
+from steamship_tests.client.operations.test_embedding_index import create_index
+from steamship_tests.utils import deploy_plugin, get_steamship_client
+
+from steamship.data.plugin import PluginType
 
 
 def test_e2e_embedder():

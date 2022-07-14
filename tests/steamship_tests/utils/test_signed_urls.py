@@ -3,6 +3,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
+from steamship_tests import TEST_ASSETS_PATH
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
 
@@ -10,7 +11,6 @@ from steamship import Space
 from steamship.data.space import SignedUrl
 from steamship.utils.signed_urls import download_from_signed_url, upload_to_signed_url
 from steamship.utils.zip_archives import zip_folder
-from tests import TEST_ASSETS_PATH
 
 
 def test_upload_download_text():

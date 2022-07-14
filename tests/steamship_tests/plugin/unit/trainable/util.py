@@ -1,6 +1,7 @@
+from steamship_tests.base.test_task import NoOpResult
+
 from steamship.base.response import Response
 from steamship.base.tasks import TaskState
-from tests.steamship_tests.base.test_task import NoOpResult
 
 PLUGIN_INSTANCE_ID = "0000-0000-0000-0000"
 

@@ -1,7 +1,5 @@
-from steamship_tests.utils import deploy_plugin, upload_file
-from steamship_tests.utils.fixtures import get_steamship_client
-
-from tests import PLUGINS_PATH
+from steamship_tests import PLUGINS_PATH
+from steamship_tests.utils import deploy_plugin, get_steamship_client, upload_file
 
 
 def test_e2e_tsv_blockifier_plugin():

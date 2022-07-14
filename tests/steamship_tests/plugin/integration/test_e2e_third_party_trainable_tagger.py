@@ -1,6 +1,7 @@
 import logging
 
 from assets.plugins.taggers.plugin_third_party_trainable_tagger import MockClient
+from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils import deploy_plugin, get_steamship_client
 
 from steamship.data.plugin import HostingType
@@ -8,7 +9,6 @@ from steamship.data.plugin_instance import PluginInstance
 from steamship.data.space import Space
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-from tests import PLUGINS_PATH
 
 EXPORTER_HANDLE = "signed-url-exporter"
 

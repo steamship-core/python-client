@@ -1,9 +1,9 @@
+from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils import deploy_plugin
 from steamship_tests.utils.fixtures import client  # noqa: F401
 
 from steamship import File
 from steamship.client import Steamship
-from tests import PLUGINS_PATH
 from tests.assets.plugins.blockifiers.blockifier import TEST_DOC
 
 

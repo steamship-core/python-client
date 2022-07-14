@@ -29,14 +29,18 @@ def test_resp():
 
     # This plugin is not trainable, and thus it refuses trainable parameters requests
     with pytest.raises(Exception):
+        # noinspection PyUnresolvedReferences
         blockifier.get_training_parameters(PluginRequest(data=TrainingParameterPluginInput()))
     with pytest.raises(Exception):
+        # noinspection PyUnresolvedReferences
         blockifier.get_training_parameters_endpoint(
             **PluginRequest(data=TrainingParameterPluginInput()).dict()
         )
 
     # This plugin is not trainable, and thus it refuses train requests
     with pytest.raises(Exception):
+        # noinspection PyUnresolvedReferences
         blockifier.train(PluginRequest(data=TrainPluginInput()))
     with pytest.raises(Exception):
+        # noinspection PyUnresolvedReferences
         blockifier.train_endpoint(**PluginRequest(data=TrainPluginInput()).dict())
