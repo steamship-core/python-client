@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 
 import pytest
-from assets.apps.demo_app import TestApp
+from assets.apps.demo_app import ExampleApp
 from steamship_tests.utils.fixtures import app_handler  # noqa: F401
 
 ERROR_NO_METHOD = "No handler for POST /method_doesnt_exist available."
@@ -9,7 +9,7 @@ ERROR_STEAMSHIP_ERROR = "[ERROR - POST raise_steamship_error] raise_steamship_er
 ERROR_PYTHON_ERROR = "[ERROR - POST raise_python_error] raise_python_error"
 
 
-@pytest.mark.parametrize("app_handler", [TestApp], indirect=True)
+@pytest.mark.parametrize("app_handler", [ExampleApp], indirect=True)
 def test_instance_invoke_unit(app_handler: Callable[[str, str, Optional[dict]], dict]):
     """Test that the handler returns the proper errors"""
 
@@ -23,7 +23,7 @@ def test_instance_invoke_unit(app_handler: Callable[[str, str, Optional[dict]], 
     assert response.get("status", {}).get("statusMessage", "") == ERROR_PYTHON_ERROR
 
 
-@pytest.mark.parametrize("app_handler", [TestApp], indirect=True)
+@pytest.mark.parametrize("app_handler", [ExampleApp], indirect=True)
 def test_instance_invoke_unit(app_handler: Callable[[str, str, Optional[dict]], dict]):
     """Test that the handler returns the proper errors"""
 

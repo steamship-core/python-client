@@ -23,12 +23,12 @@ logging.getLogger().setLevel(logging.INFO)
 TRAIN_RESPONSE = TrainPluginOutput(training_complete=True)
 
 
-class TestConfig(Config):
+class ExampleConfig(Config):
     testValue1: str = None
     testValue2: str = None
 
 
-class TrainableTaggerConfigModel(TrainableModel[TestConfig]):
+class TrainableTaggerConfigModel(TrainableModel[ExampleConfig]):
     def load_from_folder(self, checkpoint_path: Path):
         assert self.config is not None
         assert self.config.testValue1 is not None
@@ -82,7 +82,7 @@ class TrainableTaggerConfigPlugin(TrainableTagger):
         super().__init__(client, config)
 
     def config_cls(self) -> Type[Config]:
-        return TestConfig
+        return ExampleConfig
 
     def model_cls(self) -> Type[TrainableTaggerConfigModel]:
         return TrainableTaggerConfigModel

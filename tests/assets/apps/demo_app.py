@@ -21,7 +21,7 @@ PALM_TREE_BASE_64 = "iVBORw0KGgoAAAANSUhEUgAAADgAAABWCAYAAACaeFU0AAAMbWlDQ1BJQ0M
 PALM_TREE_BASE_64 = PALM_TREE_BASE_64.encode("ascii")
 
 
-class TestApp(App):
+class ExampleApp(App):
     def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
         super().__init__(client, config, logger)
         self.index = None
@@ -126,4 +126,4 @@ class TestApp(App):
         return Response(json=res.data)
 
 
-handler = create_handler(TestApp)
+handler = create_handler(ExampleApp)

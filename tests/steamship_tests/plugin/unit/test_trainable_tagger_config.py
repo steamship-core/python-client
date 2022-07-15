@@ -1,7 +1,7 @@
 from unittest.mock import patch
 
 from assets.plugins.taggers.plugin_trainable_tagger_config import (
-    TestConfig,
+    ExampleConfig,
     TrainableTaggerConfigModel,
     TrainableTaggerConfigPlugin,
 )
@@ -35,7 +35,7 @@ def test_trainable_tagger():
 
     def load_remote(**kwargs):
         model = TrainableTaggerConfigModel()
-        model.receive_config(TestConfig(testValue1=1, testValue2=2))
+        model.receive_config(ExampleConfig(testValue1=1, testValue2=2))
         return model
 
     # There isn't ACTUALLY model data to load..
