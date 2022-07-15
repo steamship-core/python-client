@@ -106,7 +106,7 @@ class TaskComment(CamelModel):
         )
 
 
-class TaskCommentList(BaseModel):
+class TaskCommentList(CamelModel):
     # TODO (enias): Not needed
     comments: List[TaskComment]
 

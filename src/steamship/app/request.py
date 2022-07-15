@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from pydantic import BaseModel
-
-from steamship.base.configuration import Configuration
+from steamship.base.configuration import CamelModel, Configuration
 
 
 def event_to_config(event: dict) -> Configuration:
@@ -16,19 +14,19 @@ def event_to_config(event: dict) -> Configuration:
     return Configuration.parse_obj(event["invocationContext"])
 
 
-class Invocation(BaseModel):
-    httpVerb: str = None
-    appPath: str = None  # e.g. /hello/there
+class Invocation(CamelModel):
+    http_verb: str = None
+    app_path: str = None  # e.g. /hello/there
     arguments: Dict[str, Any] = None
     config: Dict[str, Any] = None
 
 
-class LoggingConfig(BaseModel):
-    loggingHost: str = None
-    loggingPort: str = None
+class LoggingConfig(CamelModel):
+    logging_host: str = None
+    logging_port: str = None
 
 
-class Request(BaseModel):
+class Request(CamelModel):
     """A request as the Steamship Hosting Framework receives it from the Engine.
 
     This class is different from the other `Request` class:
@@ -39,6 +37,6 @@ class Request(BaseModel):
     is intended to execute.
     """
 
-    clientConfig: Configuration = None
+    client_config: Configuration = None
     invocation: Invocation = None
-    loggingConfig: LoggingConfig = None
+    logging_config: LoggingConfig = None

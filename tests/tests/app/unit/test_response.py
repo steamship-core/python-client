@@ -42,4 +42,4 @@ def test_resp_response():
     d = r.dict()
     check_mime(d, MimeTypes.JSON)
     check_type(d, dict)
-    check_val(d, o.dict())
+    check_val(d, o.dict(by_alias=True))

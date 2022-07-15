@@ -1,7 +1,7 @@
-from pydantic import BaseModel
+from steamship.base.configuration import CamelModel
 
 
-class Config(BaseModel):
+class Config(CamelModel):
     """Base class for a Steamship Plugin's configuration object."""
 
     def __init__(self, **kwargs):

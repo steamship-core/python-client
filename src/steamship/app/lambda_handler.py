@@ -51,7 +51,9 @@ def create_handler(app_cls: Type[App]):
             )
 
         if request and request.invocation:
-            error_prefix = f"[ERROR - {request.invocation.httpVerb} {request.invocation.appPath}] "
+            error_prefix = (
+                f"[ERROR - {request.invocation.http_verb} {request.invocation.app_path}] "
+            )
         else:
             error_prefix = f"[ERROR - ?VERB ?PATH] "
 

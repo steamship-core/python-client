@@ -3,16 +3,15 @@ import io
 from logging import Logger
 from typing import Any, Dict
 
-from pydantic import BaseModel
-
 from steamship import SteamshipError
 from steamship.app import App, Response, create_handler, get, post
 from steamship.base import Client
+from steamship.base.configuration import CamelModel
 from steamship.base.mime_types import MimeTypes
 from steamship.data.user import User
 
 
-class TestObj(BaseModel):
+class TestObj(CamelModel):
     name: str
 
 
