@@ -1,17 +1,16 @@
 from unittest.mock import patch
 
-from tests.assets.plugins.taggers.plugin_trainable_tagger_config import (
-    TestConfig,
-    TestTrainableTaggerConfigModel,
-    TestTrainableTaggerConfigPlugin,
-)
-
 from steamship import File
 from steamship.data.block import Block
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.service import PluginRequest
 from steamship.plugin.trainable_model import TrainableModel
+from tests.assets.plugins.taggers.plugin_trainable_tagger_config import (
+    TestConfig,
+    TestTrainableTaggerConfigModel,
+    TestTrainableTaggerConfigPlugin,
+)
 from tests.utils.fixtures import get_steamship_client
 
 TEST_REQ = BlockAndTagPluginInput(

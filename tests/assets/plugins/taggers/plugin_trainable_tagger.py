@@ -51,6 +51,9 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
       In this example model, the `from_disk(path: Path)` method provides this functionality.
     """
 
+    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+        return TrainPluginOutput(training_complete=True)
+
     KEYWORD_LIST_FILE = (
         "keyword_list.json"  # File, relative to the checkpoint, to save/load features from.
     )

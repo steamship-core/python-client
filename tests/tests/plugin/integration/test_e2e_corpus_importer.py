@@ -20,16 +20,16 @@ def test_e2e_corpus_importer():
 
     with temporary_space(client) as space:
         with deploy_plugin(client, file_importer_path, "fileImporter", space_id=space.id) as (
-                _,
-                _,
-                fi_instance,
+            _,
+            _,
+            fi_instance,
         ):
             with deploy_plugin(
-                    client, corpus_importer_path, "corpusImporter", space_id=space.id
+                client, corpus_importer_path, "corpusImporter", space_id=space.id
             ) as (
-                    plugin,
-                    version,
-                    instance,
+                plugin,
+                version,
+                instance,
             ):
                 req = CorpusImportRequest(
                     type="file",

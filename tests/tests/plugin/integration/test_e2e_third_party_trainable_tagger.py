@@ -1,13 +1,12 @@
 import logging
 
-from tests.assets.plugins.taggers.plugin_third_party_trainable_tagger import MockClient
-
 from steamship.data.plugin import HostingType
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.space import Space
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from tests import PLUGINS_PATH
+from tests.assets.plugins.taggers.plugin_third_party_trainable_tagger import MockClient
 from tests.utils.client import get_steamship_client
 from tests.utils.deployables import deploy_plugin
 

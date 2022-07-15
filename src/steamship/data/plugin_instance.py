@@ -74,9 +74,14 @@ class PluginInstance(CamelModel):
         plugin_version_id: str = None,
         plugin_version_handle: str = None,
         handle: str = None,
-        upsert: bool = None,
+        upsert: bool = True,
         config: Dict[str, Any] = None,
     ) -> Response[PluginInstance]:
+        # TODO (enias): Document
+        """Create a plugin instance
+
+        When handle is empty the engine will automatically assign one
+        upsert controls whether we want to re-use an existing plugin instance or not."""
         req = CreatePluginInstanceRequest(
             handle=handle,
             plugin_id=plugin_id,

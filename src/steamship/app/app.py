@@ -10,9 +10,10 @@ from http import HTTPStatus
 from logging import Logger
 from typing import Any, Dict, Optional
 
-from steamship.app.request import Request, Verb
+from steamship.app.request import Request
 from steamship.app.response import Response
 from steamship.base import Client
+from steamship.utils.url import Verb
 
 
 def make_registering_decorator(decorator):  # TODO (Enias): Review

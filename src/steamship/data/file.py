@@ -18,7 +18,6 @@ from steamship.data.tags import Tag
 
 class FileUploadType(str, Enum):
     FILE = "file"  # The CreateRequest contains a file upload that should be used
-    URL = "url"  # The CreateRequest contains a url that should be scraped
     VALUE = "value"  # The Create Request contains a `text` field that should be used
     FILE_IMPORTER = (
         "fileImporter"  # The CreateRequest contains a fileImporter handle that should be used
@@ -182,12 +181,7 @@ class File(CamelModel):
                 content = f.read()
             upload_type = FileUploadType.FILE
         else:
-            if url is not None:
-                raise Exception(
-                    "Unable to determine upload type. For scraping a URL, use the File.scrape method."
-                )
-            else:
-                raise Exception("Unable to determine upload type.")
+            raise Exception("Unable to determine upload type.")
 
         req = File.CreateRequest(
             type=upload_type,
