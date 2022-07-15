@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 from pydantic import BaseModel
 
-from steamship.base.configuration import Configuration
+from steamship.base.configuration import CamelModel, Configuration
 
 
 def event_to_config(event: dict) -> Configuration:
@@ -43,15 +43,15 @@ class LoggingConfig(BaseModel):
     loggingPort: str = None
 
 
-class InvocationContext(BaseModel):
-    tenantId: str = None
-    userId: str = None
-    spaceId: str = None
+class InvocationContext(CamelModel):
+    tenant_id: str = None
+    user_id: str = None
+    space_id: str = None
 
-    invocableHandle: str = None
-    invocableVersionHandle: str = None
-    invocableInstanceHandle: str = None
-    invocableType: str = None
+    invocable_handle: str = None
+    invocable_version_handle: str = None
+    invocable_instance_handle: str = None
+    invocable_type: str = None
 
 
 class Request(BaseModel):

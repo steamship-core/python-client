@@ -134,19 +134,17 @@ def create_handler(app_cls: Type[App]):
             custom_format = {
                 "level": "%(levelname)s",
                 "host": "%(hostname)s",
-                "where": "%(module)s.%(funcName)s",
+                "where": "%(module)s.%(filename).%(funcName)s:%(lineno)s",
                 "type": "%(levelname)s",
                 "stack_trace": "%(exc_text)s",
                 "component": "app-plugin-lambda",
-                "userId": invocation_context.userId,
-                "spaceId": invocation_context.spaceId,
-                "tenantId": invocation_context.tenantId,
-                "invocableHandle": invocation_context.invocableHandle,
-                "invocableVersionHandle": invocation_context.invocableVersionHandle,
-                "invocableType": invocation_context.invocableType,
-                "path": event.get("invocation").get("appPath")
-                if event.get("invocation") is not None
-                else None,
+                "userId": invocation_context.user_id,
+                "spaceId": invocation_context.space_id,
+                "tenantId": invocation_context.tenant_id,
+                "invocableHandle": invocation_context.invocable_handle,
+                "invocableVersionHandle": invocation_context.invocable_version_handle,
+                "invocableType": invocation_context.invocable_type,
+                "path": event.get("invocation", {}).get("appPath"),
             }
             logging_handler = fluenthandler.FluentHandler(
                 "steamship.deployed_lambda", host=logging_host, port=logging_port
