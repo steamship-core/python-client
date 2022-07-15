@@ -85,7 +85,7 @@ class File(CamelModel):
             self.mime_type = mime_type
 
         def to_dict(self) -> dict:
-            return dict(data=self.data_, mime_type=self.mime_type)
+            return {"data": self.data_, "mime_type": self.mime_type}
 
     class ListRequest(Request):
         corpusId: str = None

@@ -14,21 +14,19 @@ def test_plugin_create():
     my_plugins = Plugin.list(steamship).data
     orig_count = len(my_plugins.plugins)
 
-    plugin_args = dict(
-        name="name",
-        client=steamship,
-        description="This is just for test",
-        type_=PluginType.embedder,
-        transport=PluginAdapterType.steamshipDocker,
-        is_public=True,
-    )
+    plugin_args = {
+        "client": steamship,
+        "description": "This is just for test",
+        "type_": PluginType.embedder,
+        "transport": PluginAdapterType.steamshipDocker,
+        "is_public": True,
+    }
 
     required_fields = {"description", "type_"}
     for required_field in required_fields:
-        with pytest.raises(Exception):
-            del plugin_args[required_field]
-            # noinspection PyArgumentList
-            _ = Plugin.create(**plugin_args)
+        del plugin_args[required_field]
+        with pytest.raises(TypeError):
+            Plugin.create(**plugin_args)
 
     my_plugins = Plugin.list(steamship).data
     assert len(my_plugins.plugins) == orig_count

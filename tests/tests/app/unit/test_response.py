@@ -7,7 +7,7 @@ from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPlug
 
 
 def check_mime(d: dict, mime: str):
-    assert d.get("http", dict()).get("headers", dict()).get("Content-Type") == mime
+    assert d.get("http", {}).get("headers", {}).get("Content-Type") == mime
 
 
 def check_type(d: dict, t: Any):
@@ -29,11 +29,11 @@ def test_text_response():
 
 
 def test_dict_response():
-    r = Response.from_obj(dict(a=1))
+    r = Response.from_obj({"a": 1})
     d = r.dict()
     check_mime(d, MimeTypes.JSON)
     check_type(d, dict)
-    check_val(d, dict(a=1))
+    check_val(d, {"a": 1})
 
 
 def test_resp_response():

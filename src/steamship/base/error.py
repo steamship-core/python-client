@@ -49,13 +49,13 @@ class SteamshipError(Exception):
             logging.error(self.error)
 
     def to_dict(self) -> dict:
-        return dict(
-            message=self.message,
-            internalMessage=self.internalMessage,
-            suggestion=self.suggestion,
-            code=self.code,
-            error=self.error,
-        )
+        return {
+            "message": self.message,
+            "internalMessage": self.internalMessage,
+            "suggestion": self.suggestion,
+            "code": self.code,
+            "error": self.error,
+        }
 
     @staticmethod
     def from_dict(d: Any) -> SteamshipError:

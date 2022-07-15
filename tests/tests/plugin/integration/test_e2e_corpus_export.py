@@ -1,6 +1,7 @@
 import base64
 import json
 
+import pytest
 import requests
 
 from steamship import File
@@ -11,22 +12,22 @@ from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from tests import PLUGINS_PATH
 from tests.utils.deployables import deploy_plugin
 from tests.utils.file import upload_file
-from tests.utils.fixtures import client  # noqa: F401
 
 EXPORTER_HANDLE = "signed-url-exporter"
 
 
+@pytest.mark.usefixtures("client")
 def test_e2e_corpus_export(client: Steamship):
-    version_config_template = dict(
-        text_column=dict(type="string"),
-        tag_columns=dict(type="string"),
-        tag_kind=dict(type="string"),
-    )  # TODO (enias): Derive this from Config
-    instance_config = dict(  # Has to match up
-        text_column="Message",
-        tag_columns="Category",
-        tag_kind="Intent",
-    )
+    version_config_template = {
+        "text_column": {"type": "string"},
+        "tag_columns": {"type": "string"},
+        "tag_kind": {"type": "string"},
+    }  # TODO (enias): Derive this from Config
+    instance_config = {  # Has to match up
+        "text_column": "Message",
+        "tag_columns": "Category",
+        "tag_kind": "Intent",
+    }
     exporter_plugin_r = PluginInstance.create(
         client=client,
         handle=EXPORTER_HANDLE,

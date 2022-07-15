@@ -8,16 +8,13 @@ def test_e2e_tsv_blockifier_plugin():
     csv_blockifier_plugin_path = PLUGINS_PATH / "blockifiers" / "tsv_blockifier.py"
     client = get_steamship_client()
 
-    version_config_template = dict(
-        text_column=dict(type="string"),
-        tag_columns=dict(type="string"),
-        tag_kind=dict(type="string"),
-    )
-    instance_config = dict(  # Has to match up
-        text_column="Message",
-        tag_columns="Category",
-        tag_kind="Intent",
-    )
+    version_config_template = {
+        "text_column": {"type": "string"},
+        "tag_columns": {"type": "string"},
+        "tag_kind": {"type": "string"},
+    }
+    instance_config = {"text_column": "Message", "tag_columns": "Category", "tag_kind": "Intent"}
+
     with deploy_plugin(
         client,
         csv_blockifier_plugin_path,

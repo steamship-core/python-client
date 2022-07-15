@@ -43,15 +43,15 @@ def test_parser():
     _test_resp(res2)
 
     # This plugin is not trainable, and thus it refuses trainable parameters requests
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         parser.get_training_parameters(PluginRequest(data=TrainingParameterPluginInput()))
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         parser.get_training_parameters_endpoint(
             **PluginRequest(data=TrainingParameterPluginInput()).to_dict()
         )
 
     # This plugin is not trainable, and thus it refuses train requests
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         parser.train(PluginRequest(data=TrainPluginInput()))
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         parser.train_endpoint(**PluginRequest(data=TrainPluginInput()).to_dict())

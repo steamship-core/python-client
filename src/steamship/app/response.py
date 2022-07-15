@@ -161,26 +161,24 @@ class Response(GenericModel, Generic[T]):
         if obj is None:
             return Response.error(500, "Handler provided no response.")
 
-        obj_t = type(obj)
-
         if isinstance(obj, Response):
             return obj
-        elif obj_t == SteamshipError:
+        elif isinstance(obj, SteamshipError):
             return Response.error(500, error=obj)
-        elif obj_t == Exception:
+        elif isinstance(obj, Exception):
             return Response.error(500, error=SteamshipError(error=obj))
-        elif obj_t == io.BytesIO:
+        elif isinstance(obj, io.BytesIO):
             return Response(_bytes=obj)
-        elif obj_t == dict:
+        elif isinstance(obj, dict):
             return Response(json=obj)
-        elif obj_t == str:
+        elif isinstance(obj, str):
             return Response(string=obj)
-        elif obj_t in [float, int, bool]:
+        elif isinstance(obj, (float, int, bool)):
             return Response(json=obj)
 
         if hasattr(obj, "to_dict"):
             try:
-                return Response(json=getattr(obj, "to_dict")())
+                return Response(json=obj.to_dict())
             except Exception as e:
                 logging.error(f"Failed calling to_dict on response object. {obj}\n {e}")
 
@@ -190,7 +188,7 @@ class Response(GenericModel, Generic[T]):
         return Response.error(500, message="Handler provided unknown response type.")
 
     def post_update(self, client: Client):
-        """Pushes this response object to the correspondikng Task on the Steamship Engine.
+        """Pushes this response object to the corresponding Task on the Steamship Engine.
 
         Typically apps and plugins return their results to the Engine synchronously via HTTP.
         But sometimes that's not practice -- for example:

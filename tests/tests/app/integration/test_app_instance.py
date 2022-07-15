@@ -38,7 +38,7 @@ def test_instance_invoke():
         def get_raw(path: str):
             return requests.get(
                 instance.full_url_for(path),
-                headers=dict(authorization=f"Bearer {client.config.api_key}"),
+                headers={"authorization": f"Bearer {client.config.api_key}"},
             )
 
         res = instance.get("greet").data
@@ -50,13 +50,13 @@ def test_instance_invoke():
         res = instance.get("greet", name="Ted").data
         assert res == "Hello, Ted!"
         url = instance.full_url_for("greet?name=Ted")
-        resp = requests.get(url, headers=dict(authorization=f"Bearer {client.config.api_key}"))
+        resp = requests.get(url, headers={"authorization": f"Bearer {client.config.api_key}"})
         assert resp.text == "Hello, Ted!"
 
         res = instance.post("greet").data
         assert res == "Hello, Person!"
         url = instance.full_url_for("greet")
-        resp = requests.post(url, headers=dict(authorization=f"Bearer {client.config.api_key}"))
+        resp = requests.post(url, headers={"authorization": f"Bearer {client.config.api_key}"})
         assert resp.text == "Hello, Person!"
 
         res = instance.post("greet", name="Ted").data
@@ -64,8 +64,8 @@ def test_instance_invoke():
         url = instance.full_url_for("greet")
         resp = requests.post(
             url,
-            json=dict(name="Ted"),
-            headers=dict(authorization=f"Bearer {client.config.api_key}"),
+            json={"name": "Ted"},
+            headers={"authorization": f"Bearer {client.config.api_key}"},
         )
         assert resp.text == "Hello, Ted!"
 
@@ -74,19 +74,19 @@ def test_instance_invoke():
         assert resp_string.text == "A String"
 
         resp_dict = get_raw("resp_dict")
-        assert resp_dict.json() == dict(string="A String", int=10)
+        assert resp_dict.json() == {"string": "A String", "int": 10}
 
         resp_404 = get_raw("doesnt_exist")
         json_404 = resp_404.json()
         assert isinstance(json_404, dict)
         assert json_404.get("status") is not None
         assert json_404.get("status") is not None
-        assert json_404.get("status", dict()).get("state") == TaskState.failed
+        assert json_404.get("status", {}).get("state") == TaskState.failed
         # assert "No handler" in json_404.get("status", dict()).get("statusMessage", "")
         assert resp_404.status_code == 404
 
         resp_obj = get_raw("resp_obj")
-        assert resp_obj.json() == dict(name="Foo")
+        assert resp_obj.json() == {"name": "Foo"}
 
         resp_binary = get_raw("resp_binary")
         base64_binary = base64.b64encode(resp_binary.content).decode("utf-8")

@@ -5,6 +5,7 @@ import json
 
 import pytest
 
+from steamship import SteamshipError
 from steamship.app import Response
 from steamship.base.tasks import Task, TaskState
 from tests.tests.plugin.unit.trainable.util import create_dummy_training_task
@@ -14,12 +15,12 @@ from tests.utils.fixtures import get_steamship_client
 def test_response_post_update_fails_when_no_task_present():
     client = get_steamship_client()
     response = Response()
-    with pytest.raises(Exception):
+    with pytest.raises(SteamshipError):
         response.post_update(client)
 
     # No task_id
     response2 = Response(status=Task())
-    with pytest.raises(Exception):
+    with pytest.raises(SteamshipError):
         response2.post_update(client)
 
 

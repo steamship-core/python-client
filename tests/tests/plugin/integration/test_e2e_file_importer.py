@@ -1,11 +1,13 @@
+import pytest
+
 from steamship import File
 from steamship.client import Steamship
 from tests import PLUGINS_PATH
 from tests.assets.plugins.blockifiers.blockifier import TEST_DOC
 from tests.utils.deployables import deploy_plugin
-from tests.utils.fixtures import client  # noqa: F401
 
 
+@pytest.mark.usefixtures("client")
 def test_e2e_importer(client: Steamship):
     file_importer_path = PLUGINS_PATH / "importers" / "plugin_file_importer.py"
     with deploy_plugin(client, file_importer_path, "fileImporter") as (

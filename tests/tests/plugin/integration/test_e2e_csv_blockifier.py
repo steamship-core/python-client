@@ -8,16 +8,16 @@ def test_e2e_csv_blockifier_plugin():
     client = get_steamship_client()
     csv_blockifier_plugin_path = PLUGINS_PATH / "blockifiers" / "csv_blockifier.py"
 
-    version_config_template = dict(
-        text_column=dict(type="string"),
-        tag_columns=dict(type="string"),
-        tag_kind=dict(type="string"),
-    )  # TODO (enias): Derive this from Config
-    instance_config = dict(  # Has to match up
-        text_column="Message",
-        tag_columns="Category",
-        tag_kind="Intent",
-    )
+    version_config_template = {
+        "text_column": {"type": "string"},
+        "tag_columns": {"type": "string"},
+        "tag_kind": {"type": "string"},
+    }  # TODO (enias): Derive this from Config
+    instance_config = {  # Has to match up
+        "text_column": "Message",
+        "tag_columns": "Category",
+        "tag_kind": "Intent",
+    }
     with deploy_plugin(
         client,
         csv_blockifier_plugin_path,

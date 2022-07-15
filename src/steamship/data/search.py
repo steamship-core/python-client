@@ -24,5 +24,5 @@ class Hit(CamelModel):
         if metadata is not None:
             try:
                 self.metadata = json.loads(metadata)
-            except JSONDecodeError as _:
+            except JSONDecodeError:
                 pass

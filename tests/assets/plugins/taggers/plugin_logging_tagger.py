@@ -18,7 +18,7 @@ class TestLoggingTaggerPlugin(Tagger):
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
-        self.logger.info(f"A remote logging log")
+        self.logger.info("A remote logging log")
         file = request.data.file
         if request.data is not None:
             ret = Response(data=BlockAndTagPluginOutput(file=file))

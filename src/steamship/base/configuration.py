@@ -82,7 +82,7 @@ class Configuration(CamelModel):
                 else:
                     config = config_file
                 return {inflection.underscore(k): v for k, v in config.items()}
-        except FileNotFoundError as _:
+        except FileNotFoundError:
             if raise_on_exception:
                 raise Exception(f"Tried to load configuration file at {file} but it did not exist.")
         except Exception as err:

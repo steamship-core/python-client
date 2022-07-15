@@ -1,9 +1,11 @@
+import pytest
+
 from steamship import Block, File, MimeTypes
 from steamship.client import Steamship
 from steamship.data.tags import Tag
-from tests.utils.fixtures import client  # noqa: F401
 
 
+@pytest.mark.usefixtures("client")
 def test_file_tag(client: Steamship):
     a = client.upload(content="A", mime_type=MimeTypes.MKD).data
     assert a.id is not None

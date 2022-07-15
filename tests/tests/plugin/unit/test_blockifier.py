@@ -28,15 +28,15 @@ def test_resp():
     _test_resp(res2)
 
     # This plugin is not trainable, and thus it refuses trainable parameters requests
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         blockifier.get_training_parameters(PluginRequest(data=TrainingParameterPluginInput()))
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         blockifier.get_training_parameters_endpoint(
             **PluginRequest(data=TrainingParameterPluginInput()).dict()
         )
 
     # This plugin is not trainable, and thus it refuses train requests
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         blockifier.train(PluginRequest(data=TrainPluginInput()))
-    with pytest.raises(Exception):
+    with pytest.raises(AttributeError):
         blockifier.train_endpoint(**PluginRequest(data=TrainPluginInput()).dict())

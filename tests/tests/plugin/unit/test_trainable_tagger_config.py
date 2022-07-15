@@ -40,7 +40,7 @@ def test_trainable_tagger():
     # There isn't ACTUALLY model data to load..
     with patch.object(TrainableModel, "load_remote", load_remote):
         plugin = TestTrainableTaggerConfigPlugin(
-            client=client, config=dict(testValue1="foo", testValue2="bar")
+            client=client, config={"testValue1": "foo", "testValue2": "bar"}
         )
         assert plugin.client is not None
 

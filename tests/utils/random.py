@@ -7,7 +7,7 @@ from steamship import EmbeddingIndex, Space, Steamship
 
 def random_name() -> str:
     letters = string.digits + string.ascii_letters
-    return f"test_{''.join(random.choice(letters) for _ in range(10))}"
+    return f"test_{''.join(random.choice(letters) for _ in range(10))}"  # noqa: S311
 
 
 _TEST_EMBEDDER = "test-embedder-v1"

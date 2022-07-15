@@ -27,7 +27,7 @@ class DocTag:
     blockcode = "blockcode"
     unk = "unk"
     sentence = "sentence"
-    token = "token"
+    token = "token"  # noqa: S105
     span = "span"
     div = "div"
     pre = "pre"

@@ -47,7 +47,7 @@ def make_registering_decorator(decorator):  # TODO (Enias): Review
 # https://stackoverflow.com/questions/2366713/can-a-decorator-of-an-instance-method-access-the-class
 # noinspection PyUnusedLocal
 def endpoint(verb: str = None, path: str = None, **kwargs):
-    """By using **kw we can tag the function with Any parameters"""
+    """By using **kwargs we can tag the function with Any parameters."""  # noqa: RST210
 
     def decorator(function):
         # This is used in conjunction with the __init_subclass__ code!
@@ -135,14 +135,14 @@ class App:
 
     def __call__(self, request: Request, context: Any = None) -> Response:
         """Invokes a method call if it is registered."""
-        if not getattr(self.__class__, "_method_mappings"):
-            self.logger.error(f"__call__: No mappings available on app.")
+        if not hasattr(self.__class__, "_method_mappings"):
+            self.logger.error("__call__: No mappings available on app.")
             return Response.error(
                 code=HTTPStatus.NOT_FOUND, message="No mappings available for app."
             )
 
         if request.invocation is None:
-            self.logger.error(f"__call__: No invocation on request.")
+            self.logger.error("__call__: No invocation on request.")
             return Response.error(code=HTTPStatus.NOT_FOUND, message="No invocation was found.")
 
         verb = Verb.safely_from_str(request.invocation.http_verb)

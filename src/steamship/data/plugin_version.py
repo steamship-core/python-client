@@ -24,18 +24,18 @@ class CreatePluginVersionRequest(Request):
 
     def to_dict(self):
         # Note: the to_dict is necessary here to properly serialize the enum values.
-        return dict(
-            pluginId=self.plugin_id,
-            handle=self.handle,
-            upsert=self.upsert,
-            hostingMemory=self.hosting_memory.value if self.hosting_memory else None,
-            hostingTimeout=self.hosting_timeout.value if self.hosting_timeout else None,
-            hostingHandler=self.hosting_handler,
-            isPublic=self.is_public,
-            isDefault=self.is_default,
-            type=self.type,
-            configTemplate=self.config_template,
-        )
+        return {
+            "pluginId": self.plugin_id,
+            "handle": self.handle,
+            "upsert": self.upsert,
+            "hostingMemory": self.hosting_memory.value if self.hosting_memory else None,
+            "hostingTimeout": self.hosting_timeout.value if self.hosting_timeout else None,
+            "hostingHandler": self.hosting_handler,
+            "isPublic": self.is_public,
+            "isDefault": self.is_default,
+            "type": self.type,
+            "configTemplate": self.config_template,
+        }
 
 
 class DeletePluginVersionRequest(Request):

@@ -9,20 +9,20 @@ from steamship.app.request import Invocation, LoggingConfig, Request
 from tests.utils.client import get_steamship_client
 
 
-@pytest.fixture
+@pytest.fixture()
 def client() -> Steamship:
-    """
-    Returns a client rooted in a new space, then deletes that space afterwards.
+    """Returns a client rooted in a new space, then deletes that space afterwards.
 
     To use, simply import this file and then write a test which takes `client`
-    as an argument. For example:
+    as an argument.
 
-    ```
-    from tests.utils.fixtures import client  # noqa: F401
+    Example
+    -------
+    The client can be used by injecting a fixture as follows::
 
-    def test_something(client):
-      pass #
-    ```
+        @pytest.mark.usefixtures("client")
+        def test_something(client):
+          pass
     """
     steamship = get_steamship_client()
     space = Space.create(client=steamship).data
@@ -31,22 +31,23 @@ def client() -> Steamship:
     space.delete()
 
 
-@pytest.fixture
+@pytest.fixture()
 def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     """
     Returns a client rooted in a new space, then deletes that space afterwards.
 
     To use, simply import this file and then write a test which takes `app_handler`
-    as an argument and parameterize it via PyTest. For example:
+    as an argument and parameterize it via PyTest.
 
-    ```
-    import pytest
-    from tests.utils.fixtures import app_handler  # noqa: F401
+    Example
+    --------
 
-    @pytest.mark.parametrize('app_handler', [TestApp], indirect=True)
-    def test_something(app_handler):
-      response_dict = app_handler('POST', '/hello', dict())
-    ```
+    >>> import pytest # doctest: +SKIP
+        from tests.utils.fixtures import app_handler  # noqa: F401
+        from tests.assets.apps.demo_app import TestApp
+        @pytest.mark.parametrize("app_handler", [TestApp], indirect=True)
+        def _test_something(app_handler):
+            response_dict = app_handler("POST", "/hello", dict())
 
     The app will be run its own space that gets cleaned up afterwards, and
     the test can be written from the perspective of an external caller of the
@@ -59,7 +60,7 @@ def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
 
     def handle(verb: str, app_path: str, arguments: Optional[dict] = None) -> dict:
         _handler = _create_handler(app)
-        invocation = Invocation(httpVerb=verb, appPath=app_path, arguments=arguments or dict())
+        invocation = Invocation(httpVerb=verb, appPath=app_path, arguments=arguments or {})
         logging_config = LoggingConfig(loggingHost="none", loggingPort="none")
         request = Request(
             client_config=new_client.config, invocation=invocation, logging_config=logging_config
