@@ -171,7 +171,7 @@ class Plugin(CamelModel):
         handle: str = None,
         training_platform: Optional[HostingType] = None,
         metadata: Union[str, Dict, List] = None,
-        upsert: bool = True,
+        upsert: bool = False,
         space_id: str = None,
         space_handle: str = None,
     ) -> Response[Plugin]:
