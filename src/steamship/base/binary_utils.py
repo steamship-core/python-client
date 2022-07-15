@@ -30,7 +30,7 @@ def to_b64(obj: Any) -> str:
     return base64.b64encode(ret_bytes).decode("utf-8")
 
 
-def flexi_create(
+def flexi_create(  # noqa: C901
     base64string: str = None,
     data: Any = None,
     string: str = None,

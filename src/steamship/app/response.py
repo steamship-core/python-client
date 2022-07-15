@@ -157,7 +157,7 @@ class Response(GenericModel, Generic[T]):
         return Response(error=error, http=Http(status=code))
 
     @staticmethod
-    def from_obj(obj: Any) -> Response:
+    def from_obj(obj: Any) -> Response:  # noqa: C901
         if obj is None:
             return Response.error(500, "Handler provided no response.")
 

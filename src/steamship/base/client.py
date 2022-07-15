@@ -220,7 +220,7 @@ class Client(CamelModel, ABC):
                     # typing.get_type_hints fails for Space
                     pass
 
-    def call(
+    def call(  # noqa: C901
         self,
         verb: str,
         operation: str,

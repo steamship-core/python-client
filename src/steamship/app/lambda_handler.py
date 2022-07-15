@@ -14,7 +14,7 @@ from steamship.base.utils import to_snake_case
 from steamship.client.client import Steamship
 
 
-def create_handler(app_cls: Type[App]):
+def create_handler(app_cls: Type[App]):  # noqa: C901
     """Wrapper function for a Steamship app within an AWS Lambda function."""
 
     def _handler(

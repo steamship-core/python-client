@@ -37,7 +37,7 @@ class DocTag:
     teletype = "teletype"
 
     @staticmethod
-    def from_html_tag(tagname: Optional[str]) -> Optional[str]:
+    def from_html_tag(tagname: Optional[str]) -> Optional[str]:  # noqa: C901
         if tagname is None:
             return None
 
