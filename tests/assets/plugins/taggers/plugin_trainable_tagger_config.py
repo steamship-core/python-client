@@ -20,8 +20,6 @@ from steamship.plugin.trainable_model import TrainableModel
 # If this isn't present, Localstack won't show logs
 logging.getLogger().setLevel(logging.INFO)
 
-TRAIN_RESPONSE = TrainPluginOutput(training_complete=True)
-
 
 class TestConfig(Config):
     testValue1: str = None
@@ -39,12 +37,12 @@ class TestTrainableTaggerConfigModel(TrainableModel[TestConfig]):
         assert self.config.testValue1 is not None
         assert self.config.testValue2 is not None
 
-    def train(self, input: TrainPluginInput) -> TrainPluginOutput:
+    def train(self, input: TrainPluginInput) -> None:
         assert self.config is not None
         assert self.config.testValue1 is not None
         assert self.config.testValue2 is not None
 
-    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+    def train_status(self, input: TrainStatusPluginInput) -> None:
         assert self.config is not None
         assert self.config.testValue1 is not None
         assert self.config.testValue2 is not None
@@ -109,8 +107,7 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
         self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerConfigModel
     ) -> Response[TrainPluginOutput]:
         train_plugin_input = request.data
-        train_plugin_output = model.train(train_plugin_input)
-
+        _ = model.train(train_plugin_input)
         return None
 
     def train_status(

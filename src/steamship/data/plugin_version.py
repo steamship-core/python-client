@@ -81,7 +81,7 @@ class PluginVersion(CamelModel):
         plugin_id: str = None,
         filename: str = None,
         filebytes: bytes = None,
-        upsert: bool = None,
+        upsert: bool = False,
         hosting_memory: Optional[HostingMemory] = None,
         hosting_timeout: Optional[HostingTimeout] = None,
         hosting_handler: str = None,

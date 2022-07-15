@@ -16,21 +16,6 @@ def event_to_config(event: dict) -> Configuration:
     return Configuration.parse_obj(event["invocationContext"])
 
 
-class Verb:
-    GET = "GET"
-    POST = "POST"
-
-    @staticmethod
-    def safely_from_str(s: str) -> str:
-        # TODO (enias): Is this needed?
-        ss = s.strip().upper()
-        if ss == Verb.GET:
-            return Verb.GET
-        elif ss == Verb.POST:
-            return Verb.POST
-        return s
-
-
 class Invocation(BaseModel):
     httpVerb: str = None
     appPath: str = None  # e.g. /hello/there
