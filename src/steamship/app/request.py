@@ -23,14 +23,22 @@ class Invocation(BaseModel):
     config: Dict[str, Any] = None
 
 
+class LoggingConfig(BaseModel):
+    loggingHost: str = None
+    loggingPort: str = None
+
+
 class Request(BaseModel):
-    """An request of a method on an app instance.
+    """A request as the Steamship Hosting Framework receives it from the Engine.
 
-    This is the payload sent from the public-facing App Proxy to the
-    private-facing app microservice.
+    This class is different from the other `Request` class:
+     * `steamship.base.request` represents a request from the Steamship Client
+     * this class represents a request from the Steamship Engine to a Steamship-hosted App/Plugin
+
+    It contains both an app/plugin invocation and also the client configuration in which that invocation
+    is intended to execute.
     """
-
-    # TODO (enias): Is this a replacement for the Request in base?
 
     clientConfig: Configuration = None
     invocation: Invocation = None
+    loggingConfig: LoggingConfig = None

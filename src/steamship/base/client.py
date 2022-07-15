@@ -17,7 +17,7 @@ from steamship.base.mime_types import MimeTypes
 from steamship.base.request import Request
 from steamship.base.response import Response, Task
 from steamship.base.utils import to_camel
-from steamship.utils.url import Verb, _is_local
+from steamship.utils.url import Verb, is_local
 
 _logger = logging.getLogger(__name__)
 
@@ -80,7 +80,7 @@ class Client(CamelModel, ABC):
                 )
 
             base = self.config.app_base
-            if not _is_local(base):
+            if not is_local(base):
                 # We want to prepend the user handle
                 parts = base.split("//")
                 base = f"{parts[0]}//{app_owner}.{'//'.join(parts[1:])}"

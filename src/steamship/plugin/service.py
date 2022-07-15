@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import logging
 from abc import ABC, abstractmethod
+from logging import Logger
 from typing import Any, Dict, Generic, Type, TypeVar, Union
 
 from pydantic.generics import GenericModel
@@ -26,9 +26,6 @@ from steamship.plugin.trainable_model import TrainableModel
 
 T = TypeVar("T")
 U = TypeVar("U")
-
-# If this isn't present, Localstack won't show logs
-logging.getLogger().setLevel(logging.INFO)
 
 
 class PluginRequest(GenericModel, Generic[T]):
@@ -76,8 +73,8 @@ class PluginService(ABC, App, Generic[T, U]):
     """
 
     # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
-        super().__init__(client, config)
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
+        super().__init__(client, config, logger)
 
     @abstractmethod
     def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
@@ -90,8 +87,8 @@ class PluginService(ABC, App, Generic[T, U]):
 
 class TrainablePluginService(App, ABC, Generic[T, U]):
     # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
-        super().__init__(client, config)
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
+        super().__init__(client, config, logger)
 
     @abstractmethod
     def model_cls(self) -> Type[TrainableModel]:
@@ -103,7 +100,7 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
 
     def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
         """Loads the trainable model before passing the request to the `run_with_model` handler on the subclass."""
-        logging.info("TrainablePluginService:run() - Loading model")
+        self.logger.info("TrainablePluginService:run() - Loading model")
         model = self.model_cls().load_remote(
             client=self.client,  # This field comes from being a subclass of App
             plugin_instance_id=request.plugin_instance_id,
@@ -111,7 +108,7 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
             use_cache=True,
             plugin_instance_config=self.config,
         )
-        logging.info("TrainablePluginService:run() - Loaded model; invoking run_with_model")
+        self.logger.info("TrainablePluginService:run() - Loaded model; invoking run_with_model")
         return self.run_with_model(request, model)
 
     @abstractmethod

@@ -1,9 +1,11 @@
 import base64
 import io
+from logging import Logger
 from typing import Any, Dict
 
 from pydantic import BaseModel
 
+from steamship import SteamshipError
 from steamship.app import App, Response, create_handler, get, post
 from steamship.base import Client
 from steamship.base.mime_types import MimeTypes
@@ -20,8 +22,8 @@ PALM_TREE_BASE_64 = PALM_TREE_BASE_64.encode("ascii")
 
 
 class TestApp(App):
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
-        super().__init__(client, config)
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
+        super().__init__(client, config, logger)
         self.index = None
 
     @get("resp_string")
@@ -62,6 +64,14 @@ class TestApp(App):
     @get("space")
     def space(self) -> Response:
         return Response(string=self.client.config.space_id)
+
+    @post("raise_steamship_error")
+    def raise_steamship_error(self) -> Response:
+        raise SteamshipError(message="raise_steamship_error")
+
+    @post("raise_python_error")
+    def raise_python_error(self) -> Response:
+        raise Exception("raise_python_error")
 
     @post("user_info")
     def user_info(self) -> Response:

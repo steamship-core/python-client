@@ -78,3 +78,41 @@ class TestObject:
 def test_incorrect_config_type() -> None:
     with pytest.raises(SteamshipError):
         client = Steamship(config=TestObject())
+
+
+@pytest.mark.parametrize(
+    "app_base,user,fixed_base",
+    [
+        pytest.param("http://test:8081", "user", "http://test:8081/"),
+        pytest.param("http://test:8081/", "user", "http://test:8081/"),
+        pytest.param("http://localhost:8081", "user", "http://localhost:8081/"),
+        pytest.param("http://localhost:8081/", "user", "http://localhost:8081/"),
+        pytest.param("http://127.0.0.1:8081", "user", "http://127.0.0.1:8081/"),
+        pytest.param("http://127.0.0.1:8081/", "user", "http://127.0.0.1:8081/"),
+        pytest.param(
+            "http://host.docker.internal:8081", "user", "http://host.docker.internal:8081/"
+        ),
+        pytest.param(
+            "http://host.docker.internal:8081/", "user", "http://host.docker.internal:8081/"
+        ),
+        pytest.param("http://0:0:0:0:8081", "user", "http://0:0:0:0:8081/"),
+        pytest.param("http://0:0:0:0:8081/", "user", "http://0:0:0:0:8081/"),
+        pytest.param("https://apps.steamship.run", "user", "https://user.apps.steamship.run/"),
+        pytest.param("https://apps.steamship.run/", "user", "https://user.apps.steamship.run/"),
+        pytest.param(
+            "https://apps.staging.steamship.com", "user", "https://user.apps.staging.steamship.com/"
+        ),
+        pytest.param(
+            "https://apps.staging.steamship.com/",
+            "user",
+            "https://user.apps.staging.steamship.com/",
+        ),
+    ],
+)
+def test_app_call_rewriting(app_base: str, user: str, fixed_base: str):
+    client = get_steamship_client()
+    client.config.app_base = app_base
+    operation = "foo"
+
+    output_url = client._url(is_app_call=True, app_owner=user, operation=operation)
+    assert output_url == f"{fixed_base}{operation}"

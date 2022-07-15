@@ -35,6 +35,9 @@ class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
     def train(self, input: TrainPluginInput) -> TrainPluginOutput:
         pass
 
+    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+        pass
+
     def save_to_folder(self, checkpoint_path: Path):
         pass
 
@@ -65,6 +68,11 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
         return Response(data=TrainingParameterPluginOutput())
 
     def train(self, request: PluginRequest[TrainPluginInput], model) -> Response[TrainPluginOutput]:
+        return Response(data=TrainPluginOutput(training_complete=True))
+
+    def train_status(
+        self, request: PluginRequest[TrainStatusPluginInput], model
+    ) -> Response[TrainPluginOutput]:
         return Response(data=TrainPluginOutput(training_complete=True))
 
 

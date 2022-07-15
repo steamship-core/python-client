@@ -18,11 +18,11 @@ class Verb:
         return s
 
 
-def _is_local(base):
+def is_local(base: str) -> bool:
     """Check if we are running the client locally."""
     return any(
         local_base in base
-        for local_base in ("localhost", "127.0.0.1", "0:0:0:0", "host.docker.internal")
+        for local_base in ("localhost", "127.0.0.1", "0:0:0:0", "host.docker.internal", "/test:")
     )
 
 
