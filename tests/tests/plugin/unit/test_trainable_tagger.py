@@ -1,4 +1,4 @@
-from assets.plugins.taggers.plugin_trainable_tagger import (
+from tests.assets.plugins.taggers.plugin_trainable_tagger import (
     TRAIN_RESPONSE,
     TRAINING_PARAMETERS,
     TestTrainableTaggerPlugin,

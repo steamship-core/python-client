@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from assets.plugins.taggers.plugin_trainable_tagger_config import (
+from tests.assets.plugins.taggers.plugin_trainable_tagger_config import (
     TestConfig,
     TestTrainableTaggerConfigModel,
     TestTrainableTaggerConfigPlugin,

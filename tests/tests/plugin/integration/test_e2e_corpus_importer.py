@@ -1,10 +1,9 @@
-from utils.random import temporary_space
-
 from steamship import File
 from steamship.data.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse
 from tests import PLUGINS_PATH
 from tests.utils.deployables import deploy_plugin
 from tests.utils.fixtures import get_steamship_client
+from tests.utils.random import temporary_space
 
 HANDLE = "test-importer-plugin-v1"
 TEST_H1 = "A Poem"
@@ -21,16 +20,16 @@ def test_e2e_corpus_importer():
 
     with temporary_space(client) as space:
         with deploy_plugin(client, file_importer_path, "fileImporter", space_id=space.id) as (
-            _,
-            _,
-            fi_instance,
+                _,
+                _,
+                fi_instance,
         ):
             with deploy_plugin(
-                client, corpus_importer_path, "corpusImporter", space_id=space.id
+                    client, corpus_importer_path, "corpusImporter", space_id=space.id
             ) as (
-                plugin,
-                version,
-                instance,
+                    plugin,
+                    version,
+                    instance,
             ):
                 req = CorpusImportRequest(
                     type="file",

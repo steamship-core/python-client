@@ -1,6 +1,6 @@
 import logging
 
-from assets.plugins.taggers.plugin_third_party_trainable_tagger import MockClient
+from tests.assets.plugins.taggers.plugin_third_party_trainable_tagger import MockClient
 
 from steamship.data.plugin import HostingType
 from steamship.data.plugin_instance import PluginInstance
