@@ -1,6 +1,5 @@
 import base64
 import io
-from logging import Logger
 from typing import Any, Dict
 
 from pydantic import BaseModel
@@ -22,8 +21,8 @@ PALM_TREE_BASE_64 = PALM_TREE_BASE_64.encode("ascii")
 
 
 class TestApp(App):
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
-        super().__init__(client, config, logger)
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+        super().__init__(client, config)
         self.index = None
 
     @get("resp_string")
