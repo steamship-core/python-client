@@ -1,9 +1,8 @@
 import base64
 import json
 
-from pydantic import BaseModel
-
 from steamship.base.binary_utils import flexi_create
+from steamship.base.configuration import CamelModel
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 
 
@@ -19,13 +18,13 @@ def test_dump_json():
     assert json.dumps(flexi_create(json=[1, 2, 3])[0]) == "[1, 2, 3]"
     assert json.dumps(flexi_create(json={"hi": "there"})[0]) == '{"hi": "there"}'
 
-    class Person(BaseModel):
+    class Person(CamelModel):
         name: str
 
     person = Person(name="Ted")
     assert json.dumps(flexi_create(json=person)[0]) == '{"name": "Ted"}'
 
-    class Person2(BaseModel):
+    class Person2(CamelModel):
         name: str
 
         def to_dict(self):
@@ -49,7 +48,7 @@ def test_dump_raw_data():
     json_str = _base64_decode(obj.data)
     assert json_str == '{"hi": "there"}'
 
-    class Person(BaseModel):
+    class Person(CamelModel):
         name: str
 
     person = Person(name="Ted")

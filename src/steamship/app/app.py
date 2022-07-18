@@ -140,8 +140,8 @@ class App:
             logging.error(f"__call__: No invocation on request.")
             return Response.error(code=HTTPStatus.NOT_FOUND, message="No invocation was found.")
 
-        verb = Verb.safely_from_str(request.invocation.httpVerb)
-        path = request.invocation.appPath
+        verb = Verb.safely_from_str(request.invocation.http_verb)
+        path = request.invocation.app_path
 
         path = self._clean_path(path)
 

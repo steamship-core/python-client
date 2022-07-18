@@ -57,7 +57,7 @@ class File(CamelModel):
         filename: str = None
         type: FileUploadType = None
         mime_type: str = None
-        corpusId: str = None
+        corpus_id: str = None
         blocks: Optional[List[Block.CreateRequest]] = []
         tags: Optional[List[Tag.CreateRequest]] = []
         plugin_instance: str = None

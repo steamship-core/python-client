@@ -60,14 +60,14 @@ def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     def handle(verb: str, app_path: str, arguments: Optional[dict] = None) -> dict:
         _handler = _create_handler(app)
         invocation = Invocation(httpVerb=verb, appPath=app_path, arguments=arguments or dict())
-        loggingConfig = LoggingConfig(loggingHost="none", loggingPort="none")
+        logging_config = LoggingConfig(loggingHost="none", loggingPort="none")
         request = Request(
-            clientConfig=new_client.config,
+            client_config=new_client.config,
             invocation=invocation,
-            loggingConfig=loggingConfig,
-            invocationContext=InvocationContext(),
+            logging_config=logging_config,
+            invocation_context=InvocationContext(),
         )
-        event = request.dict()
+        event = request.dict(by_alias=True)
         return _handler(event)
 
     yield handle
