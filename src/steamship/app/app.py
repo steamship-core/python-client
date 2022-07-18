@@ -7,7 +7,6 @@ import logging
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
-from logging import Logger
 from typing import Any, Dict, Optional
 
 from steamship.app.request import Request
@@ -85,13 +84,9 @@ class App:
 
     _method_mappings = defaultdict(dict)
 
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None, logger: Logger = None):
+    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         self.client = client
         self.config = config
-        if logger is None:
-            self.logger = logging.getLogger("applogger.local")
-        else:
-            self.logger = logger
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -136,13 +131,13 @@ class App:
     def __call__(self, request: Request, context: Any = None) -> Response:
         """Invokes a method call if it is registered."""
         if not getattr(self.__class__, "_method_mappings"):
-            self.logger.error(f"__call__: No mappings available on app.")
+            logging.error(f"__call__: No mappings available on app.")
             return Response.error(
                 code=HTTPStatus.NOT_FOUND, message="No mappings available for app."
             )
 
         if request.invocation is None:
-            self.logger.error(f"__call__: No invocation on request.")
+            logging.error(f"__call__: No invocation on request.")
             return Response.error(code=HTTPStatus.NOT_FOUND, message="No invocation was found.")
 
         verb = Verb.safely_from_str(request.invocation.http_verb)
@@ -150,19 +145,19 @@ class App:
 
         path = self._clean_path(path)
 
-        self.logger.info(f"[{verb}] {path}")
+        logging.info(f"[{verb}] {path}")
 
         method_mappings = self.__class__._method_mappings
 
         if verb not in method_mappings:
-            self.logger.error(f"__call__: Verb '{verb}' not found in method_mappings.")
+            logging.error(f"__call__: Verb '{verb}' not found in method_mappings.")
             return Response.error(
                 code=HTTPStatus.NOT_FOUND,
                 message=f"No methods for verb {verb} available.",
             )
 
         if path not in method_mappings[verb]:
-            self.logger.error(f"__call__: Path '{path}' not found in method_mappings[{verb}].")
+            logging.error(f"__call__: Path '{path}' not found in method_mappings[{verb}].")
             return Response.error(
                 code=HTTPStatus.NOT_FOUND,
                 message=f"No handler for {verb} {path} available.",
@@ -170,7 +165,7 @@ class App:
 
         method = method_mappings[verb][path]
         if not (hasattr(self, method) and callable(getattr(self, method))):
-            self.logger.error(
+            logging.error(
                 f"__call__: Method not found or not callable for '{path}' in method_mappings[{verb}]."
             )
             return Response.error(
