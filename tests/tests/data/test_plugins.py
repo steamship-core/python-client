@@ -18,7 +18,7 @@ def test_plugin_create():
         "client": steamship,
         "description": "This is just for test",
         "type_": PluginType.embedder,
-        "transport": PluginAdapterType.steamshipDocker,
+        "transport": PluginAdapterType.steamship_docker,
         "is_public": True,
     }
 
@@ -35,7 +35,7 @@ def test_plugin_create():
         client=steamship,
         description="This is just for test",
         type_=PluginType.tagger,
-        transport=PluginAdapterType.steamshipDocker,
+        transport=PluginAdapterType.steamship_docker,
         is_public=False,
     ).data
     my_plugins = Plugin.list(steamship).data
@@ -47,7 +47,7 @@ def test_plugin_create():
         handle=plugin.handle,
         description="This is just for test",
         type_=PluginType.tagger,
-        transport=PluginAdapterType.steamshipDocker,
+        transport=PluginAdapterType.steamship_docker,
         is_public=False,
         upsert=False,
     )
@@ -59,7 +59,7 @@ def test_plugin_create():
         handle=plugin.handle,
         description="This is just for test 2",
         type_=PluginType.tagger,
-        transport=PluginAdapterType.steamshipDocker,
+        transport=PluginAdapterType.steamship_docker,
         is_public=False,
         upsert=True,
     ).data

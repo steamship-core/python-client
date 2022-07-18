@@ -26,6 +26,16 @@ class LoggingConfig(CamelModel):
     logging_port: str = None
 
 
+class InvocationContext(CamelModel):
+    tenant_id: str = None
+    user_id: str = None
+    space_id: str = None
+    invocable_handle: str = None
+    invocable_version_handle: str = None
+    invocable_instance_handle: str = None
+    invocable_type: str = None
+
+
 class Request(CamelModel):
     """A request as the Steamship Hosting Framework receives it from the Engine.
 
@@ -40,3 +50,4 @@ class Request(CamelModel):
     client_config: Configuration = None
     invocation: Invocation = None
     logging_config: LoggingConfig = None
+    invocation_context: InvocationContext = None

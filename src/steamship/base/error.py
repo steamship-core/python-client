@@ -8,7 +8,7 @@ DEFAULT_ERROR_MESSAGE = "Undefined remote error"
 
 class SteamshipError(Exception):
     message: str = None
-    internalMessage: str = None
+    internal_message: str = None
     suggestion: str = None
     code: str = None
     error: str = None
@@ -24,7 +24,7 @@ class SteamshipError(Exception):
         super().__init__()
         self.message = message
         self.suggestion = suggestion
-        self.internalMessage = internal_message
+        self.internal_message = internal_message
         self.code = code
         if error is not None:
             self.error = str(error)
@@ -43,7 +43,7 @@ class SteamshipError(Exception):
 
     def log(self):
         logging.error(
-            f"[{self.code}] {self.message}. [Internal: {self.internalMessage}] [Suggestion: {self.suggestion}]"
+            f"[{self.code}] {self.message}. [Internal: {self.internal_message}] [Suggestion: {self.suggestion}]"
         )
         if self.error:
             logging.error(self.error)
@@ -51,7 +51,7 @@ class SteamshipError(Exception):
     def to_dict(self) -> dict:
         return {
             "message": self.message,
-            "internalMessage": self.internalMessage,
+            "internalMessage": self.internal_message,
             "suggestion": self.suggestion,
             "code": self.code,
             "error": self.error,

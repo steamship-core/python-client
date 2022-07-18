@@ -88,7 +88,7 @@ class File(CamelModel):
             return {"data": self.data_, "mime_type": self.mime_type}
 
     class ListRequest(Request):
-        corpusId: str = None
+        corpus_id: str = None
 
     class ListResponse(Response):
         files: List[File]

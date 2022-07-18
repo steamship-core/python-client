@@ -16,11 +16,13 @@ def test_invoke_app_in_python():
 def test_invoke_app_with_request():
     app = HelloWorld()
 
-    req = Request(invocation=Invocation(httpVerb="POST", appPath="greet"))
+    req = Request(invocation=Invocation(http_verb="POST", app_path="greet"))
     res = app(req)
     assert res.data == RES_EMPTY
 
-    req = Request(invocation=Invocation(httpVerb="POST", appPath="greet", arguments={"name": NAME}))
+    req = Request(
+        invocation=Invocation(http_verb="POST", app_path="greet", arguments={"name": NAME})
+    )
     res = app(req)
     assert res.data == RES_NAME
 
@@ -30,10 +32,11 @@ def test_invoke_app_with_handler():
     event = {
         "invocation": {"httpVerb": "POST", "appPath": "greet"},
         "loggingConfig": logging_config,
+        "invocationContext": {},
     }
     res = handler(event)
     assert res["data"] == RES_EMPTY
 
-    event["invocation"] = {"httpVerb": "POST", "appPath": "greet", "arguments": {"name": NAME}}
+    event["invocation"]["arguments"] = {"name": NAME}
     res = handler(event)
     assert res["data"] == RES_NAME

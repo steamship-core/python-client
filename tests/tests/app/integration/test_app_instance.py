@@ -108,14 +108,14 @@ def test_instance_invoke():
         configuration_within_lambda_resp = instance.get("config")
         configuration_within_lambda = configuration_within_lambda_resp.data
 
-        myAppBase = _fix_url(client.config.app_base)
-        remoteAppBase = _fix_url(configuration_within_lambda["appBase"])
+        my_app_base = _fix_url(client.config.app_base)
+        remote_app_base = _fix_url(configuration_within_lambda["appBase"])
 
-        myApiBase = _fix_url(client.config.api_base)
-        remoteApiBase = _fix_url(configuration_within_lambda["apiBase"])
+        my_api_base = _fix_url(client.config.api_base)
+        remote_api_base = _fix_url(configuration_within_lambda["apiBase"])
 
-        assert myAppBase == remoteAppBase
-        assert myApiBase == remoteApiBase
+        assert my_app_base == remote_app_base
+        assert my_api_base == remote_api_base
         assert configuration_within_lambda["apiKey"] == client.config.api_key
 
         # SpaceId is an exception. Rather than being the SpaceId of the client, it should be the SpaceId

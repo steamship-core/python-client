@@ -19,9 +19,9 @@ def test_get_training_parameters():
         tagger_path,
         "tagger",
         training_platform=HostingType.LAMBDA,
-    ) as (tagger, taggerVersion, taggerInstance):
-        training_request = TrainingParameterPluginInput(plugin_instance=taggerInstance.handle)
-        res = taggerInstance.get_training_parameters(
+    ) as (tagger, tagger_version, tagger_instance):
+        training_request = TrainingParameterPluginInput(plugin_instance=tagger_instance.handle)
+        res = tagger_instance.get_training_parameters(
             training_request
         )  # TODO (enias): How is this working?
         assert res.data is not None

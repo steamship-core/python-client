@@ -126,8 +126,8 @@ class PluginType(str, Enum):
 
 
 class PluginAdapterType(str, Enum):
-    steamshipDocker = "steamshipDocker"
-    steamshipSagemaker = "steamshipSagemaker"
+    steamship_docker = "steamshipDocker"
+    steamship_sagemaker = "steamshipSagemaker"
     huggingface = "huggingface"
     openai = "openai"
 

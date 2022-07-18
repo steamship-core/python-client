@@ -1,6 +1,5 @@
 """CSV Blockifier - Steamship Plugin."""
 
-from logging import Logger
 from typing import Any, Dict
 
 from steamship.app import create_handler
@@ -14,8 +13,8 @@ class TsvBlockifier(CsvBlockifier, Blockifier):
     Implementation is only here to demonstrate how plugins can be built through inheritance.
     """
 
-    def __init__(self, client=None, config: Dict[str, Any] = None, logger: Logger = None):
-        super().__init__(client, config, logger)
+    def __init__(self, client=None, config: Dict[str, Any] = None):
+        super().__init__(client, config)
         self.config.delimiter = "\t"
 
 

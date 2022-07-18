@@ -13,19 +13,19 @@ T = TypeVar("T")
 
 
 class CreateTaskCommentRequest(Request):
-    taskId: str
+    task_id: str
     external_id: str = None
     external_type: str = None
-    externalGroup: str = None
+    external_group: str = None
     metadata: str = None
     upsert: bool = None
 
 
 class ListTaskCommentRequest(Request):
-    taskId: str = None
+    task_id: str = None
     external_id: str = None
     external_type: str = None
-    externalGroup: str = None
+    external_group: str = None
 
 
 class DeleteTaskCommentRequest(Request):
@@ -119,17 +119,17 @@ class TaskState:
 
 
 class TaskType:
-    internalApi = "internalApi"
+    internal_api = "internalApi"
     train = "train"
     infer = "infer"
 
 
 class TaskRunRequest(Request):
-    taskId: str
+    task_id: str
 
 
 class TaskStatusRequest(Request):
-    taskId: str
+    task_id: str
 
 
 class Task(CamelModel):

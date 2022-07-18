@@ -15,8 +15,8 @@ EXPORTER_HANDLE = "signed-url-exporter"
 
 def test_e2e_third_party_trainable_tagger_lambda_training():
     client = get_steamship_client()
-    spaceR = Space.get(client)  # TODO (enias): Remove
-    assert spaceR.data is not None
+    space_r = Space.get(client)  # TODO (enias): Remove
+    assert space_r.data is not None
 
     exporter_plugin_r = PluginInstance.create(
         client=client,
