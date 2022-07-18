@@ -66,7 +66,7 @@ def test_upload_download_text():
     download_from_signed_url(download_resp.data.signed_url, to_file=downfile)
 
     # Verify the download URL is there
-    assert os.path.exists(downfile) == True
+    assert os.path.exists(downfile)
 
     # Verify the zip files are the same
     with open(downfile, "r") as f1:
@@ -98,7 +98,7 @@ def test_upload_download():
     zip_folder(tempbase / Path("src"), into_file=zip_path)
 
     # Verify that on disk, src.zip exists
-    assert os.path.exists(zip_path) == True
+    assert os.path.exists(zip_path)
 
     # Grab a Steamship client and generate an upload url
     client = get_steamship_client()
@@ -147,7 +147,7 @@ def test_upload_download():
     download_from_signed_url(download_resp.data.signed_url, to_file=download_path)
 
     # Verify the download URL is there
-    assert os.path.exists(download_path) == True
+    assert os.path.exists(download_path)
 
     # Verify the zip files are the same
     with open(download_path, "rb") as f1:

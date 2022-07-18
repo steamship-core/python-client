@@ -1,13 +1,15 @@
 import json
 
+import pytest
+
 from steamship import MimeTypes
 from steamship.client import Steamship
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
-from tests.utils.fixtures import client  # noqa: F401
 
 
+@pytest.mark.usefixtures("client")
 def test_file_upload(client: Steamship):
     a = client.upload(content="A", mime_type=MimeTypes.MKD).data
     assert a.id is not None

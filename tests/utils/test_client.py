@@ -32,7 +32,7 @@ empty_base_uris = [
 ]
 
 
-@pytest.mark.parametrize("web_base,app_base,api_base", empty_base_uris)
+@pytest.mark.parametrize(("web_base", "app_base", "api_base"), empty_base_uris)
 def test_base_uris(web_base: str, app_base: str, api_base: str) -> None:
     client = Steamship(api_base=api_base, web_base=web_base, app_base=app_base)
     assert str(client.config.web_base) == web_base or DEFAULT_WEB_BASE
@@ -49,7 +49,7 @@ def test_incorrectly_formatted_base_uris() -> None:
     assert str(client.config.api_base) == TEST_API_BASE
 
 
-@pytest.mark.parametrize("base_uri", ("", "test", "ftp://test.com"))
+@pytest.mark.parametrize("base_uri", ["", "test", "ftp://test.com"])
 def test_invalid_base_uris(base_uri: str) -> None:
     with pytest.raises(ValidationError):
         Steamship(api_base=base_uri, web_base=base_uri, app_base=base_uri)
@@ -77,11 +77,11 @@ class TestObject:
 
 def test_incorrect_config_type() -> None:
     with pytest.raises(SteamshipError):
-        client = Steamship(config=TestObject())
+        Steamship(config=TestObject())
 
 
 @pytest.mark.parametrize(
-    "app_base,user,fixed_base",
+    ("app_base", "user", "fixed_base"),
     [
         pytest.param("http://test:8081", "user", "http://test:8081/"),
         pytest.param("http://test:8081/", "user", "http://test:8081/"),

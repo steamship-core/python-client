@@ -30,7 +30,7 @@ def to_b64(obj: Any) -> str:
     return base64.b64encode(ret_bytes).decode("utf-8")
 
 
-def flexi_create(
+def flexi_create(  # noqa: C901
     base64string: str = None,
     data: Any = None,
     string: str = None,
@@ -68,7 +68,7 @@ def flexi_create(
             ret_mime = mime_type or MimeTypes.JSON
 
             if hasattr(json, "to_dict"):
-                ret_dict = getattr(json, "to_dict")()
+                ret_dict = json.to_dict()
                 ret_data = ret_dict
             elif isinstance(json, CamelModel):
                 ret_dict = json.dict(by_alias=True)

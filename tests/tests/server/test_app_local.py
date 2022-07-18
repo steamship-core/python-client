@@ -16,31 +16,27 @@ def test_invoke_app_in_python():
 def test_invoke_app_with_request():
     app = HelloWorld()
 
-    req = Request(invocation=Invocation(httpVerb="POST", appPath="greet"))
+    req = Request(invocation=Invocation(http_verb="POST", app_path="greet"))
     res = app(req)
     assert res.data == RES_EMPTY
 
     req = Request(
-        invocation=Invocation(httpVerb="POST", appPath="greet", arguments=dict(name=NAME))
+        invocation=Invocation(http_verb="POST", app_path="greet", arguments={"name": NAME})
     )
     res = app(req)
     assert res.data == RES_NAME
 
 
 def test_invoke_app_with_handler():
-    loggingConfig = dict(loggingHost="none", loggingPort="none")
-    event = dict(
-        invocation=dict(httpVerb="POST", appPath="greet"),
-        loggingConfig=loggingConfig,
-        invocationContext=dict(),
-    )
+    logging_config = {"loggingHost": "none", "loggingPort": "none"}
+    event = {
+        "invocation": {"httpVerb": "POST", "appPath": "greet"},
+        "loggingConfig": logging_config,
+        "invocationContext": {},
+    }
     res = handler(event)
     assert res["data"] == RES_EMPTY
 
-    event = dict(
-        invocation=dict(httpVerb="POST", appPath="greet", arguments=dict(name=NAME)),
-        loggingConfig=loggingConfig,
-        invocationContext=dict(),
-    )
+    event["invocation"]["arguments"] = {"name": NAME}
     res = handler(event)
     assert res["data"] == RES_NAME

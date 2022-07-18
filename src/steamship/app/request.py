@@ -30,7 +30,6 @@ class InvocationContext(CamelModel):
     tenant_id: str = None
     user_id: str = None
     space_id: str = None
-
     invocable_handle: str = None
     invocable_version_handle: str = None
     invocable_instance_handle: str = None

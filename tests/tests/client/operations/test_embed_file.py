@@ -21,9 +21,9 @@ P4_2 = "Cake can be cut into mAny pieces and shared."
 
 def test_file_parse():
     steamship = get_steamship_client()
-    content1 = "# {}\n\n{} {}\n\n{} {}".format(T, P1_1, P1_2, P2_1, P2_2)
-    content2 = "# {}\n\n{} {}\n\n{} {}".format(T2, P3_1, P3_2, P4_1, P4_2)
-    content = "{}\n\n{}".format(content1, content2)
+    content1 = f"# {T}\n\n{P1_1} {P1_2}\n\n{P2_1} {P2_2}"
+    content2 = f"# {T2}\n\n{P3_1} {P3_2}\n\n{P4_1} {P4_2}"
+    content = f"{content1}\n\n{content2}"
 
     file = steamship.upload(content=content, mime_type=MimeTypes.MKD).data
     assert file.id is not None

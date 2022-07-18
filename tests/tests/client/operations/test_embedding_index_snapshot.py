@@ -85,7 +85,7 @@ def test_snapshot_create():
 
     sentences = []
     for i in range(15):
-        sentences.append("Orange number {} is as good as the last".format(i))
+        sentences.append(f"Orange number {i} is as good as the last")
 
     sent = "Is orange number 13 Any good?"
     _insert(index, sentences)

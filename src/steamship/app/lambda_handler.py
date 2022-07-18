@@ -13,7 +13,7 @@ from steamship.base.utils import to_snake_case
 from steamship.client.client import Steamship
 
 
-def create_handler(app_cls: Type[App]):
+def create_handler(app_cls: Type[App]):  # noqa: C901
     """Wrapper function for a Steamship app within an AWS Lambda function."""
 
     def _handler(
@@ -53,7 +53,7 @@ def create_handler(app_cls: Type[App]):
                 f"[ERROR - {request.invocation.http_verb} {request.invocation.app_path}] "
             )
         else:
-            error_prefix = f"[ERROR - ?VERB ?PATH] "
+            error_prefix = "[ERROR - ?VERB ?PATH] "
 
         try:
             app = app_cls(client=client, config=request.invocation.config)
@@ -64,7 +64,7 @@ def create_handler(app_cls: Type[App]):
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
-                message=f"Unable to initialize plugin/app.",
+                message="Unable to initialize plugin/app.",
                 exception=ex,
             )
 
@@ -72,7 +72,7 @@ def create_handler(app_cls: Type[App]):
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
-                message=f"Unable to construct app/plugin for invocation.",
+                message="Unable to construct app/plugin for invocation.",
             )
 
         try:

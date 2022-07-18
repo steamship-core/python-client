@@ -21,7 +21,7 @@ from steamship.plugin.trainable_model import TrainableModel
 TRAINING_PARAMETERS = TrainingParameterPluginOutput(
     training_epochs=3,
     testing_holdout_percent=0.3,
-    training_params=dict(keywords=["chocolate", "roses", "champagne"]),
+    training_params={"keywords": ["chocolate", "roses", "champagne"]},
 )
 
 TRAIN_RESPONSE = TrainPluginOutput(training_complete=True)
@@ -38,20 +38,19 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
     design of what a "Model" ought to look like:
 
     TRAINING:
-    - Save all results to the folder provided during initialization. The zipfile of this folder
-      is the ModelCheckpoint that gets saved to steamship.
-    - Note that we'll likely want to iterate on this, e.g.:
-        - Does the model create the checkpoint or simply receive a folder into which to save data, etc etc
+
+        - Save all results to the folder provided during initialization. The zipfile of this folder
+            is the ModelCheckpoint that gets saved to steamship.
+        - Note that we'll likely want to iterate on this, e.g. Does the model create the checkpoint or simply receive a
+            folder into which to save data, etc etc.
+
 
     LOADING:
     - Offer a constructor that loads the model with a provided path. This path is assumed to contain the unzipped
-      ModelCheckpoint that was requested.
+    ModelCheckpoint that was requested.
 
       In this example model, the `from_disk(path: Path)` method provides this functionality.
     """
-
-    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
-        return TrainPluginOutput(training_complete=True)
 
     KEYWORD_LIST_FILE = (
         "keyword_list.json"  # File, relative to the checkpoint, to save/load features from.

@@ -16,7 +16,7 @@ empty_base_uris = [
 ]
 
 
-@pytest.mark.parametrize("web_base,app_base,api_base", empty_base_uris)
+@pytest.mark.parametrize(("web_base", "app_base", "api_base"), empty_base_uris)
 def test_base_uris(web_base: str, app_base: str, api_base: str) -> None:
     configuration = Configuration(api_base=api_base, web_base=web_base, app_base=app_base)
     assert str(configuration.web_base) == web_base or DEFAULT_WEB_BASE
@@ -33,7 +33,7 @@ def test_incorrectly_formatted_base_uris() -> None:
     assert str(configuration.api_base) == TEST_API_BASE
 
 
-@pytest.mark.parametrize("base_uri", ("", "test", "ftp://test.com"))
+@pytest.mark.parametrize("base_uri", ["", "test", "ftp://test.com"])
 def test_invalid_base_uris(base_uri: str) -> None:
     with pytest.raises(ValidationError):
         Configuration(api_base=base_uri, web_base=base_uri, app_base=base_uri)

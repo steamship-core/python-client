@@ -30,7 +30,7 @@ class TestApp(App):
 
     @get("resp_dict")
     def resp_dict(self) -> Response:
-        return Response(json=dict(string="A String", int=10))
+        return Response(json={"string": "A String", "int": 10})
 
     @get("resp_obj")
     def resp_obj(self) -> Response:
@@ -74,18 +74,18 @@ class TestApp(App):
     @post("user_info")
     def user_info(self) -> Response:
         user = User.current(self.client)
-        return Response(json=dict(handle=user.data.handle))
+        return Response(json={"handle": user.data.handle})
 
     @get("config")
     def get_config(self) -> Response:
         """This is called get_config because there's already `.config` object on the class."""
         return Response(
-            json=dict(
-                spaceId=self.client.config.space_id,
-                appBase=self.client.config.app_base,
-                apiBase=self.client.config.api_base,
-                apiKey=self.client.config.api_key,
-            )
+            json={
+                "spaceId": self.client.config.space_id,
+                "appBase": self.client.config.app_base,
+                "apiBase": self.client.config.api_base,
+                "apiKey": self.client.config.api_key,
+            }
         )
 
     @post("learn")

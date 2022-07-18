@@ -153,13 +153,13 @@ def test_index_usage():
         q2 = "What is something interesting about Armadillos?"
         a2id = "A2id"
         a2type = "A2type"
-        a2metadata = dict(
-            id=a2id,
-            idid=f"{a2id}{a2id}",
-            boolVal=True,
-            intVal=123,
-            floatVal=1.2,
-        )
+        a2metadata = {
+            "id": a2id,
+            "idid": f"{a2id}{a2id}",
+            "boolVal": True,
+            "intVal": 123,
+            "floatVal": 1.2,
+        }
 
         _ = index.insert(a2, external_id=a2id, external_type=a2type, metadata=a2metadata)
         search_results2 = index.search(q2)
@@ -178,7 +178,7 @@ def test_index_usage():
         assert search_results3.data.items[0].value.metadata == a2metadata
         # Because I don't know pytest enough to fully trust the dict comparison..
         assert search_results3.data.items[0].value.metadata["id"] == a2id
-        assert search_results3.data.items[0].value.metadata["idid"] == "{}{}".format(a2id, a2id)
+        assert search_results3.data.items[0].value.metadata["idid"] == f"{a2id}{a2id}"
 
         search_results4 = index.search(q2, k=10)
         assert len(search_results4.data.items) == 2

@@ -26,9 +26,6 @@ class EmptyConfig(Config):
 
 
 class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
-    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
-        return TrainPluginOutput(training_complete=True)
-
     def load_from_folder(self, checkpoint_path: Path):
         pass
 
@@ -43,11 +40,6 @@ class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
 
 
 class ValidTrainableStringToStringPlugin(TrainableTagger):
-    def train_status(
-        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
-    ) -> Response[TrainPluginOutput]:
-        return Response(data=TrainPluginOutput(training_complete=True))
-
     def config_cls(self) -> Type[Config]:
         return EmptyConfig
 
@@ -82,16 +74,15 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
 
 
 def test_plugin_service_is_abstract():
-    with pytest.raises(Exception):
-        service = PluginService()
+    with pytest.raises(TypeError):
+        PluginService()
 
 
 def test_plugin_service_must_implement_run_and_subclass_request_from_dict():
-    with pytest.raises(Exception):
+    class BadPlugin(PluginService):
+        pass
 
-        class BadPlugin(PluginService):
-            pass
-
+    with pytest.raises(TypeError):
         BadPlugin()
 
     ValidStringToStringPlugin()
@@ -117,7 +108,7 @@ def test_run_succeeds():
 def test_plugin_does_not_have_training_param_endpoint():
     plugin = ValidStringToStringPlugin()
     # It has it from the base class
-    assert hasattr(plugin, "get_training_parameters") == False
+    assert not hasattr(plugin, "get_training_parameters")
 
 
 def test_with_override_get_training_params_succeeds():

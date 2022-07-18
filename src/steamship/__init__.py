@@ -10,8 +10,40 @@ finally:
     del version, PackageNotFoundError
 
 from .base import Configuration, MimeTypes, SteamshipError
-from .data import *
+from .data import (
+    App,
+    AppInstance,
+    AppVersion,
+    Block,
+    DocTag,
+    EmbeddingIndex,
+    File,
+    PluginInstance,
+    PluginVersion,
+    Space,
+    Tag,
+    TagKind,
+    TextTag,
+)
 
 from .client import Steamship  # isort:skip
 
-__all__ = ["Steamship", "Configuration", "SteamshipError", "MimeTypes", "File", "Block", "Tag"]
+__all__ = [
+    "Steamship",
+    "Configuration",
+    "SteamshipError",
+    "MimeTypes",
+    "App",
+    "AppInstance",
+    "AppVersion",
+    "File",
+    "Block",
+    "Tag",
+    "Space",
+    "PluginInstance",
+    "PluginVersion",
+    "TagKind",
+    "TextTag",
+    "DocTag",
+    "EmbeddingIndex",
+]

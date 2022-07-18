@@ -136,7 +136,7 @@ class Client(CamelModel, ABC):
         elif isinstance(payload, dict):
             data = payload
         elif hasattr(payload, "to_dict"):
-            data = getattr(payload, "to_dict")()
+            data = payload.to_dict()
         elif isinstance(payload, BaseModel):
             data = payload.dict(by_alias=True)
         else:
@@ -191,25 +191,7 @@ class Client(CamelModel, ABC):
 
     def _add_client_to_response(self, expect: Type, response_data: Any):
         if isinstance(response_data, dict):
-            if expect and isclass(expect):
-                if len(response_data.keys()) == 1 and list(response_data.keys())[0] in (
-                    to_camel(expect.__name__),
-                    "index",
-                ):
-                    # TODO (enias): Hack since the engine responds with incosistent formats e.g. {"plugin" : {plugin_fields}}
-                    for k, v in response_data.items():
-                        self._add_client_to_response(expect, v)
-                elif issubclass(expect, BaseModel):
-                    response_data["client"] = self
-                    try:
-                        key_to_type = typing.get_type_hints(expect)
-                        for k, v in response_data.items():
-                            self._add_client_to_response(
-                                key_to_type.get(inflection.underscore(k)), v
-                            )
-                    except NameError:
-                        # typing.get_type_hints fails for Space
-                        pass
+            self._add_client_to_object(expect, response_data)
         elif isinstance(response_data, list):
             for el in response_data:
                 typing_parameters = typing.get_args(expect)
@@ -219,7 +201,26 @@ class Client(CamelModel, ABC):
 
         return response_data
 
-    def call(
+    def _add_client_to_object(self, expect, response_data):
+        if expect and isclass(expect):
+            if len(response_data.keys()) == 1 and list(response_data.keys())[0] in (
+                to_camel(expect.__name__),
+                "index",
+            ):
+                # TODO (enias): Hack since the engine responds with incosistent formats e.g. {"plugin" : {plugin_fields}}
+                for _, v in response_data.items():
+                    self._add_client_to_response(expect, v)
+            elif issubclass(expect, BaseModel):
+                response_data["client"] = self
+                try:
+                    key_to_type = typing.get_type_hints(expect)
+                    for k, v in response_data.items():
+                        self._add_client_to_response(key_to_type.get(inflection.underscore(k)), v)
+                except NameError:
+                    # typing.get_type_hints fails for Space
+                    pass
+
+    def call(  # noqa: C901
         self,
         verb: str,
         operation: str,
@@ -240,17 +241,17 @@ class Client(CamelModel, ABC):
     ) -> Union[Any, Response[T]]:
         """Post to the Steamship API.
 
-        All responses have the format:
-           {
-             data: <actual response>,
-             error?: {
-               reason: message
-             }
-           }
+        All responses have the format::
 
-        For the Python client we return the contents of the `data`
-        field if present, and we raise an exception if the `error`
-        field is filled in.
+        .. code-block:: json
+
+        {
+            "data": "<actual response>",
+            "error": {"reason": "<message>"}
+        } # noqa: RST203
+
+        For the Python client we return the contents of the `data` field if present, and we raise an exception
+        if the `error` field is filled in.
         """
         if space is not None:
             space_id = getattr(space, "id", None) if space_id is None else space_id

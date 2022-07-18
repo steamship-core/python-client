@@ -22,38 +22,38 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 class TestConfig(Config):
-    testValue1: str = None
-    testValue2: str = None
+    test_value1: str = None
+    test_value2: str = None
 
 
 class TestTrainableTaggerConfigModel(TrainableModel[TestConfig]):
     def load_from_folder(self, checkpoint_path: Path):
         assert self.config is not None
-        assert self.config.testValue1 is not None
-        assert self.config.testValue2 is not None
+        assert self.config.test_value1 is not None
+        assert self.config.test_value2 is not None
 
     def save_to_folder(self, checkpoint_path: Path):
         assert self.config is not None
-        assert self.config.testValue1 is not None
-        assert self.config.testValue2 is not None
+        assert self.config.test_value1 is not None
+        assert self.config.test_value2 is not None
 
     def train(self, input: TrainPluginInput) -> None:
         assert self.config is not None
-        assert self.config.testValue1 is not None
-        assert self.config.testValue2 is not None
+        assert self.config.test_value1 is not None
+        assert self.config.test_value2 is not None
 
     def train_status(self, input: TrainStatusPluginInput) -> None:
         assert self.config is not None
-        assert self.config.testValue1 is not None
-        assert self.config.testValue2 is not None
+        assert self.config.test_value1 is not None
+        assert self.config.test_value2 is not None
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         """Tags the incoming data for any instance of the keywords in the parameter file."""
         assert self.config is not None
-        assert self.config.testValue1 is not None
-        assert self.config.testValue2 is not None
+        assert self.config.test_value1 is not None
+        assert self.config.test_value2 is not None
         response = Response(data=BlockAndTagPluginOutput(file=File.CreateRequest(tags=[])))
         logging.info(f"TestTrainableTaggerModel:run() returning {response}")
         return response

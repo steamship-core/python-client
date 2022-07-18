@@ -2,7 +2,7 @@ import contextlib
 import io
 import logging
 import os
-import subprocess
+import subprocess  # noqa: S404
 import tempfile
 import time
 import zipfile
@@ -19,7 +19,9 @@ from tests import SRC_PATH
 
 def install_package(package: str, into_folder: str):
     logging.info(f"Installing {package} into: {into_folder}")
-    subprocess.run(["pip", "install", "--target", into_folder, package], stdout=subprocess.PIPE)
+    subprocess.run(  # noqa: S607,S603
+        ["pip", "install", "--target", into_folder, package], stdout=subprocess.PIPE
+    )
 
 
 def zip_deployable(file_path: Path) -> bytes:

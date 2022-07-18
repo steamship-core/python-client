@@ -50,14 +50,14 @@ def test_task_update():
     # TODO(ted): Right now only a user can update their own tasks. We should limit the scope even further so that
     # a user can update their own tasks in a constrained, workflow-compatible way.
 
-    ORIG_INPUT = result_2.task.input
-    ORIG_STATUS = result_2.task.status_message
+    orig_input = result_2.task.input
+    orig_status = result_2.task.status_message
 
-    INPUT = '{"test": "input"}'
-    STATUS = "Status Message"
+    input = '{"test": "input"}'
+    status = "Status Message"
 
-    result_2.task.input = INPUT
-    result_2.task.status_message = STATUS
+    result_2.task.input = input
+    result_2.task.status_message = status
 
     # Only update the output field.
     result_2.task.post_update(
@@ -71,8 +71,8 @@ def test_task_update():
 
     # The original input is unchanged; the local modifications have been overwritten by the remote state, which
     # was not updated.
-    assert result_2.task.input == ORIG_INPUT
+    assert result_2.task.input == orig_input
 
     # The output is the new output. The remote state was updated by the client before the refresh returned
-    assert result_2.task.status_message == STATUS
-    assert result_2.task.status_message != ORIG_STATUS
+    assert result_2.task.status_message == status
+    assert result_2.task.status_message != orig_status

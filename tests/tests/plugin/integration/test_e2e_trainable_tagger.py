@@ -2,6 +2,8 @@ import json
 import logging
 from pathlib import Path
 
+import pytest
+
 from steamship.client import Steamship
 from steamship.data.plugin import HostingType
 from steamship.data.plugin_instance import PluginInstance
@@ -12,20 +14,19 @@ from tests import PLUGINS_PATH
 from tests.assets.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerModel
 from tests.utils.deployables import deploy_plugin
 from tests.utils.file import upload_file
-from tests.utils.fixtures import client  # noqa: F401
 
 EXPORTER_HANDLE = "signed-url-exporter"
 KEYWORDS = ["product", "coupon"]
 
 
+@pytest.mark.usefixtures("client")
 def test_e2e_trainable_tagger_lambda_training(client: Steamship):
-
-    version_config_template = dict(
-        text_column=dict(type="string"),
-        tag_columns=dict(type="string"),
-        tag_kind=dict(type="string"),
-    )
-    instance_config = dict(text_column="Message", tag_columns="Category", tag_kind="Intent")
+    version_config_template = {
+        "text_column": {"type": "string"},
+        "tag_columns": {"type": "string"},
+        "tag_kind": {"type": "string"},
+    }
+    instance_config = {"text_column": "Message", "tag_columns": "Category", "tag_kind": "Intent"}
 
     exporter_plugin_r = PluginInstance.create(
         client=client,
@@ -64,9 +65,9 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
                     export_plugin_input=ExportPluginInput(
                         plugin_instance=EXPORTER_HANDLE, type="file", query='kind "foo1"'
                     ),
-                    training_params=dict(
-                        keyword_list=KEYWORDS  # This is a key defined by the test model we're training
-                    ),
+                    training_params={
+                        "keyword_list": KEYWORDS  # This is a key defined by the test model we're training
+                    },
                 )
 
                 train_result = tagger_instance.train(training_request)

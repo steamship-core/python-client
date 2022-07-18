@@ -19,11 +19,11 @@ async def _model_call(
     session, text: str, api_url, headers, additional_params: dict = None, use_gpu: bool = False
 ) -> Optional[list]:
     additional_params = additional_params or {}
-    json_input = dict(
-        inputs=text or "",
-        parameters=additional_params,
-        options=dict(use_gpu=use_gpu, wait_for_model=False),
-    )
+    json_input = {
+        "inputs": text or "",
+        "parameters": additional_params,
+        "options": {"use_gpu": use_gpu, "wait_for_model": False},
+    }
     ok_response, nok_response = None, None
 
     max_error_retries = 3

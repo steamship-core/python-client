@@ -18,7 +18,7 @@ class CreateAppInstanceRequest(Request):
     handle: str = None
     upsert: bool = None
     config: Dict[str, Any] = None
-    spaceId: str = None
+    space_id: str = None
 
 
 class DeleteAppInstanceRequest(Request):

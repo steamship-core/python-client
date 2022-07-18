@@ -3,7 +3,6 @@ from typing import Callable, Optional
 import pytest
 
 from tests.assets.apps.demo_app import TestApp
-from tests.utils.fixtures import app_handler  # noqa: F401
 
 ERROR_NO_METHOD = "No handler for POST /method_doesnt_exist available."
 ERROR_STEAMSHIP_ERROR = "[ERROR - POST raise_steamship_error] raise_steamship_error"

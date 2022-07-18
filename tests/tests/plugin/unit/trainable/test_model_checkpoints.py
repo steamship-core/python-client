@@ -7,7 +7,6 @@ from tests.assets.plugins.taggers.plugin_trainable_tagger import (
     TRAINING_PARAMETERS,
     TestTrainableTaggerModel,
 )
-from tests.tests.plugin.unit.trainable.util import create_dummy_training_task
 from tests.utils.fixtures import get_steamship_client
 
 
@@ -37,8 +36,6 @@ def test_model_checkpoint_save_load():
     - Every ModelCheckpoint uploaded can also become the new default
     """
     client = get_steamship_client()
-    train_task_response = create_dummy_training_task(client)
-    train_task_id = train_task_response.task.task_id
 
     checkpoint_1 = ModelCheckpoint(client=client, handle="epoch1", plugin_instance_id="0000")
     with open(checkpoint_1.folder_path_on_disk() / "params.json", "w") as f:
@@ -79,7 +76,6 @@ def test_model_can_save_to_and_load_from_checkpoint():
     """Elaboration of model_checkpoint_save_load in which include an example Model in the loop."""
 
     client = get_steamship_client()
-    train_task_response = create_dummy_training_task(client)
     plugin_instance_id = "000"
 
     # TRAIN PHASE #1
