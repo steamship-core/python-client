@@ -1,1 +1,1 @@
-"""Collection of utility function used by our tests."""
+"""Collection of utility function used by our steamship_tests."""

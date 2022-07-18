@@ -14,6 +14,11 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Type
 
+from steamship_tests.assets.plugins.taggers.plugin_trainable_tagger import (
+    TRAINING_PARAMETERS,
+    TestTrainableTaggerModel,
+)
+
 from steamship import Block, File, SteamshipError, Tag
 from steamship.app import Response, create_handler
 from steamship.base import Task
@@ -28,10 +33,6 @@ from steamship.plugin.outputs.training_parameter_plugin_output import TrainingPa
 from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import TrainableTagger
 from steamship.plugin.trainable_model import TrainableModel
-from tests.assets.plugins.taggers.plugin_trainable_tagger import (
-    TRAINING_PARAMETERS,
-    TestTrainableTaggerModel,
-)
 
 # If this isn't present, Localstack won't show logs
 logging.getLogger().setLevel(logging.INFO)

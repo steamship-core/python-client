@@ -1,12 +1,12 @@
 from typing import Callable, Optional, Type
 
 import pytest
+from steamship_tests.utils.client import get_steamship_client
 
 from steamship import Space, Steamship
 from steamship.app.app import App
 from steamship.app.lambda_handler import create_handler as _create_handler
 from steamship.app.request import Invocation, InvocationContext, LoggingConfig, Request
-from tests.utils.client import get_steamship_client
 
 
 @pytest.fixture()
@@ -43,8 +43,8 @@ def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     --------
 
     >>> import pytest # doctest: +SKIP
-        from tests.utils.fixtures import app_handler  # noqa: F401
-        from tests.assets.apps.demo_app import TestApp
+        from steamship_tests.utils.fixtures import app_handler  # noqa: F401
+        from steamship_tests.assets.apps.demo_app import TestApp
         @pytest.mark.parametrize("app_handler", [TestApp], indirect=True)
         def _test_something(app_handler):
             response_dict = app_handler("POST", "/hello", dict())

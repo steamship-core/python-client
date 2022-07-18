@@ -9,12 +9,13 @@ import zipfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from steamship_tests import SRC_PATH
+
 from steamship import App, AppInstance, AppVersion, Steamship
 from steamship.data.plugin import HostingType, Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
-from tests import SRC_PATH
 
 
 def install_package(package: str, into_folder: str):
@@ -29,7 +30,9 @@ def zip_deployable(file_path: Path) -> bytes:
 
     package_paths = [
         SRC_PATH / "steamship",
-        SRC_PATH / ".." / "tests",  # This is included to test plugin development using inheritance
+        SRC_PATH
+        / ".."
+        / "steamship_tests",  # This is included to test plugin development using inheritance
     ]
 
     zip_buffer = io.BytesIO()
@@ -68,7 +71,7 @@ def zip_deployable(file_path: Path) -> bytes:
                     zip_file.write(pypi_file, pypi_file.relative_to(package_dir))
 
     # Leaving this in as a reminder: this is an easy way to generate the app zip for use in
-    # updating engine unit tests.
+    # updating engine unit steamship_tests.
     #
     # with open("demo_app.zip", 'wb') as f:
     #     f.write(zip_buffer.getvalue())
@@ -92,7 +95,7 @@ def deploy_plugin(
         training_platform=training_platform,
         type_=plugin_type,
         transport="jsonOverHttp",
-        description="A Plugin (python client tests)",
+        description="A Plugin (python client steamship_tests)",
         is_public=False,
     )
     assert plugin.error is None
