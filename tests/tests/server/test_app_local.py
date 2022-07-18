@@ -29,13 +29,18 @@ def test_invoke_app_with_request():
 
 def test_invoke_app_with_handler():
     loggingConfig = dict(loggingHost="none", loggingPort="none")
-    event = dict(invocation=dict(httpVerb="POST", appPath="greet"), loggingConfig=loggingConfig)
+    event = dict(
+        invocation=dict(httpVerb="POST", appPath="greet"),
+        loggingConfig=loggingConfig,
+        invocationContext=dict(),
+    )
     res = handler(event)
     assert res["data"] == RES_EMPTY
 
     event = dict(
         invocation=dict(httpVerb="POST", appPath="greet", arguments=dict(name=NAME)),
         loggingConfig=loggingConfig,
+        invocationContext=dict(),
     )
     res = handler(event)
     assert res["data"] == RES_NAME

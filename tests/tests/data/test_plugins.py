@@ -51,6 +51,7 @@ def test_plugin_create():
         type_=PluginType.tagger,
         transport=PluginAdapterType.steamshipDocker,
         is_public=False,
+        upsert=False,
     )
     assert plugin_x.error is not None
 

@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 from pydantic import BaseModel
 
-from steamship.base.configuration import Configuration
+from steamship.base.configuration import CamelModel, Configuration
 
 
 def event_to_config(event: dict) -> Configuration:
@@ -14,21 +14,6 @@ def event_to_config(event: dict) -> Configuration:
         raise Exception("invocationContext not in event")
 
     return Configuration.parse_obj(event["invocationContext"])
-
-
-class Verb:
-    GET = "GET"
-    POST = "POST"
-
-    @staticmethod
-    def safely_from_str(s: str) -> str:
-        # TODO (enias): Is this needed?
-        ss = s.strip().upper()
-        if ss == Verb.GET:
-            return Verb.GET
-        elif ss == Verb.POST:
-            return Verb.POST
-        return s
 
 
 class Invocation(BaseModel):
@@ -41,6 +26,17 @@ class Invocation(BaseModel):
 class LoggingConfig(BaseModel):
     loggingHost: str = None
     loggingPort: str = None
+
+
+class InvocationContext(CamelModel):
+    tenant_id: str = None
+    user_id: str = None
+    space_id: str = None
+
+    invocable_handle: str = None
+    invocable_version_handle: str = None
+    invocable_instance_handle: str = None
+    invocable_type: str = None
 
 
 class Request(BaseModel):
@@ -57,3 +53,4 @@ class Request(BaseModel):
     clientConfig: Configuration = None
     invocation: Invocation = None
     loggingConfig: LoggingConfig = None
+    invocationContext: InvocationContext = None

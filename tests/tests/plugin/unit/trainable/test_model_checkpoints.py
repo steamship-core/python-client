@@ -1,13 +1,12 @@
 import os
 from pathlib import Path
 
-from assets.plugins.taggers.plugin_trainable_tagger import (
+from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
+from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
+from tests.assets.plugins.taggers.plugin_trainable_tagger import (
     TRAINING_PARAMETERS,
     TestTrainableTaggerModel,
 )
-
-from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from tests.tests.plugin.unit.trainable.util import create_dummy_training_task
 from tests.utils.fixtures import get_steamship_client
 

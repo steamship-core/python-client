@@ -1,15 +1,14 @@
-from assets.plugins.taggers.plugin_trainable_tagger import (
-    TRAIN_RESPONSE,
-    TRAINING_PARAMETERS,
-    TestTrainableTaggerPlugin,
-)
-
 from steamship import File
 from steamship.data.block import Block
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.service import PluginRequest
+from tests.assets.plugins.taggers.plugin_trainable_tagger import (
+    TRAIN_RESPONSE,
+    TRAINING_PARAMETERS,
+    TestTrainableTaggerPlugin,
+)
 from tests.utils.fixtures import get_steamship_client
 
 TEST_REQ = BlockAndTagPluginInput(
