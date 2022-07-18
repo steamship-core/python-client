@@ -44,7 +44,7 @@ class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
 
 class ValidTrainableStringToStringPlugin(TrainableTagger):
     def train_status(
-            self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
+        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
     ) -> Response[TrainPluginOutput]:
         return Response(data=TrainPluginOutput(training_complete=True))
 
@@ -58,12 +58,12 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
         return self.client
 
     def run_with_model(
-            self, request: PluginRequest[str], model: TrainableModel
+        self, request: PluginRequest[str], model: TrainableModel
     ) -> Union[str, Response[str]]:
         pass
 
     def get_training_parameters(
-            self, request: PluginRequest[TrainingParameterPluginInput]
+        self, request: PluginRequest[TrainingParameterPluginInput]
     ) -> Response[TrainingParameterPluginOutput]:
         return Response(data=TrainingParameterPluginOutput())
 
@@ -71,7 +71,7 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
         return Response(data=TrainPluginOutput(training_complete=True))
 
     def train_status(
-            self, request: PluginRequest[TrainStatusPluginInput], model
+        self, request: PluginRequest[TrainStatusPluginInput], model
     ) -> Response[TrainPluginOutput]:
         return Response(data=TrainPluginOutput(training_complete=True))
 
@@ -88,6 +88,7 @@ def test_plugin_service_is_abstract():
 
 def test_plugin_service_must_implement_run_and_subclass_request_from_dict():
     with pytest.raises(Exception):
+
         class BadPlugin(PluginService):
             pass
 
