@@ -1,6 +1,6 @@
 import pytest
+from assets.plugins.blockifiers.blockifier import TEST_DOC
 from steamship_tests import PLUGINS_PATH
-from steamship_tests.assets.plugins.blockifiers.blockifier import TEST_DOC
 from steamship_tests.utils.deployables import deploy_plugin
 
 from steamship import File

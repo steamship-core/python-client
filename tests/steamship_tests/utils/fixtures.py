@@ -44,7 +44,7 @@ def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
 
     >>> import pytest # doctest: +SKIP
         from steamship_tests.utils.fixtures import app_handler  # noqa: F401
-        from steamship_tests.assets.apps.demo_app import TestApp
+        from assets.apps.demo_app import TestApp
         @pytest.mark.parametrize("app_handler", [TestApp], indirect=True)
         def _test_something(app_handler):
             response_dict = app_handler("POST", "/hello", dict())

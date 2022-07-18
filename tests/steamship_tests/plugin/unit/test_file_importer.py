@@ -1,9 +1,6 @@
 import base64
 
-from steamship_tests.assets.plugins.importers.plugin_file_importer import (
-    TEST_DOC,
-    TestFileImporterPlugin,
-)
+from assets.plugins.importers.plugin_file_importer import TEST_DOC, TestFileImporterPlugin
 
 from steamship.app import Response
 from steamship.data.file import File

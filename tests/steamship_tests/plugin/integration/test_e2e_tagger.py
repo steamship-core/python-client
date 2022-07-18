@@ -1,5 +1,5 @@
 from steamship_tests import PLUGINS_PATH
-from steamship_tests.steamship_tests.client.operations.test_tag_file import tag_file
+from steamship_tests.client.operations.test_tag_file import tag_file
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 

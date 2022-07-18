@@ -9,7 +9,7 @@ import zipfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from steamship_tests import SRC_PATH
+from steamship_tests import SRC_PATH, TEST_ASSETS_PATH
 
 from steamship import App, AppInstance, AppVersion, Steamship
 from steamship.data.plugin import HostingType, Plugin
@@ -69,6 +69,13 @@ def zip_deployable(file_path: Path) -> bytes:
                 for file in files:
                     pypi_file = Path(root) / file
                     zip_file.write(pypi_file, pypi_file.relative_to(package_dir))
+
+        # Now we'll copy in the whole assets directory so that our test files can access things there..
+        for root, _, files in os.walk(TEST_ASSETS_PATH):
+            for file in files:
+                the_file = Path(root) / file
+                relative_path = the_file.relative_to(TEST_ASSETS_PATH.parent)
+                zip_file.write(the_file, relative_path)
 
     # Leaving this in as a reminder: this is an easy way to generate the app zip for use in
     # updating engine unit steamship_tests.

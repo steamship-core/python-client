@@ -1,5 +1,5 @@
 import pytest
-from steamship_tests.assets.plugins.blockifiers.blockifier import DummyBlockifierPlugin
+from assets.plugins.blockifiers.blockifier import DummyBlockifierPlugin
 
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput

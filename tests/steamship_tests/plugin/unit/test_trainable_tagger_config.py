@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from steamship_tests.assets.plugins.taggers.plugin_trainable_tagger_config import (
+from assets.plugins.taggers.plugin_trainable_tagger_config import (
     TestConfig,
     TestTrainableTaggerConfigModel,
     TestTrainableTaggerConfigPlugin,

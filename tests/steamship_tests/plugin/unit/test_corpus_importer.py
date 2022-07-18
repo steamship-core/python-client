@@ -1,4 +1,4 @@
-from steamship_tests.assets.plugins.importers.plugin_corpus_importer import TestCorpusImporterPlugin
+from assets.plugins.importers.plugin_corpus_importer import TestCorpusImporterPlugin
 
 from steamship.app import Response
 from steamship.data.operations.corpus_importer import CorpusImportRequest, CorpusImportResponse

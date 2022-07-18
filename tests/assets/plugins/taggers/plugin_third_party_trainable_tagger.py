@@ -14,7 +14,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Type
 
-from steamship_tests.assets.plugins.taggers.plugin_trainable_tagger import (
+from assets.plugins.taggers.plugin_trainable_tagger import (
     TRAINING_PARAMETERS,
     TestTrainableTaggerModel,
 )

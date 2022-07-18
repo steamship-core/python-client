@@ -1,10 +1,10 @@
 from steamship_tests import PLUGINS_PATH
-from steamship_tests.steamship_tests.client.operations.test_embed import (
+from steamship_tests.client.operations.test_embed import (
     basic_embedding_search,
     basic_embeddings,
     count_embeddings,
 )
-from steamship_tests.steamship_tests.client.operations.test_embedding_index import create_index
+from steamship_tests.client.operations.test_embedding_index import create_index
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 

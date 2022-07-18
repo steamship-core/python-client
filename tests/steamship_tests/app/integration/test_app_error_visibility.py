@@ -1,7 +1,7 @@
 from typing import Callable, Optional
 
 import pytest
-from steamship_tests.assets.apps.demo_app import TestApp
+from assets.apps.demo_app import TestApp
 
 ERROR_NO_METHOD = "No handler for POST /method_doesnt_exist available."
 ERROR_STEAMSHIP_ERROR = "[ERROR - POST raise_steamship_error] raise_steamship_error"

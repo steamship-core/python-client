@@ -4,7 +4,7 @@ or asynchronously at any time."""
 import json
 
 import pytest
-from steamship_tests.steamship_tests.plugin.unit.trainable.util import create_dummy_training_task
+from steamship_tests.plugin.unit.trainable.util import create_dummy_training_task
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import SteamshipError

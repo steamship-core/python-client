@@ -3,8 +3,8 @@ import logging
 from pathlib import Path
 
 import pytest
+from assets.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerModel
 from steamship_tests import PLUGINS_PATH
-from steamship_tests.assets.plugins.taggers.plugin_trainable_tagger import TestTrainableTaggerModel
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.file import upload_file
 

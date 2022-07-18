@@ -1,7 +1,7 @@
 import math
 
+from assets.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
 from steamship_tests import PLUGINS_PATH
-from steamship_tests.assets.plugins.taggers.plugin_trainable_tagger import TRAINING_PARAMETERS
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 

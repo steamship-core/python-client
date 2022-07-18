@@ -1,5 +1,5 @@
 import pytest
-from steamship_tests.assets.plugins.taggers.plugin_parser import TestParserPlugin
+from assets.plugins.taggers.plugin_parser import TestParserPlugin
 
 from steamship import File
 from steamship.app.response import Response

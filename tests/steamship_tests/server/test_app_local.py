@@ -1,4 +1,4 @@
-from steamship_tests.assets.apps.hello_world import HelloWorld, handler
+from assets.apps.hello_world import HelloWorld, handler
 
 from steamship.app import Invocation, Request
 

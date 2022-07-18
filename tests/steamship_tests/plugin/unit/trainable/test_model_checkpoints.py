@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-from steamship_tests.assets.plugins.taggers.plugin_trainable_tagger import (
+from assets.plugins.taggers.plugin_trainable_tagger import (
     TRAINING_PARAMETERS,
     TestTrainableTaggerModel,
 )

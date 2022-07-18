@@ -1,4 +1,4 @@
-from steamship_tests.steamship_tests.base.test_task import NoOpResult
+from steamship_tests.base.test_task import NoOpResult
 
 from steamship.base.response import Response
 from steamship.base.tasks import TaskState
