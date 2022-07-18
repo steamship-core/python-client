@@ -4,7 +4,7 @@ __license__ = "MIT"
 import json
 from enum import Enum
 
-from pydantic import BaseModel
+from steamship.base.configuration import CamelModel
 
 
 class TrainingPlatform(str, Enum):
@@ -14,7 +14,7 @@ class TrainingPlatform(str, Enum):
     LAMBDA = "lambda"
 
 
-class PluginInstance(BaseModel):
+class PluginInstance(CamelModel):
     training_platform: TrainingPlatform
 
 

@@ -3,8 +3,7 @@ from __future__ import annotations
 import base64
 from typing import Any
 
-from pydantic import BaseModel
-
+from steamship.base.configuration import CamelModel
 from steamship.base.mime_types import TEXT_MIME_TYPES
 from steamship.utils.signed_urls import url_to_bytes
 
@@ -24,7 +23,7 @@ def is_base64(sb):
         return False
 
 
-class RawDataPluginInput(BaseModel):
+class RawDataPluginInput(CamelModel):
     """Input for a plugin that accepts raw data, plus a mime type.
 
     A plugin author need only ever concern themselves with two fields:

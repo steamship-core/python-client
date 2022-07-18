@@ -1,13 +1,12 @@
 import logging
 from http import HTTPStatus
-from logging import Logger
 from typing import Dict, Type
 
 from fluent import asynchandler as fluenthandler
 from fluent.handler import FluentRecordFormatter
 
 from steamship.app.app import App
-from steamship.app.request import Request
+from steamship.app.request import InvocationContext, Request
 from steamship.app.response import Response
 from steamship.base import SteamshipError
 from steamship.base.utils import to_snake_case
@@ -18,7 +17,6 @@ def create_handler(app_cls: Type[App]):
     """Wrapper function for a Steamship app within an AWS Lambda function."""
 
     def _handler(
-        logger: Logger,
         event: Dict,
         _: Dict = None,
     ) -> Response:
@@ -51,12 +49,14 @@ def create_handler(app_cls: Type[App]):
             )
 
         if request and request.invocation:
-            error_prefix = f"[ERROR - {request.invocation.httpVerb} {request.invocation.appPath}] "
+            error_prefix = (
+                f"[ERROR - {request.invocation.http_verb} {request.invocation.app_path}] "
+            )
         else:
             error_prefix = f"[ERROR - ?VERB ?PATH] "
 
         try:
-            app = app_cls(client=client, config=request.invocation.config, logger=logger)
+            app = app_cls(client=client, config=request.invocation.config)
         except SteamshipError as se:
             return Response.from_obj(se)
         except Exception as ex:
@@ -91,35 +91,43 @@ def create_handler(app_cls: Type[App]):
             )
 
     def handler(event: Dict, context: Dict = None) -> dict:
-        logger = None
-        loggingConfig = event.get("loggingConfig")
+        logging_config = event.get("loggingConfig")
 
-        if loggingConfig is None:
+        if logging_config is None:
             return Response.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 message="Plugin/App handler did not receive a remote logging config.",
             ).dict(by_alias=True)
 
-        loggingHost = loggingConfig.get("loggingHost")
-        loggingPort = loggingConfig.get("loggingPort")
+        logging_host = logging_config.get("loggingHost")
+        logging_port = logging_config.get("loggingPort")
 
-        logger = logging.getLogger("lambda.handler")
         logging.basicConfig(level=logging.INFO)
-        loggingHandler = None
-        # This log statement intentionally goes to the DEFAULT logging handler, to debug logging configuration issues
-        logging.info(f"Logging host: {loggingHost} Logging port: {loggingPort}")
+        logging_handler = None
+
+        invocation_context_dict = event.get("invocationContext")
+        if invocation_context_dict is None:
+            return Response.error(
+                code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                message="Plugin/App handler did not receive an invocation context.",
+            ).dict(by_alias=True)
+
+        invocation_context = InvocationContext.parse_obj(invocation_context_dict)
+        # These log statements intentionally go to the logging handler pre-remote attachment, to debug logging configuration issues
+        logging.info(f"Logging host: {logging_host} Logging port: {logging_port}")
+        logging.info(f"Invocation context: {invocation_context}")
 
         if (
-            loggingHost != "none"
+            logging_host != "none"
         ):  # Key off the string none, not 'is None', to avoid config errors where remote host isn't passed
             # Configure remote logging
-            if loggingHost is None:
+            if logging_host is None:
                 return Response.error(
                     code=HTTPStatus.INTERNAL_SERVER_ERROR,
                     message="Plugin/App handler did receive a remote logging config, but it did not include a loggingHost.",
                 ).dict(by_alias=True)
 
-            if loggingPort is None:
+            if logging_port is None:
                 return Response.error(
                     code=HTTPStatus.INTERNAL_SERVER_ERROR,
                     message="Plugin/App handler did receive a remote logging config, but it did not include a loggingPort.",
@@ -128,23 +136,29 @@ def create_handler(app_cls: Type[App]):
             custom_format = {
                 "level": "%(levelname)s",
                 "host": "%(hostname)s",
-                "where": "%(module)s.%(funcName)s",
+                "where": "%(module)s.%(filename).%(funcName)s:%(lineno)s",
                 "type": "%(levelname)s",
                 "stack_trace": "%(exc_text)s",
                 "component": "app-plugin-lambda",
+                "userId": invocation_context.user_id,
+                "spaceId": invocation_context.space_id,
+                "tenantId": invocation_context.tenant_id,
+                "invocableHandle": invocation_context.invocable_handle,
+                "invocableVersionHandle": invocation_context.invocable_version_handle,
+                "invocableType": invocation_context.invocable_type,
+                "path": event.get("invocation", {}).get("appPath"),
             }
-            loggingHandler = fluenthandler.FluentHandler(
-                "steamship.deployed_lambda", host=loggingHost, port=loggingPort
+            logging_handler = fluenthandler.FluentHandler(
+                "steamship.deployed_lambda", host=logging_host, port=logging_port
             )
             formatter = FluentRecordFormatter(custom_format)
-            loggingHandler.setFormatter(formatter)
-            logger.addHandler(loggingHandler)
+            logging_handler.setFormatter(formatter)
             # The below should make it so calls to logging.info etc are also routed to the remote logger
-            logging.root.addHandler(loggingHandler)
+            logging.root.addHandler(logging_handler)
 
-        response = _handler(logger, event, context)
-        if loggingHandler is not None:
-            loggingHandler.close()
+        response = _handler(event, context)
+        if logging_handler is not None:
+            logging_handler.close()
         return response.dict(by_alias=True)
 
     return handler

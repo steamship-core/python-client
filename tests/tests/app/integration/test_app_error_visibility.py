@@ -22,17 +22,3 @@ def test_instance_invoke_unit(app_handler: Callable[[str, str, Optional[dict]], 
 
     response = app_handler("POST", "raise_python_error")
     assert response.get("status", {}).get("statusMessage", "") == ERROR_PYTHON_ERROR
-
-
-@pytest.mark.parametrize("app_handler", [TestApp], indirect=True)
-def test_instance_invoke_unit(app_handler: Callable[[str, str, Optional[dict]], dict]):
-    """Test that the handler returns the proper errors"""
-
-    response = app_handler("POST", "method_doesnt_exist")
-    assert response.get("status", {}).get("statusMessage", "") == ERROR_NO_METHOD
-
-    response = app_handler("POST", "raise_steamship_error")
-    assert response.get("status", {}).get("statusMessage", "") == ERROR_STEAMSHIP_ERROR
-
-    response = app_handler("POST", "raise_python_error")
-    assert response.get("status", {}).get("statusMessage", "") == ERROR_PYTHON_ERROR

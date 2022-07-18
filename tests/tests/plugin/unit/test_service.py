@@ -26,6 +26,9 @@ class EmptyConfig(Config):
 
 
 class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
+    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+        return TrainPluginOutput(training_complete=True)
+
     def load_from_folder(self, checkpoint_path: Path):
         pass
 
@@ -40,6 +43,11 @@ class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
 
 
 class ValidTrainableStringToStringPlugin(TrainableTagger):
+    def train_status(
+        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
+    ) -> Response[TrainPluginOutput]:
+        return Response(data=TrainPluginOutput(training_complete=True))
+
     def config_cls(self) -> Type[Config]:
         return EmptyConfig
 
@@ -126,7 +134,7 @@ def test_with_override_get_training_params_succeeds():
 def test_non_trainable_plugin_lacks_train():
     plugin = ValidStringToStringPlugin()
     # It has it from the base class
-    assert hasattr(plugin, "train") == False
+    assert not hasattr(plugin, "train")
 
 
 def test_with_override_train_succeeds():

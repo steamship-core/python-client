@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
-
+from steamship.base.configuration import CamelModel
 from steamship.base.tasks import TaskState
 from tests.utils.fixtures import get_steamship_client
 
 
-class NoOpResult(BaseModel):
+class NoOpResult(CamelModel):
     pass
 
 

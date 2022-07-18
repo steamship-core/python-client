@@ -2,9 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from pydantic import BaseModel
-
-from steamship.base.configuration import Configuration
+from steamship.base.configuration import CamelModel, Configuration
 
 
 def event_to_config(event: dict) -> Configuration:
@@ -16,34 +14,30 @@ def event_to_config(event: dict) -> Configuration:
     return Configuration.parse_obj(event["invocationContext"])
 
 
-class Verb:
-    GET = "GET"
-    POST = "POST"
-
-    @staticmethod
-    def safely_from_str(s: str) -> str:
-        # TODO (enias): Is this needed?
-        ss = s.strip().upper()
-        if ss == Verb.GET:
-            return Verb.GET
-        elif ss == Verb.POST:
-            return Verb.POST
-        return s
-
-
-class Invocation(BaseModel):
-    httpVerb: str = None
-    appPath: str = None  # e.g. /hello/there
+class Invocation(CamelModel):
+    http_verb: str = None
+    app_path: str = None  # e.g. /hello/there
     arguments: Dict[str, Any] = None
     config: Dict[str, Any] = None
 
 
-class LoggingConfig(BaseModel):
-    loggingHost: str = None
-    loggingPort: str = None
+class LoggingConfig(CamelModel):
+    logging_host: str = None
+    logging_port: str = None
 
 
-class Request(BaseModel):
+class InvocationContext(CamelModel):
+    tenant_id: str = None
+    user_id: str = None
+    space_id: str = None
+
+    invocable_handle: str = None
+    invocable_version_handle: str = None
+    invocable_instance_handle: str = None
+    invocable_type: str = None
+
+
+class Request(CamelModel):
     """A request as the Steamship Hosting Framework receives it from the Engine.
 
     This class is different from the other `Request` class:
@@ -54,6 +48,7 @@ class Request(BaseModel):
     is intended to execute.
     """
 
-    clientConfig: Configuration = None
+    client_config: Configuration = None
     invocation: Invocation = None
-    loggingConfig: LoggingConfig = None
+    logging_config: LoggingConfig = None
+    invocation_context: InvocationContext = None
