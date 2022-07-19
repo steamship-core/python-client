@@ -17,7 +17,8 @@ def _fix_url(s: str) -> str:
     "approved way" (which is to use host.docker.internal). It is merely to make sure that the environment
     has been passed to the app instance correctly."""
     s = s.replace("localhost", "host.docker.internal").replace("127.0.0.1", "host.docker.internal")
-    s = s.removesuffix("/")
+    if s.endswith("/"):
+        s = s[:-1]  # s.removesuffix is only available in Python 3.9; we use Python 3.8
     return s
 
 
