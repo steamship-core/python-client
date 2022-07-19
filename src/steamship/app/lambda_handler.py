@@ -136,7 +136,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
             custom_format = {
                 "level": "%(levelname)s",
                 "host": "%(hostname)s",
-                "where": "%(module)s.%(filename).%(funcName)s:%(lineno)s",
+                "where": "%(module)s.%(filename)s.%(funcName)s:%(lineno)s",
                 "type": "%(levelname)s",
                 "stack_trace": "%(exc_text)s",
                 "component": "app-plugin-lambda",
