@@ -7,7 +7,7 @@ from urllib.parse import parse_qs
 import requests
 
 from steamship import SteamshipError
-from steamship.utils.localstack import apply_localstack_url_fix
+from steamship.utils.url import apply_localstack_url_fix
 
 # If this isn't present, Localstack won't show logs
 logging.getLogger().setLevel(logging.INFO)

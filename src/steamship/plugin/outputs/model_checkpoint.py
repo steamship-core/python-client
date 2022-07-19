@@ -17,7 +17,7 @@ def _get_space(client: Client) -> Space:
     # This is a way to load the model object for that space.
     space = Space.get(client, id_=client.config.space_id, handle=client.config.space_handle)
     if not space.data:
-        logging.error(f"Unable to get space.")
+        logging.error("Unable to get space.")
         raise SteamshipError(
             message="Error while retrieving the Space associated with this client config.",
             internal_message=f"space_id={client.config.space_id}   space_handle={client.config.space_handle}",
@@ -87,11 +87,10 @@ class ModelCheckpoint(CamelModel):
         """Returns the path to the checkpoint archive on Steamship.
 
         On steamship, the checkpoint is archived in the Space's PluginInstance bucket as:
-           `{plugin_instance_bucket}/{plugin_instance_id}/{checkpoint_handle}.zip
+        `{plugin_instance_bucket}/{plugin_instance_id}/{checkpoint_handle}.zip`
 
         Here we only return the following path since the bucket is specified separately
-        in the required Steamship API calls:
-            `{plugin_instance_id}/{checkpoint_handle}.zip`
+        in the required Steamship API calls: `{plugin_instance_id}/{checkpoint_handle}.zip`
         """
         return f"{self.plugin_instance_id}/{as_handle or self.handle}.zip"
 

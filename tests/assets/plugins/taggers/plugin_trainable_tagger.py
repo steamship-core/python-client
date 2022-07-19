@@ -1,6 +1,5 @@
 import json
 import logging
-from logging import Logger
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
@@ -22,7 +21,7 @@ from steamship.plugin.trainable_model import TrainableModel
 TRAINING_PARAMETERS = TrainingParameterPluginOutput(
     training_epochs=3,
     testing_holdout_percent=0.3,
-    training_params=dict(keywords=["chocolate", "roses", "champagne"]),
+    training_params={"keywords": ["chocolate", "roses", "champagne"]},
 )
 
 TRAIN_RESPONSE = TrainPluginOutput(training_complete=True)
@@ -39,14 +38,16 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
     design of what a "Model" ought to look like:
 
     TRAINING:
-    - Save all results to the folder provided during initialization. The zipfile of this folder
-      is the ModelCheckpoint that gets saved to steamship.
-    - Note that we'll likely want to iterate on this, e.g.:
-        - Does the model create the checkpoint or simply receive a folder into which to save data, etc etc
+
+        - Save all results to the folder provided during initialization. The zipfile of this folder
+            is the ModelCheckpoint that gets saved to steamship.
+        - Note that we'll likely want to iterate on this, e.g. Does the model create the checkpoint or simply receive a
+            folder into which to save data, etc etc.
+
 
     LOADING:
     - Offer a constructor that loads the model with a provided path. This path is assumed to contain the unzipped
-      ModelCheckpoint that was requested.
+    ModelCheckpoint that was requested.
 
       In this example model, the `from_disk(path: Path)` method provides this functionality.
     """
@@ -125,8 +126,8 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
     """
 
-    def __init__(self, client: Client, config: Dict[str, Any] = None, logger: Logger = None):
-        super().__init__(client, config, logger)
+    def __init__(self, client: Client, config: Dict[str, Any] = None):
+        super().__init__(client, config)
 
     def config_cls(self) -> Type[Config]:
         return EmptyConfig
@@ -140,8 +141,8 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         model: TestTrainableTaggerModel,
     ) -> Response[BlockAndTagPluginOutput]:
         """Downloads the model file from the provided space"""
-        self.logger.debug(f"run_with_model {request} {model}")
-        self.logger.info(
+        logging.debug(f"run_with_model {request} {model}")
+        logging.info(
             f"TestTrainableTaggerPlugin:run_with_model() got request {request} and model {model}"
         )
         return model.run(request)
@@ -156,7 +157,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerModel
     ) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
-        self.logger.info(f"TestTrainableTaggerPlugin:train() {request}")
+        logging.info(f"TestTrainableTaggerPlugin:train() {request}")
 
         # Create a Response object at the top with a Task attached. This will let us stream back updates
         # TODO: This is very non-intuitive. We should improve this.
@@ -176,7 +177,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         )
 
         # Set the model location on the plugin output.
-        self.logger.info(
+        logging.info(
             f"TestTrainableTaggerPlugin:train() setting model archive path to {archive_path_in_steamship}"
         )
         train_plugin_output.archive_path = archive_path_in_steamship
@@ -194,7 +195,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         # the Lambda function finishes. For now, let's just pretend they're synchronous. But in a future PR when we
         # have a better method of handling such situations, the response below would include a `status` of type `running`
         # to indicate that, while the plugin handler has returned, the plugin's execution continues.
-        self.logger.info(f"TestTrainableTaggerPlugin:train() returning {response}")
+        logging.info(f"TestTrainableTaggerPlugin:train() returning {response}")
         return response
 
     def train_status(

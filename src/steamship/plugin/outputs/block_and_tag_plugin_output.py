@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from pydantic import BaseModel
-
+from steamship.base.configuration import CamelModel
 from steamship.data.file import File
 
 
-class BlockAndTagPluginOutput(BaseModel):
+class BlockAndTagPluginOutput(CamelModel):
     file: File.CreateRequest = None

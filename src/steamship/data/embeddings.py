@@ -75,7 +75,7 @@ class IndexInsertRequest(Request):
     items: List[EmbeddedItem] = None
     value: str = None
     file_id: str = None
-    blockType: str = None
+    block_type: str = None
     external_id: str = None
     external_type: str = None
     metadata: Any = None
@@ -88,7 +88,7 @@ class IndexItemId(CamelModel):
 
 
 class IndexInsertResponse(Response):
-    itemIds: List[IndexItemId] = None
+    item_ids: List[IndexItemId] = None
 
 
 class IndexEmbedRequest(Request):
@@ -129,7 +129,7 @@ class ListItemsRequest(Request):
     id: str = None
     file_id: str = None
     block_id: str = None
-    spanId: str = None
+    span_id: str = None
 
 
 class ListItemsResponse(Response):
@@ -137,7 +137,7 @@ class ListItemsResponse(Response):
 
 
 class DeleteSnapshotsRequest(Request):
-    snapshotId: str = None
+    snapshot_id: str = None
 
 
 class DeleteSnapshotsResponse(Response):

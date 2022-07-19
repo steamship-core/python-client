@@ -6,9 +6,10 @@ from pydantic import BaseModel
 
 from steamship.app import Response
 from steamship.base import Client
+from steamship.base.configuration import CamelModel
 
 
-class User(BaseModel):
+class User(CamelModel):
     client: Client = None
     id: str = None
     handle: str = None

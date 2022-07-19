@@ -24,6 +24,7 @@ class Steamship(Client):
         api_key: str = None,
         api_base: str = None,
         app_base: str = None,
+        web_base: str = None,
         space_id: str = None,
         space_handle: str = None,
         profile: str = None,
@@ -35,6 +36,7 @@ class Steamship(Client):
             api_key=api_key,
             api_base=api_base,
             app_base=app_base,
+            web_base=web_base,
             space_id=space_id,
             space_handle=space_handle,
             profile=profile,
@@ -196,7 +198,7 @@ class Steamship(Client):
         logging.info("New client get_space")
         space = Space.get(self, id_=self.config.space_id, handle=self.config.space_handle)
         if not space.data:
-            logging.error(f"Unable to get space.")
+            logging.error("Unable to get space.")
             raise SteamshipError(
                 message="Error while retrieving the Space associated with this client config.",
                 internal_message=f"space_id={self.config.space_id}   space_handle={self.config.space_handle}",

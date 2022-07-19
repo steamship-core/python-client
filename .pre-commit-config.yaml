@@ -65,11 +65,11 @@ repos:
 #        entry: shellcheck --check-sourced
 #        language: system
 #        types: [shell]
-#      - id: flake8
-#        name: flake8
-#        entry: flake8
-#        language: system
-#        types: [python]
+      - id: flake8
+        name: flake8
+        entry: flake8
+        language: system
+        types: [python]
 #      - id: pydocstyle
 #        name: pydocstyle
 #        entry: pydocstyle

@@ -13,13 +13,13 @@ class TestParserPlugin(Tagger):
     # For testing; mirrors TestConfigurableTagger in Swift
 
     class TestParserConfig(Config):
-        tagKind: str
-        tagName: str
-        numberValue: Union[int, float]
+        tag_kind: str
+        tag_name: str
+        number_value: Union[int, float]
         # TODO: Check to see if python and/or swift removes False from obj.
         # If this is non-optional, the typecheck fails despite the fact that the test passes
         # in a value of false....
-        booleanValue: Optional[bool] = False
+        boolean_value: Optional[bool] = False
 
     def config_cls(self) -> Type[Config]:
         return self.TestParserConfig
@@ -27,11 +27,11 @@ class TestParserPlugin(Tagger):
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
-        tag_kind = self.config.tagKind
-        tag_name = self.config.tagName
+        tag_kind = self.config.tag_kind
+        tag_name = self.config.tag_name
         tag_value = {
-            "numberValue": self.config.numberValue,
-            "booleanValue": self.config.booleanValue,
+            "numberValue": self.config.number_value,
+            "booleanValue": self.config.boolean_value,
         }
 
         if request.data is not None:
