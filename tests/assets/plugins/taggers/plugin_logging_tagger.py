@@ -1,3 +1,4 @@
+import logging
 from typing import Type
 
 from steamship.app import Response, create_handler
@@ -18,11 +19,11 @@ class TestLoggingTaggerPlugin(Tagger):
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
-        self.logger.info(f"A remote logging log")
+        logging.info("A remote logging log")
         file = request.data.file
         if request.data is not None:
             ret = Response(data=BlockAndTagPluginOutput(file=file))
-            self.logger.info(f"Ret: {ret}")
+            logging.info(f"Ret: {ret}")
             return ret
 
 

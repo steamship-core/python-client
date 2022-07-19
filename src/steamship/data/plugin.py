@@ -126,8 +126,8 @@ class PluginType(str, Enum):
 
 
 class PluginAdapterType(str, Enum):
-    steamshipDocker = "steamshipDocker"
-    steamshipSagemaker = "steamshipSagemaker"
+    steamship_docker = "steamshipDocker"
+    steamship_sagemaker = "steamshipSagemaker"
     huggingface = "huggingface"
     openai = "openai"
 
@@ -144,6 +144,7 @@ class LimitUnit(str, Enum):
 
 
 class Plugin(CamelModel):
+    # TODO (enias): Document, Plugins are just a name placeholder with some settings
     client: Client = None
     id: str = None
     type: str = None
@@ -170,7 +171,7 @@ class Plugin(CamelModel):
         handle: str = None,
         training_platform: Optional[HostingType] = None,
         metadata: Union[str, Dict, List] = None,
-        upsert: bool = None,
+        upsert: bool = False,
         space_id: str = None,
         space_handle: str = None,
     ) -> Response[Plugin]:

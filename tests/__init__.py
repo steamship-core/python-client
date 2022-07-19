@@ -1,4 +1,4 @@
-"""Collection of unit tests and integration tests for the steamship client."""
+"""Collection of unit steamship_tests and integration steamship_tests for the steamship client."""
 from pathlib import Path
 
 ROOT_PATH = Path(__file__).parent.parent

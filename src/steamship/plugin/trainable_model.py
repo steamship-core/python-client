@@ -62,11 +62,10 @@ class TrainableModel(ABC, Generic[ConfigType]):
     `save_remote` output, but they do not include the model parameters themselves. For example, after training, one
     could write:
 
-    archive_path_in_steamship = model.save_remote(..)
-    output = TrainPluginOutput(
-        archive_path_in_steamship=archive_path_in_steamship,
+    >>> archive_path_in_steamship = model.save_remote(..)
+    >>> output = TrainPluginOutput(archive_path_in_steamship=archive_path_in_steamship,
         ...
-    )
+        )
 
     That output is the ultimate return object of the training process, but the Plugin that owns this model need not
     wait for synchronous completion to update the Steamship Engine with intermediate results. It can use the

@@ -20,42 +20,40 @@ from steamship.plugin.trainable_model import TrainableModel
 # If this isn't present, Localstack won't show logs
 logging.getLogger().setLevel(logging.INFO)
 
-TRAIN_RESPONSE = TrainPluginOutput(training_complete=True)
-
 
 class TestConfig(Config):
-    testValue1: str = None
-    testValue2: str = None
+    test_value1: str = None
+    test_value2: str = None
 
 
 class TestTrainableTaggerConfigModel(TrainableModel[TestConfig]):
     def load_from_folder(self, checkpoint_path: Path):
         assert self.config is not None
-        assert self.config.testValue1 is not None
-        assert self.config.testValue2 is not None
+        assert self.config.test_value1 is not None
+        assert self.config.test_value2 is not None
 
     def save_to_folder(self, checkpoint_path: Path):
         assert self.config is not None
-        assert self.config.testValue1 is not None
-        assert self.config.testValue2 is not None
+        assert self.config.test_value1 is not None
+        assert self.config.test_value2 is not None
 
-    def train(self, input: TrainPluginInput) -> TrainPluginOutput:
+    def train(self, input: TrainPluginInput) -> None:
         assert self.config is not None
-        assert self.config.testValue1 is not None
-        assert self.config.testValue2 is not None
+        assert self.config.test_value1 is not None
+        assert self.config.test_value2 is not None
 
-    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+    def train_status(self, input: TrainStatusPluginInput) -> None:
         assert self.config is not None
-        assert self.config.testValue1 is not None
-        assert self.config.testValue2 is not None
+        assert self.config.test_value1 is not None
+        assert self.config.test_value2 is not None
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         """Tags the incoming data for any instance of the keywords in the parameter file."""
         assert self.config is not None
-        assert self.config.testValue1 is not None
-        assert self.config.testValue2 is not None
+        assert self.config.test_value1 is not None
+        assert self.config.test_value2 is not None
         response = Response(data=BlockAndTagPluginOutput(file=File.CreateRequest(tags=[])))
         logging.info(f"TestTrainableTaggerModel:run() returning {response}")
         return response
@@ -109,8 +107,7 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
         self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerConfigModel
     ) -> Response[TrainPluginOutput]:
         train_plugin_input = request.data
-        train_plugin_output = model.train(train_plugin_input)
-
+        _ = model.train(train_plugin_input)
         return None
 
     def train_status(
