@@ -43,20 +43,23 @@ class RawDataPluginOutput(CamelModel):
         **kwargs,
     ):
         super().__init__()
-        self.url = url
-        if base64string is not None:
-            self.data = base64string
+        if url is not None:
+            self.url = url
             self.mime_type = mime_type or MimeTypes.BINARY
         else:
-            # Base64-encode the data field.
-            self.data, self.mime_type, encoding = flexi_create(
-                base64string=base64string,
-                string=string,
-                json=json,
-                _bytes=_bytes,
-                mime_type=mime_type,
-                force_base64=True,
-            )
+            if base64string is not None:
+                self.data = base64string
+                self.mime_type = mime_type or MimeTypes.BINARY
+            else:
+                # Base64-encode the data field.
+                self.data, self.mime_type, encoding = flexi_create(
+                    base64string=base64string,
+                    string=string,
+                    json=json,
+                    _bytes=_bytes,
+                    mime_type=mime_type,
+                    force_base64=True,
+                )
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
