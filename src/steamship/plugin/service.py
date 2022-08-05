@@ -8,7 +8,6 @@ from pydantic.generics import GenericModel
 
 from steamship.app import App
 from steamship.app.response import Response
-from steamship.base import Client
 
 # Note!
 # =====
@@ -17,6 +16,7 @@ from steamship.base import Client
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
 from steamship.base.utils import to_camel
+from steamship.client import Steamship
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
@@ -73,7 +73,7 @@ class PluginService(ABC, App, Generic[T, U]):
     """
 
     # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+    def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
 
     @abstractmethod
@@ -87,7 +87,7 @@ class PluginService(ABC, App, Generic[T, U]):
 
 class TrainablePluginService(App, ABC, Generic[T, U]):
     # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+    def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
 
     @abstractmethod
