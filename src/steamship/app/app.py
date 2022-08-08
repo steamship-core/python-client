@@ -11,7 +11,7 @@ from typing import Any, Dict, Optional
 
 from steamship.app.request import Request
 from steamship.app.response import Response
-from steamship.base import Client
+from steamship.client import Steamship
 from steamship.utils.url import Verb
 
 
@@ -84,7 +84,7 @@ class App:
 
     _method_mappings = defaultdict(dict)
 
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
+    def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         self.client = client
         self.config = config
 
