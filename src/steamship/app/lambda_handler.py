@@ -149,7 +149,10 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
                 "path": event.get("invocation", {}).get("appPath"),
             }
             logging_handler = fluenthandler.FluentHandler(
-                "steamship.deployed_lambda", host=logging_host, port=logging_port
+                "steamship.deployed_lambda",
+                host=logging_host,
+                port=logging_port,
+                nanosecond_precision=True,
             )
             formatter = FluentRecordFormatter(custom_format)
             logging_handler.setFormatter(formatter)
