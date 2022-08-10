@@ -1,4 +1,4 @@
-"""CSV Blockifier - Steamship Plugin."""
+"""Async CSV Blockifier - Steamship Plugin."""
 import json
 from typing import Dict, Union, cast
 
@@ -17,21 +17,17 @@ STATUS_MESSAGE = "Still working!"
 
 
 class AsyncCsvBlockifier(CsvBlockifier, Blockifier):
-    """Converts TSV into Tagged Steamship Blocks.
+    """This plugin is identical to the CSV blockifier, but it:
+         1) delays its response until the first re-checking of the task status
+         2) requires that the status check include the previously returned "password"
 
-    Implementation is only here to demonstrate how plugins can be built through inheritance.
+    In so doing, this permits a unit test to verify both the engine's handling of an async blockification
+    and also the correct flow of the 'remote_status_input' field.
     """
 
     def run(
         self, request: PluginRequest[RawDataPluginInput]
     ) -> Union[Response, Response[BlockAndTagPluginOutput]]:
-        """This plugin is identical to the CSV blockifier, but it:
-             1) delays its response until the first re-checking of the task status
-             2) requires that the status check include the previously returned "password"
-
-        In so doing, this permits a unit test to verify both the engine's handling of an async blockification
-        and also the correct flow of the 'remote_status_input' field.
-        """
         if request.is_status_check():
             remote_input = cast(Dict, json.loads(request.status.remote_status_input))
             if remote_input.get("password") != STATUS_CHECK_KEY:
