@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, Type, TypeVar, Union
+from typing import Any, Dict, Generic, Optional, Type, TypeVar, Union
 
 from pydantic.generics import GenericModel
 
@@ -15,6 +15,7 @@ from steamship.app.response import Response
 # This the files in this package are for Plugin Implementors.
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
+from steamship.base import Task, TaskState
 from steamship.base.utils import to_camel
 from steamship.client import Steamship
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -28,9 +29,9 @@ T = TypeVar("T")
 U = TypeVar("U")
 
 
-class PluginRequest(GenericModel, Generic[T]):
-    data: T = None
-    task_id: str = None
+class PluginRequestContext(GenericModel):
+    """Contains the context in which"""
+
     plugin_id: str = None
     plugin_handle: str = None
     plugin_version_id: str = None
@@ -38,9 +39,29 @@ class PluginRequest(GenericModel, Generic[T]):
     plugin_instance_id: str = None
     plugin_instance_handle: str = None
 
+
+class PluginRequest(GenericModel, Generic[T]):
+    # The primary payload of the request. E.g. RawDataPluginInput, BlockAndTagPluginInput
+    data: Optional[T] = None
+
+    # The context in which this request is occurring
+    context: Optional[PluginRequestContext] = None
+
+    # The status of the request as perceived by the requester.
+    status: Optional[Task] = None
+
     class Config:
         alias_generator = to_camel
         allow_population_by_field_name = True
+
+    def is_status_check(self) -> bool:
+        """Returns whether this request is checking on the status of an ongoing operation.
+
+        If this request is a status check the input is found on self.status.remote_status_input
+        """
+        if self.status is not None:
+            if self.status.state == TaskState.running:
+                return True
 
 
 class PluginService(ABC, App, Generic[T, U]):

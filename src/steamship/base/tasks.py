@@ -155,6 +155,19 @@ class Task(CamelModel):
     task_created_on: str = None  # When the task object was created
     task_last_modified_on: str = None  # When the task object was last modified
 
+    # Long Running Plugin Support
+    # The `remote_status_*` fields govern how Steamship Plugins can communicate long-running work back to the engine.
+    # If instead of sending data, the plugin sends a status with these fields set, the engine will begin polling for
+    # updates, echoing the contents of these fields back to the plugin to communicate, e.g., the jobId of the work
+    # being checked. When the work is complete, simply respond with the Response `data` field set as per usual.
+    remote_status_input: str = (
+        None  # Data block for re-hydrating state in order to check remote status.
+    )
+    remote_status_output: str = (
+        None  # Data block for reporting structured JSON state for error diagnostics.
+    )
+    remote_status_message: str = None  # User facing message string to report on remote status.
+
     assigned_worker: str = None  # The worker assigned to complete this task
     started_at: str = None  # When the work on this task began
 
