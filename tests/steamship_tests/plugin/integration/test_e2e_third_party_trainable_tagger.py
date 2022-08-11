@@ -5,6 +5,7 @@ from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.client import get_steamship_client
 from steamship_tests.utils.deployables import deploy_plugin
 
+from steamship.base import TaskState
 from steamship.data.plugin import HostingType
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.space import Space
@@ -49,11 +50,11 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         )
         train_result = tagger_instance.train(training_request)
         train_result.wait()
+        assert train_result.task.state is not TaskState.failed
+        assert train_result.task.remote_status_input is not None
+        assert train_result.task.remote_status_input["num_checkins"] == 2
+
         assert train_result.data is not None
-        output = train_result.data
-        assert output.training_complete
-        assert output.training_reference_data is not None
-        assert output.training_reference_data["num_checkins"] == 3
 
         logging.info("Waiting 15 seconds for instance to deploy.")
         import time

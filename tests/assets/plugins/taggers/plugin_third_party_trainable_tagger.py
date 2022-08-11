@@ -21,7 +21,7 @@ from assets.plugins.taggers.plugin_trainable_tagger import (
 
 from steamship import Block, File, SteamshipError, Tag
 from steamship.app import Response, create_handler
-from steamship.base import Task
+from steamship.base import Task, TaskState
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -30,7 +30,7 @@ from steamship.plugin.inputs.training_parameter_plugin_input import TrainingPara
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
-from steamship.plugin.service import PluginRequest
+from steamship.plugin.request import PluginRequest
 from steamship.plugin.tagger import TrainableTagger
 from steamship.plugin.trainable_model import TrainableModel
 
@@ -102,40 +102,44 @@ class ThirdPartyModel(TrainableModel):
         with open(checkpoint_path / self.PARAM_FILE, "w") as f:
             f.write(json.dumps(self.params))
 
-    def train(self, input: TrainPluginInput) -> TrainPluginOutput:
+    def train(self, input: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Trains using the MockClient."""
-
         if self.client is None:
             raise SteamshipError(message="MockClient was null.")
-
         reference_data = {"num_checkins": 0}
-        return TrainPluginOutput(training_complete=False, training_reference_data=reference_data)
+        return Response(status=Task(state=TaskState.running, remote_status_input=reference_data))
 
-    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
-        reference_data = input.training_reference_data
-        logging.info(f'Called train_status with {reference_data["num_checkins"]}')
-        reference_data["num_checkins"] += 1
-        complete = reference_data["num_checkins"] > 2
-        if complete:
-            # Initialize the parameter bundle we'll eventually save to disk.
-            self.params = {}
+    def train_status(
+        self, input: PluginRequest[TrainStatusPluginInput]
+    ) -> Response[TrainPluginOutput]:
+        logging.info(f'Called train_status with {input.status.remote_status_input["num_checkins"]}')
+        input.status.remote_status_input["num_checkins"] += 1
+        complete = input.status.remote_status_input["num_checkins"] > 2
 
-            # Step 1. Simulate preparing data
-            data = None
+        if not complete:
+            return Response(
+                status=Task(
+                    state=TaskState.running, remote_status_input=input.status.remote_status_input
+                )
+            )
 
-            # Step 2. Simulate uploading data
-            data_file_id = self.client.upload_file_training_file(data)
-            self.params["data_file_id"] = data_file_id
+        # Initialize the parameter bundle we'll eventually save to disk.
+        self.params = {}
 
-            # Step 3. Simulate training
-            model_id = self.client.train(data_file_id)
-            self.params["model_id"] = model_id
+        # Step 1. Simulate preparing data
+        data = None
 
-        return TrainPluginOutput(training_complete=complete, training_reference_data=reference_data)
+        # Step 2. Simulate uploading data
+        data_file_id = self.client.upload_file_training_file(data)
+        self.params["data_file_id"] = data_file_id
 
-    def run(
-        self, request: PluginRequest[BlockAndTagPluginInput]
-    ) -> Response[BlockAndTagPluginOutput]:
+        # Step 3. Simulate training
+        model_id = self.client.train(data_file_id)
+        self.params["model_id"] = model_id
+
+        return Response(data=TrainPluginOutput())
+
+    def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> BlockAndTagPluginOutput:
         """Runs the mock client"""
 
         if "model_id" not in self.params:
@@ -152,7 +156,7 @@ class ThirdPartyModel(TrainableModel):
             )
             output.file.blocks.append(out_block)
 
-        return Response(json=output)
+        return output
 
 
 class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
@@ -176,7 +180,7 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
     ) -> Response[BlockAndTagPluginOutput]:
         """Downloads the model file from the provided space"""
         logging.debug(f"run_with_model {request} {model}")
-        return model.run(request)
+        return Response(json=model.run(request))
 
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
@@ -189,45 +193,24 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
     ) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
         logging.debug(f"train {request}")
-
-        # Create a Response object at the top with a Task attached. This will let us stream back updates
-        # TODO: This is very non-intuitive. We should improve this.
-        response = Response(status=Task(task_id=request.task_id))
-
-        # Train the model
-        train_plugin_input = request.data
-        train_plugin_output = model.train(train_plugin_input)
-
-        # Set the response on the `data` field of the object
-        response.set_data(json=train_plugin_output)
-        logging.info(response.dict(by_alias=True))
-        return response
+        return model.train(request)
 
     def train_status(
         self, request: PluginRequest[TrainStatusPluginInput], model: ThirdPartyModel
     ) -> Response[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
-        logging.debug(f"train {request}")
-
-        # Create a Response object at the top with a Task attached. This will let us stream back updates
-        # TODO: This is very non-intuitive. We should improve this.
-        response = Response(status=Task(task_id=request.task_id))
 
         # Call train status
-        train_plugin_output = model.train_status(request.data)
+        response = model.train_status(request)
 
-        if train_plugin_output.training_complete:
-            # Save the model with the `default` handle.
+        if response.data:
+            # We're done training. We need to save the result
             archive_path_in_steamship = model.save_remote(
-                client=self.client, plugin_instance_id=request.plugin_instance_id
+                client=self.client, plugin_instance_id=request.context.plugin_instance_id
             )
-
             # Set the model location on the plugin output.
-            train_plugin_output.archive_path = archive_path_in_steamship
+            response.data.archive_path = archive_path_in_steamship
 
-        # Set the response on the `data` field of the object
-        response.set_data(json=train_plugin_output)
-        logging.info(response.dict(by_alias=True))
         return response
 
 

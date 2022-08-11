@@ -1,12 +1,12 @@
 """Async CSV Blockifier - Steamship Plugin."""
-import json
-from typing import Dict, Union, cast
+from typing import Union
 
 from assets.plugins.blockifiers.csv_blockifier import CsvBlockifier
 
 from steamship import SteamshipError
 from steamship.app import Response, create_handler
-from steamship.base import Task
+from steamship.base import Task, TaskState
+from steamship.base.binary_utils import to_b64
 from steamship.plugin.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -25,19 +25,35 @@ class AsyncCsvBlockifier(CsvBlockifier, Blockifier):
     and also the correct flow of the 'remote_status_input' field.
     """
 
+    def _raw_data_input_to_dict(self, input: RawDataPluginInput) -> dict:
+        """Helper function to help us dehydrate the input to the status input."""
+        data = to_b64(input.data)
+        return {
+            "plugin_instance": input.plugin_instance,
+            "data": data,
+            "default_mime_type": input.default_mime_type,
+        }
+
     def run(
         self, request: PluginRequest[RawDataPluginInput]
     ) -> Union[Response, Response[BlockAndTagPluginOutput]]:
-        if request.is_status_check():
-            remote_input = cast(Dict, json.loads(request.status.remote_status_input))
-            if remote_input.get("password") != STATUS_CHECK_KEY:
+        if request.is_status_check:
+            if request.status.remote_status_input.get("password") != STATUS_CHECK_KEY:
                 raise SteamshipError(message="Required status password was not provided")
+
+            # Re-hydrate the input we stashed from before.
+            # This wouldn't be necessary in practice -- we're just doing it here in order to construct the task.
+            request.data = RawDataPluginInput(**request.status.remote_status_input.get("data"))
             return super().run(request)
         else:
             return Response(
                 status=Task(
+                    state=TaskState.running,
                     remote_status_message=STATUS_MESSAGE,
-                    remote_status_input=f'{"password": "${STATUS_CHECK_KEY}"}',
+                    remote_status_input={
+                        "password": STATUS_CHECK_KEY,
+                        "data": self._raw_data_input_to_dict(request.data),
+                    },
                 )
             )
 

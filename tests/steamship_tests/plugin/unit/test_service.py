@@ -60,12 +60,12 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
         return Response(data=TrainingParameterPluginOutput())
 
     def train(self, request: PluginRequest[TrainPluginInput], model) -> Response[TrainPluginOutput]:
-        return Response(data=TrainPluginOutput(training_complete=True))
+        return Response(data=TrainPluginOutput())
 
     def train_status(
         self, request: PluginRequest[TrainStatusPluginInput], model
     ) -> Response[TrainPluginOutput]:
-        return Response(data=TrainPluginOutput(training_complete=True))
+        return Response(data=TrainPluginOutput())
 
 
 #

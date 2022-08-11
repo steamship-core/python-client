@@ -1,5 +1,4 @@
-import json
-from typing import Dict, cast
+from typing import cast
 
 from assets.plugins.blockifiers.async_blockifier import STATUS_CHECK_KEY, STATUS_MESSAGE
 from steamship_tests import PLUGINS_PATH
@@ -39,13 +38,10 @@ def test_e2e_async_blockifier_plugin():
             # Check that the response has the correct bits set indicating that the engine handled it as an async
             # external task.
             assert blockify_response.task.remote_status_input
-            remote_input = cast(Dict, json.loads(blockify_response.task.remote_status_input))
-            assert remote_input.get("password") == STATUS_CHECK_KEY
+            assert blockify_response.task.remote_status_input.get("password") == STATUS_CHECK_KEY
             assert blockify_response.task.remote_status_message == STATUS_MESSAGE
             assert blockify_response.task.retries
-            assert (
-                blockify_response.task.retries == 2
-            )  # The retry_count is set at the "attempt on which it finished"
+            assert blockify_response.task.retries == 1
 
             # Check the number of blocks
             blocks = file.refresh().data.blocks

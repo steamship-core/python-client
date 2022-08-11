@@ -8,7 +8,6 @@ from steamship.base import Client
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -85,13 +84,8 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
         arg = PluginRequest[TrainPluginInput].parse_obj(kwargs)
         model = self.model_cls()()
         model.receive_config(config=self.config)
-        return self.train(arg, model)
 
-    @post("train_status")
-    def train_status_endpoint(self, **kwargs) -> Response[TrainPluginOutput]:
-        """Exposes the Service's `train_status` operation to the Steamship Engine via the expected HTTP path POST /train_status"""
-        logging.info(f"Tagger:train_status_endpoint called. Calling train_status {kwargs}")
-        arg = PluginRequest[TrainStatusPluginInput].parse_obj(kwargs)
-        model = self.model_cls()()
-        model.receive_config(config=self.config)
-        return self.train_status(arg, model)
+        if arg.is_status_check:
+            return self.train_status(arg, model)
+        else:
+            return self.train(arg, model)

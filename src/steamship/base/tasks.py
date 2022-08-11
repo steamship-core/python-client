@@ -160,12 +160,12 @@ class Task(CamelModel):
     # If instead of sending data, the plugin sends a status with these fields set, the engine will begin polling for
     # updates, echoing the contents of these fields back to the plugin to communicate, e.g., the jobId of the work
     # being checked. When the work is complete, simply respond with the Response `data` field set as per usual.
-    remote_status_input: str = (
-        None  # Data block for re-hydrating state in order to check remote status.
-    )
-    remote_status_output: str = (
-        None  # Data block for reporting structured JSON state for error diagnostics.
-    )
+    remote_status_input: Optional[
+        Dict
+    ] = None  # For re-hydrating state in order to check remote status.
+    remote_status_output: Optional[
+        Dict
+    ] = None  # For reporting structured JSON state for error diagnostics.
     remote_status_message: str = None  # User facing message string to report on remote status.
 
     assigned_worker: str = None  # The worker assigned to complete this task

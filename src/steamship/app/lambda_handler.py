@@ -162,6 +162,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
         response = _handler(event, context)
         if logging_handler is not None:
             logging_handler.close()
+        logging.warning(f"{response.dict(by_alias=True)}")
         return response.dict(by_alias=True)
 
     return handler

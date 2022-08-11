@@ -183,7 +183,7 @@ class Response(GenericModel, Generic[T]):
                 logging.error(f"Failed calling to_dict on response object. {obj}\n {e}")
 
         if isinstance(obj, BaseModel):
-            return Response(json=obj.dict())
+            return Response(json=obj.dict(by_alias=True))
 
         return Response.error(500, message="Handler provided unknown response type.")
 
