@@ -106,8 +106,7 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
     def train(
         self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerConfigModel
     ) -> Response[TrainPluginOutput]:
-        train_plugin_input = request.data
-        _ = model.train(train_plugin_input)
+        _ = model.train(request)
         return Response(data=TrainPluginOutput())
 
     def train_status(

@@ -1,6 +1,6 @@
 from typing import cast
 
-from assets.plugins.blockifiers.async_blockifier import STATUS_CHECK_KEY, STATUS_MESSAGE
+from assets.plugins.blockifiers.async_blockifier import ASYNC_JOB_ID, STATUS_MESSAGE
 from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.file import upload_file
@@ -38,7 +38,7 @@ def test_e2e_async_blockifier_plugin():
             # Check that the response has the correct bits set indicating that the engine handled it as an async
             # external task.
             assert blockify_response.task.remote_status_input
-            assert blockify_response.task.remote_status_input.get("password") == STATUS_CHECK_KEY
+            assert blockify_response.task.remote_status_input.get("async_job_id") == ASYNC_JOB_ID
             assert blockify_response.task.remote_status_message == STATUS_MESSAGE
             assert blockify_response.task.retries
             assert blockify_response.task.retries == 1
