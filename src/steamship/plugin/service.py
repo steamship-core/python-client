@@ -4,8 +4,6 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Generic, Type, TypeVar, Union
 
-from pydantic.generics import GenericModel
-
 from steamship.app import App
 from steamship.app.response import Response
 
@@ -15,32 +13,16 @@ from steamship.app.response import Response
 # This the files in this package are for Plugin Implementors.
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
-from steamship.base.utils import to_camel
 from steamship.client import Steamship
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
+from steamship.plugin.request import PluginRequest
 from steamship.plugin.trainable_model import TrainableModel
 
 T = TypeVar("T")
 U = TypeVar("U")
-
-
-class PluginRequest(GenericModel, Generic[T]):
-    data: T = None
-    task_id: str = None
-    plugin_id: str = None
-    plugin_handle: str = None
-    plugin_version_id: str = None
-    plugin_version_handle: str = None
-    plugin_instance_id: str = None
-    plugin_instance_handle: str = None
-
-    class Config:
-        alias_generator = to_camel
-        allow_population_by_field_name = True
 
 
 class PluginService(ABC, App, Generic[T, U]):
@@ -103,7 +85,7 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
         logging.info("TrainablePluginService:run() - Loading model")
         model = self.model_cls().load_remote(
             client=self.client,  # This field comes from being a subclass of App
-            plugin_instance_id=request.plugin_instance_id,
+            plugin_instance_id=request.context.plugin_instance_id,
             checkpoint_handle=None,  # Will use default
             use_cache=True,
             plugin_instance_config=self.config,
@@ -143,7 +125,7 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
 
     @abstractmethod
     def train_status(
-        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
+        self, request: PluginRequest[TrainPluginInput], model: TrainableModel
     ) -> Response[TrainPluginOutput]:
         """Train the model."""
         pass
