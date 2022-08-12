@@ -13,7 +13,7 @@ from steamship.plugin.inputs.training_parameter_plugin_input import TrainingPara
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
-from steamship.plugin.service import PluginRequest
+from steamship.plugin.request import PluginRequest
 from steamship.plugin.tagger import TrainableTagger
 from steamship.plugin.trainable_model import TrainableModel
 
@@ -106,15 +106,14 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
     def train(
         self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerConfigModel
     ) -> Response[TrainPluginOutput]:
-        train_plugin_input = request.data
-        _ = model.train(train_plugin_input)
-        return None
+        _ = model.train(request)
+        return Response(data=TrainPluginOutput())
 
     def train_status(
-        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
+        self, request: PluginRequest[TrainPluginInput], model: TrainableModel
     ) -> Response[TrainPluginOutput]:
-        model.train_status(request.data)
-        return None
+        model.train_status(request)
+        return Response(data=TrainPluginOutput())
 
 
 handler = create_handler(TestTrainableTaggerConfigPlugin)
