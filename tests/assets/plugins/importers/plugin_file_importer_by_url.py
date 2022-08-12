@@ -41,7 +41,11 @@ class TestFileImporterPlugin(FileImporter):
         logging.info(f"Got signed url for writing: {signed_url}")
         bytes = TEST_DOC.encode("utf-8")
         upload_to_signed_url(signed_url, bytes)
-        return Response(data=RawDataPluginOutput(url=signed_url, mime_type=MimeTypes.MKD))
+        return Response(
+            data=RawDataPluginOutput(
+                bucket=SignedUrl.Bucket.PLUGIN_DATA, filepath=filepath, mime_type=MimeTypes.MKD
+            )
+        )
 
 
 handler = create_handler(TestFileImporterPlugin)
