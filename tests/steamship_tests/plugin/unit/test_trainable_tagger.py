@@ -6,10 +6,12 @@ from assets.plugins.taggers.plugin_trainable_tagger import (
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import File
+from steamship.base import Task
 from steamship.data.block import Block
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
+from steamship.plugin.request import PluginRequestContext
 from steamship.plugin.service import PluginRequest
 
 TEST_REQ = BlockAndTagPluginInput(
@@ -23,8 +25,10 @@ TEST_REQ = BlockAndTagPluginInput(
         ]
     )
 )
-TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ, plugin_instance_id="000")
-TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
+TEST_PLUGIN_REQ = PluginRequest(
+    data=TEST_REQ, context=PluginRequestContext(plugin_instance_id="000")
+)
+TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict(by_alias=True)
 
 
 def _test_resp(res):
@@ -44,12 +48,18 @@ def test_trainable_tagger():
     # The first part of trainable is to produce trainable parameters. The end-user may offer inputs to this,
     # but ultimately it is the plugin itself which decides upon the final set of trainable parameters.
     tagger1 = plugin.get_training_parameters(
-        PluginRequest(data=TrainingParameterPluginInput(), task_id="000", plugin_instance_id="000")
+        PluginRequest(
+            data=TrainingParameterPluginInput(),
+            status=Task(task_id="000"),
+            context=PluginRequestContext(plugin_instance_id="000"),
+        )
     )
     assert tagger1.data.dict() == TRAINING_PARAMETERS.dict()
     tagger2 = plugin.get_training_parameters_endpoint(
         **PluginRequest(
-            data=TrainingParameterPluginInput(), task_id="000", plugin_instance_id="000"
+            data=TrainingParameterPluginInput(),
+            status=Task(task_id="000"),
+            context=PluginRequestContext(plugin_instance_id="000"),
         ).dict()
     )
     assert tagger2.data.dict() == TRAINING_PARAMETERS.dict()
@@ -63,23 +73,27 @@ def test_trainable_tagger():
             data=TrainPluginInput(
                 plugin_instance="foo", training_params=TRAINING_PARAMETERS.training_params
             ),
-            task_id="000",
-            plugin_instance_id="000",
+            status=Task(task_id="000"),
+            context=PluginRequestContext(plugin_instance_id="000"),
         ),
         model,
     )
-    assert tagger1.data == TRAIN_RESPONSE.dict(by_alias=True)
+    train_response = TRAIN_RESPONSE()
+    train_response.data.archive_path = "000/default.zip"
+    train_response.data = train_response.data.dict(by_alias=True)
+    assert tagger1.data == train_response.data
 
     tagger2 = plugin.train_endpoint(
         **PluginRequest(
             data=TrainPluginInput(
                 plugin_instance="foo", training_params=TRAINING_PARAMETERS.training_params
             ),
-            task_id="000",
-            plugin_instance_id="000",
+            status=Task(task_id="000"),
+            context=PluginRequestContext(plugin_instance_id="000"),
         ).dict()
     )
-    assert tagger2.data == TRAIN_RESPONSE.dict(by_alias=True)
+
+    assert tagger2.data == train_response.data
 
     # STEP 3. Run
     res = plugin.run(TEST_PLUGIN_REQ)

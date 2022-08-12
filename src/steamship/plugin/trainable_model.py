@@ -5,11 +5,12 @@ from typing import Callable, Dict, Generic, Optional, TypeVar
 
 from typing_extensions import TypeAlias
 
+from steamship.app import Response
 from steamship.base import Client
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
+from steamship.plugin.service import PluginRequest
 
 ModelConstructor: TypeAlias = Callable[[], "TrainableModel"]
 
@@ -102,12 +103,12 @@ class TrainableModel(ABC, Generic[ConfigType]):
         raise NotImplementedError()
 
     @abstractmethod
-    def train(self, input: TrainPluginInput) -> TrainPluginOutput:
+    def train(self, input: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Train or fine-tune the model, parameterized by the information in the TrainPluginInput object."""
         raise NotImplementedError()
 
     @abstractmethod
-    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+    def train_status(self, input: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Check on the status of an in-process training job, if it is running externally asynchronously."""
         raise NotImplementedError()
 
