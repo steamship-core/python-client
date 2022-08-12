@@ -61,6 +61,10 @@ class Client(CamelModel, ABC):
             config_file=config_file,
         )
         super().__init__(config=config)
+        if space_handle is not None or space_id is not None or create_space is True:
+            self.switch_space(
+                space_id=space_id, space_handle=space_handle, create_space=create_space
+            )
 
     def switch_space(
         self, space_id: str = None, space_handle: str = None, create_space: bool = False
@@ -73,14 +77,28 @@ class Client(CamelModel, ABC):
         return_handle = None
         space = None
 
-        if create_space:
+        if create_space is True:
             if space_id is not None:
                 raise SteamshipError(
                     message="Can not initialize the Steamship client with create_space=True and also a space_id."
                 )
             # If space_handle is none, one will be auto-generated for us.
             logging.info(f"Creating space with requested handle: '{return_handle}' .")
-            space = self.post("space/create", {"handle": space_handle}).data
+
+            # Zero out the space_handle on the config block in case we're being invoked from
+            # `init` (otherwise we'll attempt to create the sapce IN that nonexistant space)
+            old_space_handle = self.config.space_handle
+            self.config.space_handle = None
+            try:
+                space = self.post(
+                    "space/create",
+                    {"handle": space_handle},
+                    space_handle=None,  # self.config.space_handle doesn't exist yet!
+                ).data
+            except SteamshipError as e:
+                self.config.space_handle = old_space_handle
+                raise e
+
         else:
             if space_id is None and space_handle is None:
                 raise SteamshipError(
@@ -93,8 +111,9 @@ class Client(CamelModel, ABC):
                 message="Was unable to switch to new space: server returned empty Space."
             )
 
-        return_id = space.data.get("space", {}).get("id")
-        return_handle = space.data.get("space", {}).get("handle")
+        print(space)
+        return_id = space.get("space", {}).get("id")
+        return_handle = space.get("space", {}).get("handle")
 
         if return_id is None or return_handle is None:
             raise SteamshipError(
