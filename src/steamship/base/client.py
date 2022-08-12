@@ -40,6 +40,7 @@ class Client(CamelModel, ABC):
         web_base: str = None,
         space_id: str = None,
         space_handle: str = None,
+        create_space: bool = False,
         profile: str = None,
         config_file: str = None,
         config: Configuration = None,
@@ -60,6 +61,50 @@ class Client(CamelModel, ABC):
             config_file=config_file,
         )
         super().__init__(config=config)
+
+    def switch_space(
+        self, space_id: str = None, space_handle: str = None, create_space: bool = False
+    ):
+        """Switches this client to the requested space, possibly creating it.
+
+        API calls are performed manually to not result in circular imports.
+        """
+        return_id = None
+        return_handle = None
+        space = None
+
+        if create_space:
+            if space_id is not None:
+                raise SteamshipError(
+                    message="Can not initialize the Steamship client with create_space=True and also a space_id."
+                )
+            # If space_handle is none, one will be auto-generated for us.
+            logging.info(f"Creating space with requested handle: '{return_handle}' .")
+            space = self.post("space/create", {"handle": space_handle}).data
+        else:
+            if space_id is None and space_handle is None:
+                raise SteamshipError(
+                    message="Please provide either space_id or space_handle to switch to it."
+                )
+            space = self.post("space/get", {"handle": space_handle, "id": space_id}).data
+
+        if space is None:
+            raise SteamshipError(
+                message="Was unable to switch to new space: server returned empty Space."
+            )
+
+        return_id = space.data.get("space", {}).get("id")
+        return_handle = space.data.get("space", {}).get("handle")
+
+        if return_id is None or return_handle is None:
+            raise SteamshipError(
+                message="Was unable to switch to new space: server returned empty ID and Handle."
+            )
+
+        # Finally, set the new space.
+        self.config.space_id = return_id
+        self.config.space_handle = return_handle
+        logging.info(f"Switched to space '{return_handle}' (ID {return_id}).")
 
     def _url(
         self,
