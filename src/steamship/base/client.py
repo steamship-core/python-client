@@ -77,7 +77,7 @@ class Client(CamelModel, ABC):
         return_handle = None
         space = None
 
-        if create_space is True:
+        if create_space:
             if space_id is not None:
                 raise SteamshipError(
                     message="Can not initialize the Steamship client with create_space=True and also a space_id."
