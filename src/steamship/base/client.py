@@ -111,7 +111,6 @@ class Client(CamelModel, ABC):
                 message="Was unable to switch to new space: server returned empty Space."
             )
 
-        print(space)
         return_id = space.get("space", {}).get("id")
         return_handle = space.get("space", {}).get("handle")
 
