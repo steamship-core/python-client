@@ -3,6 +3,7 @@
 Please see https://docs.steamship.com/ for information about building a Steamship App
 
 """
+import inspect
 import logging
 from collections import defaultdict
 from functools import wraps
@@ -11,6 +12,7 @@ from typing import Any, Dict, Optional
 
 from steamship.app.request import Request
 from steamship.app.response import Response
+from steamship.base.package_spec import ArgSpec, MethodSpec, PackageSpec
 from steamship.client import Steamship
 from steamship.utils.url import Verb
 
@@ -83,6 +85,7 @@ class App:
     """
 
     _method_mappings = defaultdict(dict)
+    _package_spec: PackageSpec
 
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         self.client = client
@@ -90,20 +93,23 @@ class App:
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+        cls._package_spec = PackageSpec(name=cls.__name__, doc=cls.__doc__, methods=[])
         cls._method_mappings = defaultdict(dict)
         base_fn_list = [
             may_be_decorated
             for base_cls in cls.__bases__
             for may_be_decorated in base_cls.__dict__.values()
         ]
-
         for attribute in base_fn_list + list(cls.__dict__.values()):
             decorator = getattr(attribute, "decorator", None)
             if decorator:
                 if getattr(decorator, "__is_endpoint__", False):
                     path = getattr(attribute, "__path__", None)
                     verb = getattr(attribute, "__verb__", None)
-                    cls._register_mapping(name=attribute.__name__, verb=verb, path=path)
+                    method_spec = cls._register_mapping(
+                        name=attribute.__name__, verb=verb, path=path
+                    )
+                    cls._package_spec.methods.append(method_spec)
 
     @staticmethod
     def _clean_path(path: str = "") -> str:
@@ -114,7 +120,9 @@ class App:
         return path
 
     @classmethod
-    def _register_mapping(cls, name: str, verb: Optional[Verb] = None, path: str = "") -> None:
+    def _register_mapping(
+        cls, name: str, verb: Optional[Verb] = None, path: str = ""
+    ) -> MethodSpec:
         """Registering a mapping permits the method to be invoked via HTTP."""
 
         verb = verb or Verb.GET
@@ -124,9 +132,28 @@ class App:
 
         path = cls._clean_path(path)
 
+        # Create the spec desribing this mapping.
+        args = []
+
+        func = getattr(cls, name)
+        sig = inspect.signature(func)
+        for p in sig.parameters:
+            if p == "self":
+                continue
+            args.append(ArgSpec(name=p, kind=str(sig.parameters[p].annotation)))
+
+        method_spec = MethodSpec(
+            verb=Verb.safely_from_str(verb) or Verb.GET,
+            path=path,
+            returns=str(sig.return_annotation),
+            doc=func.__doc__,
+            args=args,
+        )
+
         cls._method_mappings[verb][path] = name
         # TODO Dave: this log call is not going to the remote logger, but should
         logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
+        return method_spec
 
     def __call__(self, request: Request, context: Any = None) -> Response:
         """Invokes a method call if it is registered."""
