@@ -8,6 +8,7 @@ from pydantic import BaseModel
 from steamship.base import MimeTypes
 from steamship.base.binary_utils import flexi_create
 from steamship.base.configuration import CamelModel
+from steamship.data.space import SignedUrl
 
 
 class RawDataPluginOutput(CamelModel):
@@ -30,7 +31,8 @@ class RawDataPluginOutput(CamelModel):
 
     data: Optional[str] = None  # Note: This is **always** Base64 encoded.
     mime_type: Optional[str] = None
-    url: Optional[str] = None
+    bucket: Optional[SignedUrl.Bucket] = None
+    filepath: Optional[str] = None
 
     def __init__(
         self,
@@ -39,12 +41,14 @@ class RawDataPluginOutput(CamelModel):
         _bytes: Union[bytes, io.BytesIO] = None,
         json: Any = None,
         mime_type: str = None,
-        url: str = None,
+        bucket: SignedUrl.Bucket = None,
+        filepath: str = None,
         **kwargs,
     ):
         super().__init__()
-        if url is not None:
-            self.url = url
+        if bucket is not None:
+            self.bucket = bucket
+            self.filepath = filepath
             self.mime_type = mime_type or MimeTypes.BINARY
         else:
             if base64string is not None:
