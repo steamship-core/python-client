@@ -173,7 +173,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
         # This is a very ugly way to get the deep size of this object
         data_size = sys.getsizeof(json.dumps(result.get("data", {})))
         logging.info(f"Response data size {data_size}")
-        if data_size > 4e6:
+        if data_size > 4e6 and invocation_context.invocable_type == "plugin":
             logging.info("Response data size >4MB, must upload to bucket")
             # data_bucket: Optional[SignedUrl.Bucket] = None
             # data_filepath: Optional[str] = None
