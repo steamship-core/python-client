@@ -111,7 +111,9 @@ class PluginInstance(CamelModel):
     ) -> Response[TagResponse]:
         req = TagRequest(
             type="inline",
-            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]) if isinstance(doc, str) else doc,
+            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)])
+            if isinstance(doc, str)
+            else doc,
             plugin_instance=self.handle,
         )
         return self.client.post(
