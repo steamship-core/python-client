@@ -14,7 +14,7 @@ class BlockAndTagPluginInput(CamelModel):
             # If `url` was provided, we assume that some or all of the new object's parameterization exists
             # at that location, encoded as JSON. We fetch it, parse as JSON, and fold into the kwarg dict.
             result = url_to_json(url)
-            if type(result) != dict:
+            if not isinstance(result, dict):
                 raise SteamshipError(
                     message=f"BlockAndTagPluginInput received a URL that resolved to {type(result)}. Needed a `dict`"
                 )
