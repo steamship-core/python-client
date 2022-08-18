@@ -171,29 +171,32 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
         result = response.dict(by_alias=True)
         # When created with data > 4MB, data is uploaded to a bucket.
         # This is a very ugly way to get the deep size of this object
-        data_size = sys.getsizeof(json.dumps(result.get("data", {})))
+        data = json.dumps(result.get("data", None)).encode("UTF-8")
+        data_size = sys.getsizeof(data)
         logging.info(f"Response data size {data_size}")
         if data_size > 4e6 and invocation_context.invocable_type == "plugin":
             logging.info("Response data size >4MB, must upload to bucket")
-            # data_bucket: Optional[SignedUrl.Bucket] = None
-            # data_filepath: Optional[str] = None
 
             filepath = str(uuid.uuid4())
-            signed_url_response = client.get_space().create_signed_url(
-                SignedUrl.Request(
-                    bucket=SignedUrl.Bucket.PLUGIN_DATA,
-                    filepath=filepath,
-                    operation=SignedUrl.Operation.WRITE,
+            signed_url = (
+                client.get_space()
+                .create_signed_url(
+                    SignedUrl.Request(
+                        bucket=SignedUrl.Bucket.PLUGIN_DATA,
+                        filepath=filepath,
+                        operation=SignedUrl.Operation.WRITE,
+                    )
                 )
+                .data.signed_url
             )
-            signed_url = signed_url_response.data.signed_url
+
             logging.info(f"Got signed url for writing: {signed_url}")
 
-            upload_to_signed_url(signed_url, json.dumps(result.get("data", None)).encode("UTF-8"))
+            upload_to_signed_url(signed_url, data)
 
             # Now remove raw data and replace with bucket
-            result["data"] = None
-            result["dataBucket"] = str(SignedUrl.Bucket.PLUGIN_DATA.value)
+            del result["data"]
+            result["dataBucket"] = SignedUrl.Bucket.PLUGIN_DATA.value
             result["dataFilepath"] = filepath
 
         if logging_handler is not None:
