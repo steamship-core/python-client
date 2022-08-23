@@ -8,8 +8,8 @@ from inspect import isclass
 from typing import Any, Dict, Type, TypeVar, Union
 
 import inflection
-import requests
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
+from requests import Session
 
 from steamship.base.configuration import CamelModel, Configuration
 from steamship.base.error import SteamshipError
@@ -31,6 +31,7 @@ class Client(CamelModel, ABC):
     """
 
     config: Configuration
+    _session: Session = PrivateAttr()
 
     def __init__(
         self,
@@ -60,6 +61,7 @@ class Client(CamelModel, ABC):
             profile=profile,
             config_file=config_file,
         )
+        self._session = Session()
         super().__init__(config=config)
         self.switch_space(space_id=space_id, space_handle=space_handle, create_space=create_space)
 
@@ -169,8 +171,12 @@ class Client(CamelModel, ABC):
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
-        sid = space_id or self.config.space_id
-        shandle = space_handle or self.config.space_handle
+        if space_id is not None or space_handle is not None:
+            sid = space_id
+            shandle = space_handle
+        else:
+            sid = self.config.space_id
+            shandle = self.config.space_handle
 
         if sid:
             headers["X-Space-Id"] = sid
@@ -343,11 +349,11 @@ class Client(CamelModel, ABC):
         if verb == Verb.POST:
             if file is not None:
                 files = self._prepare_multipart_data(data, file)
-                resp = requests.post(url, files=files, headers=headers)
+                resp = self._session.post(url, files=files, headers=headers)
             else:
-                resp = requests.post(url, json=data, headers=headers)
+                resp = self._session.post(url, json=data, headers=headers)
         elif verb == Verb.GET:
-            resp = requests.get(url, params=data, headers=headers)
+            resp = self._session.get(url, params=data, headers=headers)
         else:
             raise Exception(f"Unsupported verb: {verb}")
 
