@@ -20,6 +20,6 @@ def test_e2e_importer(client: Steamship):
 
         # Now fetch the data from Steamship and assert that it is the SAME as the data the FileImporter creates
         data = file.raw().data
-        assert data.decode("utf-8") == TEST_DOC
+        assert data.decode("utf-8") == (100000 * TEST_DOC)
 
         file.delete()

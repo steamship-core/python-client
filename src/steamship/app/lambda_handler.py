@@ -1,4 +1,7 @@
+import json
 import logging
+import sys
+import uuid
 from http import HTTPStatus
 from typing import Dict, Type
 
@@ -11,6 +14,8 @@ from steamship.app.response import Response
 from steamship.base import SteamshipError
 from steamship.base.utils import to_snake_case
 from steamship.client.client import Steamship
+from steamship.data.space import SignedUrl
+from steamship.utils.signed_urls import upload_to_signed_url
 
 
 def create_handler(app_cls: Type[App]):  # noqa: C901
@@ -18,22 +23,9 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
 
     def _handler(
         event: Dict,
+        client: Steamship,
         _: Dict = None,
     ) -> Response:
-        try:
-            client = Steamship(
-                **{to_snake_case(k): v for k, v in event.get("clientConfig", {}).items()}
-            )
-        except SteamshipError as se:
-            logging.exception(se)
-            return Response.from_obj(se)
-        except Exception as ex:
-            logging.exception(ex)
-            return Response.error(
-                code=HTTPStatus.INTERNAL_SERVER_ERROR,
-                message="Plugin/App handler was unable to create Steamship client.",
-                exception=ex,
-            )
 
         try:
             request = Request.parse_obj(event)
@@ -159,9 +151,58 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
             # The below should make it so calls to logging.info etc are also routed to the remote logger
             logging.root.addHandler(logging_handler)
 
-        response = _handler(event, context)
+        try:
+            client = Steamship(
+                **{to_snake_case(k): v for k, v in event.get("clientConfig", {}).items()}
+            )
+        except SteamshipError as se:
+            logging.exception(se)
+            return Response.from_obj(se).dict(by_alias=True)
+        except Exception as ex:
+            logging.exception(ex)
+            return Response.error(
+                code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                message="Plugin/App handler was unable to create Steamship client.",
+                exception=ex,
+            ).dict(by_alias=True)
+
+        response = _handler(event, client, context)
+
+        result = response.dict(by_alias=True)
+        # When created with data > 4MB, data is uploaded to a bucket.
+        # This is a very ugly way to get the deep size of this object
+        data = json.dumps(result.get("data", None)).encode("UTF-8")
+        data_size = sys.getsizeof(data)
+        logging.info(f"Response data size {data_size}")
+        if data_size > 4e6 and invocation_context.invocable_type == "plugin":
+            logging.info("Response data size >4MB, must upload to bucket")
+
+            filepath = str(uuid.uuid4())
+            signed_url = (
+                client.get_space()
+                .create_signed_url(
+                    SignedUrl.Request(
+                        bucket=SignedUrl.Bucket.PLUGIN_DATA,
+                        filepath=filepath,
+                        operation=SignedUrl.Operation.WRITE,
+                    )
+                )
+                .data.signed_url
+            )
+
+            logging.info(f"Got signed url for writing: {signed_url}")
+
+            upload_to_signed_url(signed_url, data)
+
+            # Now remove raw data and replace with bucket
+            del result["data"]
+            result["dataBucket"] = SignedUrl.Bucket.PLUGIN_DATA.value
+            result["dataFilepath"] = filepath
+
         if logging_handler is not None:
             logging_handler.close()
-        return response.dict(by_alias=True)
+
+        logging.info(result)
+        return result
 
     return handler

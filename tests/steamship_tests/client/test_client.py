@@ -26,10 +26,12 @@ def test_client_creation_with_new_autogen_space():
     client2 = get_steamship_client()
     client3 = get_steamship_client()
 
-    assert client2.config.space_id is None
-    assert client2.config.space_handle is None
-    assert client3.config.space_id is None
-    assert client3.config.space_handle is None
+    # Even though clients 2 and 3 are using the default space, the client constructor will contact the
+    # Engine to load its ID and handle so that we always actively maintain an ID and Handle locally.
+    assert client2.config.space_id is not None
+    assert client2.config.space_handle is not None
+    assert client3.config.space_id is not None
+    assert client3.config.space_handle is not None
 
     assert client1.config.space_id is not None
     assert client1.config.space_handle is not None
@@ -72,3 +74,25 @@ def test_client_creation_recall_existing_space():
     assert client1.config.space_handle == client3.config.space_handle
 
     Space(client=client1, id=client1.config.space_id).delete()
+
+
+def test_default_space_loaded():
+    """Tests that the client actively loads the default space ID and Handle, and that we can revert to it later."""
+    client1 = get_steamship_client(create_space=True)
+    client2 = get_steamship_client(space_id=client1.config.space_id)
+    client_default = get_steamship_client()
+
+    assert client1.config.space_id == client2.config.space_id
+    assert client1.config.space_id != client_default.config.space_id
+    assert client1.config.space_handle == client2.config.space_handle
+    assert client1.config.space_handle != client_default.config.space_handle
+    assert client_default.config.space_handle == "default"
+
+    client1.switch_space()
+    assert client1.config.space_id != client2.config.space_id
+    assert client1.config.space_id == client_default.config.space_id
+    assert client1.config.space_handle != client2.config.space_handle
+    assert client1.config.space_handle == client_default.config.space_handle
+
+    # client2 has the newly created space.
+    Space(client=client2, id=client2.config.space_id).delete()

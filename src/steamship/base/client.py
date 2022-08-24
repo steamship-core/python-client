@@ -8,8 +8,8 @@ from inspect import isclass
 from typing import Any, Dict, Type, TypeVar, Union
 
 import inflection
-import requests
-from pydantic import BaseModel
+from pydantic import BaseModel, PrivateAttr
+from requests import Session
 
 from steamship.base.configuration import CamelModel, Configuration
 from steamship.base.error import SteamshipError
@@ -31,6 +31,7 @@ class Client(CamelModel, ABC):
     """
 
     config: Configuration
+    _session: Session = PrivateAttr()
 
     def __init__(
         self,
@@ -60,18 +61,19 @@ class Client(CamelModel, ABC):
             profile=profile,
             config_file=config_file,
         )
+        self._session = Session()
         super().__init__(config=config)
-        if space_handle is not None or space_id is not None or create_space is True:
-            self.switch_space(
-                space_id=space_id, space_handle=space_handle, create_space=create_space
-            )
+        self.switch_space(space_id=space_id, space_handle=space_handle, create_space=create_space)
 
     def switch_space(
         self, space_id: str = None, space_handle: str = None, create_space: bool = False
     ):
-        """Switches this client to the requested space, possibly creating it.
+        """Switches this client to the requested space, possibly creating it. If all arguments are None, the client
+        actively switches into the default space.
 
-        API calls are performed manually to not result in circular imports.
+        - API calls are performed manually to not result in circular imports.
+        - Note that the default space is technically not necessary for API usage; it will be assumed by the Engine
+          in the absense of a Space ID or Handle being manually specified in request headers.
         """
         return_id = None
         return_handle = None
@@ -101,10 +103,11 @@ class Client(CamelModel, ABC):
 
         else:
             if space_id is None and space_handle is None:
-                raise SteamshipError(
-                    message="Please provide either space_id or space_handle to switch to it."
-                )
-            space = self.post("space/get", {"handle": space_handle, "id": space_id}).data
+                # Switch to the default space
+                space = self.post("space/get", {"handle": "default"}).data
+            else:
+                # Switch to the requested space
+                space = self.post("space/get", {"handle": space_handle, "id": space_id}).data
 
         if space is None:
             raise SteamshipError(
@@ -168,8 +171,12 @@ class Client(CamelModel, ABC):
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
-        sid = space_id or self.config.space_id
-        shandle = space_handle or self.config.space_handle
+        if space_id is not None or space_handle is not None:
+            sid = space_id
+            shandle = space_handle
+        else:
+            sid = self.config.space_id
+            shandle = self.config.space_handle
 
         if sid:
             headers["X-Space-Id"] = sid
@@ -342,11 +349,11 @@ class Client(CamelModel, ABC):
         if verb == Verb.POST:
             if file is not None:
                 files = self._prepare_multipart_data(data, file)
-                resp = requests.post(url, files=files, headers=headers)
+                resp = self._session.post(url, files=files, headers=headers)
             else:
-                resp = requests.post(url, json=data, headers=headers)
+                resp = self._session.post(url, json=data, headers=headers)
         elif verb == Verb.GET:
-            resp = requests.get(url, params=data, headers=headers)
+            resp = self._session.get(url, params=data, headers=headers)
         else:
             raise Exception(f"Unsupported verb: {verb}")
 

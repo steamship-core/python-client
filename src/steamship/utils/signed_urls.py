@@ -1,3 +1,4 @@
+import json
 import logging
 import urllib
 from pathlib import Path
@@ -11,6 +12,15 @@ from steamship.utils.url import apply_localstack_url_fix
 
 # If this isn't present, Localstack won't show logs
 logging.getLogger().setLevel(logging.INFO)
+
+
+def url_to_json(url: str) -> any:
+    """
+    Downloads the Signed URL and returns the contents as JSON.
+    """
+    bytes = url_to_bytes(url)
+    json_string = bytes.decode("utf8")
+    return json.loads(json_string)
 
 
 def url_to_bytes(url: str) -> bytes:

@@ -25,7 +25,7 @@ TRAINING_PARAMETERS = TrainingParameterPluginOutput(
 )
 
 
-def TRAIN_RESPONSE():
+def make_train_response():
     return Response(data=TrainPluginOutput())
 
 
@@ -87,7 +87,7 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
         """
         logging.info("TestTrainableTaggerModel:train()")
         self.keyword_list = input.data.training_params.get("keyword_list", [])
-        return TRAIN_RESPONSE()
+        return make_train_response()
 
     def train_status(self, input: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
         """Training for this model is to set the parameters to those provided in the input object.

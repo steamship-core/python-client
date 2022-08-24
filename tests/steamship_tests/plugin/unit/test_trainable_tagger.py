@@ -1,7 +1,7 @@
 from assets.plugins.taggers.plugin_trainable_tagger import (
-    TRAIN_RESPONSE,
     TRAINING_PARAMETERS,
     TestTrainableTaggerPlugin,
+    make_train_response,
 )
 from steamship_tests.utils.fixtures import get_steamship_client
 
@@ -78,7 +78,7 @@ def test_trainable_tagger():
         ),
         model,
     )
-    train_response = TRAIN_RESPONSE()
+    train_response = make_train_response()
     train_response.data.archive_path = "000/default.zip"
     train_response.data = train_response.data.dict(by_alias=True)
     assert tagger1.data == train_response.data
