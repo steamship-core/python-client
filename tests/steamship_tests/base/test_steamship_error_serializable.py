@@ -9,7 +9,7 @@ def test_serialize_steamship_error():
     serialized = msgpack.packb(error, default=encode_exception)
     assert (
         serialized
-        == b"\x82\xafexception_class\xaeSteamshipError\xa4args\x91\xbbOh noes! An error happened!"
+        == b"\x85\xa7message\xbbOh noes! An error happened!\xafinternalMessage\xc0\xaasuggestion\xc0\xa4code\xc0\xa5error\xc0"
     )
 
 
