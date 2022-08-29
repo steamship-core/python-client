@@ -14,6 +14,6 @@ def test_task_timeout():
         res = instance.tag(doc=test_doc)
         try:
             res.wait(max_timeout_s=0.01, retry_delay_s=0.01)
-            assert False  # The call to wait() should throw
+            raise AssertionError("The call to wait() should throw")
         except SteamshipError:
             pass
