@@ -19,10 +19,12 @@ from steamship.utils.signed_urls import upload_to_signed_url
 
 
 def encode_exception(obj):
+    """When logging an exception ex: logging.exception(some_error), the exception must be turned into a string
+    so that it is accepted by elasticsearch"""
     if isinstance(obj, SteamshipError):
-        return obj.to_dict()
+        return json.dumps(obj.to_dict())
     if isinstance(obj, Exception):
-        return {"exception_class": type(obj).__name__, "args": obj.args}
+        return f"exception_class: {type(obj).__name__}, args: {obj.args}"
     return obj
 
 
