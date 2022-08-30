@@ -18,6 +18,16 @@ from steamship.data.space import SignedUrl
 from steamship.utils.signed_urls import upload_to_signed_url
 
 
+def encode_exception(obj):
+    """When logging an exception ex: logging.exception(some_error), the exception must be turned into a string
+    so that it is accepted by elasticsearch"""
+    if isinstance(obj, SteamshipError):
+        return json.dumps(obj.to_dict())
+    if isinstance(obj, Exception):
+        return f"exception_class: {type(obj).__name__}, args: {obj.args}"
+    return obj
+
+
 def create_handler(app_cls: Type[App]):  # noqa: C901
     """Wrapper function for a Steamship app within an AWS Lambda function."""
 
@@ -145,6 +155,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
                 host=logging_host,
                 port=logging_port,
                 nanosecond_precision=True,
+                msgpack_kwargs={"default": encode_exception},
             )
             formatter = FluentRecordFormatter(custom_format)
             logging_handler.setFormatter(formatter)
