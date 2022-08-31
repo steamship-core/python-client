@@ -30,6 +30,8 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
         super().__init__(client, config)
         if config:
             self.config = self.config_cls()(**config)
+        else:
+            self.config = self.config_cls()()
 
     @abstractmethod
     def config_cls(self) -> Type[Config]:
