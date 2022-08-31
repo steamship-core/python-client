@@ -55,12 +55,46 @@ def test_client_creation_space_failure_modes():
 
 def test_client_creation_new_space_custom_handle():
     name = random_name().lower()
+    default = get_steamship_client()
+
+    # Can't fetch a space that doesn't yet exist
+    with pytest.raises(SteamshipError):
+        client2a = get_steamship_client(space_handle=name)
+
     client1 = get_steamship_client(space_handle=name, create_space=True)
 
     assert client1.config.space_id is not None
     assert client1.config.space_handle == name
 
+    assert client1.config.space_id != default.config.space_id
+    assert client1.config.space_handle != default.config.space_handle
+
+    # Can't create a space with a handle that already exists
+    with pytest.raises(SteamshipError):
+        client2 = get_steamship_client(space_handle=name, create_space=True)
+
+    # But can create_or_fetch a space with a handle that already exists
+    client2 = get_steamship_client(space_handle=name, fetch_or_create_space=True)
+    assert client1.config.space_id == client2.config.space_id
+    assert client1.config.space_handle == client2.config.space_handle
+
+    # But can fetch a space with a handle that already exists
+    client2a = get_steamship_client(space_handle=name)
+    assert client1.config.space_id == client2a.config.space_id
+    assert client1.config.space_handle == client2a.config.space_handle
+
+    name2 = random_name().lower()
+    # And can also create_or_fetch with a new handle
+    client3 = get_steamship_client(space_handle=name2, fetch_or_create_space=True)
+    assert client3.config.space_id != client2.config.space_id
+    assert client3.config.space_handle != client2.config.space_handle
+    assert client3.config.space_id is not None
+    assert client3.config.space_handle is not None
+    assert client3.config.space_id != default.config.space_id
+    assert client3.config.space_handle != default.config.space_handle
+
     Space(client=client1, id=client1.config.space_id).delete()
+    Space(client=client3, id=client3.config.space_id).delete()
 
 
 def test_client_creation_recall_existing_space():

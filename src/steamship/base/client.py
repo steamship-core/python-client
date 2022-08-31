@@ -42,6 +42,7 @@ class Client(CamelModel, ABC):
         space_id: str = None,
         space_handle: str = None,
         create_space: bool = False,
+        fetch_or_create_space: bool = False,
         profile: str = None,
         config_file: str = None,
         config: Configuration = None,
@@ -63,10 +64,19 @@ class Client(CamelModel, ABC):
         )
         self._session = Session()
         super().__init__(config=config)
-        self.switch_space(space_id=space_id, space_handle=space_handle, create_space=create_space)
+        self.switch_space(
+            space_id=space_id,
+            space_handle=space_handle,
+            create_space=create_space,
+            fetch_or_create_space=fetch_or_create_space,
+        )
 
     def switch_space(
-        self, space_id: str = None, space_handle: str = None, create_space: bool = False
+        self,
+        space_id: str = None,
+        space_handle: str = None,
+        create_space: bool = False,
+        fetch_or_create_space: bool = False,
     ):
         """Switches this client to the requested space, possibly creating it. If all arguments are None, the client
         actively switches into the default space.
@@ -79,23 +89,27 @@ class Client(CamelModel, ABC):
         return_handle = None
         space = None
 
-        if create_space:
+        if create_space or fetch_or_create_space:
             if space_id is not None:
                 raise SteamshipError(
-                    message="Can not initialize the Steamship client with create_space=True and also a space_id."
+                    message="Can not initialize the Steamship client with create_space=True or fetch_or_create_space=True and also a space_id."
                 )
             # If space_handle is none, one will be auto-generated for us.
-            logging.info(f"Creating space with requested handle: '{return_handle}' .")
+            if fetch_or_create_space:
+                logging.info(
+                    f"Fetching or creating space with requested handle: '{return_handle}' ."
+                )
+            else:
+                logging.info(f"Creating space with requested handle: '{return_handle}' .")
 
             # Zero out the space_handle on the config block in case we're being invoked from
             # `init` (otherwise we'll attempt to create the sapce IN that nonexistant space)
             old_space_handle = self.config.space_handle
             self.config.space_handle = None
+
             try:
                 space = self.post(
-                    "space/create",
-                    {"handle": space_handle},
-                    space_handle=None,  # self.config.space_handle doesn't exist yet!
+                    "space/create", {"handle": space_handle, "upsert": fetch_or_create_space}
                 ).data
             except SteamshipError as e:
                 self.config.space_handle = old_space_handle
