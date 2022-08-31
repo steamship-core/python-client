@@ -58,6 +58,12 @@ class Response(GenericModel, Generic[T]):
             self.refresh()
             time.sleep(retry_delay_s)
 
+        # If the task did not complete within the timout, throw an error
+        if self.task.state not in (TaskState.succeeded, TaskState.failed):
+            raise SteamshipError(
+                message=f"Task {self.task.task_id} did not complete within requested timeout of {max_timeout_s}s"
+            )
+
     def refresh(self):
         if self.task is not None:
             req = TaskStatusRequest(taskId=self.task.task_id)
