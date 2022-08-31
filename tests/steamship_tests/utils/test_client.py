@@ -35,7 +35,13 @@ empty_base_uris = [
 ]
 
 
-def switch_space(self, space_id: str = None, space_handle: str = None, create_space: bool = False):
+def switch_space(
+    self,
+    space_id: str = None,
+    space_handle: str = None,
+    create_space: bool = False,
+    fetch_or_create_space: bool = False,
+):
     pass
 
 

@@ -73,7 +73,7 @@ def test_client_creation_new_space_custom_handle():
     with pytest.raises(SteamshipError):
         client2 = get_steamship_client(space_handle=name, create_space=True)
 
-    # But can create_or_fetch a space with a handle that already exists
+    # But can fetch_or_create_space a space with a handle that already exists
     client2 = get_steamship_client(space_handle=name, fetch_or_create_space=True)
     assert client1.config.space_id == client2.config.space_id
     assert client1.config.space_handle == client2.config.space_handle
@@ -84,7 +84,7 @@ def test_client_creation_new_space_custom_handle():
     assert client1.config.space_handle == client2a.config.space_handle
 
     name2 = random_name().lower()
-    # And can also create_or_fetch with a new handle
+    # And can also fetch_or_create_space with a new handle
     client3 = get_steamship_client(space_handle=name2, fetch_or_create_space=True)
     assert client3.config.space_id != client2.config.space_id
     assert client3.config.space_handle != client2.config.space_handle
