@@ -76,6 +76,14 @@ class TestApp(App):
         user = User.current(self.client)
         return Response(json={"handle": user.data.handle})
 
+    @post("json_with_status")
+    def json_with_status(self) -> Response:
+        """Our base client tries to be smart with parsing things that look like SteamshipResponse objects, but there's
+        a problem with this when our packages response with a JSON string of the sort {"status": "foo"} -- the Client
+        will unhelpfully try to coerce that string value into a Task object and fail. This method helps us test that
+        we are handling it properly."""
+        return Response(json={"status": "a string"})
+
     @get("config")
     def get_config(self) -> Response:
         """This is called get_config because there's already `.config` object on the class."""
