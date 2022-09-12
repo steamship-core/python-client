@@ -8,6 +8,7 @@ from typing import Dict, Type
 from fluent import asynchandler as fluenthandler
 from fluent.handler import FluentRecordFormatter
 
+from steamship import Configuration
 from steamship.app.app import App
 from steamship.app.request import InvocationContext, Request
 from steamship.app.response import Response
@@ -163,9 +164,13 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
             logging.root.addHandler(logging_handler)
 
         try:
-            client = Steamship(
+            # Config will accept `space_id` as passed from the Steamship Engine, whereas the `Steamship`
+            # class itself is limited to accepting `workspace` (`config.space_handle`) since that is the manner
+            # of interaction ideal for developers.
+            config = Configuration(
                 **{to_snake_case(k): v for k, v in event.get("clientConfig", {}).items()}
             )
+            client = Steamship(config=config)
         except SteamshipError as se:
             logging.exception(se)
             return Response.from_obj(se).dict(by_alias=True)
