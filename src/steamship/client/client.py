@@ -43,6 +43,8 @@ class Steamship(Client):
             config_file=config_file,
             config=config,
         )
+        self.use = self._instance_use
+        self.use_plugin = self._instance_use_plugin
 
     def create_index(
         self,
@@ -108,7 +110,22 @@ class Steamship(Client):
             space=space,
         )
 
+    @staticmethod
     def use(
+        app_handle: str,
+        handle: str = None,
+        config: Dict[str, Any] = None,
+        version: str = None,
+        reuse: bool = True,
+        **kwargs,
+    ):
+        kwargs["workspace"] = handle
+        client = Steamship(**kwargs)
+        return client.use(
+            app_handle=app_handle, handle=handle, config=config, version=version, reuse=reuse
+        )
+
+    def _instance_use(
         self,
         app_handle: str,
         handle: str = None,
@@ -134,7 +151,22 @@ class Steamship(Client):
             )
         return instance.data
 
+    @staticmethod
     def use_plugin(
+        app_handle: str,
+        handle: str = None,
+        config: Dict[str, Any] = None,
+        version: str = None,
+        reuse: bool = True,
+        **kwargs,
+    ):
+        kwargs["workspace"] = handle
+        client = Steamship(**kwargs)
+        return client.use_plugin(
+            app_handle=app_handle, handle=handle, config=config, version=version, reuse=reuse
+        )
+
+    def _instance_use_plugin(
         self,
         plugin_handle: str,
         handle: str = None,
