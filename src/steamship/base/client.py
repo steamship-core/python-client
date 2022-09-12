@@ -39,15 +39,18 @@ class Client(CamelModel, ABC):
         api_base: str = None,
         app_base: str = None,
         web_base: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        create_space: bool = False,
-        fetch_or_create_space: bool = False,
+        workspace: str = None,
+        fail_if_workspace_exists: bool = False,
         profile: str = None,
         config_file: str = None,
         config: Configuration = None,
         **kwargs,
     ):
+        """Create a new client.
+
+        If `workspace` is provided, it will anchor the client in a workspace by that name, creating it if necessary.
+        Otherwise the `default` workspace will be used.
+        """
         if config is not None and not isinstance(config, Configuration):
             raise SteamshipError(
                 f"config has to be of type {Configuration}, received {type(config)}."
@@ -57,27 +60,15 @@ class Client(CamelModel, ABC):
             api_base=api_base,
             app_base=app_base,
             web_base=web_base,
-            space_id=space_id,
-            space_handle=space_handle,
+            space_handle=workspace,
             profile=profile,
             config_file=config_file,
         )
         self._session = Session()
         super().__init__(config=config)
-        self.switch_space(
-            space_id=space_id,
-            space_handle=space_handle,
-            create_space=create_space,
-            fetch_or_create_space=fetch_or_create_space,
-        )
+        self.switch_space(workspace=workspace, fail_if_workspace_exists=fail_if_workspace_exists)
 
-    def switch_space(
-        self,
-        space_id: str = None,
-        space_handle: str = None,
-        create_space: bool = False,
-        fetch_or_create_space: bool = False,
-    ):
+    def switch_space(self, workspace: str = None, fail_if_workspace_exists: bool = False):
         """Switches this client to the requested space, possibly creating it. If all arguments are None, the client
         actively switches into the default space.
 
@@ -89,43 +80,31 @@ class Client(CamelModel, ABC):
         return_handle = None
         space = None
 
-        if create_space or fetch_or_create_space:
-            if space_id is not None:
-                raise SteamshipError(
-                    message="Can not initialize the Steamship client with create_space=True or fetch_or_create_space=True and also a space_id."
-                )
-            # If space_handle is none, one will be auto-generated for us.
-            if fetch_or_create_space:
-                logging.info(
-                    f"Fetching or creating space with requested handle: '{return_handle}' ."
-                )
-            else:
-                logging.info(f"Creating space with requested handle: '{return_handle}' .")
+        if workspace is None:
+            # Switch to the default workspace since no named workspace was provided
+            workspace = "default"
 
-            # Zero out the space_handle on the config block in case we're being invoked from
-            # `init` (otherwise we'll attempt to create the sapce IN that nonexistant space)
-            old_space_handle = self.config.space_handle
-            self.config.space_handle = None
-
-            try:
-                space = self.post(
-                    "space/create", {"handle": space_handle, "upsert": fetch_or_create_space}
-                ).data
-            except SteamshipError as e:
-                self.config.space_handle = old_space_handle
-                raise e
-
+        if fail_if_workspace_exists:
+            logging.info(f"Creating workspace with handle: '{workspace}'.")
         else:
-            if space_id is None and space_handle is None:
-                # Switch to the default space
-                space = self.post("space/get", {"handle": "default"}).data
-            else:
-                # Switch to the requested space
-                space = self.post("space/get", {"handle": space_handle, "id": space_id}).data
+            logging.info(f"Creating/Fetching workspace with handle: '{workspace}'.")
+
+        # Zero out the space_handle on the config block in case we're being invoked from
+        # `init` (otherwise we'll attempt to create the sapce IN that nonexistant space)
+        old_space_handle = self.config.space_handle
+        self.config.space_handle = None
+
+        try:
+            space = self.post(
+                "space/create", {"handle": workspace, "upsert": not fail_if_workspace_exists}
+            ).data
+        except SteamshipError as e:
+            self.config.space_handle = old_space_handle
+            raise e
 
         if space is None:
             raise SteamshipError(
-                message="Was unable to switch to new space: server returned empty Space."
+                message="Was unable to switch to new workspace: server returned empty Space."
             )
 
         return_id = space.get("space", {}).get("id")
@@ -133,13 +112,13 @@ class Client(CamelModel, ABC):
 
         if return_id is None or return_handle is None:
             raise SteamshipError(
-                message="Was unable to switch to new space: server returned empty ID and Handle."
+                message="Was unable to switch to new workspace: server returned empty ID and Handle."
             )
 
         # Finally, set the new space.
         self.config.space_id = return_id
         self.config.space_handle = return_handle
-        logging.info(f"Switched to space '{return_handle}' (ID {return_id}).")
+        logging.info(f"Switched to workspace '{return_handle}' (ID {return_id}).")
 
     def _url(
         self,

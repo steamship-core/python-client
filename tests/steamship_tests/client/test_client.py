@@ -21,139 +21,54 @@ def test_user():
     assert user.handle is not None
 
 
-def test_client_creation_with_new_autogen_space():
-    client1 = get_steamship_client(create_space=True)
-    client2 = get_steamship_client()
-    client3 = get_steamship_client()
-
-    # Even though clients 2 and 3 are using the default space, the client constructor will contact the
-    # Engine to load its ID and handle so that we always actively maintain an ID and Handle locally.
-    assert client2.config.space_id is not None
-    assert client2.config.space_handle is not None
-    assert client3.config.space_id is not None
-    assert client3.config.space_handle is not None
-
-    assert client1.config.space_id is not None
-    assert client1.config.space_handle is not None
-
-    Space(client=client1, id=client1.config.space_id).delete()
+def test_client_has_default_space_unless_otherwise_specified():
+    client1 = get_steamship_client()
+    assert client1.config.space_handle == "default"
 
 
-def test_client_creation_space_failure_modes():
-    # Can't create a space by specifying an ID
-    with pytest.raises(SteamshipError):
-        get_steamship_client(space_id="foo", create_space=True)
-
-    client1 = get_steamship_client(create_space=True)
-
-    # Can't create a space with a handle that already exists
-    with pytest.raises(SteamshipError):
-        get_steamship_client(space_handle=client1.config.space_handle, create_space=True)
-
-    Space(client=client1, id=client1.config.space_id).delete()
-
-
-def test_client_creation_new_space_custom_handle():
-    name = random_name().lower()
-    default = get_steamship_client()
-
-    # Can't fetch a space that doesn't yet exist
-    with pytest.raises(SteamshipError):
-        client2a = get_steamship_client(space_handle=name)
-
-    client1 = get_steamship_client(space_handle=name, create_space=True)
-
-    assert client1.config.space_id is not None
-    assert client1.config.space_handle == name
-
-    assert client1.config.space_id != default.config.space_id
-    assert client1.config.space_handle != default.config.space_handle
-
-    # Can't create a space with a handle that already exists
-    with pytest.raises(SteamshipError):
-        client2 = get_steamship_client(space_handle=name, create_space=True)
-
-    # But can fetch_or_create_space a space with a handle that already exists
-    client2 = get_steamship_client(space_handle=name, fetch_or_create_space=True)
-    assert client1.config.space_id == client2.config.space_id
-    assert client1.config.space_handle == client2.config.space_handle
-
-    # But can fetch a space with a handle that already exists
-    client2a = get_steamship_client(space_handle=name)
-    assert client1.config.space_id == client2a.config.space_id
-    assert client1.config.space_handle == client2a.config.space_handle
-
-    name2 = random_name().lower()
-    # And can also fetch_or_create_space with a new handle
-    client3 = get_steamship_client(space_handle=name2, fetch_or_create_space=True)
-    assert client3.config.space_id != client2.config.space_id
-    assert client3.config.space_handle != client2.config.space_handle
-    assert client3.config.space_id is not None
-    assert client3.config.space_handle is not None
-    assert client3.config.space_id != default.config.space_id
-    assert client3.config.space_handle != default.config.space_handle
-
-    Space(client=client1, id=client1.config.space_id).delete()
-    Space(client=client3, id=client3.config.space_id).delete()
-
-
-def test_client_creation_recall_existing_space():
-    client1 = get_steamship_client(create_space=True)
-    client2 = get_steamship_client(space_id=client1.config.space_id)
-    client3 = get_steamship_client(space_handle=client1.config.space_handle)
-
-    assert client1.config.space_id == client2.config.space_id
-    assert client1.config.space_id == client3.config.space_id
-    assert client1.config.space_handle == client2.config.space_handle
-    assert client1.config.space_handle == client3.config.space_handle
-
-    Space(client=client1, id=client1.config.space_id).delete()
-
-
-def test_default_space_loaded():
-    """Tests that the client actively loads the default space ID and Handle, and that we can revert to it later."""
-    client1 = get_steamship_client(create_space=True)
-    client2 = get_steamship_client(space_id=client1.config.space_id)
-    client_default = get_steamship_client()
-
-    assert client1.config.space_id == client2.config.space_id
-    assert client1.config.space_id != client_default.config.space_id
-    assert client1.config.space_handle == client2.config.space_handle
-    assert client1.config.space_handle != client_default.config.space_handle
-    assert client_default.config.space_handle == "default"
-
-    client1.switch_space()
-    assert client1.config.space_id != client2.config.space_id
-    assert client1.config.space_id == client_default.config.space_id
-    assert client1.config.space_handle != client2.config.space_handle
-    assert client1.config.space_handle == client_default.config.space_handle
-
-    # client2 has the newly created space.
-    Space(client=client2, id=client2.config.space_id).delete()
-
-
-def test_create_space_on_startup() -> None:
-    """Tests that requesting a space by handle or ID on client startup faithfully sets it to that space."""
+def test_client_can_create_new_workspace():
+    # Create a new workspace anchored in a randomly generated workspace name
     space_handle = random_name()
-    default_client = get_steamship_client()
-    named_client = get_steamship_client(space_handle=space_handle, create_space=True)
-    named_client_2 = get_steamship_client(space_handle=space_handle)
-    named_client_3 = get_steamship_client(space_id=named_client.config.space_id)
+    custom_client = get_steamship_client(workspace=space_handle)
 
-    assert default_client.config.space_id is not None
-    assert default_client.config.space_handle is not None
+    # The custom_client is not in the default workspace
+    default_client = get_steamship_client()
+    assert custom_client.config.space_handle == space_handle
+    assert custom_client.config.space_id != default_client.config.space_id
+
+    # Another client specifying the same workspace will be anchored to that workspace.
+    custom_client_2 = get_steamship_client(workspace=space_handle)
+    assert custom_client.config.space_handle == custom_client_2.config.space_handle
+    assert custom_client.config.space_id == custom_client_2.config.space_id
+
+    # .. But if we specify that workspace with the `fail_if_workspace_exists` option it will fail.
+    with pytest.raises(SteamshipError):
+        get_steamship_client(
+            workspace=custom_client.config.space_handle, fail_if_workspace_exists=True
+        )
+
+    Space(client=custom_client, id=custom_client.config.space_id).delete()
+
+
+def test_switch_space():
+    """Tests that the client actively loads the default space ID and Handle, and that we can revert to it later."""
+    default_client = get_steamship_client()
+    custom_client = get_steamship_client(workspace=random_name())
+    custom_client_2 = get_steamship_client(workspace=custom_client.config.space_handle)
+
+    assert custom_client.config.space_handle != default_client.config.space_handle
+    assert custom_client_2.config.space_handle == custom_client.config.space_handle
     assert default_client.config.space_handle == "default"
 
-    assert named_client.config.space_id is not None
-    assert named_client.config.space_handle is not None
-    assert named_client.config.space_handle == space_handle
-    assert named_client.config.space_handle != default_client.config.space_id
+    # Switch custom_client_2 to the default
+    custom_client_2.switch_space()
+    assert custom_client_2.config.space_handle == default_client.config.space_handle
+    assert custom_client_2.config.space_id == default_client.config.space_id
 
-    assert named_client.config.space_id == named_client_2.config.space_id
-    assert named_client.config.space_handle == named_client_2.config.space_handle
+    # Switch default_space to the custom_clientt
+    default_client.switch_space(workspace=custom_client.config.space_handle)
+    assert custom_client.config.space_handle == default_client.config.space_handle
+    assert custom_client.config.space_id == default_client.config.space_id
 
-    assert named_client.config.space_id == named_client_3.config.space_id
-    assert named_client.config.space_handle == named_client_3.config.space_handle
-
-    space = Space.get(named_client, id_=named_client.config.space_id).data
-    space.delete()
+    # client2 has the newly created space.
+    Space(client=custom_client, id=custom_client.config.space_id).delete()
