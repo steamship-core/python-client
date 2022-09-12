@@ -130,3 +130,30 @@ def test_default_space_loaded():
 
     # client2 has the newly created space.
     Space(client=client2, id=client2.config.space_id).delete()
+
+
+def test_create_space_on_startup() -> None:
+    """Tests that requesting a space by handle or ID on client startup faithfully sets it to that space."""
+    space_handle = random_name()
+    default_client = get_steamship_client()
+    named_client = get_steamship_client(space_handle=space_handle, create_space=True)
+    named_client_2 = get_steamship_client(space_handle=space_handle)
+    named_client_3 = get_steamship_client(space_id=named_client.config.space_id)
+
+    assert default_client.config.space_id is not None
+    assert default_client.config.space_handle is not None
+    assert default_client.config.space_handle == "default"
+
+    assert named_client.config.space_id is not None
+    assert named_client.config.space_handle is not None
+    assert named_client.config.space_handle == space_handle
+    assert named_client.config.space_handle != default_client.config.space_id
+
+    assert named_client.config.space_id == named_client_2.config.space_id
+    assert named_client.config.space_handle == named_client_2.config.space_handle
+
+    assert named_client.config.space_id == named_client_3.config.space_id
+    assert named_client.config.space_handle == named_client_3.config.space_handle
+
+    space = Space.get(named_client, id_=named_client.config.space_id).data
+    space.delete()
