@@ -50,7 +50,7 @@ def test_client_can_create_new_workspace():
     Space(client=custom_client, id=custom_client.config.space_id).delete()
 
 
-def test_switch_space():
+def test_switch_workspace():
     """Tests that the client actively loads the default space ID and Handle, and that we can revert to it later."""
     default_client = get_steamship_client()
     custom_client = get_steamship_client(workspace=random_name())
@@ -61,12 +61,12 @@ def test_switch_space():
     assert default_client.config.space_handle == "default"
 
     # Switch custom_client_2 to the default
-    custom_client_2.switch_space()
+    custom_client_2.switch_workspace()
     assert custom_client_2.config.space_handle == default_client.config.space_handle
     assert custom_client_2.config.space_id == default_client.config.space_id
 
     # Switch default_space to the custom_clientt
-    default_client.switch_space(workspace=custom_client.config.space_handle)
+    default_client.switch_workspace(workspace=custom_client.config.space_handle)
     assert custom_client.config.space_handle == default_client.config.space_handle
     assert custom_client.config.space_id == default_client.config.space_id
 

@@ -40,10 +40,20 @@ def test_get_space():
     client = get_steamship_client()
     default = Space.get(client=client).data
     space1 = Space.create(client=client, handle="test").data
-    space1a = Space.get(client=client, space_id=space1.id).data
+    space1a = Space.get(client=client, id_=space1.id).data
     assert space1a.id == space1.id
     assert space1a.id != default.id
     assert space1a.handle == space1.handle
+
+    space1b = Space.get(client=client, handle=space1.handle).data
+    assert space1b.id == space1.id
+    assert space1b.handle == space1.handle
+
+    space1c = Space.get(client=client, id_=space1.id, handle=space1.handle).data
+    assert space1c.id == space1.id
+    assert space1c.handle == space1.handle
+
+    space1.delete()
 
 
 def test_create_use_delete_space():
