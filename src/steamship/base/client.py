@@ -8,7 +8,7 @@ from inspect import isclass
 from typing import Any, Dict, Type, TypeVar, Union
 
 import inflection
-from pydantic import BaseModel, PrivateAttr
+from pydantic import BaseModel, Extra, PrivateAttr
 from requests import Session
 
 from steamship.base.configuration import CamelModel, Configuration
@@ -25,7 +25,12 @@ _logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=Response)  # TODO (enias): Do we need this?
 
 
-class Client(CamelModel, ABC):
+# Note: including extra=Extra.allow will permit the trick in the constructor
+# of client/client.py in which we have a static method and a member method of
+# the same name.
+
+
+class Client(CamelModel, ABC, extra=Extra.allow):
     """Client base.py class.
 
     Separated primarily as a hack to prevent circular imports.
