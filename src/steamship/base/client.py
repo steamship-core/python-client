@@ -16,6 +16,7 @@ from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes
 from steamship.base.request import Request
 from steamship.base.response import Response, Task
+from steamship.base.tasks import TaskState
 from steamship.base.utils import to_camel
 from steamship.utils.url import Verb, is_local
 
@@ -384,14 +385,25 @@ class Client(CamelModel, ABC):
 
         if isinstance(response_data, dict):
             if "status" in response_data:
-                task = Task.parse_obj({**response_data["status"], "client": self})
-                # if task_resp is not None and task_resp.taskId is not None:
-                #     task = Task(client=self)
-                #     task.update(task_resp)
-                if "state" in response_data["status"]:
-                    if response_data["status"]["state"] == "failed":
-                        error = SteamshipError.from_dict(response_data["status"])
-                        logging.error(f"Client received error from server: {error}")
+                try:
+                    task = Task.parse_obj({**response_data["status"], "client": self})
+                    if "state" in response_data["status"]:
+                        if response_data["status"]["state"] == "failed":
+                            error = SteamshipError.from_dict(response_data["status"])
+                            logging.error(f"Client received error from server: {error}")
+                except TypeError as e:
+                    # There's an edge case here -- if a Steamship package returns the JSON dictionary
+                    #
+                    # { "status": "status string" }
+                    #
+                    # Then the above handler will attempt to parse it and throw... But we don't actually want to throw
+                    # since we don't take a strong opinion on what the response type of a package endpoint ought to be.
+                    # It *may* choose to conform to the SteamshipResponse<T> type, but it doesn't have to.
+                    if not is_app_call:
+                        raise e
+
+                if task is not None and task.state == TaskState.failed:
+                    error = task.as_error()
 
             if "data" in response_data:
                 if expect is not None:
@@ -415,6 +427,9 @@ class Client(CamelModel, ABC):
         else:
             data = response_data
             expect = type(response_data)
+
+        if error is not None:
+            logging.error(f"Client received error from server: {error}")
 
         ret = Response(expect=expect, task=task, data_=data, error=error, client=self)
         if ret.task is None and ret.data is None and ret.error is None:
