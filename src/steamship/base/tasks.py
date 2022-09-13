@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from steamship.base.base import IResponse
 from steamship.base.configuration import CamelModel
+from steamship.base.error import SteamshipError
 from steamship.base.metadata import metadata_to_str, str_to_metadata
 from steamship.base.request import Request
 
@@ -173,6 +174,11 @@ class Task(CamelModel):
 
     max_retries: int = None  # The maximum number of retries allowed for this task
     retries: int = None  # The number of retries already used.
+
+    def as_error(self) -> SteamshipError:
+        return SteamshipError(
+            message=self.status_message, suggestion=self.status_suggestion, code=self.status_code
+        )
 
     def dict(self, **kwargs) -> Dict[str, Any]:
         if "exclude" in kwargs:
