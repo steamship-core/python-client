@@ -129,6 +129,11 @@ def test_instance_invoke():
         user = User.current(client)
         assert user_info.data["handle"] == user.data.handle
 
+        # Test a JSON response that contains {"status": "a string"} in it to make sure the client base
+        # isn't trying to coerce it to a Task object and throwing.
+        resp_obj = instance.post("json_with_status")
+        assert resp_obj.data == {"status": "a string"}
+
 
 def test_deploy_in_space():
     client = get_steamship_client()
