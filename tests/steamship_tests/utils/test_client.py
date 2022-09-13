@@ -35,13 +35,13 @@ empty_base_uris = [
 ]
 
 
-def switch_space(self, workspace: str = None, fail_if_workspace_exists: bool = False):
+def switch_workspace(self, workspace: str = None, fail_if_workspace_exists: bool = False):
     pass
 
 
 @pytest.mark.parametrize(("web_base", "app_base", "api_base"), empty_base_uris)
 def test_base_uris(web_base: str, app_base: str, api_base: str) -> None:
-    with patch.object(Client, "switch_space", switch_space):
+    with patch.object(Client, "switch_workspace", switch_workspace):
         client = Steamship(api_base=api_base, web_base=web_base, app_base=app_base)
         assert str(client.config.web_base) == web_base or DEFAULT_WEB_BASE
         assert str(client.config.app_base) == app_base or DEFAULT_APP_BASE
@@ -49,7 +49,7 @@ def test_base_uris(web_base: str, app_base: str, api_base: str) -> None:
 
 
 def test_incorrectly_formatted_base_uris() -> None:
-    with patch.object(Client, "switch_space", switch_space):
+    with patch.object(Client, "switch_workspace", switch_workspace):
         client = Steamship(
             api_base=TEST_API_BASE[:-1], web_base=TEST_WEB_BASE[:-1], app_base=TEST_APP_BASE[:-1]
         )

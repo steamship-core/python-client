@@ -182,28 +182,21 @@ class Steamship(Client):
             space=space,
         )
 
-    def for_space(self, space_id: str = None, space_handle: str = None) -> Steamship:
-        """Returns a new Steamship client anchored in the provided space as its default.
-
-        Providing either `space_id` or `space_handle` will work; both need not be provided.
-        """
-        client = Steamship()
-        client.config = self.config.for_space(space_id=space_id, space_handle=space_handle)
-        return client
-
     def get_space(self) -> Space:
         # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes
         # pre-configured with an API key and the Space in which this client should be operating.
         # This is a way to load the model object for that space.
-        logging.info("New client get_space")
+        logging.info(
+            f"get_space() called on client with config space {self.config.space_handle}/{self.config.space_id}"
+        )
         space = Space.get(self, id_=self.config.space_id, handle=self.config.space_handle)
         if not space.data:
             logging.error("Unable to get space.")
             raise SteamshipError(
                 message="Error while retrieving the Space associated with this client config.",
-                internal_message=f"space_id={self.config.space_id}   space_handle={self.config.space_handle}",
+                internal_message=f"space_id={self.config.space_id} space_handle={self.config.space_handle}",
             )
-        logging.info(f"Got space: {space.data.id}")
+        logging.info(f"Got space: {space.data.handle}/{space.data.id}")
         return space.data
 
     def list_comments(

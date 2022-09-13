@@ -66,9 +66,20 @@ class Client(CamelModel, ABC):
         )
         self._session = Session()
         super().__init__(config=config)
-        self.switch_space(workspace=workspace, fail_if_workspace_exists=fail_if_workspace_exists)
+        # The lambda_handler will pass in the space via the space_id, so we need to plumb this through to make sure
+        # that the workspace switch performed doesn't mistake `workspace=None` as a request for the default workspace
+        self.switch_workspace(
+            workspace=workspace,
+            workspace_id=config.space_id,
+            fail_if_workspace_exists=fail_if_workspace_exists,
+        )
 
-    def switch_space(self, workspace: str = None, fail_if_workspace_exists: bool = False):
+    def switch_workspace(
+        self,
+        workspace: str = None,
+        workspace_id: str = None,
+        fail_if_workspace_exists: bool = False,
+    ):
         """Switches this client to the requested space, possibly creating it. If all arguments are None, the client
         actively switches into the default space.
 
@@ -80,14 +91,16 @@ class Client(CamelModel, ABC):
         return_handle = None
         space = None
 
-        if workspace is None:
-            # Switch to the default workspace since no named workspace was provided
+        if workspace is None and workspace_id is None:
+            # Switch to the default workspace since no named or ID'ed workspace was provided
             workspace = "default"
 
         if fail_if_workspace_exists:
-            logging.info(f"Creating workspace with handle: '{workspace}'.")
+            logging.info(f"[Client] Creating workspace with handle/id: {workspace}/{workspace_id}.")
         else:
-            logging.info(f"Creating/Fetching workspace with handle: '{workspace}'.")
+            logging.info(
+                f"[Client] Creating/Fetching workspace with handle/id: {workspace}/{workspace_id}."
+            )
 
         # Zero out the space_handle on the config block in case we're being invoked from
         # `init` (otherwise we'll attempt to create the sapce IN that nonexistant space)
@@ -95,9 +108,16 @@ class Client(CamelModel, ABC):
         self.config.space_handle = None
 
         try:
-            space = self.post(
-                "space/create", {"handle": workspace, "upsert": not fail_if_workspace_exists}
-            ).data
+            if workspace is not None and workspace_id is not None:
+                get_params = {"handle": workspace, "id": workspace_id, "upsert": False}
+                space = self.post("space/get", get_params).data
+            elif workspace is not None:
+                get_params = {"handle": workspace, "upsert": not fail_if_workspace_exists}
+                space = self.post("space/create", get_params).data
+            elif workspace_id is not None:
+                get_params = {"id": workspace_id, "upsert": False}
+                space = self.post("space/get", get_params).data
+
         except SteamshipError as e:
             self.config.space_handle = old_space_handle
             raise e
@@ -118,7 +138,7 @@ class Client(CamelModel, ABC):
         # Finally, set the new space.
         self.config.space_id = return_id
         self.config.space_handle = return_handle
-        logging.info(f"Switched to workspace '{return_handle}' (ID {return_id}).")
+        logging.info(f"[Client] Switched to workspace {return_handle}/{return_id}")
 
     def _url(
         self,
@@ -338,7 +358,7 @@ class Client(CamelModel, ABC):
 
         data = self._prepare_data(payload=payload)
 
-        logging.info(f"Steamship Client making {verb} to {url}")
+        logging.info(f"Making {verb} to {url} in space {space_handle}/{space_id}")
         if verb == Verb.POST:
             if file is not None:
                 files = self._prepare_multipart_data(data, file)
@@ -350,7 +370,7 @@ class Client(CamelModel, ABC):
         else:
             raise Exception(f"Unsupported verb: {verb}")
 
-        logging.info(f"Steamship Client received HTTP {resp.status_code} from {verb} to {url}")
+        logging.info(f"From {verb} to {url} got HTTP {resp.status_code}")
 
         if debug is True:
             logging.debug(f"Got response {resp}")

@@ -134,6 +134,17 @@ def test_deploy_in_space():
     client = get_steamship_client()
     demo_app_path = APPS_PATH / "demo_app.py"
 
-    space = Space.create(client, handle="test-non-default-space").data
+    space = Space.create(client).data
+
+    assert space.handle != "default"
+
     with deploy_app(client, demo_app_path, space_id=space.id) as (_, _, instance):
+        # The Engine believes the instance to be in the workspace
         assert instance.space_id == space.id
+
+        # The app believes itself to be in the workspace
+        configuration_within_lambda_resp = instance.get("config")
+        configuration_within_lambda = configuration_within_lambda_resp.data
+        assert configuration_within_lambda["spaceId"] == space.id
+
+    space.delete()
