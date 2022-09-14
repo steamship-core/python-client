@@ -35,7 +35,9 @@ empty_base_uris = [
 ]
 
 
-def switch_workspace(self, workspace: str = None, fail_if_workspace_exists: bool = False):
+def switch_workspace(
+    self, workspace: str = None, workspace_id: str = None, fail_if_workspace_exists: bool = False
+):
     pass
 
 
