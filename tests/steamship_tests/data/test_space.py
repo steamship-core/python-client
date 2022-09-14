@@ -74,7 +74,7 @@ def test_create_use_delete_space():
 
     space1a = Space.get(client=client, id_=space1.id).data
     space1b = Space.get(client=client, handle=space1.handle).data
-    space1c = Space.get(client=client, id_=space1).data
+    space1c = Space.get(client=client, id_=space1.id).data
 
     assert space1.id == space1a.id
     assert space1.id == space1b.id
