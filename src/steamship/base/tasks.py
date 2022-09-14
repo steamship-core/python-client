@@ -4,11 +4,12 @@ from typing import Any, Dict, List, Optional, Set, Type, TypeVar
 
 from pydantic import BaseModel
 
+from steamship.base import Response
 from steamship.base.base import IResponse
 from steamship.base.configuration import CamelModel
 from steamship.base.error import SteamshipError
 from steamship.base.metadata import metadata_to_str, str_to_metadata
-from steamship.base.request import Request
+from steamship.base.request import IdentifierRequest, Request
 
 T = TypeVar("T")
 
@@ -180,6 +181,12 @@ class Task(CamelModel):
             message=self.status_message, suggestion=self.status_suggestion, code=self.status_code
         )
 
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["task"] if "task" in obj else obj
+        return super().parse_obj(obj)
+
     def dict(self, **kwargs) -> Dict[str, Any]:
         if "exclude" in kwargs:
             kwargs["exclude"] = {*(kwargs.get("exclude", set()) or set()), "client"}
@@ -191,6 +198,17 @@ class Task(CamelModel):
                 },
             }
         return super().dict(**kwargs)
+
+    @classmethod
+    def get(cls, client, _id) -> Response[Task]:
+        return client.post(
+            "task/get",
+            IdentifierRequest(id=_id, handle=None),
+            expect=Task,
+            space_id=None,
+            space_handle=None,
+            space=None,
+        )
 
     def update(self, other: Optional[Task] = None):
         """Incorporates a `Task` into this object."""
