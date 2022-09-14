@@ -3,27 +3,12 @@ import tempfile
 from pathlib import Path
 from typing import ClassVar, Optional
 
-from steamship import SteamshipError
+from steamship import Steamship, SteamshipError
 from steamship.base import Client
 from steamship.base.configuration import CamelModel
 from steamship.data.space import SignedUrl, Space
 from steamship.utils.signed_urls import download_from_signed_url, upload_to_signed_url
 from steamship.utils.zip_archives import unzip_folder, zip_folder
-
-
-def _get_space(client: Client) -> Space:
-    # We should probably add a hard-coded tway to get this. The client in a Steamship Plugin/App comes
-    # pre-configured with an API key and the Space in which this client should be operating.
-    # This is a way to load the model object for that space.
-    space = Space.get(client, id_=client.config.space_id, handle=client.config.space_handle)
-    if not space.data:
-        logging.error("Unable to get space.")
-        raise SteamshipError(
-            message="Error while retrieving the Space associated with this client config.",
-            internal_message=f"space_id={client.config.space_id}   space_handle={client.config.space_handle}",
-        )
-    logging.info(f"Got space: {space.data.id}")
-    return space.data
 
 
 class ModelCheckpoint(CamelModel):
@@ -42,7 +27,7 @@ class ModelCheckpoint(CamelModel):
 
     def __init__(
         self,
-        client: Client,
+        client: Steamship,
         parent_directory: Optional[Path] = None,
         handle: str = DEFAULT_HANDLE,
         plugin_instance_id: str = None,
@@ -57,7 +42,7 @@ class ModelCheckpoint(CamelModel):
         if self.plugin_instance_id is None:
             raise SteamshipError("Null plugin_instance_id provided ModelCheckpoint")
 
-        self.space = _get_space(client)
+        self.space = client.get_space()
 
         if parent_directory is None:
             # TODO(ted): We may want to not use a tempdir so that we can cache it.

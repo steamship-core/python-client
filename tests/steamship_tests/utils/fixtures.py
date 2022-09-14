@@ -2,6 +2,7 @@ from typing import Callable, Optional, Type
 
 import pytest
 from steamship_tests.utils.client import get_steamship_client
+from steamship_tests.utils.random import random_name
 
 from steamship import Space, Steamship
 from steamship.app.app import App
@@ -25,8 +26,9 @@ def client() -> Steamship:
           pass
     """
     steamship = get_steamship_client()
-    space = Space.create(client=steamship).data
-    new_client = steamship.for_space(space_id=space.id)
+    workspace_handle = random_name()
+    space = Space.create(client=steamship, handle=workspace_handle).data
+    new_client = get_steamship_client(workspace=workspace_handle)
     yield new_client
     space.delete()
 
@@ -56,8 +58,9 @@ def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     """
     app: Type[App] = request.param
     steamship = get_steamship_client()
-    space = Space.create(client=steamship).data
-    new_client = steamship.for_space(space_id=space.id)
+    workspace_handle = random_name()
+    space = Space.create(client=steamship, handle=workspace_handle).data
+    new_client = get_steamship_client(workspace=workspace_handle)
 
     def handle(verb: str, app_path: str, arguments: Optional[dict] = None) -> dict:
         _handler = _create_handler(app)
