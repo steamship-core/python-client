@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional, Set, Type, TypeVar
 
 from pydantic import BaseModel
 
-from steamship.base import Response
 from steamship.base.base import IResponse
 from steamship.base.configuration import CamelModel
 from steamship.base.error import SteamshipError
@@ -200,7 +199,7 @@ class Task(CamelModel):
         return super().dict(**kwargs)
 
     @classmethod
-    def get(cls, client, _id) -> Response[Task]:
+    def get(cls, client, _id) -> IResponse[Task]:
         return client.post(
             "task/get",
             IdentifierRequest(id=_id, handle=None),
