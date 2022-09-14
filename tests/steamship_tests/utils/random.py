@@ -6,8 +6,12 @@ from steamship import EmbeddingIndex, Space, Steamship
 
 
 def random_name() -> str:
+    """Returns a random name suitable for a handle that has low likelihood of colliding with another.
+
+    Output format matches test_[a-z0-9]+, which should be a valid handle.
+    """
     letters = string.digits + string.ascii_letters
-    return f"test_{''.join(random.choice(letters) for _ in range(10))}"  # noqa: S311
+    return f"test_{''.join(random.choice(letters) for _ in range(10))}".lower()  # noqa: S311
 
 
 _TEST_EMBEDDER = "test-embedder-v1"

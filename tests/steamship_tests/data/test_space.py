@@ -19,7 +19,7 @@ def test_delete_space():
     assert default.id != space1.id
 
     space1.delete()
-    space1a = Space.get(client=client, space_id=space1.id)
+    space1a = Space.get(client=client, id_=space1.id)
     assert space1a.error is not None
 
     space1 = Space.create(client=client, handle="test").data
@@ -27,12 +27,12 @@ def test_delete_space():
     assert space1.id is not None
     assert default.id != space1.id
 
-    space1a = Space.get(client=client, space_id=space1.id)
+    space1a = Space.get(client=client, id_=space1.id)
     assert space1a.data is not None
     assert space1a.error is None
 
     space1.delete()
-    space1a = Space.get(client=client, space_id=space1.id)
+    space1a = Space.get(client=client, id_=space1.id)
     assert space1a.error is not None
 
 
@@ -40,10 +40,20 @@ def test_get_space():
     client = get_steamship_client()
     default = Space.get(client=client).data
     space1 = Space.create(client=client, handle="test").data
-    space1a = Space.get(client=client, space_id=space1.id).data
+    space1a = Space.get(client=client, id_=space1.id).data
     assert space1a.id == space1.id
     assert space1a.id != default.id
     assert space1a.handle == space1.handle
+
+    space1b = Space.get(client=client, handle=space1.handle).data
+    assert space1b.id == space1.id
+    assert space1b.handle == space1.handle
+
+    space1c = Space.get(client=client, id_=space1.id, handle=space1.handle).data
+    assert space1c.id == space1.id
+    assert space1c.handle == space1.handle
+
+    space1.delete()
 
 
 def test_create_use_delete_space():
@@ -62,9 +72,9 @@ def test_create_use_delete_space():
     assert space1.id != default.id
     assert space2.id != default.id
 
-    space1a = Space.get(client=client, space_id=space1.id).data
-    space1b = Space.get(client=client, space_handle=space1.handle).data
-    space1c = Space.get(client=client, space=space1).data
+    space1a = Space.get(client=client, id_=space1.id).data
+    space1b = Space.get(client=client, handle=space1.handle).data
+    space1c = Space.get(client=client, id_=space1.id).data
 
     assert space1.id == space1a.id
     assert space1.id == space1b.id
@@ -81,5 +91,5 @@ def test_create_use_delete_space():
 
     space2.delete()
 
-    space1a_deleted = Space.get(client=client, space_id=space1.id)
+    space1a_deleted = Space.get(client=client, id_=space1.id)
     assert space1a_deleted.error is not None
