@@ -40,23 +40,10 @@ class Space(CamelModel):
 
     @staticmethod
     def get(
-        client: Client,
-        id_: str = None,
-        handle: str = None,
-        upsert: bool = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
+        client: Client, id_: str = None, handle: str = None, upsert: bool = None
     ) -> SteamshipResponse[Space]:
         req = GetRequest(id=id_, handle=handle, upsert=upsert)
-        return client.post(
-            "space/get",
-            req,
-            expect=Space,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
-        )
+        return client.post("space/get", req, expect=Space)
 
     @staticmethod
     def create(
