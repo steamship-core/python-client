@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional, Set, Type, TypeVar
 
 from pydantic import BaseModel
 
-from steamship.base import Client
 from steamship.base.base import IResponse
 from steamship.base.configuration import CamelModel
 from steamship.base.error import SteamshipError
@@ -182,8 +181,7 @@ class Task(CamelModel):
         )
 
     @classmethod
-    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
-        # TODO (enias): This needs to be solved at the engine side
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> Task:
         obj = obj["task"] if "task" in obj else obj
         return super().parse_obj(obj)
 
@@ -201,7 +199,7 @@ class Task(CamelModel):
 
     @staticmethod
     def get(
-        client: Client,
+        client,
         _id: str = None,
         handle: str = None,
         space_id: str = None,
