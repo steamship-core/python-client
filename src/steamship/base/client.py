@@ -53,9 +53,8 @@ class Client(CamelModel, ABC):
         Otherwise the `default` workspace will be used.
         """
         if config is not None and not isinstance(config, Configuration):
-            raise SteamshipError(
-                f"config has to be of type {Configuration}, received {type(config)}."
-            )
+            config = Configuration.parse_obj(config)
+
         config = config or Configuration(
             api_key=api_key,
             api_base=api_base,
