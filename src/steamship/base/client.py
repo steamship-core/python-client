@@ -25,9 +25,8 @@ _logger = logging.getLogger(__name__)
 T = TypeVar("T", bound=Response)  # TODO (enias): Do we need this?
 
 
-# Note: including extra=Extra.allow will permit the trick in the constructor
-# of client/client.py in which we have a static method and a member method of
-# the same name.
+# Note: The inclusion of extra=Extra.allow below permits a trick in the constructor of client/client.py in which
+# have both a static method and an instance method of the same name. See client/client.py for details.
 
 
 class Client(CamelModel, ABC, extra=Extra.allow):

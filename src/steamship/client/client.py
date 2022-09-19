@@ -44,8 +44,9 @@ class Steamship(Client):
             config=config,
             **kwargs,
         )
-        # This trick re-assigns the bindings of `use` and `use_plugin` to instance-specific versions.
-        # Since the base class is a Pydantic model, it requires the Extra.allow extension.
+        # This trick re-assigns the bindings of `use` and `use_plugin` to an instance-specific versions.
+        # Since the base class is a Pydantic model, to must descend from the Extra.allow object in base/client.py
+        # for this to be possible.
         self.use = self._instance_use
         self.use_plugin = self._instance_use_plugin
 
@@ -153,9 +154,7 @@ class Steamship(Client):
     ) -> AppInstance:
         """Creates/loads an instance of package `package_handle`.
 
-        The instance is named `instance_handle` and located in the workspace this client is anchored to.
-
-        TODO: Proposal to relocate this method to a `Workspace` object."""
+        The instance is named `instance_handle` and located in the workspace this client is anchored to.."""
         instance = AppInstance.create(
             self,
             app_handle=package_handle,
@@ -213,9 +212,7 @@ class Steamship(Client):
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 
-        The instance is named `instance_handle` and located in the workspace this client is anchored to.
-
-        TODO: Proposal to relocate this method to a `Workspace` object."""
+        The instance is named `instance_handle` and located in the workspace this client is anchored to."""
         instance = PluginInstance.create(
             self,
             plugin_handle=plugin_handle,
