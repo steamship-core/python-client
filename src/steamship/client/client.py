@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
@@ -127,10 +127,11 @@ class Steamship(Client):
     @staticmethod
     def use(
         package_handle: str,
-        instance_handle: str = None,
-        config: Dict[str, Any] = None,
-        version: str = None,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
         reuse: bool = True,
+        workspace_handle: Optional[str] = None,
         **kwargs,
     ) -> AppInstance:
         """Creates/loads an instance of package `package_handle`.
@@ -143,10 +144,13 @@ class Steamship(Client):
         ```python
         plugin = Steamship.use('package-handle', 'instance-handle')
         ```
+
+        If you wish to override the usage of a workspace named `instance_handle`, you can provide the `workspace_handle`
+        parameter.
         """
-        kwargs["workspace"] = instance_handle
+        kwargs["workspace"] = workspace_handle or instance_handle
         client = Steamship(**kwargs)
-        return client.use(
+        return client._instance_use(
             package_handle=package_handle,
             instance_handle=instance_handle,
             config=config,
@@ -157,9 +161,9 @@ class Steamship(Client):
     def _instance_use(
         self,
         package_handle: str,
-        instance_handle: str = None,
-        config: Dict[str, Any] = None,
-        version: str = None,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
         reuse: bool = True,
     ) -> AppInstance:
         """Creates/loads an instance of package `package_handle`.
@@ -178,17 +182,18 @@ class Steamship(Client):
             raise instance.error
         if not instance.data:
             raise SteamshipError(
-                f"Unable to create an instance of App {package_handle} with handle {instance_handle}."
+                f"Unable to create an instance of App {package_handle} with handle {instance_handle} in workspace {self.config.space_handle}."
             )
         return instance.data
 
     @staticmethod
     def use_plugin(
         plugin_handle: str,
-        instance_handle: str = None,
-        config: Dict[str, Any] = None,
-        version: str = None,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
         reuse: bool = True,
+        workspace_handle: Optional[str] = None,
         **kwargs,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
@@ -202,9 +207,9 @@ class Steamship(Client):
         plugin = Steamship.use_plugin('plugin-handle', 'instance-handle')
         ```
         """
-        kwargs["workspace"] = instance_handle
+        kwargs["workspace"] = workspace_handle or instance_handle
         client = Steamship(**kwargs)
-        return client.use_plugin(
+        return client._instance_use_plugin(
             plugin_handle=plugin_handle,
             instance_handle=instance_handle,
             config=config,
@@ -236,7 +241,7 @@ class Steamship(Client):
             raise instance.error
         if not instance.data:
             raise SteamshipError(
-                f"Unable to create an instance of Plugin {plugin_handle} with handle {instance_handle}."
+                f"Unable to create an instance of Plugin {plugin_handle} with handle {instance_handle} in workspace {self.config.space_handle}."
             )
         return instance.data
 
