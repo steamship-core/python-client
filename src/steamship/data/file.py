@@ -134,7 +134,7 @@ class File(CamelModel):
         space_id: str = None,
         space_handle: str = None,
         space: Any = None,
-    ) -> Response[File]:  # TODO (Enias): Why is this a staticmethod?
+    ) -> Response[File]:
         return client.post(
             "file/get",
             IdentifierRequest(id=_id, handle=handle),

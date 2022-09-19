@@ -53,9 +53,8 @@ class Client(CamelModel, ABC):
         Otherwise the `default` workspace will be used.
         """
         if config is not None and not isinstance(config, Configuration):
-            raise SteamshipError(
-                f"config has to be of type {Configuration}, received {type(config)}."
-            )
+            config = Configuration.parse_obj(config)
+
         config = config or Configuration(
             api_key=api_key,
             api_base=api_base,
@@ -390,7 +389,7 @@ class Client(CamelModel, ABC):
                     if "state" in response_data["status"]:
                         if response_data["status"]["state"] == "failed":
                             error = SteamshipError.from_dict(response_data["status"])
-                            logging.error(f"Client received error from server: {error}")
+                            logging.warning(f"Client received error from server: {error}")
                 except TypeError as e:
                     # There's an edge case here -- if a Steamship package returns the JSON dictionary
                     #

@@ -7,7 +7,7 @@ import pytest
 from pydantic import ValidationError
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import Steamship, SteamshipError
+from steamship import Steamship
 from steamship.base import Client
 from steamship.base.configuration import DEFAULT_API_BASE, DEFAULT_APP_BASE, DEFAULT_WEB_BASE
 from steamship.data.user import User
@@ -87,7 +87,7 @@ class TestObject:
 
 
 def test_incorrect_config_type() -> None:
-    with pytest.raises(SteamshipError):
+    with pytest.raises(ValidationError):
         Steamship(config=TestObject())
 
 
