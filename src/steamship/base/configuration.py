@@ -30,6 +30,13 @@ class CamelModel(BaseModel):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}
         super().__init__(**kwargs)
 
+    def dict(self, **kwargs):
+        """Never include the `client` field when returning one's own dict of values."""
+        exclude = kwargs.get("exclude") or set()
+        exclude.add("client")
+        kwargs.setdefault("exclude", exclude)
+        return super().dict(**kwargs)
+
     class Config:
         alias_generator = to_camel
         allow_population_by_field_name = True

@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List
 
+from pydantic import BaseModel
+
 from steamship import Block, Configuration, PluginInstance, SteamshipError
 from steamship.base import Client, Response
 from steamship.base.base import IResponse
@@ -44,11 +46,19 @@ class Steamship(Client):
             config=config,
             **kwargs,
         )
-        # This trick re-assigns the bindings of `use` and `use_plugin` to an instance-specific versions.
-        # Since the base class is a Pydantic model, to must descend from the Extra.allow object in base/client.py
-        # for this to be possible.
-        self.use = self._instance_use
-        self.use_plugin = self._instance_use_plugin
+        # We use object.__setattr__ here in order to bypass Pydantic's overloading of it (which would block this
+        # set unless we were to add this as a field)
+        object.__setattr__(self, "use", self._instance_use)
+        object.__setattr__(self, "use_plugin", self._instance_use_plugin)
+
+    def __repr_args__(self: BaseModel) -> Any:
+        """Because of the trick we've done with `use` and `use_plugin`, we need to exclude these from __repr__
+        otherwise we'll get an infinite recursion."""
+        return [
+            (key, value)
+            for key, value in self.__dict__.items()
+            if key != "use" and key != "use_plugin"
+        ]
 
     def create_index(
         self,

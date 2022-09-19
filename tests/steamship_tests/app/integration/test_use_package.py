@@ -10,9 +10,11 @@ def test_use_package():
     demo_app_path = APPS_PATH / "demo_app.py"
 
     with deploy_app(client, demo_app_path) as (app, version, instance):
+        # Test for infinite recursion bug
+        assert app.__repr__()
+
         # Now let's invoke it!
         # Note: we're invoking the data at demo_app.py in the steamship_tests/demo_apps folder
-
         app_handle_1 = random_name()
         app_handle_2 = random_name()
 
