@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
+
+from pydantic import BaseModel
 
 from steamship import Block, Configuration, PluginInstance, SteamshipError
 from steamship.base import Client, Response
@@ -42,7 +44,21 @@ class Steamship(Client):
             profile=profile,
             config_file=config_file,
             config=config,
+            **kwargs,
         )
+        # We use object.__setattr__ here in order to bypass Pydantic's overloading of it (which would block this
+        # set unless we were to add this as a field)
+        object.__setattr__(self, "use", self._instance_use)
+        object.__setattr__(self, "use_plugin", self._instance_use_plugin)
+
+    def __repr_args__(self: BaseModel) -> Any:
+        """Because of the trick we've done with `use` and `use_plugin`, we need to exclude these from __repr__
+        otherwise we'll get an infinite recursion."""
+        return [
+            (key, value)
+            for key, value in self.__dict__.items()
+            if key != "use" and key != "use_plugin"
+        ]
 
     def create_index(
         self,
@@ -108,20 +124,56 @@ class Steamship(Client):
             space=space,
         )
 
+    @staticmethod
     def use(
+        package_handle: str,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        reuse: bool = True,
+        workspace_handle: Optional[str] = None,
+        **kwargs,
+    ) -> AppInstance:
+        """Creates/loads an instance of package `package_handle`.
+
+        The instance is named `instance_handle` and located in the Workspace named `instance_handle`.
+
+        For example, one may write the following to always get back the same package instance, no matter how many
+        times you run it, scoped into its own workspace:
+
+        ```python
+        plugin = Steamship.use('package-handle', 'instance-handle')
+        ```
+
+        If you wish to override the usage of a workspace named `instance_handle`, you can provide the `workspace_handle`
+        parameter.
+        """
+        kwargs["workspace"] = workspace_handle or instance_handle
+        client = Steamship(**kwargs)
+        return client._instance_use(
+            package_handle=package_handle,
+            instance_handle=instance_handle,
+            config=config,
+            version=version,
+            reuse=reuse,
+        )
+
+    def _instance_use(
         self,
-        app_handle: str,
-        handle: str = None,
-        config: Dict[str, Any] = None,
-        version: str = None,
+        package_handle: str,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
         reuse: bool = True,
     ) -> AppInstance:
-        """Creates or loads an instance named `handle` of App named `app_handle`."""
+        """Creates/loads an instance of package `package_handle`.
+
+        The instance is named `instance_handle` and located in the workspace this client is anchored to.."""
         instance = AppInstance.create(
             self,
-            app_handle=app_handle,
+            app_handle=package_handle,
             app_version_handle=version,
-            handle=handle,
+            handle=instance_handle,
             config=config,
             upsert=reuse,
         )
@@ -130,24 +182,57 @@ class Steamship(Client):
             raise instance.error
         if not instance.data:
             raise SteamshipError(
-                f"Unable to create an instance of App {app_handle} with handle {handle}."
+                f"Unable to create an instance of App {package_handle} with handle {instance_handle} in workspace {self.config.space_handle}."
             )
         return instance.data
 
+    @staticmethod
     def use_plugin(
+        plugin_handle: str,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        reuse: bool = True,
+        workspace_handle: Optional[str] = None,
+        **kwargs,
+    ) -> PluginInstance:
+        """Creates/loads an instance of plugin `plugin_handle`.
+
+        The instance is named `instance_handle` and located in the Workspace named `instance_handle`.
+
+        For example, one may write the following to always get back the same plugin instance, no matter how many
+        times you run it, scoped into its own workspace:
+
+        ```python
+        plugin = Steamship.use_plugin('plugin-handle', 'instance-handle')
+        ```
+        """
+        kwargs["workspace"] = workspace_handle or instance_handle
+        client = Steamship(**kwargs)
+        return client._instance_use_plugin(
+            plugin_handle=plugin_handle,
+            instance_handle=instance_handle,
+            config=config,
+            version=version,
+            reuse=reuse,
+        )
+
+    def _instance_use_plugin(
         self,
         plugin_handle: str,
-        handle: str = None,
+        instance_handle: str = None,
         config: Dict[str, Any] = None,
         version: str = None,
         reuse: bool = True,
     ) -> PluginInstance:
-        """Creates or loads an instance named `handle` of a Plugin named `plugin_handle`."""
+        """Creates/loads an instance of plugin `plugin_handle`.
+
+        The instance is named `instance_handle` and located in the workspace this client is anchored to."""
         instance = PluginInstance.create(
             self,
             plugin_handle=plugin_handle,
             plugin_version_handle=version,
-            handle=handle,
+            handle=instance_handle,
             config=config,
             upsert=reuse,
         )
@@ -156,7 +241,7 @@ class Steamship(Client):
             raise instance.error
         if not instance.data:
             raise SteamshipError(
-                f"Unable to create an instance of Plugin {plugin_handle} with handle {handle}."
+                f"Unable to create an instance of Plugin {plugin_handle} with handle {instance_handle} in workspace {self.config.space_handle}."
             )
         return instance.data
 
