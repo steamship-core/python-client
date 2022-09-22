@@ -61,7 +61,7 @@ class Response(GenericModel, Generic[T]):
         try:
             self.set_data(data=data, string=string, json=json, _bytes=_bytes, mime_type=mime_type)
         except Exception as ex:
-            logging.error(f"Exception within Response.__init__. {ex}")
+            logging.error("Exception within Response.__init__.", exc_info=ex)
             if error is not None:
                 if error.message:
                     error.message = f"{error.message}. Also found error - unable to serialize data to response. {ex}"
@@ -69,7 +69,7 @@ class Response(GenericModel, Generic[T]):
                     error.message = f"Unable to serialize data to response. {ex}"
             else:
                 error = SteamshipError(message=f"Unable to serialize data to response. {ex}")
-            logging.error(error)
+            logging.error(error, exc_info=error)
 
         # Handle the task provided
         if status is None:
@@ -89,8 +89,7 @@ class Response(GenericModel, Generic[T]):
             self.status.status_message = error.message
             self.status.status_suggestion = error.suggestion
             self.status.status_code = error.code
-            logging.error("steamship.app.response - Response created with error.")
-            logging.error(error)
+            logging.error("steamship.app.response - Response created with error.", exc_info=error)
         else:
             if self.status.state is None:
                 self.status.state = TaskState.succeeded
@@ -180,7 +179,7 @@ class Response(GenericModel, Generic[T]):
             try:
                 return Response(json=obj.to_dict())
             except Exception as e:
-                logging.error(f"Failed calling to_dict on response object. {obj}\n {e}")
+                logging.error(f"Failed calling to_dict on response object. {obj}\n", exc_info=e)
 
         if isinstance(obj, BaseModel):
             return Response(json=obj.dict())
