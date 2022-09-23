@@ -1,3 +1,4 @@
+import inspect
 import logging
 import pathlib
 from abc import ABC, abstractmethod
@@ -32,7 +33,7 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
         secret_kwargs = toml.load(
-            str(pathlib.Path(__file__).parent / ".steamship" / "secrets.toml")
+            str(pathlib.Path(inspect.getfile(type(self))).parent / ".steamship" / "secrets.toml")
         )
         config = {
             **secret_kwargs,
