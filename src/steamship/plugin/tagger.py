@@ -1,6 +1,9 @@
 import logging
+import pathlib
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Type
+
+import toml
 
 from steamship.app import post
 from steamship.app.response import Response
@@ -28,6 +31,14 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
     # noinspection PyUnusedLocal
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
+        secret_kwargs = toml.load(
+            str(pathlib.Path(__file__).parent / ".steamship" / "secrets.toml")
+        )
+        config = {
+            **secret_kwargs,
+            **{k: v for k, v in config.items() if v != ""},
+        }
+
         if config:
             self.config = self.config_cls()(**config)
         else:
