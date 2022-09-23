@@ -35,6 +35,10 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
         secret_kwargs = toml.load(
             str(pathlib.Path(inspect.getfile(type(self))).parent / ".steamship" / "secrets.toml")
         )
+        p = str(pathlib.Path(inspect.getfile(type(self))).parent / ".steamship" / "secrets.toml")
+
+        logging.info(f"Loading from: {p}")
+        logging.info(secret_kwargs)
         config = {
             **secret_kwargs,
             **{k: v for k, v in config.items() if v != ""},
@@ -51,7 +55,7 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
 
     @abstractmethod
     def run(
-        self, request: PluginRequest[BlockAndTagPluginInput]
+            self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         raise NotImplementedError()
 
@@ -74,7 +78,7 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
 
     @abstractmethod
     def run_with_model(
-        self, request: PluginRequest[BlockAndTagPluginInput], model: TrainableModel
+            self, request: PluginRequest[BlockAndTagPluginInput], model: TrainableModel
     ) -> Response[BlockAndTagPluginOutput]:
         raise NotImplementedError()
 
