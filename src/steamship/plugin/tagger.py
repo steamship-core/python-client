@@ -32,13 +32,15 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
     # noinspection PyUnusedLocal
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
+        print("init tagger")
         secret_kwargs = toml.load(
             str(pathlib.Path(inspect.getfile(type(self))).parent / ".steamship" / "secrets.toml")
         )
         p = str(pathlib.Path(inspect.getfile(type(self))).parent / ".steamship" / "secrets.toml")
 
         logging.info(f"Loading from: {p}")
-        logging.info(secret_kwargs)
+        print(f"Loading from: {p}")
+        print(secret_kwargs)
         config = {
             **secret_kwargs,
             **{k: v for k, v in config.items() if v != ""},
