@@ -33,10 +33,7 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
         logging.info("init tagger")
-
-
-        logging.info(type(self))
-
+        logging.info(f"{type(self)}")
         logging.info("current path", pathlib.Path(".").resolve())
         logging.info("steamship exists", pathlib.Path("/.steamship").exists())
         try:
