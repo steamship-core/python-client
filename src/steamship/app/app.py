@@ -3,11 +3,15 @@
 Please see https://docs.steamship.com/ for information about building a Steamship App
 
 """
+import inspect
 import logging
+import pathlib
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
 from typing import Any, Dict, Optional
+
+import toml
 
 from steamship.app.request import Request
 from steamship.app.response import Response
@@ -85,6 +89,21 @@ class App:
     _method_mappings = defaultdict(dict)
 
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
+        try:
+            secret_kwargs = toml.load(".steamship/secrets.toml")
+        except FileNotFoundError:  # Support local secret loading
+            local_secrets_file = (
+                pathlib.Path(inspect.getfile(type(self))).parent / ".steamship" / "secrets.toml"
+            )
+            if local_secrets_file.exists():
+                secret_kwargs = toml.load(str(local_secrets_file))
+            else:
+                secret_kwargs = {}
+        config = {
+            **secret_kwargs,
+            **{k: v for k, v in config.items() if v != ""},
+        }
+
         self.client = client
         self.config = config
 

@@ -1,10 +1,6 @@
-import inspect
 import logging
-import pathlib
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Type
-
-import toml
 
 from steamship.app import post
 from steamship.app.response import Response
@@ -33,23 +29,8 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
     # noinspection PyUnusedLocal
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
-
-        try:
-            secret_kwargs = toml.load(".steamship/secrets.toml")
-        except FileNotFoundError:
-            local_secrets_file = (
-                pathlib.Path(inspect.getfile(type(self))).parent / ".steamship" / "secrets.toml"
-            )
-            if local_secrets_file.exists():
-                secret_kwargs = toml.load(str(local_secrets_file))
-            else:
-                secret_kwargs = {}
-        config = {
-            **secret_kwargs,
-            **{k: v for k, v in config.items() if v != ""},
-        }
-        if config:
-            self.config = self.config_cls()(**config)
+        if self.config:
+            self.config = self.config_cls()(**self.config)
         else:
             self.config = self.config_cls()()
 
