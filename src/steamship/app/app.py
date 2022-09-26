@@ -101,7 +101,7 @@ class App:
                 secret_kwargs = {}
         config = {
             **secret_kwargs,
-            **{k: v for k, v in config.items() if v != ""},
+            **{k: v for k, v in (config or {}).items() if v != ""},
         }
 
         self.client = client
