@@ -32,10 +32,24 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
     # noinspection PyUnusedLocal
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
-        print("init tagger")
+        logging.info("init tagger")
 
-        print("current path", pathlib.Path(".").resolve())
-        print("steamship exists", pathlib.Path("/.steamship").exists())
+
+        logging.info(type(self))
+
+        logging.info("current path", pathlib.Path(".").resolve())
+        logging.info("steamship exists", pathlib.Path("/.steamship").exists())
+        try:
+            import inspect
+            import os
+
+            abs_path = os.path.abspath((inspect.stack()[0])[1])
+            directory_of_1py = os.path.dirname(abs_path)
+            logging.info(f"abs_path: {abs_path}")
+            logging.info(f"directory_of_1py: {directory_of_1py}")
+        except:
+            pass
+
         # print(f"Loading from: {p}")
         # print(secret_kwargs)
         # config = {
