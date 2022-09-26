@@ -89,12 +89,6 @@ class App:
     _method_mappings = defaultdict(dict)
 
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
-        logging.info("App init")
-        logging.info(f"{type(self)}")
-
-        logging.info("current path", pathlib.Path(".").resolve())
-        logging.info("steamship exists", pathlib.Path(".steamship").exists())
-
         try:
             secret_kwargs = toml.load(".steamship/secrets.toml")
         except FileNotFoundError:  # Support local secret loading
