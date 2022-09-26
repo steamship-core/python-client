@@ -34,8 +34,8 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
         super().__init__(client, config)
         logging.info("init tagger")
         logging.info(f"{type(self)}")
-        logging.info("current path", pathlib.Path(".").resolve())
-        logging.info("steamship exists", pathlib.Path("/.steamship").exists())
+        logging.info(f"current path: {pathlib.Path('.').resolve()}")
+        logging.info(f"steamship exists: {pathlib.Path('/.steamship').exists()}")
         try:
             import inspect
             import os
