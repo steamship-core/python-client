@@ -29,7 +29,9 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
     # noinspection PyUnusedLocal
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
+        logging.info(self.config)
         if self.config:
+
             self.config = self.config_cls()(**self.config)
         else:
             self.config = self.config_cls()()
