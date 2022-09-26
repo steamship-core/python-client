@@ -1,11 +1,9 @@
-import inspect
 import logging
 import pathlib
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Type
 
 import toml
-
 from steamship.app import post
 from steamship.app.response import Response
 from steamship.base import Client
@@ -34,26 +32,16 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
         super().__init__(client, config)
         logging.info("init tagger")
         logging.info(f"{type(self)}")
-        logging.info(f"current path: {pathlib.Path('.').resolve()}")
-        logging.info(f"steamship exists: {pathlib.Path('/.steamship').exists()}")
-        try:
-            import inspect
-            import os
+        logging.info(f"secrets: {pathlib.Path('.steamship/secrets.toml').resolve()}")
+        logging.info(f"secrets 2: {pathlib.Path('./.steamship/secrets.toml').resolve()}")
+        secret_kwargs = toml.load(".steamship/secrets.toml")
+        config = {
+            **secret_kwargs,
+            **{k: v for k, v in config.items() if v != ""},
+        }
 
-            abs_path = os.path.abspath((inspect.stack()[0])[1])
-            directory_of_1py = os.path.dirname(abs_path)
-            logging.info(f"abs_path: {abs_path}")
-            logging.info(f"directory_of_1py: {directory_of_1py}")
-        except:
-            pass
-
-        # print(f"Loading from: {p}")
         # print(secret_kwargs)
-        # config = {
-        #     **secret_kwargs,
-        #     **{k: v for k, v in config.items() if v != ""},
-        # }
-
+        logging.info(f"config: {config}")
         if config:
             self.config = self.config_cls()(**config)
         else:
