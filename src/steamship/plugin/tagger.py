@@ -30,18 +30,11 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
     # noinspection PyUnusedLocal
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
-        logging.info("init tagger")
-        logging.info(f"{type(self)}")
-        logging.info(f"secrets: {pathlib.Path('.steamship/secrets.toml').resolve()}")
-        logging.info(f"secrets 2: {pathlib.Path('./.steamship/secrets.toml').resolve()}")
         secret_kwargs = toml.load(".steamship/secrets.toml")
         config = {
             **secret_kwargs,
             **{k: v for k, v in config.items() if v != ""},
         }
-
-        # print(secret_kwargs)
-        logging.info(f"config: {config}")
         if config:
             self.config = self.config_cls()(**config)
         else:
