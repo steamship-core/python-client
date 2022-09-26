@@ -19,7 +19,6 @@ from steamship.plugin.outputs.training_parameter_plugin_output import TrainingPa
 from steamship.plugin.service import PluginRequest, PluginService, TrainablePluginService
 from steamship.plugin.trainable_model import TrainableModel
 
-
 # Note!
 # =====
 #
@@ -28,6 +27,7 @@ from steamship.plugin.trainable_model import TrainableModel
 # If you are using the Steamship Client, you probably want steamship.client.operations.tagger instead
 # of this file.
 #
+
 
 class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
     # noinspection PyUnusedLocal
@@ -38,7 +38,10 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
             secret_kwargs = toml.load(".steamship/secrets.toml")
         except FileNotFoundError:
             secret_kwargs = toml.load(
-                str(pathlib.Path(inspect.getfile(type(self))).parent / ".steamship" / "secrets.toml"))
+                str(
+                    pathlib.Path(inspect.getfile(type(self))).parent / ".steamship" / "secrets.toml"
+                )
+            )
         config = {
             **secret_kwargs,
             **{k: v for k, v in config.items() if v != ""},
@@ -54,7 +57,7 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
 
     @abstractmethod
     def run(
-            self, request: PluginRequest[BlockAndTagPluginInput]
+        self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> Response[BlockAndTagPluginOutput]:
         raise NotImplementedError()
 
@@ -77,7 +80,7 @@ class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTag
 
     @abstractmethod
     def run_with_model(
-            self, request: PluginRequest[BlockAndTagPluginInput], model: TrainableModel
+        self, request: PluginRequest[BlockAndTagPluginInput], model: TrainableModel
     ) -> Response[BlockAndTagPluginOutput]:
         raise NotImplementedError()
 
