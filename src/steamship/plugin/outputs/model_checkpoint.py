@@ -4,8 +4,7 @@ from pathlib import Path
 from typing import ClassVar, Optional
 
 from steamship import Steamship, SteamshipError
-from steamship.base import Client
-from steamship.base.configuration import CamelModel
+from steamship.base import CamelModel, Client
 from steamship.data.space import SignedUrl, Space
 from steamship.utils.signed_urls import download_from_signed_url, upload_to_signed_url
 from steamship.utils.zip_archives import unzip_folder, zip_folder

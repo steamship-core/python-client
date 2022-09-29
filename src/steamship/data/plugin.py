@@ -13,8 +13,8 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel
 
+from steamship.base import CamelModel
 from steamship.base.client import Client
-from steamship.base.configuration import CamelModel
 from steamship.base.request import Request
 from steamship.base.response import Response
 
@@ -104,10 +104,6 @@ class ListPublicPluginsRequest(Request):
     type: Optional[str] = None
 
 
-class ListPrivatePluginsRequest(Request):
-    type: str
-
-
 class ListPluginsResponse(Response):
     plugins: List[Plugin]
 
@@ -144,7 +140,6 @@ class LimitUnit(str, Enum):
 
 
 class Plugin(CamelModel):
-    # TODO (enias): Document, Plugins are just a name placeholder with some settings
     client: Client = None
     id: str = None
     type: str = None

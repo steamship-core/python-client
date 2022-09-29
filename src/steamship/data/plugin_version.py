@@ -4,8 +4,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request
-from steamship.base.configuration import CamelModel
+from steamship.base import CamelModel, Client, Request
 from steamship.base.response import Response
 from steamship.data.plugin import HostingMemory, HostingTimeout
 

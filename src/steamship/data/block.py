@@ -2,8 +2,7 @@ from __future__ import annotations
 
 from typing import Any, List, Optional
 
-from steamship.base import Client, Request, Response
-from steamship.base.configuration import CamelModel
+from steamship.base import CamelModel, Client, Request, Response
 from steamship.base.request import IdentifierRequest
 from steamship.data.tags.tag import Tag
 
@@ -101,7 +100,6 @@ class Block(CamelModel):
         space_handle: str = None,
         space: Any = None,
     ) -> Response[BlockQueryResponse]:
-        # TODO: Is this a static method?
         req = BlockQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
             "block/query",

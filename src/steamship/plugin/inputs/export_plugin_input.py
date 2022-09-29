@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from steamship.base.configuration import CamelModel
+from steamship.base import CamelModel
 
 
 class ExportPluginInput(CamelModel):

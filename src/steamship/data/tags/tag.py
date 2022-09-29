@@ -3,8 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List
 
-from steamship.base import Client, Request, Response
-from steamship.base.configuration import CamelModel
+from steamship.base import CamelModel, Client, Request, Response
 
 
 class TagQueryRequest(Request):

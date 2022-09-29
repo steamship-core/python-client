@@ -8,9 +8,8 @@ from typing import Any, Dict, Generic, Optional, TypeVar, Union
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
 
-from steamship.base import Client, SteamshipError
+from steamship.base import CamelModel, Client, SteamshipError
 from steamship.base.binary_utils import flexi_create
-from steamship.base.configuration import CamelModel
 from steamship.base.error import DEFAULT_ERROR_MESSAGE
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 from steamship.base.tasks import Task, TaskState

@@ -1,4 +1,4 @@
-from steamship.base.configuration import CamelModel
+from steamship.base import CamelModel
 
 
 class Request(CamelModel):

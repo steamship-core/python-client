@@ -10,9 +10,8 @@ from pydantic.generics import GenericModel
 # This the files in this package are for Plugin Implementors.
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
-from steamship.base import Task
-from steamship.base.configuration import CamelModel
-from steamship.base.utils import to_camel
+from steamship.base import CamelModel, Task
+from steamship.base.base import to_camel
 
 T = TypeVar("T")
 U = TypeVar("U")

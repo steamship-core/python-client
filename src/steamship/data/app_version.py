@@ -4,8 +4,7 @@ from typing import Any, Dict, Type
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response
-from steamship.base.configuration import CamelModel
+from steamship.base import CamelModel, Client, Request, Response
 
 
 class CreateAppVersionRequest(Request):
@@ -18,10 +17,6 @@ class CreateAppVersionRequest(Request):
 
 class DeleteAppVersionRequest(Request):
     id: str
-
-
-class ListPrivateAppVersionsRequest(Request):
-    pass
 
 
 class AppVersion(CamelModel):

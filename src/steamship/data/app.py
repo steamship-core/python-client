@@ -23,10 +23,6 @@ class DeleteAppRequest(Request):
     id: str
 
 
-class ListPrivateAppsRequest(Request):
-    pass
-
-
 class GetAppRequest(Request):
     id: str = None
     handle: str = None

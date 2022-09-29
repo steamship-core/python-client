@@ -2,16 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from steamship.base.configuration import CamelModel, Configuration
-
-
-def event_to_config(event: dict) -> Configuration:
-    if event is None:
-        raise Exception("Null event provided")
-    if "invocationContext" not in event:
-        raise Exception("invocationContext not in event")
-
-    return Configuration.parse_obj(event["invocationContext"])
+from steamship.base import CamelModel, Configuration
 
 
 class Invocation(CamelModel):

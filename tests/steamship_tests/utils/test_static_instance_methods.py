@@ -5,7 +5,7 @@ from typing import Any, Callable, Optional
 
 from pydantic import BaseModel, Extra
 
-from steamship.base.configuration import CamelModel
+from steamship.base import CamelModel
 
 
 class Foo:

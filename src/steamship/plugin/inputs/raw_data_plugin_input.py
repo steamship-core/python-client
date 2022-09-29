@@ -3,7 +3,7 @@ from __future__ import annotations
 import base64
 from typing import Any
 
-from steamship.base.configuration import CamelModel
+from steamship.base import CamelModel
 from steamship.base.mime_types import TEXT_MIME_TYPES
 from steamship.utils.signed_urls import url_to_bytes
 

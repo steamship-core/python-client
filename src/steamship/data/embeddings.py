@@ -5,8 +5,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response, metadata_to_str
-from steamship.base.configuration import CamelModel
+from steamship.base import CamelModel, Client, Request, Response, metadata_to_str
 from steamship.data.search import Hit
 
 
@@ -17,7 +16,6 @@ class EmbedAndSearchRequest(Request):
     k: int = 1
 
 
-# TODO: These types are not generics like the Swift QueryResult/QueryResults.
 class QueryResult(CamelModel):
     value: Optional[Hit] = None
     score: Optional[float] = None
@@ -288,7 +286,6 @@ class EmbeddingIndex(CamelModel):
             space=space,
         )
 
-    # TODO (enias): Can these be generic list operations for all file types?
     def list_snapshots(
         self, space_id: str = None, space_handle: str = None, space: Any = None
     ) -> Response[ListSnapshotsResponse]:
