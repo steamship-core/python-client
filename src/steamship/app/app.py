@@ -15,7 +15,7 @@ from steamship.client import Steamship
 from steamship.utils.url import Verb
 
 
-def make_registering_decorator(decorator):
+def make_registering_decorator(decorator):  # TODO (Enias): Review
     """
     Returns a copy of foreignDecorator, which is identical in every
     way(*), except also appends a .decorator property to the callable it

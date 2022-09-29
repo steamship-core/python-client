@@ -4,7 +4,8 @@ from typing import Any, Dict, Optional, Type, Union
 
 from pydantic import BaseModel
 
-from steamship.base import CamelModel, Client, Request, Response
+from steamship.base import Client, Request, Response
+from steamship.base.configuration import CamelModel
 from steamship.data.plugin import (
     HostingCpu,
     HostingEnvironment,
@@ -76,7 +77,8 @@ class PluginInstance(CamelModel):
         upsert: bool = True,
         config: Dict[str, Any] = None,
     ) -> Response[PluginInstance]:
-        """Create a plugin instance.
+        # TODO (enias): Document
+        """Create a plugin instance
 
         When handle is empty the engine will automatically assign one
         upsert controls whether we want to re-use an existing plugin instance or not."""

@@ -6,9 +6,9 @@ from pathlib import Path
 from typing import Optional
 
 import inflection
-from pydantic import HttpUrl
+from pydantic import BaseModel, HttpUrl
 
-from steamship.base import CamelModel
+from steamship.base.utils import format_uri, to_camel
 
 DEFAULT_WEB_BASE = "https://app.steamship.com/"
 DEFAULT_APP_BASE = "https://steamship.run/"
@@ -25,10 +25,14 @@ ENVIRONMENT_VARIABLES_TO_PROPERTY = {
 DEFAULT_CONFIG_FILE = Path.home() / ".steamship.json"
 
 
-def format_uri(uri: Optional[str]) -> Optional[str]:
-    if uri is not None and not uri.endswith("/"):
-        uri += "/"
-    return uri
+class CamelModel(BaseModel):
+    def __init__(self, **kwargs):
+        kwargs = {k: v for k, v in kwargs.items() if v is not None}
+        super().__init__(**kwargs)
+
+    class Config:
+        alias_generator = to_camel
+        allow_population_by_field_name = True
 
 
 class Configuration(CamelModel):

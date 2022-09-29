@@ -4,7 +4,7 @@ __license__ = "MIT"
 import json
 from enum import Enum
 
-from steamship.base import CamelModel
+from steamship.base.configuration import CamelModel
 
 
 class TrainingPlatform(str, Enum):

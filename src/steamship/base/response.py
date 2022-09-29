@@ -5,9 +5,9 @@ from typing import Any, Generic, Type, TypeVar
 
 from pydantic.generics import GenericModel
 
-from steamship.base.base import to_camel
 from steamship.base.error import SteamshipError
 from steamship.base.tasks import Task, TaskState, TaskStatusRequest
+from steamship.base.utils import to_camel
 
 T = TypeVar("T")  # Declare type variable
 

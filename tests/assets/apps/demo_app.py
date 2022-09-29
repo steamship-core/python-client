@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 from steamship import SteamshipError
 from steamship.app import App, Response, create_handler, get, post
-from steamship.base import CamelModel
+from steamship.base.configuration import CamelModel
 from steamship.base.mime_types import MimeTypes
 from steamship.client import Steamship
 from steamship.data.user import User

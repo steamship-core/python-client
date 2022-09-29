@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship.base import CamelModel
+from steamship.base.configuration import CamelModel
 from steamship.base.tasks import TaskState
 
 

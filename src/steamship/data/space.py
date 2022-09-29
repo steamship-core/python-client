@@ -6,9 +6,10 @@ from typing import Any, Optional, Type
 
 from pydantic import BaseModel, Field
 
-from steamship.base import CamelModel, Client
+from steamship.base import Client
 from steamship.base import Request as SteamshipRequest
 from steamship.base import Response as SteamshipResponse
+from steamship.base.configuration import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest
 
 

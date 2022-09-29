@@ -1,4 +1,3 @@
-from .base import CamelModel
 from .client import Client
 from .configuration import Configuration
 from .error import SteamshipError
@@ -20,5 +19,4 @@ __all__ = [
     "Task",
     "TaskComment",
     "TaskState",
-    "CamelModel",
 ]

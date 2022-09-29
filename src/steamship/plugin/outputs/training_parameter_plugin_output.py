@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Type
 
 from pydantic import BaseModel
 
-from steamship.base import CamelModel
+from steamship.base.configuration import CamelModel
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 

@@ -9,7 +9,7 @@ class Verb:
 
     @staticmethod
     def safely_from_str(s: str) -> str:
-        # TODO (enias): Remove this?
+        # TODO (enias): Is this needed?
         ss = s.strip().upper()
         if ss == Verb.GET:
             return Verb.GET

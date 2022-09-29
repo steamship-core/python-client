@@ -6,7 +6,7 @@ from typing import Any, Tuple, Union
 
 from pydantic import BaseModel
 
-from steamship.base import CamelModel
+from steamship.base.configuration import CamelModel
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import ContentEncodings, MimeTypes
 

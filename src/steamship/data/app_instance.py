@@ -4,7 +4,8 @@ from typing import Any, Dict, Type
 
 from pydantic import BaseModel
 
-from steamship.base import CamelModel, Client, Request, Response
+from steamship.base import Client, Request, Response
+from steamship.base.configuration import CamelModel
 from steamship.data.space import Space
 
 
@@ -82,25 +83,12 @@ class AppInstance(CamelModel):
             if space and space.data:
                 self.space_handle = space.data.handle
 
-    def call(self, verb: str, path: str, **kwargs):
+    def get(self, path: str, **kwargs):
         self.load_missing_vals()
         if path[0] == "/":
             path = path[1:]
-        self.client.call(
-            verb=verb,
-            operation=self._resolve_path(path),
-            payload=kwargs,
-            is_app_call=True,
-            app_owner=self.user_handle,
-            app_id=self.app_id,
-            app_instance_id=self.id,
-            space_id=self.space_id,
-        )
-
-    def get(self, path: str, **kwargs):
-        return self.call(
-            "GET",
-            self._resolve_path(path),
+        return self.client.get(
+            f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",  # TODO (enias): Fix code duplication
             payload=kwargs,
             app_call=True,
             app_owner=self.user_handle,
@@ -110,9 +98,11 @@ class AppInstance(CamelModel):
         )
 
     def post(self, path: str, **kwargs):
-        return self.call(
-            "POST",
-            self._resolve_path(path),
+        self.load_missing_vals()
+        if path[0] == "/":
+            path = path[1:]
+        return self.client.post(
+            f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",
             payload=kwargs,
             app_call=True,
             app_owner=self.user_handle,
@@ -120,9 +110,6 @@ class AppInstance(CamelModel):
             app_instance_id=self.id,
             space_id=self.space_id,
         )
-
-    def _resolve_path(self, path: str):
-        return f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}"
 
     def full_url_for(self, path: str):
         return f"{self.invocation_url}{path}"

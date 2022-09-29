@@ -4,7 +4,7 @@ import json
 from json import JSONDecodeError
 from typing import Any
 
-from steamship.base import CamelModel
+from steamship.base.configuration import CamelModel
 
 
 class Hit(CamelModel):

@@ -7,8 +7,9 @@ from typing import Any, List, Optional, Type, Union
 
 from pydantic import BaseModel
 
-from steamship.base import CamelModel, Client, Request, Response
+from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
+from steamship.base.configuration import CamelModel
 from steamship.base.request import IdentifierRequest
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
@@ -253,6 +254,7 @@ class File(CamelModel):
         req = File.RawRequest(
             id=self.id,
         )
+        # TODO (enias): Investigate why we do not need a expect here
         return self.client.post(
             "file/raw",
             payload=req,

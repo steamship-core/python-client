@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from steamship import SteamshipError
-from steamship.base import CamelModel
+from steamship.base.configuration import CamelModel
 
 
 class Config(CamelModel):

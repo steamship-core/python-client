@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from steamship.base import CamelModel
+from steamship.base.configuration import CamelModel
 
 
 class TrainPluginInput(CamelModel):
