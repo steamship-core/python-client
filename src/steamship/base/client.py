@@ -207,8 +207,6 @@ class Client(CamelModel, ABC):
             data = {}
         elif isinstance(payload, dict):
             data = payload
-        elif hasattr(payload, "to_dict"):
-            data = payload.to_dict()
         elif isinstance(payload, BaseModel):
             data = payload.dict(by_alias=True)
         else:

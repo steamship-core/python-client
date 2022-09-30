@@ -36,7 +36,7 @@ def test_file_upload(client: Steamship):
 
 def test_file_import_response_dict():
     resp = File.CreateResponse(_bytes=b"some bytes", mime_type=MimeTypes.BINARY)
-    to_dict = resp.to_dict()
+    to_dict = resp.dict()
     file_create_response = File.CreateResponse.parse_obj(to_dict)
     assert resp.data == file_create_response.data
     assert resp.mime_type == file_create_response.mime_type
@@ -44,7 +44,7 @@ def test_file_import_response_dict():
 
 def test_file_import_response_bytes_serialization():
     file_resp = File.CreateResponse(_bytes=b"some bytes", mime_type=MimeTypes.BINARY)
-    to_dict = file_resp.to_dict()
+    to_dict = file_resp.dict()
     as_json_string = json.dumps(to_dict)
     as_dict_again = json.loads(as_json_string)
     assert as_dict_again == to_dict

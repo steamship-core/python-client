@@ -67,10 +67,7 @@ def flexi_create(  # noqa: C901
         elif json is not None:
             ret_mime = mime_type or MimeTypes.JSON
 
-            if hasattr(json, "to_dict"):
-                ret_dict = json.to_dict()
-                ret_data = ret_dict
-            elif isinstance(json, CamelModel):
+            if isinstance(json, CamelModel):
                 ret_dict = json.dict(by_alias=True)
                 ret_data = ret_dict
             elif isinstance(json, BaseModel):
