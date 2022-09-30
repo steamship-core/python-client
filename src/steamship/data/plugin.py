@@ -172,8 +172,6 @@ class Plugin(CamelModel):
         training_platform: Optional[HostingType] = None,
         metadata: Union[str, Dict, List] = None,
         upsert: bool = False,
-        space_id: str = None,
-        space_handle: str = None,
     ) -> Response[Plugin]:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
@@ -192,20 +190,14 @@ class Plugin(CamelModel):
             "plugin/create",
             req,
             expect=Plugin,
-            space_id=space_id,
-            space_handle=space_handle,
         )
 
     @staticmethod
-    def list(
-        client: Client, t: str = None, space_id: str = None, space_handle: str = None
-    ) -> Response[ListPluginsResponse]:
+    def list(client: Client, t: str = None) -> Response[ListPluginsResponse]:
         return client.post(
             "plugin/list",
             ListPublicPluginsRequest(type=t),
             expect=ListPluginsResponse,
-            space_id=space_id,
-            space_handle=space_handle,
         )
 
     @staticmethod

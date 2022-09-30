@@ -87,8 +87,6 @@ class Client(CamelModel, ABC):
         - Note that the default space is technically not necessary for API usage; it will be assumed by the Engine
           in the absense of a Space ID or Handle being manually specified in request headers.
         """
-        return_id = None
-        return_handle = None
         space = None
 
         if workspace is None and workspace_id is None:
@@ -174,8 +172,6 @@ class Client(CamelModel, ABC):
 
     def _headers(
         self,
-        space_id: str = None,
-        space_handle: str = None,
         is_app_call: bool = False,
         app_owner: str = None,
         app_id: str = None,
@@ -184,17 +180,10 @@ class Client(CamelModel, ABC):
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
-        if space_id is not None or space_handle is not None:
-            sid = space_id
-            shandle = space_handle
-        else:
-            sid = self.config.space_id
-            shandle = self.config.space_handle
-
-        if sid:
-            headers["X-Space-Id"] = sid
-        elif shandle:
-            headers["X-Space-Handle"] = shandle
+        if self.config.space_id:
+            headers["X-Space-Id"] = self.config.space_id
+        elif self.config.space_handle:
+            headers["X-Space-Handle"] = self.config.space_handle
 
         if is_app_call:
             if app_owner:
@@ -312,9 +301,6 @@ class Client(CamelModel, ABC):
         expect: Type[T] = None,
         asynchronous: bool = False,
         debug: bool = False,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
         raw_response: bool = False,
         is_app_call: bool = False,
         app_owner: str = None,
@@ -336,10 +322,6 @@ class Client(CamelModel, ABC):
         For the Python client we return the contents of the `data` field if present, and we raise an exception
         if the `error` field is filled in.
         """
-        if space is not None:
-            space_id = getattr(space, "id", None) if space_id is None else space_id
-            space_handle = getattr(space, "handle", None) if space_handle is None else space_handle
-
         url = self._url(
             is_app_call=is_app_call,
             app_owner=app_owner,
@@ -347,8 +329,6 @@ class Client(CamelModel, ABC):
         )
 
         headers = self._headers(
-            space_id=space_id,
-            space_handle=space_handle,
             is_app_call=is_app_call,
             app_owner=app_owner,
             app_id=app_id,
@@ -358,7 +338,9 @@ class Client(CamelModel, ABC):
 
         data = self._prepare_data(payload=payload)
 
-        logging.info(f"Making {verb} to {url} in space {space_handle}/{space_id}")
+        logging.info(
+            f"Making {verb} to {url} in space {self.config.space_handle}/{self.config.space_id}"
+        )
         if verb == Verb.POST:
             if file is not None:
                 files = self._prepare_multipart_data(data, file)
@@ -444,9 +426,6 @@ class Client(CamelModel, ABC):
         expect: Any = None,
         asynchronous: bool = False,
         debug: bool = False,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
         raw_response: bool = False,
         app_call: bool = False,
         app_owner: str = None,
@@ -462,9 +441,6 @@ class Client(CamelModel, ABC):
             expect=expect,
             asynchronous=asynchronous,
             debug=debug,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
             raw_response=raw_response,
             is_app_call=app_call,
             app_owner=app_owner,
@@ -481,9 +457,6 @@ class Client(CamelModel, ABC):
         expect: Any = None,
         asynchronous: bool = False,
         debug: bool = False,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
         raw_response: bool = False,
         app_call: bool = False,
         app_owner: str = None,
@@ -499,9 +472,6 @@ class Client(CamelModel, ABC):
             expect=expect,
             asynchronous=asynchronous,
             debug=debug,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
             raw_response=raw_response,
             is_app_call=app_call,
             app_owner=app_owner,
