@@ -43,7 +43,8 @@ class SteamshipError(Exception):
 
     def log(self):
         logging.error(
-            f"[{self.code}] {self.message}. [Internal: {self.internal_message}] [Suggestion: {self.suggestion}]"
+            f"[{self.code}] {self.message}. [Internal: {self.internal_message}] [Suggestion: {self.suggestion}]",
+            exc_info=self,
         )
         if self.error:
             logging.error(self.error)

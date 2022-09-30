@@ -428,7 +428,7 @@ class Client(CamelModel, ABC):
             expect = type(response_data)
 
         if error is not None:
-            logging.error(f"Client received error from server: {error}")
+            logging.error(f"Client received error from server: {error}", exc_info=error)
 
         ret = Response(expect=expect, task=task, data_=data, error=error, client=self)
         if ret.task is None and ret.data is None and ret.error is None:
