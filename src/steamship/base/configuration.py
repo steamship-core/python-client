@@ -34,6 +34,13 @@ class CamelModel(BaseModel):
         alias_generator = to_camel
         allow_population_by_field_name = True
 
+    def dict(self, **kwargs) -> dict:
+        if "exclude" not in kwargs:
+            kwargs["exclude"] = {"client"}
+        elif isinstance(kwargs["exclude"], set):
+            kwargs["exclude"].add("client")
+        return super().dict(**kwargs)
+
 
 class Configuration(CamelModel):
     api_key: str
