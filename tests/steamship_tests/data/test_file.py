@@ -107,5 +107,9 @@ def test_query(client: Steamship):
     assert len(files) == 1
     assert files[0].id == b.id
 
+    # Test serialization; This shouldn't throw
+    out_file = File.get(client, _id=b.id).data
+    json.dumps(out_file.dict())
+
     a.delete()
     b.delete()

@@ -145,10 +145,12 @@ class Client(CamelModel, ABC):
         # implementations), Pydantic will try to include them by default. So we have to suppress that otherwise
         # downstream serialization into JSON will fail.
         if "exclude" not in kwargs:
-            kwargs["exclude"] = {"use", "use_plugin"}
+            kwargs["exclude"] = {"use", "use_plugin", "_instance_use", "_instance_use_plugin"}
         elif isinstance(kwargs["exclude"], set):
             kwargs["exclude"].add("use")
             kwargs["exclude"].add("use_plugin")
+            kwargs["exclude"].add("_instance_use")
+            kwargs["exclude"].add("_instance_use_plugin")
         return super().dict(**kwargs)
 
     def _url(
