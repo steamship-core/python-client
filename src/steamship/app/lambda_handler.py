@@ -13,7 +13,6 @@ from steamship.app.app import App
 from steamship.app.request import InvocationContext, Request
 from steamship.app.response import Response
 from steamship.base import SteamshipError
-from steamship.base.utils import to_snake_case
 from steamship.client.client import Steamship
 from steamship.data.space import SignedUrl
 from steamship.utils.signed_urls import upload_to_signed_url
@@ -167,9 +166,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
             # Config will accept `space_id` as passed from the Steamship Engine, whereas the `Steamship`
             # class itself is limited to accepting `workspace` (`config.space_handle`) since that is the manner
             # of interaction ideal for developers.
-            config = Configuration(
-                **{to_snake_case(k): v for k, v in event.get("clientConfig", {}).items()}
-            )
+            config = Configuration(**event.get("clientConfig", {}))
             client = Steamship(config=config)
         except SteamshipError as se:
             logging.exception(se)
