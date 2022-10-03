@@ -31,7 +31,6 @@ def _snapshot(index, window_size=None):
             "embedding-index/snapshot/create",
             req,
             expect=IndexSnapshotResponse,
-            asynchronous=True,
         )
         task.wait()
         task.refresh()

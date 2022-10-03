@@ -5,7 +5,7 @@ import logging
 from enum import Enum
 from typing import Any, List, Optional, Type, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
@@ -66,7 +66,7 @@ class File(CamelModel):
             use_enum_values = True
 
     class CreateResponse(Response):
-        data_: Any = None
+        data_: Any = Field(None, alias='data')
         mime_type: str = None
 
         def __init__(
@@ -83,6 +83,14 @@ class File(CamelModel):
             )
             self.data_ = data
             self.mime_type = mime_type
+
+        @classmethod
+        def parse_obj(cls: Type[BaseModel], obj: Any) -> Response:
+            obj["data"] = obj.get("data") or obj.get("data_")
+            if "data_" in obj:
+                del obj["data_"]
+            return super().parse_obj(obj)
+
 
     class ListRequest(Request):
         corpus_id: str = None
@@ -233,7 +241,6 @@ class File(CamelModel):
             "plugin/instance/blockify",
             payload=req,
             expect=BlockAndTagPluginOutput,
-            asynchronous=True,
         )
 
     def tag(
@@ -249,7 +256,6 @@ class File(CamelModel):
             "plugin/instance/tag",
             payload=req,
             expect=TagResponse,
-            asynchronous=True,
         )
 
     def index(

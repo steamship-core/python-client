@@ -250,7 +250,6 @@ class EmbeddingIndex(CamelModel):
             "embedding-index/embed",
             req,
             expect=IndexEmbedResponse,
-            asynchronous=True,
         )
 
     def create_snapshot(self) -> Response[IndexSnapshotResponse]:
@@ -259,7 +258,6 @@ class EmbeddingIndex(CamelModel):
             "embedding-index/snapshot/create",
             req,
             expect=IndexSnapshotResponse,
-            asynchronous=True,
         )
 
     # TODO (enias): Can these be generic list operations for all file types?
