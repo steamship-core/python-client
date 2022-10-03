@@ -22,7 +22,6 @@ class CreatePluginVersionRequest(Request):
     type: str = "file"
     config_template: Dict[str, Any] = None
 
-
 class ListPublicPluginVersionsRequest(Request):
     handle: str
     plugin_id: str
