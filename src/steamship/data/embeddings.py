@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response, metadata_to_str
 from steamship.base.configuration import CamelModel
+from steamship.base.request import DeleteRequest
 from steamship.data.search import Hit
 
 
@@ -292,7 +293,7 @@ class EmbeddingIndex(CamelModel):
     def delete(self) -> Response[EmbeddingIndex]:
         return self.client.post(
             "embedding-index/delete",
-            DeleteEmbeddingIndexRequest(id=self.id),
+            DeleteRequest(id=self.id),
             expect=EmbeddingIndex,
         )
 

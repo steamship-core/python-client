@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
 from steamship.base.configuration import CamelModel
-from steamship.base.request import IdentifierRequest, ListRequest
+from steamship.base.request import IdentifierRequest, ListRequest, GetRequest
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
 from steamship.data.tags import Tag
@@ -188,7 +188,7 @@ class File(CamelModel):
         res = client.post(
             "file/list",
             payload=req,
-            expect=File.ListResponse, # TODO (enias): Can I rename this?
+            expect=File.ListResponse,  # TODO (enias): Can I rename this?
         )
         return res
 
@@ -210,12 +210,11 @@ class File(CamelModel):
         return res
 
     def raw(self):
-        req = File.RawRequest(
-            id=self.id,
-        )
         return self.client.post(
             "file/raw",
-            payload=req,
+            payload=GetRequest(
+                id=self.id,
+            ),
             raw_response=True,
         )
 

@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from steamship.base.client import Client
 from steamship.base.configuration import CamelModel
-from steamship.base.request import Request
+from steamship.base.request import Request, DeleteRequest
 from steamship.base.response import Response
 
 
@@ -203,7 +203,7 @@ class Plugin(CamelModel):
     def delete(self) -> Response[Plugin]:
         return self.client.post(
             "plugin/delete",
-            DeletePluginRequest(id=self.id),
+            DeleteRequest(id=self.id),
             expect=Plugin,
         )
 
