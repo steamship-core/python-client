@@ -24,6 +24,15 @@ ENVIRONMENT_VARIABLES_TO_PROPERTY = {
 }
 DEFAULT_CONFIG_FILE = Path.home() / ".steamship.json"
 
+# This stops us from including the `client` object in the dict() output, which is fine in a dict()
+# but explodes if that dict() is turned into JSON. Sadly the `exclude` option in Pydantic doesn't
+# cascade down nested objects, so we have to use this structure to catch all the possible combinations
+EXCLUDE_FROM_DICT = {
+    "client": True,
+    "blocks": {"__all__": {"client": True, "tags": {"__all__": {"client": True}}}},
+    "tags": {"__all__": {"client": True}},
+}
+
 
 class CamelModel(BaseModel):
     def __init__(self, **kwargs):
@@ -33,6 +42,20 @@ class CamelModel(BaseModel):
     class Config:
         alias_generator = to_camel
         allow_population_by_field_name = True
+
+    def dict(self, **kwargs) -> dict:
+        exclude_set = {}
+        exclude_set.update(EXCLUDE_FROM_DICT)
+
+        if "exclude" in kwargs:
+            if isinstance(kwargs["exclude"], set):
+                for key in kwargs["exclude"]:
+                    exclude_set[key] = True
+            elif isinstance(kwargs["exclude"], dict):
+                exclude_set.update(kwargs["exclude"])
+
+        kwargs["exclude"] = exclude_set
+        return super().dict(**kwargs)
 
 
 class Configuration(CamelModel):

@@ -201,6 +201,8 @@ def _wait_for_instance(instance):
 def _wait_for_version(version):
     time.sleep(15)
     version.wait()
+    if version.error is not None:
+        print(version.error)
     assert version.error is None
     assert version.data is not None
     return version.data
