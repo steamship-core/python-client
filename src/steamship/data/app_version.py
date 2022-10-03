@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
 from steamship.base.configuration import CamelModel
+from steamship.base.request import DeleteRequest
 
 
 class CreateAppVersionRequest(Request):
@@ -14,14 +15,6 @@ class CreateAppVersionRequest(Request):
     upsert: bool = None
     type: str = "file"
     config_template: Dict[str, Any] = None
-
-
-class DeleteAppVersionRequest(Request):
-    id: str
-
-
-class ListPrivateAppVersionsRequest(Request):
-    pass
 
 
 class AppVersion(CamelModel):
@@ -69,5 +62,5 @@ class AppVersion(CamelModel):
         )
 
     def delete(self) -> Response[AppVersion]:
-        req = DeleteAppVersionRequest(id=self.id)
+        req = DeleteRequest(id=self.id)
         return self.client.post("app/version/delete", payload=req, expect=AppVersion)

@@ -21,10 +21,6 @@ class CreateAppInstanceRequest(Request):
     space_id: str = None
 
 
-class DeleteAppInstanceRequest(Request):
-    id: str
-
-
 class AppInstance(CamelModel):
     client: Client = None
     id: str = None
@@ -107,7 +103,3 @@ class AppInstance(CamelModel):
 
     def full_url_for(self, path: str):
         return f"{self.invocation_url}{path}"
-
-
-class ListPrivateAppInstancesRequest(Request):
-    pass

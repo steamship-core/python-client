@@ -23,10 +23,6 @@ class CreatePluginVersionRequest(Request):
     config_template: Dict[str, Any] = None
 
 
-class DeletePluginVersionRequest(Request):
-    id: str
-
-
 class ListPublicPluginVersionsRequest(Request):
     handle: str
     plugin_id: str

@@ -60,7 +60,7 @@ def zip_deployable(file_path: Path) -> bytes:
                 "idna",
                 "pydantic==1.9.0",
                 "typing_extensions",
-                "inflection==0.5.1",
+                "inflection",
                 "fluent-logger==0.10.0",
             ]:
                 install_package(package, into_folder=package_dir)

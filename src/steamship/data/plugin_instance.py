@@ -40,10 +40,6 @@ class CreatePluginInstanceRequest(Request):
     config: Dict[str, Any] = None
 
 
-class DeletePluginInstanceRequest(Request):
-    id: str
-
-
 class PluginInstance(CamelModel):
     client: Client = None
     id: str = None
@@ -142,5 +138,3 @@ class PluginInstance(CamelModel):
         )
 
 
-class ListPrivatePluginInstancesRequest(Request):
-    pass

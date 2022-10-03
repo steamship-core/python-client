@@ -96,10 +96,6 @@ class CreatePluginRequest(Request):
     upsert: bool = None
 
 
-class DeletePluginRequest(Request):
-    id: str
-
-
 class ListPublicPluginsRequest(Request):
     type: Optional[str] = None
 

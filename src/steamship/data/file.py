@@ -92,9 +92,6 @@ class File(CamelModel):
     class ListResponse(Response):
         files: List[File]
 
-    class RawRequest(Request):
-        id: str
-
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
         # TODO (enias): This needs to be solved at the engine side

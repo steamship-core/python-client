@@ -144,10 +144,6 @@ class DeleteSnapshotsResponse(Response):
     snapshot_id: str = None
 
 
-class DeleteEmbeddingIndexRequest(Request):
-    id: str
-
-
 class EmbeddingIndex(CamelModel):
     """A persistent, read-optimized index over embeddings."""
 
