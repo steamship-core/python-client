@@ -34,7 +34,6 @@ class PluginService(ABC, App, Generic[T, U]):
 
     Many plugins are effectively stateless. This run operation defines their entire capability.
     Examples of such stateless plugins are:
-    - Corpus Import Plugin
     - File Import Plugin
     - Export Plugin
 
