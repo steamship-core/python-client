@@ -5,15 +5,9 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
-from steamship import Block, Configuration, PluginInstance, SteamshipError
+from steamship import Configuration, PluginInstance, SteamshipError, AppInstance, Space
 from steamship.base import Client, Response
-from steamship.base.base import IResponse
-from steamship.base.tasks import TaskComment, TaskCommentList
-from steamship.data import File
-from steamship.data.app_instance import AppInstance
-from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
-from steamship.data.operations.tagger import TagRequest, TagResponse
-from steamship.data.space import Space
+from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
 
 _logger = logging.getLogger(__name__)
 
@@ -22,17 +16,17 @@ class Steamship(Client):
     """Steamship Python Client."""
 
     def __init__(
-        self,
-        api_key: str = None,
-        api_base: str = None,
-        app_base: str = None,
-        web_base: str = None,
-        workspace: str = None,
-        fail_if_workspace_exists: bool = False,
-        profile: str = None,
-        config_file: str = None,
-        config: Configuration = None,
-        **kwargs,
+            self,
+            api_key: str = None,
+            api_base: str = None,
+            app_base: str = None,
+            web_base: str = None,
+            workspace: str = None,
+            fail_if_workspace_exists: bool = False,
+            profile: str = None,
+            config_file: str = None,
+            config: Configuration = None,
+            **kwargs,
     ):
         super().__init__(
             api_key=api_key,
@@ -60,31 +54,12 @@ class Steamship(Client):
             if key != "use" and key != "use_plugin"
         ]
 
-    def create_index(
-        self,
-        handle: str = None,
-        plugin_instance: str = None,
-        upsert: bool = True,
-        external_id: str = None,
-        external_type: str = None,
-        metadata: Any = None,
-    ) -> Response[EmbeddingIndex]:
-        return EmbeddingIndex.create(
-            client=self,
-            handle=handle,
-            plugin_instance=plugin_instance,
-            upsert=upsert,
-            external_id=external_id,
-            external_type=external_type,
-            metadata=metadata,
-        )
-
     def embed_and_search(
-        self,
-        query: str,
-        docs: List[str],
-        plugin_instance: str,
-        k: int = 1,
+            self,
+            query: str,
+            docs: List[str],
+            plugin_instance: str,
+            k: int = 1,
     ) -> Response[QueryResults]:
         req = EmbedAndSearchRequest(query=query, docs=docs, plugin_instance=plugin_instance, k=k)
         return self.post(
@@ -95,13 +70,13 @@ class Steamship(Client):
 
     @staticmethod
     def use(
-        package_handle: str,
-        instance_handle: Optional[str] = None,
-        config: Optional[Dict[str, Any]] = None,
-        version: Optional[str] = None,
-        reuse: bool = True,
-        workspace_handle: Optional[str] = None,
-        **kwargs,
+            package_handle: str,
+            instance_handle: Optional[str] = None,
+            config: Optional[Dict[str, Any]] = None,
+            version: Optional[str] = None,
+            reuse: bool = True,
+            workspace_handle: Optional[str] = None,
+            **kwargs,
     ) -> AppInstance:
         """Creates/loads an instance of package `package_handle`.
 
@@ -128,12 +103,12 @@ class Steamship(Client):
         )
 
     def _instance_use(
-        self,
-        package_handle: str,
-        instance_handle: Optional[str] = None,
-        config: Optional[Dict[str, Any]] = None,
-        version: Optional[str] = None,
-        reuse: bool = True,
+            self,
+            package_handle: str,
+            instance_handle: Optional[str] = None,
+            config: Optional[Dict[str, Any]] = None,
+            version: Optional[str] = None,
+            reuse: bool = True,
     ) -> AppInstance:
         """Creates/loads an instance of package `package_handle`.
 
@@ -157,13 +132,13 @@ class Steamship(Client):
 
     @staticmethod
     def use_plugin(
-        plugin_handle: str,
-        instance_handle: Optional[str] = None,
-        config: Optional[Dict[str, Any]] = None,
-        version: Optional[str] = None,
-        reuse: bool = True,
-        workspace_handle: Optional[str] = None,
-        **kwargs,
+            plugin_handle: str,
+            instance_handle: Optional[str] = None,
+            config: Optional[Dict[str, Any]] = None,
+            version: Optional[str] = None,
+            reuse: bool = True,
+            workspace_handle: Optional[str] = None,
+            **kwargs,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 
@@ -187,12 +162,12 @@ class Steamship(Client):
         )
 
     def _instance_use_plugin(
-        self,
-        plugin_handle: str,
-        instance_handle: str = None,
-        config: Dict[str, Any] = None,
-        version: str = None,
-        reuse: bool = True,
+            self,
+            plugin_handle: str,
+            instance_handle: str = None,
+            config: Dict[str, Any] = None,
+            version: str = None,
+            reuse: bool = True,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 
@@ -230,18 +205,3 @@ class Steamship(Client):
             )
         logging.info(f"Got space: {space.data.handle}/{space.data.id}")
         return space.data
-
-    def list_comments(
-        self,
-        task_id: str = None,
-        external_id: str = None,
-        external_type: str = None,
-        external_group: str = None,
-    ) -> IResponse[TaskCommentList]:
-        return TaskComment.list(
-            client=self,
-            task_id=task_id,
-            external_id=external_id,
-            external_type=external_type,
-            external_group=external_group,
-        )

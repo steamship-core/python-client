@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Generic, Type, TypeVar
+from typing import Any, Type, TypeVar
 
 from pydantic.generics import GenericModel
 
@@ -12,10 +12,10 @@ from steamship.base.utils import to_camel
 T = TypeVar("T")  # Declare type variable
 
 
-class Response(GenericModel, Generic[T]):
+class Response(GenericModel): # TODO (Enias): This can probably be deleted if we never return raw responses
     expect: Type[T] = None
-    task: Task = None
     data_: T = None
+    task: Task = None
     error: SteamshipError = None
     client: Any = None
 
@@ -26,6 +26,7 @@ class Response(GenericModel, Generic[T]):
 
     @property
     def data(self):
+        # TODO (enias) this will be done immediately by the client.
         if self.error:
             raise self.error
         if self.task is not None:
@@ -40,6 +41,7 @@ class Response(GenericModel, Generic[T]):
         return self.data_
 
     def update(self, response: Response[T]):
+        # TODO (enias): This will be moved to Tasks
         if self.task is not None and response.task is not None:
             self.task.update(response.task)
         if response.data_ is not None:
@@ -48,12 +50,13 @@ class Response(GenericModel, Generic[T]):
 
     def wait(self, max_timeout_s: float = 60, retry_delay_s: float = 1):
         """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
+        # TODO (enias): This will be moved to Tasks
         if self.task is None:
             return
         t0 = time.perf_counter()
         while time.perf_counter() - t0 < max_timeout_s and self.task.state not in (
-            TaskState.succeeded,
-            TaskState.failed,
+                TaskState.succeeded,
+                TaskState.failed,
         ):
             self.refresh()
             time.sleep(retry_delay_s)

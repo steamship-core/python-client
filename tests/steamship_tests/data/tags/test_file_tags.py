@@ -14,7 +14,7 @@ def test_file_tag(client: Steamship):
     _ = Tag.create(client, file_id=a.id, name="test1").data
     _ = Tag.create(client, file_id=a.id, name="test2").data
 
-    tags = Tag.list_public(client, file_id=a.id)
+    tags = Tag.list(client, file_id=a.id)
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 2
@@ -29,7 +29,7 @@ def test_file_tag(client: Steamship):
         if tag.name == "test1":
             tag.delete()
 
-    tags = Tag.list_public(client, file_id=a.id)
+    tags = Tag.list(client, file_id=a.id)
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 1
@@ -42,7 +42,7 @@ def test_file_tag(client: Steamship):
 
     tags.data.tags[0].delete()
 
-    tags = Tag.list_public(client, file_id=a.id)
+    tags = Tag.list(client, file_id=a.id)
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 0
