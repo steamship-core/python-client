@@ -10,7 +10,7 @@ from pydantic import BaseModel, Field
 from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
 from steamship.base.configuration import CamelModel
-from steamship.base.request import IdentifierRequest
+from steamship.base.request import IdentifierRequest, ListRequest
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
 from steamship.data.tags import Tag
@@ -44,7 +44,6 @@ class File(CamelModel):
     handle: str = None
     mime_type: str = None
     space_id: str = None
-    corpus_id: str = None
     blocks: List[Block] = []
     tags: List[Tag] = []
     filename: str = None
@@ -57,7 +56,6 @@ class File(CamelModel):
         filename: str = None
         type: FileUploadType = None
         mime_type: str = None
-        corpus_id: str = None
         blocks: Optional[List[Block.CreateRequest]] = []
         tags: Optional[List[Tag.CreateRequest]] = []
         plugin_instance: str = None
@@ -70,12 +68,12 @@ class File(CamelModel):
         mime_type: str = None
 
         def __init__(
-            self,
-            data: Any = None,
-            string: str = None,
-            _bytes: Union[bytes, io.BytesIO] = None,
-            json: io.BytesIO = None,
-            mime_type: str = None,
+                self,
+                data: Any = None,
+                string: str = None,
+                _bytes: Union[bytes, io.BytesIO] = None,
+                json: io.BytesIO = None,
+                mime_type: str = None,
         ):
             super().__init__()
             data, mime_type, encoding = flexi_create(
@@ -90,10 +88,6 @@ class File(CamelModel):
             if "data_" in obj:
                 del obj["data_"]
             return super().parse_obj(obj)
-
-
-    class ListRequest(Request):
-        corpus_id: str = None
 
     class ListResponse(Response):
         files: List[File]
@@ -123,9 +117,9 @@ class File(CamelModel):
 
     @staticmethod
     def get(
-        client: Client,
-        _id: str = None,
-        handle: str = None,
+            client: Client,
+            _id: str = None,
+            handle: str = None,
     ) -> Response[File]:
         return client.post(
             "file/get",
@@ -135,23 +129,22 @@ class File(CamelModel):
 
     @staticmethod
     def create(
-        client: Client,
-        filename: str = None,
-        url: str = None,
-        content: str = None,
-        plugin_instance: str = None,
-        mime_type: str = None,
-        blocks: List[Block.CreateRequest] = None,
-        tags: List[Tag.CreateRequest] = None,
-        corpus_id: str = None,
+            client: Client,
+            filename: str = None,
+            url: str = None,
+            content: str = None,
+            plugin_instance: str = None,
+            mime_type: str = None,
+            blocks: List[Block.CreateRequest] = None,
+            tags: List[Tag.CreateRequest] = None,
     ) -> Response[File]:
 
         if (
-            filename is None
-            and content is None
-            and url is None
-            and plugin_instance is None
-            and blocks is None
+                filename is None
+                and content is None
+                and url is None
+                and plugin_instance is None
+                and blocks is None
         ):
             raise Exception("Either filename, content, url, or plugin Instance must be provided.")
 
@@ -171,7 +164,6 @@ class File(CamelModel):
 
         req = File.CreateRequest(
             type=upload_type,
-            corpusId=corpus_id,
             url=url,
             mime_type=mime_type,
             plugin_instance=plugin_instance,
@@ -193,14 +185,13 @@ class File(CamelModel):
 
     @staticmethod
     def list(
-        client: Client,
-        corpus_id: str = None,
+            client: Client
     ):
-        req = File.ListRequest(corpusId=corpus_id)
+        req = ListRequest()
         res = client.post(
             "file/list",
             payload=req,
-            expect=File.ListResponse,
+            expect=File.ListResponse, # TODO (enias): Can I rename this?
         )
         return res
 
@@ -209,8 +200,8 @@ class File(CamelModel):
 
     @staticmethod
     def query(
-        client: Client,
-        tag_filter_query: str,
+            client: Client,
+            tag_filter_query: str,
     ) -> Response[FileQueryResponse]:
 
         req = FileQueryRequest(tag_filter_query=tag_filter_query)
@@ -244,8 +235,8 @@ class File(CamelModel):
         )
 
     def tag(
-        self,
-        plugin_instance: str = None,
+            self,
+            plugin_instance: str = None,
     ) -> Response[Tag]:
         # TODO (enias): Fix Circular imports
         from steamship.data.operations.tagger import TagRequest, TagResponse
@@ -259,11 +250,11 @@ class File(CamelModel):
         )
 
     def index(
-        self,
-        plugin_instance: str = None,
-        index_id: str = None,
-        e_index: EmbeddingIndex = None,
-        reindex: bool = True,
+            self,
+            plugin_instance: str = None,
+            index_id: str = None,
+            e_index: EmbeddingIndex = None,
+            reindex: bool = True,
     ) -> EmbeddingIndex:
         # TODO: This should really be done all on the app, but for now we'll do it in the client
         # to facilitate demos.
