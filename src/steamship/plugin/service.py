@@ -6,7 +6,6 @@ from typing import Any, Dict, Generic, Type, TypeVar, Union
 
 from steamship.app import App
 from steamship.app.response import Response
-
 # Note!
 # =====
 #
@@ -21,8 +20,8 @@ from steamship.plugin.outputs.training_parameter_plugin_output import TrainingPa
 from steamship.plugin.request import PluginRequest
 from steamship.plugin.trainable_model import TrainableModel
 
-T = TypeVar("T")
-U = TypeVar("U")
+T = TypeVar("T")  # TODO (enias): Rename to IN
+U = TypeVar("U")  # TODO (enias): Rename to OUT
 
 
 class PluginService(ABC, App, Generic[T, U]):
@@ -52,10 +51,6 @@ class PluginService(ABC, App, Generic[T, U]):
     - train(PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]
 
     """
-
-    # noinspection PyUnusedLocal
-    def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
-        super().__init__(client, config)
 
     @abstractmethod
     def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
@@ -94,14 +89,14 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
 
     @abstractmethod
     def run_with_model(
-        self, request: PluginRequest[T], model: TrainableModel
+            self, request: PluginRequest[T], model: TrainableModel
     ) -> Union[U, Response[U]]:
         """Rather than implementing run(request), a TrainablePluginService implements run_with_model(request, model)"""
         pass
 
     @abstractmethod
     def get_training_parameters(
-        self, request: PluginRequest[TrainingParameterPluginInput]
+            self, request: PluginRequest[TrainingParameterPluginInput]
     ) -> Response[TrainingParameterPluginOutput]:
         """Produces the trainable parameters for this plugin.
 
@@ -117,14 +112,14 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
 
     @abstractmethod
     def train(
-        self, request: PluginRequest[TrainPluginInput], model: TrainableModel
+            self, request: PluginRequest[TrainPluginInput], model: TrainableModel
     ) -> Response[TrainPluginOutput]:
         """Train the model."""
         pass
 
     @abstractmethod
     def train_status(
-        self, request: PluginRequest[TrainPluginInput], model: TrainableModel
+            self, request: PluginRequest[TrainPluginInput], model: TrainableModel
     ) -> Response[TrainPluginOutput]:
         """Train the model."""
         pass

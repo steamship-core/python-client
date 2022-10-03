@@ -72,7 +72,7 @@ def post(path: str, **kwargs):
     return endpoint(verb=Verb.POST, path=path, **kwargs)
 
 
-class App:
+class App: # TODO (enias): Should be renamed to Invocable -> Solves redefinition of app
     """A Steamship microservice.
 
     This base.py class:
