@@ -95,7 +95,6 @@ def deploy_plugin(
     training_platform: Optional[HostingType] = None,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
-    space_id: Optional[str] = None,
 ):
     plugin = Plugin.create(
         client,
@@ -123,7 +122,6 @@ def deploy_plugin(
 
     instance = PluginInstance.create(
         client,
-        space_id=space_id,
         plugin_id=plugin.id,
         plugin_version_id=version.id,
         config=instance_config,
@@ -146,7 +144,6 @@ def deploy_app(
     py_path: Path,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
-    space_id: str = None,
 ):
     app = App.create(client)
     assert app.error is None
@@ -167,7 +164,6 @@ def deploy_app(
         app_id=app.id,
         app_version_id=version.id,
         config=instance_config,
-        space_id=space_id,
     )
     instance = _wait_for_instance(instance)
 

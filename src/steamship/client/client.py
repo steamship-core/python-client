@@ -68,9 +68,6 @@ class Steamship(Client):
         external_id: str = None,
         external_type: str = None,
         metadata: Any = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
     ) -> Response[EmbeddingIndex]:
         return EmbeddingIndex.create(
             client=self,
@@ -80,9 +77,6 @@ class Steamship(Client):
             external_id=external_id,
             external_type=external_type,
             metadata=metadata,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def upload(
@@ -90,18 +84,12 @@ class Steamship(Client):
         filename: str = None,
         content: str = None,
         mime_type: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
     ) -> Response[File]:
         return File.create(
             self,
             filename=filename,
             content=content,
             mime_type=mime_type,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def embed_and_search(
@@ -110,18 +98,12 @@ class Steamship(Client):
         docs: List[str],
         plugin_instance: str,
         k: int = 1,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
     ) -> Response[QueryResults]:
         req = EmbedAndSearchRequest(query=query, docs=docs, plugin_instance=plugin_instance, k=k)
         return self.post(
             "plugin/instance/embeddingSearch",
             req,
             expect=QueryResults,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     @staticmethod
@@ -249,23 +231,13 @@ class Steamship(Client):
         self,
         doc: str,
         plugin_instance: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
     ) -> Response[TagResponse]:
         req = TagRequest(
             type="inline",
             file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
             plugin_instance=plugin_instance,
         )
-        return self.post(
-            "plugin/instance/tag",
-            req,
-            expect=TagResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
-        )
+        return self.post("plugin/instance/tag", req, expect=TagResponse)
 
     def get_space(self) -> Space:
         # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes
