@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request
 from steamship.base.configuration import CamelModel
+from steamship.base.request import DeleteRequest
 from steamship.base.response import Response
 from steamship.data.plugin import HostingMemory, HostingTimeout
 
@@ -23,12 +24,7 @@ class CreatePluginVersionRequest(Request):
     config_template: Dict[str, Any] = None
 
 
-class ListPublicPluginVersionsRequest(Request):
-    handle: str
-    plugin_id: str
-
-
-class ListPrivatePluginVersionsRequest(Request):
+class ListPluginVersionsRequest(Request):
     handle: str
     plugin_id: str
 
@@ -57,18 +53,18 @@ class PluginVersion(CamelModel):
 
     @staticmethod
     def create(
-        client: Client,
-        handle: str,
-        plugin_id: str = None,
-        filename: str = None,
-        filebytes: bytes = None,
-        upsert: bool = False,
-        hosting_memory: Optional[HostingMemory] = None,
-        hosting_timeout: Optional[HostingTimeout] = None,
-        hosting_handler: str = None,
-        is_public: bool = None,
-        is_default: bool = None,
-        config_template: Dict[str, Any] = None,
+            client: Client,
+            handle: str,
+            plugin_id: str = None,
+            filename: str = None,
+            filebytes: bytes = None,
+            upsert: bool = False,
+            hosting_memory: Optional[HostingMemory] = None,
+            hosting_timeout: Optional[HostingTimeout] = None,
+            hosting_handler: str = None,
+            is_public: bool = None,
+            is_default: bool = None,
+            config_template: Dict[str, Any] = None,
     ) -> Response[PluginVersion]:
 
         if filename is None and filebytes is None:
@@ -100,35 +96,16 @@ class PluginVersion(CamelModel):
         )
 
     def delete(self) -> PluginVersion:
-        req = DeletePluginVersionRequest(id=self.id)
+        req = DeleteRequest(id=self.id)
         return self.client.post("plugin/version/delete", payload=req, expect=PluginVersion)
 
     @staticmethod
-    def get_public(client: Client, plugin_id: str, handle: str):
-        public_plugins = PluginVersion.list_public(
-            client=client, plugin_id=plugin_id, handle=handle
-        ).data.plugins
-        for plugin in public_plugins:
-            if plugin.handle == handle:
-                return plugin
-        return None
-
-    @staticmethod
-    def list_public(
-        client: Client, plugin_id: str = None, handle: str = None
+    def list(
+            client: Client, plugin_id: str = None, handle: str = None, public: bool = True
     ) -> Response[ListPluginVersionsResponse]:
+        request_type = public
         return client.post(
-            "plugin/version/public",
-            ListPublicPluginVersionsRequest(handle=handle, plugin_id=plugin_id),
-            expect=ListPluginVersionsResponse,
-        )
-
-    @staticmethod
-    def list_private(
-        client: Client, _=None, plugin_id: str = None, handle: str = None
-    ) -> Response[ListPluginVersionsResponse]:
-        return client.post(
-            "plugin/version/private",
-            ListPrivatePluginVersionsRequest(handle=handle, plugin_id=plugin_id),
+            f"plugin/version/{'public' if public else 'private'}",
+            ListPluginVersionsRequest(handle=handle, plugin_id=plugin_id),
             expect=ListPluginVersionsResponse,
         )

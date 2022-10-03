@@ -79,19 +79,6 @@ class Steamship(Client):
             metadata=metadata,
         )
 
-    def upload(
-        self,
-        filename: str = None,
-        content: str = None,
-        mime_type: str = None,
-    ) -> Response[File]:
-        return File.create(
-            self,
-            filename=filename,
-            content=content,
-            mime_type=mime_type,
-        )
-
     def embed_and_search(
         self,
         query: str,
@@ -226,18 +213,6 @@ class Steamship(Client):
                 f"Unable to create an instance of Plugin {plugin_handle} with handle {instance_handle} in workspace {self.config.space_handle}."
             )
         return instance.data
-
-    def tag(
-        self,
-        doc: str,
-        plugin_instance: str = None,
-    ) -> Response[TagResponse]:
-        req = TagRequest(
-            type="inline",
-            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
-            plugin_instance=plugin_instance,
-        )
-        return self.post("plugin/instance/tag", req, expect=TagResponse)
 
     def get_space(self) -> Space:
         # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes

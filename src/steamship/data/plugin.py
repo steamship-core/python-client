@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from steamship.base.client import Client
 from steamship.base.configuration import CamelModel
-from steamship.base.request import Request
+from steamship.base.request import Request, DeleteRequest, IdentifierRequest
 from steamship.base.response import Response
 
 
@@ -96,22 +96,12 @@ class CreatePluginRequest(Request):
     upsert: bool = None
 
 
-class ListPublicPluginsRequest(Request):
+class ListPluginsRequest(Request):
     type: Optional[str] = None
-
-
-class ListPrivatePluginsRequest(Request):
-    type: str
 
 
 class ListPluginsResponse(Response):
     plugins: List[Plugin]
-
-
-class GetPluginRequest(Request):
-    type: str = None
-    id: str = None
-    handle: str = None
 
 
 class PluginType(str, Enum):
@@ -159,15 +149,15 @@ class Plugin(CamelModel):
 
     @staticmethod
     def create(
-        client: Client,
-        description: str,
-        type_: str,
-        transport: str,
-        is_public: bool,
-        handle: str = None,
-        training_platform: Optional[HostingType] = None,
-        metadata: Union[str, Dict, List] = None,
-        upsert: bool = False,
+            client: Client,
+            description: str,
+            type_: str,
+            transport: str,
+            is_public: bool,
+            handle: str = None,
+            training_platform: Optional[HostingType] = None,
+            metadata: Union[str, Dict, List] = None,
+            upsert: bool = False,
     ) -> Response[Plugin]:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
@@ -192,18 +182,18 @@ class Plugin(CamelModel):
     def list(client: Client, t: str = None) -> Response[ListPluginsResponse]:
         return client.post(
             "plugin/list",
-            ListPublicPluginsRequest(type=t),
+            ListPluginsRequest(type=t),
             expect=ListPluginsResponse,
         )
 
     @staticmethod
     def get(client: Client, handle: str):
-        return client.post("plugin/get", GetPluginRequest(handle=handle), expect=Plugin)
+        return client.post("plugin/get", IdentifierRequest(handle=handle), expect=Plugin)
 
     def delete(self) -> Response[Plugin]:
         return self.client.post(
             "plugin/delete",
-            DeletePluginRequest(id=self.id),
+            DeleteRequest(id=self.id),
             expect=Plugin,
         )
 

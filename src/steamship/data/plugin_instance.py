@@ -18,15 +18,10 @@ from steamship.plugin.inputs.training_parameter_plugin_input import TrainingPara
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
-
 from .block import Block
 from .file import File
 from .operations.tagger import TagRequest, TagResponse
-
-
-class GetPluginInstanceRequest(Request):
-    id: Optional[str] = None
-    handle: Optional[str] = None
+from ..base.request import IdentifierRequest, DeleteRequest
 
 
 class CreatePluginInstanceRequest(Request):
@@ -63,14 +58,14 @@ class PluginInstance(CamelModel):
 
     @staticmethod
     def create(
-        client: Client,
-        plugin_id: str = None,
-        plugin_handle: str = None,
-        plugin_version_id: str = None,
-        plugin_version_handle: str = None,
-        handle: str = None,
-        upsert: bool = True,
-        config: Dict[str, Any] = None,
+            client: Client,
+            plugin_id: str = None,
+            plugin_handle: str = None,
+            plugin_version_id: str = None,
+            plugin_version_handle: str = None,
+            handle: str = None,
+            upsert: bool = True,
+            config: Dict[str, Any] = None,
     ) -> Response[PluginInstance]:
         """Create a plugin instance
 
@@ -91,12 +86,12 @@ class PluginInstance(CamelModel):
     @staticmethod
     def get(client: Client, handle: str):
         return client.post(
-            "plugin/instance/get", GetPluginInstanceRequest(handle=handle), expect=PluginInstance
+            "plugin/instance/get", IdentifierRequest(handle=handle), expect=PluginInstance
         )
 
     def tag(
-        self,
-        doc: Union[str, File],
+            self,
+            doc: Union[str, File],
     ) -> Response[TagResponse]:
         req = TagRequest(
             type="inline",
@@ -112,14 +107,8 @@ class PluginInstance(CamelModel):
         )
 
     def delete(self) -> PluginInstance:
-        req = DeletePluginInstanceRequest(id=self.id)
+        req = DeleteRequest(id=self.id)
         return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
-
-    def export(self, plugin_input: ExportPluginInput) -> Response[RawDataPluginOutput]:
-        plugin_input.plugin_instance = self.handle
-        return self.client.post(
-            "plugin/instance/export", payload=plugin_input, expect=RawDataPluginOutput
-        )
 
     def train(self, training_request: TrainingParameterPluginInput) -> Response[TrainPluginOutput]:
         return self.client.post(
@@ -129,12 +118,10 @@ class PluginInstance(CamelModel):
         )
 
     def get_training_parameters(
-        self, training_request: TrainingParameterPluginInput
+            self, training_request: TrainingParameterPluginInput
     ) -> Response[TrainingParameterPluginOutput]:
         return self.client.post(
             "plugin/instance/getTrainingParameters",
             payload=training_request,
             expect=TrainingParameterPluginOutput,
         )
-
-

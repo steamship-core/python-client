@@ -58,17 +58,6 @@ class Block(CamelModel):
             expect=Block,
         )
 
-    @staticmethod
-    def list_public(
-        client: Client,
-        file_id: str = None,
-    ) -> Response[Block.ListResponse]:
-        return client.post(
-            "block/list",
-            Block.ListRequest(file_id=file_id),
-            expect=Block.ListResponse,
-        )
-
     def delete(self) -> Response[Block]:
         return self.client.post(
             "block/delete",
