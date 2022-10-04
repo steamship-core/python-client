@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Type, TypeVar
+from typing import Any, Generic, Type, TypeVar
 
 from pydantic.generics import GenericModel
 
@@ -13,7 +13,7 @@ T = TypeVar("T")  # Declare type variable
 
 
 class Response(
-    GenericModel
+    GenericModel, Generic[T]
 ):  # TODO (Enias): This can probably be deleted if we never return raw responses
     expect: Type[T] = None
     data_: T = None
