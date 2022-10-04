@@ -64,7 +64,7 @@ class File(CamelModel):
             use_enum_values = True
 
     class CreateResponse(Response):
-        data_: Any = Field(None, alias='data')
+        data_: Any = None
         mime_type: str = None
 
         def __init__(
