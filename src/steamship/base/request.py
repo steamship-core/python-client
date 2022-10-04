@@ -29,5 +29,3 @@ class ListRequest(Request):
 
 class DeleteRequest(Request):
     id: str
-
-

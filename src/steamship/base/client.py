@@ -35,17 +35,17 @@ class Client(CamelModel, ABC):
     _session: Session = PrivateAttr()
 
     def __init__(
-            self,
-            api_key: str = None,
-            api_base: str = None,
-            app_base: str = None,
-            web_base: str = None,
-            workspace: str = None,
-            fail_if_workspace_exists: bool = False,
-            profile: str = None,
-            config_file: str = None,
-            config: Configuration = None,
-            **kwargs,
+        self,
+        api_key: str = None,
+        api_base: str = None,
+        app_base: str = None,
+        web_base: str = None,
+        workspace: str = None,
+        fail_if_workspace_exists: bool = False,
+        profile: str = None,
+        config_file: str = None,
+        config: Configuration = None,
+        **kwargs,
     ):
         """Create a new client.
 
@@ -75,10 +75,10 @@ class Client(CamelModel, ABC):
         )
 
     def switch_workspace(
-            self,
-            workspace: str = None,
-            workspace_id: str = None,
-            fail_if_workspace_exists: bool = False,
+        self,
+        workspace: str = None,
+        workspace_id: str = None,
+        fail_if_workspace_exists: bool = False,
     ):
         """Switches this client to the requested space, possibly creating it. If all arguments are None, the client
         actively switches into the default space.
@@ -138,11 +138,24 @@ class Client(CamelModel, ABC):
         self.config.space_handle = return_handle
         logging.info(f"[Client] Switched to workspace {return_handle}/{return_id}")
 
+    def dict(self, **kwargs) -> dict:
+        # Because of the trick we do to hack these in as both static and member methods (with different
+        # implementations), Pydantic will try to include them by default. So we have to suppress that otherwise
+        # downstream serialization into JSON will fail.
+        if "exclude" not in kwargs:
+            kwargs["exclude"] = {"use", "use_plugin", "_instance_use", "_instance_use_plugin"}
+        elif isinstance(kwargs["exclude"], set):
+            kwargs["exclude"].add("use")
+            kwargs["exclude"].add("use_plugin")
+            kwargs["exclude"].add("_instance_use")
+            kwargs["exclude"].add("_instance_use_plugin")
+        return super().dict(**kwargs)
+
     def _url(
-            self,
-            is_app_call: bool = False,
-            app_owner: str = None,
-            operation: str = None,
+        self,
+        is_app_call: bool = False,
+        app_owner: str = None,
+        operation: str = None,
     ):
         if not is_app_call:
             # Regular API call
@@ -171,12 +184,12 @@ class Client(CamelModel, ABC):
         return f"{base}/{operation}"
 
     def _headers(
-            self,
-            is_app_call: bool = False,
-            app_owner: str = None,
-            app_id: str = None,
-            app_instance_id: str = None,
-            as_background_task: bool = False,
+        self,
+        is_app_call: bool = False,
+        app_owner: str = None,
+        app_id: str = None,
+        app_instance_id: str = None,
+        as_background_task: bool = False,
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
@@ -274,8 +287,8 @@ class Client(CamelModel, ABC):
     def _add_client_to_object(self, expect, response_data):
         if expect and isclass(expect):
             if len(response_data.keys()) == 1 and list(response_data.keys())[0] in (
-                    to_camel(expect.__name__),
-                    "index",
+                to_camel(expect.__name__),
+                "index",
             ):
                 # TODO (enias): Hack since the engine responds with incosistent formats e.g. {"plugin" : {plugin_fields}}
                 for _, v in response_data.items():
@@ -291,19 +304,19 @@ class Client(CamelModel, ABC):
                     pass
 
     def call(  # noqa: C901
-            self,
-            verb: str,
-            operation: str,
-            payload: Union[Request, dict] = None,
-            file: Any = None,
-            expect: Type[T] = None,
-            debug: bool = False,
-            raw_response: bool = False,
-            is_app_call: bool = False,
-            app_owner: str = None,
-            app_id: str = None,
-            app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
-            as_background_task: bool = False,
+        self,
+        verb: str,
+        operation: str,
+        payload: Union[Request, dict] = None,
+        file: Any = None,
+        expect: Type[T] = None,
+        debug: bool = False,
+        raw_response: bool = False,
+        is_app_call: bool = False,
+        app_owner: str = None,
+        app_id: str = None,
+        app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
+        as_background_task: bool = False,
     ) -> Union[Any, Response[T]]:
         """Post to the Steamship API.
 
@@ -417,18 +430,18 @@ class Client(CamelModel, ABC):
         return ret
 
     def post(
-            self,
-            operation: str,
-            payload: Union[Request, dict, BaseModel] = None,
-            file: Any = None,
-            expect: Any = None,
-            debug: bool = False,
-            raw_response: bool = False,
-            app_call: bool = False,
-            app_owner: str = None,
-            app_id: str = None,
-            app_instance_id: str = None,
-            as_background_task: bool = False,
+        self,
+        operation: str,
+        payload: Union[Request, dict, BaseModel] = None,
+        file: Any = None,
+        expect: Any = None,
+        debug: bool = False,
+        raw_response: bool = False,
+        app_call: bool = False,
+        app_owner: str = None,
+        app_id: str = None,
+        app_instance_id: str = None,
+        as_background_task: bool = False,
     ) -> Union[Any, Response[T]]:
         return self.call(
             verb="POST",
@@ -446,18 +459,18 @@ class Client(CamelModel, ABC):
         )
 
     def get(
-            self,
-            operation: str,
-            payload: Union[Request, dict] = None,
-            file: Any = None,
-            expect: Any = None,
-            debug: bool = False,
-            raw_response: bool = False,
-            app_call: bool = False,
-            app_owner: str = None,
-            app_id: str = None,
-            app_instance_id: str = None,
-            as_background_task: bool = False,
+        self,
+        operation: str,
+        payload: Union[Request, dict] = None,
+        file: Any = None,
+        expect: Any = None,
+        debug: bool = False,
+        raw_response: bool = False,
+        app_call: bool = False,
+        app_owner: str = None,
+        app_id: str = None,
+        app_instance_id: str = None,
+        as_background_task: bool = False,
     ) -> Union[Any, Response[T]]:
         return self.call(
             verb="GET",

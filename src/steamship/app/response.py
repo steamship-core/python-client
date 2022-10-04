@@ -31,7 +31,7 @@ class Http(CamelModel):
 T = TypeVar("T")
 
 
-class Response(GenericModel, Generic[T]): # TODO (enias): Rename to ExecutableResponse?
+class Response(GenericModel, Generic[T]):  # TODO (enias): Rename to ExecutableResponse?
     """Mirrors the Response object in the Steamship server."""
 
     data: T = None  # Data for successful or synchronous requests.

@@ -6,6 +6,7 @@ from typing import Any, Dict, Generic, Type, TypeVar, Union
 
 from steamship.app import App
 from steamship.app.response import Response
+
 # Note!
 # =====
 #
@@ -89,14 +90,14 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
 
     @abstractmethod
     def run_with_model(
-            self, request: PluginRequest[T], model: TrainableModel
+        self, request: PluginRequest[T], model: TrainableModel
     ) -> Union[U, Response[U]]:
         """Rather than implementing run(request), a TrainablePluginService implements run_with_model(request, model)"""
         pass
 
     @abstractmethod
     def get_training_parameters(
-            self, request: PluginRequest[TrainingParameterPluginInput]
+        self, request: PluginRequest[TrainingParameterPluginInput]
     ) -> Response[TrainingParameterPluginOutput]:
         """Produces the trainable parameters for this plugin.
 
@@ -112,14 +113,14 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
 
     @abstractmethod
     def train(
-            self, request: PluginRequest[TrainPluginInput], model: TrainableModel
+        self, request: PluginRequest[TrainPluginInput], model: TrainableModel
     ) -> Response[TrainPluginOutput]:
         """Train the model."""
         pass
 
     @abstractmethod
     def train_status(
-            self, request: PluginRequest[TrainPluginInput], model: TrainableModel
+        self, request: PluginRequest[TrainPluginInput], model: TrainableModel
     ) -> Response[TrainPluginOutput]:
         """Train the model."""
         pass

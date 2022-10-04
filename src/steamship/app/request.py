@@ -36,7 +36,7 @@ class InvocationContext(CamelModel):
     invocable_type: str = None
 
 
-class Request(CamelModel): # TODO (enias): Rename to ExecutableRequest?
+class Request(CamelModel):  # TODO (enias): Rename to ExecutableRequest?
     """A request as the Steamship Hosting Framework receives it from the Engine.
 
     This class is different from the other `Request` class:

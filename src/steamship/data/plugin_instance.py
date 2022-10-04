@@ -16,10 +16,11 @@ from steamship.data.plugin import (
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
+
+from ..base.request import DeleteRequest, IdentifierRequest
 from .block import Block
 from .file import File
 from .operations.tagger import TagRequest, TagResponse
-from ..base.request import IdentifierRequest, DeleteRequest
 
 
 class CreatePluginInstanceRequest(Request):
@@ -56,14 +57,14 @@ class PluginInstance(CamelModel):
 
     @staticmethod
     def create(
-            client: Client,
-            plugin_id: str = None,
-            plugin_handle: str = None,
-            plugin_version_id: str = None,
-            plugin_version_handle: str = None,
-            handle: str = None,
-            upsert: bool = True,
-            config: Dict[str, Any] = None,
+        client: Client,
+        plugin_id: str = None,
+        plugin_handle: str = None,
+        plugin_version_id: str = None,
+        plugin_version_handle: str = None,
+        handle: str = None,
+        upsert: bool = True,
+        config: Dict[str, Any] = None,
     ) -> Response[PluginInstance]:
         """Create a plugin instance
 
@@ -88,8 +89,8 @@ class PluginInstance(CamelModel):
         )
 
     def tag(
-            self,
-            doc: Union[str, File],
+        self,
+        doc: Union[str, File],
     ) -> Response[TagResponse]:
         req = TagRequest(
             type="inline",
@@ -116,7 +117,7 @@ class PluginInstance(CamelModel):
         )
 
     def get_training_parameters(
-            self, training_request: TrainingParameterPluginInput
+        self, training_request: TrainingParameterPluginInput
     ) -> Response[TrainingParameterPluginOutput]:
         return self.client.post(
             "plugin/instance/getTrainingParameters",

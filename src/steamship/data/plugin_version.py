@@ -53,18 +53,18 @@ class PluginVersion(CamelModel):
 
     @staticmethod
     def create(
-            client: Client,
-            handle: str,
-            plugin_id: str = None,
-            filename: str = None,
-            filebytes: bytes = None,
-            upsert: bool = False,
-            hosting_memory: Optional[HostingMemory] = None,
-            hosting_timeout: Optional[HostingTimeout] = None,
-            hosting_handler: str = None,
-            is_public: bool = None,
-            is_default: bool = None,
-            config_template: Dict[str, Any] = None,
+        client: Client,
+        handle: str,
+        plugin_id: str = None,
+        filename: str = None,
+        filebytes: bytes = None,
+        upsert: bool = False,
+        hosting_memory: Optional[HostingMemory] = None,
+        hosting_timeout: Optional[HostingTimeout] = None,
+        hosting_handler: str = None,
+        is_public: bool = None,
+        is_default: bool = None,
+        config_template: Dict[str, Any] = None,
     ) -> Response[PluginVersion]:
 
         if filename is None and filebytes is None:
@@ -101,9 +101,8 @@ class PluginVersion(CamelModel):
 
     @staticmethod
     def list(
-            client: Client, plugin_id: str = None, handle: str = None, public: bool = True
+        client: Client, plugin_id: str = None, handle: str = None, public: bool = True
     ) -> Response[ListPluginVersionsResponse]:
-        request_type = public
         return client.post(
             f"plugin/version/{'public' if public else 'private'}",
             ListPluginVersionsRequest(handle=handle, plugin_id=plugin_id),

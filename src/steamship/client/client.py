@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
-from steamship import Configuration, PluginInstance, SteamshipError, AppInstance, Space
+from steamship import AppInstance, Configuration, PluginInstance, Space, SteamshipError
 from steamship.base import Client, Response
 from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
 
@@ -16,17 +16,17 @@ class Steamship(Client):
     """Steamship Python Client."""
 
     def __init__(
-            self,
-            api_key: str = None,
-            api_base: str = None,
-            app_base: str = None,
-            web_base: str = None,
-            workspace: str = None,
-            fail_if_workspace_exists: bool = False,
-            profile: str = None,
-            config_file: str = None,
-            config: Configuration = None,
-            **kwargs,
+        self,
+        api_key: str = None,
+        api_base: str = None,
+        app_base: str = None,
+        web_base: str = None,
+        workspace: str = None,
+        fail_if_workspace_exists: bool = False,
+        profile: str = None,
+        config_file: str = None,
+        config: Configuration = None,
+        **kwargs,
     ):
         super().__init__(
             api_key=api_key,
@@ -55,11 +55,11 @@ class Steamship(Client):
         ]
 
     def embed_and_search(
-            self,
-            query: str,
-            docs: List[str],
-            plugin_instance: str,
-            k: int = 1,
+        self,
+        query: str,
+        docs: List[str],
+        plugin_instance: str,
+        k: int = 1,
     ) -> Response[QueryResults]:
         req = EmbedAndSearchRequest(query=query, docs=docs, plugin_instance=plugin_instance, k=k)
         return self.post(
@@ -70,13 +70,13 @@ class Steamship(Client):
 
     @staticmethod
     def use(
-            package_handle: str,
-            instance_handle: Optional[str] = None,
-            config: Optional[Dict[str, Any]] = None,
-            version: Optional[str] = None,
-            reuse: bool = True,
-            workspace_handle: Optional[str] = None,
-            **kwargs,
+        package_handle: str,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        reuse: bool = True,
+        workspace_handle: Optional[str] = None,
+        **kwargs,
     ) -> AppInstance:
         """Creates/loads an instance of package `package_handle`.
 
@@ -103,12 +103,12 @@ class Steamship(Client):
         )
 
     def _instance_use(
-            self,
-            package_handle: str,
-            instance_handle: Optional[str] = None,
-            config: Optional[Dict[str, Any]] = None,
-            version: Optional[str] = None,
-            reuse: bool = True,
+        self,
+        package_handle: str,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        reuse: bool = True,
     ) -> AppInstance:
         """Creates/loads an instance of package `package_handle`.
 
@@ -132,13 +132,13 @@ class Steamship(Client):
 
     @staticmethod
     def use_plugin(
-            plugin_handle: str,
-            instance_handle: Optional[str] = None,
-            config: Optional[Dict[str, Any]] = None,
-            version: Optional[str] = None,
-            reuse: bool = True,
-            workspace_handle: Optional[str] = None,
-            **kwargs,
+        plugin_handle: str,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        reuse: bool = True,
+        workspace_handle: Optional[str] = None,
+        **kwargs,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 
@@ -162,12 +162,12 @@ class Steamship(Client):
         )
 
     def _instance_use_plugin(
-            self,
-            plugin_handle: str,
-            instance_handle: str = None,
-            config: Dict[str, Any] = None,
-            version: str = None,
-            reuse: bool = True,
+        self,
+        plugin_handle: str,
+        instance_handle: str = None,
+        config: Dict[str, Any] = None,
+        version: str = None,
+        reuse: bool = True,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 

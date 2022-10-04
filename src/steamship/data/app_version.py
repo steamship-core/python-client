@@ -17,7 +17,7 @@ class CreateAppVersionRequest(Request):
     config_template: Dict[str, Any] = None
 
 
-class AppVersion(CamelModel): # TODO (enias): Rename to Package
+class AppVersion(CamelModel):  # TODO (enias): Rename to Package
     client: Client = None
     id: str = None
     app_id: str = None

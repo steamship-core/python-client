@@ -12,7 +12,9 @@ from steamship.base.utils import to_camel
 T = TypeVar("T")  # Declare type variable
 
 
-class Response(GenericModel): # TODO (Enias): This can probably be deleted if we never return raw responses
+class Response(
+    GenericModel
+):  # TODO (Enias): This can probably be deleted if we never return raw responses
     expect: Type[T] = None
     data_: T = None
     task: Task = None
@@ -55,8 +57,8 @@ class Response(GenericModel): # TODO (Enias): This can probably be deleted if we
             return
         t0 = time.perf_counter()
         while time.perf_counter() - t0 < max_timeout_s and self.task.state not in (
-                TaskState.succeeded,
-                TaskState.failed,
+            TaskState.succeeded,
+            TaskState.failed,
         ):
             self.refresh()
             time.sleep(retry_delay_s)

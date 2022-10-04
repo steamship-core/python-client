@@ -181,7 +181,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
 
         response = _handler(event, client, context)
 
-        result = response.dict(by_alias=True)
+        result = response.dict(by_alias=True, exclude={"client"})
         # When created with data > 4MB, data is uploaded to a bucket.
         # This is a very ugly way to get the deep size of this object
         data = json.dumps(result.get("data", None)).encode("UTF-8")

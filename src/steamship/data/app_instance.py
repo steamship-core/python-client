@@ -22,7 +22,7 @@ class CreateAppInstanceRequest(Request):
     space_id: str = None
 
 
-class AppInstance(CamelModel): # TODO (enias): Rename to Package
+class AppInstance(CamelModel):  # TODO (enias): Rename to Package
     client: Client = None
     id: str = None
     handle: str = None
