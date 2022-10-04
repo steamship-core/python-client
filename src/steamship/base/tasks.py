@@ -8,7 +8,7 @@ from steamship.base.base import IResponse
 from steamship.base.configuration import CamelModel
 from steamship.base.error import SteamshipError
 from steamship.base.metadata import metadata_to_str, str_to_metadata
-from steamship.base.request import IdentifierRequest, Request, DeleteRequest
+from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 
 T = TypeVar("T")
 

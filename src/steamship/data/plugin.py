@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from steamship.base.client import Client
 from steamship.base.configuration import CamelModel
-from steamship.base.request import Request, DeleteRequest
+from steamship.base.request import DeleteRequest, Request
 from steamship.base.response import Response
 
 

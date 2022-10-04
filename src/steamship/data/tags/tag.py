@@ -73,7 +73,7 @@ class Tag(CamelModel):
         return client.post("tag/create", req, expect=Tag)
 
     @staticmethod
-    def list_public( # TODO: Maybe remove?
+    def list_public(  # TODO: Maybe remove?
         client: Client,
         file_id: str = None,
         block_id: str = None,

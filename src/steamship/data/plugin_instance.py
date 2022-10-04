@@ -19,10 +19,10 @@ from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
+from ..base.request import DeleteRequest
 from .block import Block
 from .file import File
 from .operations.tagger import TagRequest, TagResponse
-from ..base.request import DeleteRequest
 
 
 class GetPluginInstanceRequest(Request):
@@ -137,5 +137,3 @@ class PluginInstance(CamelModel):
             payload=training_request,
             expect=TrainingParameterPluginOutput,
         )
-
-

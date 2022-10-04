@@ -10,8 +10,8 @@ from typing import Any, Type
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response
-from steamship.base.request import DeleteRequest, CreateRequest, GetRequest
+from steamship.base import Client, Response
+from steamship.base.request import CreateRequest, DeleteRequest, GetRequest
 
 
 class App(BaseModel):
