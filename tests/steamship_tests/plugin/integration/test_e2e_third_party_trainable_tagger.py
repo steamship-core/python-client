@@ -8,7 +8,6 @@ from steamship_tests.utils.deployables import deploy_plugin
 from steamship.base import TaskState
 from steamship.data.plugin import HostingType
 from steamship.data.plugin_instance import PluginInstance
-from steamship.data.space import Space
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 
@@ -17,8 +16,6 @@ EXPORTER_HANDLE = "signed-url-exporter"
 
 def test_e2e_third_party_trainable_tagger_lambda_training():
     client = get_steamship_client()
-    space_r = Space.get(client)  # TODO (enias): Remove
-    assert space_r.data is not None
 
     exporter_plugin_r = PluginInstance.create(
         client=client,

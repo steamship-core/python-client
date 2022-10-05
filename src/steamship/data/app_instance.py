@@ -48,7 +48,6 @@ class AppInstance(CamelModel):
     @staticmethod
     def create(
         client: Client,
-        space_id: str = None,
         app_id: str = None,
         app_handle: str = None,
         app_version_id: str = None,
@@ -65,12 +64,9 @@ class AppInstance(CamelModel):
             app_version_handle=app_version_handle,
             upsert=upsert,
             config=config,
-            spaceId=space_id,
         )
 
-        return client.post(
-            "app/instance/create", payload=req, expect=AppInstance, space_id=space_id
-        )
+        return client.post("app/instance/create", payload=req, expect=AppInstance)
 
     def delete(self) -> AppInstance:
         req = DeleteAppInstanceRequest(id=self.id)
@@ -94,7 +90,6 @@ class AppInstance(CamelModel):
             app_owner=self.user_handle,
             app_id=self.app_id,
             app_instance_id=self.id,
-            space_id=self.space_id,
         )
 
     def post(self, path: str, **kwargs):
@@ -108,7 +103,6 @@ class AppInstance(CamelModel):
             app_owner=self.user_handle,
             app_id=self.app_id,
             app_instance_id=self.id,
-            space_id=self.space_id,
         )
 
     def full_url_for(self, path: str):

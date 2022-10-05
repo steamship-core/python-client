@@ -97,7 +97,8 @@ def test_plugin_public():
 def test_deploy_in_space():
     client = get_steamship_client()
     space = Space.create(client, handle="test-non-default-space").data
-    instance = PluginInstance.create(client, plugin_handle="test-tagger", space_id=space.id).data
+    client.switch_workspace(workspace_id=space.id)
+    instance = PluginInstance.create(client, plugin_handle="test-tagger").data
     assert instance.space_id == space.id
 
 

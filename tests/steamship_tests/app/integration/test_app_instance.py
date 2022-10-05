@@ -140,10 +140,11 @@ def test_deploy_in_space():
     demo_app_path = APPS_PATH / "demo_app.py"
 
     space = Space.create(client).data
+    client.switch_workspace(workspace_id=space.id)
 
     assert space.handle != "default"
 
-    with deploy_app(client, demo_app_path, space_id=space.id) as (_, _, instance):
+    with deploy_app(client, demo_app_path) as (_, _, instance):
         # The Engine believes the instance to be in the workspace
         assert instance.space_id == space.id
 

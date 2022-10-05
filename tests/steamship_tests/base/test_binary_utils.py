@@ -24,15 +24,6 @@ def test_dump_json():
     person = Person(name="Ted")
     assert json.dumps(flexi_create(json=person)[0]) == '{"name": "Ted"}'
 
-    class Person2(CamelModel):
-        name: str
-
-        def to_dict(self):
-            return {"takes": "precedence"}
-
-    person2 = Person2(name="Ted")
-    assert json.dumps(flexi_create(json=person2)[0]) == '{"takes": "precedence"}'
-
 
 def _base64_decode(base64_message: str) -> str:
     base64_bytes = base64_message.encode("ascii")
