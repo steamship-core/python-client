@@ -84,9 +84,6 @@ class File(CamelModel):
             self.data_ = data
             self.mime_type = mime_type
 
-        def to_dict(self) -> dict:
-            return {"data": self.data_, "mime_type": self.mime_type}
-
     class ListRequest(Request):
         corpus_id: str = None
 
@@ -102,28 +99,18 @@ class File(CamelModel):
         obj = obj["file"] if "file" in obj else obj
         return super().parse_obj(obj)
 
-    def delete(
-        self, space_id: str = None, space_handle: str = None, space: Any = None
-    ) -> Response[File]:
+    def delete(self) -> Response[File]:
         return self.client.post(
             "file/delete",
             IdentifierRequest(id=self.id),
             expect=File,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
-    def clear(
-        self, space_id: str = None, space_handle: str = None, space: Any = None
-    ) -> Response[FileClearResponse]:
+    def clear(self) -> Response[FileClearResponse]:
         return self.client.post(
             "file/clear",
             IdentifierRequest(id=self.id),
             expect=FileClearResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     @staticmethod
@@ -131,17 +118,11 @@ class File(CamelModel):
         client: Client,
         _id: str = None,
         handle: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[File]:
         return client.post(
             "file/get",
             IdentifierRequest(id=_id, handle=handle),
             expect=File,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     @staticmethod
@@ -155,9 +136,6 @@ class File(CamelModel):
         blocks: List[Block.CreateRequest] = None,
         tags: List[Tag.CreateRequest] = None,
         corpus_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[File]:
 
         if (
@@ -203,27 +181,18 @@ class File(CamelModel):
             if upload_type != FileUploadType.BLOCKS
             else None,
             expect=File,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     @staticmethod
     def list(
         client: Client,
         corpus_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ):
         req = File.ListRequest(corpusId=corpus_id)
         res = client.post(
             "file/list",
             payload=req,
             expect=File.ListResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
         return res
 
@@ -234,9 +203,6 @@ class File(CamelModel):
     def query(
         client: Client,
         tag_filter_query: str,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[FileQueryResponse]:
 
         req = FileQueryRequest(tag_filter_query=tag_filter_query)
@@ -244,23 +210,16 @@ class File(CamelModel):
             "file/query",
             payload=req,
             expect=FileQueryResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
         return res
 
-    def raw(self, space_id: str = None, space_handle: str = None, space: Any = None):
+    def raw(self):
         req = File.RawRequest(
             id=self.id,
         )
-        # TODO (enias): Investigate why we do not need a expect here
         return self.client.post(
             "file/raw",
             payload=req,
-            space_id=space_id or self.space_id,
-            space_handle=space_handle,
-            space=space,
             raw_response=True,
         )
 
@@ -280,9 +239,6 @@ class File(CamelModel):
     def tag(
         self,
         plugin_instance: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[Tag]:
         # TODO (enias): Fix Circular imports
         from steamship.data.operations.tagger import TagRequest, TagResponse
@@ -294,9 +250,6 @@ class File(CamelModel):
             payload=req,
             expect=TagResponse,
             asynchronous=True,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def index(
@@ -305,9 +258,6 @@ class File(CamelModel):
         index_id: str = None,
         e_index: EmbeddingIndex = None,
         reindex: bool = True,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> EmbeddingIndex:
         # TODO: This should really be done all on the app, but for now we'll do it in the client
         # to facilitate demos.
@@ -322,9 +272,6 @@ class File(CamelModel):
                 client=self.client,
                 plugin_instance=plugin_instance,
                 upsert=True,
-                space_id=space_id,
-                space_handle=space_handle,
-                space=space,
             ).data
         elif e_index is None:
             e_index = EmbeddingIndex(client=self.client, id=index_id)
@@ -340,9 +287,6 @@ class File(CamelModel):
         insert_task = e_index.insert_many(
             items,
             reindex=reindex,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
         insert_task.wait()

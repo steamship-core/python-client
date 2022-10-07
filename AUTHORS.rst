@@ -2,4 +2,4 @@
 Contributors
 ============
 
-* Steamship Team <contact@steamship.com>
+* Steamship Team <hello@steamship.com>

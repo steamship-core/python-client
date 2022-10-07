@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import List, Optional
 
 from steamship.base import Client, Request, Response
 from steamship.base.configuration import CamelModel
@@ -39,17 +39,11 @@ class Block(CamelModel):
     def get(
         client: Client,
         _id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[Block]:
         return client.post(
             "block/get",
             IdentifierRequest(id=_id),
             expect=Block,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     @staticmethod
@@ -59,31 +53,23 @@ class Block(CamelModel):
         text: str = None,
         tags: List[Tag.CreateRequest] = None,
         upsert: bool = None,
-        space_id: str = None,
-        space_handle: str = None,
     ) -> Response[Block]:
         req = Block.CreateRequest(file_id=file_id, text=text, tags=tags, upsert=upsert)
         return client.post(
             "block/create",
             req,
             expect=Block,
-            space_id=space_id,
-            space_handle=space_handle,
         )
 
     @staticmethod
     def list_public(
         client: Client,
         file_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
     ) -> Response[Block.ListResponse]:
         return client.post(
             "block/list",
             Block.ListRequest(file_id=file_id),
             expect=Block.ListResponse,
-            space_id=space_id,
-            space_handle=space_handle,
         )
 
     def delete(self) -> Response[Block]:
@@ -97,9 +83,6 @@ class Block(CamelModel):
     def query(
         client: Client,
         tag_filter_query: str,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[BlockQueryResponse]:
         # TODO: Is this a static method?
         req = BlockQueryRequest(tag_filter_query=tag_filter_query)
@@ -107,9 +90,6 @@ class Block(CamelModel):
             "block/query",
             payload=req,
             expect=BlockQueryResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
         return res
 

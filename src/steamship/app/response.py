@@ -175,12 +175,6 @@ class Response(GenericModel, Generic[T]):
         elif isinstance(obj, (float, int, bool)):
             return Response(json=obj)
 
-        if hasattr(obj, "to_dict"):
-            try:
-                return Response(json=obj.to_dict())
-            except Exception as e:
-                logging.error(f"Failed calling to_dict on response object. {obj}\n", exc_info=e)
-
         if isinstance(obj, BaseModel):
             return Response(json=obj.dict())
 

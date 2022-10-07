@@ -177,9 +177,6 @@ class EmbeddingIndex(CamelModel):
         external_type: str = None,
         metadata: Union[int, float, bool, str, List, Dict] = None,
         reindex: bool = True,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[IndexInsertResponse]:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
@@ -197,18 +194,12 @@ class EmbeddingIndex(CamelModel):
             "embedding-index/item/create",
             req,
             expect=IndexInsertResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def insert_many(
         self,
         items: List[Union[EmbeddedItem, str]],
         reindex: bool = True,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[IndexInsertResponse]:
         new_items = []
         for item in items:
@@ -226,9 +217,6 @@ class EmbeddingIndex(CamelModel):
             "embedding-index/item/create",
             req,
             expect=IndexInsertResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def insert(
@@ -238,9 +226,6 @@ class EmbeddingIndex(CamelModel):
         external_type: str = None,
         metadata: Union[int, float, bool, str, List, Dict] = None,
         reindex: bool = True,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[IndexInsertResponse]:
 
         req = IndexInsertRequest(
@@ -255,13 +240,10 @@ class EmbeddingIndex(CamelModel):
             "embedding-index/item/create",
             req,
             expect=IndexInsertResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def embed(
-        self, space_id: str = None, space_handle: str = None, space: Any = None
+        self,
     ) -> Response[IndexEmbedResponse]:
         req = IndexEmbedRequest(id=self.id)
         return self.client.post(
@@ -269,37 +251,24 @@ class EmbeddingIndex(CamelModel):
             req,
             expect=IndexEmbedResponse,
             asynchronous=True,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
-    def create_snapshot(
-        self, space_id: str = None, space_handle: str = None, space: Any = None
-    ) -> Response[IndexSnapshotResponse]:
+    def create_snapshot(self) -> Response[IndexSnapshotResponse]:
         req = IndexSnapshotRequest(index_id=self.id)
         return self.client.post(
             "embedding-index/snapshot/create",
             req,
             expect=IndexSnapshotResponse,
             asynchronous=True,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     # TODO (enias): Can these be generic list operations for all file types?
-    def list_snapshots(
-        self, space_id: str = None, space_handle: str = None, space: Any = None
-    ) -> Response[ListSnapshotsResponse]:
+    def list_snapshots(self) -> Response[ListSnapshotsResponse]:
         req = ListSnapshotsRequest(id=self.id)
         return self.client.post(
             "embedding-index/snapshot/list",
             req,
             expect=ListSnapshotsResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def list_items(
@@ -307,47 +276,30 @@ class EmbeddingIndex(CamelModel):
         file_id: str = None,
         block_id: str = None,
         span_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[ListItemsResponse]:
         req = ListItemsRequest(id=self.id, file_id=file_id, block_id=block_id, spanId=span_id)
         return self.client.post(
             "embedding-index/item/list",
             req,
             expect=ListItemsResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def delete_snapshot(
         self,
         snapshot_id: str,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[DeleteSnapshotsResponse]:
         req = DeleteSnapshotsRequest(snapshotId=snapshot_id)
         return self.client.post(
             "embedding-index/snapshot/delete",
             req,
             expect=DeleteSnapshotsResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
-    def delete(
-        self, space_id: str = None, space_handle: str = None, space: Any = None
-    ) -> Response[EmbeddingIndex]:
+    def delete(self) -> Response[EmbeddingIndex]:
         return self.client.post(
             "embedding-index/delete",
             DeleteEmbeddingIndexRequest(id=self.id),
             expect=EmbeddingIndex,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def search(
@@ -355,9 +307,6 @@ class EmbeddingIndex(CamelModel):
         query: Union[str, List[str]],
         k: int = 1,
         include_metadata: bool = False,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[QueryResults]:
         if isinstance(query, list):
             req = IndexSearchRequest(
@@ -371,9 +320,6 @@ class EmbeddingIndex(CamelModel):
             "embedding-index/search",
             req,
             expect=QueryResults,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
         return ret
@@ -388,9 +334,6 @@ class EmbeddingIndex(CamelModel):
         external_id: str = None,
         external_type: str = None,
         metadata: Any = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[EmbeddingIndex]:
         req = IndexCreateRequest(
             handle=handle,
@@ -404,8 +347,5 @@ class EmbeddingIndex(CamelModel):
         return client.post(
             "embedding-index/create",
             req,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
             expect=EmbeddingIndex,
         )

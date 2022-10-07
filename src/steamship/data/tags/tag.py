@@ -56,8 +56,6 @@ class Tag(CamelModel):
         end_idx: int = None,
         value: Any = None,
         upsert: bool = None,
-        space_id: str = None,
-        space_handle: str = None,
     ) -> Response[Tag]:
         if isinstance(value, dict) or isinstance(value, list):
             value = json.dumps(value)
@@ -72,24 +70,18 @@ class Tag(CamelModel):
             value=value,
             upsert=upsert,
         )
-        return client.post(
-            "tag/create", req, expect=Tag, space_id=space_id, space_handle=space_handle
-        )
+        return client.post("tag/create", req, expect=Tag)
 
     @staticmethod
     def list_public(
         client: Client,
         file_id: str = None,
         block_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
     ) -> Response[Tag.ListResponse]:
         return client.post(
             "tag/list",
             Tag.ListRequest(file_id=file_id, block_id=block_id),
             expect=Tag.ListResponse,
-            space_id=space_id,
-            space_handle=space_handle,
         )
 
     def delete(self) -> Response[Tag]:
@@ -103,18 +95,12 @@ class Tag(CamelModel):
     def query(
         client: Client,
         tag_filter_query: str,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> Response[TagQueryResponse]:
         req = TagQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
             "tag/query",
             payload=req,
             expect=TagQueryResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
         return res
 

@@ -68,7 +68,6 @@ class PluginInstance(CamelModel):
     @staticmethod
     def create(
         client: Client,
-        space_id: str = None,
         plugin_id: str = None,
         plugin_handle: str = None,
         plugin_version_id: str = None,
@@ -77,7 +76,6 @@ class PluginInstance(CamelModel):
         upsert: bool = True,
         config: Dict[str, Any] = None,
     ) -> Response[PluginInstance]:
-        # TODO (enias): Document
         """Create a plugin instance
 
         When handle is empty the engine will automatically assign one
@@ -92,12 +90,7 @@ class PluginInstance(CamelModel):
             config=config,
         )
 
-        return client.post(
-            "plugin/instance/create",
-            payload=req,
-            expect=PluginInstance,
-            space_id=space_id,
-        )
+        return client.post("plugin/instance/create", payload=req, expect=PluginInstance)
 
     @staticmethod
     def get(client: Client, handle: str):
@@ -135,7 +128,6 @@ class PluginInstance(CamelModel):
     def train(self, training_request: TrainingParameterPluginInput) -> Response[TrainPluginOutput]:
         return self.client.post(
             "plugin/instance/train",
-            space_id=self.space_id,
             payload=training_request,
             expect=TrainPluginOutput,
         )
