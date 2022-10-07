@@ -202,17 +202,11 @@ class Task(CamelModel):
         client,
         _id: str = None,
         handle: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
     ) -> IResponse[Task]:
         return client.post(
             "task/get",
             IdentifierRequest(id=_id, handle=handle),
             expect=Task,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def update(self, other: Optional[Task] = None):
