@@ -1,7 +1,7 @@
 Using Blockifiers
 -----------------
 
-To use a blockifier, create an instance with your Steamship client and apply it to a file.
+To use a :ref:`blockifier<Blockifiers>`, create an instance with your Steamship client and apply it to a file.
 
 .. code:: python
 
@@ -50,7 +50,6 @@ Our current list of supported blockifiers are:
 * ``html-default`` - Converts audio to Steamship Blocks
 * ``speech-to-text-default`` - Converts audio to Steamship Blocks
 * ``csv-blockifier`` - Converts CSV to Steamship Blocks
-
 
 Using a Blockifier from within a Steamship Package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

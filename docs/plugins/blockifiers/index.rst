@@ -1,11 +1,8 @@
-.. _blockifiers:
+.. _Blockifiers:
 
 ***********
 Blockifiers
 ***********
-
-.. toctree::
-   :maxdepth: 2
 
 Blockifiers convert data into Steamship’s native format.
 
