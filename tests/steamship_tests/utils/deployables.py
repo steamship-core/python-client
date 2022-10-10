@@ -62,6 +62,7 @@ def zip_deployable(file_path: Path) -> bytes:
                 "typing_extensions",
                 "inflection",
                 "fluent-logger==0.10.0",
+                "toml",
             ]:
                 install_package(package, into_folder=package_dir)
             # Now write that whole folder

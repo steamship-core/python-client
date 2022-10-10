@@ -1,12 +1,9 @@
-===============
 Steamship
-===============
+=========
 
-This is the documentation of **Steamship Python client library**.
+Welcome to Steamship!
 
-.. note::
-
-    This is a documentation stub!
+This is the in-progress documentation for the entire  **Steamship Python client library**.
 
 Contents
 ========
@@ -18,4 +15,5 @@ Contents
    License <license>
    Authors <authors>
    Changelog <changelog>
+   Plugins <plugins/plugins>
    Module Reference <api/modules>

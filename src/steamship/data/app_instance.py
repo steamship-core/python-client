@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
 from steamship.base.configuration import CamelModel
-from steamship.base.request import DeleteRequest
 from steamship.data.space import Space
 
 
