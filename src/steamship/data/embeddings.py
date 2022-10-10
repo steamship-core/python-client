@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response, metadata_to_str
 from steamship.base.configuration import CamelModel
+from steamship.base.request import DeleteRequest
 from steamship.data.search import Hit
 
 
@@ -144,10 +145,6 @@ class DeleteSnapshotsResponse(Response):
     snapshot_id: str = None
 
 
-class DeleteEmbeddingIndexRequest(Request):
-    id: str
-
-
 class EmbeddingIndex(CamelModel):
     """A persistent, read-optimized index over embeddings."""
 
@@ -250,7 +247,6 @@ class EmbeddingIndex(CamelModel):
             "embedding-index/embed",
             req,
             expect=IndexEmbedResponse,
-            asynchronous=True,
         )
 
     def create_snapshot(self) -> Response[IndexSnapshotResponse]:
@@ -259,7 +255,6 @@ class EmbeddingIndex(CamelModel):
             "embedding-index/snapshot/create",
             req,
             expect=IndexSnapshotResponse,
-            asynchronous=True,
         )
 
     # TODO (enias): Can these be generic list operations for all file types?
@@ -298,7 +293,7 @@ class EmbeddingIndex(CamelModel):
     def delete(self) -> Response[EmbeddingIndex]:
         return self.client.post(
             "embedding-index/delete",
-            DeleteEmbeddingIndexRequest(id=self.id),
+            DeleteRequest(id=self.id),
             expect=EmbeddingIndex,
         )
 

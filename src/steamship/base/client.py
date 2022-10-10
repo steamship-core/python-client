@@ -310,7 +310,6 @@ class Client(CamelModel, ABC):
         payload: Union[Request, dict] = None,
         file: Any = None,
         expect: Type[T] = None,
-        asynchronous: bool = False,
         debug: bool = False,
         raw_response: bool = False,
         is_app_call: bool = False,
@@ -423,6 +422,7 @@ class Client(CamelModel, ABC):
         if error is not None:
             logging.error(f"Client received error from server: {error}", exc_info=error)
 
+        # TODO (enias): This will be replaced by either return a task, or an object of type except
         ret = Response(expect=expect, task=task, data_=data, error=error, client=self)
         if ret.task is None and ret.data is None and ret.error is None:
             raise Exception("No data, task status, or error found in response")
@@ -435,7 +435,6 @@ class Client(CamelModel, ABC):
         payload: Union[Request, dict, BaseModel] = None,
         file: Any = None,
         expect: Any = None,
-        asynchronous: bool = False,
         debug: bool = False,
         raw_response: bool = False,
         app_call: bool = False,
@@ -450,7 +449,6 @@ class Client(CamelModel, ABC):
             payload=payload,
             file=file,
             expect=expect,
-            asynchronous=asynchronous,
             debug=debug,
             raw_response=raw_response,
             is_app_call=app_call,
@@ -466,7 +464,6 @@ class Client(CamelModel, ABC):
         payload: Union[Request, dict] = None,
         file: Any = None,
         expect: Any = None,
-        asynchronous: bool = False,
         debug: bool = False,
         raw_response: bool = False,
         app_call: bool = False,
@@ -481,7 +478,6 @@ class Client(CamelModel, ABC):
             payload=payload,
             file=file,
             expect=expect,
-            asynchronous=asynchronous,
             debug=debug,
             raw_response=raw_response,
             is_app_call=app_call,

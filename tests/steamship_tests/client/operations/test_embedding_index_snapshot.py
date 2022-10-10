@@ -2,7 +2,7 @@ from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import PluginInstance
 from steamship.base.response import TaskState
-from steamship.data.embeddings import IndexSnapshotRequest, IndexSnapshotResponse
+from steamship.data.embeddings import EmbeddingIndex, IndexSnapshotRequest, IndexSnapshotResponse
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -31,7 +31,6 @@ def _snapshot(index, window_size=None):
             "embedding-index/snapshot/create",
             req,
             expect=IndexSnapshotResponse,
-            asynchronous=True,
         )
         task.wait()
         task.refresh()
@@ -41,7 +40,10 @@ def test_snapshot_create():
     steamship = get_steamship_client()
 
     plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
-    index = steamship.create_index(plugin_instance=plugin_instance.handle).data
+    index = EmbeddingIndex.create(
+        client=steamship,
+        plugin_instance=plugin_instance.handle,
+    ).data
 
     _insert(index, ["Oranges are orange."])
     search_results = index.search("What color are oranges?", include_metadata=True)
@@ -82,7 +84,10 @@ def test_snapshot_create():
     index.delete()
     steamship = get_steamship_client()
 
-    index = steamship.create_index(plugin_instance=plugin_instance.handle).data
+    index = EmbeddingIndex.create(
+        client=steamship,
+        plugin_instance=plugin_instance.handle,
+    ).data
 
     sentences = []
     for i in range(15):

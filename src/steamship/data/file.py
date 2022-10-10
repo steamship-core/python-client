@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
 from steamship.base.configuration import CamelModel
-from steamship.base.request import IdentifierRequest
+from steamship.base.request import GetRequest, IdentifierRequest
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
 from steamship.data.tags import Tag
@@ -44,7 +44,6 @@ class File(CamelModel):
     handle: str = None
     mime_type: str = None
     space_id: str = None
-    corpus_id: str = None
     blocks: List[Block] = []
     tags: List[Tag] = []
     filename: str = None
@@ -57,7 +56,6 @@ class File(CamelModel):
         filename: str = None
         type: FileUploadType = None
         mime_type: str = None
-        corpus_id: str = None
         blocks: Optional[List[Block.CreateRequest]] = []
         tags: Optional[List[Tag.CreateRequest]] = []
         plugin_instance: str = None
@@ -84,14 +82,12 @@ class File(CamelModel):
             self.data_ = data
             self.mime_type = mime_type
 
-    class ListRequest(Request):
-        corpus_id: str = None
-
-    class ListResponse(Response):
-        files: List[File]
-
-    class RawRequest(Request):
-        id: str
+        @classmethod
+        def parse_obj(cls: Type[BaseModel], obj: Any) -> Response:
+            obj["data"] = obj.get("data") or obj.get("data_")
+            if "data_" in obj:
+                del obj["data_"]
+            return super().parse_obj(obj)
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
@@ -104,13 +100,6 @@ class File(CamelModel):
             "file/delete",
             IdentifierRequest(id=self.id),
             expect=File,
-        )
-
-    def clear(self) -> Response[FileClearResponse]:
-        return self.client.post(
-            "file/clear",
-            IdentifierRequest(id=self.id),
-            expect=FileClearResponse,
         )
 
     @staticmethod
@@ -135,7 +124,6 @@ class File(CamelModel):
         mime_type: str = None,
         blocks: List[Block.CreateRequest] = None,
         tags: List[Tag.CreateRequest] = None,
-        corpus_id: str = None,
     ) -> Response[File]:
 
         if (
@@ -163,7 +151,6 @@ class File(CamelModel):
 
         req = File.CreateRequest(
             type=upload_type,
-            corpusId=corpus_id,
             url=url,
             mime_type=mime_type,
             plugin_instance=plugin_instance,
@@ -183,19 +170,6 @@ class File(CamelModel):
             expect=File,
         )
 
-    @staticmethod
-    def list(
-        client: Client,
-        corpus_id: str = None,
-    ):
-        req = File.ListRequest(corpusId=corpus_id)
-        res = client.post(
-            "file/list",
-            payload=req,
-            expect=File.ListResponse,
-        )
-        return res
-
     def refresh(self):
         return File.get(self.client, self.id)
 
@@ -214,12 +188,11 @@ class File(CamelModel):
         return res
 
     def raw(self):
-        req = File.RawRequest(
-            id=self.id,
-        )
         return self.client.post(
             "file/raw",
-            payload=req,
+            payload=GetRequest(
+                id=self.id,
+            ),
             raw_response=True,
         )
 
@@ -233,7 +206,6 @@ class File(CamelModel):
             "plugin/instance/blockify",
             payload=req,
             expect=BlockAndTagPluginOutput,
-            asynchronous=True,
         )
 
     def tag(
@@ -249,7 +221,6 @@ class File(CamelModel):
             "plugin/instance/tag",
             payload=req,
             expect=TagResponse,
-            asynchronous=True,
         )
 
     def index(
@@ -297,5 +268,4 @@ class FileQueryResponse(Response):
     files: List[File]
 
 
-File.ListResponse.update_forward_refs()
 File.CreateRequest.update_forward_refs()

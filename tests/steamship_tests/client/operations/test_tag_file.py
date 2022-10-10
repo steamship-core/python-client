@@ -2,7 +2,7 @@
 # TODO: It should fail if the file hasn't been converted.
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import Block, DocTag, MimeTypes, PluginInstance, Steamship
+from steamship import Block, DocTag, File, MimeTypes, PluginInstance, Steamship
 from steamship.base.response import TaskState
 
 
@@ -32,7 +32,11 @@ def tag_file(client: Steamship, parser_instance_handle: str):
 
     content = f"# {t}\n\n{p1_1} {p1_2}\n\n{p2_1}"
 
-    a = client.upload(content=content, mime_type=MimeTypes.MKD).data
+    a = File.create(
+        client,
+        content=content,
+        mime_type=MimeTypes.MKD,
+    ).data
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
 
@@ -70,11 +74,6 @@ def tag_file(client: Steamship, parser_instance_handle: str):
     # Again, should rewrite these once tag queries are integrated
     q2 = a.refresh().data
     assert count_tags(q2.blocks, DocTag.doc, DocTag.sentence) == 4
-
-    a.clear()
-
-    q2 = a.refresh().data
-    assert len(q2.blocks) == 0
 
     a.delete()
 
