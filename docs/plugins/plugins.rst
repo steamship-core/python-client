@@ -11,12 +11,13 @@ use with Steamship.
 
 Steamship supports the following types of plugins:
 
--  **File Importers** Import data, as bytes, into Steamship.
--  **`Blockifiers <blockifiers/>`_** - Convert data into Steamship Block Format for
-   processing.
--  **Taggers** - Tag and classify data with new information.
--  **Embedders** - Convert data into vector representation.
--  **Exporters** - Export Steamship data into other formats.
+.. toctree::
+   :maxdepth: 1
+
+   File Importers <file_importers/index>
+   Blockifiers <blockifiers/index>
+   Taggers <taggers/index>
+   Embedders <embedders/index>
 
 Plugins are intended to be created rarely and used prolifically. For
 example, one might create:
@@ -34,3 +35,10 @@ source, it could be mixed and matched with existing plugins as well. In
 this way, Steamship plugins lets developers build packages across
 different data and AI services without worrying about the details of
 tasking, persistence, and integration.
+
+For those interested in developing plugins, see:
+
+.. toctree::
+   :maxdepth: 2
+
+   Developing Plugins <developing/index>

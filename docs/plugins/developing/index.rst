@@ -1,7 +1,8 @@
 .. _developing_plugins:
 
+******************
 Developing Plugins
-------------------
+******************
 
 Think of a plugin as a PyPi package that runs in the cloud. Plugins
 conform to a specific interface that the Steamship Engine uses to
@@ -17,6 +18,19 @@ everything you need for a great development lifecycle:
    abstract methods
 4. Deployment can be done via the Steamship CLI or pre-configured GitHub
    Actions scripts
+
+
+A quick setup is below, and details are located in:
+
+.. toctree::
+   :maxdepth: 2
+
+   Environment Setup <environment-setup>
+   Steamship Manifest <steamship-manifest>
+   Blocks and Tags <thinking-in-blocks-and-tags>
+   Async Plugins <async-plugins>
+   Testing <testing>
+   Deploying <deploying-plugins>
 
 Quick Setup
 -----------
@@ -69,20 +83,14 @@ with your starter project work.
 
 5. Begin developing
 
-Open the ``src/api.py`` file to develop your plugin. For details about
-developing specific types of plugins, see the documentation for that
-specific plugin type.
-
-Developing your Plugin
-----------------------
-
-The entrypoints for your plugin are located in ``src/api.py``.
+Open the ``src/api.py`` file to develop your plugin.
 This file will have been created for you by the plugin template you selected when starting your project.
 
-You can think of the code inside ``src/api.py`` similarly to a Flask app.
+You can think of this file similarly to a Flask app.
 It looks and feels like a regular Python class: you can use it and unit test it as such.
 But it also contains decorators which expose methods to the Steamship Engine when deployed.
 
-For details about developing particular types of plugin, see the documentation specific to that plugin type:
+For details about
+developing specific types of plugins, see the documentation for that
+specific plugin type.
 
-- Developing Blockifiers

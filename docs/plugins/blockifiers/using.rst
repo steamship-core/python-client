@@ -1,5 +1,5 @@
 Using Blockifiers
-~~~~~~~~~~~~~~~~~
+-----------------
 
 To use a blockifier, create an instance with your Steamship client and apply it to a file.
 

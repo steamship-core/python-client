@@ -1,5 +1,5 @@
 Developing Blockifiers
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 To develop a blockifier, first follow the instructions in _developing_plugins to create
 a new plugin project. This will result in a full, working plugin scaffold that you could
@@ -8,7 +8,7 @@ deploy and use immediately.
 Then, read below details about how to modify that scaffold for your own needs.
 
 The Blockifier Contract
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Blockifiers are responsible for transforming raw data into Steamship Block Format.
 Using our SDK, that means implementing the following method:
@@ -51,7 +51,7 @@ From the standpoint of the Steamship Engine, this ``PretendMarkdownBlockifier`` 
 transform any bytes claiming to be of this pseudo-markdown type into Steamship Block Format.
 
 How to Structure Blocks and Tags
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The biggest design question you will likely face when implementing a blockifier is how to structure your blocks and tags.
 At the platform level, we leave this open-ended on purpose, but we do encourage a few conventions of common convergence.
@@ -59,7 +59,7 @@ At the platform level, we leave this open-ended on purpose, but we do encourage 
 See the section Thinking in Blocks and Tags for more details.
 
 Returning Errors
-----------------
+~~~~~~~~~~~~~~~~
 
 If something goes wrong during blockification, the preferred way to handle it is to raise an ``SteamshipError`` immediately.
 
