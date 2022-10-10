@@ -11,9 +11,10 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   Overview <readme>
    License <license>
    Authors <authors>
    Changelog <changelog>
-   Plugins <plugins/plugins>
-   Module Reference <api/modules>
+   Workspaces <workspaces/index>
+   Plugins <plugins/index>
+   Packages <packages/index>
+   Python Client Reference <api/modules>

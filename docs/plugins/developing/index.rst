@@ -19,18 +19,20 @@ everything you need for a great development lifecycle:
 4. Deployment can be done via the Steamship CLI or pre-configured GitHub
    Actions scripts
 
-
-A quick setup is below, and details are located in:
+A quick setup is below, with full details are located in the following pages:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    Environment Setup <environment-setup>
-   Steamship Manifest <steamship-manifest>
-   Blocks and Tags <thinking-in-blocks-and-tags>
-   Async Plugins <async-plugins>
-   Testing <testing>
-   Deploying <deploying-plugins>
+   The Steamship Manifest <steamship-manifest>
+   Writing Tests <testing>
+   Deploying Plugins <deploying-plugins>
+
+As you develop, you may run into design questions, which might be answered on one of these pages or the page for your plugin type.
+
+- :ref:`Thinking in Blocks and Tags<Data Model>`
+- :ref:`Working with Async third-party services<async-plugins>`
 
 Quick Setup
 -----------
@@ -57,7 +59,7 @@ consist of lower letters, numbers, and dashes ``like-this``.
 3. Set up your virtual environment
 
 We recommend using Python virtual environments for development. To set
-one up, run the following command from this directory:
+one up, run the following command from your plugin's root directory:
 
 .. code:: bash
 
@@ -92,5 +94,9 @@ But it also contains decorators which expose methods to the Steamship Engine whe
 
 For details about
 developing specific types of plugins, see the documentation for that
-specific plugin type.
+specific plugin type:
 
+- :ref:`Developing File Importers<../file_importers/developing>`
+- :ref:`Developing Blockifiers<../blockifiers/developing>`
+- :ref:`Developing Taggers<../taggers/developing>`
+- :ref:`Developing Embedders<../embedders/developing>`
