@@ -5,15 +5,9 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
-from steamship import Block, Configuration, PluginInstance, SteamshipError
+from steamship import AppInstance, Configuration, PluginInstance, Space, SteamshipError
 from steamship.base import Client, Response
-from steamship.base.base import IResponse
-from steamship.base.tasks import TaskComment, TaskCommentList
-from steamship.data import File
-from steamship.data.app_instance import AppInstance
-from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
-from steamship.data.operations.tagger import TagRequest, TagResponse
-from steamship.data.space import Space
+from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
 
 _logger = logging.getLogger(__name__)
 
@@ -59,38 +53,6 @@ class Steamship(Client):
             for key, value in self.__dict__.items()
             if key != "use" and key != "use_plugin"
         ]
-
-    def create_index(
-        self,
-        handle: str = None,
-        plugin_instance: str = None,
-        upsert: bool = True,
-        external_id: str = None,
-        external_type: str = None,
-        metadata: Any = None,
-    ) -> Response[EmbeddingIndex]:
-        return EmbeddingIndex.create(
-            client=self,
-            handle=handle,
-            plugin_instance=plugin_instance,
-            upsert=upsert,
-            external_id=external_id,
-            external_type=external_type,
-            metadata=metadata,
-        )
-
-    def upload(
-        self,
-        filename: str = None,
-        content: str = None,
-        mime_type: str = None,
-    ) -> Response[File]:
-        return File.create(
-            self,
-            filename=filename,
-            content=content,
-            mime_type=mime_type,
-        )
 
     def embed_and_search(
         self,
@@ -227,18 +189,6 @@ class Steamship(Client):
             )
         return instance.data
 
-    def tag(
-        self,
-        doc: str,
-        plugin_instance: str = None,
-    ) -> Response[TagResponse]:
-        req = TagRequest(
-            type="inline",
-            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
-            plugin_instance=plugin_instance,
-        )
-        return self.post("plugin/instance/tag", req, expect=TagResponse)
-
     def get_space(self) -> Space:
         # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes
         # pre-configured with an API key and the Space in which this client should be operating.
@@ -255,18 +205,3 @@ class Steamship(Client):
             )
         logging.info(f"Got space: {space.data.handle}/{space.data.id}")
         return space.data
-
-    def list_comments(
-        self,
-        task_id: str = None,
-        external_id: str = None,
-        external_type: str = None,
-        external_group: str = None,
-    ) -> IResponse[TaskCommentList]:
-        return TaskComment.list(
-            client=self,
-            task_id=task_id,
-            external_id=external_id,
-            external_type=external_type,
-            external_group=external_group,
-        )

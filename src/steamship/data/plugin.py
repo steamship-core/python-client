@@ -15,7 +15,7 @@ from pydantic import BaseModel
 
 from steamship.base.client import Client
 from steamship.base.configuration import CamelModel
-from steamship.base.request import Request
+from steamship.base.request import IdentifierRequest, Request
 from steamship.base.response import Response
 
 
@@ -96,26 +96,12 @@ class CreatePluginRequest(Request):
     upsert: bool = None
 
 
-class DeletePluginRequest(Request):
-    id: str
-
-
-class ListPublicPluginsRequest(Request):
+class ListPluginsRequest(Request):
     type: Optional[str] = None
-
-
-class ListPrivatePluginsRequest(Request):
-    type: str
 
 
 class ListPluginsResponse(Response):
     plugins: List[Plugin]
-
-
-class GetPluginRequest(Request):
-    type: str = None
-    id: str = None
-    handle: str = None
 
 
 class PluginType(str, Enum):
@@ -196,13 +182,13 @@ class Plugin(CamelModel):
     def list(client: Client, t: str = None) -> Response[ListPluginsResponse]:
         return client.post(
             "plugin/list",
-            ListPublicPluginsRequest(type=t),
+            ListPluginsRequest(type=t),
             expect=ListPluginsResponse,
         )
 
     @staticmethod
     def get(client: Client, handle: str):
-        return client.post("plugin/get", GetPluginRequest(handle=handle), expect=Plugin)
+        return client.post("plugin/get", IdentifierRequest(handle=handle), expect=Plugin)
 
 
 ListPluginsResponse.update_forward_refs()

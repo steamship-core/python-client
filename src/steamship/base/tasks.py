@@ -8,7 +8,7 @@ from steamship.base.base import IResponse
 from steamship.base.configuration import CamelModel
 from steamship.base.error import SteamshipError
 from steamship.base.metadata import metadata_to_str, str_to_metadata
-from steamship.base.request import IdentifierRequest, Request
+from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 
 T = TypeVar("T")
 
@@ -27,10 +27,6 @@ class ListTaskCommentRequest(Request):
     external_id: str = None
     external_type: str = None
     external_group: str = None
-
-
-class DeleteTaskCommentRequest(Request):
-    id: str = None
 
 
 class TaskComment(CamelModel):
@@ -99,7 +95,7 @@ class TaskComment(CamelModel):
         )
 
     def delete(self) -> IResponse[TaskComment]:
-        req = DeleteTaskCommentRequest(id=self.id)
+        req = DeleteRequest(id=self.id)
         return self.client.post(
             "task/comment/delete",
             req,
@@ -108,7 +104,6 @@ class TaskComment(CamelModel):
 
 
 class TaskCommentList(CamelModel):
-    # TODO (enias): Not needed
     comments: List[TaskComment]
 
 

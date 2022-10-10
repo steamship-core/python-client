@@ -32,9 +32,6 @@ class Space(CamelModel):
         external_type: Optional[str] = None
         metadata: Optional[str] = None
 
-    class ListRequest(SteamshipRequest):
-        pass
-
     def delete(self) -> SteamshipResponse[Space]:
         return self.client.post("space/delete", IdentifierRequest(id=self.id), expect=Space)
 

@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from steamship.base import Client, Request, Response
 from steamship.base.configuration import CamelModel
-from steamship.base.request import IdentifierRequest
+from steamship.base.request import DeleteRequest, IdentifierRequest
 from steamship.data.tags.tag import Tag
 
 
@@ -25,9 +25,6 @@ class Block(CamelModel):
         text: str = None
         tags: Optional[List[Tag.CreateRequest]] = []
         upsert: bool = None
-
-    class DeleteRequest(Request):
-        id: str = None
 
     class ListRequest(Request):
         file_id: str = None
@@ -61,21 +58,10 @@ class Block(CamelModel):
             expect=Block,
         )
 
-    @staticmethod
-    def list_public(
-        client: Client,
-        file_id: str = None,
-    ) -> Response[Block.ListResponse]:
-        return client.post(
-            "block/list",
-            Block.ListRequest(file_id=file_id),
-            expect=Block.ListResponse,
-        )
-
     def delete(self) -> Response[Block]:
         return self.client.post(
             "block/delete",
-            Block.DeleteRequest(id=self.id),
+            DeleteRequest(id=self.id),
             expect=Tag,
         )
 

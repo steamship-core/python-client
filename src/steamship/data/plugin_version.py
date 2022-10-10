@@ -23,16 +23,7 @@ class CreatePluginVersionRequest(Request):
     config_template: Dict[str, Any] = None
 
 
-class DeletePluginVersionRequest(Request):
-    id: str
-
-
-class ListPublicPluginVersionsRequest(Request):
-    handle: str
-    plugin_id: str
-
-
-class ListPrivatePluginVersionsRequest(Request):
+class ListPluginVersionsRequest(Request):
     handle: str
     plugin_id: str
 
@@ -104,31 +95,11 @@ class PluginVersion(CamelModel):
         )
 
     @staticmethod
-    def get_public(client: Client, plugin_id: str, handle: str):
-        public_plugins = PluginVersion.list_public(
-            client=client, plugin_id=plugin_id, handle=handle
-        ).data.plugins
-        for plugin in public_plugins:
-            if plugin.handle == handle:
-                return plugin
-        return None
-
-    @staticmethod
-    def list_public(
-        client: Client, plugin_id: str = None, handle: str = None
+    def list(
+        client: Client, plugin_id: str = None, handle: str = None, public: bool = True
     ) -> Response[ListPluginVersionsResponse]:
         return client.post(
-            "plugin/version/public",
-            ListPublicPluginVersionsRequest(handle=handle, plugin_id=plugin_id),
-            expect=ListPluginVersionsResponse,
-        )
-
-    @staticmethod
-    def list_private(
-        client: Client, _=None, plugin_id: str = None, handle: str = None
-    ) -> Response[ListPluginVersionsResponse]:
-        return client.post(
-            "plugin/version/private",
-            ListPrivatePluginVersionsRequest(handle=handle, plugin_id=plugin_id),
+            f"plugin/version/{'public' if public else 'private'}",
+            ListPluginVersionsRequest(handle=handle, plugin_id=plugin_id),
             expect=ListPluginVersionsResponse,
         )

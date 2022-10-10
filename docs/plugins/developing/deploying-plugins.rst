@@ -71,14 +71,14 @@ Troubleshooting Deployments
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The deployment fails because the version already exists
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This means the version specified in ``steamship.json`` has already been
 registered with Steamship. Simply update the version in
 ``steamship.json`` to an identifier that has not yet been used.
 
 The deployment fails because the tag does not match the manifest file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This means you have tried to push a branch with a semver-style tag (like
 ``v1.2.3``), resulting in a version deployment whose name must match
@@ -89,7 +89,7 @@ For example, if you are deploying branch ``v6.0.0``, the ``version``
 field of your ``steamship.json`` file must be ``6.0.0``
 
 The deployment fails with an authentication error
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you’re deploying from GitHub Actions, make sure you’re set your
 ``STEAMSHIP_KEY`` in your GitHub secrets. If you’re deploying from your
