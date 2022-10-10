@@ -117,56 +117,57 @@ class File(CamelModel):
     @staticmethod
     def create(
         client: Client,
-        filename: str = None,
-        url: str = None,
-        content: str = None,
-        plugin_instance: str = None,
+        content: Union[str, bytes] = None,
         mime_type: str = None,
         blocks: List[Block.CreateRequest] = None,
         tags: List[Tag.CreateRequest] = None,
     ) -> Response[File]:
 
-        if (
-            filename is None
-            and content is None
-            and url is None
-            and plugin_instance is None
-            and blocks is None
-        ):
+        if content is None and blocks is None and tags is None:
             raise Exception("Either filename, content, url, or plugin Instance must be provided.")
 
-        if blocks is not None:
+        if blocks is not None or tags is not None:
             upload_type = FileUploadType.BLOCKS
-        elif plugin_instance is not None:
-            upload_type = FileUploadType.FILE_IMPORTER
         elif content is not None:
-            # We're still going to use the file upload method for file uploads
-            upload_type = FileUploadType.FILE
-        elif filename is not None:
-            with open(filename, "rb") as f:
-                content = f.read()
             upload_type = FileUploadType.FILE
         else:
             raise Exception("Unable to determine upload type.")
 
         req = File.CreateRequest(
             type=upload_type,
-            url=url,
             mime_type=mime_type,
-            plugin_instance=plugin_instance,
             blocks=blocks,
             tags=tags,
-            filename=filename,
         )
 
         # Defaulting this here, as opposed to in the Engine, because it is processed by Vapor
-        file_part_name = filename if filename else "unnamed"
         return client.post(
             "file/create",
             payload=req,
-            file=(file_part_name, content, "multipart/form-data")
+            file=("file-part", content, "multipart/form-data")
             if upload_type != FileUploadType.BLOCKS
             else None,
+            expect=File,
+        )
+
+    @staticmethod
+    def create_plugin(
+        client: Client,
+        plugin_instance: str,
+        url: str = None,
+        mime_type: str = None,
+    ) -> Response[File]:
+
+        req = File.CreateRequest(
+            type=FileUploadType.FILE_IMPORTER,
+            url=url,
+            mime_type=mime_type,
+            plugin_instance=plugin_instance,
+        )
+
+        return client.post(
+            "file/create",
+            payload=req,
             expect=File,
         )
 

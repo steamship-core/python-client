@@ -9,17 +9,19 @@ import zipfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from steamship_tests import ROOT_PATH, SRC_PATH, TEST_ASSETS_PATH
+
 from steamship import App, AppInstance, AppVersion, Steamship
 from steamship.data.plugin import HostingType, Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
-from steamship_tests import SRC_PATH, TEST_ASSETS_PATH, ROOT_PATH
 
 
 def install_dependencies(folder: str, requirements_path: Path):
     subprocess.run(  # noqa: S607,S603
-        ["pip", "install", "--target", folder, "-r", str(requirements_path.resolve())], stdout=subprocess.PIPE
+        ["pip", "install", "--target", folder, "-r", str(requirements_path.resolve())],
+        stdout=subprocess.PIPE,
     )
 
 
@@ -32,7 +34,7 @@ def zip_deployable(file_path: Path) -> bytes:
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(
-            file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
+        file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
     ) as zip_file:
         zip_file.write(file_path, "api.py")
 
@@ -46,7 +48,9 @@ def zip_deployable(file_path: Path) -> bytes:
         # Copy in package paths from pip
         with tempfile.TemporaryDirectory() as package_dir:
             logging.info(f"Created tempdir for pip installs: {package_dir}")
-            install_dependencies(folder=package_dir, requirements_path=ROOT_PATH / "requirements.txt")
+            install_dependencies(
+                folder=package_dir, requirements_path=ROOT_PATH / "requirements.txt"
+            )
             # Now write that whole folder
             for root, _, files in os.walk(package_dir):
                 for file in files:
@@ -72,12 +76,12 @@ def zip_deployable(file_path: Path) -> bytes:
 
 @contextlib.contextmanager
 def deploy_plugin(
-        client: Steamship,
-        py_path: Path,
-        plugin_type: str,
-        training_platform: Optional[HostingType] = None,
-        version_config_template: Dict[str, Any] = None,
-        instance_config: Dict[str, Any] = None,
+    client: Steamship,
+    py_path: Path,
+    plugin_type: str,
+    training_platform: Optional[HostingType] = None,
+    version_config_template: Dict[str, Any] = None,
+    instance_config: Dict[str, Any] = None,
 ):
     plugin = Plugin.create(
         client,
@@ -123,10 +127,10 @@ def deploy_plugin(
 
 @contextlib.contextmanager
 def deploy_app(
-        client: Steamship,
-        py_path: Path,
-        version_config_template: Dict[str, Any] = None,
-        instance_config: Dict[str, Any] = None,
+    client: Steamship,
+    py_path: Path,
+    version_config_template: Dict[str, Any] = None,
+    instance_config: Dict[str, Any] = None,
 ):
     app = App.create(client)
     assert app.error is None
