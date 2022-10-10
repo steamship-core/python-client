@@ -15,9 +15,3 @@ def test_version_create():
     version = AppVersion.create(client, app_id=app.id, filebytes=zip_bytes)
 
     version.wait()
-
-    res = version.data.delete()
-    assert res.error is None
-
-    res = app.delete()
-    assert res.error is None

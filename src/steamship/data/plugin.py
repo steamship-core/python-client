@@ -204,12 +204,5 @@ class Plugin(CamelModel):
     def get(client: Client, handle: str):
         return client.post("plugin/get", GetPluginRequest(handle=handle), expect=Plugin)
 
-    def delete(self) -> Response[Plugin]:
-        return self.client.post(
-            "plugin/delete",
-            DeletePluginRequest(id=self.id),
-            expect=Plugin,
-        )
-
 
 ListPluginsResponse.update_forward_refs()

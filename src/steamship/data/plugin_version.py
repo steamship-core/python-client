@@ -103,10 +103,6 @@ class PluginVersion(CamelModel):
             expect=PluginVersion,
         )
 
-    def delete(self) -> PluginVersion:
-        req = DeletePluginVersionRequest(id=self.id)
-        return self.client.post("plugin/version/delete", payload=req, expect=PluginVersion)
-
     @staticmethod
     def get_public(client: Client, plugin_id: str, handle: str):
         public_plugins = PluginVersion.list_public(

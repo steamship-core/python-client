@@ -185,10 +185,6 @@ def _check_user(client, instance):
 def _delete_deployable(instance, version, deployable):
     res = instance.delete()
     assert res.error is None
-    res = version.delete()
-    assert res.error is None
-    res = deployable.delete()
-    assert res.error is None
 
 
 def _wait_for_instance(instance):

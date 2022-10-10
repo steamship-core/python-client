@@ -74,11 +74,6 @@ def test_plugin_create():
 
     # assert(my_plugins.plugins[0].description != plugin.description)
 
-    plugin.delete()
-
-    my_plugins = Plugin.list(steamship).data
-    assert len(my_plugins.plugins) == orig_count
-
 
 def test_plugin_public():
     steamship = get_steamship_client()
@@ -88,10 +83,6 @@ def test_plugin_public():
     plugins = resp.plugins
 
     assert len(plugins) > 0
-
-    # Make sure they can't be deleted.
-    res = plugins[0].delete()
-    assert res.error is not None
 
 
 def test_deploy_in_space():

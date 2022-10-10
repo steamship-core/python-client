@@ -67,7 +67,3 @@ class AppVersion(CamelModel):
             file=("app.zip", filebytes, "multipart/form-data"),
             expect=AppVersion,
         )
-
-    def delete(self) -> Response[AppVersion]:
-        req = DeleteAppVersionRequest(id=self.id)
-        return self.client.post("app/version/delete", payload=req, expect=AppVersion)

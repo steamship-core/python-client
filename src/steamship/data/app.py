@@ -51,7 +51,3 @@ class App(BaseModel):
     @staticmethod
     def get(client: Client, handle: str):
         return client.post("app/get", GetAppRequest(handle=handle), expect=App)
-
-    def delete(self) -> Response[App]:
-        req = DeleteAppRequest(id=self.id)
-        return self.client.post("app/delete", payload=req, expect=App)

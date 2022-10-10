@@ -9,6 +9,3 @@ def test_app_create():
     app = App.create(client)
     assert app.error is None
     assert app.data is not None
-
-    _ = app.data.delete()
-    assert app.error is None
