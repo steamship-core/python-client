@@ -11,19 +11,20 @@ from steamship.data.tags.tag import Tag
 
 @pytest.mark.usefixtures("client")
 def test_file_upload(client: Steamship):
-    a = client.upload(content="A", mime_type=MimeTypes.MKD).data
+    a = File.create(client=client, content="A", mime_type=MimeTypes.MKD).data
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
 
-    b = client.upload(content="B", mime_type=MimeTypes.TXT).data
+    b = File.create(client=client, content="B", mime_type=MimeTypes.TXT).data
     assert b.id is not None
     assert b.mime_type == MimeTypes.TXT
     assert a.id != b.id
 
-    c = client.upload(content="B", mime_type=MimeTypes.MKD).data
+    c = File.create(client=client, content="B", mime_type=MimeTypes.MKD).data
     assert c.mime_type == MimeTypes.MKD  # The specified format gets precedence over filename
 
-    d = client.upload(
+    d = File.create(
+        client=client,
         content="B",
     ).data
     assert d.mime_type == MimeTypes.TXT  # The filename is used in a pinch.
@@ -55,13 +56,13 @@ def test_file_upload_with_blocks(client: Steamship):
         client=client,
         blocks=[
             Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
-            Block.CreateRequest(text="B"),
+            Block.CreateRequest(text="B", tags=[Tag.CreateRequest(name="BlockTag")]),
         ],
         tags=[Tag.CreateRequest(name="FileTag")],
     ).data
     assert a.id is not None
 
-    blocks = Block.list_public(client, file_id=a.id)
+    blocks = Block.query(client, f'file_id "{a.id}"')
 
     def check_blocks(block_list):
         assert len(block_list) == 2

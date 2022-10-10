@@ -19,7 +19,10 @@ _TEST_EMBEDDER = "test-embedder-v1"
 
 @contextlib.contextmanager
 def random_index(steamship: Steamship, plugin_instance: str) -> EmbeddingIndex:
-    index = steamship.create_index(plugin_instance=plugin_instance).data
+    index = EmbeddingIndex.create(
+        client=steamship,
+        plugin_instance=plugin_instance,
+    ).data
     yield index
     index.delete()  # or whatever you need to do at exit
 

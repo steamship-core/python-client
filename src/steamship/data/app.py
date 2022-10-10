@@ -14,7 +14,7 @@ from steamship.base import Client, Response
 from steamship.base.request import CreateRequest, DeleteRequest, GetRequest
 
 
-class App(BaseModel):
+class App(BaseModel):  # TODO (enias): Rename to Package
     client: Client = None
     id: str = None
     handle: str = None

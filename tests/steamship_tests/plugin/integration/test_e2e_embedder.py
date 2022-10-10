@@ -42,4 +42,5 @@ def test_e2e_embedder():
         # Now lets run all the other embedding steamship_tests
         basic_embeddings(instance)
         basic_embedding_search(client, plugin_instance=instance.handle)
-        create_index(client, plugin_instance=instance.handle)
+        index = create_index(client, plugin_instance=instance.handle).data
+        index.delete()

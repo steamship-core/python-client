@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
 from steamship.base.configuration import CamelModel
-from steamship.base.request import GetRequest, IdentifierRequest, ListRequest
+from steamship.base.request import GetRequest, IdentifierRequest
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
 from steamship.data.tags import Tag
@@ -89,9 +89,6 @@ class File(CamelModel):
                 del obj["data_"]
             return super().parse_obj(obj)
 
-    class ListResponse(Response):
-        files: List[File]
-
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
         # TODO (enias): This needs to be solved at the engine side
@@ -103,13 +100,6 @@ class File(CamelModel):
             "file/delete",
             IdentifierRequest(id=self.id),
             expect=File,
-        )
-
-    def clear(self) -> Response[FileClearResponse]:
-        return self.client.post(
-            "file/clear",
-            IdentifierRequest(id=self.id),
-            expect=FileClearResponse,
         )
 
     @staticmethod
@@ -179,16 +169,6 @@ class File(CamelModel):
             else None,
             expect=File,
         )
-
-    @staticmethod
-    def list(client: Client):
-        req = ListRequest()
-        res = client.post(
-            "file/list",
-            payload=req,
-            expect=File.ListResponse,  # TODO (enias): Can I rename this?
-        )
-        return res
 
     def refresh(self):
         return File.get(self.client, self.id)
@@ -288,5 +268,4 @@ class FileQueryResponse(Response):
     files: List[File]
 
 
-File.ListResponse.update_forward_refs()
 File.CreateRequest.update_forward_refs()
