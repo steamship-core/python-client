@@ -1,11 +1,59 @@
-Importing and Using Blockifiers
-===============================
+Using Blockifiers
+~~~~~~~~~~~~~~~~~
 
-Importing a Blockifier
-----------------------
+To use a blockifier, create an instance with your Steamship client and apply it to a file.
 
-From within a Steamship Package
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code:: python
+
+   # Load a Steamship Worksapce
+   from steamship import Steamship, File
+   client = Steamship(workspace="my-workspace-handle")
+
+   # Upload a file
+   file = File.create(path="path/to/some_file").data
+
+   # Create the blockifier instance
+   blockifier = client.use_plugin('blockifier-handle', 'instance-handle')
+
+   # Apply the blockifier to the file
+   task = file.blockify(blockifier.handle)
+
+   # Wait until the blockify task completes remotely
+   task.wait()
+
+   # Query across the persisted blocks and tags returned from blockification.
+   file.query("""
+       blocktag AND name "paragraph" AND contains "foobar"
+   """)
+
+In the above code, the two key lines are:
+
+.. code:: python
+
+   blockifier = client.use_plugin('blockifier-handle', 'instance-handle')
+   task = file.blockify(blockifier.handle)
+
+In these lines, ``blockifier-handle`` identifies which blockifier you would like to use, and
+``instance-handle`` identifies your particular instance of this blockifier in a workspace.
+The same instance is reused, rather than created, if you load it like this again.
+
+Common Blockifiers
+~~~~~~~~~~~~~~~~~~
+
+Steamship maintains a growing collection of official blockifiers for common scenarios.
+Our goal is to always map our defaults to best of breed models so that you can get work done quickly without worrying
+about the details of model selection and tuning.
+
+Our current list of supported blockifiers are:
+
+* ``markdown-default`` - Converts HTML to Steamship Blocks
+* ``html-default`` - Converts audio to Steamship Blocks
+* ``speech-to-text-default`` - Converts audio to Steamship Blocks
+* ``csv-blockifier`` - Converts CSV to Steamship Blocks
+
+
+Using a Blockifier from within a Steamship Package
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Steamship Packages are Python classes that run in the cloud. The Package
 constructor receives a pre-configured Steamship client anchored in the
@@ -38,8 +86,8 @@ We recommend:
    plugin instance each time instead of generating a new one each time
    your package is used.
 
-From within a Steamship Workspace
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Using a Blockifier from within a Steamship Workspace
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Each instance of a Steamship client is anchored to a Workspace. This
 Workspace provides a scope in which data and infrastructure can live.
@@ -63,8 +111,8 @@ Steamship client, like this:
 
    blockifier = client.use_plugin("blockifier-handle", "unique-id", config={})
 
-Inside its own Workspace
-~~~~~~~~~~~~~~~~~~~~~~~~
+Using a Blockifier as a one-off operation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you wish to use a Blockifier in-line without a known workspace, you
 can create a Blockifier from the Steamship client’s static class.
@@ -81,48 +129,3 @@ can create a Blockifier from the Steamship client’s static class.
    # Or, as shorthand:
 
    blockifier = Steamship.use_plugin("blockifier-handle", config={})
-
-Using a blockifier
-------------------
-
-Once imported, you can use your blockifier in two ways:
-
--  **Statefully, on workspace data.** This will render some file in
-   Steamship available for processing and querying by other plugins.
--  **Statelessly, on inline data.** This will return the blockifier’s
-   output in Steamship Block format without saving it to your Workspace.
-
-Using a Blockifier statefully on Workspace data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-To use a blockfier statefully on a file in a workspace, call the
-``file.blockify``, passing in the blockifier. The results are saved in
-your workspace so that you never need to perform that operation again.
-
-.. code:: python
-
-   # TODO: Check the below code for correctness
-
-   # Load a Steamship Worksapce 
-   from steamship import Steamship, File
-   client = Steamship(workspace="my-workspace-handle")
-
-   # Upload a Markdown file
-   file = File.create(path="path/to/markdown_file.md").data
-
-   # Blockify the file.
-   blockifier = client.use_plugin("markdown-blockifier")
-   task = file.blockify(plugin_instance=blockifier.handle)
-
-   # Wait until the blockify task completes remotely
-   task.wait()
-
-   # Query across the persisted blocks and tags returned from blockification.
-   file.query("""
-       blocktag AND name "paragraph" AND contains "foobar"
-   """)
-
-Using a Blockifier statelessly on inline data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-TODO

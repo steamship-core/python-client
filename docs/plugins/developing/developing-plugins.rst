@@ -1,3 +1,5 @@
+.. _developing_plugins:
+
 Developing Plugins
 ------------------
 
@@ -71,34 +73,16 @@ Open the ``src/api.py`` file to develop your plugin. For details about
 developing specific types of plugins, see the documentation for that
 specific plugin type.
 
-Developing Blockifiers
+Developing your Plugin
 ----------------------
 
-All the code for this plugin is located in the ``src/api.py`` file.
+The entrypoints for your plugin are located in ``src/api.py``.
+This file will have been created for you by the plugin template you selected when starting your project.
 
-Steamship plugins conform to standard base classes. You just have to
-implement the main function that represents their contracts with the
-server. The type of plugin is recorded in the ``type`` field of
-`steamship.json <steamship.json>`__.
+You can think of the code inside ``src/api.py`` similarly to a Flask app.
+It looks and feels like a regular Python class: you can use it and unit test it as such.
+But it also contains decorators which expose methods to the Steamship Engine when deployed.
 
-You can easily fork, customize, and republish this plugin with new
-functionality.
+For details about developing particular types of plugin, see the documentation specific to that plugin type:
 
-This project is a **Blockifier** plugin. It’s contract is to take raw
-bytes and produce Steamship Blocks – our internal format for describing
-text and tags over that text. In Python, that contract looks like:
-
-.. code:: python
-
-       def run(self, request: PluginRequest[RawDataPluginInput]) -> Union[BlockAndTagPluginOutput]:
-           pass
-
-See `TESTING.md <../../../TESTING.md>`__ for details on the
-pre-configured testing setup.
-
-Deploying
----------
-
-To run this plugin on Steamship, you must first deploy it.
-
-See `DEPLOYING.md <../../../DEPLOYING.md>`__ for instructions.
+- Developing Blockifiers

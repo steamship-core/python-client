@@ -1,7 +1,7 @@
 Plugins
 =======
 
-Steamship Plugins help the Engine perform specific tasks related to
+Plugins help the Steamship Engine perform specific tasks related to
 Language AI.
 
 Each plugin is a stateless, Python-based microservice that runs in the
@@ -12,7 +12,7 @@ use with Steamship.
 Steamship supports the following types of plugins:
 
 -  **File Importers** Import data, as bytes, into Steamship.
--  **Blockifiers** - Convert data into Steamship Block Format for
+-  **`Blockifiers <blockifiers/>`_** - Convert data into Steamship Block Format for
    processing.
 -  **Taggers** - Tag and classify data with new information.
 -  **Embedders** - Convert data into vector representation.

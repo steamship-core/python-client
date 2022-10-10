@@ -104,3 +104,6 @@ fabric.properties
 
 # Coverage
 .coverage/
+
+# Generated website
+docs/_build

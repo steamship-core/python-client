@@ -1,0 +1,13 @@
+Building Documentation
+
+The first time ever, run:
+
+docker run -it --rm -v docs:/docs --workdir /docs/docs sphinxdoc/sphinx sphinx-quickstart
+
+From the project root, run:
+
+docker run --rm -v `pwd`:/docs --workdir /docs/docs sphinxdoc/sphinx make html
+
+After that, run:
+
+docker run --rm -t -i -v `pwd`:/docs --workdir /docs/docs sphinxdoc/sphinx /bin/bash
