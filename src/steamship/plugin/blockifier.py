@@ -22,8 +22,8 @@ class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC
     # noinspection PyUnusedLocal
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
-        if config:
-            self.config = self.config_cls()(**config)
+        if self.config:
+            self.config = self.config_cls()(**self.config)
         else:
             self.config = self.config_cls()()
 
