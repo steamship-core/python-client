@@ -2,7 +2,7 @@
 # TODO: It should fail if the file hasn't been converted.
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import Block, DocTag, MimeTypes, PluginInstance, Steamship, File
+from steamship import Block, DocTag, File, MimeTypes, PluginInstance, Steamship
 from steamship.base.response import TaskState
 
 

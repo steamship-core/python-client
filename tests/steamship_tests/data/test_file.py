@@ -23,9 +23,10 @@ def test_file_upload(client: Steamship):
     c = File.create(client=client, content="B", mime_type=MimeTypes.MKD).data
     assert c.mime_type == MimeTypes.MKD  # The specified format gets precedence over filename
 
-    d = File.create(client=client,
-                    content="B",
-                    ).data
+    d = File.create(
+        client=client,
+        content="B",
+    ).data
     assert d.mime_type == MimeTypes.TXT  # The filename is used in a pinch.
 
     a.delete()

@@ -3,7 +3,7 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_index
 
-from steamship import MimeTypes, PluginInstance, File
+from steamship import File, MimeTypes, PluginInstance
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -128,10 +128,10 @@ def test_file_embed_lookup():
     content_b = "Grace likes to bike."
 
     file = File.create(
-            steamship,
-            content=content_a,
-            mime_type=MimeTypes.MKD,
-        ).data
+        steamship,
+        content=content_a,
+        mime_type=MimeTypes.MKD,
+    ).data
 
     blockify_res = file.blockify(plugin_instance="markdown-blockifier-default-1.0")
     assert blockify_res.error is None

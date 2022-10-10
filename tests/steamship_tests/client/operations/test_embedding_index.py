@@ -9,13 +9,12 @@ from steamship.data.plugin_instance import PluginInstance
 _TEST_EMBEDDER = "test-embedder"
 
 
-def create_index(client: Steamship = None, plugin_instance: str = None, handle: str = None, upsert: bool = None):
+def create_index(
+    client: Steamship = None, plugin_instance: str = None, handle: str = None, upsert: bool = None
+):
     client = client or get_steamship_client()
     return EmbeddingIndex.create(
-        client=client,
-        plugin_instance=plugin_instance,
-        handle=handle,
-        upsert=upsert
+        client=client, plugin_instance=plugin_instance, handle=handle, upsert=upsert
     )
 
 
@@ -35,7 +34,7 @@ def test_create_index():
         client=client,
         handle=index.data.handle,
         plugin_instance=plugin_instance.handle,
-        upsert=False
+        upsert=False,
     )
     assert task.error is not None
 
