@@ -44,10 +44,7 @@ def test_basic_task_comment():
 
         res.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
 
-        comments = TaskComment.list(
-            client=steamship,
-            task_id=res.task_id
-        )
+        comments = TaskComment.list(client=steamship, task_id=res.task_id)
         assert len(comments.comments) == 1
 
         comment = comments.comments[0]
@@ -57,20 +54,14 @@ def test_basic_task_comment():
 
         comment.delete()
 
-        comments = TaskComment.list(
-            client=steamship,
-            task_id=res.task_id
-        )
+        comments = TaskComment.list(client=steamship, task_id=res.task_id)
         assert len(comments.comments) == 0
 
         # Now let's add one
         res.add_comment(external_id="Foo1", external_type="Bar1", metadata=[1, 2, 3])
         res.add_comment(external_id="Foo2", external_type="Bar2", metadata=[1, 2, 3, 4])
 
-        comments = TaskComment.list(
-            client=steamship,
-            task_id=res.task_id
-        )
+        comments = TaskComment.list(client=steamship, task_id=res.task_id)
         assert len(comments.comments) == 2
 
         comment = comments.comments[0]
@@ -86,27 +77,18 @@ def test_basic_task_comment():
         comments.comments[0].delete()
         comments.comments[1].delete()
 
-        comments = TaskComment.list(
-            client=steamship,
-            task_id=res.task_id
-        )
+        comments = TaskComment.list(client=steamship, task_id=res.task_id)
         assert len(comments.comments) == 0
 
         # Now we handle res2
-        comments = TaskComment.list(
-            client=steamship,
-            task_id=res2.task_id
-        )
+        comments = TaskComment.list(client=steamship, task_id=res2.task_id)
         assert len(comments.comments) == 1
         comment = comments.comments[0]
         assert comment.external_id == "Foo"
         assert comment.external_type == "Bar"
         _list_equal(comment.metadata, [1, 2])
         comments.comments[0].delete()
-        comments = TaskComment.list(
-            client=steamship,
-            task_id=res.task_id
-        )
+        comments = TaskComment.list(client=steamship, task_id=res.task_id)
         assert len(comments.comments) == 0
 
 
@@ -160,10 +142,7 @@ def test_task_comment_feedback_reporting():
             metadata=[1, 2, 3],
         )
 
-        comments = TaskComment.list(
-            client=client,
-            task_id=res.task_id
-        )
+        comments = TaskComment.list(client=client, task_id=res.task_id)
         assert len(comments.comments) == 3
 
         g1 = TaskComment.list(

@@ -22,9 +22,7 @@ def test_get_training_parameters():
         training_platform=HostingType.LAMBDA,
     ) as (tagger, tagger_version, tagger_instance):
         training_request = TrainingParameterPluginInput(plugin_instance=tagger_instance.handle)
-        res = tagger_instance.get_training_parameters(
-            training_request
-        )
+        res = tagger_instance.get_training_parameters(training_request)
         assert res.output is not None
         params = res.output
 

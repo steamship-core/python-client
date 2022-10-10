@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, List, Optional, Set, Type, TypeVar, Generic
+from typing import Any, Dict, Generic, List, Optional, Set, Type, TypeVar
 
 from pydantic import BaseModel
 
@@ -53,13 +53,13 @@ class TaskComment(CamelModel):
 
     @staticmethod
     def create(
-            client: Any,  # TODO (Enias): Solve circular dependency
-            task_id: str = None,
-            external_id: str = None,
-            external_type: str = None,
-            external_group: str = None,
-            metadata: Any = None,
-            upsert: bool = True,
+        client: Any,  # TODO (Enias): Solve circular dependency
+        task_id: str = None,
+        external_id: str = None,
+        external_type: str = None,
+        external_group: str = None,
+        metadata: Any = None,
+        upsert: bool = True,
     ) -> IResponse[TaskComment]:
         req = CreateTaskCommentRequest(
             taskId=task_id,
@@ -77,11 +77,11 @@ class TaskComment(CamelModel):
 
     @staticmethod
     def list(
-            client: Any,
-            task_id: str = None,
-            external_id: str = None,
-            external_type: str = None,
-            external_group: str = None,
+        client: Any,
+        task_id: str = None,
+        external_id: str = None,
+        external_type: str = None,
+        external_group: str = None,
     ) -> TaskCommentList:
         req = ListTaskCommentRequest(
             taskId=task_id,
@@ -196,9 +196,9 @@ class Task(GenericCamelModel, Generic[T]):
 
     @staticmethod
     def get(
-            client,
-            _id: str = None,
-            handle: str = None,
+        client,
+        _id: str = None,
+        handle: str = None,
     ) -> IResponse[Task]:
         return client.post(
             "task/get",
@@ -213,12 +213,12 @@ class Task(GenericCamelModel, Generic[T]):
             self.__dict__[k] = v
 
     def add_comment(
-            self,
-            external_id: str = None,
-            external_type: str = None,
-            external_group: str = None,
-            metadata: Any = None,
-            upsert: bool = True,
+        self,
+        external_id: str = None,
+        external_type: str = None,
+        external_group: str = None,
+        metadata: Any = None,
+        upsert: bool = True,
     ) -> IResponse[TaskComment]:
         return TaskComment.create(
             client=self.client,
@@ -241,8 +241,8 @@ class Task(GenericCamelModel, Generic[T]):
         """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
         t0 = time.perf_counter()
         while time.perf_counter() - t0 < max_timeout_s and self.state not in (
-                TaskState.succeeded,
-                TaskState.failed,
+            TaskState.succeeded,
+            TaskState.failed,
         ):
             self.refresh()
             time.sleep(retry_delay_s)

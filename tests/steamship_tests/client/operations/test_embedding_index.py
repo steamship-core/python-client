@@ -1,17 +1,17 @@
 import pytest
+from steamship_tests.utils.fixtures import get_steamship_client
+from steamship_tests.utils.random import random_index
 
 from steamship import Steamship, SteamshipError
 from steamship.base.response import TaskState
 from steamship.data.embeddings import EmbeddedItem, EmbeddingIndex
 from steamship.data.plugin_instance import PluginInstance
-from steamship_tests.utils.fixtures import get_steamship_client
-from steamship_tests.utils.random import random_index
 
 _TEST_EMBEDDER = "test-embedder"
 
 
 def create_index(
-        client: Steamship = None, plugin_instance: str = None, handle: str = None, upsert: bool = None
+    client: Steamship = None, plugin_instance: str = None, handle: str = None, upsert: bool = None
 ) -> EmbeddingIndex:
     client = client or get_steamship_client()
     return EmbeddingIndex.create(

@@ -9,13 +9,14 @@ import zipfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from steamship_tests import ROOT_PATH, SRC_PATH, TEST_ASSETS_PATH
+
 from steamship import App, AppInstance, AppVersion, Steamship
 from steamship.base import Task
 from steamship.data.plugin import HostingType, Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
-from steamship_tests import ROOT_PATH, SRC_PATH, TEST_ASSETS_PATH
 
 
 def install_dependencies(folder: str, requirements_path: Path):
@@ -34,7 +35,7 @@ def zip_deployable(file_path: Path) -> bytes:
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(
-            file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
+        file=zip_buffer, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
     ) as zip_file:
         zip_file.write(file_path, "api.py")
 
@@ -76,12 +77,12 @@ def zip_deployable(file_path: Path) -> bytes:
 
 @contextlib.contextmanager
 def deploy_plugin(
-        client: Steamship,
-        py_path: Path,
-        plugin_type: str,
-        training_platform: Optional[HostingType] = None,
-        version_config_template: Dict[str, Any] = None,
-        instance_config: Dict[str, Any] = None,
+    client: Steamship,
+    py_path: Path,
+    plugin_type: str,
+    training_platform: Optional[HostingType] = None,
+    version_config_template: Dict[str, Any] = None,
+    instance_config: Dict[str, Any] = None,
 ):
     plugin = Plugin.create(
         client,
@@ -123,10 +124,10 @@ def deploy_plugin(
 
 @contextlib.contextmanager
 def deploy_app(
-        client: Steamship,
-        py_path: Path,
-        version_config_template: Dict[str, Any] = None,
-        instance_config: Dict[str, Any] = None,
+    client: Steamship,
+    py_path: Path,
+    version_config_template: Dict[str, Any] = None,
+    instance_config: Dict[str, Any] = None,
 ):
     app = App.create(client)
 

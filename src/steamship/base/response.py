@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-import time
 from typing import Any, Generic, Type, TypeVar
 
 from pydantic.generics import GenericModel
 
 from steamship.base.error import SteamshipError
-from steamship.base.tasks import Task, TaskState, TaskStatusRequest
+from steamship.base.tasks import Task, TaskState
 from steamship.base.utils import to_camel
 
 T = TypeVar("T")  # Declare type variable
 
 
 # TODO (enias): Remove
+
 
 class Response(
     GenericModel, Generic[T]

@@ -165,12 +165,7 @@ class File(CamelModel):
             plugin_instance=plugin_instance,
         )
 
-        return client.post(
-            "file/create",
-            payload=req,
-            expect=File,
-            as_background_task=True
-        )
+        return client.post("file/create", payload=req, expect=File, as_background_task=True)
 
     def refresh(self) -> File:
         return File.get(self.client, self.id)
@@ -198,7 +193,7 @@ class File(CamelModel):
             raw_response=True,
         )
 
-    def blockify(self, plugin_instance: str = None) -> Taswk:
+    def blockify(self, plugin_instance: str = None) -> Task:
         from steamship.data.operations.blockifier import BlockifyRequest
         from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 

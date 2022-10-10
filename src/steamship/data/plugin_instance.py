@@ -91,7 +91,9 @@ class PluginInstance(CamelModel):
     def tag(
         self,
         doc: Union[str, File],
-    ) -> Task[TagResponse]: # TODO (enias): Should we remove this helper function in favor of always working with files?
+    ) -> Task[
+        TagResponse
+    ]:  # TODO (enias): Should we remove this helper function in favor of always working with files?
         req = TagRequest(
             type="inline",
             file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)])

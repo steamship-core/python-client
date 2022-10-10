@@ -1,13 +1,8 @@
-from typing import cast
-
 from assets.plugins.blockifiers.async_blockifier import ASYNC_JOB_ID, STATUS_MESSAGE
 from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.file import upload_file
 from steamship_tests.utils.fixtures import get_steamship_client
-
-from steamship.base import Response
-from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
 
 def test_e2e_async_blockifier_plugin():

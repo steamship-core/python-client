@@ -149,15 +149,15 @@ class Plugin(CamelModel):
 
     @staticmethod
     def create(
-            client: Client,
-            description: str,
-            type_: str,
-            transport: str,
-            is_public: bool,
-            handle: str = None,
-            training_platform: Optional[HostingType] = None,
-            metadata: Union[str, Dict, List] = None,
-            upsert: bool = False,
+        client: Client,
+        description: str,
+        type_: str,
+        transport: str,
+        is_public: bool,
+        handle: str = None,
+        training_platform: Optional[HostingType] = None,
+        metadata: Union[str, Dict, List] = None,
+        upsert: bool = False,
     ) -> Plugin:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)

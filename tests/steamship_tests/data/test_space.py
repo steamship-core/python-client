@@ -1,5 +1,4 @@
 import pytest
-
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import Space, SteamshipError

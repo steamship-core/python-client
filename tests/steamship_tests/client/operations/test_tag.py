@@ -1,5 +1,6 @@
-from steamship import PluginInstance
 from steamship_tests.utils.fixtures import get_steamship_client
+
+from steamship import PluginInstance
 
 
 def test_parsing():
@@ -13,6 +14,7 @@ def test_parsing():
 
     assert d.text == "This is a test"
     assert len(d.tags) == 5
+
 
 # def test_ner():
 #     steamship = get_steamship_client()

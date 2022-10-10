@@ -62,6 +62,7 @@ class CamelModel(BaseModel):
 class GenericCamelModel(CamelModel, GenericModel):
     pass
 
+
 class Configuration(CamelModel):
     api_key: str
     api_base: Optional[HttpUrl] = DEFAULT_API_BASE
