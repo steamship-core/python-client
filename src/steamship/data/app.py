@@ -10,26 +10,8 @@ from typing import Any, Type
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response
-
-
-class CreateAppRequest(Request):
-    id: str = None
-    handle: str = None
-    upsert: bool = None
-
-
-class DeleteAppRequest(Request):
-    id: str
-
-
-class ListPrivateAppsRequest(Request):
-    pass
-
-
-class GetAppRequest(Request):
-    id: str = None
-    handle: str = None
+from steamship.base import Client, Response
+from steamship.base.request import CreateRequest, DeleteRequest, GetRequest
 
 
 class App(BaseModel):
@@ -45,13 +27,13 @@ class App(BaseModel):
 
     @staticmethod
     def create(client: Client, handle: str = None, upsert: bool = None) -> Response[App]:
-        req = CreateAppRequest(handle=handle, upsert=upsert)
+        req = CreateRequest(handle=handle, upsert=upsert)
         return client.post("app/create", payload=req, expect=App)
 
     @staticmethod
     def get(client: Client, handle: str):
-        return client.post("app/get", GetAppRequest(handle=handle), expect=App)
+        return client.post("app/get", GetRequest(handle=handle), expect=App)
 
     def delete(self) -> Response[App]:
-        req = DeleteAppRequest(id=self.id)
+        req = DeleteRequest(id=self.id)
         return self.client.post("app/delete", payload=req, expect=App)

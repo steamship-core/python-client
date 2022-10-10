@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request, Response
 from steamship.base.configuration import CamelModel
+from steamship.base.request import DeleteRequest
 from steamship.data.space import Space
 
 
@@ -19,10 +20,6 @@ class CreateAppInstanceRequest(Request):
     upsert: bool = None
     config: Dict[str, Any] = None
     space_id: str = None
-
-
-class DeleteAppInstanceRequest(Request):
-    id: str
 
 
 class AppInstance(CamelModel):
@@ -69,7 +66,7 @@ class AppInstance(CamelModel):
         return client.post("app/instance/create", payload=req, expect=AppInstance)
 
     def delete(self) -> AppInstance:
-        req = DeleteAppInstanceRequest(id=self.id)
+        req = DeleteRequest(id=self.id)
         return self.client.post("app/instance/delete", payload=req, expect=AppInstance)
 
     def load_missing_vals(self):
@@ -107,7 +104,3 @@ class AppInstance(CamelModel):
 
     def full_url_for(self, path: str):
         return f"{self.invocation_url}{path}"
-
-
-class ListPrivateAppInstancesRequest(Request):
-    pass

@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request
 from steamship.base.configuration import CamelModel
+from steamship.base.request import DeleteRequest
 from steamship.base.response import Response
 from steamship.data.plugin import HostingMemory, HostingTimeout
 
@@ -21,10 +22,6 @@ class CreatePluginVersionRequest(Request):
     is_default: bool = None
     type: str = "file"
     config_template: Dict[str, Any] = None
-
-
-class DeletePluginVersionRequest(Request):
-    id: str
 
 
 class ListPublicPluginVersionsRequest(Request):
@@ -104,7 +101,7 @@ class PluginVersion(CamelModel):
         )
 
     def delete(self) -> PluginVersion:
-        req = DeletePluginVersionRequest(id=self.id)
+        req = DeleteRequest(id=self.id)
         return self.client.post("plugin/version/delete", payload=req, expect=PluginVersion)
 
     @staticmethod

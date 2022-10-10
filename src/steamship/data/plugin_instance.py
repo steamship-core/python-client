@@ -19,6 +19,7 @@ from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
 
+from ..base.request import DeleteRequest
 from .block import Block
 from .file import File
 from .operations.tagger import TagRequest, TagResponse
@@ -38,10 +39,6 @@ class CreatePluginInstanceRequest(Request):
     handle: str = None
     upsert: bool = None
     config: Dict[str, Any] = None
-
-
-class DeletePluginInstanceRequest(Request):
-    id: str
 
 
 class PluginInstance(CamelModel):
@@ -116,7 +113,7 @@ class PluginInstance(CamelModel):
         )
 
     def delete(self) -> PluginInstance:
-        req = DeletePluginInstanceRequest(id=self.id)
+        req = DeleteRequest(id=self.id)
         return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
 
     def export(self, plugin_input: ExportPluginInput) -> Response[RawDataPluginOutput]:
@@ -140,7 +137,3 @@ class PluginInstance(CamelModel):
             payload=training_request,
             expect=TrainingParameterPluginOutput,
         )
-
-
-class ListPrivatePluginInstancesRequest(Request):
-    pass
