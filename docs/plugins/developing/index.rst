@@ -1,5 +1,8 @@
+.. _developing_plugins:
+
+******************
 Developing Plugins
-------------------
+******************
 
 Think of a plugin as a PyPi package that runs in the cloud. Plugins
 conform to a specific interface that the Steamship Engine uses to
@@ -15,6 +18,19 @@ everything you need for a great development lifecycle:
    abstract methods
 4. Deployment can be done via the Steamship CLI or pre-configured GitHub
    Actions scripts
+
+
+A quick setup is below, and details are located in:
+
+.. toctree::
+   :maxdepth: 2
+
+   Environment Setup <environment-setup>
+   Steamship Manifest <steamship-manifest>
+   Blocks and Tags <thinking-in-blocks-and-tags>
+   Async Plugins <async-plugins>
+   Testing <testing>
+   Deploying <deploying-plugins>
 
 Quick Setup
 -----------
@@ -67,38 +83,14 @@ with your starter project work.
 
 5. Begin developing
 
-Open the ``src/api.py`` file to develop your plugin. For details about
+Open the ``src/api.py`` file to develop your plugin.
+This file will have been created for you by the plugin template you selected when starting your project.
+
+You can think of this file similarly to a Flask app.
+It looks and feels like a regular Python class: you can use it and unit test it as such.
+But it also contains decorators which expose methods to the Steamship Engine when deployed.
+
+For details about
 developing specific types of plugins, see the documentation for that
 specific plugin type.
 
-Developing Blockifiers
-----------------------
-
-All the code for this plugin is located in the ``src/api.py`` file.
-
-Steamship plugins conform to standard base classes. You just have to
-implement the main function that represents their contracts with the
-server. The type of plugin is recorded in the ``type`` field of
-`steamship.json <steamship.json>`__.
-
-You can easily fork, customize, and republish this plugin with new
-functionality.
-
-This project is a **Blockifier** plugin. It’s contract is to take raw
-bytes and produce Steamship Blocks – our internal format for describing
-text and tags over that text. In Python, that contract looks like:
-
-.. code:: python
-
-       def run(self, request: PluginRequest[RawDataPluginInput]) -> Union[BlockAndTagPluginOutput]:
-           pass
-
-See `TESTING.md <../../../TESTING.md>`__ for details on the
-pre-configured testing setup.
-
-Deploying
----------
-
-To run this plugin on Steamship, you must first deploy it.
-
-See `DEPLOYING.md <../../../DEPLOYING.md>`__ for instructions.

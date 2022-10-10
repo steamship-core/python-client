@@ -15,10 +15,6 @@ import sys
 # noinspection PyPackageRequirements
 from sphinx.ext import apidoc
 
-from steamship import __version__ as version
-
-release = version
-
 # -- Path setup --------------------------------------------------------------
 
 __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
@@ -27,6 +23,10 @@ __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.join(__location__, "../src"))
+
+from steamship import __version__ as version
+
+release = version
 
 # -- Run sphinx-apidoc -------------------------------------------------------
 # This hack is necessary since RTD does not issue `sphinx-apidoc` before running
@@ -49,6 +49,8 @@ try:
 
     cmd_line_template = "sphinx-apidoc --implicit-namespaces -f -o {outputdir} {moduledir}"
     cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
+
+    print(f"Funning: {cmd_line}")
 
     args = cmd_line.split(" ")
     if tuple(sphinx.__version__.split(".")) >= ("1", "7"):
