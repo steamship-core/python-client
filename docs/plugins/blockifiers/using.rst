@@ -1,7 +1,7 @@
 Using Blockifiers
 -----------------
 
-To use a :ref:`blockifier<Blockifiers>`, create an instance with your Steamship client and apply it to a file.
+To use a blockifier, create an instance with your Steamship client and apply it to a file.
 
 .. code:: python
 

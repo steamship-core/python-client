@@ -27,7 +27,7 @@ example, one might create:
 -  A **Notion File Importer Plugin** to import a Notion page as
    Notion-formatted JSON
 -  A **Notion Blockifier** to convert Notion-formatted JSON into
-   Steamship Block Format
+   :ref:`Steamship Block format<Data Model>`
 -  A **OpenAI Embedder** to embed sentences to Vectors via GPT-3
 
 Having created such plugins, anyone could use them to import, embed, and

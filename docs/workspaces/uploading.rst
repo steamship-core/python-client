@@ -7,9 +7,11 @@ There are three ways to upload data to a workspace:
 
 - :ref:`From a local file<Uploading a local file>`
 - :ref:`From a URL<Uploading a URL>`
-- :ref:`Via a Steamship Plugin<Uploading via a Plugin>`
+- :ref:`Via a Plugin<Uploading via Plugin>`
 
 Each of these methods always results in a new  :ref:`File<Files>` object.
+
+.. _Uploading a local file:
 
 Uploading a local file
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -44,6 +46,8 @@ removing the need to :ref:`blockify<Blockifiers>` your file later.
       blocks=Block.CreateRequest(...)
    ).data
 
+.. _Uploading a URL:
+
 Uploading a URL
 ^^^^^^^^^^^^^^^
 
@@ -56,8 +60,10 @@ Upload the file resolved by some URL by providing it to the ``File.create`` meth
       url=url
    ).data
 
-Uploading via a Plugin
-^^^^^^^^^^^^^^^^^^^^^^
+.. _Uploading via Plugin:
+
+Uploading via Plugin
+^^^^^^^^^^^^^^^^^^^^
 
 :ref:`File Importer plugins<File Importers>` provide a way to perform more complex imports to Steamship.
 

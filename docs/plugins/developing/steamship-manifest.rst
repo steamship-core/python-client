@@ -1,5 +1,5 @@
 Steamship Manifest Files
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 Every Steamship package and plugin has a ``steamship.json`` file at its
 root that describes the project to Steamship.

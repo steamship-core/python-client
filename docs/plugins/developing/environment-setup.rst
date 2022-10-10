@@ -1,5 +1,5 @@
 Environment Setup
-~~~~~~~~~~~~~~~~~
+-----------------
 
 Steamship plugins are written in Python.
 We've standardized on ``venv`` for dependency management,
