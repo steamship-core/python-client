@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request
+from steamship.base import Client, Request, Task
 from steamship.base.configuration import CamelModel
 from steamship.base.request import DeleteRequest
 from steamship.base.response import Response
@@ -65,7 +65,7 @@ class PluginVersion(CamelModel):
         is_public: bool = None,
         is_default: bool = None,
         config_template: Dict[str, Any] = None,
-    ) -> Response[PluginVersion]:
+    ) -> Task[PluginVersion]:
 
         if filename is None and filebytes is None:
             raise Exception("Either filename or filebytes must be provided.")

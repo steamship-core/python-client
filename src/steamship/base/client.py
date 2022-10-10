@@ -35,17 +35,17 @@ class Client(CamelModel, ABC):
     _session: Session = PrivateAttr()
 
     def __init__(
-        self,
-        api_key: str = None,
-        api_base: str = None,
-        app_base: str = None,
-        web_base: str = None,
-        workspace: str = None,
-        fail_if_workspace_exists: bool = False,
-        profile: str = None,
-        config_file: str = None,
-        config: Configuration = None,
-        **kwargs,
+            self,
+            api_key: str = None,
+            api_base: str = None,
+            app_base: str = None,
+            web_base: str = None,
+            workspace: str = None,
+            fail_if_workspace_exists: bool = False,
+            profile: str = None,
+            config_file: str = None,
+            config: Configuration = None,
+            **kwargs,
     ):
         """Create a new client.
 
@@ -75,10 +75,10 @@ class Client(CamelModel, ABC):
         )
 
     def switch_workspace(
-        self,
-        workspace: str = None,
-        workspace_id: str = None,
-        fail_if_workspace_exists: bool = False,
+            self,
+            workspace: str = None,
+            workspace_id: str = None,
+            fail_if_workspace_exists: bool = False,
     ):
         """Switches this client to the requested space, possibly creating it. If all arguments are None, the client
         actively switches into the default space.
@@ -108,13 +108,13 @@ class Client(CamelModel, ABC):
         try:
             if workspace is not None and workspace_id is not None:
                 get_params = {"handle": workspace, "id": workspace_id, "upsert": False}
-                space = self.post("space/get", get_params).data
+                space = self.post("space/get", get_params)
             elif workspace is not None:
                 get_params = {"handle": workspace, "upsert": not fail_if_workspace_exists}
-                space = self.post("space/create", get_params).data
+                space = self.post("space/create", get_params)
             elif workspace_id is not None:
                 get_params = {"id": workspace_id, "upsert": False}
-                space = self.post("space/get", get_params).data
+                space = self.post("space/get", get_params)
 
         except SteamshipError as e:
             self.config.space_handle = old_space_handle
@@ -152,10 +152,10 @@ class Client(CamelModel, ABC):
         return super().dict(**kwargs)
 
     def _url(
-        self,
-        is_app_call: bool = False,
-        app_owner: str = None,
-        operation: str = None,
+            self,
+            is_app_call: bool = False,
+            app_owner: str = None,
+            operation: str = None,
     ):
         if not is_app_call:
             # Regular API call
@@ -184,12 +184,12 @@ class Client(CamelModel, ABC):
         return f"{base}/{operation}"
 
     def _headers(
-        self,
-        is_app_call: bool = False,
-        app_owner: str = None,
-        app_id: str = None,
-        app_instance_id: str = None,
-        as_background_task: bool = False,
+            self,
+            is_app_call: bool = False,
+            app_owner: str = None,
+            app_id: str = None,
+            app_instance_id: str = None,
+            as_background_task: bool = False,
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
@@ -287,8 +287,8 @@ class Client(CamelModel, ABC):
     def _add_client_to_object(self, expect, response_data):
         if expect and isclass(expect):
             if len(response_data.keys()) == 1 and list(response_data.keys())[0] in (
-                to_camel(expect.__name__),
-                "index",
+                    to_camel(expect.__name__),
+                    "index",
             ):
                 # TODO (enias): Hack since the engine responds with incosistent formats e.g. {"plugin" : {plugin_fields}}
                 for _, v in response_data.items():
@@ -304,20 +304,21 @@ class Client(CamelModel, ABC):
                     pass
 
     def call(  # noqa: C901
-        self,
-        verb: str,
-        operation: str,
-        payload: Union[Request, dict] = None,
-        file: Any = None,
-        expect: Type[T] = None,
-        debug: bool = False,
-        raw_response: bool = False,
-        is_app_call: bool = False,
-        app_owner: str = None,
-        app_id: str = None,
-        app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
-        as_background_task: bool = False,
-    ) -> Union[Any, Response[T]]:
+            self,
+            verb: str,
+            operation: str,
+            payload: Union[Request, dict] = None,
+            file: Any = None,
+            expect: Type[T] = None,
+            debug: bool = False,
+            raw_response: bool = False,
+            is_app_call: bool = False,
+            app_owner: str = None,
+            app_id: str = None,
+            app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
+            as_background_task: bool = False,
+    ) -> Union[
+        Any, Task]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
         """Post to the Steamship API.
 
         All responses have the format::
@@ -332,6 +333,7 @@ class Client(CamelModel, ABC):
         For the Python client we return the contents of the `data` field if present, and we raise an exception
         if the `error` field is filled in.
         """
+        # TODO (enias): Review this codebase
         url = self._url(
             is_app_call=is_app_call,
             app_owner=app_owner,
@@ -377,7 +379,7 @@ class Client(CamelModel, ABC):
         if isinstance(response_data, dict):
             if "status" in response_data:
                 try:
-                    task = Task.parse_obj({**response_data["status"], "client": self})
+                    task = Task.parse_obj({**response_data["status"], "client": self, "expect": expect})
                     if "state" in response_data["status"]:
                         if response_data["status"]["state"] == "failed":
                             error = SteamshipError.from_dict(response_data["status"])
@@ -400,9 +402,6 @@ class Client(CamelModel, ABC):
                 if expect is not None:
                     if hasattr(expect, "from_dict"):
                         data = expect.from_dict(response_data["data"], client=self)
-                    # elif get_origin(expect) and issubclass(get_origin(expect), List):
-                    #     if issubclass(expect.__args__[0], BaseModel):
-                    #         parse_obj_as(expect, self._add_client_to_response( response_data["data"]))
                     elif issubclass(expect, BaseModel):
                         data = expect.parse_obj(
                             self._add_client_to_response(expect, response_data["data"])
@@ -411,38 +410,41 @@ class Client(CamelModel, ABC):
                         raise RuntimeError(f"obj of type {expect} does not have a from_dict method")
                 else:
                     data = response_data["data"]
-                    expect = type(data)
+
+                if task:
+                    task.output = data
             else:
                 data = response_data
 
         else:
             data = response_data
-            expect = type(response_data)
 
         if error is not None:
             logging.error(f"Client received error from server: {error}", exc_info=error)
+            raise error
 
-        # TODO (enias): This will be replaced by either return a task, or an object of type except
-        ret = Response(expect=expect, task=task, data_=data, error=error, client=self)
-        if ret.task is None and ret.data is None and ret.error is None:
-            raise Exception("No data, task status, or error found in response")
-
-        return ret
+        elif task is not None:
+            return task
+        elif data is not None:
+            return data
+        else:
+            raise SteamshipError("Inconsistent response from server. Please contact support.")
 
     def post(
-        self,
-        operation: str,
-        payload: Union[Request, dict, BaseModel] = None,
-        file: Any = None,
-        expect: Any = None,
-        debug: bool = False,
-        raw_response: bool = False,
-        app_call: bool = False,
-        app_owner: str = None,
-        app_id: str = None,
-        app_instance_id: str = None,
-        as_background_task: bool = False,
-    ) -> Union[Any, Response[T]]:
+            self,
+            operation: str,
+            payload: Union[Request, dict, BaseModel] = None,
+            file: Any = None,
+            expect: Any = None,
+            debug: bool = False,
+            raw_response: bool = False,
+            app_call: bool = False,
+            app_owner: str = None,
+            app_id: str = None,
+            app_instance_id: str = None,
+            as_background_task: bool = False,
+    ) -> Union[
+        Any, Task]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
         return self.call(
             verb="POST",
             operation=operation,
@@ -459,19 +461,20 @@ class Client(CamelModel, ABC):
         )
 
     def get(
-        self,
-        operation: str,
-        payload: Union[Request, dict] = None,
-        file: Any = None,
-        expect: Any = None,
-        debug: bool = False,
-        raw_response: bool = False,
-        app_call: bool = False,
-        app_owner: str = None,
-        app_id: str = None,
-        app_instance_id: str = None,
-        as_background_task: bool = False,
-    ) -> Union[Any, Response[T]]:
+            self,
+            operation: str,
+            payload: Union[Request, dict] = None,
+            file: Any = None,
+            expect: Any = None,
+            debug: bool = False,
+            raw_response: bool = False,
+            app_call: bool = False,
+            app_owner: str = None,
+            app_id: str = None,
+            app_instance_id: str = None,
+            as_background_task: bool = False,
+    ) -> Union[
+        Any, Task]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
         return self.call(
             verb="GET",
             operation=operation,

@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Type, Union
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response
+from steamship.base import Client, Request, Response, Task
 from steamship.base.configuration import CamelModel
 from steamship.data.plugin import (
     HostingCpu,
@@ -65,7 +65,7 @@ class PluginInstance(CamelModel):
         handle: str = None,
         upsert: bool = True,
         config: Dict[str, Any] = None,
-    ) -> Response[PluginInstance]:
+    ) -> PluginInstance:
         """Create a plugin instance
 
         When handle is empty the engine will automatically assign one
@@ -91,7 +91,7 @@ class PluginInstance(CamelModel):
     def tag(
         self,
         doc: Union[str, File],
-    ) -> Response[TagResponse]:
+    ) -> Task[TagResponse]: # TODO (enias): Should we remove this helper function in favor of always working with files?
         req = TagRequest(
             type="inline",
             file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)])

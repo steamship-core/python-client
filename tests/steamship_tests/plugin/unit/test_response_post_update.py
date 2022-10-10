@@ -1,15 +1,13 @@
 """When a Plugin's operation is tied to a task, the plugin can update that task while it is still running,
 or asynchronously at any time."""
 
-import json
-
 import pytest
-from steamship_tests.plugin.unit.trainable.util import create_dummy_training_task
-from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import SteamshipError
 from steamship.app import Response
 from steamship.base.tasks import Task, TaskState
+from steamship_tests.plugin.unit.trainable.util import create_dummy_training_task
+from steamship_tests.utils.fixtures import get_steamship_client
 
 
 def test_response_post_update_fails_when_no_task_present():
@@ -26,8 +24,7 @@ def test_response_post_update_fails_when_no_task_present():
 
 def test_response_post_update_can_update_task():
     client = get_steamship_client()
-    task_result = create_dummy_training_task(client)
-    task = task_result.task
+    task = create_dummy_training_task(client)
 
     new_state = TaskState.failed
     new_message = "HI THERE"
@@ -44,7 +41,7 @@ def test_response_post_update_can_update_task():
     response.status.output = new_output
 
     # Sanity check: we'll prove that caling task.check() resets this..
-    task_result.refresh()
+    task.refresh()
 
     # Assert not equal
     assert task.state != new_state
@@ -52,7 +49,7 @@ def test_response_post_update_can_update_task():
     assert task.output != new_output
 
     # And override again
-    response.status.state = new_state
+    response.status.state = TaskState.failed
     response.status.status_message = new_message
     response.set_data(json=new_output)
 
@@ -60,9 +57,5 @@ def test_response_post_update_can_update_task():
     response.post_update(client)
 
     # Call task.check
-    task_result.refresh()
-
-    # Assert equal
-    assert task.state == new_state
-    assert task.status_message == new_message
-    assert task.output == json.dumps(new_output)
+    with pytest.raises(SteamshipError):
+        task.refresh()

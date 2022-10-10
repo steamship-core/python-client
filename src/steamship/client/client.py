@@ -60,7 +60,7 @@ class Steamship(Client):
         docs: List[str],
         plugin_instance: str,
         k: int = 1,
-    ) -> Response[QueryResults]:
+    ) -> QueryResults:
         req = EmbedAndSearchRequest(query=query, docs=docs, plugin_instance=plugin_instance, k=k)
         return self.post(
             "plugin/instance/embeddingSearch",
@@ -122,13 +122,7 @@ class Steamship(Client):
             upsert=reuse,
         )
 
-        if instance.error:
-            raise instance.error
-        if not instance.data:
-            raise SteamshipError(
-                f"Unable to create an instance of App {package_handle} with handle {instance_handle} in workspace {self.config.space_handle}."
-            )
-        return instance.data
+        return instance
 
     @staticmethod
     def use_plugin(
@@ -181,13 +175,7 @@ class Steamship(Client):
             upsert=reuse,
         )
 
-        if instance.error:
-            raise instance.error
-        if not instance.data:
-            raise SteamshipError(
-                f"Unable to create an instance of Plugin {plugin_handle} with handle {instance_handle} in workspace {self.config.space_handle}."
-            )
-        return instance.data
+        return instance
 
     def get_space(self) -> Space:
         # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes
@@ -197,11 +185,11 @@ class Steamship(Client):
             f"get_space() called on client with config space {self.config.space_handle}/{self.config.space_id}"
         )
         space = Space.get(self, id_=self.config.space_id, handle=self.config.space_handle)
-        if not space.data:
+        if not space:
             logging.error("Unable to get space.")
             raise SteamshipError(
                 message="Error while retrieving the Space associated with this client config.",
                 internal_message=f"space_id={self.config.space_id} space_handle={self.config.space_handle}",
             )
-        logging.info(f"Got space: {space.data.handle}/{space.data.id}")
-        return space.data
+        logging.info(f"Got space: {space.handle}/{space.id}")
+        return space

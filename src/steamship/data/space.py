@@ -37,20 +37,20 @@ class Space(CamelModel):
 
     @staticmethod
     def get(
-        client: Client, id_: str = None, handle: str = None, upsert: bool = None
-    ) -> SteamshipResponse[Space]:
+            client: Client, id_: str = None, handle: str = None, upsert: bool = None
+    ) -> Space:
         req = GetRequest(id=id_, handle=handle, upsert=upsert)
         return client.post("space/get", req, expect=Space)
 
     @staticmethod
     def create(
-        client: Client,
-        handle: Optional[str] = None,
-        external_id: Optional[str] = None,
-        external_type: Optional[str] = None,
-        metadata: Any = None,
-        upsert: bool = True,
-    ) -> SteamshipResponse[Space]:
+            client: Client,
+            handle: Optional[str] = None,
+            external_id: Optional[str] = None,
+            external_type: Optional[str] = None,
+            metadata: Any = None,
+            upsert: bool = True,
+    ) -> Space:
         req = Space.CreateRequest(
             handle=handle,
             upsert=upsert,
@@ -61,8 +61,8 @@ class Space(CamelModel):
         return client.post("space/create", req, expect=Space)
 
     def create_signed_url(
-        self, request: SignedUrl.Request
-    ) -> SteamshipResponse[SignedUrl.Response]:
+            self, request: SignedUrl.Request
+    ) -> SignedUrl.Response:
         logging.info(f"Requesting signed URL: {request}")
         ret = self.client.post("space/createSignedUrl", payload=request, expect=SignedUrl.Response)
         logging.info(f"Got signed URL: {ret}")

@@ -88,17 +88,17 @@ class ModelCheckpoint(CamelModel):
                 operation=SignedUrl.Operation.READ,
             )
         )
-        if not download_resp.data or not download_resp.data.signed_url:
+        if not download_resp or not download_resp.signed_url:
             raise SteamshipError(
                 message=f"Received empty Signed URL for model download of '{self.handle}."
             )
-        download_from_signed_url(download_resp.data.signed_url, to_file=self.archive_path_on_disk())
+        download_from_signed_url(download_resp.signed_url, to_file=self.archive_path_on_disk())
         unzip_folder(self.archive_path_on_disk(), into_folder=self.folder_path_on_disk())
-        if not download_resp.data or not download_resp.data.signed_url:
+        if not download_resp or not download_resp.signed_url:
             raise SteamshipError(
                 message=f"Received empty Signed URL for model download of '{self.handle}."
             )
-        download_from_signed_url(download_resp.data.signed_url, to_file=self.archive_path_on_disk())
+        download_from_signed_url(download_resp.signed_url, to_file=self.archive_path_on_disk())
         unzip_folder(self.archive_path_on_disk(), into_folder=self.folder_path_on_disk())
         return self.folder_path_on_disk()
 
@@ -115,18 +115,16 @@ class ModelCheckpoint(CamelModel):
             )
         )
 
-        if signed_url_resp.error:
-            raise signed_url_resp.error
-        if not signed_url_resp.data:
+        if not signed_url_resp:
             raise SteamshipError(
                 message="Empty result on Signed URL request while uploading model checkpoint"
             )
-        if not signed_url_resp.data.signed_url:
+        if not signed_url_resp.signed_url:
             raise SteamshipError(
                 message="Empty signedUrl on Signed URL request while uploading model checkpoint"
             )
 
-        upload_to_signed_url(signed_url_resp.data.signed_url, filepath=self.archive_path_on_disk())
+        upload_to_signed_url(signed_url_resp.signed_url, filepath=self.archive_path_on_disk())
 
     def upload_model_bundle(self, set_as_default: bool = True):
         """Zips and uploads the Model to steamship"""

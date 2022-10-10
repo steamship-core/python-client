@@ -4,14 +4,14 @@ import uuid
 import pytest
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import PluginInstance, Space
+from steamship import PluginInstance, Space, SteamshipError
 from steamship.data.plugin import Plugin, PluginAdapterType, PluginType
 
 
 def test_plugin_create():
     steamship = get_steamship_client()
 
-    my_plugins = Plugin.list(steamship).data
+    my_plugins = Plugin.list(steamship)
     orig_count = len(my_plugins.plugins)
 
     plugin_args = {
@@ -28,7 +28,7 @@ def test_plugin_create():
         with pytest.raises(TypeError):
             Plugin.create(**plugin_args)
 
-    my_plugins = Plugin.list(steamship).data
+    my_plugins = Plugin.list(steamship)
     assert len(my_plugins.plugins) == orig_count
 
     plugin = Plugin.create(
@@ -37,21 +37,21 @@ def test_plugin_create():
         type_=PluginType.tagger,
         transport=PluginAdapterType.steamship_docker,
         is_public=False,
-    ).data
-    my_plugins = Plugin.list(steamship).data
+    )
+    my_plugins = Plugin.list(steamship)
     assert len(my_plugins.plugins) == orig_count + 1
 
     # No upsert doesn't work
-    plugin_x = Plugin.create(
-        client=steamship,
-        handle=plugin.handle,
-        description="This is just for test",
-        type_=PluginType.tagger,
-        transport=PluginAdapterType.steamship_docker,
-        is_public=False,
-        upsert=False,
-    )
-    assert plugin_x.error is not None
+    with pytest.raises(SteamshipError):
+        _ = Plugin.create(
+            client=steamship,
+            handle=plugin.handle,
+            description="This is just for test",
+            type_=PluginType.tagger,
+            transport=PluginAdapterType.steamship_docker,
+            is_public=False,
+            upsert=False,
+        )
 
     # Upsert does work
     plugin2 = Plugin.create(
@@ -62,11 +62,11 @@ def test_plugin_create():
         transport=PluginAdapterType.steamship_docker,
         is_public=False,
         upsert=True,
-    ).data
+    )
 
     assert plugin2.id == plugin.id
 
-    my_plugins = Plugin.list(steamship).data
+    my_plugins = Plugin.list(steamship)
     assert len(my_plugins.plugins) == orig_count + 1
 
     assert plugin2.id in [plugin.id for plugin in my_plugins.plugins]
@@ -76,40 +76,39 @@ def test_plugin_create():
 
     plugin.delete()
 
-    my_plugins = Plugin.list(steamship).data
+    my_plugins = Plugin.list(steamship)
     assert len(my_plugins.plugins) == orig_count
 
 
 def test_plugin_public():
     steamship = get_steamship_client()
 
-    resp = Plugin.list(steamship).data
+    resp = Plugin.list(steamship)
     assert resp.plugins is not None
     plugins = resp.plugins
 
     assert len(plugins) > 0
 
     # Make sure they can't be deleted.
-    res = plugins[0].delete()
-    assert res.error is not None
+    with pytest.raises(SteamshipError):
+        plugins[0].delete()
 
 
 def test_deploy_in_space():
     client = get_steamship_client()
-    space = Space.create(client, handle="test-non-default-space").data
+    space = Space.create(client, handle="test-non-default-space")
     client.switch_workspace(workspace_id=space.id)
-    instance = PluginInstance.create(client, plugin_handle="test-tagger").data
+    instance = PluginInstance.create(client, plugin_handle="test-tagger")
     assert instance.space_id == space.id
 
 
 def test_plugin_instance_get():
     steamship = get_steamship_client()
     handle = f"test_tagger_test_handle{uuid.uuid4()}"
-    instance = PluginInstance.create(steamship, plugin_handle="test-tagger", handle=handle).data
+    instance = PluginInstance.create(steamship, plugin_handle="test-tagger", handle=handle)
     assert instance.id is not None
 
-    other_instance = PluginInstance.get(steamship, handle=handle).data
-
+    other_instance = PluginInstance.get(steamship, handle=handle)
     assert instance.id == other_instance.id
 
 

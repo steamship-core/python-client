@@ -200,7 +200,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
                         operation=SignedUrl.Operation.WRITE,
                     )
                 )
-                .data.signed_url
+                .signed_url
             )
 
             logging.info(f"Got signed url for writing: {signed_url}")

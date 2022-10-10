@@ -7,6 +7,7 @@ from typing import Optional
 
 import inflection
 from pydantic import BaseModel, HttpUrl
+from pydantic.generics import GenericModel
 
 from steamship.base.utils import format_uri, to_camel
 
@@ -57,6 +58,9 @@ class CamelModel(BaseModel):
         kwargs["exclude"] = exclude_set
         return super().dict(**kwargs)
 
+
+class GenericCamelModel(CamelModel, GenericModel):
+    pass
 
 class Configuration(CamelModel):
     api_key: str

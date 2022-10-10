@@ -69,7 +69,7 @@ class Block(CamelModel):
     def query(
         client: Client,
         tag_filter_query: str,
-    ) -> Response[BlockQueryResponse]:
+    ) -> BlockQueryResponse:
         # TODO: Is this a static method?
         req = BlockQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(

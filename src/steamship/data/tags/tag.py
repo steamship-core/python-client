@@ -83,7 +83,7 @@ class Tag(CamelModel):
     def query(
         client: Client,
         tag_filter_query: str,
-    ) -> Response[TagQueryResponse]:
+    ) -> TagQueryResponse:
         req = TagQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
             "tag/query",

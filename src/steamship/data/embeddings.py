@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response, metadata_to_str
+from steamship.base import Client, Request, Response, metadata_to_str, Task
 from steamship.base.configuration import CamelModel
 from steamship.base.request import DeleteRequest
 from steamship.data.search import Hit
@@ -197,7 +197,7 @@ class EmbeddingIndex(CamelModel):
         self,
         items: List[Union[EmbeddedItem, str]],
         reindex: bool = True,
-    ) -> Response[IndexInsertResponse]:
+    ) -> IndexInsertResponse:
         new_items = []
         for item in items:
             if isinstance(item, str):
@@ -241,7 +241,7 @@ class EmbeddingIndex(CamelModel):
 
     def embed(
         self,
-    ) -> Response[IndexEmbedResponse]:
+    ) -> Task[IndexEmbedResponse]:
         req = IndexEmbedRequest(id=self.id)
         return self.client.post(
             "embedding-index/embed",
@@ -271,7 +271,7 @@ class EmbeddingIndex(CamelModel):
         file_id: str = None,
         block_id: str = None,
         span_id: str = None,
-    ) -> Response[ListItemsResponse]:
+    ) -> ListItemsResponse:
         req = ListItemsRequest(id=self.id, file_id=file_id, block_id=block_id, spanId=span_id)
         return self.client.post(
             "embedding-index/item/list",
@@ -302,7 +302,7 @@ class EmbeddingIndex(CamelModel):
         query: Union[str, List[str]],
         k: int = 1,
         include_metadata: bool = False,
-    ) -> Response[QueryResults]:
+    ) -> Task[QueryResults]:
         if isinstance(query, list):
             req = IndexSearchRequest(
                 id=self.id, queries=query, k=k, include_metadata=include_metadata
@@ -329,7 +329,7 @@ class EmbeddingIndex(CamelModel):
         external_id: str = None,
         external_type: str = None,
         metadata: Any = None,
-    ) -> Response[EmbeddingIndex]:
+    ) -> EmbeddingIndex:
         req = IndexCreateRequest(
             handle=handle,
             name=name,

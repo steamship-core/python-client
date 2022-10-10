@@ -149,16 +149,16 @@ class Plugin(CamelModel):
 
     @staticmethod
     def create(
-        client: Client,
-        description: str,
-        type_: str,
-        transport: str,
-        is_public: bool,
-        handle: str = None,
-        training_platform: Optional[HostingType] = None,
-        metadata: Union[str, Dict, List] = None,
-        upsert: bool = False,
-    ) -> Response[Plugin]:
+            client: Client,
+            description: str,
+            type_: str,
+            transport: str,
+            is_public: bool,
+            handle: str = None,
+            training_platform: Optional[HostingType] = None,
+            metadata: Union[str, Dict, List] = None,
+            upsert: bool = False,
+    ) -> Plugin:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
@@ -179,7 +179,7 @@ class Plugin(CamelModel):
         )
 
     @staticmethod
-    def list(client: Client, t: str = None) -> Response[ListPluginsResponse]:
+    def list(client: Client, t: str = None) -> ListPluginsResponse:
         return client.post(
             "plugin/list",
             ListPluginsRequest(type=t),
@@ -190,7 +190,7 @@ class Plugin(CamelModel):
     def get(client: Client, handle: str):
         return client.post("plugin/get", IdentifierRequest(handle=handle), expect=Plugin)
 
-    def delete(self) -> Response[Plugin]:
+    def delete(self) -> Plugin:
         return self.client.post(
             "plugin/delete",
             DeleteRequest(id=self.id),

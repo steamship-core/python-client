@@ -33,5 +33,5 @@ class User(CamelModel):
         return super().parse_obj(obj)
 
     @staticmethod
-    def current(client: Client) -> Response[User]:
+    def current(client: Client) -> User:
         return client.get("account/current", expect=User)

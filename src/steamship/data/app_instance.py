@@ -52,7 +52,7 @@ class AppInstance(CamelModel):  # TODO (enias): Rename to Package
         handle: str = None,
         upsert: bool = None,
         config: Dict[str, Any] = None,
-    ) -> Response[AppInstance]:
+    ) -> AppInstance:
         req = CreateAppInstanceRequest(
             handle=handle,
             app_id=app_id,
@@ -73,8 +73,8 @@ class AppInstance(CamelModel):  # TODO (enias): Rename to Package
         if self.client is not None and self.space_handle is None and self.space_id is not None:
             # Get the spaceHandle
             space = Space.get(self.client, id_=self.space_id)
-            if space and space.data:
-                self.space_handle = space.data.handle
+            if space:
+                self.space_handle = space.handle
 
     def get(self, path: str, **kwargs):
         self.load_missing_vals()

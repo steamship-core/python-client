@@ -42,25 +42,25 @@ def test_instance_invoke():
                 headers={"authorization": f"Bearer {client.config.api_key}"},
             )
 
-        res = instance.get("greet").data
+        res = instance.get("greet")
         assert res == "Hello, Person!"
 
         resp = get_raw("greet")
         assert resp.text == "Hello, Person!"
 
-        res = instance.get("greet", name="Ted").data
+        res = instance.get("greet", name="Ted")
         assert res == "Hello, Ted!"
         url = instance.full_url_for("greet?name=Ted")
         resp = requests.get(url, headers={"authorization": f"Bearer {client.config.api_key}"})
         assert resp.text == "Hello, Ted!"
 
-        res = instance.post("greet").data
+        res = instance.post("greet")
         assert res == "Hello, Person!"
         url = instance.full_url_for("greet")
         resp = requests.post(url, headers={"authorization": f"Bearer {client.config.api_key}"})
         assert resp.text == "Hello, Person!"
 
-        res = instance.post("greet", name="Ted").data
+        res = instance.post("greet", name="Ted")
         assert res == "Hello, Ted!"
         url = instance.full_url_for("greet")
         resp = requests.post(
@@ -106,8 +106,7 @@ def test_instance_invoke():
 
         # The test app, when executing remotely inside Steamship, should have the same
         # set of configuration options that we're running with here within the test
-        configuration_within_lambda_resp = instance.get("config")
-        configuration_within_lambda = configuration_within_lambda_resp.data
+        configuration_within_lambda = instance.get("config")
 
         my_app_base = _fix_url(client.config.app_base)
         remote_app_base = _fix_url(configuration_within_lambda["appBase"])
@@ -127,19 +126,19 @@ def test_instance_invoke():
         # user that we're running with here in within the test
         user_info = instance.post("user_info")
         user = User.current(client)
-        assert user_info.data["handle"] == user.data.handle
+        assert user_info["handle"] == user.handle
 
         # Test a JSON response that contains {"status": "a string"} in it to make sure the client base
         # isn't trying to coerce it to a Task object and throwing.
         resp_obj = instance.post("json_with_status")
-        assert resp_obj.data == {"status": "a string"}
+        assert resp_obj == {"status": "a string"}
 
 
 def test_deploy_in_space():
     client = get_steamship_client()
     demo_app_path = APPS_PATH / "demo_app.py"
 
-    space = Space.create(client).data
+    space = Space.create(client)
     client.switch_workspace(workspace_id=space.id)
 
     assert space.handle != "default"
@@ -149,8 +148,7 @@ def test_deploy_in_space():
         assert instance.space_id == space.id
 
         # The app believes itself to be in the workspace
-        configuration_within_lambda_resp = instance.get("config")
-        configuration_within_lambda = configuration_within_lambda_resp.data
+        configuration_within_lambda = instance.get("config")
         assert configuration_within_lambda["spaceId"] == space.id
 
     space.delete()

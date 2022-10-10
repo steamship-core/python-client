@@ -22,13 +22,13 @@ def random_index(steamship: Steamship, plugin_instance: str) -> EmbeddingIndex:
     index = EmbeddingIndex.create(
         client=steamship,
         plugin_instance=plugin_instance,
-    ).data
+    )
     yield index
     index.delete()  # or whatever you need to do at exit
 
 
 @contextlib.contextmanager
 def temporary_space(steamship: Steamship) -> Space:
-    space = Space.create(client=steamship).data
+    space = Space.create(client=steamship)
     yield space
     space.delete()  # or whatever you need to do at exit

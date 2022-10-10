@@ -74,7 +74,7 @@ class TestApp(App):
     @post("user_info")
     def user_info(self) -> Response:
         user = User.current(self.client)
-        return Response(json={"handle": user.data.handle})
+        return Response(json={"handle": user.handle})
 
     @post("json_with_status")
     def json_with_status(self) -> Response:

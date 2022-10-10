@@ -36,18 +36,18 @@ def tag_file(client: Steamship, parser_instance_handle: str):
         client,
         content=content,
         mime_type=MimeTypes.MKD,
-    ).data
+    )
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
 
     a.blockify(plugin_instance="markdown-blockifier-default-1.0").wait()
 
     raw = a.raw()
-    assert raw.data.decode("utf-8") == content
+    assert raw.decode("utf-8") == content
 
     # The following steamship_tests should be updated once the Tag query basics are merged.
     # Instead of querying and filtering, do a query with a tag filter
-    q1 = a.refresh().data
+    q1 = a.refresh()
     assert count_blocks_with_tag(q1.blocks, DocTag.doc, DocTag.h1) == 1
     assert q1.blocks[0].text == t
 
@@ -61,18 +61,16 @@ def tag_file(client: Steamship, parser_instance_handle: str):
 
     # Now we parse
     task = a.tag(plugin_instance=parser_instance_handle)
-    assert task.error is None
-    assert task.task is not None
-    assert task.task.state == TaskState.waiting
+    assert task is not None
+    assert task.state == TaskState.waiting
 
     task.wait()
-    assert task.error is None
-    assert task.task is not None
-    assert task.task.state == TaskState.succeeded
+    assert task is not None
+    assert task.state == TaskState.succeeded
 
     # Now the sentences should be parsed!
     # Again, should rewrite these once tag queries are integrated
-    q2 = a.refresh().data
+    q2 = a.refresh()
     assert count_tags(q2.blocks, DocTag.doc, DocTag.sentence) == 4
 
     a.delete()
@@ -80,5 +78,5 @@ def tag_file(client: Steamship, parser_instance_handle: str):
 
 def test_parse_file():
     steamship = get_steamship_client()
-    parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
+    parser = PluginInstance.create(steamship, plugin_handle="test-tagger")
     tag_file(steamship, parser.handle)
