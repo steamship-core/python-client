@@ -1,5 +1,5 @@
 Asynchronous Plugins
-~~~~~~~~~~~~~~~~~~~~
+--------------------
 
 If a plugin method calls a third-party API that is asynchronous, then you should implement that method
 asynchronously as well.
@@ -52,7 +52,6 @@ to ignore this field, but if a plugin method is asynchronous, you must take care
                 state=TaskState.RUNNING,
                 remote_status_input={"remote_task_id": "abc-123"}
             ))
-
 
 Asynchronous Plugin Example
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
