@@ -3,7 +3,7 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_index
 
-from steamship import MimeTypes, PluginInstance
+from steamship import MimeTypes, PluginInstance, File
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -25,7 +25,11 @@ def test_file_parse():
     content2 = f"# {T2}\n\n{P3_1} {P3_2}\n\n{P4_1} {P4_2}"
     content = f"{content1}\n\n{content2}"
 
-    file = steamship.upload(content=content, mime_type=MimeTypes.MKD).data
+    file = File.create(
+        steamship,
+        content=content,
+        mime_type=MimeTypes.MKD,
+    ).data
     assert file.id is not None
     assert file.mime_type == MimeTypes.MKD
 
@@ -76,7 +80,11 @@ def test_file_index():
     content2 = f"# {t2}\n\n{p3_1} {p3_2}\n\n{p4_1} {p4_2}"
     content = f"{content1}\n\n{content2}"
 
-    file = steamship.upload(content=content, mime_type=MimeTypes.MKD).data
+    file = File.create(
+        steamship,
+        content=content,
+        mime_type=MimeTypes.MKD,
+    ).data
     assert file.id is not None
     assert file.mime_type == MimeTypes.MKD
 
@@ -119,7 +127,11 @@ def test_file_embed_lookup():
     content_a = "Ted likes to run."
     content_b = "Grace likes to bike."
 
-    file = steamship.upload(content=content_a, mime_type=MimeTypes.MKD).data
+    file = File.create(
+            steamship,
+            content=content_a,
+            mime_type=MimeTypes.MKD,
+        ).data
 
     blockify_res = file.blockify(plugin_instance="markdown-blockifier-default-1.0")
     assert blockify_res.error is None
@@ -130,7 +142,7 @@ def test_file_embed_lookup():
     assert parse_res.error is None
     parse_res.wait()
 
-    b = steamship.upload(content=content_b, mime_type=MimeTypes.MKD).data
+    b = File.create(client=steamship, content=content_b, mime_type=MimeTypes.MKD).data
     blockify_res = b.blockify(plugin_instance="markdown-blockifier-default-1.0")
     assert blockify_res.error is None
     blockify_res.wait()

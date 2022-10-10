@@ -7,14 +7,18 @@ from steamship.data.tags import Tag
 
 @pytest.mark.usefixtures("client")
 def test_file_tag(client: Steamship):
-    a = client.upload(content="A", mime_type=MimeTypes.MKD).data
+    a = File.create(
+        client,
+        content="A",
+        mime_type=MimeTypes.MKD,
+    ).data
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
 
     _ = Tag.create(client, file_id=a.id, name="test1").data
     _ = Tag.create(client, file_id=a.id, name="test2").data
 
-    tags = Tag.list(client, file_id=a.id)
+    tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"')
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 2
@@ -29,7 +33,7 @@ def test_file_tag(client: Steamship):
         if tag.name == "test1":
             tag.delete()
 
-    tags = Tag.list(client, file_id=a.id)
+    tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"')
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 1
@@ -42,7 +46,7 @@ def test_file_tag(client: Steamship):
 
     tags.data.tags[0].delete()
 
-    tags = Tag.list(client, file_id=a.id)
+    tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"')
     assert tags.data is not None
     assert tags.data.tags is not None
     assert len(tags.data.tags) == 0

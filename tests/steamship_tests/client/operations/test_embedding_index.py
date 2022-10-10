@@ -1,53 +1,61 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_index
 
-from steamship.base import Client
+from steamship import Steamship
 from steamship.base.response import TaskState
-from steamship.data.embeddings import EmbeddedItem
+from steamship.data.embeddings import EmbeddedItem, EmbeddingIndex
 from steamship.data.plugin_instance import PluginInstance
 
 _TEST_EMBEDDER = "test-embedder"
 
 
-def create_index(_: Client, plugin_instance: str):
-    steamship = get_steamship_client()
-
-    # Should require plugin
-    task = steamship.create_index()
-    assert task.error is not None
-
-    index = steamship.create_index(plugin_instance=plugin_instance).data
-    assert index is not None
-
-    # Duplicate creation should fail with upsert=False
-    task = steamship.create_index(
-        handle=index.handle, plugin_instance=plugin_instance, upsert=False
+def create_index(client: Steamship = None, plugin_instance: str = None, handle: str = None, upsert: bool = None):
+    client = client or get_steamship_client()
+    return EmbeddingIndex.create(
+        client=client,
+        plugin_instance=plugin_instance,
+        handle=handle,
+        upsert=upsert
     )
-    assert task.error is not None
-
-    index.delete()
 
 
 def test_create_index():
     client = get_steamship_client()
     plugin_instance = PluginInstance.create(client, plugin_handle=_TEST_EMBEDDER).data
-    create_index(client, plugin_instance.handle)
+
+    index = create_index(
+        client=client,
+        plugin_instance=plugin_instance.handle,
+    )
+
+    assert index.data is not None
+
+    # Duplicate creation should fail with upsert=False
+    task = create_index(
+        client=client,
+        handle=index.data.handle,
+        plugin_instance=plugin_instance.handle,
+        upsert=False
+    )
+    assert task.error is not None
+
+    index.data.delete()
 
 
 def test_delete_index():
     steamship = get_steamship_client()
     plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER).data
-    index = steamship.create_index(plugin_instance=plugin_instance.handle).data
+    index = create_index(plugin_instance=plugin_instance.handle).data
     assert index.id is not None
 
-    task = steamship.create_index(handle=index.handle, plugin_instance=plugin_instance.handle)
+    task = create_index(handle=index.handle, plugin_instance=plugin_instance.handle)
     assert task.error is None
     index2 = task.data
     assert index.id == index2.id
 
     index.delete()
 
-    task = steamship.create_index(plugin_instance=plugin_instance.handle)
+    task = create_index(plugin_instance=plugin_instance.handle)
     assert task.error is None
     assert task.data is not None
     index3 = task.data

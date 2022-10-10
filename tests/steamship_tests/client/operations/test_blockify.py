@@ -1,12 +1,16 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 
+from steamship import File
 from steamship.base.response import TaskState
 
 
 def test_file_upload_then_parse():
     steamship = get_steamship_client()
 
-    a = steamship.upload(content="This is a test.").data
+    a = File.create(
+        steamship,
+        content="This is a test.",
+    ).data
     assert a.id is not None
 
     q1 = a.refresh().data
@@ -26,10 +30,11 @@ def test_file_upload_then_parse():
     assert len(q1.blocks) == 1
     assert q1.blocks[0].text == "This is a test."
 
-    b = steamship.upload(
+    b = File.create(
+        steamship,
         content="""# Header
 
-This is a test."""
+This is a test.""",
     ).data
     assert b.id is not None
 
