@@ -34,7 +34,7 @@ A quick setup and full details are located in the following pages:
 In addition, you will be helped by browsing the developer notes for the
 specific type of plugin you are creating:
 
-- :ref:`Developing File Importers<../file_importers/developing>`
-- :ref:`Developing Blockifiers<../blockifiers/developing>`
-- :ref:`Developing Taggers<../taggers/developing>`
-- :ref:`Developing Embedders<../embedders/developing>`
+- :ref:`Developing File Importers<Developing File Importers>`
+- :ref:`Developing Blockifiers<Developing Blockifiers>`
+- :ref:`Developing Taggers<Developing Taggers>`
+- :ref:`Developing Embedders<Developing Embedders>`

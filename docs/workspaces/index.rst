@@ -1,5 +1,3 @@
-.. _Workspaces:
-
 Workspaces
 ==========
 

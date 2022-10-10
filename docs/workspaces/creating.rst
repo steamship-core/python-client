@@ -9,6 +9,8 @@ If it doesn't exist, it will be created for you.
 
 .. code:: python
 
+   from steamship import Steamship
+
    client = Steamship(workspace="my-workspace-name")
 
 Every workspace-specific operation this client performs will now take part in that workspace.
