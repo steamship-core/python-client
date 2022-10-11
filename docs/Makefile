@@ -28,4 +28,5 @@ clean:
 %: Makefile
 	pip install -r ../requirements.txt
 	pip install -r ../requirements.dev.txt
+	pip install -r ./requirements.txt
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
