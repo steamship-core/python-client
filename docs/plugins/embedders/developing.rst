@@ -1,3 +1,5 @@
+.. _DevelopingEmbedders:
+
 Developing Embedders
 --------------------
 

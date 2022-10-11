@@ -41,4 +41,4 @@ tasking, persistence, and integration.
 Developing new Plugins
 ~~~~~~~~~~~~~~~~~~~~~~
 
-For those interested in developing plugins, see :ref:`Developing Packages and Plugins`.
+For those interested in developing plugins, see :ref:`Developing Packages and Plugins<DevelopingPackagesAndPlugins>`.

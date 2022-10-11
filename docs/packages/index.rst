@@ -11,7 +11,7 @@ interfaces with the actual AI being used.
 Steamship Packages solve this problem by encapsulating 100% of these concerns.
 
 - A package's code is versioned and run in the cloud.
-- A package's data is stored in a :ref:`workspace` specific to each instance
+- A package's data is stored in a :ref:`workspace<Workspaces>` specific to each instance
 - A package's infrastructure is auto-managed from within each instance's workspace
 
 This means that:
@@ -25,4 +25,4 @@ This means that:
 Developing new Packages
 -----------------------
 
-For those interested in developing packages, see :ref:`Developing Packages and Plugins`.
+For those interested in developing packages, see :ref:`Developing Packages and Plugins<DevelopingPackagesAndPlugins>`.

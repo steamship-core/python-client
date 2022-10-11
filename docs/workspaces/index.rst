@@ -1,3 +1,5 @@
+.. _Workspaces:
+
 Workspaces
 ==========
 
@@ -21,3 +23,4 @@ package instance.
    Creating Workspaces <creating>
    Uploading Data <uploading>
    Data Model <data_model/index>
+   Querying Data <queries/index>

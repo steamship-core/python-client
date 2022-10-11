@@ -1,3 +1,5 @@
+.. _DevelopingAsync:
+
 Writing Asynchronous Plugins
 ----------------------------
 

@@ -42,6 +42,4 @@ A few rules about writing package methods:
 - Binary input isn't yet supported. (Email us at hello@steamship.com for workarounds if you need one).
 - All methods must return a ``Response`` object
 
-For more examples of writing package endpoints, see the `example app<_EXAMPLE_APP>`_ from our unit testing suite.
-
-.. _EXAMPLE_APP: https://github.com/steamship-core/python-client/blob/main/tests/assets/apps/demo_app.py
+For more examples of writing package endpoints, see the `example app <https://github.com/steamship-core/python-client/blob/main/tests/assets/apps/demo_app.py>`_ from our unit testing suite.

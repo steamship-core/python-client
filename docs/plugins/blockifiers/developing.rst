@@ -1,7 +1,9 @@
+.. _DevelopingBlockifiersSec:
+
 Developing Blockifiers
 ----------------------
 
-To develop a blockifier, first follow the instructions in :ref:`Developing Plugins` to create
+To develop a blockifier, first follow the instructions in :ref:`Developing Plugins<DevelopingPluginsSec>` to create
 a new plugin project. This will result in a full, working plugin scaffold that you could
 deploy and use immediately.
 
@@ -75,4 +77,4 @@ Some blockifiers will need to call third-party APIs that are asynchronous.
 Image-to-text (OCR) and speech-to-text (S2T) are two common examples.
 When this occurs, you should make your blockifier asynchronous as well.
 
-See the :ref:`Developing Asynchronous Plugins` section for details.
+See the :ref:`Developing Asynchronous Plugins<DevelopingAsync>` section for details.

@@ -1,3 +1,5 @@
+.. _DevelopingPluginsSec:
+
 Implementing Plugins
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -8,10 +10,10 @@ If you've implemented the required abstract methods, you have successfully built
 Documentation and tips specific to plugin authoring is thus specific to the plugin as well.
 You can find it here:
 
-- :ref:`Implementing File Importers<Developing File Importers>`
-- :ref:`Implementing Blockifiers<Developing Blockifiers>`
-- :ref:`Implementing Taggers<Developing Taggers>`
-- :ref:`Implementing Embedders<Developing Embedders>`
+- :ref:`Developing File Importers<DevelopingFileImporters>`
+- :ref:`Developing Blockifiers<DevelopingBlockifiersSec>`
+- :ref:`Developing Taggers<DevelopingTaggers>`
+- :ref:`Developing Embedders<DevelopingEmbedders>`
 
 Unlike packages, plugins also offer support for asynchronous work.
 This is useful when writing a plugin that, itself, contacts an asynchronous third-party API.

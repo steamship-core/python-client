@@ -1,3 +1,5 @@
+.. _Steamship Manifest Files:
+
 Steamship Manifest Files
 ------------------------
 
