@@ -8,6 +8,7 @@ from steamship_tests.utils.fixtures import get_steamship_client
 from steamship import Space
 from steamship.base import TaskState
 from steamship.base.mime_types import MimeTypes
+from steamship.utils.url import Verb
 
 
 def _fix_url(s: str) -> str:
@@ -41,25 +42,25 @@ def test_instance_invoke():
                 headers={"authorization": f"Bearer {client.config.api_key}"},
             )
 
-        res = instance.get("greet").data
+        res = instance.invoke("greet", verb=Verb.GET).data
         assert res == "Hello, Person!"
 
         resp = get_raw("greet")
         assert resp.text == "Hello, Person!"
 
-        res = instance.get("greet", name="Ted").data
+        res = instance.invoke("greet", verb=Verb.GET, name="Ted").data
         assert res == "Hello, Ted!"
         url = instance.full_url_for("greet?name=Ted")
         resp = requests.get(url, headers={"authorization": f"Bearer {client.config.api_key}"})
         assert resp.text == "Hello, Ted!"
 
-        res = instance.post("greet").data
+        res = instance.invoke("greet", verb=Verb.POST).data
         assert res == "Hello, Person!"
         url = instance.full_url_for("greet")
         resp = requests.post(url, headers={"authorization": f"Bearer {client.config.api_key}"})
         assert resp.text == "Hello, Person!"
 
-        res = instance.post("greet", name="Ted").data
+        res = instance.invoke("greet", verb=Verb.POST, name="Ted").data
         assert res == "Hello, Ted!"
         url = instance.full_url_for("greet")
         resp = requests.post(
@@ -105,7 +106,7 @@ def test_instance_invoke():
 
         # The test app, when executing remotely inside Steamship, should have the same
         # set of configuration options that we're running with here within the test
-        configuration_within_lambda_resp = instance.get("config")
+        configuration_within_lambda_resp = instance.invoke("config", verb=Verb.GET)
         configuration_within_lambda = configuration_within_lambda_resp.data
 
         my_app_base = _fix_url(client.config.app_base)
@@ -125,12 +126,12 @@ def test_instance_invoke():
         assert configuration_within_lambda["spaceId"] == instance.space_id  # SpaceID
 
         # The test app should NOT be able to fetch the User's account info.
-        user_info = instance.post("user_info")
+        user_info = instance.invoke("user_info", verb=Verb.POST)
         assert user_info.error is not None
 
         # Test a JSON response that contains {"status": "a string"} in it to make sure the client base
         # isn't trying to coerce it to a Task object and throwing.
-        resp_obj = instance.post("json_with_status")
+        resp_obj = instance.invoke("json_with_status", verb=Verb.POST)
         assert resp_obj.data == {"status": "a string"}
 
 
@@ -148,7 +149,7 @@ def test_deploy_in_space():
         assert instance.space_id == space.id
 
         # The app believes itself to be in the workspace
-        configuration_within_lambda_resp = instance.get("config")
+        configuration_within_lambda_resp = instance.invoke("config", verb=Verb.GET)
         configuration_within_lambda = configuration_within_lambda_resp.data
         assert configuration_within_lambda["spaceId"] == space.id
 
