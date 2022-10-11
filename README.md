@@ -1,8 +1,6 @@
 # Steamship Python Client Library
 
-Steamship helps developers build and deploy natural language services.
-
-**We are currently in a closed beta.** If you are interested in joining, please sign up at https://www.nludb.com/
+Steamship is the fastest way to build, ship, and use full-lifecycle language AI.
 
 ## Installing
 

@@ -1,3 +1,5 @@
+.. _Plugins:
+
 Plugins
 =======
 
@@ -25,7 +27,7 @@ example, one might create:
 -  A **Notion File Importer Plugin** to import a Notion page as
    Notion-formatted JSON
 -  A **Notion Blockifier** to convert Notion-formatted JSON into
-   Steamship Block Format
+   :ref:`Steamship Block format<Data Model>`
 -  A **OpenAI Embedder** to embed sentences to Vectors via GPT-3
 
 Having created such plugins, anyone could use them to import, embed, and
@@ -36,9 +38,7 @@ this way, Steamship plugins lets developers build packages across
 different data and AI services without worrying about the details of
 tasking, persistence, and integration.
 
-For those interested in developing plugins, see:
+Developing new Plugins
+~~~~~~~~~~~~~~~~~~~~~~
 
-.. toctree::
-   :maxdepth: 2
-
-   Developing Plugins <developing/index>
+For those interested in developing plugins, see :ref:`Developing Packages and Plugins<DevelopingPackagesAndPlugins>`.
