@@ -79,9 +79,7 @@ class AppInstance(CamelModel):  # TODO (enias): Rename to Package
 
     @staticmethod
     def get(client: Client, handle: str):
-        return client.post(
-            "plugin/instance/get", IdentifierRequest(handle=handle), expect=AppInstance
-        )
+        return client.post("app/instance/get", IdentifierRequest(handle=handle), expect=AppInstance)
 
     def invoke(self, path: str, verb: Verb = Verb.POST, **kwargs):
         self.load_missing_vals()
