@@ -1,35 +1,45 @@
-Deploying Plugins
------------------
+.. _Deploying:
 
-Plugins must be deployed before they can be used.
+Deploying
+---------
 
-New versions of a Steamship App or Plugin automatically become the
-“default” version. Unless an instance specifically requests a version,
-this default version will be used.
+Packages and plugins must be deployed before they can be used.
+
+New versions of your project automatically become the “default” version when new instances are created.
+Unless an instance specifically requests a version, this new default version will be used.
+
+Before you deploy, make sure the ``handle`` and ``version`` fields in your ``steamship.json`` file are set:
 
 -  The ``handle`` property of ``steamship.json``
 -  The ``version`` property of ``steamship.json``
 
-Deploying Plugins with the Steamship CLI
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Deploying with the Steamship CLI
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can deploy a plugin with the Steamship CLI with single command from
+You can deploy a package or plugin with the Steamship CLI with single command from
 the project root:
 
 .. code:: bash
 
    ship deploy
 
-Deploying Plugins via GitHub Actions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+After the command exits, wait a few minutes for your new infrastructure to be ready in the cloud.
+New instances of your project will then be directed to the new version.
 
-Each plugin repository is created from a template pre-configured to
+Deploying via GitHub Actions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Each package and plugin project is created from a a template that has been pre-configured to
 auto-deploy within GitHub Actions when certain situations occur.
 
-Production deployments occur upon: \* Pushes to ``main`` \* Pushes to
-any SemVer-style tag, prefixed with ``v`` (``vA.B.C``)
+Production deployments occur upon:
 
-Staging deployments occur upon: \* Pushes to branch ``staging``
+-  Pushes to ``main``
+-  Pushes to SemVer-style tags, prefixed with ``v`` (``vA.B.C``)
+
+Staging deployments occur upon:
+
+-  Pushes to ``staging``
 
 When pushing to a SemVer-style tag, the tag’s version must match the
 version contained within ``steamship.json``. Note that while the GitHub

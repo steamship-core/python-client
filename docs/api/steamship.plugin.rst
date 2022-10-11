@@ -29,14 +29,6 @@ steamship.plugin.config module
    :undoc-members:
    :show-inheritance:
 
-steamship.plugin.corpus\_importer module
-----------------------------------------
-
-.. automodule:: steamship.plugin.corpus_importer
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 steamship.plugin.embedder module
 --------------------------------
 
