@@ -152,7 +152,7 @@ class ThirdPartyModel(TrainableModel):
         for in_block in request.data.file.blocks:
             tags = self.client.infer(in_block.text, self.params["model_id"])
             out_block = Block.CreateRequest(
-                id=in_block.id, tags=[Tag.CreateRequest(name=tag) for tag in tags]
+                id=in_block.id, tags=[Tag.CreateRequest(kind=tag) for tag in tags]
             )
             output.file.blocks.append(out_block)
 

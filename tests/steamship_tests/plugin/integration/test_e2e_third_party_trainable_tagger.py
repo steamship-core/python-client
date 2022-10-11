@@ -73,4 +73,4 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         assert len(res.data.file.blocks) > 0
         for block in res.data.file.blocks:
             assert block.tags is not None
-            assert sorted([tag.name for tag in block.tags]) == sorted(MockClient.LABELS)
+            assert sorted([tag.kind for tag in block.tags]) == sorted(MockClient.LABELS)

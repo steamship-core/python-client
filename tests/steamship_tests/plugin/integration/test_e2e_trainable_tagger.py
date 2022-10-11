@@ -110,4 +110,4 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
                 assert res.data.file is not None
                 assert res.data.file.tags is not None
                 assert len(res.data.file.tags) == len(KEYWORDS)
-                assert sorted([tag.name for tag in res.data.file.tags]) == sorted(KEYWORDS)
+                assert sorted([tag.kind for tag in res.data.file.tags]) == sorted(KEYWORDS)

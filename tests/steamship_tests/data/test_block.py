@@ -23,7 +23,7 @@ def test_query(client: Steamship):
             Block.CreateRequest(text="A"),
             Block.CreateRequest(text="B", tags=[Tag.CreateRequest(kind="Test")]),
         ],
-        tags=[Tag.CreateRequest(name="FileTag")],
+        tags=[Tag.CreateRequest(kind="FileTag")],
     ).data
     assert b.id is not None
     b = b.refresh().data
