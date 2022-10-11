@@ -4,7 +4,17 @@ Steamship Manifest Files
 Every Steamship package and plugin has a ``steamship.json`` file at its
 root that describes the project to Steamship.
 
-This file has a number of fields.
+At a minimum, when you create a new project, you should fill out the following fields:
+
+- ``handle``
+- ``description``
+- ``version``
+- ``public``
+
+Plugin and package handles are globally unique across Steamship.
+They are how other code will refer to your project when using it.
+
+The full list of fields is:
 
 -  ``type`` - Either ``app`` or ``plugin``. Tells Steamship how to
    interpret this project. An ``app`` (package) is a user library that
@@ -24,45 +34,10 @@ This file has a number of fields.
 -  ``author`` - Your name and contact information.
 -  ``description`` - A short, one sentence description of the project’s
    purpose.
+-  ``plugin`` - Plugin-specific configuration. See :ref:`description here<Plugin Manifest Config>`.
+-  ``configTemplate`` - A schema for the configuration your project requires . See :ref:`the configuration documentation<configTemplate Schema>` for details.
 
-Config Templates
-----------------
-
-Your ``steamship.json`` file contains a ``configTemplate`` variable that
-defines the parameterization of the Package or Plugin. This
-configuration is provided upon each new instance creation, and it is
-frozen and saved with your instance for reuse.
-
-The value of the ``configTemplate`` block takes the following form:
-
-.. code:: json
-
-   {
-     "configTemplate": {
-       "param_name": {
-         "type": "boolean",
-         "description": "Whether something should be enabled..",
-         "default": false
-       },
-       "param_name_2": {
-         "type": "string",
-         "description": "Some string parameter.",
-       }
-
-     }
-   }
-
-In the above code, you can see that the parameter name is the key of the
-object, and details about that parameter are in the associated body.
-Those details are:
-
--  ``type`` - Either ``boolean``, ``string``, or ``number``.
--  ``description`` - A short description of the parameter.
--  ``default`` A default value if the user does not provide one.
-
-If a parameter does not have a default value, and a Steamship user tries
-to create a new instance without specifying it, that instance creation
-will fail.
+.. _Plugin Manifest Config:
 
 Plugin Configuration
 --------------------
