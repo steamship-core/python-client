@@ -151,7 +151,7 @@ class File(CamelModel):
         )
 
     @staticmethod
-    def create_plugin(
+    def create_with_plugin(
         client: Client,
         plugin_instance: str,
         url: str = None,
@@ -165,7 +165,11 @@ class File(CamelModel):
             plugin_instance=plugin_instance,
         )
 
-        return client.post("file/create", payload=req, expect=File, as_background_task=True)
+        return client.post(
+            "file/create",
+            payload=req,
+            expect=File,
+        )
 
     def refresh(self) -> File:
         return File.get(self.client, self.id)
@@ -193,7 +197,7 @@ class File(CamelModel):
             raw_response=True,
         )
 
-    def blockify(self, plugin_instance: str = None) -> Task:
+    def blockify(self, plugin_instance: str = None) -> Task[File]:
         from steamship.data.operations.blockifier import BlockifyRequest
         from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
