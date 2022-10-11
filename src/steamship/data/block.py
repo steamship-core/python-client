@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from steamship.base import Client, Request, Response
+from steamship.base import Client, Request
 from steamship.base.configuration import CamelModel
-from steamship.base.request import DeleteRequest, IdentifierRequest
+from steamship.base.request import DeleteRequest, IdentifierRequest, Response
 from steamship.data.tags.tag import Tag
 
 
@@ -36,7 +36,7 @@ class Block(CamelModel):
     def get(
         client: Client,
         _id: str = None,
-    ) -> Response[Block]:
+    ) -> Block:
         return client.post(
             "block/get",
             IdentifierRequest(id=_id),
@@ -50,7 +50,7 @@ class Block(CamelModel):
         text: str = None,
         tags: List[Tag.CreateRequest] = None,
         upsert: bool = None,
-    ) -> Response[Block]:
+    ) -> Block:
         req = Block.CreateRequest(file_id=file_id, text=text, tags=tags, upsert=upsert)
         return client.post(
             "block/create",
@@ -58,7 +58,7 @@ class Block(CamelModel):
             expect=Block,
         )
 
-    def delete(self) -> Response[Block]:
+    def delete(self) -> Block:
         return self.client.post(
             "block/delete",
             DeleteRequest(id=self.id),

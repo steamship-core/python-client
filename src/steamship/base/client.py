@@ -15,14 +15,13 @@ from steamship.base.configuration import CamelModel, Configuration
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes
 from steamship.base.request import Request
-from steamship.base.response import Response, Task
-from steamship.base.tasks import TaskState
+from steamship.base.tasks import Task, TaskState
 from steamship.base.utils import to_camel
 from steamship.utils.url import Verb, is_local
 
 _logger = logging.getLogger(__name__)
 
-T = TypeVar("T", bound=Response)  # TODO (enias): Do we need this?
+T = TypeVar("T")  # TODO (enias): Do we need this?
 
 
 class Client(CamelModel, ABC):

@@ -60,7 +60,7 @@ class TaskComment(CamelModel):
         external_group: str = None,
         metadata: Any = None,
         upsert: bool = True,
-    ) -> IResponse[TaskComment]:
+    ) -> TaskComment:
         req = CreateTaskCommentRequest(
             taskId=task_id,
             external_id=external_id,
@@ -95,7 +95,7 @@ class TaskComment(CamelModel):
             expect=TaskCommentList,
         )
 
-    def delete(self) -> IResponse[TaskComment]:
+    def delete(self) -> TaskComment:
         req = DeleteRequest(id=self.id)
         return self.client.post(
             "task/comment/delete",
@@ -199,7 +199,7 @@ class Task(GenericCamelModel, Generic[T]):
         client,
         _id: str = None,
         handle: str = None,
-    ) -> IResponse[Task]:
+    ) -> Task:
         return client.post(
             "task/get",
             IdentifierRequest(id=_id, handle=handle),

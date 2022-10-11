@@ -174,7 +174,7 @@ class EmbeddingIndex(CamelModel):
         external_type: str = None,
         metadata: Union[int, float, bool, str, List, Dict] = None,
         reindex: bool = True,
-    ) -> Response[IndexInsertResponse]:
+    ) -> IndexInsertResponse:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
@@ -223,7 +223,7 @@ class EmbeddingIndex(CamelModel):
         external_type: str = None,
         metadata: Union[int, float, bool, str, List, Dict] = None,
         reindex: bool = True,
-    ) -> Response[IndexInsertResponse]:
+    ) -> IndexInsertResponse:
 
         req = IndexInsertRequest(
             index_id=self.id,
@@ -249,7 +249,7 @@ class EmbeddingIndex(CamelModel):
             expect=IndexEmbedResponse,
         )
 
-    def create_snapshot(self) -> Response[IndexSnapshotResponse]:
+    def create_snapshot(self) -> IndexSnapshotResponse:
         req = IndexSnapshotRequest(index_id=self.id)
         return self.client.post(
             "embedding-index/snapshot/create",
@@ -258,7 +258,7 @@ class EmbeddingIndex(CamelModel):
         )
 
     # TODO (enias): Can these be generic list operations for all file types?
-    def list_snapshots(self) -> Response[ListSnapshotsResponse]:
+    def list_snapshots(self) -> ListSnapshotsResponse:
         req = ListSnapshotsRequest(id=self.id)
         return self.client.post(
             "embedding-index/snapshot/list",
@@ -282,7 +282,7 @@ class EmbeddingIndex(CamelModel):
     def delete_snapshot(
         self,
         snapshot_id: str,
-    ) -> Response[DeleteSnapshotsResponse]:
+    ) -> DeleteSnapshotsResponse:
         req = DeleteSnapshotsRequest(snapshotId=snapshot_id)
         return self.client.post(
             "embedding-index/snapshot/delete",
@@ -290,7 +290,7 @@ class EmbeddingIndex(CamelModel):
             expect=DeleteSnapshotsResponse,
         )
 
-    def delete(self) -> Response[EmbeddingIndex]:
+    def delete(self) -> EmbeddingIndex:
         return self.client.post(
             "embedding-index/delete",
             DeleteRequest(id=self.id),

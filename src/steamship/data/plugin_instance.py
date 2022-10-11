@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional, Type, Union
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response, Task
+from steamship.base import Client, Request, Task
 from steamship.base.configuration import CamelModel
 from steamship.data.plugin import (
     HostingCpu,
@@ -111,7 +111,7 @@ class PluginInstance(CamelModel):
         req = DeleteRequest(id=self.id)
         return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
 
-    def train(self, training_request: TrainingParameterPluginInput) -> Response[TrainPluginOutput]:
+    def train(self, training_request: TrainingParameterPluginInput) -> TrainPluginOutput:
         return self.client.post(
             "plugin/instance/train",
             payload=training_request,
@@ -120,7 +120,7 @@ class PluginInstance(CamelModel):
 
     def get_training_parameters(
         self, training_request: TrainingParameterPluginInput
-    ) -> Response[TrainingParameterPluginOutput]:
+    ) -> TrainingParameterPluginOutput:
         return self.client.post(
             "plugin/instance/getTrainingParameters",
             payload=training_request,

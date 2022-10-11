@@ -95,7 +95,7 @@ class File(CamelModel):
         obj = obj["file"] if "file" in obj else obj
         return super().parse_obj(obj)
 
-    def delete(self) -> Response[File]:
+    def delete(self) -> File:
         return self.client.post(
             "file/delete",
             IdentifierRequest(id=self.id),

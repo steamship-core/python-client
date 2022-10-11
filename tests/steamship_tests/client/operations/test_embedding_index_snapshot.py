@@ -1,7 +1,7 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import PluginInstance
-from steamship.base.response import TaskState
+from steamship.base import TaskState
 from steamship.data.embeddings import EmbeddingIndex, IndexSnapshotRequest, IndexSnapshotResponse
 
 _TEST_EMBEDDER = "test-embedder"

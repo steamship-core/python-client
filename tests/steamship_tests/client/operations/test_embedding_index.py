@@ -3,7 +3,7 @@ from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_index
 
 from steamship import Steamship, SteamshipError
-from steamship.base.response import TaskState
+from steamship.base import TaskState
 from steamship.data.embeddings import EmbeddedItem, EmbeddingIndex
 from steamship.data.plugin_instance import PluginInstance
 

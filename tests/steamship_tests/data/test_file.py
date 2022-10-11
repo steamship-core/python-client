@@ -28,7 +28,7 @@ def test_file_import_response_dict():
     resp = File.CreateResponse(_bytes=b"some bytes", mime_type=MimeTypes.BINARY)
     to_dict = resp.dict(include={"data_", "mime_type"})
     file_create_response = File.CreateResponse.parse_obj(to_dict)
-    assert resp.data == file_create_response.data
+    assert resp.data_ == file_create_response.data_
     assert resp.mime_type == file_create_response.mime_type
 
 

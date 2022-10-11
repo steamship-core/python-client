@@ -3,7 +3,7 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import Block, DocTag, File, MimeTypes, PluginInstance, Steamship
-from steamship.base.response import TaskState
+from steamship.base import TaskState
 
 
 def count_blocks_with_tag(blocks: [Block], tag_kind: str, tag_name: str):
