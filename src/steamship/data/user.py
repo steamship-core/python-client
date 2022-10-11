@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from typing import Any, Dict, Type
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client
 from steamship.base.configuration import CamelModel
 
 
 class User(CamelModel):
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
 

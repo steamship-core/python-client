@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List
 
+from pydantic import Field
+
 from steamship.base import Client, Request, Response
 from steamship.base.configuration import CamelModel
 
@@ -12,7 +14,7 @@ class TagQueryRequest(Request):
 
 
 class Tag(CamelModel):
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     file_id: str = None
     block_id: str = None

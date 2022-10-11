@@ -1,3 +1,4 @@
+from .base import CamelModel, GenericCamelModel, to_camel
 from .client import Client
 from .configuration import Configuration
 from .error import SteamshipError
@@ -20,5 +21,8 @@ __all__ = [
     "TaskState",
     "DeleteRequest",
     "IdentifierRequest",
+    "CamelModel",
+    "GenericCamelModel",
+    "to_camel",
 ]
 # TODO (enias): All imports should be using these shortcuts

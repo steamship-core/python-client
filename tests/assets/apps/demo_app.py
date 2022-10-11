@@ -3,7 +3,7 @@ import io
 from typing import Any, Dict
 
 from steamship import SteamshipError
-from steamship.app import App, Response, create_handler, get, post
+from steamship.app import Invocable, InvocableResponse, create_handler, get, post
 from steamship.base.configuration import CamelModel
 from steamship.base.mime_types import MimeTypes
 from steamship.client import Steamship
@@ -19,75 +19,75 @@ PALM_TREE_BASE_64 = "iVBORw0KGgoAAAANSUhEUgAAADgAAABWCAYAAACaeFU0AAAMbWlDQ1BJQ0M
 PALM_TREE_BASE_64 = PALM_TREE_BASE_64.encode("ascii")
 
 
-class TestApp(App):
+class TestApp(Invocable):
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
         self.index = None
 
     @get("resp_string")
-    def resp_string(self) -> Response:
-        return Response(string="A String")
+    def resp_string(self) -> InvocableResponse:
+        return InvocableResponse(string="A String")
 
     @get("resp_dict")
-    def resp_dict(self) -> Response:
-        return Response(json={"string": "A String", "int": 10})
+    def resp_dict(self) -> InvocableResponse:
+        return InvocableResponse(json={"string": "A String", "int": 10})
 
     @get("resp_obj")
-    def resp_obj(self) -> Response:
-        return Response(json=TestObj(name="Foo"))
+    def resp_obj(self) -> InvocableResponse:
+        return InvocableResponse(json=TestObj(name="Foo"))
 
     @get("resp_binary")
-    def resp_binary(self) -> Response:
+    def resp_binary(self) -> InvocableResponse:
         _bytes = base64.b64decode(PALM_TREE_BASE_64)
-        return Response(_bytes=_bytes)
+        return InvocableResponse(_bytes=_bytes)
 
     @get("resp_bytes_io")
-    def resp_bytes_io(self) -> Response:
+    def resp_bytes_io(self) -> InvocableResponse:
         _bytes = base64.b64decode(PALM_TREE_BASE_64)
-        return Response(_bytes=io.BytesIO(_bytes))
+        return InvocableResponse(_bytes=io.BytesIO(_bytes))
 
     @get("resp_image")
-    def resp_image(self) -> Response:
+    def resp_image(self) -> InvocableResponse:
         _bytes = base64.b64decode(PALM_TREE_BASE_64)
-        return Response(_bytes=_bytes, mime_type=MimeTypes.PNG)
+        return InvocableResponse(_bytes=_bytes, mime_type=MimeTypes.PNG)
 
     @get("greet")
-    def greet1(self, name: str = "Person") -> Response:
-        return Response(string=f"Hello, {name}!")
+    def greet1(self, name: str = "Person") -> InvocableResponse:
+        return InvocableResponse(string=f"Hello, {name}!")
 
     @post("greet")
-    def greet2(self, name: str = "Person") -> Response:
-        return Response(string=f"Hello, {name}!")
+    def greet2(self, name: str = "Person") -> InvocableResponse:
+        return InvocableResponse(string=f"Hello, {name}!")
 
     @get("space")
-    def space(self) -> Response:
-        return Response(string=self.client.config.space_id)
+    def space(self) -> InvocableResponse:
+        return InvocableResponse(string=self.client.config.space_id)
 
     @post("raise_steamship_error")
-    def raise_steamship_error(self) -> Response:
+    def raise_steamship_error(self) -> InvocableResponse:
         raise SteamshipError(message="raise_steamship_error")
 
     @post("raise_python_error")
-    def raise_python_error(self) -> Response:
+    def raise_python_error(self) -> InvocableResponse:
         raise Exception("raise_python_error")
 
     @post("user_info")
-    def user_info(self) -> Response:
+    def user_info(self) -> InvocableResponse:
         user = User.current(self.client)
-        return Response(json={"handle": user.handle})
+        return InvocableResponse(json={"handle": user.handle})
 
     @post("json_with_status")
-    def json_with_status(self) -> Response:
+    def json_with_status(self) -> InvocableResponse:
         """Our base client tries to be smart with parsing things that look like SteamshipResponse objects, but there's
         a problem with this when our packages response with a JSON string of the sort {"status": "foo"} -- the Client
         will unhelpfully try to coerce that string value into a Task object and fail. This method helps us test that
         we are handling it properly."""
-        return Response(json={"status": "a string"})
+        return InvocableResponse(json={"status": "a string"})
 
     @get("config")
-    def get_config(self) -> Response:
+    def get_config(self) -> InvocableResponse:
         """This is called get_config because there's already `.config` object on the class."""
-        return Response(
+        return InvocableResponse(
             json={
                 "spaceId": self.client.config.space_id,
                 "appBase": self.client.config.app_base,
@@ -97,39 +97,39 @@ class TestApp(App):
         )
 
     @post("learn")
-    def learn(self, fact: str = None) -> Response:
+    def learn(self, fact: str = None) -> InvocableResponse:
         """Learns a new fact."""
         if fact is None:
-            return Response.error(500, "Empty fact provided to learn.")
+            return InvocableResponse.error(500, "Empty fact provided to learn.")
 
         if self.index is None:
-            return Response.error(500, "Unable to initialize QA index.")
+            return InvocableResponse.error(500, "Unable to initialize QA index.")
 
         res = self.index.embed(fact)
 
         if res.error:
             # Steamship error messages can be passed straight
             # back to the user
-            return Response(error=res.error)
-        return Response(json=res.data)
+            return InvocableResponse(error=res.error)
+        return InvocableResponse(json=res.data)
 
     @post("query")
-    def query(self, query: str = None, k: int = 1) -> Response:
+    def query(self, query: str = None, k: int = 1) -> InvocableResponse:
         """Learns a new fact."""
         if query is None:
-            return Response.error(500, "Empty query provided.")
+            return InvocableResponse.error(500, "Empty query provided.")
 
         if self.index is None:
-            return Response.error(500, "Unable to initialize QA index.")
+            return InvocableResponse.error(500, "Unable to initialize QA index.")
 
         res = self.index.query(query=query, k=k)
 
         if res.error:
             # Steamship error messages can be passed straight
             # back to the user
-            return Response(error=res.error)
+            return InvocableResponse(error=res.error)
 
-        return Response(json=res.data)
+        return InvocableResponse(json=res.data)
 
 
 handler = create_handler(TestApp)

@@ -8,14 +8,14 @@ from __future__ import annotations
 
 from typing import Any, Type
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client
 from steamship.base.request import CreateRequest, DeleteRequest, GetRequest
 
 
-class App(BaseModel):  # TODO (enias): Rename to Package
-    client: Client = None
+class Package(BaseModel):
+    client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
 
@@ -26,14 +26,14 @@ class App(BaseModel):  # TODO (enias): Rename to Package
         return super().parse_obj(obj)
 
     @staticmethod
-    def create(client: Client, handle: str = None, upsert: bool = None) -> App:
+    def create(client: Client, handle: str = None, upsert: bool = None) -> Package:
         req = CreateRequest(handle=handle, upsert=upsert)
-        return client.post("app/create", payload=req, expect=App)
+        return client.post("app/create", payload=req, expect=Package)
 
     @staticmethod
-    def get(client: Client, handle: str) -> App:
-        return client.post("app/get", GetRequest(handle=handle), expect=App)
+    def get(client: Client, handle: str) -> Package:
+        return client.post("app/get", GetRequest(handle=handle), expect=Package)
 
-    def delete(self) -> App:
+    def delete(self) -> Package:
         req = DeleteRequest(id=self.id)
-        return self.client.post("app/delete", payload=req, expect=App)
+        return self.client.post("app/delete", payload=req, expect=Package)

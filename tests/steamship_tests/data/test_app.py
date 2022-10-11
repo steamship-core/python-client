@@ -1,9 +1,9 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import App
+from steamship import Package
 
 
 def test_app_create():
     client = get_steamship_client()
-    app = App.create(client)
+    app = Package.create(client)
     _ = app.delete()

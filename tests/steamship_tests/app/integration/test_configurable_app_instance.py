@@ -2,7 +2,7 @@ from steamship_tests import APPS_PATH
 from steamship_tests.utils.deployables import deploy_app
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import AppInstance
+from steamship import PackageInstance
 
 
 def test_configurable_instance_invoke():
@@ -25,7 +25,7 @@ def test_configurable_instance_invoke():
 
         greeting2 = "Hallo"
         instance_config2 = {"greeting": greeting2}
-        instance2 = AppInstance.create(
+        instance2 = PackageInstance.create(
             client, app_id=app.id, app_version_id=version.id, config=instance_config2
         )
 

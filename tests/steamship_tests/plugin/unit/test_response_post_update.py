@@ -6,18 +6,18 @@ from steamship_tests.plugin.unit.trainable.util import create_dummy_training_tas
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import SteamshipError
-from steamship.app import Response
+from steamship.app import InvocableResponse
 from steamship.base.tasks import Task, TaskState
 
 
 def test_response_post_update_fails_when_no_task_present():
     client = get_steamship_client()
-    response = Response()
+    response = InvocableResponse()
     with pytest.raises(SteamshipError):
         response.post_update(client)
 
     # No task_id
-    response2 = Response(status=Task())
+    response2 = InvocableResponse(status=Task())
     with pytest.raises(SteamshipError):
         response2.post_update(client)
 
@@ -34,7 +34,7 @@ def test_response_post_update_can_update_task():
     assert task.status_message != new_message
     assert task.output != new_output
 
-    response = Response(status=task)
+    response = InvocableResponse(status=task)
 
     response.status.state = new_state
     response.status.status_message = new_message

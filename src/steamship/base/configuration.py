@@ -6,10 +6,10 @@ from pathlib import Path
 from typing import Optional
 
 import inflection
-from pydantic import BaseModel, HttpUrl
-from pydantic.generics import GenericModel
+from pydantic import HttpUrl
 
-from steamship.base.utils import format_uri, to_camel
+from steamship.base.base import CamelModel
+from steamship.base.utils import format_uri
 
 DEFAULT_WEB_BASE = "https://app.steamship.com/"
 DEFAULT_APP_BASE = "https://steamship.run/"
@@ -35,39 +35,11 @@ EXCLUDE_FROM_DICT = {
 }
 
 
-class CamelModel(BaseModel):
-    def __init__(self, **kwargs):
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-        super().__init__(**kwargs)
-
-    class Config:
-        alias_generator = to_camel
-        allow_population_by_field_name = True
-
-    def dict(self, **kwargs) -> dict:
-        exclude_set = {}
-        exclude_set.update(EXCLUDE_FROM_DICT)
-
-        if "exclude" in kwargs:
-            if isinstance(kwargs["exclude"], set):
-                for key in kwargs["exclude"]:
-                    exclude_set[key] = True
-            elif isinstance(kwargs["exclude"], dict):
-                exclude_set.update(kwargs["exclude"])
-
-        kwargs["exclude"] = exclude_set
-        return super().dict(**kwargs)
-
-
-class GenericCamelModel(CamelModel, GenericModel):
-    pass
-
-
 class Configuration(CamelModel):
     api_key: str
-    api_base: Optional[HttpUrl] = DEFAULT_API_BASE
-    app_base: Optional[HttpUrl] = DEFAULT_APP_BASE
-    web_base: Optional[HttpUrl] = DEFAULT_WEB_BASE
+    api_base: HttpUrl = DEFAULT_API_BASE
+    app_base: HttpUrl = DEFAULT_APP_BASE
+    web_base: HttpUrl = DEFAULT_WEB_BASE
     space_id: str = None
     space_handle: str = None
     profile: Optional[str] = None

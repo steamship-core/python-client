@@ -11,12 +11,12 @@ import inflection
 from pydantic import BaseModel, PrivateAttr
 from requests import Session
 
+from steamship.base import to_camel
 from steamship.base.configuration import CamelModel, Configuration
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes
 from steamship.base.request import Request
 from steamship.base.tasks import Task, TaskState
-from steamship.base.utils import to_camel
 from steamship.utils.url import Verb, is_local
 
 _logger = logging.getLogger(__name__)
@@ -141,7 +141,7 @@ class Client(CamelModel, ABC):
         # Because of the trick we do to hack these in as both static and member methods (with different
         # implementations), Pydantic will try to include them by default. So we have to suppress that otherwise
         # downstream serialization into JSON will fail.
-        if "exclude" not in kwargs:
+        if "exclude" not in kwargs:  # TODO (enias): Review
             kwargs["exclude"] = {"use", "use_plugin", "_instance_use", "_instance_use_plugin"}
         elif isinstance(kwargs["exclude"], set):
             kwargs["exclude"].add("use")
@@ -287,6 +287,8 @@ class Client(CamelModel, ABC):
         if expect and isclass(expect):
             if len(response_data.keys()) == 1 and list(response_data.keys())[0] in (
                 to_camel(expect.__name__),
+                to_camel(expect.__name__).replace("package", "app"),
+                # Hack since engine uses "App" instead of "Package"
                 "index",
             ):
                 # TODO (enias): Hack since the engine responds with incosistent formats e.g. {"plugin" : {plugin_fields}}
@@ -402,8 +404,8 @@ class Client(CamelModel, ABC):
 
             if "data" in response_data:
                 if expect is not None:
-                    if hasattr(expect, "from_dict"):
-                        data = expect.from_dict(response_data["data"], client=self)
+                    if issubclass(expect, SteamshipError):
+                        data = expect.from_dict({**response_data["data"], "client": self})
                     elif issubclass(expect, BaseModel):
                         data = expect.parse_obj(
                             self._add_client_to_response(expect, response_data["data"])

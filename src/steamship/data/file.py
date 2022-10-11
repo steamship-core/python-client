@@ -5,7 +5,7 @@ import logging
 from enum import Enum
 from typing import Any, List, Optional, Type, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client, Request, Response, Task
 from steamship.base.binary_utils import flexi_create
@@ -39,7 +39,7 @@ class FileQueryRequest(Request):
 class File(CamelModel):
     """A file."""
 
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
     mime_type: str = None

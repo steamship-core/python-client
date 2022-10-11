@@ -3,7 +3,7 @@ import re
 from typing import Type
 
 from steamship import Block, DocTag, Tag
-from steamship.app import Response, create_handler
+from steamship.app import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -45,13 +45,13 @@ class TestParserPlugin(Tagger):
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
-    ) -> Response[BlockAndTagPluginOutput]:
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
         logging.info(f"Inside parser: {type(request)}")
         file = request.data.file
         for block in file.blocks:
             tag_sentences(block)
         if request.data is not None:
-            ret = Response(data=BlockAndTagPluginOutput(file=file))
+            ret = InvocableResponse(data=BlockAndTagPluginOutput(file=file))
             logging.info(f"Ret: {ret}")
             return ret
 

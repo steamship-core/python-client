@@ -14,7 +14,7 @@ from steamship.base.request import GetRequest, IdentifierRequest
 
 
 class Space(CamelModel):
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
 

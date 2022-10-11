@@ -9,9 +9,8 @@ from fluent import asynchandler as fluenthandler
 from fluent.handler import FluentRecordFormatter
 
 from steamship import Configuration
-from steamship.app.app import App
-from steamship.app.request import InvocationContext, Request
-from steamship.app.response import Response
+from steamship.app import InvocableRequest, InvocableResponse, InvocationContext
+from steamship.app.invocable import Invocable
 from steamship.base import SteamshipError
 from steamship.client.client import Steamship
 from steamship.data.space import SignedUrl
@@ -28,23 +27,23 @@ def encode_exception(obj):
     return obj
 
 
-def create_handler(app_cls: Type[App]):  # noqa: C901
+def create_handler(app_cls: Type[Invocable]):  # noqa: C901
     """Wrapper function for a Steamship app within an AWS Lambda function."""
 
     def _handler(
         event: Dict,
         client: Steamship,
         _: Dict = None,
-    ) -> Response:
+    ) -> InvocableResponse:
 
         try:
-            request = Request.parse_obj(event)
+            request = InvocableRequest.parse_obj(event)
         except SteamshipError as se:
             logging.exception(se)
-            return Response.from_obj(se)
+            return InvocableResponse.from_obj(se)
         except Exception as ex:
             logging.exception(ex)
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 message="Plugin/App handler was unable to parse inbound request.",
                 exception=ex,
@@ -60,10 +59,10 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
         try:
             app = app_cls(client=client, config=request.invocation.config)
         except SteamshipError as se:
-            return Response.from_obj(se)
+            return InvocableResponse.from_obj(se)
         except Exception as ex:
             logging.exception(ex)
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
                 message="Unable to initialize plugin/app.",
@@ -71,7 +70,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
             )
 
         if not app:
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
                 message="Unable to construct app/plugin for invocation.",
@@ -79,14 +78,14 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
 
         try:
             response = app(request)
-            return Response.from_obj(response)
+            return InvocableResponse.from_obj(response)
         except SteamshipError as se:
             logging.exception(se)
             se.message = f"{error_prefix}{se.message}"
-            return Response.from_obj(se)
+            return InvocableResponse.from_obj(se)
         except Exception as ex:
             logging.exception(ex)
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
                 exception=ex,
@@ -96,7 +95,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
         logging_config = event.get("loggingConfig")
 
         if logging_config is None:
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 message="Plugin/App handler did not receive a remote logging config.",
             ).dict(by_alias=True)
@@ -109,7 +108,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
 
         invocation_context_dict = event.get("invocationContext")
         if invocation_context_dict is None:
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 message="Plugin/App handler did not receive an invocation context.",
             ).dict(by_alias=True)
@@ -124,13 +123,13 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
         ):  # Key off the string none, not 'is None', to avoid config errors where remote host isn't passed
             # Configure remote logging
             if logging_host is None:
-                return Response.error(
+                return InvocableResponse.error(
                     code=HTTPStatus.INTERNAL_SERVER_ERROR,
                     message="Plugin/App handler did receive a remote logging config, but it did not include a loggingHost.",
                 ).dict(by_alias=True)
 
             if logging_port is None:
-                return Response.error(
+                return InvocableResponse.error(
                     code=HTTPStatus.INTERNAL_SERVER_ERROR,
                     message="Plugin/App handler did receive a remote logging config, but it did not include a loggingPort.",
                 ).dict(by_alias=True)
@@ -170,10 +169,10 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
             client = Steamship(config=config)
         except SteamshipError as se:
             logging.exception(se)
-            return Response.from_obj(se).dict(by_alias=True)
+            return InvocableResponse.from_obj(se).dict(by_alias=True)
         except Exception as ex:
             logging.exception(ex)
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 message="Plugin/App handler was unable to create Steamship client.",
                 exception=ex,

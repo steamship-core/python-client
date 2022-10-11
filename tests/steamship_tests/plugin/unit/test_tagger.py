@@ -2,7 +2,7 @@ import pytest
 from assets.plugins.taggers.plugin_parser import TestParserPlugin
 
 from steamship import File
-from steamship.app.response import Response
+from steamship.app import InvocableResponse
 from steamship.data.block import Block
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -26,7 +26,7 @@ TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
 
 def _test_resp(res):
-    assert isinstance(res, Response)
+    assert isinstance(res, InvocableResponse)
     assert isinstance(res.data, BlockAndTagPluginOutput)
     assert len(res.data.file.blocks) == 1
     assert res.data.file.blocks[0].text == TEST_REQ.file.blocks[0].text

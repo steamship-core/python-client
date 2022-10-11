@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Type
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client, DeleteRequest, Request, Response, Task
 from steamship.base.configuration import CamelModel
@@ -32,7 +32,7 @@ class ListPluginVersionsResponse(Response):
 
 
 class PluginVersion(CamelModel):
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     plugin_id: str = None
     handle: str = None
