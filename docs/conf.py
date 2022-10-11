@@ -15,10 +15,6 @@ import sys
 # noinspection PyPackageRequirements
 from sphinx.ext import apidoc
 
-from steamship import __version__ as version
-
-release = version
-
 # -- Path setup --------------------------------------------------------------
 
 __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe())))
@@ -27,6 +23,10 @@ __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.join(__location__, "../src"))
+
+from steamship import __version__ as version
+
+release = version
 
 # -- Run sphinx-apidoc -------------------------------------------------------
 # This hack is necessary since RTD does not issue `sphinx-apidoc` before running
@@ -49,6 +49,8 @@ try:
 
     cmd_line_template = "sphinx-apidoc --implicit-namespaces -f -o {outputdir} {moduledir}"
     cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
+
+    print(f"Funning: {cmd_line}")
 
     args = cmd_line.split(" ")
     if tuple(sphinx.__version__.split(".")) >= ("1", "7"):
@@ -135,6 +137,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".venv"]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
+pygments_dark_style = "monokai"
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -147,7 +150,7 @@ pygments_style = "sphinx"
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-html_theme = "alabaster"
+html_theme = "furo"
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -162,21 +165,25 @@ html_theme_options = {"sidebar_width": "300px", "page_width": "1200px"}
 
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
-# html_short_title = None
+html_short_title = "Steamship"
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-# html_logo = ""
+# html_logo = "_static/Steamship-symbol-dark.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
 # pixels large.
-# html_favicon = None
+html_favicon = "favicon.ico"
 
 # Add Any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+html_theme_options = {
+    "light_logo": "Steamship-symbol-dark.png",
+    "dark_logo": "Steamship-symbol-light.png",
+}
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
@@ -236,7 +243,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-    ("index", "user_guide.tex", "steamship Documentation", "Edward Benson", "manual")
+    ("index", "user_guide.tex", "Steamship Documentation", "Steamship, Inc.", "manual")
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

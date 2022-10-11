@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from steamship.base import Client, Request, Response
 from steamship.base.binary_utils import flexi_create
 from steamship.base.configuration import CamelModel
-from steamship.base.request import IdentifierRequest
+from steamship.base.request import GetRequest, IdentifierRequest
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
 from steamship.data.tags import Tag
@@ -44,7 +44,6 @@ class File(CamelModel):
     handle: str = None
     mime_type: str = None
     space_id: str = None
-    corpus_id: str = None
     blocks: List[Block] = []
     tags: List[Tag] = []
     filename: str = None
@@ -57,7 +56,6 @@ class File(CamelModel):
         filename: str = None
         type: FileUploadType = None
         mime_type: str = None
-        corpus_id: str = None
         blocks: Optional[List[Block.CreateRequest]] = []
         tags: Optional[List[Tag.CreateRequest]] = []
         plugin_instance: str = None
@@ -84,14 +82,12 @@ class File(CamelModel):
             self.data_ = data
             self.mime_type = mime_type
 
-    class ListRequest(Request):
-        corpus_id: str = None
-
-    class ListResponse(Response):
-        files: List[File]
-
-    class RawRequest(Request):
-        id: str
+        @classmethod
+        def parse_obj(cls: Type[BaseModel], obj: Any) -> Response:
+            obj["data"] = obj.get("data") or obj.get("data_")
+            if "data_" in obj:
+                del obj["data_"]
+            return super().parse_obj(obj)
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
@@ -104,13 +100,6 @@ class File(CamelModel):
             "file/delete",
             IdentifierRequest(id=self.id),
             expect=File,
-        )
-
-    def clear(self) -> Response[FileClearResponse]:
-        return self.client.post(
-            "file/clear",
-            IdentifierRequest(id=self.id),
-            expect=FileClearResponse,
         )
 
     @staticmethod
@@ -128,73 +117,59 @@ class File(CamelModel):
     @staticmethod
     def create(
         client: Client,
-        filename: str = None,
-        url: str = None,
-        content: str = None,
-        plugin_instance: str = None,
+        content: Union[str, bytes] = None,
         mime_type: str = None,
         blocks: List[Block.CreateRequest] = None,
         tags: List[Tag.CreateRequest] = None,
-        corpus_id: str = None,
     ) -> Response[File]:
 
-        if (
-            filename is None
-            and content is None
-            and url is None
-            and plugin_instance is None
-            and blocks is None
-        ):
+        if content is None and blocks is None and tags is None:
             raise Exception("Either filename, content, url, or plugin Instance must be provided.")
 
-        if blocks is not None:
+        if blocks is not None or tags is not None:
             upload_type = FileUploadType.BLOCKS
-        elif plugin_instance is not None:
-            upload_type = FileUploadType.FILE_IMPORTER
         elif content is not None:
-            # We're still going to use the file upload method for file uploads
-            upload_type = FileUploadType.FILE
-        elif filename is not None:
-            with open(filename, "rb") as f:
-                content = f.read()
             upload_type = FileUploadType.FILE
         else:
             raise Exception("Unable to determine upload type.")
 
         req = File.CreateRequest(
             type=upload_type,
-            corpusId=corpus_id,
-            url=url,
             mime_type=mime_type,
-            plugin_instance=plugin_instance,
             blocks=blocks,
             tags=tags,
-            filename=filename,
         )
 
         # Defaulting this here, as opposed to in the Engine, because it is processed by Vapor
-        file_part_name = filename if filename else "unnamed"
         return client.post(
             "file/create",
             payload=req,
-            file=(file_part_name, content, "multipart/form-data")
+            file=("file-part", content, "multipart/form-data")
             if upload_type != FileUploadType.BLOCKS
             else None,
             expect=File,
         )
 
     @staticmethod
-    def list(
+    def create_with_plugin(
         client: Client,
-        corpus_id: str = None,
-    ):
-        req = File.ListRequest(corpusId=corpus_id)
-        res = client.post(
-            "file/list",
-            payload=req,
-            expect=File.ListResponse,
+        plugin_instance: str,
+        url: str = None,
+        mime_type: str = None,
+    ) -> Response[File]:
+
+        req = File.CreateRequest(
+            type=FileUploadType.FILE_IMPORTER,
+            url=url,
+            mime_type=mime_type,
+            plugin_instance=plugin_instance,
         )
-        return res
+
+        return client.post(
+            "file/create",
+            payload=req,
+            expect=File,
+        )
 
     def refresh(self):
         return File.get(self.client, self.id)
@@ -214,12 +189,11 @@ class File(CamelModel):
         return res
 
     def raw(self):
-        req = File.RawRequest(
-            id=self.id,
-        )
         return self.client.post(
             "file/raw",
-            payload=req,
+            payload=GetRequest(
+                id=self.id,
+            ),
             raw_response=True,
         )
 
@@ -233,7 +207,6 @@ class File(CamelModel):
             "plugin/instance/blockify",
             payload=req,
             expect=BlockAndTagPluginOutput,
-            asynchronous=True,
         )
 
     def tag(
@@ -249,7 +222,6 @@ class File(CamelModel):
             "plugin/instance/tag",
             payload=req,
             expect=TagResponse,
-            asynchronous=True,
         )
 
     def index(
@@ -297,5 +269,4 @@ class FileQueryResponse(Response):
     files: List[File]
 
 
-File.ListResponse.update_forward_refs()
 File.CreateRequest.update_forward_refs()

@@ -15,7 +15,6 @@ from steamship.plugin.outputs.training_parameter_plugin_output import TrainingPa
 from steamship.plugin.service import PluginRequest, PluginService, TrainablePluginService
 from steamship.plugin.trainable_model import TrainableModel
 
-
 # Note!
 # =====
 #
@@ -24,12 +23,16 @@ from steamship.plugin.trainable_model import TrainableModel
 # If you are using the Steamship Client, you probably want steamship.client.operations.tagger instead
 # of this file.
 #
+
+
 class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
     # noinspection PyUnusedLocal
     def __init__(self, client: Client = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
-        if config:
-            self.config = self.config_cls()(**config)
+        logging.info(self.config)
+        if self.config:
+
+            self.config = self.config_cls()(**self.config)
         else:
             self.config = self.config_cls()()
 

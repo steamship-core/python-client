@@ -72,18 +72,6 @@ class Tag(CamelModel):
         )
         return client.post("tag/create", req, expect=Tag)
 
-    @staticmethod
-    def list_public(
-        client: Client,
-        file_id: str = None,
-        block_id: str = None,
-    ) -> Response[Tag.ListResponse]:
-        return client.post(
-            "tag/list",
-            Tag.ListRequest(file_id=file_id, block_id=block_id),
-            expect=Tag.ListResponse,
-        )
-
     def delete(self) -> Response[Tag]:
         return self.client.post(
             "tag/delete",
