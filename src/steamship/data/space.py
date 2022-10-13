@@ -32,7 +32,7 @@ class Space(CamelModel):
         external_type: Optional[str] = None
         metadata: Optional[str] = None
 
-    def delete(self) -> SteamshipResponse[Space]:
+    def delete(self) -> Space:
         return self.client.post("space/delete", IdentifierRequest(id=self.id), expect=Space)
 
     @staticmethod
