@@ -160,7 +160,7 @@ def test_app_instance_get():
     client = get_steamship_client()
     demo_app_path = APPS_PATH / "demo_app.py"
 
-    space = Space.create(client).data
+    space = Space.create(client)
     client.switch_workspace(workspace_id=space.id)
 
     assert space.handle != "default"
