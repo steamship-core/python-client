@@ -31,7 +31,7 @@ def test_background_task_call():
     # And now it has completed
     assert result_2_task.state == TaskState.succeeded
     assert result_2_task.output is not None
-    assert type(result_task_1) == NoOpResult
+    assert type(result_2_task) == NoOpResult
 
 
 def test_task_update():

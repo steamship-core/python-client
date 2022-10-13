@@ -60,9 +60,6 @@ class File(CamelModel):
         tags: Optional[List[Tag.CreateRequest]] = []
         plugin_instance: str = None
 
-        class Config:
-            use_enum_values = True
-
     class CreateResponse(Response):
         data_: Any = None
         mime_type: str = None

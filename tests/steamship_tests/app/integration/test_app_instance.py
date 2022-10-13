@@ -116,14 +116,15 @@ def test_instance_invoke():
 
         assert my_app_base == remote_app_base
         assert my_api_base == remote_api_base
-        assert configuration_within_lambda["apiKey"] == client.config.api_key
+
+        # API key should NOT be the same as the original, because the app should be given a space-scoped key
+        assert configuration_within_lambda["apiKey"] != client.config.api_key
 
         # SpaceId is an exception. Rather than being the SpaceId of the client, it should be the SpaceId
         # of the App Instance.
         assert configuration_within_lambda["spaceId"] == instance.space_id  # SpaceID
 
-        # The test app, when executing remotely inside Steamship, should have the same
-        # user that we're running with here in within the test
+        # The test app should NOT be able to fetch the User's account info.
         user_info = instance.post("user_info")
         user = User.current(client)
         assert user_info["handle"] == user.handle

@@ -2,8 +2,11 @@ from steamship.base.configuration import CamelModel
 
 
 class Request(CamelModel):
-    class Config:
-        use_enum_values = True
+    pass
+
+
+class Response(CamelModel):
+    pass
 
 
 class Response(CamelModel):

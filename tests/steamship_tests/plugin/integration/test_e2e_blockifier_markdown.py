@@ -6,6 +6,7 @@ from steamship.base import TaskState
 
 @pytest.mark.usefixtures("client")
 def test_e2e_blockifier_markdown(client: Steamship):
+    # TODO (enias): Stop offering default plugins hosted on the engine
     blockifier = client.use_plugin("markdown-blockifier-default")
     file = File.create(client=client, content="This is a test.")
     assert len(file.refresh().blocks) == 0

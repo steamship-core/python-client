@@ -12,7 +12,7 @@ from steamship import Configuration
 from steamship.app import InvocableRequest, InvocableResponse, InvocationContext
 from steamship.app.invocable import Invocable
 from steamship.base import SteamshipError
-from steamship.client.client import Steamship
+from steamship.client import Steamship
 from steamship.data.space import SignedUrl
 from steamship.utils.signed_urls import upload_to_signed_url
 
