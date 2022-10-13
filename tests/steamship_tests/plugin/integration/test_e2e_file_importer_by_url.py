@@ -21,6 +21,6 @@ def test_e2e_importer(client: Steamship):
         file_create_task.wait()
         file = file_create_task.output
         data = file.raw()
-        assert data.decode("utf-8") == TEST_DOC
+        assert data.decode("utf-8") == (100000 * TEST_DOC)
 
         file.delete()
