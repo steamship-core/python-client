@@ -304,7 +304,7 @@ class Client(CamelModel, ABC):
 
     def call(  # noqa: C901
         self,
-        verb: str,
+        verb: Verb,
         operation: str,
         payload: Union[Request, dict] = None,
         file: Any = None,
@@ -449,7 +449,7 @@ class Client(CamelModel, ABC):
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
         return self.call(
-            verb="POST",
+            verb=Verb.POST,
             operation=operation,
             payload=payload,
             file=file,
@@ -480,7 +480,7 @@ class Client(CamelModel, ABC):
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
         return self.call(
-            verb="GET",
+            verb=Verb.GET,
             operation=operation,
             payload=payload,
             file=file,

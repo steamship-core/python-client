@@ -6,8 +6,9 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request
 from steamship.base.configuration import CamelModel
-from steamship.base.request import DeleteRequest
+from steamship.base.request import DeleteRequest, IdentifierRequest
 from steamship.data.space import Space
+from steamship.utils.url import Verb
 
 
 class CreateAppInstanceRequest(Request):
@@ -76,30 +77,24 @@ class AppInstance(CamelModel):  # TODO (enias): Rename to Package
             if space:
                 self.space_handle = space.handle
 
-    def get(self, path: str, **kwargs):
-        self.load_missing_vals()
-        if path[0] == "/":
-            path = path[1:]
-        return self.client.get(
-            f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",  # TODO (enias): Fix code duplication
-            payload=kwargs,
-            app_call=True,
-            app_owner=self.user_handle,
-            app_id=self.app_id,
-            app_instance_id=self.id,
-        )
+    @staticmethod
+    def get(client: Client, handle: str):
+        return client.post("app/instance/get", IdentifierRequest(handle=handle), expect=AppInstance)
 
-    def post(self, path: str, **kwargs):
+    def invoke(self, path: str, verb: Verb = Verb.POST, **kwargs):
         self.load_missing_vals()
         if path[0] == "/":
             path = path[1:]
-        return self.client.post(
-            f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",
+
+        return self.client.call(
+            verb=verb,
+            operation=f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",  # TODO (enias): Fix code duplication
             payload=kwargs,
-            app_call=True,
+            is_app_call=True,
             app_owner=self.user_handle,
             app_id=self.app_id,
             app_instance_id=self.id,
+            as_background_task=False,
         )
 
     def full_url_for(self, path: str):
