@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
-from steamship.base import Client, DeleteRequest, Request, Response, Task
+from steamship.base import Client, Request, Response, Task
 from steamship.base.configuration import CamelModel
 from steamship.data.plugin import HostingMemory, HostingTimeout
 
@@ -92,10 +92,6 @@ class PluginVersion(CamelModel):
             file=("plugin.zip", filebytes, "multipart/form-data"),
             expect=PluginVersion,
         )
-
-    def delete(self) -> PluginVersion:
-        req = DeleteRequest(id=self.id)
-        return self.client.post("plugin/version/delete", payload=req, expect=PluginVersion)
 
     @staticmethod
     def list(

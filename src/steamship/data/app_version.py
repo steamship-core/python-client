@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 from steamship.base import Client, Request, Task
 from steamship.base.configuration import CamelModel
-from steamship.base.request import DeleteRequest
 
 
 class CreateAppVersionRequest(Request):
@@ -60,7 +59,3 @@ class AppVersion(CamelModel):  # TODO (enias): Rename to Package
             file=("app.zip", filebytes, "multipart/form-data"),
             expect=AppVersion,
         )
-
-    def delete(self) -> AppVersion:
-        req = DeleteRequest(id=self.id)
-        return self.client.post("app/version/delete", payload=req, expect=AppVersion)

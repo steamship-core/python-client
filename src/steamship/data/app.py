@@ -11,7 +11,7 @@ from typing import Any, Type
 from pydantic import BaseModel
 
 from steamship.base import Client
-from steamship.base.request import CreateRequest, DeleteRequest, GetRequest
+from steamship.base.request import CreateRequest, GetRequest
 
 
 class App(BaseModel):  # TODO (enias): Rename to Package
@@ -33,7 +33,3 @@ class App(BaseModel):  # TODO (enias): Rename to Package
     @staticmethod
     def get(client: Client, handle: str) -> App:
         return client.post("app/get", GetRequest(handle=handle), expect=App)
-
-    def delete(self) -> App:
-        req = DeleteRequest(id=self.id)
-        return self.client.post("app/delete", payload=req, expect=App)
