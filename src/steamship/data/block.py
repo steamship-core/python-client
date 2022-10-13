@@ -4,9 +4,8 @@ from typing import List, Optional
 
 from pydantic import Field
 
-from steamship.base import Client, Request
+from steamship.base import Client, DeleteRequest, IdentifierRequest, Request, Response
 from steamship.base.configuration import CamelModel
-from steamship.base import DeleteRequest, IdentifierRequest, Response
 from steamship.data.tags.tag import Tag
 
 
