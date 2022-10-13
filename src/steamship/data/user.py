@@ -4,7 +4,6 @@ from typing import Any, Dict, Type
 
 from pydantic import BaseModel
 
-from steamship.app import Response
 from steamship.base import Client
 from steamship.base.configuration import CamelModel
 
@@ -33,5 +32,5 @@ class User(CamelModel):
         return super().parse_obj(obj)
 
     @staticmethod
-    def current(client: Client) -> Response[User]:
+    def current(client: Client) -> User:
         return client.get("account/current", expect=User)

@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response, metadata_to_str
+from steamship.base import Client, Request, Response, Task, metadata_to_str
 from steamship.base.configuration import CamelModel
 from steamship.base.request import DeleteRequest
 from steamship.data.search import Hit
@@ -174,7 +174,7 @@ class EmbeddingIndex(CamelModel):
         external_type: str = None,
         metadata: Union[int, float, bool, str, List, Dict] = None,
         reindex: bool = True,
-    ) -> Response[IndexInsertResponse]:
+    ) -> IndexInsertResponse:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
@@ -197,7 +197,7 @@ class EmbeddingIndex(CamelModel):
         self,
         items: List[Union[EmbeddedItem, str]],
         reindex: bool = True,
-    ) -> Response[IndexInsertResponse]:
+    ) -> IndexInsertResponse:
         new_items = []
         for item in items:
             if isinstance(item, str):
@@ -223,7 +223,7 @@ class EmbeddingIndex(CamelModel):
         external_type: str = None,
         metadata: Union[int, float, bool, str, List, Dict] = None,
         reindex: bool = True,
-    ) -> Response[IndexInsertResponse]:
+    ) -> IndexInsertResponse:
 
         req = IndexInsertRequest(
             index_id=self.id,
@@ -241,7 +241,7 @@ class EmbeddingIndex(CamelModel):
 
     def embed(
         self,
-    ) -> Response[IndexEmbedResponse]:
+    ) -> Task[IndexEmbedResponse]:
         req = IndexEmbedRequest(id=self.id)
         return self.client.post(
             "embedding-index/embed",
@@ -249,7 +249,7 @@ class EmbeddingIndex(CamelModel):
             expect=IndexEmbedResponse,
         )
 
-    def create_snapshot(self) -> Response[IndexSnapshotResponse]:
+    def create_snapshot(self) -> IndexSnapshotResponse:
         req = IndexSnapshotRequest(index_id=self.id)
         return self.client.post(
             "embedding-index/snapshot/create",
@@ -258,7 +258,7 @@ class EmbeddingIndex(CamelModel):
         )
 
     # TODO (enias): Can these be generic list operations for all file types?
-    def list_snapshots(self) -> Response[ListSnapshotsResponse]:
+    def list_snapshots(self) -> ListSnapshotsResponse:
         req = ListSnapshotsRequest(id=self.id)
         return self.client.post(
             "embedding-index/snapshot/list",
@@ -271,7 +271,7 @@ class EmbeddingIndex(CamelModel):
         file_id: str = None,
         block_id: str = None,
         span_id: str = None,
-    ) -> Response[ListItemsResponse]:
+    ) -> ListItemsResponse:
         req = ListItemsRequest(id=self.id, file_id=file_id, block_id=block_id, spanId=span_id)
         return self.client.post(
             "embedding-index/item/list",
@@ -282,7 +282,7 @@ class EmbeddingIndex(CamelModel):
     def delete_snapshot(
         self,
         snapshot_id: str,
-    ) -> Response[DeleteSnapshotsResponse]:
+    ) -> DeleteSnapshotsResponse:
         req = DeleteSnapshotsRequest(snapshotId=snapshot_id)
         return self.client.post(
             "embedding-index/snapshot/delete",
@@ -290,7 +290,7 @@ class EmbeddingIndex(CamelModel):
             expect=DeleteSnapshotsResponse,
         )
 
-    def delete(self) -> Response[EmbeddingIndex]:
+    def delete(self) -> EmbeddingIndex:
         return self.client.post(
             "embedding-index/delete",
             DeleteRequest(id=self.id),
@@ -302,7 +302,7 @@ class EmbeddingIndex(CamelModel):
         query: Union[str, List[str]],
         k: int = 1,
         include_metadata: bool = False,
-    ) -> Response[QueryResults]:
+    ) -> Task[QueryResults]:
         if isinstance(query, list):
             req = IndexSearchRequest(
                 id=self.id, queries=query, k=k, include_metadata=include_metadata
@@ -329,7 +329,7 @@ class EmbeddingIndex(CamelModel):
         external_id: str = None,
         external_type: str = None,
         metadata: Any = None,
-    ) -> Response[EmbeddingIndex]:
+    ) -> EmbeddingIndex:
         req = IndexCreateRequest(
             handle=handle,
             name=name,

@@ -5,10 +5,10 @@ from steamship import PluginInstance
 
 def test_parsing():
     steamship = get_steamship_client()
-    parser = PluginInstance.create(steamship, plugin_handle="test-tagger").data
+    parser = PluginInstance.create(steamship, plugin_handle="test-tagger")
     resp = parser.tag("This is a test")
     resp.wait()
-    resp = resp.data
+    resp = resp.output
     assert len(resp.file.blocks) == 1
     d = resp.file.blocks[0]
 

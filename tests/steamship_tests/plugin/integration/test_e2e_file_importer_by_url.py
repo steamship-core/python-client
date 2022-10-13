@@ -16,10 +16,11 @@ def test_e2e_importer(client: Steamship):
         instance,
     ):
         # The test FileImporter should always return a string file with contents TEST_DOC
-        file = File.create_plugin(client=client, plugin_instance=instance.handle).data
-
+        file_create_task = File.create_with_plugin(client=client, plugin_instance=instance.handle)
         # Now fetch the data from Steamship and assert that it is the SAME as the data the FileImporter creates
-        data = file.raw().data
+        file_create_task.wait()
+        file = file_create_task.output
+        data = file.raw()
         assert data.decode("utf-8") == (100000 * TEST_DOC)
 
         file.delete()
