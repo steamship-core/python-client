@@ -43,6 +43,8 @@ class CamelModel(BaseModel):
     class Config:
         alias_generator = to_camel
         allow_population_by_field_name = True
+        # Populate enum values with their value, rather than the raw enum. Important to serialise model.dict()
+        use_enum_values = True
 
     def dict(self, **kwargs) -> dict:
         exclude_set = {}
