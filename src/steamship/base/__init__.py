@@ -4,7 +4,7 @@ from .configuration import Configuration
 from .error import SteamshipError
 from .metadata import metadata_to_str, str_to_metadata
 from .mime_types import MimeTypes
-from .request import Request, DeleteRequest, IdentifierRequest
+from .request import DeleteRequest, IdentifierRequest, Request
 from .tasks import Task, TaskComment, TaskState
 
 __all__ = [
