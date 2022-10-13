@@ -20,7 +20,6 @@ class CreateTaskCommentRequest(Request):
     external_type: str = None
     external_group: str = None
     metadata: str = None
-    upsert: bool = None
 
 
 class ListTaskCommentRequest(Request):
@@ -59,7 +58,6 @@ class TaskComment(CamelModel):
         external_type: str = None,
         external_group: str = None,
         metadata: Any = None,
-        upsert: bool = True,
     ) -> TaskComment:
         req = CreateTaskCommentRequest(
             taskId=task_id,
@@ -67,7 +65,6 @@ class TaskComment(CamelModel):
             external_type=external_type,
             externalGroup=external_group,
             metadata=metadata_to_str(metadata),
-            upsert=upsert,
         )
         return client.post(
             "task/comment/create",
@@ -218,7 +215,6 @@ class Task(GenericCamelModel, Generic[T]):
         external_type: str = None,
         external_group: str = None,
         metadata: Any = None,
-        upsert: bool = True,
     ) -> IResponse[TaskComment]:
         return TaskComment.create(
             client=self.client,
@@ -227,7 +223,6 @@ class Task(GenericCamelModel, Generic[T]):
             external_type=external_type,
             external_group=external_group,
             metadata=metadata,
-            upsert=upsert,
         )
 
     def post_update(self, fields: Set[str] = None) -> Task:

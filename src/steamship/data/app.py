@@ -26,8 +26,8 @@ class App(BaseModel):  # TODO (enias): Rename to Package
         return super().parse_obj(obj)
 
     @staticmethod
-    def create(client: Client, handle: str = None, upsert: bool = None) -> App:
-        req = CreateRequest(handle=handle, upsert=upsert)
+    def create(client: Client, handle: str = None) -> App:
+        req = CreateRequest(handle=handle)
         return client.post("app/create", payload=req, expect=App)
 
     @staticmethod
