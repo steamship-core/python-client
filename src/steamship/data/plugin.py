@@ -15,8 +15,7 @@ from pydantic import BaseModel
 
 from steamship.base.client import Client
 from steamship.base.configuration import CamelModel
-from steamship.base.request import IdentifierRequest, Request
-from steamship.base.response import Response
+from steamship.base.request import IdentifierRequest, Request, Response
 
 
 class HostingType(str, Enum):
@@ -158,7 +157,7 @@ class Plugin(CamelModel):
         training_platform: Optional[HostingType] = None,
         metadata: Union[str, Dict, List] = None,
         upsert: bool = False,
-    ) -> Response[Plugin]:
+    ) -> Plugin:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
@@ -179,7 +178,7 @@ class Plugin(CamelModel):
         )
 
     @staticmethod
-    def list(client: Client, t: str = None) -> Response[ListPluginsResponse]:
+    def list(client: Client, t: str = None) -> ListPluginsResponse:
         return client.post(
             "plugin/list",
             ListPluginsRequest(type=t),

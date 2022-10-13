@@ -23,7 +23,7 @@ def test_upload_download_text():
 
     # Grab a Steamship client and generate an upload url
     client = get_steamship_client()
-    space = Space.get(client=client).data
+    space = Space.get(client=client)
     upload_name = random_name()
     url_resp = space.create_signed_url(
         SignedUrl.Request(
@@ -33,11 +33,10 @@ def test_upload_download_text():
         )
     )
     assert url_resp is not None
-    assert url_resp.data is not None
-    assert url_resp.data.signed_url is not None
+    assert url_resp.signed_url is not None
 
     # Upload the zip file to the URL
-    upload_to_signed_url(url_resp.data.signed_url, filepath=upfile)
+    upload_to_signed_url(url_resp.signed_url, filepath=upfile)
 
     # Now create a download signed URL
     download_resp = space.create_signed_url(
@@ -48,8 +47,7 @@ def test_upload_download_text():
         )
     )
     assert download_resp is not None
-    assert download_resp.data is not None
-    assert download_resp.data.signed_url is not None
+    assert download_resp.signed_url is not None
 
     # Verify that we get an exception when downloading something that doesn't exist
     # TODO: Follow up after we get a firmer understaing of the failure semantics of Localstack 404 errors with
@@ -64,7 +62,7 @@ def test_upload_download_text():
     #     download_from_signed_url(download_resp.data.signedUrl, to_file=bad_download_path)
 
     # Download the zip file to the URL
-    download_from_signed_url(download_resp.data.signed_url, to_file=downfile)
+    download_from_signed_url(download_resp.signed_url, to_file=downfile)
 
     # Verify the download URL is there
     assert os.path.exists(downfile)
@@ -103,7 +101,7 @@ def test_upload_download():
 
     # Grab a Steamship client and generate an upload url
     client = get_steamship_client()
-    space = Space.get(client=client).data
+    space = Space.get(client=client)
     upload_name = random_name()
     url_resp = space.create_signed_url(
         SignedUrl.Request(
@@ -113,11 +111,10 @@ def test_upload_download():
         )
     )
     assert url_resp is not None
-    assert url_resp.data is not None
-    assert url_resp.data.signed_url is not None
+    assert url_resp.signed_url is not None
 
     # Upload the zip file to the URL
-    upload_to_signed_url(url_resp.data.signed_url, filepath=zip_path)
+    upload_to_signed_url(url_resp.signed_url, filepath=zip_path)
 
     # Now create a download signed URL
     download_resp = space.create_signed_url(
@@ -128,8 +125,7 @@ def test_upload_download():
         )
     )
     assert download_resp is not None
-    assert download_resp.data is not None
-    assert download_resp.data.signed_url is not None
+    assert download_resp.signed_url is not None
 
     # Verify that we get an exception when downloading something that doesn't exist
     # TODO: Follow up after we get a firmer understaing of the failure semantics of Localstack 404 errors with
@@ -145,7 +141,7 @@ def test_upload_download():
 
     # Download the zip file to the URL
     download_path = tempbase / Path("out.zip")
-    download_from_signed_url(download_resp.data.signed_url, to_file=download_path)
+    download_from_signed_url(download_resp.signed_url, to_file=download_path)
 
     # Verify the download URL is there
     assert os.path.exists(download_path)

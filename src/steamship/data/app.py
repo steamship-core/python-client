@@ -10,7 +10,7 @@ from typing import Any, Type
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Response
+from steamship.base import Client
 from steamship.base.request import CreateRequest, GetRequest
 
 
@@ -26,10 +26,10 @@ class App(BaseModel):  # TODO (enias): Rename to Package
         return super().parse_obj(obj)
 
     @staticmethod
-    def create(client: Client, handle: str = None, upsert: bool = None) -> Response[App]:
+    def create(client: Client, handle: str = None, upsert: bool = None) -> App:
         req = CreateRequest(handle=handle, upsert=upsert)
         return client.post("app/create", payload=req, expect=App)
 
     @staticmethod
-    def get(client: Client, handle: str):
+    def get(client: Client, handle: str) -> App:
         return client.post("app/get", GetRequest(handle=handle), expect=App)

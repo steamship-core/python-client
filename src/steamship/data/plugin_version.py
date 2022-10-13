@@ -4,9 +4,8 @@ from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request
+from steamship.base import Client, Request, Response, Task
 from steamship.base.configuration import CamelModel
-from steamship.base.response import Response
 from steamship.data.plugin import HostingMemory, HostingTimeout
 
 
@@ -64,7 +63,7 @@ class PluginVersion(CamelModel):
         is_public: bool = None,
         is_default: bool = None,
         config_template: Dict[str, Any] = None,
-    ) -> Response[PluginVersion]:
+    ) -> Task[PluginVersion]:
 
         if filename is None and filebytes is None:
             raise Exception("Either filename or filebytes must be provided.")
@@ -97,7 +96,7 @@ class PluginVersion(CamelModel):
     @staticmethod
     def list(
         client: Client, plugin_id: str = None, handle: str = None, public: bool = True
-    ) -> Response[ListPluginVersionsResponse]:
+    ) -> ListPluginVersionsResponse:
         return client.post(
             f"plugin/version/{'public' if public else 'private'}",
             ListPluginVersionsRequest(handle=handle, plugin_id=plugin_id),
