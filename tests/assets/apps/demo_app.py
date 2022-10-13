@@ -3,7 +3,9 @@ import io
 from typing import Any, Dict
 
 from steamship import SteamshipError
-from steamship.app import App, Response, create_handler, get, post
+from steamship.app.app import App, get, post
+from steamship.app.lambda_handler import create_handler
+from steamship.app.response import Response
 from steamship.base.configuration import CamelModel
 from steamship.base.mime_types import MimeTypes
 from steamship.client import Steamship

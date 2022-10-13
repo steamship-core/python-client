@@ -29,9 +29,7 @@ def install_dependencies(folder: str, requirements_path: Path):
 def zip_deployable(file_path: Path) -> bytes:
     """Prepare and zip a Steamship plugin."""
 
-    package_paths = [
-        SRC_PATH / "steamship",
-    ]
+    package_paths = [SRC_PATH / "steamship"]
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(

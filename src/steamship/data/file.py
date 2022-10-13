@@ -153,7 +153,7 @@ class File(CamelModel):
         plugin_instance: str,
         url: str = None,
         mime_type: str = None,
-    ) -> File:
+    ) -> Task[File]:
 
         req = File.CreateRequest(
             type=FileUploadType.FILE_IMPORTER,
@@ -162,11 +162,7 @@ class File(CamelModel):
             plugin_instance=plugin_instance,
         )
 
-        return client.post(
-            "file/create",
-            payload=req,
-            expect=File,
-        )
+        return client.post("file/create", payload=req, expect=File, as_background_task=True)
 
     def refresh(self) -> File:
         return File.get(self.client, self.id)
