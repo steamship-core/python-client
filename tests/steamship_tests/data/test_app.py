@@ -5,5 +5,4 @@ from steamship import Package
 
 def test_app_create():
     client = get_steamship_client()
-    app = Package.create(client)
-    _ = app.delete()
+    _ = Package.create(client)

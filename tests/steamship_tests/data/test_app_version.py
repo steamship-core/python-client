@@ -15,7 +15,3 @@ def test_version_create():
     version = PackageVersion.create(client, app_id=app.id, filebytes=zip_bytes)
 
     version.wait()
-
-    _ = version.output.delete()
-
-    _ = app.delete()

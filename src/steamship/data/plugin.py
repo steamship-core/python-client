@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
-from steamship.base import DeleteRequest, IdentifierRequest, Request, Response
+from steamship.base import IdentifierRequest, Request, Response
 from steamship.base.client import Client
 from steamship.base.configuration import CamelModel
 
@@ -188,13 +188,6 @@ class Plugin(CamelModel):
     @staticmethod
     def get(client: Client, handle: str):
         return client.post("plugin/get", IdentifierRequest(handle=handle), expect=Plugin)
-
-    def delete(self) -> Plugin:
-        return self.client.post(
-            "plugin/delete",
-            DeleteRequest(id=self.id),
-            expect=Plugin,
-        )
 
 
 ListPluginsResponse.update_forward_refs()
