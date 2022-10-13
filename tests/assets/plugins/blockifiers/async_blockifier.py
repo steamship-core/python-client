@@ -4,7 +4,8 @@ from typing import Union
 from assets.plugins.blockifiers.csv_blockifier import CsvBlockifier
 
 from steamship import SteamshipError
-from steamship.app import Response, create_handler
+from steamship.app.lambda_handler import create_handler
+from steamship.app.response import Response
 from steamship.base import Task, TaskState
 from steamship.base.binary_utils import to_b64
 from steamship.plugin.blockifier import Blockifier

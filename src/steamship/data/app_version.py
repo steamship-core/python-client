@@ -4,9 +4,8 @@ from typing import Any, Dict, Type
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response
+from steamship.base import Client, Request, Task
 from steamship.base.configuration import CamelModel
-from steamship.base.request import DeleteRequest
 
 
 class CreateAppVersionRequest(Request):
@@ -39,7 +38,7 @@ class AppVersion(CamelModel):  # TODO (enias): Rename to Package
         filebytes: bytes = None,
         upsert: bool = None,
         config_template: Dict[str, Any] = None,
-    ) -> Response[AppVersion]:
+    ) -> Task[AppVersion]:
 
         if filename is None and filebytes is None:
             raise Exception("Either filename or filebytes must be provided.")
@@ -60,7 +59,3 @@ class AppVersion(CamelModel):  # TODO (enias): Rename to Package
             file=("app.zip", filebytes, "multipart/form-data"),
             expect=AppVersion,
         )
-
-    def delete(self) -> Response[AppVersion]:
-        req = DeleteRequest(id=self.id)
-        return self.client.post("app/version/delete", payload=req, expect=AppVersion)

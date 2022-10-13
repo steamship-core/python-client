@@ -26,9 +26,8 @@ def client() -> Steamship:
           pass
     """
     steamship = get_steamship_client()
-    workspace_handle = random_name()
-    space = Space.create(client=steamship, handle=workspace_handle).data
-    new_client = get_steamship_client(workspace=workspace_handle)
+    space = Space.create(client=steamship)
+    new_client = get_steamship_client(space_id=space.id)
     yield new_client
     space.delete()
 
@@ -59,7 +58,7 @@ def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     app: Type[App] = request.param
     steamship = get_steamship_client()
     workspace_handle = random_name()
-    space = Space.create(client=steamship, handle=workspace_handle).data
+    space = Space.create(client=steamship, handle=workspace_handle)
     new_client = get_steamship_client(workspace=workspace_handle)
 
     def handle(verb: str, app_path: str, arguments: Optional[dict] = None) -> dict:

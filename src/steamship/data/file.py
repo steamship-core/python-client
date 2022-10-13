@@ -7,7 +7,7 @@ from typing import Any, List, Optional, Type, Union
 
 from pydantic import BaseModel
 
-from steamship.base import Client, Request, Response
+from steamship.base import Client, Request, Response, Task
 from steamship.base.binary_utils import flexi_create
 from steamship.base.configuration import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest
@@ -60,9 +60,6 @@ class File(CamelModel):
         tags: Optional[List[Tag.CreateRequest]] = []
         plugin_instance: str = None
 
-        class Config:
-            use_enum_values = True
-
     class CreateResponse(Response):
         data_: Any = None
         mime_type: str = None
@@ -95,7 +92,7 @@ class File(CamelModel):
         obj = obj["file"] if "file" in obj else obj
         return super().parse_obj(obj)
 
-    def delete(self) -> Response[File]:
+    def delete(self) -> File:
         return self.client.post(
             "file/delete",
             IdentifierRequest(id=self.id),
@@ -107,7 +104,7 @@ class File(CamelModel):
         client: Client,
         _id: str = None,
         handle: str = None,
-    ) -> Response[File]:
+    ) -> File:
         return client.post(
             "file/get",
             IdentifierRequest(id=_id, handle=handle),
@@ -121,7 +118,7 @@ class File(CamelModel):
         mime_type: str = None,
         blocks: List[Block.CreateRequest] = None,
         tags: List[Tag.CreateRequest] = None,
-    ) -> Response[File]:
+    ) -> File:
 
         if content is None and blocks is None and tags is None:
             raise Exception("Either filename, content, url, or plugin Instance must be provided.")
@@ -156,7 +153,7 @@ class File(CamelModel):
         plugin_instance: str,
         url: str = None,
         mime_type: str = None,
-    ) -> Response[File]:
+    ) -> Task[File]:
 
         req = File.CreateRequest(
             type=FileUploadType.FILE_IMPORTER,
@@ -165,20 +162,16 @@ class File(CamelModel):
             plugin_instance=plugin_instance,
         )
 
-        return client.post(
-            "file/create",
-            payload=req,
-            expect=File,
-        )
+        return client.post("file/create", payload=req, expect=File, as_background_task=True)
 
-    def refresh(self):
+    def refresh(self) -> File:
         return File.get(self.client, self.id)
 
     @staticmethod
     def query(
         client: Client,
         tag_filter_query: str,
-    ) -> Response[FileQueryResponse]:
+    ) -> FileQueryResponse:
 
         req = FileQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
@@ -197,7 +190,7 @@ class File(CamelModel):
             raw_response=True,
         )
 
-    def blockify(self, plugin_instance: str = None):
+    def blockify(self, plugin_instance: str = None) -> Task[File]:
         from steamship.data.operations.blockifier import BlockifyRequest
         from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
@@ -212,7 +205,7 @@ class File(CamelModel):
     def tag(
         self,
         plugin_instance: str = None,
-    ) -> Response[Tag]:
+    ) -> Task[Tag]:
         # TODO (enias): Fix Circular imports
         from steamship.data.operations.tagger import TagRequest, TagResponse
         from steamship.data.plugin import PluginTargetType
@@ -244,24 +237,23 @@ class File(CamelModel):
                 client=self.client,
                 plugin_instance=plugin_instance,
                 upsert=True,
-            ).data
+            )
         elif e_index is None:
             e_index = EmbeddingIndex(client=self.client, id=index_id)
 
         # We have an index available to us now. Perform the query.
-        blocks = self.refresh().data.blocks
+        blocks = self.refresh().blocks
 
         items = []
         for block in blocks:
             item = EmbeddedItem(value=block.text, external_id=block.id, external_type="block")
             items.append(item)
 
-        insert_task = e_index.insert_many(
+        _ = e_index.insert_many(
             items,
             reindex=reindex,
         )
 
-        insert_task.wait()
         return e_index
 
 

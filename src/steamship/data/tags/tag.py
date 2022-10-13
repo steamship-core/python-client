@@ -56,7 +56,7 @@ class Tag(CamelModel):
         end_idx: int = None,
         value: Any = None,
         upsert: bool = None,
-    ) -> Response[Tag]:
+    ) -> Tag:
         if isinstance(value, dict) or isinstance(value, list):
             value = json.dumps(value)
 
@@ -72,7 +72,7 @@ class Tag(CamelModel):
         )
         return client.post("tag/create", req, expect=Tag)
 
-    def delete(self) -> Response[Tag]:
+    def delete(self) -> Tag:
         return self.client.post(
             "tag/delete",
             Tag.DeleteRequest(id=self.id, file_id=self.file_id, block_id=self.block_id),
@@ -83,7 +83,7 @@ class Tag(CamelModel):
     def query(
         client: Client,
         tag_filter_query: str,
-    ) -> Response[TagQueryResponse]:
+    ) -> TagQueryResponse:
         req = TagQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
             "tag/query",

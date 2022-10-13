@@ -22,25 +22,22 @@ def test_e2e_embedder():
     ):
         e1 = instance.tag("This is a test")
         e1.wait()
-        assert e1.error is None
-        assert count_embeddings(e1.data.file) == 1
-        assert len(e1.data.file.blocks[0].tags[0].value["embedding"]) > 1
+        assert count_embeddings(e1.output.file) == 1
+        assert len(e1.output.file.blocks[0].tags[0].value["embedding"]) > 1
 
         e2 = instance.tag("This is a test")
         e2.wait()
-        assert e2.error is None
-        assert count_embeddings(e2.data.file) == 1
-        assert len(e2.data.file.blocks[0].tags[0].value["embedding"]) == len(
-            e1.data.file.blocks[0].tags[0].value["embedding"]
+        assert count_embeddings(e2.output.file) == 1
+        assert len(e2.output.file.blocks[0].tags[0].value["embedding"]) == len(
+            e1.output.file.blocks[0].tags[0].value["embedding"]
         )
 
         e4 = instance.tag("This is a test")
         e4.wait()
-        assert e4.error is None
-        assert count_embeddings(e4.data.file) == 1
+        assert count_embeddings(e4.output.file) == 1
 
         # Now lets run all the other embedding steamship_tests
         basic_embeddings(instance)
         basic_embedding_search(client, plugin_instance=instance.handle)
-        index = create_index(client, plugin_instance=instance.handle).data
+        index = create_index(client, plugin_instance=instance.handle)
         index.delete()

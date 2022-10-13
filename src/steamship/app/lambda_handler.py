@@ -13,7 +13,7 @@ from steamship.app.app import App
 from steamship.app.request import InvocationContext, Request
 from steamship.app.response import Response
 from steamship.base import SteamshipError
-from steamship.client.client import Steamship
+from steamship.client import Steamship
 from steamship.data.space import SignedUrl
 from steamship.utils.signed_urls import upload_to_signed_url
 
@@ -200,7 +200,7 @@ def create_handler(app_cls: Type[App]):  # noqa: C901
                         operation=SignedUrl.Operation.WRITE,
                     )
                 )
-                .data.signed_url
+                .signed_url
             )
 
             logging.info(f"Got signed url for writing: {signed_url}")

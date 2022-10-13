@@ -18,7 +18,7 @@ def test_get_steamship_client():
     assert client.config is not None
     assert client.config.profile == "test"
     assert client.config.api_key is not None
-    user = User.current(client).data
+    user = User.current(client)
     assert user.id is not None
     assert user.handle is not None
 

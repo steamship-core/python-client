@@ -7,6 +7,7 @@ from typing import Optional
 
 import inflection
 from pydantic import BaseModel, HttpUrl
+from pydantic.generics import GenericModel
 
 from steamship.base.utils import format_uri, to_camel
 
@@ -42,6 +43,8 @@ class CamelModel(BaseModel):
     class Config:
         alias_generator = to_camel
         allow_population_by_field_name = True
+        # Populate enum values with their value, rather than the raw enum. Important to serialise model.dict()
+        use_enum_values = True
 
     def dict(self, **kwargs) -> dict:
         exclude_set = {}
@@ -56,6 +59,10 @@ class CamelModel(BaseModel):
 
         kwargs["exclude"] = exclude_set
         return super().dict(**kwargs)
+
+
+class GenericCamelModel(CamelModel, GenericModel):
+    pass
 
 
 class Configuration(CamelModel):
