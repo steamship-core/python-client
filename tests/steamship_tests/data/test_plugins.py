@@ -50,7 +50,6 @@ def test_plugin_create():
             type_=PluginType.tagger,
             transport=PluginAdapterType.steamship_docker,
             is_public=False,
-            upsert=False,
         )
 
     my_plugins = Plugin.list(steamship)
