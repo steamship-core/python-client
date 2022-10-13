@@ -44,8 +44,8 @@ def test_file_upload_with_blocks(client: Steamship):
     a = File.create(
         client=client,
         blocks=[
-            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
-            Block.CreateRequest(text="B", tags=[Tag.CreateRequest(name="BlockTag")]),
+            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(kind="BlockTag")]),
+            Block.CreateRequest(text="B", tags=[Tag.CreateRequest(kind="BlockTag")]),
         ],
     )
     assert a.id is not None
@@ -56,7 +56,7 @@ def test_file_upload_with_blocks(client: Steamship):
         assert len(block_list) == 2
         assert block_list[0].tags is not None
         assert len(block_list[0].tags) == 1
-        assert block_list[0].tags[0].name == "BlockTag"
+        assert block_list[0].tags[0].kind == "BlockTag"
         assert block_list[0].text == "A"
 
     assert query_result.blocks is not None
@@ -72,10 +72,10 @@ def test_file_upload_with_blocks_and_tags(client: Steamship):
     a = File.create(
         client=client,
         blocks=[
-            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
-            Block.CreateRequest(text="B", tags=[Tag.CreateRequest(name="BlockTag")]),
+            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(kind="BlockTag")]),
+            Block.CreateRequest(text="B", tags=[Tag.CreateRequest(kind="BlockTag")]),
         ],
-        tags=[Tag.CreateRequest(name="FileTag")],
+        tags=[Tag.CreateRequest(kind="FileTag")],
     )
     assert a.id is not None
 
@@ -85,7 +85,7 @@ def test_file_upload_with_blocks_and_tags(client: Steamship):
         assert len(block_list) == 2
         assert block_list[0].tags is not None
         assert len(block_list[0].tags) == 1
-        assert block_list[0].tags[0].name == "BlockTag"
+        assert block_list[0].tags[0].kind == "BlockTag"
         assert block_list[0].text == "A"
 
     assert blocks.blocks is not None
@@ -96,7 +96,7 @@ def test_file_upload_with_blocks_and_tags(client: Steamship):
     check_blocks(aa.blocks)
     assert aa.tags is not None
     assert len(aa.tags) == 1
-    assert aa.tags[0].name == "FileTag"
+    assert aa.tags[0].kind == "FileTag"
 
     a.delete()
 
@@ -104,7 +104,7 @@ def test_file_upload_with_blocks_and_tags(client: Steamship):
 def test_file_upload_with_tags(client: Steamship):
     a = File.create(
         client=client,
-        tags=[Tag.CreateRequest(name="FileTag")],
+        tags=[Tag.CreateRequest(kind="FileTag")],
     )
     assert a.id is not None
 
@@ -113,7 +113,7 @@ def test_file_upload_with_tags(client: Steamship):
     def check_tags(file_tag_list):
         assert len(file_tag_list) == 1
         assert file_tag_list[0] is not None
-        assert file_tag_list[0].name == "FileTag"
+        assert file_tag_list[0].kind == "FileTag"
 
     assert query_result.tags is not None
     check_tags(query_result.tags)
@@ -129,7 +129,7 @@ def test_query(client: Steamship):
     a = File.create(
         client=client,
         blocks=[
-            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
+            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(kind="BlockTag")]),
             Block.CreateRequest(text="B"),
         ],
     )
@@ -137,15 +137,15 @@ def test_query(client: Steamship):
     b = File.create(
         client=client,
         blocks=[Block.CreateRequest(text="A"), Block.CreateRequest(text="B")],
-        tags=[Tag.CreateRequest(name="FileTag")],
+        tags=[Tag.CreateRequest(kind="FileTag")],
     )
     assert b.id is not None
 
-    files = File.query(client=client, tag_filter_query='blocktag and name "BlockTag"').files
+    files = File.query(client=client, tag_filter_query='blocktag and kind "BlockTag"').files
     assert len(files) == 1
     assert files[0].id == a.id
 
-    files = File.query(client=client, tag_filter_query='filetag and name "FileTag"').files
+    files = File.query(client=client, tag_filter_query='filetag and kind "FileTag"').files
     assert len(files) == 1
     assert files[0].id == b.id
 
