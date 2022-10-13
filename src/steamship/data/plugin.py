@@ -11,11 +11,11 @@ import json
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from steamship.base import IdentifierRequest, Request, Response
 from steamship.base.client import Client
 from steamship.base.configuration import CamelModel
-from steamship.base.request import IdentifierRequest, Request, Response
 
 
 class HostingType(str, Enum):
@@ -129,7 +129,7 @@ class LimitUnit(str, Enum):
 
 class Plugin(CamelModel):
     # TODO (enias): Document, Plugins are just a name placeholder with some settings
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     type: str = None
     transport: str = None

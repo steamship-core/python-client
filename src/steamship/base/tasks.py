@@ -3,10 +3,9 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, Generic, List, Optional, Set, Type, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from steamship.base.base import IResponse
-from steamship.base.configuration import CamelModel, GenericCamelModel
+from steamship.base import CamelModel, GenericCamelModel
 from steamship.base.error import SteamshipError
 from steamship.base.metadata import metadata_to_str, str_to_metadata
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
@@ -30,7 +29,7 @@ class ListTaskCommentRequest(Request):
 
 
 class TaskComment(CamelModel):
-    client: Any = None
+    client: Any = Field(None, exclude=True)
     id: str = None
     user_id: str = None
     task_id: str = None
@@ -129,7 +128,7 @@ class TaskStatusRequest(Request):
 class Task(GenericCamelModel, Generic[T]):
     """Encapsulates a unit of asynchronously performed work."""
 
-    client: Any = None  # Steamship client
+    client: Any = Field(None, exclude=True)  # Steamship client
 
     task_id: str = None  # The id of this task
     user_id: str = None  # The user who requested this task
@@ -215,7 +214,7 @@ class Task(GenericCamelModel, Generic[T]):
         external_type: str = None,
         external_group: str = None,
         metadata: Any = None,
-    ) -> IResponse[TaskComment]:
+    ) -> TaskComment:
         return TaskComment.create(
             client=self.client,
             task_id=self.task_id,

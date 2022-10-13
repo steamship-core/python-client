@@ -4,8 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Generic, Type, TypeVar, Union
 
-from steamship.app import App
-from steamship.app.response import Response
+from steamship.app import Invocable, InvocableResponse
 
 # Note!
 # =====
@@ -25,7 +24,7 @@ T = TypeVar("T")  # TODO (enias): Rename to IN
 U = TypeVar("U")  # TODO (enias): Rename to OUT
 
 
-class PluginService(ABC, App, Generic[T, U]):
+class PluginService(Invocable, Generic[T, U], ABC):
     """The Abstract Base Class of a Steamship Plugin.
 
     All Steamship Plugins implement the operation:
@@ -54,7 +53,7 @@ class PluginService(ABC, App, Generic[T, U]):
     """
 
     @abstractmethod
-    def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
+    def run(self, request: PluginRequest[T]) -> Union[U, InvocableResponse[U]]:
         """Runs the core operation implemented by this plugin: import, export, blockify, tag, etc.
 
         This is the method that a Steamship Plugin implements to perform its main work.
@@ -62,7 +61,7 @@ class PluginService(ABC, App, Generic[T, U]):
         pass
 
 
-class TrainablePluginService(App, ABC, Generic[T, U]):
+class TrainablePluginService(PluginService, Generic[T, U], ABC):
     # noinspection PyUnusedLocal
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
@@ -75,7 +74,7 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
         """
         pass
 
-    def run(self, request: PluginRequest[T]) -> Union[U, Response[U]]:
+    def run(self, request: PluginRequest[T]) -> Union[U, InvocableResponse[U]]:
         """Loads the trainable model before passing the request to the `run_with_model` handler on the subclass."""
         logging.info("TrainablePluginService:run() - Loading model")
         model = self.model_cls().load_remote(
@@ -91,14 +90,14 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
     @abstractmethod
     def run_with_model(
         self, request: PluginRequest[T], model: TrainableModel
-    ) -> Union[U, Response[U]]:
+    ) -> Union[U, InvocableResponse[U]]:
         """Rather than implementing run(request), a TrainablePluginService implements run_with_model(request, model)"""
         pass
 
     @abstractmethod
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
-    ) -> Response[TrainingParameterPluginOutput]:
+    ) -> InvocableResponse[TrainingParameterPluginOutput]:
         """Produces the trainable parameters for this plugin.
 
         This method is run by the Steamship Engine prior to training to fetch hyperparameters.
@@ -114,13 +113,13 @@ class TrainablePluginService(App, ABC, Generic[T, U]):
     @abstractmethod
     def train(
         self, request: PluginRequest[TrainPluginInput], model: TrainableModel
-    ) -> Response[TrainPluginOutput]:
+    ) -> InvocableResponse[TrainPluginOutput]:
         """Train the model."""
         pass
 
     @abstractmethod
     def train_status(
         self, request: PluginRequest[TrainPluginInput], model: TrainableModel
-    ) -> Response[TrainPluginOutput]:
+    ) -> InvocableResponse[TrainPluginOutput]:
         """Train the model."""
         pass

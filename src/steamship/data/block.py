@@ -2,9 +2,10 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from steamship.base import Client, Request
+from pydantic import Field
+
+from steamship.base import Client, DeleteRequest, IdentifierRequest, Request, Response
 from steamship.base.configuration import CamelModel
-from steamship.base.request import DeleteRequest, IdentifierRequest, Response
 from steamship.data.tags.tag import Tag
 
 
@@ -13,7 +14,7 @@ class BlockQueryRequest(Request):
 
 
 class Block(CamelModel):
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     file_id: str = None
     text: str = None

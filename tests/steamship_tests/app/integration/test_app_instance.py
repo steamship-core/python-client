@@ -6,7 +6,7 @@ from steamship_tests import APPS_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_app
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import AppInstance, Space, SteamshipError
+from steamship import PackageInstance, Space, SteamshipError
 from steamship.base import TaskState
 from steamship.base.mime_types import MimeTypes
 from steamship.utils.url import Verb
@@ -167,7 +167,7 @@ def test_app_instance_get():
 
     with deploy_app(client, demo_app_path) as (_, _, instance):
         instance_handle = instance.handle
-        other_instance = AppInstance.get(client, instance_handle)
+        other_instance = PackageInstance.get(client, instance_handle)
         assert other_instance.id == instance.id
         assert other_instance.handle == instance.handle
         assert other_instance.app_id == instance.app_id

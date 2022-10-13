@@ -1,7 +1,7 @@
 .. _Plugins:
 
 Plugins
-=======
+=====
 
 Plugins help the Steamship Engine perform specific tasks related to
 Language AI.

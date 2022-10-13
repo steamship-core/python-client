@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Type
 
-from steamship.app import Response, post
+from steamship.app import InvocableResponse, post
 from steamship.base import Client
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
@@ -32,10 +32,12 @@ class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC
         raise NotImplementedError()
 
     @abstractmethod
-    def run(self, request: PluginRequest[RawDataPluginInput]) -> Response[BlockAndTagPluginOutput]:
+    def run(
+        self, request: PluginRequest[RawDataPluginInput]
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
         raise NotImplementedError()
 
     @post("blockify")
-    def run_endpoint(self, **kwargs) -> Response[BlockAndTagPluginOutput]:
+    def run_endpoint(self, **kwargs) -> InvocableResponse[BlockAndTagPluginOutput]:
         """Exposes the Corpus Importer's `run` operation to the Steamship Engine via the expected HTTP path POST /import"""
         return self.run(PluginRequest[RawDataPluginInput].parse_obj(kwargs))

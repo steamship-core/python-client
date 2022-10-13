@@ -5,7 +5,7 @@ import logging
 from enum import Enum
 from typing import Any, List, Optional, Type, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client, Request, Response, Task
 from steamship.base.binary_utils import flexi_create
@@ -39,7 +39,7 @@ class FileQueryRequest(Request):
 class File(CamelModel):
     """A file."""
 
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
     mime_type: str = None
@@ -148,7 +148,7 @@ class File(CamelModel):
         )
 
     @staticmethod
-    def create_with_plugin(
+    def create_plugin(
         client: Client,
         plugin_instance: str,
         url: str = None,
@@ -190,7 +190,7 @@ class File(CamelModel):
             raw_response=True,
         )
 
-    def blockify(self, plugin_instance: str = None) -> Task[File]:
+    def blockify(self, plugin_instance: str = None) -> Task:
         from steamship.data.operations.blockifier import BlockifyRequest
         from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List, Optional, Type, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client, Request, Response, Task, metadata_to_str
 from steamship.base.configuration import CamelModel
@@ -148,7 +148,7 @@ class DeleteSnapshotsResponse(Response):
 class EmbeddingIndex(CamelModel):
     """A persistent, read-optimized index over embeddings."""
 
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
     name: str = None

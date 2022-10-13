@@ -6,8 +6,7 @@ from typing import List, Optional, Type, Union
 
 from pydantic import constr
 
-from steamship.app.lambda_handler import create_handler
-from steamship.app.response import Response  # TODO (enias): Why can't we use shortcut imports?
+from steamship.app import InvocableResponse, create_handler
 from steamship.base.error import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
@@ -61,9 +60,9 @@ class CsvBlockifier(Blockifier):
 
     def run(
         self, request: PluginRequest[RawDataPluginInput]
-    ) -> Union[Response, Response[BlockAndTagPluginOutput]]:
+    ) -> Union[InvocableResponse, InvocableResponse[BlockAndTagPluginOutput]]:
         if request is None or request.data is None or request.data.data is None:
-            return Response(
+            return InvocableResponse(
                 error=SteamshipError(message="Missing data field on the incoming request.")
             )
         data = request.data.data  # TODO (enias): Simplify
@@ -71,7 +70,7 @@ class CsvBlockifier(Blockifier):
             data = data.decode("utf-8")
 
         if not isinstance(data, str):
-            return Response(
+            return InvocableResponse(
                 error=SteamshipError(message="The incoming data was not of expected String type")
             )
 
@@ -96,7 +95,7 @@ class CsvBlockifier(Blockifier):
             )
             file.blocks.append(block)
 
-        return Response(data=BlockAndTagPluginOutput(file=file))
+        return InvocableResponse(data=BlockAndTagPluginOutput(file=file))
 
 
 handler = create_handler(CsvBlockifier)

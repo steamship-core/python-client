@@ -6,6 +6,7 @@ Please see https://docs.steamship.com/ for information about building a Steamshi
 import inspect
 import logging
 import pathlib
+from abc import ABC
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
@@ -13,8 +14,8 @@ from typing import Any, Dict, Optional
 
 import toml
 
-from steamship.app.request import Request
-from steamship.app.response import Response
+from steamship.app.invocable_request import InvocableRequest
+from steamship.app.invocable_response import InvocableResponse
 from steamship.client import Steamship
 from steamship.utils.url import Verb
 
@@ -76,7 +77,7 @@ def post(path: str, **kwargs):
     return endpoint(verb=Verb.POST, path=path, **kwargs)
 
 
-class App:  # TODO (enias): Should be renamed to Invocable -> Solves redefinition of app
+class Invocable(ABC):
     """A Steamship microservice.
 
     This base.py class:
@@ -148,17 +149,19 @@ class App:  # TODO (enias): Should be renamed to Invocable -> Solves redefinitio
         # TODO Dave: this log call is not going to the remote logger, but should
         logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
 
-    def __call__(self, request: Request, context: Any = None) -> Response:
+    def __call__(self, request: InvocableRequest, context: Any = None) -> InvocableResponse:
         """Invokes a method call if it is registered."""
         if not hasattr(self.__class__, "_method_mappings"):
             logging.error("__call__: No mappings available on app.")
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.NOT_FOUND, message="No mappings available for app."
             )
 
         if request.invocation is None:
             logging.error("__call__: No invocation on request.")
-            return Response.error(code=HTTPStatus.NOT_FOUND, message="No invocation was found.")
+            return InvocableResponse.error(
+                code=HTTPStatus.NOT_FOUND, message="No invocation was found."
+            )
 
         verb = Verb.safely_from_str(request.invocation.http_verb)
         path = request.invocation.app_path
@@ -171,14 +174,14 @@ class App:  # TODO (enias): Should be renamed to Invocable -> Solves redefinitio
 
         if verb not in method_mappings:
             logging.error(f"__call__: Verb '{verb}' not found in method_mappings.")
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.NOT_FOUND,
                 message=f"No methods for verb {verb} available.",
             )
 
         if path not in method_mappings[verb]:
             logging.error(f"__call__: Path '{path}' not found in method_mappings[{verb}].")
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.NOT_FOUND,
                 message=f"No handler for {verb} {path} available.",
             )
@@ -188,7 +191,7 @@ class App:  # TODO (enias): Should be renamed to Invocable -> Solves redefinitio
             logging.error(
                 f"__call__: Method not found or not callable for '{path}' in method_mappings[{verb}]."
             )
-            return Response.error(
+            return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 message=f"Handler for {verb} {path} not callable.",
             )

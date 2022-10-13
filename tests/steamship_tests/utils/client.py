@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from typing import Any, Dict
 
 from steamship import Steamship
-from steamship.data.app_instance import AppInstance
+from steamship.data.package_instance import PackageInstance
 from steamship.data.plugin_instance import PluginInstance
 
 
@@ -21,7 +21,7 @@ def steamship_use(
     reuse: bool = True,
     delete_space: bool = True,
     **kwargs
-) -> AppInstance:
+) -> PackageInstance:
     # Always use the `test` profile
     kwargs["profile"] = "test"
     instance = Steamship.use(package_handle, instance_handle, config, version, reuse, **kwargs)

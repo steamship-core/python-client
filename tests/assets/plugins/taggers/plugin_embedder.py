@@ -1,7 +1,7 @@
 from typing import List, Type
 
 from steamship import Block, File, Tag, TagKind, TextTag
-from steamship.app import Response, create_handler
+from steamship.app import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.embedder import Embedder
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
@@ -101,9 +101,9 @@ class TestEmbedderPlugin(Embedder):
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
-    ) -> Response[BlockAndTagPluginOutput]:
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
         updated_blocks = [_embed_block(block) for block in request.data.file.blocks]
-        return Response(
+        return InvocableResponse(
             data=BlockAndTagPluginOutput(file=File.CreateRequest(blocks=updated_blocks))
         )
 

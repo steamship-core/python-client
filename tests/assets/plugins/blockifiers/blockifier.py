@@ -1,7 +1,7 @@
 from typing import Type
 
 from steamship import Block, File, Tag
-from steamship.app import Response, create_handler
+from steamship.app import InvocableResponse, create_handler
 from steamship.data.tags import DocTag, TagKind
 from steamship.plugin.blockifier import Blockifier, Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
@@ -26,8 +26,10 @@ class DummyBlockifierPlugin(Blockifier):
     def config_cls(self) -> Type[Config]:
         return self.DummyBlockifierConfig
 
-    def run(self, request: PluginRequest[RawDataPluginInput]) -> Response[BlockAndTagPluginOutput]:
-        return Response(
+    def run(
+        self, request: PluginRequest[RawDataPluginInput]
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
+        return InvocableResponse(
             data=BlockAndTagPluginOutput(
                 file=File.CreateRequest(
                     blocks=[

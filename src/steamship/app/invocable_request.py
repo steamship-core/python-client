@@ -5,15 +5,6 @@ from typing import Any, Dict
 from steamship.base.configuration import CamelModel, Configuration
 
 
-def event_to_config(event: dict) -> Configuration:
-    if event is None:
-        raise Exception("Null event provided")
-    if "invocationContext" not in event:
-        raise Exception("invocationContext not in event")
-
-    return Configuration.parse_obj(event["invocationContext"])
-
-
 class Invocation(CamelModel):
     http_verb: str = None
     app_path: str = None  # e.g. /hello/there
@@ -36,7 +27,7 @@ class InvocationContext(CamelModel):
     invocable_type: str = None
 
 
-class Request(CamelModel):  # TODO (enias): Rename to ExecutableRequest?
+class InvocableRequest(CamelModel):
     """A request as the Steamship Hosting Framework receives it from the Engine.
 
     This class is different from the other `Request` class:
