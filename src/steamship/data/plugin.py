@@ -92,7 +92,6 @@ class CreatePluginRequest(Request):
     handle: str = None
     description: str = None
     metadata: str = None
-    upsert: bool = None
 
 
 class ListPluginsRequest(Request):
@@ -156,7 +155,6 @@ class Plugin(CamelModel):
         handle: str = None,
         training_platform: Optional[HostingType] = None,
         metadata: Union[str, Dict, List] = None,
-        upsert: bool = False,
     ) -> Plugin:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
@@ -169,7 +167,6 @@ class Plugin(CamelModel):
             handle=handle,
             description=description,
             metadata=metadata,
-            upsert=upsert,
         )
         return client.post(
             "plugin/create",

@@ -31,7 +31,6 @@ class Tag(CamelModel):
         start_idx: int = None
         end_idx: int = None
         value: Dict[str, Any] = None
-        upsert: bool = None
 
     class DeleteRequest(Request):
         id: str = None
@@ -55,7 +54,6 @@ class Tag(CamelModel):
         start_idx: int = None,
         end_idx: int = None,
         value: Any = None,
-        upsert: bool = None,
     ) -> Tag:
         if isinstance(value, dict) or isinstance(value, list):
             value = json.dumps(value)
@@ -68,7 +66,6 @@ class Tag(CamelModel):
             start_idx=start_idx,
             end_idx=end_idx,
             value=value,
-            upsert=upsert,
         )
         return client.post("tag/create", req, expect=Tag)
 
