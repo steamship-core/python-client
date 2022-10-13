@@ -1,11 +1,12 @@
 import base64
 
+import pytest
 import requests
 from steamship_tests import APPS_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_app
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import Space
+from steamship import Space, SteamshipError
 from steamship.base import TaskState
 from steamship.base.mime_types import MimeTypes
 
@@ -124,8 +125,9 @@ def test_instance_invoke():
         assert configuration_within_lambda["spaceId"] == instance.space_id  # SpaceID
 
         # The test app should NOT be able to fetch the User's account info.
-        user_info = instance.post("user_info")
-        assert user_info.error is not None
+        with pytest.raises(SteamshipError) as excinfo:
+            _ = instance.post("user_info")
+        assert "Cannot use a space-scoped key" in str(excinfo.value)
 
         # Test a JSON response that contains {"status": "a string"} in it to make sure the client base
         # isn't trying to coerce it to a Task object and throwing.
