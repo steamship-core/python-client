@@ -167,7 +167,7 @@ def test_app_instance_get():
 
     with deploy_app(client, demo_app_path) as (_, _, instance):
         instance_handle = instance.handle
-        other_instance = AppInstance.get(client, instance_handle).data
+        other_instance = AppInstance.get(client, instance_handle)
         assert other_instance.id == instance.id
         assert other_instance.handle == instance.handle
         assert other_instance.app_id == instance.app_id
