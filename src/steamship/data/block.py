@@ -6,7 +6,7 @@ from pydantic import Field
 
 from steamship.base import Client, Request
 from steamship.base.configuration import CamelModel
-from steamship.base.request import DeleteRequest, IdentifierRequest, Response
+from steamship.base import DeleteRequest, IdentifierRequest, Response
 from steamship.data.tags.tag import Tag
 
 
