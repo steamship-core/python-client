@@ -37,9 +37,9 @@ EXCLUDE_FROM_DICT = {
 
 class Configuration(CamelModel):
     api_key: str
-    api_base: Optional[HttpUrl] = DEFAULT_API_BASE
-    app_base: Optional[HttpUrl] = DEFAULT_APP_BASE
-    web_base: Optional[HttpUrl] = DEFAULT_WEB_BASE
+    api_base: HttpUrl = DEFAULT_API_BASE
+    app_base: HttpUrl = DEFAULT_APP_BASE
+    web_base: HttpUrl = DEFAULT_WEB_BASE
     space_id: str = None
     space_handle: str = None
     profile: Optional[str] = None

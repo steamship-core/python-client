@@ -108,7 +108,7 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
         response = InvocableResponse(
             data=BlockAndTagPluginOutput(
                 file=File.CreateRequest(
-                    tags=[Tag.CreateRequest(name=word) for word in self.keyword_list]
+                    tags=[Tag.CreateRequest(kind=word) for word in self.keyword_list]
                 )
             )
         )

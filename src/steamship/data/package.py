@@ -11,7 +11,7 @@ from typing import Any, Type
 from pydantic import BaseModel, Field
 
 from steamship.base import Client
-from steamship.base.request import CreateRequest, DeleteRequest, GetRequest
+from steamship.base.request import CreateRequest, GetRequest
 
 
 class Package(BaseModel):
@@ -26,14 +26,10 @@ class Package(BaseModel):
         return super().parse_obj(obj)
 
     @staticmethod
-    def create(client: Client, handle: str = None, upsert: bool = None) -> Package:
-        req = CreateRequest(handle=handle, upsert=upsert)
+    def create(client: Client, handle: str = None) -> Package:
+        req = CreateRequest(handle=handle)
         return client.post("app/create", payload=req, expect=Package)
 
     @staticmethod
     def get(client: Client, handle: str) -> Package:
         return client.post("app/get", GetRequest(handle=handle), expect=Package)
-
-    def delete(self) -> Package:
-        req = DeleteRequest(id=self.id)
-        return self.client.post("app/delete", payload=req, expect=Package)
