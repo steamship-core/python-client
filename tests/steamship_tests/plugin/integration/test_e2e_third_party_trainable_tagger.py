@@ -23,8 +23,8 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         plugin_handle=EXPORTER_HANDLE,
         upsert=True,  # Don't care if it already exists
     )
-    assert exporter_plugin_r.data is not None
-    exporter_plugin = exporter_plugin_r.data
+    assert exporter_plugin_r is not None
+    exporter_plugin = exporter_plugin_r
     assert exporter_plugin.handle is not None
 
     third_party_trainable_tagger_path = (
@@ -47,11 +47,11 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         )
         train_result = tagger_instance.train(training_request)
         train_result.wait()
-        assert train_result.task.state is not TaskState.failed
-        assert train_result.task.remote_status_input is not None
-        assert train_result.task.remote_status_input["num_checkins"] == 2
+        assert train_result.state is not TaskState.failed
+        assert train_result.remote_status_input is not None
+        assert train_result.remote_status_input["num_checkins"] == 2
 
-        assert train_result.data is not None
+        assert train_result.output is not None
 
         logging.info("Waiting 15 seconds for instance to deploy.")
         import time
@@ -65,12 +65,11 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         test_doc = "Hi there"
         res = tagger_instance.tag(doc=test_doc)
         res.wait()
-        assert res.error is None
-        assert res.data is not None
-        assert res.data.file is not None
-        assert not res.data.file.tags
-        assert res.data.file.blocks is not None
-        assert len(res.data.file.blocks) > 0
-        for block in res.data.file.blocks:
+        assert res.output is not None
+        assert res.output.file is not None
+        assert not res.output.file.tags
+        assert res.output.file.blocks is not None
+        assert len(res.output.file.blocks) > 0
+        for block in res.output.file.blocks:
             assert block.tags is not None
             assert sorted([tag.kind for tag in block.tags]) == sorted(MockClient.LABELS)

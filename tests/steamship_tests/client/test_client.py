@@ -16,7 +16,7 @@ def test_connect():
 
 def test_user():
     client = get_steamship_client()
-    user = User.current(client).data
+    user = User.current(client)
     assert user.id is not None
     assert user.handle is not None
 

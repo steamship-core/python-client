@@ -6,7 +6,8 @@ from typing import List, Optional, Type, Union
 
 from pydantic import constr
 
-from steamship.app import Response, create_handler
+from steamship.app.lambda_handler import create_handler
+from steamship.app.response import Response  # TODO (enias): Why can't we use shortcut imports?
 from steamship.base.error import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
