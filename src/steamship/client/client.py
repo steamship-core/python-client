@@ -119,7 +119,7 @@ class Steamship(Client):
             app_version_handle=version,
             handle=instance_handle,
             config=config,
-            upsert=reuse,
+            fetch_if_exists=reuse,
         )
 
         return instance
@@ -172,7 +172,7 @@ class Steamship(Client):
             plugin_version_handle=version,
             handle=instance_handle,
             config=config,
-            upsert=reuse,
+            fetch_if_exists=reuse,
         )
 
         return instance
