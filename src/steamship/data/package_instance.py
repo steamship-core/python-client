@@ -4,9 +4,9 @@ from typing import Any, Dict, Type
 
 from pydantic import BaseModel, Field
 
-from steamship.base import Client, Request
-from steamship.base.configuration import CamelModel
-from steamship.base.request import DeleteRequest, IdentifierRequest
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
+from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.data.space import Space
 from steamship.utils.url import Verb
 

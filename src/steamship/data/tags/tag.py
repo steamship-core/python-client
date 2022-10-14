@@ -5,8 +5,10 @@ from typing import Any, Dict, List
 
 from pydantic import Field
 
-from steamship.base import Client, Request, Response
-from steamship.base.configuration import CamelModel
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
+from steamship.base.request import Request
+from steamship.base.response import Response
 
 
 class TagQueryRequest(Request):

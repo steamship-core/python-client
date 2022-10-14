@@ -13,9 +13,10 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
-from steamship.base import IdentifierRequest, Request, Response
 from steamship.base.client import Client
-from steamship.base.configuration import CamelModel
+from steamship.base.model import CamelModel
+from steamship.base.request import IdentifierRequest, Request
+from steamship.base.response import Response
 
 
 class HostingType(str, Enum):

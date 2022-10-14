@@ -5,10 +5,10 @@ from typing import Any, Dict, Generic, List, Optional, Set, Type, TypeVar
 
 from pydantic import BaseModel, Field
 
-from steamship.base import CamelModel, GenericCamelModel
 from steamship.base.error import SteamshipError
-from steamship.base.metadata import metadata_to_str, str_to_metadata
+from steamship.base.model import CamelModel, GenericCamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
+from steamship.utils.metadata import metadata_to_str, str_to_metadata
 
 T = TypeVar("T")
 

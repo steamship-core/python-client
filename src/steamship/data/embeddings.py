@@ -5,10 +5,13 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
-from steamship.base import Client, Request, Response, Task, metadata_to_str
-from steamship.base.configuration import CamelModel
-from steamship.base.request import DeleteRequest
+from steamship.base import Task
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
+from steamship.base.request import DeleteRequest, Request
+from steamship.base.response import Response
 from steamship.data.search import Hit
+from steamship.utils.metadata import metadata_to_str
 
 
 class EmbedAndSearchRequest(Request):

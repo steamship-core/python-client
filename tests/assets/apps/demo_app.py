@@ -4,8 +4,8 @@ from typing import Any, Dict
 
 from steamship import SteamshipError
 from steamship.app import Invocable, InvocableResponse, create_handler, get, post
-from steamship.base.configuration import CamelModel
 from steamship.base.mime_types import MimeTypes
+from steamship.base.model import CamelModel
 from steamship.client import Steamship
 from steamship.data.user import User
 
