@@ -4,7 +4,7 @@ from os import environ
 from typing import Optional
 
 
-class Verb(Enum, str):
+class Verb(str, Enum):
     GET = "GET"
     POST = "POST"
 
