@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, Type
 
 from steamship.app import InvocableResponse, post
-from steamship.base import Client
+from steamship.base.client import Client
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput

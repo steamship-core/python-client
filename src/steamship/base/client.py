@@ -11,10 +11,10 @@ import inflection
 from pydantic import BaseModel, PrivateAttr
 from requests import Session
 
-from steamship.base import to_camel
-from steamship.base.configuration import CamelModel, Configuration
+from steamship.base.configuration import Configuration
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes
+from steamship.base.model import CamelModel, to_camel
 from steamship.base.request import Request
 from steamship.base.tasks import Task, TaskState
 from steamship.utils.url import Verb, is_local
@@ -25,7 +25,7 @@ T = TypeVar("T")  # TODO (enias): Do we need this?
 
 
 class Client(CamelModel, ABC):
-    """Client base.py class.
+    """Client model.py class.
 
     Separated primarily as a hack to prevent circular imports.
     """

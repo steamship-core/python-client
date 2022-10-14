@@ -6,9 +6,9 @@ from typing import Any, Tuple, Union
 
 from pydantic import BaseModel
 
-from steamship.base.configuration import CamelModel
-from steamship.base.error import SteamshipError
-from steamship.base.mime_types import ContentEncodings, MimeTypes
+from steamship.base import MimeTypes, SteamshipError
+from steamship.base.mime_types import ContentEncodings
+from steamship.base.model import CamelModel
 
 
 def guess_mime(obj: Any, provided_mime: str = None) -> str:

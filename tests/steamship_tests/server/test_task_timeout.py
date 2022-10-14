@@ -2,7 +2,7 @@ from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship.base.error import SteamshipError
+from steamship.base import SteamshipError
 
 
 def test_task_timeout():

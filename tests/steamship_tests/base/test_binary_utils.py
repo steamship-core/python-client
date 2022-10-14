@@ -1,9 +1,9 @@
 import base64
 import json
 
-from steamship.base.binary_utils import flexi_create
-from steamship.base.configuration import CamelModel
+from steamship.base.model import CamelModel
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
+from steamship.utils.binary_utils import flexi_create
 
 
 def test_dump_string():
