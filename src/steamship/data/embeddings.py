@@ -21,7 +21,6 @@ class EmbedAndSearchRequest(Request):
     k: int = 1
 
 
-# TODO: These types are not generics like the Swift QueryResult/QueryResults.
 class QueryResult(CamelModel):
     value: Optional[Hit] = None
     score: Optional[float] = None
@@ -260,7 +259,6 @@ class EmbeddingIndex(CamelModel):
             expect=IndexSnapshotResponse,
         )
 
-    # TODO (enias): Can these be generic list operations for all file types?
     def list_snapshots(self) -> ListSnapshotsResponse:
         req = ListSnapshotsRequest(id=self.id)
         return self.client.post(

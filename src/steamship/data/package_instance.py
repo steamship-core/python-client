@@ -90,7 +90,7 @@ class PackageInstance(CamelModel):
 
         return self.client.call(
             verb=verb,
-            operation=f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",  # TODO (enias): Fix code duplication
+            operation=f"/{self.space_handle or '_'}/{self.handle or '_'}/{path}",
             payload=kwargs,
             is_app_call=True,
             app_owner=self.user_handle,
