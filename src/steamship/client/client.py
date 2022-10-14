@@ -115,8 +115,8 @@ class Steamship(Client):
         The instance is named `instance_handle` and located in the workspace this client is anchored to.."""
         instance = PackageInstance.create(
             self,
-            app_handle=package_handle,
-            app_version_handle=version,
+            package_handle=package_handle,
+            package_version_handle=version,
             handle=instance_handle,
             config=config,
             upsert=reuse,

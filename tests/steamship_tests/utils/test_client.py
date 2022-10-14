@@ -125,5 +125,5 @@ def test_app_call_rewriting(app_base: str, user: str, fixed_base: str):
     client.config.app_base = app_base
     operation = "foo"
 
-    output_url = client._url(is_app_call=True, app_owner=user, operation=operation)
+    output_url = client._url(is_package_call=True, package_owner=user, operation=operation)
     assert output_url == f"{fixed_base}{operation}"

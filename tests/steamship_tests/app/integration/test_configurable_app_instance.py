@@ -26,7 +26,7 @@ def test_configurable_instance_invoke():
         greeting2 = "Hallo"
         instance_config2 = {"greeting": greeting2}
         instance2 = PackageInstance.create(
-            client, app_id=app.id, app_version_id=version.id, config=instance_config2
+            client, package_id=app.id, package_version_id=version.id, config=instance_config2
         )
 
         res2 = instance2.invoke("greet")

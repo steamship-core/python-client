@@ -51,13 +51,13 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
 
         if request and request.invocation:
             error_prefix = (
-                f"[ERROR - {request.invocation.http_verb} {request.invocation.app_path}] "
+                f"[ERROR - {request.invocation.http_verb} {request.invocation.invocation_path}] "
             )
         else:
             error_prefix = "[ERROR - ?VERB ?PATH] "
 
         try:
-            app = app_cls(client=client, config=request.invocation.config)
+            invocable = app_cls(client=client, config=request.invocation.config)
         except SteamshipError as se:
             return InvocableResponse.from_obj(se)
         except Exception as ex:
@@ -65,19 +65,19 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
             return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
-                message="Unable to initialize plugin/app.",
+                message="Unable to initialize plugin/package.",
                 exception=ex,
             )
 
-        if not app:
+        if not invocable:
             return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
-                message="Unable to construct app/plugin for invocation.",
+                message="Unable to construct package/plugin for invocation.",
             )
 
         try:
-            response = app(request)
+            response = invocable(request)
             return InvocableResponse.from_obj(response)
         except SteamshipError as se:
             logging.exception(se)
@@ -140,14 +140,14 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
                 "where": "%(module)s.%(filename)s.%(funcName)s:%(lineno)s",
                 "type": "%(levelname)s",
                 "stack_trace": "%(exc_text)s",
-                "component": "app-plugin-lambda",
+                "component": "package-plugin-lambda",
                 "userId": invocation_context.user_id,
                 "spaceId": invocation_context.space_id,
                 "tenantId": invocation_context.tenant_id,
                 "invocableHandle": invocation_context.invocable_handle,
                 "invocableVersionHandle": invocation_context.invocable_version_handle,
                 "invocableType": invocation_context.invocable_type,
-                "path": event.get("invocation", {}).get("appPath"),
+                "path": event.get("invocation", {}).get("invocationPath"),
             }
             logging_handler = fluenthandler.FluentHandler(
                 "steamship.deployed_lambda",

@@ -61,9 +61,11 @@ def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     space = Space.create(client=steamship, handle=workspace_handle)
     new_client = get_steamship_client(workspace=workspace_handle)
 
-    def handle(verb: str, app_path: str, arguments: Optional[dict] = None) -> dict:
+    def handle(verb: str, invocation_path: str, arguments: Optional[dict] = None) -> dict:
         _handler = _create_handler(app)
-        invocation = Invocation(http_verb=verb, app_path=app_path, arguments=arguments or {})
+        invocation = Invocation(
+            http_verb=verb, invocation_path=invocation_path, arguments=arguments or {}
+        )
         logging_config = LoggingConfig(logging_host="none", logging_port="none")
         request = InvocableRequest(
             client_config=new_client.config,

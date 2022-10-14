@@ -170,5 +170,5 @@ def test_app_instance_get():
         other_instance = PackageInstance.get(client, instance_handle)
         assert other_instance.id == instance.id
         assert other_instance.handle == instance.handle
-        assert other_instance.app_id == instance.app_id
-        assert other_instance.app_version_id == instance.app_version_id
+        assert other_instance.package_id == instance.package_id
+        assert other_instance.package_version_id == instance.package_version_id

@@ -164,7 +164,7 @@ class Invocable(ABC):
             )
 
         verb = Verb.safely_from_str(request.invocation.http_verb)
-        path = request.invocation.app_path
+        path = request.invocation.invocation_path
 
         path = self._clean_path(path)
 

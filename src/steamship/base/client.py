@@ -152,27 +152,27 @@ class Client(CamelModel, ABC):
 
     def _url(
         self,
-        is_app_call: bool = False,
-        app_owner: str = None,
+        is_package_call: bool = False,
+        package_owner: str = None,
         operation: str = None,
     ):
-        if not is_app_call:
+        if not is_package_call:
             # Regular API call
             base = self.config.api_base
         else:
             # Do the app version
-            if app_owner is None:
+            if package_owner is None:
                 return SteamshipError(
                     code="UserMissing",
-                    message="Can not invoke an app endpoint without the app owner's user handle.",
-                    suggestion="Provide the appOwner option, or initialize your app with a lookup.",
+                    message="Cannot invoke a package endpoint without the package owner's user handle.",
+                    suggestion="Provide the package_owner option, or initialize your package with a lookup.",
                 )
 
             base = self.config.app_base
             if not is_local(base):
                 # We want to prepend the user handle
                 parts = base.split("//")
-                base = f"{parts[0]}//{app_owner}.{'//'.join(parts[1:])}"
+                base = f"{parts[0]}//{package_owner}.{'//'.join(parts[1:])}"
 
         # Clean leading and trailing "/"
         if base[len(base) - 1] == "/":
@@ -337,8 +337,8 @@ class Client(CamelModel, ABC):
         """
         # TODO (enias): Review this codebase
         url = self._url(
-            is_app_call=is_app_call,
-            app_owner=app_owner,
+            is_package_call=is_app_call,
+            package_owner=app_owner,
             operation=operation,
         )
 

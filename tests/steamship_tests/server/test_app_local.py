@@ -17,12 +17,12 @@ def test_invoke_app_in_python():
 def test_invoke_app_with_request():
     app = HelloWorld()
 
-    req = InvocableRequest(invocation=Invocation(http_verb="POST", app_path="greet"))
+    req = InvocableRequest(invocation=Invocation(http_verb="POST", invocation_path="greet"))
     res = app(req)
     assert res.data == RES_EMPTY
 
     req = InvocableRequest(
-        invocation=Invocation(http_verb="POST", app_path="greet", arguments={"name": NAME})
+        invocation=Invocation(http_verb="POST", invocation_path="greet", arguments={"name": NAME})
     )
     res = app(req)
     assert res.data == RES_NAME
@@ -31,7 +31,7 @@ def test_invoke_app_with_request():
 def test_invoke_app_with_handler():
     logging_config = {"loggingHost": "none", "loggingPort": "none"}
     event = {
-        "invocation": {"httpVerb": "POST", "appPath": "greet"},
+        "invocation": {"httpVerb": "POST", "invocationPath": "greet"},
         "loggingConfig": logging_config,
         "invocationContext": {},
     }

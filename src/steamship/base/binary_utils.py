@@ -108,6 +108,6 @@ def flexi_create(  # noqa: C901
     except Exception as ex:
         logging.error("Exception thrown trying to encode data", exc_info=ex)
         raise SteamshipError(
-            message="There was an exception thrown while trying to encode your app/plugin data.",
+            message="There was an exception thrown while trying to encode your package/plugin data.",
             error=ex,
         )

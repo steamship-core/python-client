@@ -7,7 +7,7 @@ from steamship.base.configuration import CamelModel, Configuration
 
 class Invocation(CamelModel):
     http_verb: str = None
-    app_path: str = None  # e.g. /hello/there
+    invocation_path: str = None  # e.g. /hello/there
     arguments: Dict[str, Any] = None
     config: Dict[str, Any] = None
 
