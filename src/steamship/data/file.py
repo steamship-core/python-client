@@ -148,7 +148,7 @@ class File(CamelModel):
         )
 
     @staticmethod
-    def create_plugin(
+    def create_with_plugin(
         client: Client,
         plugin_instance: str,
         url: str = None,
