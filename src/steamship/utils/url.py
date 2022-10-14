@@ -1,21 +1,12 @@
 import logging
+from enum import Enum
 from os import environ
 from typing import Optional
 
 
-class Verb:
+class Verb(Enum, str):
     GET = "GET"
     POST = "POST"
-
-    @staticmethod
-    def safely_from_str(s: str) -> str:
-        # TODO (enias): Is this needed?
-        ss = s.strip().upper()
-        if ss == Verb.GET:
-            return Verb.GET
-        elif ss == Verb.POST:
-            return Verb.POST
-        return s
 
 
 def is_local(base: str) -> bool:
