@@ -1,4 +1,5 @@
 from steamship import Block, Tag
+from steamship.app import InvocableResponse
 
 
 def test_camel_all_levels():
@@ -18,3 +19,13 @@ def test_camel_all_levels():
 
     assert tagd2.get("startIdx") == 0
     assert tagd2.get("endIdx") == 10
+
+    ir = InvocableResponse.from_obj(block)
+
+    tags_ir = ir.data.get("tags")
+    assert tags_ir is not None
+    assert len(tags_ir) == 1
+    tagd3 = tags_ir[0]
+
+    assert tagd3.get("startIdx") == 0
+    assert tagd3.get("endIdx") == 10
