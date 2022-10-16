@@ -19,6 +19,10 @@ class MimeTypes:
     STEAMSHIP_BLOCK_JSON = "application/vnd.steamship-block.json.v1"
     WAV = "audio/wav"
     MP3 = "audio/mp3"
+    MP4_VIDEO = "video/mp4"
+    MP4_AUDIO = "audio/mp4"
+    WEBM_VIDEO = "video/webm"
+    WEBM_AUDIO = "audio/webm"
 
 
 class ContentEncodings:

@@ -1,8 +1,21 @@
 from typing import Optional
 
 
+class TagKind:
+    """A set of `kind` constants for Tags."""
+
+    pos = "pos"  # Part of speech tags
+    dep = "dep"  # Dependency tags
+    sentiment = "sentiment"  # Sentiment tags
+    emotion = "emotion"  # Emotion tags
+    ent = "ent"  # Entity tags, such as PERSON or ORG
+    doc = "doc"  # Doc-level semantics, such as H1, P, S. See `DocTag` for `name` constants
+    token = "token"  # Token-level semantics, such as isQuote. See Token for `name` constants. # noqa: S105
+    embedding = "embedding"  # A vector representation of text
+
+
 class DocTag:
-    """This class provides a set of Markdown-style constants to use with Tag(kind="doc")"""
+    """A set of `name` constants for for Tags with a `kind` of `TagKind.doc`; appropriate for HTML and Markdown ideas."""
 
     doc = "doc"
     page = "page"  # E.g. in a PDF
@@ -87,3 +100,62 @@ class DocTag:
             return DocTag.teletype
 
         return None
+
+
+class TokenTag:
+    """A set of `name` constants for Tags with a `kind` of `TagKind.token`; appropriate for parsing-level ideas."""
+
+    TextWithWs = "textWithWs"
+    Whitespace = "whitespace"
+    Head = "head"
+    LeftEdge = "leftEdge"
+    RightEdge = "rightEdge"
+    EntType = "entType"
+    EntIob = "entIob"
+    Lemma = "lemma"
+    Normalized = "normalized"
+    Shape = "shape"
+    Prefix = "prefix"
+    Suffix = "suffix"
+    IsAlpha = "isAlpha"
+    IsAscii = "isAscii"
+    IsDigit = "isDigit"
+    IsTitle = "isTitle"
+    IsPunct = "isPunct"
+    IsLeftPunct = "isLeftPunct"
+    IsRightPunct = "isRightPunct"
+    IsSpace = "isSpace"
+    IsBracket = "isBracket"
+    IsQuote = "isQuote"
+    IsCurrency = "isCurrency"
+    LikeUrl = "likeUrl"
+    LikeNum = "likeNum"
+    LikeEmail = "likeEmail"
+    IsOov = "isOov"
+    IsStop = "isStop"
+    Lang = "lang"
+
+
+class SentimentTag:
+    """A set of `name` constants for Tags with a `kind` of `TagKind.sentiment`."""
+
+    positive = "positive"
+    neutral = "neutral"
+    negative = "negative"
+    score = "score"
+
+
+class EmotionTag:
+    """A set of `name` constants for Tags with a `kind` of `TagKind.emotion`."""
+
+    positive = "positive"
+    neutral = "neutral"
+    negative = "negative"
+    happiness = "happiness"
+    sadness = "sadness"
+    joy = "joy"
+    love = "love"
+    anger = "anger"
+    fear = "fear"
+    surprise = "surprise"
+    score = "score"
