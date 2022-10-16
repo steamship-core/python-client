@@ -159,3 +159,10 @@ class EmotionTag:
     fear = "fear"
     surprise = "surprise"
     score = "score"
+
+
+class TagValue:
+    """A set of key constants for the `value` object within a tag.."""
+
+    score = "score"
+    value = "value"
