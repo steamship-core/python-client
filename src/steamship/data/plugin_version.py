@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Type
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client, Request, Response, Task
 from steamship.base.configuration import CamelModel
@@ -12,7 +12,6 @@ from steamship.data.plugin import HostingMemory, HostingTimeout
 class CreatePluginVersionRequest(Request):
     plugin_id: str = None
     handle: str = None
-    upsert: bool = None
     hosting_memory: Optional[HostingMemory] = None
     hosting_timeout: Optional[HostingTimeout] = None
     hosting_handler: str = None
@@ -32,7 +31,7 @@ class ListPluginVersionsResponse(Response):
 
 
 class PluginVersion(CamelModel):
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     plugin_id: str = None
     handle: str = None
@@ -56,7 +55,6 @@ class PluginVersion(CamelModel):
         plugin_id: str = None,
         filename: str = None,
         filebytes: bytes = None,
-        upsert: bool = False,
         hosting_memory: Optional[HostingMemory] = None,
         hosting_timeout: Optional[HostingTimeout] = None,
         hosting_handler: str = None,
@@ -77,7 +75,6 @@ class PluginVersion(CamelModel):
         req = CreatePluginVersionRequest(
             handle=handle,
             plugin_id=plugin_id,
-            upsert=upsert,
             hosting_memory=hosting_memory,
             hosting_timeout=hosting_timeout,
             hosting_handler=hosting_handler,

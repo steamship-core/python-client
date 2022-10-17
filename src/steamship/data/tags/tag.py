@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List
 
+from pydantic import Field
+
 from steamship.base import Client, Request, Response
 from steamship.base.configuration import CamelModel
 
@@ -12,7 +14,7 @@ class TagQueryRequest(Request):
 
 
 class Tag(CamelModel):
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     file_id: str = None
     block_id: str = None
@@ -31,7 +33,6 @@ class Tag(CamelModel):
         start_idx: int = None
         end_idx: int = None
         value: Dict[str, Any] = None
-        upsert: bool = None
 
     class DeleteRequest(Request):
         id: str = None
@@ -55,7 +56,6 @@ class Tag(CamelModel):
         start_idx: int = None,
         end_idx: int = None,
         value: Any = None,
-        upsert: bool = None,
     ) -> Tag:
         if isinstance(value, dict) or isinstance(value, list):
             value = json.dumps(value)
@@ -68,7 +68,6 @@ class Tag(CamelModel):
             start_idx=start_idx,
             end_idx=end_idx,
             value=value,
-            upsert=upsert,
         )
         return client.post("tag/create", req, expect=Tag)
 

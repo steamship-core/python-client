@@ -1,7 +1,7 @@
 from typing import Type
 
 from steamship import SteamshipError
-from steamship.app import Response, create_handler
+from steamship.app import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.file_importer import FileImporter
 from steamship.plugin.inputs.file_import_plugin_input import FileImportPluginInput
@@ -16,7 +16,9 @@ class TestFileImporterSteamshipErrorPlugin(FileImporter):
     def config_cls(self) -> Type[Config]:
         return self.EmptyConfig
 
-    def run(self, request: PluginRequest[FileImportPluginInput]) -> Response[RawDataPluginOutput]:
+    def run(
+        self, request: PluginRequest[FileImportPluginInput]
+    ) -> InvocableResponse[RawDataPluginOutput]:
         raise SteamshipError(message="TestFileImporterSteamshipErrorPlugin")
 
 

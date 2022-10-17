@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Any, Dict, Type
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client, Request, Task
 from steamship.base.configuration import CamelModel
 
 
-class CreateAppVersionRequest(Request):
+class CreatePackageVersionRequest(Request):
     app_id: str = None
     handle: str = None
     upsert: bool = None
@@ -16,8 +16,8 @@ class CreateAppVersionRequest(Request):
     config_template: Dict[str, Any] = None
 
 
-class AppVersion(CamelModel):  # TODO (enias): Rename to Package
-    client: Client = None
+class PackageVersion(CamelModel):
+    client: Client = Field(None, exclude=True)
     id: str = None
     app_id: str = None
     handle: str = None
@@ -38,7 +38,7 @@ class AppVersion(CamelModel):  # TODO (enias): Rename to Package
         filebytes: bytes = None,
         upsert: bool = None,
         config_template: Dict[str, Any] = None,
-    ) -> Task[AppVersion]:
+    ) -> Task[PackageVersion]:
 
         if filename is None and filebytes is None:
             raise Exception("Either filename or filebytes must be provided.")
@@ -49,7 +49,7 @@ class AppVersion(CamelModel):  # TODO (enias): Rename to Package
             with open(filename, "rb") as f:
                 filebytes = f.read()
 
-        req = CreateAppVersionRequest(
+        req = CreatePackageVersionRequest(
             handle=handle, app_id=app_id, upsert=upsert, config_template=config_template
         )
 
@@ -57,5 +57,5 @@ class AppVersion(CamelModel):  # TODO (enias): Rename to Package
             "app/version/create",
             payload=req,
             file=("app.zip", filebytes, "multipart/form-data"),
-            expect=AppVersion,
+            expect=PackageVersion,
         )

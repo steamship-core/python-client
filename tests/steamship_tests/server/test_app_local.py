@@ -1,6 +1,6 @@
 from assets.apps.hello_world import HelloWorld, handler
 
-from steamship.app import Invocation, Request
+from steamship.app import InvocableRequest, Invocation
 
 NAME = "Ted"
 RES_EMPTY = "Hello, Person"
@@ -17,11 +17,11 @@ def test_invoke_app_in_python():
 def test_invoke_app_with_request():
     app = HelloWorld()
 
-    req = Request(invocation=Invocation(http_verb="POST", app_path="greet"))
+    req = InvocableRequest(invocation=Invocation(http_verb="POST", app_path="greet"))
     res = app(req)
     assert res.data == RES_EMPTY
 
-    req = Request(
+    req = InvocableRequest(
         invocation=Invocation(http_verb="POST", app_path="greet", arguments={"name": NAME})
     )
     res = app(req)

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Type, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client, Request, Task
 from steamship.base.configuration import CamelModel
@@ -35,7 +35,7 @@ class CreatePluginInstanceRequest(Request):
 
 
 class PluginInstance(CamelModel):
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
     plugin_id: str = None

@@ -1,7 +1,7 @@
 from typing import Type
 
 from steamship import MimeTypes
-from steamship.app import Response, create_handler
+from steamship.app import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.file_importer import FileImporter
 from steamship.plugin.inputs.file_import_plugin_input import FileImportPluginInput
@@ -24,9 +24,11 @@ class TestFileImporterPlugin(FileImporter):
     def config_cls(self) -> Type[Config]:
         return self.EmptyConfig
 
-    def run(self, request: PluginRequest[FileImportPluginInput]) -> Response[RawDataPluginOutput]:
+    def run(
+        self, request: PluginRequest[FileImportPluginInput]
+    ) -> InvocableResponse[RawDataPluginOutput]:
         bytes = (100000 * TEST_DOC).encode("utf-8")
-        return Response(data=RawDataPluginOutput(_bytes=bytes, mime_type=MimeTypes.MKD))
+        return InvocableResponse(data=RawDataPluginOutput(_bytes=bytes, mime_type=MimeTypes.MKD))
 
 
 handler = create_handler(TestFileImporterPlugin)

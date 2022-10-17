@@ -3,10 +3,9 @@ from __future__ import annotations
 import time
 from typing import Any, Dict, Generic, List, Optional, Set, Type, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from steamship.base.base import IResponse
-from steamship.base.configuration import CamelModel, GenericCamelModel
+from steamship.base import CamelModel, GenericCamelModel
 from steamship.base.error import SteamshipError
 from steamship.base.metadata import metadata_to_str, str_to_metadata
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
@@ -20,7 +19,6 @@ class CreateTaskCommentRequest(Request):
     external_type: str = None
     external_group: str = None
     metadata: str = None
-    upsert: bool = None
 
 
 class ListTaskCommentRequest(Request):
@@ -31,7 +29,7 @@ class ListTaskCommentRequest(Request):
 
 
 class TaskComment(CamelModel):
-    client: Any = None
+    client: Any = Field(None, exclude=True)
     id: str = None
     user_id: str = None
     task_id: str = None
@@ -59,7 +57,6 @@ class TaskComment(CamelModel):
         external_type: str = None,
         external_group: str = None,
         metadata: Any = None,
-        upsert: bool = True,
     ) -> TaskComment:
         req = CreateTaskCommentRequest(
             taskId=task_id,
@@ -67,7 +64,6 @@ class TaskComment(CamelModel):
             external_type=external_type,
             externalGroup=external_group,
             metadata=metadata_to_str(metadata),
-            upsert=upsert,
         )
         return client.post(
             "task/comment/create",
@@ -132,7 +128,7 @@ class TaskStatusRequest(Request):
 class Task(GenericCamelModel, Generic[T]):
     """Encapsulates a unit of asynchronously performed work."""
 
-    client: Any = None  # Steamship client
+    client: Any = Field(None, exclude=True)  # Steamship client
 
     task_id: str = None  # The id of this task
     user_id: str = None  # The user who requested this task
@@ -182,18 +178,6 @@ class Task(GenericCamelModel, Generic[T]):
         obj = obj["task"] if "task" in obj else obj
         return super().parse_obj(obj)
 
-    def dict(self, **kwargs) -> Dict[str, Any]:
-        if "exclude" in kwargs:
-            kwargs["exclude"] = {*(kwargs.get("exclude", set()) or set()), "client"}
-        else:
-            kwargs = {
-                **kwargs,
-                "exclude": {
-                    "client",
-                },
-            }  # TODO (enias): Review this
-        return super().dict(**kwargs)
-
     @staticmethod
     def get(
         client,
@@ -218,8 +202,7 @@ class Task(GenericCamelModel, Generic[T]):
         external_type: str = None,
         external_group: str = None,
         metadata: Any = None,
-        upsert: bool = True,
-    ) -> IResponse[TaskComment]:
+    ) -> TaskComment:
         return TaskComment.create(
             client=self.client,
             task_id=self.task_id,
@@ -227,7 +210,6 @@ class Task(GenericCamelModel, Generic[T]):
             external_type=external_type,
             external_group=external_group,
             metadata=metadata,
-            upsert=upsert,
         )
 
     def post_update(self, fields: Set[str] = None) -> Task:

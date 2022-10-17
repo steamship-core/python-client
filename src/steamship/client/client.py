@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
-from steamship import AppInstance, Configuration, PluginInstance, Space, SteamshipError
+from steamship import Configuration, PackageInstance, PluginInstance, Space, SteamshipError
 from steamship.base import Client
 from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
 
@@ -77,7 +77,7 @@ class Steamship(Client):
         reuse: bool = True,
         workspace_handle: Optional[str] = None,
         **kwargs,
-    ) -> AppInstance:
+    ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
 
         The instance is named `instance_handle` and located in the Workspace named `instance_handle`.
@@ -109,11 +109,11 @@ class Steamship(Client):
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
         reuse: bool = True,
-    ) -> AppInstance:
+    ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
 
         The instance is named `instance_handle` and located in the workspace this client is anchored to.."""
-        instance = AppInstance.create(
+        instance = PackageInstance.create(
             self,
             app_handle=package_handle,
             app_version_handle=version,

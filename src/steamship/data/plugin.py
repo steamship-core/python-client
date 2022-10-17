@@ -11,11 +11,11 @@ import json
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from steamship.base import IdentifierRequest, Request, Response
 from steamship.base.client import Client
 from steamship.base.configuration import CamelModel
-from steamship.base.request import IdentifierRequest, Request, Response
 
 
 class HostingType(str, Enum):
@@ -92,7 +92,6 @@ class CreatePluginRequest(Request):
     handle: str = None
     description: str = None
     metadata: str = None
-    upsert: bool = None
 
 
 class ListPluginsRequest(Request):
@@ -130,7 +129,7 @@ class LimitUnit(str, Enum):
 
 class Plugin(CamelModel):
     # TODO (enias): Document, Plugins are just a name placeholder with some settings
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     type: str = None
     transport: str = None
@@ -156,7 +155,6 @@ class Plugin(CamelModel):
         handle: str = None,
         training_platform: Optional[HostingType] = None,
         metadata: Union[str, Dict, List] = None,
-        upsert: bool = False,
     ) -> Plugin:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
@@ -169,7 +167,6 @@ class Plugin(CamelModel):
             handle=handle,
             description=description,
             metadata=metadata,
-            upsert=upsert,
         )
         return client.post(
             "plugin/create",

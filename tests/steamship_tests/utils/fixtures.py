@@ -5,9 +5,9 @@ from steamship_tests.utils.client import get_steamship_client
 from steamship_tests.utils.random import random_name
 
 from steamship import Space, Steamship
-from steamship.app.app import App
+from steamship.app import InvocableRequest, Invocation, InvocationContext, LoggingConfig
+from steamship.app.invocable import Invocable
 from steamship.app.lambda_handler import create_handler as _create_handler
-from steamship.app.request import Invocation, InvocationContext, LoggingConfig, Request
 
 
 @pytest.fixture()
@@ -55,7 +55,7 @@ def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     the test can be written from the perspective of an external caller of the
     app.
     """
-    app: Type[App] = request.param
+    app: Type[Invocable] = request.param
     steamship = get_steamship_client()
     workspace_handle = random_name()
     space = Space.create(client=steamship, handle=workspace_handle)
@@ -65,7 +65,7 @@ def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
         _handler = _create_handler(app)
         invocation = Invocation(http_verb=verb, app_path=app_path, arguments=arguments or {})
         logging_config = LoggingConfig(logging_host="none", logging_port="none")
-        request = Request(
+        request = InvocableRequest(
             client_config=new_client.config,
             invocation=invocation,
             logging_config=logging_config,

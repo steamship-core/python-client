@@ -11,7 +11,7 @@ from typing import Any, Dict, Optional
 
 from steamship_tests import ROOT_PATH, SRC_PATH, TEST_ASSETS_PATH
 
-from steamship import App, AppInstance, AppVersion, Steamship
+from steamship import Package, PackageInstance, PackageVersion, Steamship
 from steamship.base import Task
 from steamship.data.plugin import HostingType, Plugin
 from steamship.data.plugin_instance import PluginInstance
@@ -29,7 +29,9 @@ def install_dependencies(folder: str, requirements_path: Path):
 def zip_deployable(file_path: Path) -> bytes:
     """Prepare and zip a Steamship plugin."""
 
-    package_paths = [SRC_PATH / "steamship"]
+    package_paths = [
+        SRC_PATH / "steamship",
+    ]
 
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(
@@ -127,10 +129,10 @@ def deploy_app(
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
 ):
-    app = App.create(client)
+    app = Package.create(client)
 
     zip_bytes = zip_deployable(py_path)
-    version = AppVersion.create(
+    version = PackageVersion.create(
         client,
         app_id=app.id,
         filebytes=zip_bytes,
@@ -138,7 +140,7 @@ def deploy_app(
     )
 
     version = _wait_for_version(version)
-    app_instance = AppInstance.create(
+    app_instance = PackageInstance.create(
         client,
         app_id=app.id,
         app_version_id=version.id,

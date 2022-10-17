@@ -50,27 +50,13 @@ def test_plugin_create():
             type_=PluginType.tagger,
             transport=PluginAdapterType.steamship_docker,
             is_public=False,
-            upsert=False,
         )
-
-    # Upsert does work
-    plugin2 = Plugin.create(
-        client=steamship,
-        handle=plugin.handle,
-        description="This is just for test 2",
-        type_=PluginType.tagger,
-        transport=PluginAdapterType.steamship_docker,
-        is_public=False,
-        upsert=True,
-    )
-
-    assert plugin2.id == plugin.id
 
     my_plugins = Plugin.list(steamship)
     assert len(my_plugins.plugins) == orig_count + 1
 
-    assert plugin2.id in [plugin.id for plugin in my_plugins.plugins]
-    assert plugin2.description in [plugin.description for plugin in my_plugins.plugins]
+    assert plugin.id in [plugin.id for plugin in my_plugins.plugins]
+    assert plugin.description in [plugin.description for plugin in my_plugins.plugins]
 
     # assert(my_plugins.plugins[0].description != plugin.description)
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from steamship.app import Response, post
+from steamship.app import InvocableResponse, post
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.embedded_items_plugin_output import EmbeddedItemsPluginOutput
 from steamship.plugin.service import PluginRequest, PluginService
@@ -18,10 +18,10 @@ class Embedder(PluginService[BlockAndTagPluginInput, EmbeddedItemsPluginOutput],
     @abstractmethod
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
-    ) -> Response[EmbeddedItemsPluginOutput]:
+    ) -> InvocableResponse[EmbeddedItemsPluginOutput]:
         raise NotImplementedError()
 
     @post("tag")
-    def run_endpoint(self, **kwargs) -> Response[EmbeddedItemsPluginOutput]:
+    def run_endpoint(self, **kwargs) -> InvocableResponse[EmbeddedItemsPluginOutput]:
         """Exposes the Embedder's `run` operation to the Steamship Engine via the expected HTTP path POST /tag"""
         return self.run(PluginRequest[BlockAndTagPluginInput](**kwargs))

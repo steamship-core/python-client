@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Type
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base import Client, Request
 from steamship.base.configuration import CamelModel
@@ -11,7 +11,7 @@ from steamship.data.space import Space
 from steamship.utils.url import Verb
 
 
-class CreateAppInstanceRequest(Request):
+class CreatePackageInstanceRequest(Request):
     id: str = None
     app_id: str = None
     app_handle: str = None
@@ -23,8 +23,8 @@ class CreateAppInstanceRequest(Request):
     space_id: str = None
 
 
-class AppInstance(CamelModel):  # TODO (enias): Rename to Package
-    client: Client = None
+class PackageInstance(CamelModel):
+    client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
     app_id: str = None
@@ -53,8 +53,8 @@ class AppInstance(CamelModel):  # TODO (enias): Rename to Package
         handle: str = None,
         upsert: bool = None,
         config: Dict[str, Any] = None,
-    ) -> AppInstance:
-        req = CreateAppInstanceRequest(
+    ) -> PackageInstance:
+        req = CreatePackageInstanceRequest(
             handle=handle,
             app_id=app_id,
             app_handle=app_handle,
@@ -64,11 +64,11 @@ class AppInstance(CamelModel):  # TODO (enias): Rename to Package
             config=config,
         )
 
-        return client.post("app/instance/create", payload=req, expect=AppInstance)
+        return client.post("app/instance/create", payload=req, expect=PackageInstance)
 
-    def delete(self) -> AppInstance:
+    def delete(self) -> PackageInstance:
         req = DeleteRequest(id=self.id)
-        return self.client.post("app/instance/delete", payload=req, expect=AppInstance)
+        return self.client.post("app/instance/delete", payload=req, expect=PackageInstance)
 
     def load_missing_vals(self):
         if self.client is not None and self.space_handle is None and self.space_id is not None:
@@ -79,7 +79,9 @@ class AppInstance(CamelModel):  # TODO (enias): Rename to Package
 
     @staticmethod
     def get(client: Client, handle: str):
-        return client.post("app/instance/get", IdentifierRequest(handle=handle), expect=AppInstance)
+        return client.post(
+            "app/instance/get", IdentifierRequest(handle=handle), expect=PackageInstance
+        )
 
     def invoke(self, path: str, verb: Verb = Verb.POST, **kwargs):
         self.load_missing_vals()

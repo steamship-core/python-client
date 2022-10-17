@@ -31,7 +31,7 @@ class Http(CamelModel):
 T = TypeVar("T")
 
 
-class Response(GenericModel, Generic[T]):  # TODO (enias): Rename to ExecutableResponse?
+class InvocableResponse(GenericModel, Generic[T]):
     """Mirrors the Response object in the Steamship server."""
 
     data: T = None  # Data for successful or synchronous requests.
@@ -121,7 +121,7 @@ class Response(GenericModel, Generic[T]):  # TODO (enias): Rename to ExecutableR
         error: Optional[SteamshipError] = None,
         exception: Optional[Exception] = None,
         prefix: Optional[str] = None,
-    ) -> Response[T]:
+    ) -> InvocableResponse[T]:
         """Merges a number of error channels into one unified Response object.
 
         Aggregates all possible messages into a single " | "-delimeted error message.
@@ -153,32 +153,32 @@ class Response(GenericModel, Generic[T]):  # TODO (enias): Rename to ExecutableR
         if prefix and error.message:
             error.message = f"{prefix}{error.message}"
 
-        return Response(error=error, http=Http(status=code))
+        return InvocableResponse(error=error, http=Http(status=code))
 
     @staticmethod
-    def from_obj(obj: Any) -> Response:  # noqa: C901
+    def from_obj(obj: Any) -> InvocableResponse:  # noqa: C901
         if obj is None:
-            return Response.error(500, "Handler provided no response.")
+            return InvocableResponse.error(500, "Handler provided no response.")
 
-        if isinstance(obj, Response):
+        if isinstance(obj, InvocableResponse):
             return obj
         elif isinstance(obj, SteamshipError):
-            return Response.error(500, error=obj)
+            return InvocableResponse.error(500, error=obj)
         elif isinstance(obj, Exception):
-            return Response.error(500, error=SteamshipError(error=obj))
+            return InvocableResponse.error(500, error=SteamshipError(error=obj))
         elif isinstance(obj, io.BytesIO):
-            return Response(_bytes=obj)
+            return InvocableResponse(_bytes=obj)
         elif isinstance(obj, dict):
-            return Response(json=obj)
+            return InvocableResponse(json=obj)
         elif isinstance(obj, str):
-            return Response(string=obj)
+            return InvocableResponse(string=obj)
         elif isinstance(obj, (float, int, bool)):
-            return Response(json=obj)
+            return InvocableResponse(json=obj)
 
         if isinstance(obj, BaseModel):
-            return Response(json=obj.dict())
+            return InvocableResponse(json=obj.dict())
 
-        return Response.error(500, message="Handler provided unknown response type.")
+        return InvocableResponse.error(500, message="Handler provided unknown response type.")
 
     def post_update(self, client: Client):
         """Pushes this response object to the corresponding Task on the Steamship Engine.
