@@ -1,8 +1,11 @@
+import pytest
 from steamship_tests import APPS_PATH
 from steamship_tests.utils.client import steamship_use
 from steamship_tests.utils.deployables import deploy_app
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
+
+from steamship import SteamshipError
 
 
 def test_use_package():
@@ -102,3 +105,19 @@ def test_use_package():
             # But the handle isn't the same
             assert static_use_instance1b.handle != static_use_instance1.handle
             assert static_use_instance1b.id != static_use_instance1.id
+
+
+def test_use_plugin_fails_with_same_instance_name_but_different_plugin_name():
+    client = get_steamship_client()
+
+    instance_handle = random_name()
+
+    demo_app_path = APPS_PATH / "demo_app.py"
+
+    with deploy_app(client, demo_app_path) as (app, version, instance):
+        with deploy_app(client, demo_app_path) as (app2, version2, instance2):
+            client.use_plugin(app.handle, instance_handle)
+
+            # Should fail because we're using the shortcut `import_plugin` method with the same instance
+            with pytest.raises(SteamshipError):
+                client.use_plugin(app2.handle, instance_handle)
