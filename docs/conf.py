@@ -24,7 +24,7 @@ __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.join(__location__, "../src"))
 
-from steamship import __version__ as version
+from steamship import __version__ as version  # noqa: E402
 
 release = version
 
@@ -220,13 +220,13 @@ html_theme_options = {
 
 # If true, an OpenSearch description file will be output, and all pages will
 # contain a <link> tag referring to it.  The value of this option must be the
-# base.py URL from which the finished HTML is served.
+# model.py URL from which the finished HTML is served.
 # html_use_opensearch = ''
 
 # This is the file name suffix for HTML files (e.g. ".xhtml").
 # html_file_suffix = None
 
-# Output file base.py name for HTML help builder.
+# Output file model.py name for HTML help builder.
 htmlhelp_basename = "steamship-doc"
 
 # -- Options for LaTeX output ------------------------------------------------

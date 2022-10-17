@@ -2,7 +2,7 @@ from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_index, random_name
 
 from steamship import PluginInstance
-from steamship.base import TaskComment
+from steamship.base.tasks import TaskComment
 from steamship.data.embeddings import EmbeddedItem
 
 

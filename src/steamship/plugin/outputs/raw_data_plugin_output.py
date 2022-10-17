@@ -6,8 +6,8 @@ from typing import Any, Optional, Type, Union
 from pydantic import BaseModel
 
 from steamship.base import MimeTypes
-from steamship.base.binary_utils import flexi_create
-from steamship.base.configuration import CamelModel
+from steamship.base.model import CamelModel
+from steamship.utils.binary_utils import flexi_create
 
 
 class RawDataPluginOutput(CamelModel):

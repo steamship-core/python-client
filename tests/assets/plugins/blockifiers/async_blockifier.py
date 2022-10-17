@@ -6,11 +6,11 @@ from assets.plugins.blockifiers.csv_blockifier import CsvBlockifier
 from steamship import SteamshipError
 from steamship.app import InvocableResponse, create_handler
 from steamship.base import Task, TaskState
-from steamship.base.binary_utils import to_b64
 from steamship.plugin.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
+from steamship.utils.binary_utils import to_b64
 
 ASYNC_JOB_ID = "bbq-time"
 STATUS_MESSAGE = "Still working!"

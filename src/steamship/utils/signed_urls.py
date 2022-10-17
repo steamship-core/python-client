@@ -40,7 +40,7 @@ def url_to_bytes(url: str) -> bytes:
 
     resp = requests.get(url)
     if resp.status_code != 200:
-        # TODO: At least Localstack seend to reply with HTTP 200 even if the file isn't found!
+        # TODO: At least Localstack send to reply with HTTP 200 even if the file isn't found!
         # The full response contains:
         # <Error>
         #     <Code>NoSuchKey</Code>
