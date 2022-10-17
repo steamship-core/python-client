@@ -1,10 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Type
 
 from steamship.app import InvocableResponse, post
-from steamship.base.client import Client
-from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
@@ -25,20 +22,6 @@ from steamship.plugin.trainable_model import TrainableModel
 
 
 class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
-    # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
-        super().__init__(client, config)
-        logging.info(self.config)
-        if self.config:
-
-            self.config = self.config_cls()(**self.config)
-        else:
-            self.config = self.config_cls()()
-
-    @abstractmethod
-    def config_cls(self) -> Type[Config]:
-        raise NotImplementedError()
-
     @abstractmethod
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
@@ -52,16 +35,6 @@ class Tagger(PluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC
 
 
 class TrainableTagger(TrainablePluginService[BlockAndTagPluginInput, BlockAndTagPluginOutput], ABC):
-    # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
-        super().__init__(client=client, config=config)
-        if config:
-            self.config = self.config_cls()(**config)
-
-    @abstractmethod
-    def config_cls(self) -> Type[Config]:
-        raise NotImplementedError()
-
     @abstractmethod
     def run_with_model(
         self, request: PluginRequest[BlockAndTagPluginInput], model: TrainableModel

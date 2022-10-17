@@ -4,8 +4,8 @@ from typing import Type, Union
 import pytest
 
 from steamship.app import InvocableResponse
+from steamship.app.config import Config
 from steamship.base.client import Client
-from steamship.plugin.config import Config
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput

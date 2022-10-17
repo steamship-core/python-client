@@ -1,9 +1,10 @@
 import base64
 import io
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from steamship import SteamshipError
 from steamship.app import Invocable, InvocableResponse, create_handler, get, post
+from steamship.app.config import Config
 from steamship.base.mime_types import MimeTypes
 from steamship.base.model import CamelModel
 from steamship.client import Steamship
@@ -23,6 +24,9 @@ class TestApp(Invocable):
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
         self.index = None
+
+    def config_cls(self) -> Type[Config]:
+        return Config
 
     @get("resp_string")
     def resp_string(self) -> InvocableResponse:

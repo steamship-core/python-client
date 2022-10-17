@@ -5,9 +5,9 @@ from typing import Any, Dict, List, Optional, Type
 
 from steamship import File, SteamshipError, Tag
 from steamship.app import InvocableResponse, create_handler
+from steamship.app.config import Config
 from steamship.base import Task, TaskState
 from steamship.base.client import Client
-from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput

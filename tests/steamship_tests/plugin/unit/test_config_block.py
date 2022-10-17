@@ -4,7 +4,7 @@ import pytest
 from steamship_tests import TEST_ASSETS_PATH
 
 from steamship import SteamshipError
-from steamship.plugin.config import Config
+from steamship.app.config import Config
 
 
 class EmptyConfig(Config):

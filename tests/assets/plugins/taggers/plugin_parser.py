@@ -4,7 +4,7 @@ from typing import Type
 
 from steamship import Block, DocTag, Tag
 from steamship.app import InvocableResponse, create_handler
-from steamship.plugin.config import Config
+from steamship.app.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest

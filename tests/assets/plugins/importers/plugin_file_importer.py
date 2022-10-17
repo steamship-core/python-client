@@ -2,7 +2,7 @@ from typing import Type
 
 from steamship import MimeTypes
 from steamship.app import InvocableResponse, create_handler
-from steamship.plugin.config import Config
+from steamship.app.config import Config
 from steamship.plugin.file_importer import FileImporter
 from steamship.plugin.inputs.file_import_plugin_input import FileImportPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
