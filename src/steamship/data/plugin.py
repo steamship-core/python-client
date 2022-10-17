@@ -129,7 +129,6 @@ class LimitUnit(str, Enum):
 
 
 class Plugin(CamelModel):
-    # TODO (enias): Document, Plugins are just a name placeholder with some settings
     client: Client = Field(None, exclude=True)
     id: str = None
     type: str = None

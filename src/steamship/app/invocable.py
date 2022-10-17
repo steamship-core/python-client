@@ -163,7 +163,7 @@ class Invocable(ABC):
                 code=HTTPStatus.NOT_FOUND, message="No invocation was found."
             )
 
-        verb = Verb.safely_from_str(request.invocation.http_verb)
+        verb = Verb(request.invocation.http_verb.strip().upper())
         path = request.invocation.app_path
 
         path = self._clean_path(path)

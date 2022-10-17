@@ -141,7 +141,7 @@ class Client(CamelModel, ABC):
         # Because of the trick we do to hack these in as both static and member methods (with different
         # implementations), Pydantic will try to include them by default. So we have to suppress that otherwise
         # downstream serialization into JSON will fail.
-        if "exclude" not in kwargs:  # TODO (enias): Review
+        if "exclude" not in kwargs:
             kwargs["exclude"] = {"use", "use_plugin", "_instance_use", "_instance_use_plugin"}
         elif isinstance(kwargs["exclude"], set):
             kwargs["exclude"].add("use")
