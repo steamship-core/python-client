@@ -56,6 +56,6 @@ class PackageVersion(CamelModel):
         return client.post(
             "package/version/create",
             payload=req,
-            file=("app.zip", filebytes, "multipart/form-data"),
+            file=("invocable.zip", filebytes, "multipart/form-data"),
             expect=PackageVersion,
         )

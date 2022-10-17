@@ -1,7 +1,7 @@
 from typing import Type
 
 from steamship import SteamshipError
-from steamship.app import InvocableResponse, create_handler
+from steamship.invocable import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.file_importer import FileImporter
 from steamship.plugin.inputs.file_import_plugin_input import FileImportPluginInput

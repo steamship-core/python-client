@@ -2,8 +2,8 @@ import base64
 
 import pytest
 import requests
-from steamship_tests import APPS_PATH, TEST_ASSETS_PATH
-from steamship_tests.utils.deployables import deploy_app
+from steamship_tests import PACKAGES_PATH, TEST_ASSETS_PATH
+from steamship_tests.utils.deployables import deploy_package
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import PackageInstance, Space, SteamshipError
@@ -16,7 +16,7 @@ def _fix_url(s: str) -> str:
     """Homogenize references to `this machine` for the purpose of comparing remote configuration and local
     configuration. The goal of the below steamship_tests isn't to check that your machine has been configured in the
     "approved way" (which is to use host.docker.internal). It is merely to make sure that the environment
-    has been passed to the app instance correctly."""
+    has been passed to the invocable instance correctly."""
     s = s.replace("localhost", "host.docker.internal").replace("127.0.0.1", "host.docker.internal")
     if s.endswith("/"):
         s = s[:-1]  # s.removesuffix is only available in Python 3.9; we use Python 3.8
@@ -31,11 +31,11 @@ def test_instance_invoke():
     base64_palm = base64.b64encode(palm_bytes).decode("utf-8")
 
     client = get_steamship_client()
-    demo_app_path = APPS_PATH / "demo_app.py"
+    demo_package_path = PACKAGES_PATH / "demo_package.py"
 
-    with deploy_app(client, demo_app_path) as (app, version, instance):
+    with deploy_package(client, demo_package_path) as (package, version, instance):
         # Now let's invoke it!
-        # Note: we're invoking the data at demo_app.py in the steamship_tests/demo_apps folder
+        # Note: we're invoking the data at demo_package.py in the tests/assets/packages folder
 
         def get_raw(path: str):
             return requests.get(
@@ -105,7 +105,7 @@ def test_instance_invoke():
         assert base64_image == base64_palm
         assert resp_image.headers.get("Content-Type") == MimeTypes.PNG
 
-        # The test app, when executing remotely inside Steamship, should have the same
+        # The test invocable, when executing remotely inside Steamship, should have the same
         # set of configuration options that we're running with here within the test
         configuration_within_lambda = instance.invoke("config", verb=Verb.GET)
 
@@ -118,14 +118,14 @@ def test_instance_invoke():
         assert my_app_base == remote_app_base
         assert my_api_base == remote_api_base
 
-        # API key should NOT be the same as the original, because the app should be given a space-scoped key
+        # API key should NOT be the same as the original, because the invocable should be given a space-scoped key
         assert configuration_within_lambda["apiKey"] != client.config.api_key
 
         # SpaceId is an exception. Rather than being the SpaceId of the client, it should be the SpaceId
         # of the App Instance.
         assert configuration_within_lambda["spaceId"] == instance.space_id  # SpaceID
 
-        # The test app should NOT be able to fetch the User's account info.
+        # The test invocable should NOT be able to fetch the User's account info.
         with pytest.raises(SteamshipError) as excinfo:
             _ = instance.invoke("user_info", verb=Verb.POST)
         assert "Cannot use a space-scoped key" in str(excinfo.value)
@@ -138,34 +138,34 @@ def test_instance_invoke():
 
 def test_deploy_in_space():
     client = get_steamship_client()
-    demo_app_path = APPS_PATH / "demo_app.py"
+    demo_package_path = PACKAGES_PATH / "demo_package.py"
 
     space = Space.create(client)
     client.switch_workspace(workspace_id=space.id)
 
     assert space.handle != "default"
 
-    with deploy_app(client, demo_app_path) as (_, _, instance):
+    with deploy_package(client, demo_package_path) as (_, _, instance):
         # The Engine believes the instance to be in the workspace
         assert instance.space_id == space.id
 
-        # The app believes itself to be in the workspace
+        # The invocable believes itself to be in the workspace
         configuration_within_lambda = instance.invoke("config", verb=Verb.GET)
         assert configuration_within_lambda["spaceId"] == space.id
 
     space.delete()
 
 
-def test_app_instance_get():
+def test_package_instance_get():
     client = get_steamship_client()
-    demo_app_path = APPS_PATH / "demo_app.py"
+    demo_package_path = PACKAGES_PATH / "demo_package.py"
 
     space = Space.create(client)
     client.switch_workspace(workspace_id=space.id)
 
     assert space.handle != "default"
 
-    with deploy_app(client, demo_app_path) as (_, _, instance):
+    with deploy_package(client, demo_package_path) as (_, _, instance):
         instance_handle = instance.handle
         other_instance = PackageInstance.get(client, instance_handle)
         assert other_instance.id == instance.id

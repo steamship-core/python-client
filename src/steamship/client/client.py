@@ -26,6 +26,7 @@ class Steamship(Client):
         profile: str = None,
         config_file: str = None,
         config: Configuration = None,
+        trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspace
         **kwargs,
     ):
         super().__init__(
@@ -38,6 +39,7 @@ class Steamship(Client):
             profile=profile,
             config_file=config_file,
             config=config,
+            trust_workspace_config=trust_workspace_config,
             **kwargs,
         )
         # We use object.__setattr__ here in order to bypass Pydantic's overloading of it (which would block this

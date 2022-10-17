@@ -5,9 +5,9 @@ from steamship_tests.utils.client import get_steamship_client
 from steamship_tests.utils.random import random_name
 
 from steamship import Space, Steamship
-from steamship.app import InvocableRequest, Invocation, InvocationContext, LoggingConfig
-from steamship.app.invocable import Invocable
-from steamship.app.lambda_handler import create_handler as _create_handler
+from steamship.invocable import InvocableRequest, Invocation, InvocationContext, LoggingConfig
+from steamship.invocable.invocable import Invocable
+from steamship.invocable.lambda_handler import create_handler as _create_handler
 
 
 @pytest.fixture()
@@ -33,36 +33,36 @@ def client() -> Steamship:
 
 
 @pytest.fixture()
-def app_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
+def invocable_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     """
     Returns a client rooted in a new space, then deletes that space afterwards.
 
-    To use, simply import this file and then write a test which takes `app_handler`
+    To use, simply import this file and then write a test which takes `invocable_handler`
     as an argument and parameterize it via PyTest.
 
     Example
     --------
 
         import pytest # doctest: +SKIP
-        from steamship_tests.utils.fixtures import app_handler  # noqa: F401
-        from assets.apps.demo_app import TestApp
+        from steamship_tests.utils.fixtures import invocable_handler  # noqa: F401
+        from assets.packages.demo_package import TestPackage
 
-        @pytest.mark.parametrize("app_handler", [TestApp], indirect=True)
-            def _test_something(app_handler):
-                response_dict = app_handler("POST", "/hello", dict())
+        @pytest.mark.parametrize("invocable_handler", [TestPackage], indirect=True)
+            def _test_something(invocable_handler):
+                response_dict = invocable_handler("POST", "/hello", dict())
 
-    The app will be run its own space that gets cleaned up afterwards, and
+    The invocable will be run its own space that gets cleaned up afterwards, and
     the test can be written from the perspective of an external caller of the
-    app.
+    invocable.
     """
-    app: Type[Invocable] = request.param
+    invocable: Type[Invocable] = request.param
     steamship = get_steamship_client()
     workspace_handle = random_name()
     space = Space.create(client=steamship, handle=workspace_handle)
     new_client = get_steamship_client(workspace=workspace_handle)
 
     def handle(verb: str, invocation_path: str, arguments: Optional[dict] = None) -> dict:
-        _handler = _create_handler(app)
+        _handler = _create_handler(invocable)
         invocation = Invocation(
             http_verb=verb, invocation_path=invocation_path, arguments=arguments or {}
         )

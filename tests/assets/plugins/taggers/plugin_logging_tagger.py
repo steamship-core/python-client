@@ -1,7 +1,7 @@
 import logging
 from typing import Type
 
-from steamship.app import InvocableResponse, create_handler
+from steamship.invocable import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput

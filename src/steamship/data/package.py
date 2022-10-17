@@ -1,7 +1,7 @@
 #
-# This is the CLIENT-side abstraction for an app.
+# This is the CLIENT-side abstraction for an invocable.
 #
-# If you are implementing a package, see: steamship.app.server.App
+# If you are implementing a package, see: steamship.invocable.server.App
 #
 
 from __future__ import annotations

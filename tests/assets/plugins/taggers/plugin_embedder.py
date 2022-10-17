@@ -1,7 +1,7 @@
 from typing import List, Type
 
 from steamship import Block, File, Tag, TagKind, TextTag
-from steamship.app import InvocableResponse, create_handler
+from steamship.invocable import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.embedder import Embedder
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput

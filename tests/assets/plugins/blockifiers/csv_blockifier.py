@@ -6,11 +6,11 @@ from typing import List, Optional, Type, Union
 
 from pydantic import constr
 
-from steamship.app import InvocableResponse, create_handler
 from steamship.base.error import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags import Tag
+from steamship.invocable import InvocableResponse, create_handler
 from steamship.plugin.blockifier import Blockifier, Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput

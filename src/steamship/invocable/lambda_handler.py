@@ -9,11 +9,11 @@ from fluent import asynchandler as fluenthandler
 from fluent.handler import FluentRecordFormatter
 
 from steamship import Configuration
-from steamship.app import InvocableRequest, InvocableResponse, InvocationContext
-from steamship.app.invocable import Invocable
 from steamship.base import SteamshipError
 from steamship.client import Steamship
 from steamship.data.space import SignedUrl
+from steamship.invocable import InvocableRequest, InvocableResponse, InvocationContext
+from steamship.invocable.invocable import Invocable
 from steamship.utils.signed_urls import upload_to_signed_url
 
 
@@ -28,7 +28,7 @@ def encode_exception(obj):
 
 
 def create_handler(app_cls: Type[Invocable]):  # noqa: C901
-    """Wrapper function for a Steamship app within an AWS Lambda function."""
+    """Wrapper function for a Steamship invocable within an AWS Lambda function."""
 
     def _handler(
         event: Dict,
@@ -166,7 +166,7 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
             # class itself is limited to accepting `workspace` (`config.space_handle`) since that is the manner
             # of interaction ideal for developers.
             config = Configuration(**event.get("clientConfig", {}))
-            client = Steamship(config=config)
+            client = Steamship(config=config, trust_workspace_config=True)
         except SteamshipError as se:
             logging.exception(se)
             return InvocableResponse.from_obj(se).dict(by_alias=True)

@@ -44,6 +44,7 @@ class Client(CamelModel, ABC):
         profile: str = None,
         config_file: str = None,
         config: Configuration = None,
+        trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspace
         **kwargs,
     ):
         """Create a new client.
@@ -68,16 +69,18 @@ class Client(CamelModel, ABC):
         # The lambda_handler will pass in the space via the space_id, so we need to plumb this through to make sure
         # that the workspace switch performed doesn't mistake `workspace=None` as a request for the default workspace
         self.switch_workspace(
-            workspace=workspace,
+            workspace=workspace or config.space_handle,
             workspace_id=config.space_id,
             fail_if_workspace_exists=fail_if_workspace_exists,
+            trust_workspace_config=trust_workspace_config,
         )
 
-    def switch_workspace(
+    def switch_workspace(  # noqa: C901
         self,
         workspace: str = None,
         workspace_id: str = None,
         fail_if_workspace_exists: bool = False,
+        trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspacetrust_workspace_config: bool = False, # For use by lambda_handler; don't fetch the workspace
     ):
         """Switches this client to the requested space, possibly creating it. If all arguments are None, the client
         actively switches into the default space.
@@ -104,28 +107,36 @@ class Client(CamelModel, ABC):
         old_space_handle = self.config.space_handle
         self.config.space_handle = None
 
-        try:
-            if workspace is not None and workspace_id is not None:
-                get_params = {"handle": workspace, "id": workspace_id, "upsert": False}
-                space = self.post("space/get", get_params)
-            elif workspace is not None:
-                get_params = {"handle": workspace, "upsert": not fail_if_workspace_exists}
-                space = self.post("space/create", get_params)
-            elif workspace_id is not None:
-                get_params = {"id": workspace_id, "upsert": False}
-                space = self.post("space/get", get_params)
+        if trust_workspace_config:
+            if workspace is None or workspace_id is None:
+                raise SteamshipError(
+                    message="Attempted a trusted workspace switch without providing both workspace handle and workspace id."
+                )
+            return_id = workspace_id
+            return_handle = workspace
+        else:
+            try:
+                if workspace is not None and workspace_id is not None:
+                    get_params = {"handle": workspace, "id": workspace_id, "upsert": False}
+                    space = self.post("space/get", get_params)
+                elif workspace is not None:
+                    get_params = {"handle": workspace, "upsert": not fail_if_workspace_exists}
+                    space = self.post("space/create", get_params)
+                elif workspace_id is not None:
+                    get_params = {"id": workspace_id, "upsert": False}
+                    space = self.post("space/get", get_params)
 
-        except SteamshipError as e:
-            self.config.space_handle = old_space_handle
-            raise e
+            except SteamshipError as e:
+                self.config.space_handle = old_space_handle
+                raise e
 
-        if space is None:
-            raise SteamshipError(
-                message="Was unable to switch to new workspace: server returned empty Space."
-            )
+            if space is None:
+                raise SteamshipError(
+                    message="Was unable to switch to new workspace: server returned empty Space."
+                )
 
-        return_id = space.get("space", {}).get("id")
-        return_handle = space.get("space", {}).get("handle")
+            return_id = space.get("space", {}).get("id")
+            return_handle = space.get("space", {}).get("handle")
 
         if return_id is None or return_handle is None:
             raise SteamshipError(
@@ -160,7 +171,7 @@ class Client(CamelModel, ABC):
             # Regular API call
             base = self.config.api_base
         else:
-            # Do the app version
+            # Do the invocable version
             if package_owner is None:
                 return SteamshipError(
                     code="UserMissing",
@@ -287,7 +298,7 @@ class Client(CamelModel, ABC):
         if expect and isclass(expect):
             if len(response_data.keys()) == 1 and list(response_data.keys())[0] in (
                 to_camel(expect.__name__),
-                to_camel(expect.__name__).replace("package", "app"),
+                to_camel(expect.__name__).replace("package", "invocable"),
                 # Hack since engine uses "App" instead of "Package"
                 "index",
             ):

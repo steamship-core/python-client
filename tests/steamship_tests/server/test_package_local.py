@@ -1,39 +1,40 @@
-from assets.apps.hello_world import HelloWorld, handler
+from assets.packages.hello_world import HelloWorld, handler
 
-from steamship.app import InvocableRequest, Invocation
+from steamship.invocable import InvocableRequest, Invocation
 
 NAME = "Ted"
 RES_EMPTY = "Hello, Person"
 RES_NAME = f"Hello, {NAME}"
 
 
-def test_invoke_app_in_python():
-    app = HelloWorld()
+def test_invoke_package_in_python():
+    package = HelloWorld()
 
-    assert app.greet().data == RES_EMPTY
-    assert app.greet(NAME).data == RES_NAME
+    assert package.greet().data == RES_EMPTY
+    assert package.greet(NAME).data == RES_NAME
 
 
-def test_invoke_app_with_request():
-    app = HelloWorld()
+def test_invoke_package_with_request():
+    package = HelloWorld()
 
     req = InvocableRequest(invocation=Invocation(http_verb="POST", invocation_path="greet"))
-    res = app(req)
+    res = package(req)
     assert res.data == RES_EMPTY
 
     req = InvocableRequest(
         invocation=Invocation(http_verb="POST", invocation_path="greet", arguments={"name": NAME})
     )
-    res = app(req)
+    res = package(req)
     assert res.data == RES_NAME
 
 
-def test_invoke_app_with_handler():
+def test_invoke_package_with_handler():
     logging_config = {"loggingHost": "none", "loggingPort": "none"}
     event = {
         "invocation": {"httpVerb": "POST", "invocationPath": "greet"},
         "loggingConfig": logging_config,
         "invocationContext": {},
+        "clientConfig": {"spaceId": "dummy_space_id", "spaceHandle": "dummy_space_handle"},
     }
     res = handler(event)
     assert res["data"] == RES_EMPTY

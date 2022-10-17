@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from steamship.app import InvocableResponse, post
+from steamship.invocable import InvocableResponse, post
 from steamship.plugin.inputs.file_import_plugin_input import FileImportPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 from steamship.plugin.service import PluginRequest, PluginService
