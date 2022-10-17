@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Type
+from typing import Any, Type
 
 from pydantic import BaseModel, Field
 
@@ -12,18 +12,6 @@ class User(CamelModel):
     client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
-
-    def dict(self, **kwargs) -> Dict[str, Any]:
-        if "exclude" in kwargs:
-            kwargs["exclude"] = {*(kwargs.get("exclude", set()) or set()), "client"}
-        else:
-            kwargs = {
-                **kwargs,
-                "exclude": {
-                    "client",
-                },
-            }
-        return super().dict(**kwargs)
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:

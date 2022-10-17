@@ -24,7 +24,7 @@ __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 sys.path.insert(0, os.path.join(__location__, "../src"))
 
-from steamship import __version__ as version
+from steamship import __version__ as version  # noqa: E402
 
 release = version
 

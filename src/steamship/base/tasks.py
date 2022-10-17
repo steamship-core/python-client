@@ -178,18 +178,6 @@ class Task(GenericCamelModel, Generic[T]):
         obj = obj["task"] if "task" in obj else obj
         return super().parse_obj(obj)
 
-    def dict(self, **kwargs) -> Dict[str, Any]:
-        if "exclude" in kwargs:
-            kwargs["exclude"] = {*(kwargs.get("exclude", set()) or set()), "client"}
-        else:
-            kwargs = {
-                **kwargs,
-                "exclude": {
-                    "client",
-                },
-            }  # TODO (enias): Review this
-        return super().dict(**kwargs)
-
     @staticmethod
     def get(
         client,
