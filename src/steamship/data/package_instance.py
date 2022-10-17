@@ -18,7 +18,7 @@ class CreatePackageInstanceRequest(Request):
     app_version_id: str = None
     app_version_handle: str = None
     handle: str = None
-    upsert: bool = None
+    fetch_if_exists: bool = None
     config: Dict[str, Any] = None
     space_id: str = None
 
@@ -51,7 +51,7 @@ class PackageInstance(CamelModel):
         app_version_id: str = None,
         app_version_handle: str = None,
         handle: str = None,
-        upsert: bool = None,
+        fetch_if_exists: bool = None,
         config: Dict[str, Any] = None,
     ) -> PackageInstance:
         req = CreatePackageInstanceRequest(
@@ -60,7 +60,7 @@ class PackageInstance(CamelModel):
             app_handle=app_handle,
             app_version_id=app_version_id,
             app_version_handle=app_version_handle,
-            upsert=upsert,
+            fetch_if_exists=fetch_if_exists,
             config=config,
         )
 
