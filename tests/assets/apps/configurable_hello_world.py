@@ -15,6 +15,8 @@ class HelloWorld(Invocable):
         snake_case_config: str
         # Camel case is permitted
         camelCaseConfig: str  # noqa: N815
+        # Defaulted from the Engine, rather than here.
+        defaultConfig: str  # noqa: N815
 
     # This is unnecessary, since the base `Invocable` declares it, but by re-declaring it here
     # we get better type-hints from our editor.
@@ -32,6 +34,10 @@ class HelloWorld(Invocable):
     @post("camel")
     def camel(self) -> InvocableResponse:
         return InvocableResponse(string=f"{self.config.camelCaseConfig}")
+
+    @post("defaulted")
+    def defaulted(self) -> InvocableResponse:
+        return InvocableResponse(string=f"{self.config.defaultConfig}")
 
     def config_cls(self) -> Type[Config]:
         return HelloWorld.HelloWorldConfig

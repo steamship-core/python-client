@@ -11,6 +11,7 @@ def test_configurable_instance_invoke():
         "greeting": {"type": "string"},
         "snake_case_config": {"type": "string"},
         "camelCaseConfig": {"type": "string"},
+        "defaultConfig": {"type": "string", "default": "defaulted"},
     }
     instance_config = {
         "greeting": greeting1,
@@ -36,6 +37,9 @@ def test_configurable_instance_invoke():
 
         res = instance.invoke("camel")
         assert res == instance_config.get("camelCaseConfig")
+
+        res = instance.invoke("defaulted")
+        assert res == "defaulted"
 
         greeting2 = "Hallo"
         instance_config2 = {
