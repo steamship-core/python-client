@@ -5,7 +5,7 @@ from typing import Callable, Dict, Generic, Optional, TypeVar
 
 from typing_extensions import TypeAlias
 
-from steamship.base import Client
+from steamship.base.client import Client
 from steamship.invocable import InvocableResponse
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint

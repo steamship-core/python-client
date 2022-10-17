@@ -4,7 +4,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
 from steamship import File, SteamshipError, Tag
-from steamship.base import Client, Task, TaskState
+from steamship.base import Task, TaskState
+from steamship.base.client import Client
 from steamship.invocable import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput

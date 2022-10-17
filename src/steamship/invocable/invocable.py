@@ -20,7 +20,7 @@ from steamship.invocable.invocable_response import InvocableResponse
 from steamship.utils.url import Verb
 
 
-def make_registering_decorator(decorator):  # TODO (Enias): Review
+def make_registering_decorator(decorator):
     """
     Returns a copy of foreignDecorator, which is identical in every
     way(*), except also appends a .decorator property to the callable it
@@ -80,7 +80,7 @@ def post(path: str, **kwargs):
 class Invocable(ABC):
     """A Steamship microservice.
 
-    This base.py class:
+    This model.py class:
 
       1. Provide a pre-authenticated instance of the Steamship client
       2. Provides a Lambda handler that routes to registered functions
@@ -163,7 +163,7 @@ class Invocable(ABC):
                 code=HTTPStatus.NOT_FOUND, message="No invocation was found."
             )
 
-        verb = Verb.safely_from_str(request.invocation.http_verb)
+        verb = Verb(request.invocation.http_verb.strip().upper())
         path = request.invocation.invocation_path
 
         path = self._clean_path(path)

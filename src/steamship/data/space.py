@@ -6,11 +6,11 @@ from typing import Any, Optional, Type
 
 from pydantic import BaseModel, Field
 
-from steamship.base import Client
-from steamship.base import Request as SteamshipRequest
-from steamship.base import Response as SteamshipResponse
-from steamship.base.configuration import CamelModel
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest
+from steamship.base.request import Request as SteamshipRequest
+from steamship.base.response import Response as SteamshipResponse
 
 
 class Space(CamelModel):

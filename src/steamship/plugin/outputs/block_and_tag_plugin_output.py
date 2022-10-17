@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from steamship.base.configuration import CamelModel
+from steamship.base.model import CamelModel
 from steamship.data.file import File
 
 

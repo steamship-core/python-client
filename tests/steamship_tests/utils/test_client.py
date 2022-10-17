@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import Steamship
-from steamship.base import Client
+from steamship.base.client import Client
 from steamship.base.configuration import DEFAULT_API_BASE, DEFAULT_APP_BASE, DEFAULT_WEB_BASE
 from steamship.data.user import User
 

@@ -3,7 +3,7 @@ from typing import Type, Union
 
 import pytest
 
-from steamship.base import Client
+from steamship.base.client import Client
 from steamship.invocable import InvocableResponse
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput

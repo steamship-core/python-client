@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from steamship.base import Request, Response
+from steamship.base.request import Request
+from steamship.base.response import Response
 
 from ..file import File
 

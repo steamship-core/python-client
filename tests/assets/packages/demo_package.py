@@ -3,8 +3,8 @@ import io
 from typing import Any, Dict
 
 from steamship import SteamshipError
-from steamship.base.configuration import CamelModel
 from steamship.base.mime_types import MimeTypes
+from steamship.base.model import CamelModel
 from steamship.client import Steamship
 from steamship.data.user import User
 from steamship.invocable import InvocableResponse, PackageService, create_handler, get, post

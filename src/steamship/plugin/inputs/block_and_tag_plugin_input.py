@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from steamship import File
-from steamship.base.configuration import CamelModel
-from steamship.base.error import SteamshipError
+from steamship.base import SteamshipError
+from steamship.base.model import CamelModel
 from steamship.utils.signed_urls import url_to_json
 
 

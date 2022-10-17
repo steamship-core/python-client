@@ -10,7 +10,7 @@ from typing import Any, Type
 
 from pydantic import BaseModel, Field
 
-from steamship.base import Client
+from steamship.base.client import Client
 from steamship.base.request import CreateRequest, GetRequest
 
 

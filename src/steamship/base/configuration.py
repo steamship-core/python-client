@@ -8,8 +8,8 @@ from typing import Optional
 import inflection
 from pydantic import HttpUrl
 
-from steamship.base.base import CamelModel
-from steamship.base.utils import format_uri
+from steamship.base.model import CamelModel
+from steamship.utils.utils import format_uri
 
 DEFAULT_WEB_BASE = "https://app.steamship.com/"
 DEFAULT_APP_BASE = "https://steamship.run/"

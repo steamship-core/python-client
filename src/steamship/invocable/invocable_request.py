@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from steamship.base.configuration import CamelModel, Configuration
+from steamship.base import Configuration
+from steamship.base.model import CamelModel
 
 
 class Invocation(CamelModel):
