@@ -1,9 +1,9 @@
 from typing import Type
 
 from steamship import Block, File, Tag
-from steamship.app import InvocableResponse, create_handler
+from steamship.app import Config, InvocableResponse, create_handler
 from steamship.data.tags import DocTag, TagKind
-from steamship.plugin.blockifier import Blockifier, Config
+from steamship.plugin.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.service import PluginRequest
