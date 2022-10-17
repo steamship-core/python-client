@@ -7,8 +7,16 @@ from steamship import PackageInstance
 
 def test_configurable_instance_invoke():
     greeting1 = "Hola"
-    config_template = {"greeting": {"type": "string"}}
-    instance_config = {"greeting": greeting1}
+    config_template = {
+        "greeting": {"type": "string"},
+        "snake_case_config": {"type": "string"},
+        "camelCaseConfig": {"type": "string"},
+    }
+    instance_config = {
+        "greeting": greeting1,
+        "snake_case_config": "hisss",
+        "camelCaseConfig": "spit!",
+    }
     client = get_steamship_client()
     hello_world_path = APPS_PATH / "configurable_hello_world.py"
 
@@ -23,8 +31,18 @@ def test_configurable_instance_invoke():
         res = instance.invoke("greet")
         assert res == f"{greeting1}, Person"
 
+        res = instance.invoke("snake")
+        assert res == instance_config.get("snake_case_config")
+
+        res = instance.invoke("camel")
+        assert res == instance_config.get("camelCaseConfig")
+
         greeting2 = "Hallo"
-        instance_config2 = {"greeting": greeting2}
+        instance_config2 = {
+            "greeting": greeting2,
+            "snake_case_config": "hisss",
+            "camelCaseConfig": "spit!",
+        }
         instance2 = PackageInstance.create(
             client, app_id=app.id, app_version_id=version.id, config=instance_config2
         )
@@ -34,7 +52,11 @@ def test_configurable_instance_invoke():
 
         # Test with quick-create
         greeting3 = "Howdy"
-        instance_config3 = {"greeting": greeting3}
+        instance_config3 = {
+            "greeting": greeting3,
+            "snake_case_config": "hisss",
+            "camelCaseConfig": "spit!",
+        }
         instance3 = client.use(app.handle, f"{instance2.handle}-2", config=instance_config3)
         assert instance3.invoke("greet") == f"{greeting3}, Person"
         assert instance3.id != instance2.id
@@ -45,7 +67,11 @@ def test_configurable_instance_invoke():
 
         # Test instance with quick create and no handle
         greeting4 = "How Do Dee"
-        instance_config4 = {"greeting": greeting4}
+        instance_config4 = {
+            "greeting": greeting4,
+            "snake_case_config": "hisss",
+            "camelCaseConfig": "spit!",
+        }
         instance4 = client.use(app.handle, config=instance_config4)
         assert instance4.invoke("greet") == f"{greeting4}, Person"
         assert instance4.id != instance3.id

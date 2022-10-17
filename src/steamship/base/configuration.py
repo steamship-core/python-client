@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 import inflection
-from pydantic import AnyHttpUrl
+from pydantic import HttpUrl
 
 from steamship.base.model import CamelModel
 from steamship.utils.utils import format_uri
@@ -37,9 +37,9 @@ EXCLUDE_FROM_DICT = {
 
 class Configuration(CamelModel):
     api_key: str
-    api_base: AnyHttpUrl = DEFAULT_API_BASE
-    app_base: AnyHttpUrl = DEFAULT_APP_BASE
-    web_base: AnyHttpUrl = DEFAULT_WEB_BASE
+    api_base: HttpUrl = DEFAULT_API_BASE
+    app_base: HttpUrl = DEFAULT_APP_BASE
+    web_base: HttpUrl = DEFAULT_WEB_BASE
     space_id: str = None
     space_handle: str = None
     profile: Optional[str] = None

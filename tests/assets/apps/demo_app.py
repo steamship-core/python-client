@@ -26,6 +26,7 @@ class TestApp(Invocable):
         self.index = None
 
     def config_cls(self) -> Type[Config]:
+        """By returning the base Config object, we're signaling that we do not accept a configuration."""
         return Config
 
     @get("resp_string")

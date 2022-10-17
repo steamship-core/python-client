@@ -117,7 +117,7 @@ class Invocable(ABC):
 
         # Finally, we set the config object to an instance of the class returned by `self.config_cls`
         if config:
-            self.config = self.config_cls()(**self.config)
+            self.config = self.config_cls()(**config)
         else:
             self.config = self.config_cls()()
 
@@ -147,14 +147,12 @@ class Invocable(ABC):
         All Steamship packages and plugins must declare a configuration object which extends from Config. You may
         implement an empty object using the below style:
 
-        ```python
         class MyPackageOrPlugin:
             class MyConfig(Config):
                 pass
 
             def config_cls(self):
                 return MyPackageOrPlugin.MyConfig
-        ```
         """
         raise NotImplementedError()
 
