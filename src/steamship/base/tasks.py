@@ -5,10 +5,10 @@ from typing import Any, Dict, Generic, List, Optional, Set, Type, TypeVar
 
 from pydantic import BaseModel, Field
 
-from steamship.base import CamelModel, GenericCamelModel
 from steamship.base.error import SteamshipError
-from steamship.base.metadata import metadata_to_str, str_to_metadata
+from steamship.base.model import CamelModel, GenericCamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
+from steamship.utils.metadata import metadata_to_str, str_to_metadata
 
 T = TypeVar("T")
 
@@ -177,18 +177,6 @@ class Task(GenericCamelModel, Generic[T]):
     def parse_obj(cls: Type[BaseModel], obj: Any) -> Task:
         obj = obj["task"] if "task" in obj else obj
         return super().parse_obj(obj)
-
-    def dict(self, **kwargs) -> Dict[str, Any]:
-        if "exclude" in kwargs:
-            kwargs["exclude"] = {*(kwargs.get("exclude", set()) or set()), "client"}
-        else:
-            kwargs = {
-                **kwargs,
-                "exclude": {
-                    "client",
-                },
-            }  # TODO (enias): Review this
-        return super().dict(**kwargs)
 
     @staticmethod
     def get(

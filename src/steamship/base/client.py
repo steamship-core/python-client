@@ -11,10 +11,10 @@ import inflection
 from pydantic import BaseModel, PrivateAttr
 from requests import Session
 
-from steamship.base import to_camel
-from steamship.base.configuration import CamelModel, Configuration
+from steamship.base.configuration import Configuration
 from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes
+from steamship.base.model import CamelModel, to_camel
 from steamship.base.request import Request
 from steamship.base.tasks import Task, TaskState
 from steamship.utils.url import Verb, is_local
@@ -25,7 +25,7 @@ T = TypeVar("T")  # TODO (enias): Do we need this?
 
 
 class Client(CamelModel, ABC):
-    """Client base.py class.
+    """Client model.py class.
 
     Separated primarily as a hack to prevent circular imports.
     """
@@ -141,7 +141,7 @@ class Client(CamelModel, ABC):
         # Because of the trick we do to hack these in as both static and member methods (with different
         # implementations), Pydantic will try to include them by default. So we have to suppress that otherwise
         # downstream serialization into JSON will fail.
-        if "exclude" not in kwargs:  # TODO (enias): Review
+        if "exclude" not in kwargs:
             kwargs["exclude"] = {"use", "use_plugin", "_instance_use", "_instance_use_plugin"}
         elif isinstance(kwargs["exclude"], set):
             kwargs["exclude"].add("use")

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from steamship.base import Request
+from steamship.base.request import Request
 
 
 class BlockifyRequest(Request):

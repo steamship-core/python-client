@@ -7,13 +7,15 @@ from typing import Any, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
-from steamship.base import Client, Request, Response, Task
-from steamship.base.binary_utils import flexi_create
-from steamship.base.configuration import CamelModel
-from steamship.base.request import GetRequest, IdentifierRequest
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
+from steamship.base.request import GetRequest, IdentifierRequest, Request
+from steamship.base.response import Response
+from steamship.base.tasks import Task
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
 from steamship.data.tags import Tag
+from steamship.utils.binary_utils import flexi_create
 
 
 class FileUploadType(str, Enum):

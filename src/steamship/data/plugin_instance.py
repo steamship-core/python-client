@@ -4,8 +4,10 @@ from typing import Any, Dict, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
-from steamship.base import Client, Request, Task
-from steamship.base.configuration import CamelModel
+from steamship.base import Task
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
+from steamship.base.request import Request
 from steamship.data.plugin import (
     HostingCpu,
     HostingEnvironment,

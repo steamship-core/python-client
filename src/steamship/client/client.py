@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 from pydantic import BaseModel
 
 from steamship import Configuration, PackageInstance, PluginInstance, Space, SteamshipError
-from steamship.base import Client
+from steamship.base.client import Client
 from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
 
 _logger = logging.getLogger(__name__)
