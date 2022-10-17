@@ -20,11 +20,11 @@ from steamship.plugin.outputs.training_parameter_plugin_output import TrainingPa
 from steamship.plugin.request import PluginRequest
 from steamship.plugin.trainable_model import TrainableModel
 
-T = TypeVar("T")  # TODO (enias): Rename to IN
-U = TypeVar("U")  # TODO (enias): Rename to OUT
+IN = TypeVar("IN")
+OUT = TypeVar("OUT")
 
 
-class PluginService(Invocable, Generic[T, U], ABC):
+class PluginService(Invocable, Generic[IN, OUT], ABC):
     """The Abstract Base Class of a Steamship Plugin.
 
     All Steamship Plugins implement the operation:
@@ -53,7 +53,7 @@ class PluginService(Invocable, Generic[T, U], ABC):
     """
 
     @abstractmethod
-    def run(self, request: PluginRequest[T]) -> Union[U, InvocableResponse[U]]:
+    def run(self, request: PluginRequest[IN]) -> Union[OUT, InvocableResponse[OUT]]:
         """Runs the core operation implemented by this plugin: import, export, blockify, tag, etc.
 
         This is the method that a Steamship Plugin implements to perform its main work.
@@ -61,7 +61,7 @@ class PluginService(Invocable, Generic[T, U], ABC):
         pass
 
 
-class TrainablePluginService(PluginService, Generic[T, U], ABC):
+class TrainablePluginService(PluginService, Generic[IN, OUT], ABC):
     # noinspection PyUnusedLocal
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
@@ -74,7 +74,7 @@ class TrainablePluginService(PluginService, Generic[T, U], ABC):
         """
         pass
 
-    def run(self, request: PluginRequest[T]) -> Union[U, InvocableResponse[U]]:
+    def run(self, request: PluginRequest[IN]) -> Union[OUT, InvocableResponse[OUT]]:
         """Loads the trainable model before passing the request to the `run_with_model` handler on the subclass."""
         logging.info("TrainablePluginService:run() - Loading model")
         model = self.model_cls().load_remote(
@@ -89,8 +89,8 @@ class TrainablePluginService(PluginService, Generic[T, U], ABC):
 
     @abstractmethod
     def run_with_model(
-        self, request: PluginRequest[T], model: TrainableModel
-    ) -> Union[U, InvocableResponse[U]]:
+        self, request: PluginRequest[IN], model: TrainableModel
+    ) -> Union[OUT, InvocableResponse[OUT]]:
         """Rather than implementing run(request), a TrainablePluginService implements run_with_model(request, model)"""
         pass
 
