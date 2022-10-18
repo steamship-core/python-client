@@ -193,7 +193,7 @@ class InvocableResponse(GenericModel, Generic[T]):
         - Google's AutoML can take 20-30 minutes to train.
         - Fine-tuning BERT on ECS can take an arbitrarily long amount of time.
 
-        In these cases, it can be useful for the invocable/plugin to occasionally post updates to the Engine outside
+        In these cases, it can be useful for the package/plugin to occasionally post updates to the Engine outside
         of the Engine's initial synchronous request-response conversation.
         """
         if self.status is None or self.status.task_id is None:
