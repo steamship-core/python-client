@@ -117,13 +117,16 @@ class Client(CamelModel, ABC):
         else:
             try:
                 if workspace is not None and workspace_id is not None:
-                    get_params = {"handle": workspace, "id": workspace_id, "upsert": False}
+                    get_params = {"handle": workspace, "id": workspace_id, "fetchIfExists": False}
                     space = self.post("space/get", get_params)
                 elif workspace is not None:
-                    get_params = {"handle": workspace, "upsert": not fail_if_workspace_exists}
+                    get_params = {
+                        "handle": workspace,
+                        "fetchIfExists": not fail_if_workspace_exists,
+                    }
                     space = self.post("space/create", get_params)
                 elif workspace_id is not None:
-                    get_params = {"id": workspace_id, "upsert": False}
+                    get_params = {"id": workspace_id}
                     space = self.post("space/get", get_params)
 
             except SteamshipError as e:

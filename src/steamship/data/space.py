@@ -27,7 +27,7 @@ class Space(CamelModel):
     class CreateRequest(SteamshipRequest):
         id: Optional[str] = None
         handle: Optional[str] = None
-        upsert: Optional[bool] = None
+        fetch_if_exists: Optional[bool] = None
         external_id: Optional[str] = None
         external_type: Optional[str] = None
         metadata: Optional[str] = None
@@ -36,8 +36,10 @@ class Space(CamelModel):
         return self.client.post("space/delete", IdentifierRequest(id=self.id), expect=Space)
 
     @staticmethod
-    def get(client: Client, id_: str = None, handle: str = None, upsert: bool = None) -> Space:
-        req = GetRequest(id=id_, handle=handle, upsert=upsert)
+    def get(
+        client: Client, id_: str = None, handle: str = None, fetch_if_exists: bool = None
+    ) -> Space:
+        req = GetRequest(id=id_, handle=handle, fetch_if_exists=fetch_if_exists)
         return client.post("space/get", req, expect=Space)
 
     @staticmethod
@@ -47,11 +49,11 @@ class Space(CamelModel):
         external_id: Optional[str] = None,
         external_type: Optional[str] = None,
         metadata: Any = None,
-        upsert: bool = True,
+        fetch_if_exists: bool = True,
     ) -> Space:
         req = Space.CreateRequest(
             handle=handle,
-            upsert=upsert,
+            fetch_if_exists=fetch_if_exists,
             external_id=external_id,
             external_type=external_type,
             metadata=metadata,
