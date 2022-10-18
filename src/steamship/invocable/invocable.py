@@ -14,9 +14,9 @@ from typing import Any, Dict, Optional
 
 import toml
 
-from steamship.app.invocable_request import InvocableRequest
-from steamship.app.invocable_response import InvocableResponse
 from steamship.client import Steamship
+from steamship.invocable.invocable_request import InvocableRequest
+from steamship.invocable.invocable_response import InvocableResponse
 from steamship.utils.url import Verb
 
 
@@ -152,9 +152,9 @@ class Invocable(ABC):
     def __call__(self, request: InvocableRequest, context: Any = None) -> InvocableResponse:
         """Invokes a method call if it is registered."""
         if not hasattr(self.__class__, "_method_mappings"):
-            logging.error("__call__: No mappings available on app.")
+            logging.error("__call__: No mappings available on invocable.")
             return InvocableResponse.error(
-                code=HTTPStatus.NOT_FOUND, message="No mappings available for app."
+                code=HTTPStatus.NOT_FOUND, message="No mappings available for invocable."
             )
 
         if request.invocation is None:
@@ -164,7 +164,7 @@ class Invocable(ABC):
             )
 
         verb = Verb(request.invocation.http_verb.strip().upper())
-        path = request.invocation.app_path
+        path = request.invocation.invocation_path
 
         path = self._clean_path(path)
 

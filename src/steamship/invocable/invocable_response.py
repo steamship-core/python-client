@@ -90,7 +90,9 @@ class InvocableResponse(GenericModel, Generic[T]):
             self.status.status_message = error.message
             self.status.status_suggestion = error.suggestion
             self.status.status_code = error.code
-            logging.error("steamship.app.response - Response created with error.", exc_info=error)
+            logging.error(
+                "steamship.invocable.response - Response created with error.", exc_info=error
+            )
         else:
             if self.status.state is None:
                 self.status.state = TaskState.succeeded
@@ -191,7 +193,7 @@ class InvocableResponse(GenericModel, Generic[T]):
         - Google's AutoML can take 20-30 minutes to train.
         - Fine-tuning BERT on ECS can take an arbitrarily long amount of time.
 
-        In these cases, it can be useful for the app/plugin to occasionally post updates to the Engine outside
+        In these cases, it can be useful for the package/plugin to occasionally post updates to the Engine outside
         of the Engine's initial synchronous request-response conversation.
         """
         if self.status is None or self.status.task_id is None:
