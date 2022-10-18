@@ -65,7 +65,7 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
             return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
-                message="Unable to initialize plugin/package.",
+                message="Unable to initialize package/plugin.",
                 exception=ex,
             )
 
