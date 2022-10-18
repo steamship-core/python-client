@@ -17,6 +17,9 @@ from steamship.plugin.trainable_model import TrainableModel
 
 
 class ValidStringToStringPlugin(PluginService):
+    def config_cls(self) -> Type[Config]:
+        return Config
+
     def run(self, request: PluginRequest[str]) -> Union[str, InvocableResponse[str]]:
         pass
 
@@ -82,7 +85,8 @@ def test_plugin_service_is_abstract():
 
 def test_plugin_service_must_implement_run_and_subclass_request_from_dict():
     class BadPlugin(PluginService):
-        pass
+        def config_cls(self) -> Type[Config]:
+            return Config
 
     with pytest.raises(TypeError):
         BadPlugin()
