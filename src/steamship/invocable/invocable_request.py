@@ -35,7 +35,7 @@ class InvocableRequest(CamelModel):
      * `steamship.base.request` represents a request from the Steamship Client
      * this class represents a request from the Steamship Engine to a Steamship-hosted App/Plugin
 
-    It contains both an invocable/plugin invocation and also the client configuration in which that invocation
+    It contains both a package/plugin invocation and also the client configuration in which that invocation
     is intended to execute.
     """
 
