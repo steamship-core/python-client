@@ -8,13 +8,11 @@ class Request(CamelModel):
 class GetRequest(Request):
     id: str = None
     handle: str = None
-    upsert: bool = None
 
 
 class CreateRequest(Request):
     id: str = None
     handle: str = None
-    upsert: bool = None
 
 
 class IdentifierRequest(Request):

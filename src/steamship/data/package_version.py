@@ -13,7 +13,6 @@ from steamship.base.request import Request
 class CreatePackageVersionRequest(Request):
     app_id: str = None
     handle: str = None
-    upsert: bool = None
     type: str = "file"
     config_template: Dict[str, Any] = None
 
@@ -38,7 +37,6 @@ class PackageVersion(CamelModel):
         handle: str = None,
         filename: str = None,
         filebytes: bytes = None,
-        upsert: bool = None,
         config_template: Dict[str, Any] = None,
     ) -> Task[PackageVersion]:
 
@@ -52,7 +50,7 @@ class PackageVersion(CamelModel):
                 filebytes = f.read()
 
         req = CreatePackageVersionRequest(
-            handle=handle, app_id=app_id, upsert=upsert, config_template=config_template
+            handle=handle, app_id=app_id, config_template=config_template
         )
 
         return client.post(
