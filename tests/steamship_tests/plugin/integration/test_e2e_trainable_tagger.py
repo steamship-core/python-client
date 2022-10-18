@@ -32,7 +32,7 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
         client=client,
         handle=EXPORTER_HANDLE,
         plugin_handle=EXPORTER_HANDLE,
-        upsert=True,
+        fetch_if_exists=True,
     )
     assert exporter_plugin_r is not None
     exporter_plugin = exporter_plugin_r

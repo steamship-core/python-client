@@ -32,7 +32,7 @@ class CreatePluginInstanceRequest(Request):
     plugin_version_id: str = None
     plugin_version_handle: str = None
     handle: str = None
-    upsert: bool = None
+    fetch_if_exists: bool = None
     config: Dict[str, Any] = None
 
 
@@ -65,20 +65,20 @@ class PluginInstance(CamelModel):
         plugin_version_id: str = None,
         plugin_version_handle: str = None,
         handle: str = None,
-        upsert: bool = True,
+        fetch_if_exists: bool = True,
         config: Dict[str, Any] = None,
     ) -> PluginInstance:
         """Create a plugin instance
 
         When handle is empty the engine will automatically assign one
-        upsert controls whether we want to re-use an existing plugin instance or not."""
+        fetch_if_exists controls whether we want to re-use an existing plugin instance or not."""
         req = CreatePluginInstanceRequest(
             handle=handle,
             plugin_id=plugin_id,
             plugin_handle=plugin_handle,
             plugin_version_id=plugin_version_id,
             plugin_version_handle=plugin_version_handle,
-            upsert=upsert,
+            fetch_if_exists=fetch_if_exists,
             config=config,
         )
 
