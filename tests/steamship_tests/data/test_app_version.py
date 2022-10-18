@@ -13,5 +13,4 @@ def test_version_create():
     zip_bytes = zip_deployable(demo_app_path)
 
     version = PackageVersion.create(client, app_id=app.id, filebytes=zip_bytes)
-
-    version.wait()
+    assert version is not None
