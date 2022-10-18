@@ -1,7 +1,7 @@
 # Plugin
 #
 # This file contains the abstractions for managing Steamship plugins.
-# To see how to implement a Steamship Plugin, see service.py in the same folder.
+# To see how to implement a Steamship Plugin, see plugin_service.py in the same folder.
 #
 #
 

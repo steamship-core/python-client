@@ -64,12 +64,7 @@ def zip_deployable(file_path: Path) -> bytes:
                 relative_path = the_file.relative_to(TEST_ASSETS_PATH.parent)
                 zip_file.write(the_file, relative_path)
 
-    # Leaving this in as a reminder: this is an easy way to generate the app zip for use in
-    # updating engine unit steamship_tests.
-    #
-    # with open("demo_app.zip", 'wb') as f:
-    #     f.write(zip_buffer.getvalue())
-    #
+    # To generate zip files for engine tests, use the create_engine_test_assets script in Scripts
 
     return zip_buffer.getvalue()
 
@@ -122,38 +117,38 @@ def deploy_plugin(
 
 
 @contextlib.contextmanager
-def deploy_app(
+def deploy_package(
     client: Steamship,
     py_path: Path,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
 ):
-    app = Package.create(client)
+    package = Package.create(client)
 
     zip_bytes = zip_deployable(py_path)
     version = PackageVersion.create(
         client,
-        app_id=app.id,
+        package_id=package.id,
         filebytes=zip_bytes,
         config_template=version_config_template,
     )
 
     _wait_for_version(version)
-    app_instance = PackageInstance.create(
+    package_instance = PackageInstance.create(
         client,
-        app_id=app.id,
-        app_version_id=version.id,
+        package_id=package.id,
+        package_version_id=version.id,
         config=instance_config,
     )
 
-    assert app_instance.app_id == app.id
-    assert app_instance.app_version_id == version.id
+    assert package_instance.package_id == package.id
+    assert package_instance.package_version_id == version.id
 
-    _check_user(client, app_instance)
+    _check_user(client, package_instance)
 
-    yield app, version, app_instance
+    yield package, version, package_instance
 
-    _delete_deployable(app_instance, version, app)
+    _delete_deployable(package_instance, version, package)
 
 
 def _check_user(client, instance):

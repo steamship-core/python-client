@@ -1,7 +1,7 @@
 import msgpack
 
 from steamship import SteamshipError
-from steamship.app.lambda_handler import encode_exception
+from steamship.invocable.lambda_handler import encode_exception
 
 
 def test_serialize_steamship_error():
