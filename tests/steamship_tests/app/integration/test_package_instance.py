@@ -118,17 +118,17 @@ def test_instance_invoke():
         assert my_app_base == remote_app_base
         assert my_api_base == remote_api_base
 
-        # API key should NOT be the same as the original, because the invocable should be given a space-scoped key
+        # API key should NOT be the same as the original, because the invocable should be given a workspace-scoped key
         assert configuration_within_lambda["apiKey"] != client.config.api_key
 
-        # SpaceId is an exception. Rather than being the SpaceId of the client, it should be the SpaceId
+        # WorkspaceId is an exception. Rather than being the WorkspaceId of the client, it should be the WorkspaceId
         # of the App Instance.
-        assert configuration_within_lambda["spaceId"] == instance.space_id  # SpaceID
+        assert configuration_within_lambda["workspaceId"] == instance.workspace_id  # WorkspaceID
 
         # The test invocable should NOT be able to fetch the User's account info.
         with pytest.raises(SteamshipError) as excinfo:
             _ = instance.invoke("user_info", verb=Verb.POST)
-        assert "Cannot use a space-scoped key" in str(excinfo.value)
+        assert "Cannot use a workspace-scoped key" in str(excinfo.value)
 
         # Test a JSON response that contains {"status": "a string"} in it to make sure the client base
         # isn't trying to coerce it to a Task object and throwing.
@@ -136,34 +136,34 @@ def test_instance_invoke():
         assert resp_obj == {"status": "a string"}
 
 
-def test_deploy_in_space():
+def test_deploy_in_workspace():
     client = get_steamship_client()
     demo_package_path = PACKAGES_PATH / "demo_package.py"
 
-    space = Workspace.create(client)
-    client.switch_workspace(workspace_id=space.id)
+    workspace = Workspace.create(client)
+    client.switch_workspace(workspace_id=workspace.id)
 
-    assert space.handle != "default"
+    assert workspace.handle != "default"
 
     with deploy_package(client, demo_package_path) as (_, _, instance):
         # The Engine believes the instance to be in the workspace
-        assert instance.space_id == space.id
+        assert instance.workspace_id == workspace.id
 
         # The invocable believes itself to be in the workspace
         configuration_within_lambda = instance.invoke("config", verb=Verb.GET)
-        assert configuration_within_lambda["spaceId"] == space.id
+        assert configuration_within_lambda["workspaceId"] == workspace.id
 
-    space.delete()
+    workspace.delete()
 
 
 def test_package_instance_get():
     client = get_steamship_client()
     demo_package_path = PACKAGES_PATH / "demo_package.py"
 
-    space = Workspace.create(client)
-    client.switch_workspace(workspace_id=space.id)
+    workspace = Workspace.create(client)
+    client.switch_workspace(workspace_id=workspace.id)
 
-    assert space.handle != "default"
+    assert workspace.handle != "default"
 
     with deploy_package(client, demo_package_path) as (_, _, instance):
         instance_handle = instance.handle

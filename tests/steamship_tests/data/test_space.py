@@ -4,91 +4,91 @@ from steamship_tests.utils.fixtures import get_steamship_client
 from steamship import SteamshipError, Workspace
 
 
-def test_default_space():
+def test_default_workspace():
     client = get_steamship_client()
-    space = Workspace.get(client=client)
-    assert space is not None
-    assert space.handle == "default"
+    workspace = Workspace.get(client=client)
+    assert workspace is not None
+    assert workspace.handle == "default"
 
 
-def test_delete_space():
+def test_delete_workspace():
     client = get_steamship_client()
     default = Workspace.get(client=client)
-    space1 = Workspace.create(client=client, handle="test")
+    workspace1 = Workspace.create(client=client, handle="test")
     assert default.id is not None
-    assert space1.id is not None
-    assert default.id != space1.id
+    assert workspace1.id is not None
+    assert default.id != workspace1.id
 
-    space1.delete()
+    workspace1.delete()
     with pytest.raises(SteamshipError):
-        _ = Workspace.get(client=client, id_=space1.id)
+        _ = Workspace.get(client=client, id_=workspace1.id)
 
-    space1 = Workspace.create(client=client, handle="test")
+    workspace1 = Workspace.create(client=client, handle="test")
     assert default.id is not None
-    assert space1.id is not None
-    assert default.id != space1.id
+    assert workspace1.id is not None
+    assert default.id != workspace1.id
 
-    space1a = Workspace.get(client=client, id_=space1.id)
-    assert space1a is not None
+    workspace1a = Workspace.get(client=client, id_=workspace1.id)
+    assert workspace1a is not None
 
-    space1.delete()
+    workspace1.delete()
     with pytest.raises(SteamshipError):
-        _ = Workspace.get(client=client, id_=space1.id)
+        _ = Workspace.get(client=client, id_=workspace1.id)
 
 
-def test_get_space():
+def test_get_workspace():
     client = get_steamship_client()
     default = Workspace.get(client=client)
-    space1 = Workspace.create(client=client, handle="test")
-    space1a = Workspace.get(client=client, id_=space1.id)
-    assert space1a.id == space1.id
-    assert space1a.id != default.id
-    assert space1a.handle == space1.handle
+    workspace1 = Workspace.create(client=client, handle="test")
+    workspace1a = Workspace.get(client=client, id_=workspace1.id)
+    assert workspace1a.id == workspace1.id
+    assert workspace1a.id != default.id
+    assert workspace1a.handle == workspace1.handle
 
-    space1b = Workspace.get(client=client, handle=space1.handle)
-    assert space1b.id == space1.id
-    assert space1b.handle == space1.handle
+    workspace1b = Workspace.get(client=client, handle=workspace1.handle)
+    assert workspace1b.id == workspace1.id
+    assert workspace1b.handle == workspace1.handle
 
-    space1c = Workspace.get(client=client, id_=space1.id, handle=space1.handle)
-    assert space1c.id == space1.id
-    assert space1c.handle == space1.handle
+    workspace1c = Workspace.get(client=client, id_=workspace1.id, handle=workspace1.handle)
+    assert workspace1c.id == workspace1.id
+    assert workspace1c.handle == workspace1.handle
 
-    space1.delete()
+    workspace1.delete()
 
 
-def test_create_use_delete_space():
+def test_create_use_delete_workspace():
     client = get_steamship_client()
     default = Workspace.get(client=client)
-    space1 = Workspace.create(client=client, handle="test")
-    space2 = Workspace.create(client=client, handle="test2")
+    workspace1 = Workspace.create(client=client, handle="test")
+    workspace2 = Workspace.create(client=client, handle="test2")
 
-    assert space1 is not None
-    assert space1.handle == "test"
+    assert workspace1 is not None
+    assert workspace1.handle == "test"
 
-    assert space2 is not None
-    assert space2.handle == "test2"
+    assert workspace2 is not None
+    assert workspace2.handle == "test2"
 
-    assert space2.id != space1.id
-    assert space1.id != default.id
-    assert space2.id != default.id
+    assert workspace2.id != workspace1.id
+    assert workspace1.id != default.id
+    assert workspace2.id != default.id
 
-    space1a = Workspace.get(client=client, id_=space1.id)
-    space1b = Workspace.get(client=client, handle=space1.handle)
-    space1c = Workspace.get(client=client, id_=space1.id)
+    workspace1a = Workspace.get(client=client, id_=workspace1.id)
+    workspace1b = Workspace.get(client=client, handle=workspace1.handle)
+    workspace1c = Workspace.get(client=client, id_=workspace1.id)
 
-    assert space1.id == space1a.id
-    assert space1.id == space1b.id
-    assert space1.id == space1c.id
+    assert workspace1.id == workspace1a.id
+    assert workspace1.id == workspace1b.id
+    assert workspace1.id == workspace1c.id
 
-    space1a.delete()
+    workspace1a.delete()
 
-    # These two are the same space! You can't delete twice!
+    # These two are the same workspace! You can't delete twice!
     with pytest.raises(SteamshipError):
-        space1b.delete()
+        workspace1b.delete()
 
     with pytest.raises(SteamshipError):
-        space1c.delete()
+        workspace1c.delete()
 
-    space2.delete()
+    workspace2.delete()
     with pytest.raises(SteamshipError):
-        _ = Workspace.get(client=client, id_=space1.id)
+        _ = Workspace.get(client=client, id_=workspace1.id)

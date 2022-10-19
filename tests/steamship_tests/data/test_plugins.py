@@ -71,12 +71,12 @@ def test_plugin_public():
     assert len(plugins) > 0
 
 
-def test_deploy_in_space():
+def test_deploy_in_workspace():
     client = get_steamship_client()
-    space = Workspace.create(client, handle="test-non-default-space")
-    client.switch_workspace(workspace_id=space.id)
+    workspace = Workspace.create(client, handle="test-non-default-workspace")
+    client.switch_workspace(workspace_id=workspace.id)
     instance = PluginInstance.create(client, plugin_handle="test-tagger")
-    assert instance.space_id == space.id
+    assert instance.workspace_id == workspace.id
 
 
 def test_plugin_instance_get():

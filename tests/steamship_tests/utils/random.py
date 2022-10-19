@@ -28,7 +28,7 @@ def random_index(steamship: Steamship, plugin_instance: str) -> EmbeddingIndex:
 
 
 @contextlib.contextmanager
-def temporary_space(steamship: Steamship) -> Workspace:
-    space = Workspace.create(client=steamship)
-    yield space
-    space.delete()  # or whatever you need to do at exit
+def temporary_workspace(steamship: Steamship) -> Workspace:
+    workspace = Workspace.create(client=steamship)
+    yield workspace
+    workspace.delete()  # or whatever you need to do at exit

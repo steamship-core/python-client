@@ -23,9 +23,9 @@ def test_upload_download_text():
 
     # Grab a Steamship client and generate an upload url
     client = get_steamship_client()
-    space = Workspace.get(client=client)
+    workspace = Workspace.get(client=client)
     upload_name = random_name()
-    url_resp = space.create_signed_url(
+    url_resp = workspace.create_signed_url(
         SignedUrl.Request(
             bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=upload_name,
@@ -39,7 +39,7 @@ def test_upload_download_text():
     upload_to_signed_url(url_resp.signed_url, filepath=upfile)
 
     # Now create a download signed URL
-    download_resp = space.create_signed_url(
+    download_resp = workspace.create_signed_url(
         SignedUrl.Request(
             bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=upload_name,
@@ -81,9 +81,9 @@ def test_upload_download():
     It performs the following steps:
 
     1. Zips up a folder
-    2. Creates a signed-url with Write access in the "model" bucket of a space
+    2. Creates a signed-url with Write access in the "model" bucket of a workspace
     3. Uploads the zip file
-    4. Creates a signed-url with Read access in the "model" bucket of a space, pointing to the same file
+    4. Creates a signed-url with Read access in the "model" bucket of a workspace, pointing to the same file
     5. Downloads the file
     6. Verifies that they are the same file
 
@@ -101,9 +101,9 @@ def test_upload_download():
 
     # Grab a Steamship client and generate an upload url
     client = get_steamship_client()
-    space = Workspace.get(client=client)
+    workspace = Workspace.get(client=client)
     upload_name = random_name()
-    url_resp = space.create_signed_url(
+    url_resp = workspace.create_signed_url(
         SignedUrl.Request(
             bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=upload_name,
@@ -117,7 +117,7 @@ def test_upload_download():
     upload_to_signed_url(url_resp.signed_url, filepath=zip_path)
 
     # Now create a download signed URL
-    download_resp = space.create_signed_url(
+    download_resp = workspace.create_signed_url(
         SignedUrl.Request(
             bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=upload_name,

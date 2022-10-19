@@ -12,7 +12,7 @@ from steamship.invocable.lambda_handler import create_handler as _create_handler
 
 @pytest.fixture()
 def client() -> Steamship:
-    """Returns a client rooted in a new space, then deletes that space afterwards.
+    """Returns a client rooted in a new workspace, then deletes that workspace afterwards.
 
     To use, simply import this file and then write a test which takes `client`
     as an argument.
@@ -26,16 +26,16 @@ def client() -> Steamship:
           pass
     """
     steamship = get_steamship_client()
-    space = Workspace.create(client=steamship)
-    new_client = get_steamship_client(space_id=space.id)
+    workspace = Workspace.create(client=steamship)
+    new_client = get_steamship_client(workspace_id=workspace.id)
     yield new_client
-    space.delete()
+    workspace.delete()
 
 
 @pytest.fixture()
 def invocable_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     """
-    Returns a client rooted in a new space, then deletes that space afterwards.
+    Returns a client rooted in a new workspace, then deletes that workspace afterwards.
 
     To use, simply import this file and then write a test which takes `invocable_handler`
     as an argument and parameterize it via PyTest.
@@ -51,14 +51,14 @@ def invocable_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
             def _test_something(invocable_handler):
                 response_dict = invocable_handler("POST", "/hello", dict())
 
-    The invocable will be run its own space that gets cleaned up afterwards, and
+    The invocable will be run its own workspace that gets cleaned up afterwards, and
     the test can be written from the perspective of an external caller of the
     invocable.
     """
     invocable: Type[Invocable] = request.param
     steamship = get_steamship_client()
     workspace_handle = random_name()
-    space = Workspace.create(client=steamship, handle=workspace_handle)
+    workspace = Workspace.create(client=steamship, handle=workspace_handle)
     new_client = get_steamship_client(workspace=workspace_handle)
 
     def handle(verb: str, invocation_path: str, arguments: Optional[dict] = None) -> dict:
@@ -77,4 +77,4 @@ def invocable_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
         return _handler(event)
 
     yield handle
-    space.delete()
+    workspace.delete()

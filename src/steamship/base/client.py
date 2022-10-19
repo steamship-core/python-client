@@ -69,7 +69,7 @@ class Client(CamelModel, ABC):
         # The lambda_handler will pass in the workspace via the workspace_id, so we need to plumb this through to make sure
         # that the workspace switch performed doesn't mistake `workspace=None` as a request for the default workspace
         self.switch_workspace(
-            workspace=workspace or config.workspace_handle,
+            workspace_handle=workspace or config.workspace_handle,
             workspace_id=config.workspace_id,
             fail_if_workspace_exists=fail_if_workspace_exists,
             trust_workspace_config=trust_workspace_config,
@@ -77,7 +77,7 @@ class Client(CamelModel, ABC):
 
     def switch_workspace(  # noqa: C901
         self,
-        workspace: str = None,
+        workspace_handle: str = None,
         workspace_id: str = None,
         fail_if_workspace_exists: bool = False,
         trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspacetrust_workspace_config: bool = False, # For use by lambda_handler; don't fetch the workspace
@@ -91,15 +91,17 @@ class Client(CamelModel, ABC):
         """
         workspace = None
 
-        if workspace is None and workspace_id is None:
+        if workspace_handle is None and workspace_id is None:
             # Switch to the default workspace since no named or ID'ed workspace was provided
-            workspace = "default"
+            workspace_handle = "default"
 
         if fail_if_workspace_exists:
-            logging.info(f"[Client] Creating workspace with handle/id: {workspace}/{workspace_id}.")
+            logging.info(
+                f"[Client] Creating workspace with handle/id: {workspace_handle}/{workspace_id}."
+            )
         else:
             logging.info(
-                f"[Client] Creating/Fetching workspace with handle/id: {workspace}/{workspace_id}."
+                f"[Client] Creating/Fetching workspace with handle/id: {workspace_handle}/{workspace_id}."
             )
 
         # Zero out the workspace_handle on the config block in case we're being invoked from
@@ -108,20 +110,24 @@ class Client(CamelModel, ABC):
         self.config.workspace_handle = None
 
         if trust_workspace_config:
-            if workspace is None or workspace_id is None:
+            if workspace_handle is None or workspace_id is None:
                 raise SteamshipError(
                     message="Attempted a trusted workspace switch without providing both workspace handle and workspace id."
                 )
             return_id = workspace_id
-            return_handle = workspace
+            return_handle = workspace_handle
         else:
             try:
-                if workspace is not None and workspace_id is not None:
-                    get_params = {"handle": workspace, "id": workspace_id, "fetchIfExists": False}
-                    workspace = self.post("workspace/get", get_params)
-                elif workspace is not None:
+                if workspace_handle is not None and workspace_id is not None:
                     get_params = {
-                        "handle": workspace,
+                        "handle": workspace_handle,
+                        "id": workspace_id,
+                        "fetchIfExists": False,
+                    }
+                    workspace = self.post("workspace/get", get_params)
+                elif workspace_handle is not None:
+                    get_params = {
+                        "handle": workspace_handle,
                         "fetchIfExists": not fail_if_workspace_exists,
                     }
                     workspace = self.post("workspace/create", get_params)
