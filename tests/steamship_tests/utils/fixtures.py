@@ -4,7 +4,7 @@ import pytest
 from steamship_tests.utils.client import get_steamship_client
 from steamship_tests.utils.random import random_name
 
-from steamship import Space, Steamship
+from steamship import Steamship, Workspace
 from steamship.invocable import InvocableRequest, Invocation, InvocationContext, LoggingConfig
 from steamship.invocable.invocable import Invocable
 from steamship.invocable.lambda_handler import create_handler as _create_handler
@@ -26,7 +26,7 @@ def client() -> Steamship:
           pass
     """
     steamship = get_steamship_client()
-    space = Space.create(client=steamship)
+    space = Workspace.create(client=steamship)
     new_client = get_steamship_client(space_id=space.id)
     yield new_client
     space.delete()
@@ -58,7 +58,7 @@ def invocable_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     invocable: Type[Invocable] = request.param
     steamship = get_steamship_client()
     workspace_handle = random_name()
-    space = Space.create(client=steamship, handle=workspace_handle)
+    space = Workspace.create(client=steamship, handle=workspace_handle)
     new_client = get_steamship_client(workspace=workspace_handle)
 
     def handle(verb: str, invocation_path: str, arguments: Optional[dict] = None) -> dict:

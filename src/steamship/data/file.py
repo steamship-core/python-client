@@ -45,7 +45,7 @@ class File(CamelModel):
     id: str = None
     handle: str = None
     mime_type: str = None
-    space_id: str = None
+    workspace_id: str = None
     blocks: List[Block] = []
     tags: List[Tag] = []
     filename: str = None

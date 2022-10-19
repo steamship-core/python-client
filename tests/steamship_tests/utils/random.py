@@ -2,7 +2,7 @@ import contextlib
 import random
 import string
 
-from steamship import EmbeddingIndex, Space, Steamship
+from steamship import EmbeddingIndex, Steamship, Workspace
 
 
 def random_name() -> str:
@@ -28,7 +28,7 @@ def random_index(steamship: Steamship, plugin_instance: str) -> EmbeddingIndex:
 
 
 @contextlib.contextmanager
-def temporary_space(steamship: Steamship) -> Space:
-    space = Space.create(client=steamship)
+def temporary_space(steamship: Steamship) -> Workspace:
+    space = Workspace.create(client=steamship)
     yield space
     space.delete()  # or whatever you need to do at exit

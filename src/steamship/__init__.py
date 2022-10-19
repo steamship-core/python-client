@@ -20,10 +20,10 @@ from .data import (
     PackageVersion,
     PluginInstance,
     PluginVersion,
-    Space,
     Tag,
     TagKind,
     TextTag,
+    Workspace,
 )
 
 from .client import Steamship  # isort:skip
@@ -39,7 +39,7 @@ __all__ = [
     "File",
     "Block",
     "Tag",
-    "Space",
+    "Workspace",
     "PluginInstance",
     "PluginVersion",
     "TagKind",

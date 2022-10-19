@@ -119,7 +119,7 @@ class PluginAdapterType(str, Enum):
 
 class PluginTargetType(str, Enum):
     file = "file"
-    space = "space"
+    workspace = "workspace"
 
 
 class LimitUnit(str, Enum):

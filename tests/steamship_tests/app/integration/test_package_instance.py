@@ -6,7 +6,7 @@ from steamship_tests import PACKAGES_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_package
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import PackageInstance, Space, SteamshipError
+from steamship import PackageInstance, SteamshipError, Workspace
 from steamship.base import TaskState
 from steamship.base.mime_types import MimeTypes
 from steamship.utils.url import Verb
@@ -140,7 +140,7 @@ def test_deploy_in_space():
     client = get_steamship_client()
     demo_package_path = PACKAGES_PATH / "demo_package.py"
 
-    space = Space.create(client)
+    space = Workspace.create(client)
     client.switch_workspace(workspace_id=space.id)
 
     assert space.handle != "default"
@@ -160,7 +160,7 @@ def test_package_instance_get():
     client = get_steamship_client()
     demo_package_path = PACKAGES_PATH / "demo_package.py"
 
-    space = Space.create(client)
+    space = Workspace.create(client)
     client.switch_workspace(workspace_id=space.id)
 
     assert space.handle != "default"

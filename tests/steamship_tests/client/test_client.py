@@ -2,7 +2,7 @@ import pytest
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
 
-from steamship import Space, SteamshipError
+from steamship import SteamshipError, Workspace
 from steamship.data.user import User
 
 
@@ -47,7 +47,7 @@ def test_client_can_create_new_workspace():
             workspace=custom_client.config.space_handle, fail_if_workspace_exists=True
         )
 
-    Space(client=custom_client, id=custom_client.config.space_id).delete()
+    Workspace(client=custom_client, id=custom_client.config.space_id).delete()
 
 
 def test_switch_workspace():
@@ -71,4 +71,4 @@ def test_switch_workspace():
     assert custom_client.config.space_id == default_client.config.space_id
 
     # client2 has the newly created space.
-    Space(client=custom_client, id=custom_client.config.space_id).delete()
+    Workspace(client=custom_client, id=custom_client.config.space_id).delete()

@@ -4,7 +4,7 @@ import uuid
 import pytest
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import PluginInstance, Space, SteamshipError
+from steamship import PluginInstance, SteamshipError, Workspace
 from steamship.data.plugin import Plugin, PluginAdapterType, PluginType
 
 
@@ -73,7 +73,7 @@ def test_plugin_public():
 
 def test_deploy_in_space():
     client = get_steamship_client()
-    space = Space.create(client, handle="test-non-default-space")
+    space = Workspace.create(client, handle="test-non-default-space")
     client.switch_workspace(workspace_id=space.id)
     instance = PluginInstance.create(client, plugin_handle="test-tagger")
     assert instance.space_id == space.id

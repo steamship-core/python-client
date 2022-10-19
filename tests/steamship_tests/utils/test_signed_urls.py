@@ -7,8 +7,8 @@ from steamship_tests import TEST_ASSETS_PATH
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
 
-from steamship import Space
-from steamship.data.space import SignedUrl
+from steamship import Workspace
+from steamship.data.workspace import SignedUrl
 from steamship.utils.signed_urls import download_from_signed_url, upload_to_signed_url
 from steamship.utils.zip_archives import zip_folder
 
@@ -23,7 +23,7 @@ def test_upload_download_text():
 
     # Grab a Steamship client and generate an upload url
     client = get_steamship_client()
-    space = Space.get(client=client)
+    space = Workspace.get(client=client)
     upload_name = random_name()
     url_resp = space.create_signed_url(
         SignedUrl.Request(
@@ -101,7 +101,7 @@ def test_upload_download():
 
     # Grab a Steamship client and generate an upload url
     client = get_steamship_client()
-    space = Space.get(client=client)
+    space = Workspace.get(client=client)
     upload_name = random_name()
     url_resp = space.create_signed_url(
         SignedUrl.Request(
