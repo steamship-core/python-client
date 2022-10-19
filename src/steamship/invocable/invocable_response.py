@@ -177,8 +177,9 @@ class InvocableResponse(GenericModel, Generic[T]):
             return InvocableResponse(string=obj)
         elif isinstance(obj, (float, int, bool)):
             return InvocableResponse(json=obj)
-
-        if isinstance(obj, BaseModel):
+        elif isinstance(obj, CamelModel):
+            return InvocableResponse(json=obj.dict(by_alias=True))
+        elif isinstance(obj, BaseModel):
             return InvocableResponse(json=obj.dict())
 
         return InvocableResponse.error(500, message="Handler provided unknown response type.")
