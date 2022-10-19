@@ -1,8 +1,8 @@
 from typing import Any
 
-from steamship.app import InvocableResponse
 from steamship.base.mime_types import MimeTypes
 from steamship.data.file import File
+from steamship.invocable import InvocableResponse
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
 

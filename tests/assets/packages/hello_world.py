@@ -1,7 +1,7 @@
-from steamship.app import Invocable, InvocableResponse, create_handler, get, post
+from steamship.invocable import InvocableResponse, PackageService, create_handler, get, post
 
 
-class HelloWorld(Invocable):
+class HelloWorld(PackageService):
     @post("greet")
     def greet(self, name: str = "Person") -> InvocableResponse:
         return InvocableResponse(string=f"Hello, {name}")

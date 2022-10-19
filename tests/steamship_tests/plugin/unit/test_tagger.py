@@ -2,13 +2,13 @@ import pytest
 from assets.plugins.taggers.plugin_parser import TestParserPlugin
 
 from steamship import File
-from steamship.app import InvocableResponse
 from steamship.data.block import Block
+from steamship.invocable import InvocableResponse
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginRequest
 
 TEST_REQ = BlockAndTagPluginInput(
     file=File(
