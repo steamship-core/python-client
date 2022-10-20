@@ -4,16 +4,14 @@ from typing import Any, Dict, Type
 
 from pydantic import BaseModel, Field
 
-from steamship.base import Task
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import Request
 
 
 class CreatePackageVersionRequest(Request):
-    app_id: str = None
+    package_id: str = None
     handle: str = None
-    upsert: bool = None
     type: str = "file"
     config_template: Dict[str, Any] = None
 
@@ -21,26 +19,25 @@ class CreatePackageVersionRequest(Request):
 class PackageVersion(CamelModel):
     client: Client = Field(None, exclude=True)
     id: str = None
-    app_id: str = None
+    package_id: str = None
     handle: str = None
     config_template: Dict[str, Any] = None
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
         # TODO (enias): This needs to be solved at the engine side
-        obj = obj["appVersion"] if "appVersion" in obj else obj
+        obj = obj["packageVersion"] if "packageVersion" in obj else obj
         return super().parse_obj(obj)
 
     @staticmethod
     def create(
         client: Client,
-        app_id: str = None,
+        package_id: str = None,
         handle: str = None,
         filename: str = None,
         filebytes: bytes = None,
-        upsert: bool = None,
         config_template: Dict[str, Any] = None,
-    ) -> Task[PackageVersion]:
+    ) -> PackageVersion:
 
         if filename is None and filebytes is None:
             raise Exception("Either filename or filebytes must be provided.")
@@ -52,12 +49,14 @@ class PackageVersion(CamelModel):
                 filebytes = f.read()
 
         req = CreatePackageVersionRequest(
-            handle=handle, app_id=app_id, upsert=upsert, config_template=config_template
+            handle=handle, package_id=package_id, config_template=config_template
         )
 
-        return client.post(
-            "app/version/create",
+        task = client.post(
+            "package/version/create",
             payload=req,
-            file=("app.zip", filebytes, "multipart/form-data"),
+            file=("package.zip", filebytes, "multipart/form-data"),
             expect=PackageVersion,
         )
+        task.wait()
+        return task.output

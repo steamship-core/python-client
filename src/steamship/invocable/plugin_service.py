@@ -4,8 +4,6 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Generic, Type, TypeVar, Union
 
-from steamship.app import Invocable, InvocableResponse
-
 # Note!
 # =====
 #
@@ -13,6 +11,7 @@ from steamship.app import Invocable, InvocableResponse
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
 from steamship.client import Steamship
+from steamship.invocable import Invocable, InvocableResponse
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput

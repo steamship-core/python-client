@@ -226,7 +226,7 @@ class File(CamelModel):
         e_index: EmbeddingIndex = None,
         reindex: bool = True,
     ) -> EmbeddingIndex:
-        # TODO: This should really be done all on the app, but for now we'll do it in the client
+        # TODO: This should really be done all on the invocable, but for now we'll do it in the client
         # to facilitate demos.
         from steamship import EmbeddingIndex
         from steamship.data.embeddings import EmbeddedItem
@@ -238,7 +238,7 @@ class File(CamelModel):
             e_index = EmbeddingIndex.create(
                 client=self.client,
                 plugin_instance=plugin_instance,
-                upsert=True,
+                fetch_if_exists=True,
             )
         elif e_index is None:
             e_index = EmbeddingIndex(client=self.client, id=index_id)

@@ -21,7 +21,7 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         client=client,
         handle=EXPORTER_HANDLE,
         plugin_handle=EXPORTER_HANDLE,
-        upsert=True,  # Don't care if it already exists
+        fetch_if_exists=True,  # Don't care if it already exists
     )
     assert exporter_plugin_r is not None
     exporter_plugin = exporter_plugin_r
