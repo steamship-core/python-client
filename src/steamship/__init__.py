@@ -9,7 +9,7 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .base import Configuration, MimeTypes, SteamshipError
+from .base import Configuration, MimeTypes, SteamshipError, TaskState, Task
 from .data import (
     Block,
     DocTag,
@@ -37,6 +37,8 @@ __all__ = [
     "PackageInstance",
     "PackageVersion",
     "File",
+    "Task",
+    "TaskState",
     "Block",
     "Tag",
     "Space",
