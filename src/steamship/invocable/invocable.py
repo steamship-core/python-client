@@ -15,7 +15,9 @@ from typing import Any, Dict, Optional, Type
 import toml
 
 from steamship.client import Steamship
-from steamship.invocable import Config, InvocableRequest, InvocableResponse
+from steamship.invocable import Config
+from steamship.invocable.invocable_request import InvocableRequest
+from steamship.invocable.invocable_response import InvocableResponse
 from steamship.utils.url import Verb
 
 
