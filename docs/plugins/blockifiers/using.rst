@@ -5,7 +5,7 @@ To use a blockifier, create an instance with your Steamship client and apply it 
 
 .. code:: python
 
-   # Load a Steamship Worksapce
+   # Load a Steamship Workspace
    from steamship import Steamship, File
    client = Steamship(workspace="my-workspace-handle")
 
