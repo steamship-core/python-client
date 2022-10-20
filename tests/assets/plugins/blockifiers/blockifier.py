@@ -1,16 +1,16 @@
 from typing import Type
 
 from steamship import Block, File, Tag
-from steamship.app import InvocableResponse, create_handler
 from steamship.data.tags import DocTag, TagKind
+from steamship.invocable import InvocableResponse, create_handler
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.blockifier import Blockifier, Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginRequest
 
 # Note 1: this aligns with the same document in the internal Engine test.
 # Note 2: This should be duplicated from the test_importer because of the way our test system will
-#         bundle this into an app deployment package (importing won't work!)
+#         bundle this into an invocable deployment package (importing won't work!)
 HANDLE = "test-blockifier-plugin-v1"
 TEST_H1 = "A Poem"
 TEST_S1 = "Roses are red."

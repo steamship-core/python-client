@@ -2,10 +2,10 @@ import base64
 
 from assets.plugins.importers.plugin_file_importer import TEST_DOC, TestFileImporterPlugin
 
-from steamship.app import InvocableResponse
 from steamship.data.file import File
+from steamship.invocable import InvocableResponse
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
-from steamship.plugin.service import PluginRequest
 
 TEST_REQ = File.CreateRequest()
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
