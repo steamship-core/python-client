@@ -22,19 +22,19 @@ def test_e2e_embedder():
     ):
         e1 = instance.tag("This is a test")
         e1.wait()
-        assert count_embeddings(e1.output.FILE) == 1
-        assert len(e1.output.FILE.blocks[0].tags[0].value["embedding"]) > 1
+        assert count_embeddings(e1.output.file) == 1
+        assert len(e1.output.file.blocks[0].tags[0].value["embedding"]) > 1
 
         e2 = instance.tag("This is a test")
         e2.wait()
-        assert count_embeddings(e2.output.FILE) == 1
-        assert len(e2.output.FILE.blocks[0].tags[0].value["embedding"]) == len(
-            e1.output.FILE.blocks[0].tags[0].value["embedding"]
+        assert count_embeddings(e2.output.file) == 1
+        assert len(e2.output.file.blocks[0].tags[0].value["embedding"]) == len(
+            e1.output.file.blocks[0].tags[0].value["embedding"]
         )
 
         e4 = instance.tag("This is a test")
         e4.wait()
-        assert count_embeddings(e4.output.FILE) == 1
+        assert count_embeddings(e4.output.file) == 1
 
         # Now lets run all the other embedding steamship_tests
         basic_embeddings(instance)

@@ -106,7 +106,7 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
                 res = tagger_instance.tag(doc=test_doc)
                 res.wait()
                 assert res.output is not None
-                assert res.output.FILE is not None
-                assert res.output.FILE.tags is not None
-                assert len(res.output.FILE.tags) == len(KEYWORDS)
-                assert sorted([tag.kind for tag in res.output.FILE.tags]) == sorted(KEYWORDS)
+                assert res.output.file is not None
+                assert res.output.file.tags is not None
+                assert len(res.output.file.tags) == len(KEYWORDS)
+                assert sorted([tag.kind for tag in res.output.file.tags]) == sorted(KEYWORDS)

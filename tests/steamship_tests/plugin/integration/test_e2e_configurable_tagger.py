@@ -32,12 +32,12 @@ def test_e2e_parser():
         res = instance.tag(doc=test_doc)
         res.wait()
         assert res.output is not None
-        assert len(res.output.FILE.blocks) == 1
-        assert res.output.FILE.blocks[0].text == test_doc
+        assert len(res.output.file.blocks) == 1
+        assert res.output.file.blocks[0].text == test_doc
 
         # Validate configured content
-        assert len(res.output.FILE.tags) == 1
-        tag = res.output.FILE.tags[0]
+        assert len(res.output.file.tags) == 1
+        tag = res.output.file.tags[0]
         assert tag.name == instance_config1["tagName"]
         assert tag.kind == instance_config1["tagKind"]
         tag_value = tag.value
