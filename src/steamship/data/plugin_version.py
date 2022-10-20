@@ -86,12 +86,15 @@ class PluginVersion(CamelModel):
             config_template=config_template,
         )
 
-        return client.post(
+        task = client.post(
             "plugin/version/create",
             payload=req,
             file=("plugin.zip", filebytes, "multipart/form-data"),
             expect=PluginVersion,
         )
+
+        task.wait()
+        return task.output
 
     @staticmethod
     def list(
