@@ -85,7 +85,7 @@ def embed(s: str) -> List[float]:
 def _embed_to_tag(s: str) -> Tag.CreateRequest:
     embedding = embed(s)
     return Tag.CreateRequest(
-        kind=TagKind.EMBEDDING, name="my-embedding", value={TagValue.VALUE: embedding}
+        kind=TagKind.EMBEDDING, name="my-embedding", value={TagValue.VECTOR_VALUE: embedding}
     )
 
 

@@ -6,9 +6,9 @@ class HelloWorld(PackageService):
     def greet(self, name: str = "Person") -> InvocableResponse:
         return InvocableResponse(string=f"Hello, {name}")
 
-    @get("space")
-    def space(self) -> InvocableResponse:
-        return InvocableResponse(string=self.client.config.space_id)
+    @get("workspace")
+    def workspace(self) -> InvocableResponse:
+        return InvocableResponse(string=self.client.config.workspace_id)
 
 
 handler = create_handler(HelloWorld)

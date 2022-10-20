@@ -34,7 +34,10 @@ def test_invoke_package_with_handler():
         "invocation": {"httpVerb": "POST", "invocationPath": "greet"},
         "loggingConfig": logging_config,
         "invocationContext": {},
-        "clientConfig": {"spaceId": "dummy_space_id", "spaceHandle": "dummy_space_handle"},
+        "clientConfig": {
+            "workspaceId": "dummy_workspace_id",
+            "workspaceHandle": "dummy_workspace_handle",
+        },
     }
     res = handler(event)
     assert res["data"] == RES_EMPTY

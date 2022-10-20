@@ -132,7 +132,7 @@ class Task(GenericCamelModel, Generic[T]):
 
     task_id: str = None  # The id of this task
     user_id: str = None  # The user who requested this task
-    space_id: str = None  # The space in which this task is executing
+    workspace_id: str = None  # The workspace in which this task is executing
     expect: Type = None  # Type of the expected output once the output is complete
 
     input: str = None  # The input provided to the task

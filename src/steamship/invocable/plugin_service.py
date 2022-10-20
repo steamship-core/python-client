@@ -40,7 +40,7 @@ class PluginService(Invocable, Generic[IN, OUT], ABC):
     - this trainable process produces a "model",
     - that model acts as the state on which the `run` method is conditioned
 
-    This model is stored in the Steamship Space that owns the Plugin Instance, and access to it is provided by the
+    This model is stored in the Steamship Workspace that owns the Plugin Instance, and access to it is provided by the
     hosting environment that runs the model.
     - TODO(ted) Document this process.
 
