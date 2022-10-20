@@ -28,18 +28,18 @@ class HelloWorld(Invocable):
 
     @post("snake")
     def snake(self) -> InvocableResponse:
-        return InvocableResponse(string=f"{self.config.snake_case_config}")
+        return InvocableResponse(string=self.config.snake_case_config)
 
     @post("camel")
     def camel(self) -> InvocableResponse:
-        return InvocableResponse(string=f"{self.config.camelCaseConfig}")
+        return InvocableResponse(string=self.config.camelCaseConfig)
 
     @post("defaulted")
     def defaulted(self) -> InvocableResponse:
-        return InvocableResponse(string=f"{self.config.defaultConfig}")
+        return InvocableResponse(string=self.config.defaultConfig)
 
     def config_cls(self) -> Type[Config]:
-        return HelloWorld.HelloWorldConfig
+        return self.HelloWorldConfig
 
 
 handler = create_handler(HelloWorld)
