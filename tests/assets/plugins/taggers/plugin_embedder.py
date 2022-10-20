@@ -1,6 +1,7 @@
 from typing import List, Type
 
-from steamship import Block, File, Tag, TagKind, TextTag
+from steamship import Block, File, Tag
+from steamship.data import TagKind, TagValue
 from steamship.invocable import InvocableResponse, create_handler
 from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.config import Config
@@ -84,7 +85,7 @@ def embed(s: str) -> List[float]:
 def _embed_to_tag(s: str) -> Tag.CreateRequest:
     embedding = embed(s)
     return Tag.CreateRequest(
-        kind=TagKind.text, name=TextTag.Embedding, value={TextTag.Embedding: embedding}
+        kind=TagKind.EMBEDDING, name="my-embedding", value={TagValue.VALUE: embedding}
     )
 
 

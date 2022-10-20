@@ -1,6 +1,4 @@
-from .doc_tag import DocTag
 from .tag import Tag
-from .tag_kind import TagKind
-from .text_tag import TextTag
+from .tag_constants import DocTag, EmotionTag, SentimentTag, TagKind, TagValue, TokenTag
 
-__all__ = ["DocTag", "Tag", "TagKind", "TextTag"]
+__all__ = ["DocTag", "EmotionTag", "SentimentTag", "Tag", "TagKind", "TokenTag", "TagValue"]
