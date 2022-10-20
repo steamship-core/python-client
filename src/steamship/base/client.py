@@ -209,7 +209,7 @@ class Client(CamelModel, ABC):
         app_id: str = None,
         app_instance_id: str = None,
         as_background_task: bool = False,
-        wait_on_tasks_ids: List[str] = None,
+        wait_on_tasks_id: List[str] = None,
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
@@ -226,12 +226,12 @@ class Client(CamelModel, ABC):
             if app_instance_id:
                 headers["X-App-Instance-Id"] = app_instance_id
 
-        if wait_on_tasks_ids:
+        if wait_on_tasks_id:
             # Will result in the engine persisting the inbound HTTP request as a Task for deferred
             # execution. Additionally, the task will be scheduled to first wait on the other tasks
             # provided in the list of IDs.
             as_background_task = True
-            headers["X-Task-Dependency"] = ",".join(wait_on_tasks_ids)
+            headers["X-Task-Dependency"] = ",".join(wait_on_tasks_id)
 
         if as_background_task:
             # Will result in the engine persisting the inbound HTTP request as a Task for deferred
@@ -346,7 +346,7 @@ class Client(CamelModel, ABC):
         app_id: str = None,
         app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
         as_background_task: bool = False,
-        wait_on_tasks_ids: List[str] = None,
+        wait_on_tasks_id: List[str] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -377,7 +377,7 @@ class Client(CamelModel, ABC):
             app_id=app_id,
             app_instance_id=app_instance_id,
             as_background_task=as_background_task,
-            wait_on_tasks_ids=wait_on_tasks_ids,
+            wait_on_tasks_id=wait_on_tasks_id,
         )
 
         data = self._prepare_data(payload=payload)
@@ -477,7 +477,7 @@ class Client(CamelModel, ABC):
         app_id: str = None,
         app_instance_id: str = None,
         as_background_task: bool = False,
-        wait_on_tasks_ids: List[str] = None,
+        wait_on_tasks_id: List[str] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -494,7 +494,7 @@ class Client(CamelModel, ABC):
             app_id=app_id,
             app_instance_id=app_instance_id,
             as_background_task=as_background_task,
-            wait_on_tasks_ids=wait_on_tasks_ids,
+            wait_on_tasks_id=wait_on_tasks_id,
         )
 
     def get(
@@ -510,7 +510,7 @@ class Client(CamelModel, ABC):
         app_id: str = None,
         app_instance_id: str = None,
         as_background_task: bool = False,
-        wait_on_tasks_ids: List[str] = None,
+        wait_on_tasks_id: List[str] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -527,5 +527,5 @@ class Client(CamelModel, ABC):
             app_id=app_id,
             app_instance_id=app_instance_id,
             as_background_task=as_background_task,
-            wait_on_tasks_ids=wait_on_tasks_ids,
+            wait_on_tasks_id=wait_on_tasks_id,
         )
