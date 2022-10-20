@@ -9,20 +9,20 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .base import Configuration, MimeTypes, SteamshipError, TaskState, Task
+from .base import Configuration, MimeTypes, SteamshipError, Task, TaskState
 from .data import (
     Block,
     DocTag,
     EmbeddingIndex,
+    EmotionTag,
     File,
     Package,
     PackageInstance,
     PackageVersion,
     PluginInstance,
     PluginVersion,
+    SentimentTag,
     Tag,
-    TagKind,
-    TextTag,
     Workspace,
 )
 
@@ -44,8 +44,8 @@ __all__ = [
     "Workspace",
     "PluginInstance",
     "PluginVersion",
-    "TagKind",
-    "TextTag",
+    "SentimentTag",
+    "EmotionTag",
     "DocTag",
     "EmbeddingIndex",
 ]
