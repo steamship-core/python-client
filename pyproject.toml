@@ -11,6 +11,7 @@ version_scheme = "no-guess-dev"
 name = "steamship"
 description = "The fastest way to add language AI to your product."
 dynamic = ["dependencies", "version"]
+readme = "README.md"
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
