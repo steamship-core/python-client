@@ -11,11 +11,17 @@ _TEST_EMBEDDER = "test-embedder"
 
 
 def create_index(
-    client: Steamship = None, plugin_instance: str = None, handle: str = None, upsert: bool = None
+    client: Steamship = None,
+    plugin_instance: str = None,
+    handle: str = None,
+    fetch_if_exists: bool = None,
 ) -> EmbeddingIndex:
     client = client or get_steamship_client()
     return EmbeddingIndex.create(
-        client=client, plugin_instance=plugin_instance, handle=handle, upsert=upsert
+        client=client,
+        plugin_instance=plugin_instance,
+        handle=handle,
+        fetch_if_exists=fetch_if_exists,
     )
 
 
@@ -30,13 +36,13 @@ def test_create_index():
 
     assert index is not None
 
-    # Duplicate creation should fail with upsert=False
+    # Duplicate creation should fail with fetch_if_exists=False
     with pytest.raises(SteamshipError):
         _ = create_index(
             client=client,
             handle=index.handle,
             plugin_instance=plugin_instance.handle,
-            upsert=False,
+            fetch_if_exists=False,
         )
 
     index.delete()

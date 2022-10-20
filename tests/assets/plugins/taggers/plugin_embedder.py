@@ -1,12 +1,13 @@
 from typing import List, Type
 
-from steamship import Block, File, Tag, TagKind, TagValue
-from steamship.app import InvocableResponse, create_handler
+from steamship import Block, File, Tag
+from steamship.data import TagKind, TagValue
+from steamship.invocable import InvocableResponse, create_handler
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.config import Config
 from steamship.plugin.embedder import Embedder
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginRequest
 
 FEATURES = [
     "employee",

@@ -1,168 +1,220 @@
+from enum import Enum
 from typing import Optional
 
 
-class TagKind:
-    """A set of `kind` constants for Tags."""
+class TagKind(str, Enum):
+    """A set of `kind` constants for Tags.
 
-    pos = "pos"  # Part of speech tags
-    dep = "dep"  # Dependency tags
-    sentiment = "sentiment"  # Sentiment tags
-    emotion = "emotion"  # Emotion tags
-    ent = "ent"  # Entity tags, such as PERSON or ORG
-    doc = "doc"  # Doc-level semantics, such as H1, P, S. See `DocTag` for `name` constants
-    token = "token"  # Token-level semantics, such as isQuote. See Token for `name` constants. # noqa: S105
-    embedding = "embedding"  # A vector representation of text
+    These define broad categories of tags. Suggested `name` values for each category are found in
+    separate enums. For example: kind=TagKind.DOCUMENT, name=DocumentTag.H1
+    """
+
+    PART_OF_SPEECH = "part-of-speech"
+    DEPENDENCY = "dependency"
+    SENTIMENT = "sentiment"
+    EMOTION = "emotion"
+    ENTITY = "entity"
+    DOCUMENT = "document"
+    TOKEN = "token"  # noqa: S105
+    INTENT = "intent"
+    EMBEDDING = "embedding"
 
 
-class DocTag:
+class DocTag(str, Enum):
     """A set of `name` constants for for Tags with a `kind` of `TagKind.doc`; appropriate for HTML and Markdown ideas."""
 
-    doc = "doc"
-    page = "page"  # E.g. in a PDF
-    region = "region"  # E.g., abstract catchall region in a document
-    header = "header"
-    h1 = "h1"
-    h2 = "h2"
-    h3 = "h3"
-    h4 = "h4"
-    h5 = "h5"
-    line = "line"
-    title = "title"
-    subtitle = "subtitle"
-    footer = "footer"
-    paragraph = "paragraph"
-    list = "list"
-    list_item = "listitem"
-    link = "link"
-    caption = "caption"
-    image = "image"
-    blockquote = "blockquote"
-    blockcode = "blockcode"
-    unk = "unk"
-    sentence = "sentence"
-    token = "token"  # noqa: S105
-    span = "span"
-    div = "div"
-    pre = "pre"
-    strong = "strong"
-    emph = "emph"
-    underline = "underline"
-    teletype = "teletype"
+    DOCUMENT = "document"
+    PAGE = "page"  # E.g. in a PDF
+    REGION = "region"  # E.g., abstract catchall region in a document
+    HEADER = "header"
+    H1 = "h1"
+    H2 = "h2"
+    H3 = "h3"
+    H4 = "h4"
+    H5 = "h5"
+    LINE = "line"
+    TITLE = "title"
+    SUBTITLE = "subtitle"
+    FOOTER = "footer"
+    PARAGRAPH = "paragraph"
+    ORDERED_LIST = "ordered-list"
+    UNORDERED_LIST = "unordered-list"
+    LIST_ITEM = "list-item"
+    LINK = "link"
+    CAPTION = "caption"
+    IMAGE = "image"
+    BLOCK_QUOTE = "block-quote"
+    BLOCK_CODE = "block-code"
+    UNKNOWN = "unknown"
+    SENTENCE = "sentence"
+    TOKEN = "token"  # noqa: S105
+    SPAN = "span"
+    DIV = "div"
+    PRE = "pre"
+    STRONG = "strong"
+    EMPHASIZED = "emphasized"
+    UNDERLINED = "underlined"
+    TELETYPE = "teletype"
+    ARTICLE = "article"
+    MAIN = "main"
 
     @staticmethod
-    def from_html_tag(tagname: Optional[str]) -> Optional[str]:  # noqa: C901
+    def from_html_tag(tagname: Optional[str]) -> Optional["DocTag"]:  # noqa: C901
         if tagname is None:
             return None
 
         name = tagname.lower().strip()
 
         if name == "p":
-            return DocTag.paragraph
+            return DocTag.PARAGRAPH
         elif name == "h1":
-            return DocTag.h1
+            return DocTag.H1
         elif name == "h2":
-            return DocTag.h2
+            return DocTag.H2
         elif name == "h3":
-            return DocTag.h3
+            return DocTag.H3
         elif name == "h4":
-            return DocTag.h4
+            return DocTag.H4
         elif name == "h5":
-            return DocTag.h5
+            return DocTag.H5
         elif name == "ul":
-            return DocTag.list
+            return DocTag.UNORDERED_LIST
+        elif name == "ol":
+            return DocTag.ORDERED_LIST
         elif name == "li":
-            return DocTag.list_item
+            return DocTag.LIST_ITEM
         elif name == "a":
-            return DocTag.link
+            return DocTag.LINK
         elif name == "div":
-            return DocTag.div
+            return DocTag.DIV
         elif name == "img":
-            return DocTag.image
+            return DocTag.IMAGE
         elif name == "span":
-            return DocTag.span
+            return DocTag.SPAN
         elif name == "pre":
-            return DocTag.pre
+            return DocTag.PRE
         elif name == "code":
-            return DocTag.blockcode
+            return DocTag.BLOCK_CODE
         elif name == "blockquote":
-            return DocTag.blockquote
+            return DocTag.BLOCK_QUOTE
         elif name == "strong":
-            return DocTag.strong
+            return DocTag.STRONG
         elif name == "b":
-            return DocTag.strong
+            return DocTag.EMPHASIZED
         elif name == "emph":
-            return DocTag.emph
+            return DocTag.EMPHASIZED
         elif name == "i":
-            return DocTag.emph
+            return DocTag.EMPHASIZED
         elif name == "u":
-            return DocTag.underline
+            return DocTag.UNDERLINED
         elif name == "tt":
-            return DocTag.teletype
+            return DocTag.TELETYPE
+        elif name == "article":
+            return DocTag.ARTICLE
+        elif name == "header":
+            return DocTag.HEADER
+        elif name == "footer":
+            return DocTag.FOOTER
+        elif name == "main":
+            return DocTag.MAIN
 
         return None
 
 
-class TokenTag:
+class TokenTag(str, Enum):
     """A set of `name` constants for Tags with a `kind` of `TagKind.token`; appropriate for parsing-level ideas."""
 
-    TextWithWs = "textWithWs"
-    Whitespace = "whitespace"
-    Head = "head"
-    LeftEdge = "leftEdge"
-    RightEdge = "rightEdge"
-    EntType = "entType"
-    EntIob = "entIob"
-    Lemma = "lemma"
-    Normalized = "normalized"
-    Shape = "shape"
-    Prefix = "prefix"
-    Suffix = "suffix"
-    IsAlpha = "isAlpha"
-    IsAscii = "isAscii"
-    IsDigit = "isDigit"
-    IsTitle = "isTitle"
-    IsPunct = "isPunct"
-    IsLeftPunct = "isLeftPunct"
-    IsRightPunct = "isRightPunct"
-    IsSpace = "isSpace"
-    IsBracket = "isBracket"
-    IsQuote = "isQuote"
-    IsCurrency = "isCurrency"
-    LikeUrl = "likeUrl"
-    LikeNum = "likeNum"
-    LikeEmail = "likeEmail"
-    IsOov = "isOov"
-    IsStop = "isStop"
-    Lang = "lang"
+    TEXT_WITH_WHITESPACE = "text-with-whitespace"
+    WHITESPACE = "whitespace"
+    HEAD = "head"
+    LEFT_EDGE = "left-edge"
+    RIGHT_EDGE = "right-edge"
+    ENTITY_TYPE = "entity-type"
+    ENTITY_IOB = "entity-iob"
+    LEMMA = "lemma"
+    NORMALIZED = "normalized"
+    SHAPE = "shape"
+    PREFIX = "prefix"
+    SUFFIX = "suffix"
+    IS_ALPHA = "is-alpha"
+    IS_ASCII = "is-ascii"
+    IS_DIGIT = "is-digit"
+    IS_TITLE = "is-title"
+    IS_PUNCT = "is-punct"
+    IS_LEFT_PUNCT = "is-left-punct"
+    IS_RIGHT_PUNCT = "is-right-punct"
+    IS_SPACE = "is-space"
+    IS_BRACKET = "is-bracket"
+    IS_QUOTE = "is-quote"
+    IS_CURRENCY = "is-currency"
+    LIKE_URL = "like-url"
+    LIKE_NUM = "like-num"
+    LIKE_EMAIL = "like-email"
+    IS_OUT_OF_VOCABULARY = "is-out-of-vocabulary"
+    IS_STOPWORD = "is-stopword"
+    LANGUAGE = "language"
 
 
-class SentimentTag:
+class SentimentTag(str, Enum):
     """A set of `name` constants for Tags with a `kind` of `TagKind.sentiment`."""
 
-    positive = "positive"
-    neutral = "neutral"
-    negative = "negative"
-    score = "score"
+    POSITIVE = "positive"
+    NEUTRAL = "neutral"
+    NEGATIVE = "negative"
+    SCORE = "score"
 
 
-class EmotionTag:
+class EmotionTag(str, Enum):
     """A set of `name` constants for Tags with a `kind` of `TagKind.emotion`."""
 
-    positive = "positive"
-    neutral = "neutral"
-    negative = "negative"
-    happiness = "happiness"
-    sadness = "sadness"
-    joy = "joy"
-    love = "love"
-    anger = "anger"
-    fear = "fear"
-    surprise = "surprise"
-    score = "score"
+    POSITIVE = "positive"
+    NEUTRAL = "neutral"
+    NEGATIVE = "negative"
+    HAPPINESS = "happiness"
+    SADNESS = "sadness"
+    JOY = "joy"
+    LOVE = "love"
+    ANGER = "anger"
+    FEAR = "fear"
+    SURPRISE = "surprise"
+    HUMOR = "humor"
+    CONCERN = "concern"
+    SERIOUSNESS = "seriousness"
+    SCORE = "score"
 
 
-class TagValue:
+class IntentTags(str, Enum):
+    """A set of `name` constants for Tags with a `kind` of `TagKind.intent`."""
+
+    SALUTATION = "salutation"
+    PRAISE = "praise"
+    COMPLAINT = "complaint"
+    QUESTION = "question"
+    REQUEST = "request"
+    EXPLANATION = "explanation"
+    SCHEDULING_REQUEST = "scheduling-request"
+    ARE_YOU_THERE = "are-you-there"
+    REVISITING_TOPIC = "revisiting-topic"
+
+
+class TagValue(str, Enum):
     """A set of key constants for the `value` object within a tag.."""
 
-    score = "score"
-    value = "value"
+    SCORE = "score"
+    VALUE = "value"
+
+
+class EntityTags(str, Enum):
+    """A set of `name` constants for Tags with a `kind` of `TagKind.entity`."""
+
+    PERSON = "person"
+    ORGANIZATION = "organization"
+    PRODUCT = "product"
+    TERM = "term"
+    LOCATION = "location"
+    DATE = "date"
+    TIME = "time"
+    MONEY = "money"
+    PERCENT = "percent"
+    FACILITY = "facility"
+    GEO_POLITICAL_ENTITY = "geo-political-entity"

@@ -9,11 +9,11 @@ from fluent import asynchandler as fluenthandler
 from fluent.handler import FluentRecordFormatter
 
 from steamship import Configuration
-from steamship.app import InvocableRequest, InvocableResponse, InvocationContext
-from steamship.app.invocable import Invocable
 from steamship.base import SteamshipError
 from steamship.client import Steamship
 from steamship.data.space import SignedUrl
+from steamship.invocable import InvocableRequest, InvocableResponse, InvocationContext
+from steamship.invocable.invocable import Invocable
 from steamship.utils.signed_urls import upload_to_signed_url
 
 
@@ -28,7 +28,7 @@ def encode_exception(obj):
 
 
 def create_handler(app_cls: Type[Invocable]):  # noqa: C901
-    """Wrapper function for a Steamship app within an AWS Lambda function."""
+    """Wrapper function for a Steamship invocable within an AWS Lambda function."""
 
     def _handler(
         event: Dict,
@@ -51,13 +51,13 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
 
         if request and request.invocation:
             error_prefix = (
-                f"[ERROR - {request.invocation.http_verb} {request.invocation.app_path}] "
+                f"[ERROR - {request.invocation.http_verb} {request.invocation.invocation_path}] "
             )
         else:
             error_prefix = "[ERROR - ?VERB ?PATH] "
 
         try:
-            app = app_cls(client=client, config=request.invocation.config)
+            invocable = app_cls(client=client, config=request.invocation.config)
         except SteamshipError as se:
             return InvocableResponse.from_obj(se)
         except Exception as ex:
@@ -65,19 +65,19 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
             return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
-                message="Unable to initialize plugin/app.",
+                message="Unable to initialize package/plugin.",
                 exception=ex,
             )
 
-        if not app:
+        if not invocable:
             return InvocableResponse.error(
                 code=HTTPStatus.INTERNAL_SERVER_ERROR,
                 prefix=error_prefix,
-                message="Unable to construct app/plugin for invocation.",
+                message="Unable to construct package/plugin for invocation.",
             )
 
         try:
-            response = app(request)
+            response = invocable(request)
             return InvocableResponse.from_obj(response)
         except SteamshipError as se:
             logging.exception(se)
@@ -140,14 +140,14 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
                 "where": "%(module)s.%(filename)s.%(funcName)s:%(lineno)s",
                 "type": "%(levelname)s",
                 "stack_trace": "%(exc_text)s",
-                "component": "app-plugin-lambda",
+                "component": "package-plugin-lambda",
                 "userId": invocation_context.user_id,
                 "spaceId": invocation_context.space_id,
                 "tenantId": invocation_context.tenant_id,
                 "invocableHandle": invocation_context.invocable_handle,
                 "invocableVersionHandle": invocation_context.invocable_version_handle,
                 "invocableType": invocation_context.invocable_type,
-                "path": event.get("invocation", {}).get("appPath"),
+                "path": event.get("invocation", {}).get("invocationPath"),
             }
             logging_handler = fluenthandler.FluentHandler(
                 "steamship.deployed_lambda",
@@ -166,7 +166,7 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
             # class itself is limited to accepting `workspace` (`config.space_handle`) since that is the manner
             # of interaction ideal for developers.
             config = Configuration(**event.get("clientConfig", {}))
-            client = Steamship(config=config)
+            client = Steamship(config=config, trust_workspace_config=True)
         except SteamshipError as se:
             logging.exception(se)
             return InvocableResponse.from_obj(se).dict(by_alias=True)

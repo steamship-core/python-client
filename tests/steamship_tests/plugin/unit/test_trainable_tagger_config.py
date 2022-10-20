@@ -10,10 +10,10 @@ from steamship_tests.utils.fixtures import get_steamship_client
 from steamship import File
 from steamship.base import Task
 from steamship.data.block import Block
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.request import PluginRequestContext
-from steamship.plugin.service import PluginRequest
 from steamship.plugin.trainable_model import TrainableModel
 
 TEST_REQ = BlockAndTagPluginInput(

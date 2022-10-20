@@ -6,8 +6,8 @@ from steamship_tests.plugin.unit.trainable.util import create_dummy_training_tas
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import SteamshipError
-from steamship.app import InvocableResponse
 from steamship.base.tasks import Task, TaskState
+from steamship.invocable import InvocableResponse
 
 
 def test_response_post_update_fails_when_no_task_present():
