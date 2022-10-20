@@ -6,9 +6,9 @@ from typing import Any, Tuple, Union
 
 from pydantic import BaseModel
 
-from steamship.base.configuration import CamelModel
-from steamship.base.error import SteamshipError
-from steamship.base.mime_types import ContentEncodings, MimeTypes
+from steamship.base import MimeTypes, SteamshipError
+from steamship.base.mime_types import ContentEncodings
+from steamship.base.model import CamelModel
 
 
 def guess_mime(obj: Any, provided_mime: str = None) -> str:
@@ -108,6 +108,6 @@ def flexi_create(  # noqa: C901
     except Exception as ex:
         logging.error("Exception thrown trying to encode data", exc_info=ex)
         raise SteamshipError(
-            message="There was an exception thrown while trying to encode your app/plugin data.",
+            message="There was an exception thrown while trying to encode your package/plugin data.",
             error=ex,
         )

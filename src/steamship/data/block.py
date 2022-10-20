@@ -4,8 +4,10 @@ from typing import List, Optional
 
 from pydantic import Field
 
-from steamship.base import Client, DeleteRequest, IdentifierRequest, Request, Response
-from steamship.base.configuration import CamelModel
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
+from steamship.base.request import DeleteRequest, IdentifierRequest, Request
+from steamship.base.response import Response
 from steamship.data.tags.tag import Tag
 
 
@@ -69,7 +71,6 @@ class Block(CamelModel):
         client: Client,
         tag_filter_query: str,
     ) -> BlockQueryResponse:
-        # TODO: Is this a static method?
         req = BlockQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
             "block/query",

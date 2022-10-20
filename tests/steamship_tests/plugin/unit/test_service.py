@@ -3,15 +3,15 @@ from typing import Type, Union
 
 import pytest
 
-from steamship.app import InvocableResponse
-from steamship.base import Client
+from steamship.base.client import Client
+from steamship.invocable import InvocableResponse
+from steamship.invocable.plugin_service import PluginRequest, PluginService
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
-from steamship.plugin.service import PluginRequest, PluginService
 from steamship.plugin.tagger import TrainableTagger
 from steamship.plugin.trainable_model import TrainableModel
 

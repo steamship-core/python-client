@@ -44,7 +44,7 @@ def test_use_plugin():
                 assert static_use_instance1.client.config.space_handle == plugin_handle_1
                 assert static_use_instance2.client.config.space_handle == plugin_handle_2
 
-            # We can also bring up a second instance of the same app
+            # We can also bring up a second instance of the same invocable
             with steamship_use_plugin(
                 plugin_handle, plugin_handle_1, delete_space=False
             ) as static_use_instance1a:

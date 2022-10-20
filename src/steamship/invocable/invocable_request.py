@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
-from steamship.base.configuration import CamelModel, Configuration
+from steamship.base import Configuration
+from steamship.base.model import CamelModel
 
 
 class Invocation(CamelModel):
     http_verb: str = None
-    app_path: str = None  # e.g. /hello/there
+    invocation_path: str = None  # e.g. /hello/there
     arguments: Dict[str, Any] = None
     config: Dict[str, Any] = None
 
@@ -34,7 +35,7 @@ class InvocableRequest(CamelModel):
      * `steamship.base.request` represents a request from the Steamship Client
      * this class represents a request from the Steamship Engine to a Steamship-hosted App/Plugin
 
-    It contains both an app/plugin invocation and also the client configuration in which that invocation
+    It contains both a package/plugin invocation and also the client configuration in which that invocation
     is intended to execute.
     """
 

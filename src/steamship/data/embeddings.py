@@ -5,10 +5,13 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
-from steamship.base import Client, Request, Response, Task, metadata_to_str
-from steamship.base.configuration import CamelModel
-from steamship.base.request import DeleteRequest
+from steamship.base import Task
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
+from steamship.base.request import DeleteRequest, Request
+from steamship.base.response import Response
 from steamship.data.search import Hit
+from steamship.utils.metadata import metadata_to_str
 
 
 class EmbedAndSearchRequest(Request):
@@ -18,7 +21,6 @@ class EmbedAndSearchRequest(Request):
     k: int = 1
 
 
-# TODO: These types are not generics like the Swift QueryResult/QueryResults.
 class QueryResult(CamelModel):
     value: Optional[Hit] = None
     score: Optional[float] = None
@@ -65,7 +67,7 @@ class IndexCreateRequest(Request):
     handle: str = None
     name: str = None
     plugin_instance: str = None
-    upsert: bool = True
+    fetch_if_exists: bool = True
     external_id: str = None
     external_type: str = None
     metadata: Any = None
@@ -257,7 +259,6 @@ class EmbeddingIndex(CamelModel):
             expect=IndexSnapshotResponse,
         )
 
-    # TODO (enias): Can these be generic list operations for all file types?
     def list_snapshots(self) -> ListSnapshotsResponse:
         req = ListSnapshotsRequest(id=self.id)
         return self.client.post(
@@ -325,7 +326,7 @@ class EmbeddingIndex(CamelModel):
         handle: str = None,
         name: str = None,
         plugin_instance: str = None,
-        upsert: bool = True,
+        fetch_if_exists: bool = True,
         external_id: str = None,
         external_type: str = None,
         metadata: Any = None,
@@ -334,7 +335,7 @@ class EmbeddingIndex(CamelModel):
             handle=handle,
             name=name,
             plugin_instance=plugin_instance,
-            upsert=upsert,
+            fetch_if_exists=fetch_if_exists,
             external_id=external_id,
             external_type=external_type,
             metadata=metadata,

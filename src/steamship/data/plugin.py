@@ -1,7 +1,7 @@
 # Plugin
 #
 # This file contains the abstractions for managing Steamship plugins.
-# To see how to implement a Steamship Plugin, see service.py in the same folder.
+# To see how to implement a Steamship Plugin, see plugin_service.py in the same folder.
 #
 #
 
@@ -13,9 +13,10 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
-from steamship.base import IdentifierRequest, Request, Response
 from steamship.base.client import Client
-from steamship.base.configuration import CamelModel
+from steamship.base.model import CamelModel
+from steamship.base.request import IdentifierRequest, Request
+from steamship.base.response import Response
 
 
 class HostingType(str, Enum):
@@ -128,7 +129,6 @@ class LimitUnit(str, Enum):
 
 
 class Plugin(CamelModel):
-    # TODO (enias): Document, Plugins are just a name placeholder with some settings
     client: Client = Field(None, exclude=True)
     id: str = None
     type: str = None

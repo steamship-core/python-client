@@ -8,14 +8,15 @@ from typing import Any, Dict, Generic, Optional, TypeVar, Union
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
 
-from steamship.base import Client, SteamshipError
-from steamship.base.binary_utils import flexi_create
-from steamship.base.configuration import CamelModel
+from steamship.base import MimeTypes, SteamshipError, Task, TaskState
+from steamship.base.client import Client
 from steamship.base.error import DEFAULT_ERROR_MESSAGE
-from steamship.base.mime_types import ContentEncodings, MimeTypes
-from steamship.base.tasks import Task, TaskState
+from steamship.base.mime_types import ContentEncodings
+from steamship.base.model import CamelModel
 
 # If this isn't present, Localstack won't show logs
+from steamship.utils.binary_utils import flexi_create
+
 logging.getLogger().setLevel(logging.INFO)
 
 
@@ -89,7 +90,9 @@ class InvocableResponse(GenericModel, Generic[T]):
             self.status.status_message = error.message
             self.status.status_suggestion = error.suggestion
             self.status.status_code = error.code
-            logging.error("steamship.app.response - Response created with error.", exc_info=error)
+            logging.error(
+                "steamship.invocable.response - Response created with error.", exc_info=error
+            )
         else:
             if self.status.state is None:
                 self.status.state = TaskState.succeeded
@@ -174,8 +177,9 @@ class InvocableResponse(GenericModel, Generic[T]):
             return InvocableResponse(string=obj)
         elif isinstance(obj, (float, int, bool)):
             return InvocableResponse(json=obj)
-
-        if isinstance(obj, BaseModel):
+        elif isinstance(obj, CamelModel):
+            return InvocableResponse(json=obj.dict(by_alias=True))
+        elif isinstance(obj, BaseModel):
             return InvocableResponse(json=obj.dict())
 
         return InvocableResponse.error(500, message="Handler provided unknown response type.")
@@ -190,7 +194,7 @@ class InvocableResponse(GenericModel, Generic[T]):
         - Google's AutoML can take 20-30 minutes to train.
         - Fine-tuning BERT on ECS can take an arbitrarily long amount of time.
 
-        In these cases, it can be useful for the app/plugin to occasionally post updates to the Engine outside
+        In these cases, it can be useful for the package/plugin to occasionally post updates to the Engine outside
         of the Engine's initial synchronous request-response conversation.
         """
         if self.status is None or self.status.task_id is None:

@@ -14,13 +14,13 @@ from typing import Any, Dict, Optional
 
 import toml
 
-from steamship.app.invocable_request import InvocableRequest
-from steamship.app.invocable_response import InvocableResponse
 from steamship.client import Steamship
+from steamship.invocable.invocable_request import InvocableRequest
+from steamship.invocable.invocable_response import InvocableResponse
 from steamship.utils.url import Verb
 
 
-def make_registering_decorator(decorator):  # TODO (Enias): Review
+def make_registering_decorator(decorator):
     """
     Returns a copy of foreignDecorator, which is identical in every
     way(*), except also appends a .decorator property to the callable it
@@ -80,7 +80,7 @@ def post(path: str, **kwargs):
 class Invocable(ABC):
     """A Steamship microservice.
 
-    This base.py class:
+    This model.py class:
 
       1. Provide a pre-authenticated instance of the Steamship client
       2. Provides a Lambda handler that routes to registered functions
@@ -152,9 +152,9 @@ class Invocable(ABC):
     def __call__(self, request: InvocableRequest, context: Any = None) -> InvocableResponse:
         """Invokes a method call if it is registered."""
         if not hasattr(self.__class__, "_method_mappings"):
-            logging.error("__call__: No mappings available on app.")
+            logging.error("__call__: No mappings available on invocable.")
             return InvocableResponse.error(
-                code=HTTPStatus.NOT_FOUND, message="No mappings available for app."
+                code=HTTPStatus.NOT_FOUND, message="No mappings available for invocable."
             )
 
         if request.invocation is None:
@@ -163,8 +163,8 @@ class Invocable(ABC):
                 code=HTTPStatus.NOT_FOUND, message="No invocation was found."
             )
 
-        verb = Verb.safely_from_str(request.invocation.http_verb)
-        path = request.invocation.app_path
+        verb = Verb(request.invocation.http_verb.strip().upper())
+        path = request.invocation.invocation_path
 
         path = self._clean_path(path)
 
