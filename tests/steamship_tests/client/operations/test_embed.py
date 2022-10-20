@@ -1,6 +1,7 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import File, PluginInstance, Steamship
+from steamship.data import TagKind, TagValue
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -9,7 +10,7 @@ def count_embeddings(file: File):
     embeddings = 0
     for block in file.blocks:
         for tag in block.tags:
-            if tag.kind == "text" and tag.name == "embedding":
+            if tag.kind == TagKind.EMBEDDING:
                 embeddings += 1
     return embeddings
 
@@ -21,13 +22,13 @@ def basic_embeddings(plugin_instance: PluginInstance):
     e1b.wait()
     assert count_embeddings(e1.output.file) == 1
     assert count_embeddings(e1b.output.file) == 1
-    assert len(e1.output.file.blocks[0].tags[0].value["embedding"]) > 1
+    assert len(e1.output.file.blocks[0].tags[0].value[TagValue.VALUE]) > 1
 
     e2 = plugin_instance.tag("This is a test")
     e2.wait()
     assert count_embeddings(e2.output.file) == 1
-    assert len(e2.output.file.blocks[0].tags[0].value["embedding"]) == len(
-        e1.output.file.blocks[0].tags[0].value["embedding"]
+    assert len(e2.output.file.blocks[0].tags[0].value[TagValue.VALUE]) == len(
+        e1.output.file.blocks[0].tags[0].value[TagValue.VALUE]
     )
 
     e4 = plugin_instance.tag("This is a test")

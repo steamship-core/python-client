@@ -210,7 +210,6 @@ class EntityTags(str, Enum):
     PERSON = "person"
     ORGANIZATION = "organization"
     PRODUCT = "product"
-    TERM = "term"
     LOCATION = "location"
     DATE = "date"
     TIME = "time"
