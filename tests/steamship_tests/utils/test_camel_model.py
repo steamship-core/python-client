@@ -1,5 +1,5 @@
 from steamship import Block, Tag
-from steamship.app import InvocableResponse
+from steamship.invocable import InvocableResponse
 
 
 def test_camel_all_levels():
