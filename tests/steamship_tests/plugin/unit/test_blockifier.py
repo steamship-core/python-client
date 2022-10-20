@@ -13,8 +13,8 @@ TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
 def _test_resp(res):
     assert res.data is not None
-    assert res.data.file is not None
-    assert len(res.data.file.blocks) == 4
+    assert res.data.FILE is not None
+    assert len(res.data.FILE.blocks) == 4
 
 
 def test_resp():

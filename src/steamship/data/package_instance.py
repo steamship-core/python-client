@@ -70,7 +70,7 @@ class PackageInstance(CamelModel):
         req = DeleteRequest(id=self.id)
         return self.client.post("package/instance/delete", payload=req, expect=PackageInstance)
 
-    def load_missing_vals(self):
+    def load_missing_workspace_handle(self):
         if (
             self.client is not None
             and self.workspace_handle is None
@@ -88,7 +88,7 @@ class PackageInstance(CamelModel):
         )
 
     def invoke(self, path: str, verb: Verb = Verb.POST, **kwargs):
-        self.load_missing_vals()
+        self.load_missing_workspace_handle()
         if path[0] == "/":
             path = path[1:]
 

@@ -212,7 +212,7 @@ class File(CamelModel):
         from steamship.data.operations.tagger import TagRequest, TagResponse
         from steamship.data.plugin import PluginTargetType
 
-        req = TagRequest(type=PluginTargetType.file, id=self.id, plugin_instance=plugin_instance)
+        req = TagRequest(type=PluginTargetType.FILE, id=self.id, plugin_instance=plugin_instance)
         return self.client.post(
             "plugin/instance/tag",
             payload=req,

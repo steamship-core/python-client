@@ -2,15 +2,25 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Any, Optional, Type
+from typing import Any, List, Optional, Type
 
 from pydantic import BaseModel, Field
 
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest
+from steamship.base.request import Request
 from steamship.base.request import Request as SteamshipRequest
+from steamship.base.response import Response
 from steamship.base.response import Response as SteamshipResponse
+
+
+class ListWorkspacesRequest(Request):
+    pass
+
+
+class ListWorkspacesResponse(Response):
+    workspaces: List[Workspace]
 
 
 class Workspace(CamelModel):
@@ -68,6 +78,14 @@ class Workspace(CamelModel):
         logging.info(f"Got signed URL: {ret}")
         return ret
 
+    @staticmethod
+    def list(client: Client, t: str = None) -> ListWorkspacesResponse:
+        return client.post(
+            "workspace/list",
+            ListWorkspacesRequest(type=t),
+            expect=ListWorkspacesResponse,
+        )
+
 
 class SignedUrl:
     class Bucket(str, Enum):
@@ -96,3 +114,4 @@ class SignedUrl:
 
 
 SignedUrl.Request.update_forward_refs()
+ListWorkspacesResponse.update_forward_refs()

@@ -13,8 +13,8 @@ def test_e2e_tagger():
         res = instance.tag(doc=test_doc)
         res.wait()
         assert res.output is not None
-        assert len(res.output.file.blocks) == 1
-        assert res.output.file.blocks[0].text == test_doc
+        assert len(res.output.FILE.blocks) == 1
+        assert res.output.FILE.blocks[0].text == test_doc
 
         # Let's try it on a file. This is the same test we run on the Swift test parser.
         # Since the python test parser is implemented to behave the same, we can reuse it!

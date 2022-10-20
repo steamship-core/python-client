@@ -66,10 +66,10 @@ def test_e2e_third_party_trainable_tagger_lambda_training():
         res = tagger_instance.tag(doc=test_doc)
         res.wait()
         assert res.output is not None
-        assert res.output.file is not None
-        assert not res.output.file.tags
-        assert res.output.file.blocks is not None
-        assert len(res.output.file.blocks) > 0
-        for block in res.output.file.blocks:
+        assert res.output.FILE is not None
+        assert not res.output.FILE.tags
+        assert res.output.FILE.blocks is not None
+        assert len(res.output.FILE.blocks) > 0
+        for block in res.output.FILE.blocks:
             assert block.tags is not None
             assert sorted([tag.kind for tag in block.tags]) == sorted(MockClient.LABELS)

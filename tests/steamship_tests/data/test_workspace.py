@@ -92,3 +92,25 @@ def test_create_use_delete_workspace():
     workspace2.delete()
     with pytest.raises(SteamshipError):
         _ = Workspace.get(client=client, id_=workspace1.id)
+
+
+def test_list_workspace():
+    client = get_steamship_client()
+    default = Workspace.get(client=client)
+
+    initial_workspace_count = len(Workspace.list(client).workspaces)
+
+    workspace1 = Workspace.create(client=client)
+    workspace2 = Workspace.create(client=client)
+    workspace3 = Workspace.create(client=client)
+
+    workspaces = Workspace.list(client).workspaces
+    assert len(workspaces) == initial_workspace_count + 3
+    assert default in workspaces
+    assert workspace1 in workspaces
+    assert workspace2 in workspaces
+    assert workspace3 in workspaces
+
+    workspace1.delete()
+    workspace2.delete()
+    workspace3.delete()
