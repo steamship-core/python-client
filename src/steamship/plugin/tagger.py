@@ -1,14 +1,14 @@
 import logging
 from abc import ABC, abstractmethod
 
-from steamship.app import InvocableResponse, post
+from steamship.invocable import InvocableResponse, post
+from steamship.invocable.plugin_service import PluginRequest, PluginService, TrainablePluginService
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
-from steamship.plugin.service import PluginRequest, PluginService, TrainablePluginService
 from steamship.plugin.trainable_model import TrainableModel
 
 # Note!

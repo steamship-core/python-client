@@ -21,8 +21,8 @@ Using our SDK, that means implementing the following method:
        def run(
           self, request: PluginRequest[RawDataPluginInput]
        ) -> Union[
-          PluginRequest[BlockAndTagPluginOutput],
-          BlockAndTagPluginOutput
+          Response,
+          Response[BlockAndTagPluginOutput]
        ]:
            pass
 
@@ -33,7 +33,7 @@ The biggest design question you will face when implementing a blockifier is how 
 
 At the platform level, we leave this open-ended on purpose, but we do encourage a few conventions of common convergence.
 
-See the :ref:`Data Model` section for a discussion of how to think effectively about blnocks and tags.
+See the :ref:`Data Model` section for a discussion of how to think effectively about blocks and tags.
 
 Synchronous Example: A Pseudo-Markdown Blockifier
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

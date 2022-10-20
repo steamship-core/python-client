@@ -8,7 +8,7 @@ from .plugin import Plugin
 from .plugin_instance import PluginInstance
 from .plugin_version import PluginVersion
 from .space import Space
-from .tags import DocTag, Tag, TagKind, TextTag
+from .tags import DocTag, EmotionTag, SentimentTag, Tag, TagKind, TagValue, TokenTag
 
 __all__ = [
     "Package",
@@ -22,7 +22,10 @@ __all__ = [
     "PluginVersion",
     "Space",
     "DocTag",
+    "EmotionTag",
+    "SentimentTag",
     "Tag",
     "TagKind",
-    "TextTag",
+    "TokenTag",
+    "TagValue",
 ]

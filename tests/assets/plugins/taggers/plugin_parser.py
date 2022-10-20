@@ -3,11 +3,11 @@ import re
 from typing import Type
 
 from steamship import Block, DocTag, Tag
-from steamship.app import InvocableResponse, create_handler
-from steamship.app.config import Config
+from steamship.data import TagKind
+from steamship.invocable import Config, InvocableResponse, create_handler
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import Tagger
 
 # If this isn't present, Localstack won't show logs
@@ -21,8 +21,8 @@ def tag_sentences(block: Block):
     for m in re.finditer(r"[^.]+", block.text):
         tags.append(
             Tag(
-                kind=DocTag.doc,
-                name=DocTag.sentence,
+                kind=TagKind.DOCUMENT,
+                name=DocTag.SENTENCE,
                 start_idx=m.start(),
                 end_idx=m.end() + 1,
             )

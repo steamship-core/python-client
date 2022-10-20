@@ -1,12 +1,11 @@
 from typing import Type
 
 from steamship import MimeTypes
-from steamship.app import InvocableResponse, create_handler
-from steamship.app.config import Config
+from steamship.invocable import Config, InvocableResponse, create_handler
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.file_importer import FileImporter
 from steamship.plugin.inputs.file_import_plugin_input import FileImportPluginInput
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
-from steamship.plugin.service import PluginRequest
 
 # Note: this aligns with the same document in the internal Engine test.
 HANDLE = "test-importer-plugin-v1"

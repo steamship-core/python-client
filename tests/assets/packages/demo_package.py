@@ -3,12 +3,11 @@ import io
 from typing import Any, Dict, Type
 
 from steamship import SteamshipError
-from steamship.app import Invocable, InvocableResponse, create_handler, get, post
-from steamship.app.config import Config
 from steamship.base.mime_types import MimeTypes
 from steamship.base.model import CamelModel
 from steamship.client import Steamship
 from steamship.data.user import User
+from steamship.invocable import Config, InvocableResponse, PackageService, create_handler, get, post
 
 
 class TestObj(CamelModel):
@@ -20,7 +19,7 @@ PALM_TREE_BASE_64 = "iVBORw0KGgoAAAANSUhEUgAAADgAAABWCAYAAACaeFU0AAAMbWlDQ1BJQ0M
 PALM_TREE_BASE_64 = PALM_TREE_BASE_64.encode("ascii")
 
 
-class TestApp(Invocable):
+class TestPackage(PackageService):
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
         self.index = None
@@ -137,4 +136,4 @@ class TestApp(Invocable):
         return InvocableResponse(json=res.data)
 
 
-handler = create_handler(TestApp)
+handler = create_handler(TestPackage)

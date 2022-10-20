@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from steamship.app import InvocableResponse, post
+from steamship.invocable import InvocableResponse, post
+from steamship.invocable.plugin_service import PluginRequest, PluginService
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginRequest, PluginService
 
 # Note!
 # =====

@@ -41,7 +41,7 @@ def test_plugin_create():
     my_plugins = Plugin.list(steamship)
     assert len(my_plugins.plugins) == orig_count + 1
 
-    # No upsert doesn't work
+    # No fetch_if_exists doesn't work
     with pytest.raises(SteamshipError):
         _ = Plugin.create(
             client=steamship,

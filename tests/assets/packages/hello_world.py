@@ -1,7 +1,6 @@
 from typing import Type
 
-from steamship.app import Invocable, InvocableResponse, create_handler, get, post
-from steamship.app.config import Config
+from steamship.invocable import Config, Invocable, InvocableResponse, create_handler, get, post
 
 
 class HelloWorld(Invocable):
