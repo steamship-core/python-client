@@ -14,4 +14,4 @@ def test_version_create():
 
     version = PackageVersion.create(client, package_id=package.id, filebytes=zip_bytes)
 
-    version.wait()
+    assert version is not None
