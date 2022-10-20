@@ -4,7 +4,6 @@ from typing import Any, Dict, Type
 
 from pydantic import BaseModel, Field
 
-from steamship.base import Task
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import Request
@@ -38,7 +37,7 @@ class PackageVersion(CamelModel):
         filename: str = None,
         filebytes: bytes = None,
         config_template: Dict[str, Any] = None,
-    ) -> Task[PackageVersion]:
+    ) -> PackageVersion:
 
         if filename is None and filebytes is None:
             raise Exception("Either filename or filebytes must be provided.")
@@ -53,9 +52,11 @@ class PackageVersion(CamelModel):
             handle=handle, package_id=package_id, config_template=config_template
         )
 
-        return client.post(
+        task = client.post(
             "package/version/create",
             payload=req,
             file=("package.zip", filebytes, "multipart/form-data"),
             expect=PackageVersion,
         )
+        task.wait()
+        return task.output

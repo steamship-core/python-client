@@ -12,7 +12,6 @@ from typing import Any, Dict, Optional
 from steamship_tests import ROOT_PATH, SRC_PATH, TEST_ASSETS_PATH
 
 from steamship import Package, PackageInstance, PackageVersion, Steamship
-from steamship.base import Task
 from steamship.data.plugin import HostingType, Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
@@ -89,7 +88,7 @@ def deploy_plugin(
     )
 
     zip_bytes = zip_deployable(py_path)
-    create_plugin_version_task = PluginVersion.create(
+    plugin_version = PluginVersion.create(
         client,
         "test-version",
         plugin_id=plugin.id,
@@ -98,7 +97,7 @@ def deploy_plugin(
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
-    plugin_version = _wait_for_version(create_plugin_version_task)
+    _wait_for_version(plugin_version)
 
     plugin_instance = PluginInstance.create(
         client,
@@ -134,7 +133,7 @@ def deploy_package(
         config_template=version_config_template,
     )
 
-    version = _wait_for_version(version)
+    _wait_for_version(version)
     package_instance = PackageInstance.create(
         client,
         package_id=package.id,
@@ -161,8 +160,6 @@ def _delete_deployable(instance, version, deployable):
     instance.delete()
 
 
-def _wait_for_version(version: Task):
+def _wait_for_version(version: [PackageVersion, PluginVersion]):
     time.sleep(15)
-    version.wait()
-    assert version.output is not None
-    return version.output
+    assert version is not None

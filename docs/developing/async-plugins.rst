@@ -29,7 +29,7 @@ running ``Task`` object:
       def run(request):
          return Response(
              status=Task(
-                state=TaskState.RUNNING,
+                state=TaskState.running,
                 remote_status_input={}
              )
          )
