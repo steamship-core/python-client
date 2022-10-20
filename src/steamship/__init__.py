@@ -9,7 +9,7 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .base import Configuration, MimeTypes, SteamshipError, TaskState, Task
+from .base import Configuration, MimeTypes, SteamshipError, Task, TaskState
 from .data import (
     Block,
     DocTag,
@@ -22,8 +22,8 @@ from .data import (
     PluginInstance,
     PluginVersion,
     SentimentTag,
-    Space,
     Tag,
+    Workspace,
 )
 
 from .client import Steamship  # isort:skip
@@ -41,7 +41,7 @@ __all__ = [
     "TaskState",
     "Block",
     "Tag",
-    "Space",
+    "Workspace",
     "PluginInstance",
     "PluginVersion",
     "SentimentTag",

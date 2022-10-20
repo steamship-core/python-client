@@ -90,7 +90,7 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
         request: PluginRequest[BlockAndTagPluginInput],
         model: TestTrainableTaggerConfigModel,
     ) -> InvocableResponse[BlockAndTagPluginOutput]:
-        """Downloads the model file from the provided space"""
+        """Downloads the model file from the provided workspace"""
         logging.debug(f"run_with_model {request} {model}")
         logging.info(
             f"TestTrainableTaggerPlugin:run_with_model() got request {request} and model {model}"

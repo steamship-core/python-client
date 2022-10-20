@@ -60,95 +60,101 @@ class Client(CamelModel, ABC):
             api_base=api_base,
             app_base=app_base,
             web_base=web_base,
-            space_handle=workspace,
+            workspace_handle=workspace,
             profile=profile,
             config_file=config_file,
         )
         self._session = Session()
         super().__init__(config=config)
-        # The lambda_handler will pass in the space via the space_id, so we need to plumb this through to make sure
+        # The lambda_handler will pass in the workspace via the workspace_id, so we need to plumb this through to make sure
         # that the workspace switch performed doesn't mistake `workspace=None` as a request for the default workspace
         self.switch_workspace(
-            workspace=workspace or config.space_handle,
-            workspace_id=config.space_id,
+            workspace_handle=workspace or config.workspace_handle,
+            workspace_id=config.workspace_id,
             fail_if_workspace_exists=fail_if_workspace_exists,
             trust_workspace_config=trust_workspace_config,
         )
 
     def switch_workspace(  # noqa: C901
         self,
-        workspace: str = None,
+        workspace_handle: str = None,
         workspace_id: str = None,
         fail_if_workspace_exists: bool = False,
         trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspacetrust_workspace_config: bool = False, # For use by lambda_handler; don't fetch the workspace
     ):
-        """Switches this client to the requested space, possibly creating it. If all arguments are None, the client
-        actively switches into the default space.
+        """Switches this client to the requested workspace, possibly creating it. If all arguments are None, the client
+        actively switches into the default workspace.
 
         - API calls are performed manually to not result in circular imports.
-        - Note that the default space is technically not necessary for API usage; it will be assumed by the Engine
-          in the absense of a Space ID or Handle being manually specified in request headers.
+        - Note that the default workspace is technically not necessary for API usage; it will be assumed by the Engine
+          in the absense of a Workspace ID or Handle being manually specified in request headers.
         """
-        space = None
+        workspace = None
 
-        if workspace is None and workspace_id is None:
+        if workspace_handle is None and workspace_id is None:
             # Switch to the default workspace since no named or ID'ed workspace was provided
-            workspace = "default"
+            workspace_handle = "default"
 
         if fail_if_workspace_exists:
-            logging.info(f"[Client] Creating workspace with handle/id: {workspace}/{workspace_id}.")
+            logging.info(
+                f"[Client] Creating workspace with handle/id: {workspace_handle}/{workspace_id}."
+            )
         else:
             logging.info(
-                f"[Client] Creating/Fetching workspace with handle/id: {workspace}/{workspace_id}."
+                f"[Client] Creating/Fetching workspace with handle/id: {workspace_handle}/{workspace_id}."
             )
 
-        # Zero out the space_handle on the config block in case we're being invoked from
-        # `init` (otherwise we'll attempt to create the sapce IN that nonexistant space)
-        old_space_handle = self.config.space_handle
-        self.config.space_handle = None
+        # Zero out the workspace_handle on the config block in case we're being invoked from
+        # `init` (otherwise we'll attempt to create the sapce IN that nonexistant workspace)
+        old_workspace_handle = self.config.workspace_handle
+        self.config.workspace_handle = None
 
         if trust_workspace_config:
-            if workspace is None or workspace_id is None:
+            if workspace_handle is None or workspace_id is None:
                 raise SteamshipError(
                     message="Attempted a trusted workspace switch without providing both workspace handle and workspace id."
                 )
             return_id = workspace_id
-            return_handle = workspace
+            return_handle = workspace_handle
         else:
             try:
-                if workspace is not None and workspace_id is not None:
-                    get_params = {"handle": workspace, "id": workspace_id, "fetchIfExists": False}
-                    space = self.post("space/get", get_params)
-                elif workspace is not None:
+                if workspace_handle is not None and workspace_id is not None:
                     get_params = {
-                        "handle": workspace,
+                        "handle": workspace_handle,
+                        "id": workspace_id,
+                        "fetchIfExists": False,
+                    }
+                    workspace = self.post("workspace/get", get_params)
+                elif workspace_handle is not None:
+                    get_params = {
+                        "handle": workspace_handle,
                         "fetchIfExists": not fail_if_workspace_exists,
                     }
-                    space = self.post("space/create", get_params)
+                    workspace = self.post("workspace/create", get_params)
                 elif workspace_id is not None:
                     get_params = {"id": workspace_id}
-                    space = self.post("space/get", get_params)
+                    workspace = self.post("workspace/get", get_params)
 
             except SteamshipError as e:
-                self.config.space_handle = old_space_handle
+                self.config.workspace_handle = old_workspace_handle
                 raise e
 
-            if space is None:
+            if workspace is None:
                 raise SteamshipError(
-                    message="Was unable to switch to new workspace: server returned empty Space."
+                    message="Was unable to switch to new workspace: server returned empty Workspace."
                 )
 
-            return_id = space.get("space", {}).get("id")
-            return_handle = space.get("space", {}).get("handle")
+            return_id = workspace.get("workspace", {}).get("id")
+            return_handle = workspace.get("workspace", {}).get("handle")
 
         if return_id is None or return_handle is None:
             raise SteamshipError(
                 message="Was unable to switch to new workspace: server returned empty ID and Handle."
             )
 
-        # Finally, set the new space.
-        self.config.space_id = return_id
-        self.config.space_handle = return_handle
+        # Finally, set the new workspace.
+        self.config.workspace_id = return_id
+        self.config.workspace_handle = return_handle
         logging.info(f"[Client] Switched to workspace {return_handle}/{return_id}")
 
     def dict(self, **kwargs) -> dict:
@@ -206,10 +212,10 @@ class Client(CamelModel, ABC):
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
-        if self.config.space_id:
-            headers["X-Space-Id"] = self.config.space_id
-        elif self.config.space_handle:
-            headers["X-Space-Handle"] = self.config.space_handle
+        if self.config.workspace_id:
+            headers["X-Workspace-Id"] = self.config.workspace_id
+        elif self.config.workspace_handle:
+            headers["X-Workspace-Handle"] = self.config.workspace_handle
 
         if is_app_call:
             if app_owner:
@@ -315,7 +321,7 @@ class Client(CamelModel, ABC):
                     for k, v in response_data.items():
                         self._add_client_to_response(key_to_type.get(inflection.underscore(k)), v)
                 except NameError:
-                    # typing.get_type_hints fails for Space
+                    # typing.get_type_hints fails for Workspace
                     pass
 
     def call(  # noqa: C901
@@ -367,7 +373,7 @@ class Client(CamelModel, ABC):
         data = self._prepare_data(payload=payload)
 
         logging.info(
-            f"Making {verb} to {url} in space {self.config.space_handle}/{self.config.space_id}"
+            f"Making {verb} to {url} in workspace {self.config.workspace_handle}/{self.config.workspace_id}"
         )
         if verb == Verb.POST:
             if file is not None:

@@ -42,7 +42,7 @@ class PluginInstance(CamelModel):
     handle: str = None
     plugin_id: str = None
     plugin_version_id: str = None
-    space_id: Optional[str] = None
+    workspace_id: Optional[str] = None
     user_id: str = None
     config: Dict[str, Any] = None
     hosting_type: Optional[HostingType] = None

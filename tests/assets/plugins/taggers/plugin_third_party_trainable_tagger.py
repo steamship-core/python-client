@@ -180,7 +180,7 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
     def run_with_model(
         self, request: PluginRequest[BlockAndTagPluginInput], model: TestTrainableTaggerModel
     ) -> InvocableResponse[BlockAndTagPluginOutput]:
-        """Downloads the model file from the provided space"""
+        """Downloads the model file from the provided workspace"""
         logging.debug(f"run_with_model {request} {model}")
         return InvocableResponse(json=model.run(request))
 

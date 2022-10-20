@@ -14,7 +14,7 @@ def main():
 
     assets_to_build = [
         (PLUGINS_PATH / "blockifiers" / "csv_blockifier.py", "csv-blockifier.zip"),
-        (PACKAGES_PATH / "demo_app.py", "demo-invocable.zip"),
+        (PACKAGES_PATH / "demo_package.py", "demo-package.zip"),
         (PLUGINS_PATH / "blockifiers" / "blockifier.py", "dummy_blockifier.zip"),
     ]
 

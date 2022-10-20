@@ -78,7 +78,7 @@ def test_insert_many():
         )
         item2 = EmbeddedItem(
             value="Rocket Ship",
-            external_id="space",
+            external_id="workspace",
             external_type="vehicle",
             metadata="Foo",
         )
