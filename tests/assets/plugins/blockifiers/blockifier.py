@@ -35,19 +35,19 @@ class DummyBlockifierPlugin(Blockifier):
                     blocks=[
                         Block.CreateRequest(
                             text=TEST_H1,
-                            tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.h1)],
+                            tags=[Tag.CreateRequest(kind=TagKind.DOCUMENT, name=DocTag.H1)],
                         ),
                         Block.CreateRequest(
                             text=TEST_S1,
-                            tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.sentence)],
+                            tags=[Tag.CreateRequest(kind=TagKind.DOCUMENT, name=DocTag.SENTENCE)],
                         ),
                         Block.CreateRequest(
                             text=TEST_S2,
-                            tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.sentence)],
+                            tags=[Tag.CreateRequest(kind=TagKind.DOCUMENT, name=DocTag.SENTENCE)],
                         ),
                         Block.CreateRequest(
                             text=TEST_S3,
-                            tags=[Tag.CreateRequest(kind=TagKind.doc, name=DocTag.paragraph)],
+                            tags=[Tag.CreateRequest(kind=TagKind.DOCUMENT, name=DocTag.PARAGRAPH)],
                         ),
                     ]
                 )

@@ -14,16 +14,16 @@ from .data import (
     Block,
     DocTag,
     EmbeddingIndex,
+    EmotionTag,
     File,
     Package,
     PackageInstance,
     PackageVersion,
     PluginInstance,
     PluginVersion,
+    SentimentTag,
     Space,
     Tag,
-    TagKind,
-    TextTag,
 )
 
 from .client import Steamship  # isort:skip
@@ -44,8 +44,8 @@ __all__ = [
     "Space",
     "PluginInstance",
     "PluginVersion",
-    "TagKind",
-    "TextTag",
+    "SentimentTag",
+    "EmotionTag",
     "DocTag",
     "EmbeddingIndex",
 ]
