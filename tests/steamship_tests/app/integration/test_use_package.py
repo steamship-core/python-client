@@ -112,7 +112,7 @@ def test_use_plugin_fails_with_same_instance_name_but_different_plugin_name():
 
     instance_handle = random_name()
 
-    demo_app_path = PACKAGES_PATH / "demo_app.py"
+    demo_app_path = PACKAGES_PATH / "demo_package.py"
 
     with deploy_package(client, demo_app_path) as (app, version, instance):
         with deploy_package(client, demo_app_path) as (app2, version2, instance2):
