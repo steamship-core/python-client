@@ -13,7 +13,7 @@ def schedule_task(client, please_fail: bool = False, dependencies: List[Task] = 
         payload={},
         expect=Task[BaseModel],
         as_background_task=True,
-        wait_on_tasks_id=[d.task_id for d in dependencies] if dependencies else None,
+        wait_on_tasks=dependencies,
     )
     assert response is not None
     assert response.state == TaskState.waiting
