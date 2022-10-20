@@ -5,12 +5,12 @@ from typing import Callable, Dict, Generic, Optional, TypeVar
 
 from typing_extensions import TypeAlias
 
-from steamship.app import InvocableResponse
 from steamship.base.client import Client
+from steamship.invocable import InvocableResponse
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
-from steamship.plugin.service import PluginRequest
 
 ModelConstructor: TypeAlias = Callable[[], "TrainableModel"]
 
