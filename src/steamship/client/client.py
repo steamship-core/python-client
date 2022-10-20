@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
-from steamship import Configuration, PackageInstance, PluginInstance, Space, SteamshipError
+from steamship import Configuration, PackageInstance, PluginInstance, SteamshipError, Workspace
 from steamship.base.client import Client
 from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
 
@@ -179,19 +179,21 @@ class Steamship(Client):
 
         return instance
 
-    def get_space(self) -> Space:
+    def get_workspace(self) -> Workspace:
         # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes
-        # pre-configured with an API key and the Space in which this client should be operating.
-        # This is a way to load the model object for that space.
+        # pre-configured with an API key and the Workspace in which this client should be operating.
+        # This is a way to load the model object for that workspace.
         logging.info(
-            f"get_space() called on client with config space {self.config.space_handle}/{self.config.space_id}"
+            f"get_workspace() called on client with config workspace {self.config.workspace_handle}/{self.config.workspace_id}"
         )
-        space = Space.get(self, id_=self.config.space_id, handle=self.config.space_handle)
-        if not space:
-            logging.error("Unable to get space.")
+        workspace = Workspace.get(
+            self, id_=self.config.workspace_id, handle=self.config.workspace_handle
+        )
+        if not workspace:
+            logging.error("Unable to get workspace.")
             raise SteamshipError(
-                message="Error while retrieving the Space associated with this client config.",
-                internal_message=f"space_id={self.config.space_id} space_handle={self.config.space_handle}",
+                message="Error while retrieving the Workspace associated with this client config.",
+                internal_message=f"workspace_id={self.config.workspace_id} workspace_handle={self.config.workspace_handle}",
             )
-        logging.info(f"Got space: {space.handle}/{space.id}")
-        return space
+        logging.info(f"Got workspace: {workspace.handle}/{workspace.id}")
+        return workspace

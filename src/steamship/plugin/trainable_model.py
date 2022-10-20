@@ -33,8 +33,8 @@ class TrainableModel(ABC, Generic[ConfigType]):
 
     # Remote Saving and Loading
 
-    `TrainableModel` instances automatically save to a user's Space on Steamship via `save_remote` method. They
-    can load themselves from a user's space via the `load_remote` method.
+    `TrainableModel` instances automatically save to a user's Workspace on Steamship via `save_remote` method. They
+    can load themselves from a user's workspace via the `load_remote` method.
 
     When saving a model, the caller provides `handle`, such as "V1" or "epoch_23". This allows that particular checkpoint
     to be re-loaded. By default, every save operation also saves the model to the "default" checkpoint, overwriting it
@@ -44,14 +44,14 @@ class TrainableModel(ABC, Generic[ConfigType]):
 
     A TrainableModel's data is saved & loaded with respect to
 
-    1) The user's active Space, and
-    2) The provided Plugin Instance within that space.
+    1) The user's active Workspace, and
+    2) The provided Plugin Instance within that workspace.
 
-    The active space is read from the Steamship client context, and the `plugin_instance_id` is supplied as a
+    The active workspace is read from the Steamship client context, and the `plugin_instance_id` is supplied as a
     method argument on the `save_remote` and `load_remote` methods.
 
     This organization enables a user to have arbitrarily many trained model instances of the same type colocated within
-    a Space.
+    a Workspace.
 
     # Training
 

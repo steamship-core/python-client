@@ -20,8 +20,8 @@ ENVIRONMENT_VARIABLES_TO_PROPERTY = {
     "STEAMSHIP_API_BASE": "api_base",
     "STEAMSHIP_APP_BASE": "app_base",
     "STEAMSHIP_WEB_BASE": "web_base",
-    "STEAMSHIP_SPACE_ID": "space_id",
-    "STEAMSHIP_SPACE_HANDLE": "space_handle",
+    "STEAMSHIP_WORKSPACE_ID": "workspace_id",
+    "STEAMSHIP_WORKSPACE_HANDLE": "workspace_handle",
 }
 DEFAULT_CONFIG_FILE = Path.home() / ".steamship.json"
 
@@ -40,8 +40,8 @@ class Configuration(CamelModel):
     api_base: HttpUrl = DEFAULT_API_BASE
     app_base: HttpUrl = DEFAULT_APP_BASE
     web_base: HttpUrl = DEFAULT_WEB_BASE
-    space_id: str = None
-    space_handle: str = None
+    workspace_id: str = None
+    workspace_handle: str = None
     profile: Optional[str] = None
 
     def __init__(

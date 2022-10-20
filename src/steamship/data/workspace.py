@@ -2,18 +2,28 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Any, Optional, Type
+from typing import Any, List, Optional, Type
 
 from pydantic import BaseModel, Field
 
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest
+from steamship.base.request import Request
 from steamship.base.request import Request as SteamshipRequest
+from steamship.base.response import Response
 from steamship.base.response import Response as SteamshipResponse
 
 
-class Space(CamelModel):
+class ListWorkspacesRequest(Request):
+    pass
+
+
+class ListWorkspacesResponse(Response):
+    workspaces: List[Workspace]
+
+
+class Workspace(CamelModel):
     client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
@@ -21,7 +31,7 @@ class Space(CamelModel):
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
         # TODO (enias): This needs to be solved at the engine side\
-        obj = obj["space"] if "space" in obj else obj
+        obj = obj["workspace"] if "workspace" in obj else obj
         return super().parse_obj(obj)
 
     class CreateRequest(SteamshipRequest):
@@ -32,15 +42,15 @@ class Space(CamelModel):
         external_type: Optional[str] = None
         metadata: Optional[str] = None
 
-    def delete(self) -> Space:
-        return self.client.post("space/delete", IdentifierRequest(id=self.id), expect=Space)
+    def delete(self) -> Workspace:
+        return self.client.post("workspace/delete", IdentifierRequest(id=self.id), expect=Workspace)
 
     @staticmethod
     def get(
         client: Client, id_: str = None, handle: str = None, fetch_if_exists: bool = None
-    ) -> Space:
+    ) -> Workspace:
         req = GetRequest(id=id_, handle=handle, fetch_if_exists=fetch_if_exists)
-        return client.post("space/get", req, expect=Space)
+        return client.post("workspace/get", req, expect=Workspace)
 
     @staticmethod
     def create(
@@ -50,21 +60,31 @@ class Space(CamelModel):
         external_type: Optional[str] = None,
         metadata: Any = None,
         fetch_if_exists: bool = True,
-    ) -> Space:
-        req = Space.CreateRequest(
+    ) -> Workspace:
+        req = Workspace.CreateRequest(
             handle=handle,
             fetch_if_exists=fetch_if_exists,
             external_id=external_id,
             external_type=external_type,
             metadata=metadata,
         )
-        return client.post("space/create", req, expect=Space)
+        return client.post("workspace/create", req, expect=Workspace)
 
     def create_signed_url(self, request: SignedUrl.Request) -> SignedUrl.Response:
         logging.info(f"Requesting signed URL: {request}")
-        ret = self.client.post("space/createSignedUrl", payload=request, expect=SignedUrl.Response)
+        ret = self.client.post(
+            "workspace/createSignedUrl", payload=request, expect=SignedUrl.Response
+        )
         logging.info(f"Got signed URL: {ret}")
         return ret
+
+    @staticmethod
+    def list(client: Client, t: str = None) -> ListWorkspacesResponse:
+        return client.post(
+            "workspace/list",
+            ListWorkspacesRequest(type=t),
+            expect=ListWorkspacesResponse,
+        )
 
 
 class SignedUrl:
@@ -94,3 +114,4 @@ class SignedUrl:
 
 
 SignedUrl.Request.update_forward_refs()
+ListWorkspacesResponse.update_forward_refs()

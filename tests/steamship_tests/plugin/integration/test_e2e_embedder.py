@@ -25,14 +25,14 @@ def test_e2e_embedder():
         e1.wait()
         assert count_embeddings(e1.output.file) == 1
         assert e1.output.file.blocks[0].tags[0].kind == TagKind.EMBEDDING
-        assert len(e1.output.file.blocks[0].tags[0].value[TagValue.VALUE]) > 1
+        assert len(e1.output.file.blocks[0].tags[0].value[TagValue.VECTOR_VALUE]) > 1
 
         e2 = instance.tag("This is a test")
         e2.wait()
         assert count_embeddings(e2.output.file) == 1
         assert e2.output.file.blocks[0].tags[0].kind == TagKind.EMBEDDING
-        assert len(e2.output.file.blocks[0].tags[0].value[TagValue.VALUE]) == len(
-            e1.output.file.blocks[0].tags[0].value[TagValue.VALUE]
+        assert len(e2.output.file.blocks[0].tags[0].value[TagValue.VECTOR_VALUE]) == len(
+            e1.output.file.blocks[0].tags[0].value[TagValue.VECTOR_VALUE]
         )
 
         e4 = instance.tag("This is a test")

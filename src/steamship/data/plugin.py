@@ -118,14 +118,14 @@ class PluginAdapterType(str, Enum):
 
 
 class PluginTargetType(str, Enum):
-    file = "file"
-    space = "space"
+    FILE = "file"
+    WORKSPACE = "workspace"
 
 
 class LimitUnit(str, Enum):
-    words = "words"
-    characters = "characters"
-    bytes = "bytes"
+    WORDS = "words"
+    CHARACTERS = "characters"
+    BYTES = "bytes"
 
 
 class Plugin(CamelModel):
