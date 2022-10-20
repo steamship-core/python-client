@@ -123,17 +123,17 @@ def test_use_package():
             assert static_use_instance1b.id != static_use_instance1.id
 
 
-def test_use_plugin_fails_with_same_instance_name_but_different_plugin_name():
+def test_use_package_fails_with_same_instance_name_but_different_package_name():
     client = get_steamship_client()
 
     instance_handle = random_name()
 
-    demo_app_path = PACKAGES_PATH / "demo_app.py"
+    demo_app_path = PACKAGES_PATH / "demo_package.py"
 
     with deploy_package(client, demo_app_path) as (app, version, instance):
         with deploy_package(client, demo_app_path) as (app2, version2, instance2):
-            client.use_plugin(app.handle, instance_handle)
+            client.use(app.handle, instance_handle)
 
             # Should fail because we're using the shortcut `import_plugin` method with the same instance
             with pytest.raises(SteamshipError):
-                client.use_plugin(app2.handle, instance_handle)
+                client.use(app2.handle, instance_handle)
