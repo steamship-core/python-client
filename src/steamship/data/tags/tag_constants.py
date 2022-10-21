@@ -201,7 +201,10 @@ class TagValue(str, Enum):
     """A set of key constants for the `value` object within a tag.."""
 
     SCORE = "score"
-    VALUE = "value"
+    VECTOR_VALUE = "vector-value"
+    NUMBER_VALUE = "number-value"
+    BOOL_VALUE = "bool-value"
+    STRING_VALUE = "string-value"
 
 
 class EntityTags(str, Enum):

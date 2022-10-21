@@ -21,8 +21,7 @@ from assets.plugins.taggers.plugin_trainable_tagger import (
 
 from steamship import Block, File, SteamshipError, Tag
 from steamship.base import Task, TaskState
-from steamship.invocable import InvocableResponse, create_handler
-from steamship.plugin.config import Config
+from steamship.invocable import Config, InvocableResponse, create_handler
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
@@ -180,7 +179,7 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
     def run_with_model(
         self, request: PluginRequest[BlockAndTagPluginInput], model: TestTrainableTaggerModel
     ) -> InvocableResponse[BlockAndTagPluginOutput]:
-        """Downloads the model file from the provided space"""
+        """Downloads the model file from the provided workspace"""
         logging.debug(f"run_with_model {request} {model}")
         return InvocableResponse(json=model.run(request))
 

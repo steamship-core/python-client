@@ -33,7 +33,7 @@ def test_model_checkpoint_save_load():
     - Models are expected to take this folder as their initialization input
     - Models are expected to persist whatever they need to persist to this folder during training.
 
-    On Steamship, it is a zip archive stored in the associated PluginInstance's "Space Bucket"
+    On Steamship, it is a zip archive stored in the associated PluginInstance's "Workspace Bucket"
     - Each ModelCheckpoint uploaded has a handle (like V1)
     - Every ModelCheckpoint uploaded can also become the new default
     """

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, List
 
-from steamship.base import Request
+from steamship.base.request import Request
 
 
 class EmbedRequest(Request):

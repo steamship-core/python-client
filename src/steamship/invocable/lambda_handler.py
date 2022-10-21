@@ -11,7 +11,7 @@ from fluent.handler import FluentRecordFormatter
 from steamship import Configuration
 from steamship.base import SteamshipError
 from steamship.client import Steamship
-from steamship.data.space import SignedUrl
+from steamship.data.workspace import SignedUrl
 from steamship.invocable import InvocableRequest, InvocableResponse, InvocationContext
 from steamship.invocable.invocable import Invocable
 from steamship.utils.signed_urls import upload_to_signed_url
@@ -142,7 +142,7 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
                 "stack_trace": "%(exc_text)s",
                 "component": "package-plugin-lambda",
                 "userId": invocation_context.user_id,
-                "spaceId": invocation_context.space_id,
+                "workspaceId": invocation_context.workspace_id,
                 "tenantId": invocation_context.tenant_id,
                 "invocableHandle": invocation_context.invocable_handle,
                 "invocableVersionHandle": invocation_context.invocable_version_handle,
@@ -162,8 +162,8 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
             logging.root.addHandler(logging_handler)
 
         try:
-            # Config will accept `space_id` as passed from the Steamship Engine, whereas the `Steamship`
-            # class itself is limited to accepting `workspace` (`config.space_handle`) since that is the manner
+            # Config will accept `workspace_id` as passed from the Steamship Engine, whereas the `Steamship`
+            # class itself is limited to accepting `workspace` (`config.workspace_handle`) since that is the manner
             # of interaction ideal for developers.
             config = Configuration(**event.get("clientConfig", {}))
             client = Steamship(config=config, trust_workspace_config=True)
@@ -191,7 +191,7 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
 
             filepath = str(uuid.uuid4())
             signed_url = (
-                client.get_space()
+                client.get_workspace()
                 .create_signed_url(
                     SignedUrl.Request(
                         bucket=SignedUrl.Bucket.PLUGIN_DATA,

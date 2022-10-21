@@ -1,13 +1,13 @@
 import base64
 import io
-from typing import Any, Dict
+from typing import Any, Dict, Type
 
 from steamship import SteamshipError
 from steamship.base.mime_types import MimeTypes
 from steamship.base.model import CamelModel
 from steamship.client import Steamship
 from steamship.data.user import User
-from steamship.invocable import InvocableResponse, PackageService, create_handler, get, post
+from steamship.invocable import Config, InvocableResponse, PackageService, create_handler, get, post
 
 
 class TestObj(CamelModel):
@@ -23,6 +23,10 @@ class TestPackage(PackageService):
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         super().__init__(client, config)
         self.index = None
+
+    def config_cls(self) -> Type[Config]:
+        """By returning the base Config object, we're signaling that we do not accept a configuration."""
+        return Config
 
     @get("resp_string")
     def resp_string(self) -> InvocableResponse:
@@ -59,9 +63,9 @@ class TestPackage(PackageService):
     def greet2(self, name: str = "Person") -> InvocableResponse:
         return InvocableResponse(string=f"Hello, {name}!")
 
-    @get("space")
-    def space(self) -> InvocableResponse:
-        return InvocableResponse(string=self.client.config.space_id)
+    @get("workspace")
+    def workspace(self) -> InvocableResponse:
+        return InvocableResponse(string=self.client.config.workspace_id)
 
     @post("raise_steamship_error")
     def raise_steamship_error(self) -> InvocableResponse:
@@ -89,7 +93,7 @@ class TestPackage(PackageService):
         """This is called get_config because there's already `.config` object on the class."""
         return InvocableResponse(
             json={
-                "spaceId": self.client.config.space_id,
+                "workspaceId": self.client.config.workspace_id,
                 "appBase": self.client.config.app_base,
                 "apiBase": self.client.config.api_base,
                 "apiKey": self.client.config.api_key,
