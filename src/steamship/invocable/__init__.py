@@ -1,3 +1,4 @@
+from .config import Config
 from .invocable import Invocable, get, post
 from .invocable_request import InvocableRequest, Invocation, InvocationContext, LoggingConfig
 from .invocable_response import InvocableResponse
@@ -7,6 +8,7 @@ from .package_service import PackageService
 __all__ = [
     "Invocable",
     "create_handler",
+    "Config",
     "Invocation",
     "InvocableRequest",
     "InvocableResponse",
