@@ -4,9 +4,8 @@ from typing import Type, Union
 import pytest
 
 from steamship.base.client import Client
-from steamship.invocable import InvocableResponse
+from steamship.invocable import Config, InvocableResponse
 from steamship.invocable.plugin_service import PluginRequest, PluginService
-from steamship.plugin.config import Config
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
@@ -17,6 +16,9 @@ from steamship.plugin.trainable_model import TrainableModel
 
 
 class ValidStringToStringPlugin(PluginService):
+    def config_cls(self) -> Type[Config]:
+        return Config
+
     def run(self, request: PluginRequest[str]) -> Union[str, InvocableResponse[str]]:
         pass
 
@@ -82,7 +84,8 @@ def test_plugin_service_is_abstract():
 
 def test_plugin_service_must_implement_run_and_subclass_request_from_dict():
     class BadPlugin(PluginService):
-        pass
+        def config_cls(self) -> Type[Config]:
+            return Config
 
     with pytest.raises(TypeError):
         BadPlugin()
