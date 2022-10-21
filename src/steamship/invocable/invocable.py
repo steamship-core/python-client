@@ -131,6 +131,13 @@ class Invocable(ABC):
                     )
                     cls._package_spec.methods.append(method_spec)
 
+        # Add the dir method
+        cls._register_mapping(name="__steamship_dir__", verb=Verb.GET, path="/__dir__")
+
+    def __steamship_dir__(self, **kwargs) -> dict:
+        """Return this Invocable's API from the Steamship perspective."""
+        return {"methods": self._package_spec.methods}
+
     @staticmethod
     def _clean_path(path: str = "") -> str:
         if not path:
@@ -163,7 +170,7 @@ class Invocable(ABC):
             args.append(ArgSpec(name=p, kind=str(sig.parameters[p].annotation)))
 
         method_spec = MethodSpec(
-            verb=Verb.safely_from_str(verb) or Verb.GET,
+            verb=Verb(verb.strip().upper()) or Verb.POST,
             path=path,
             returns=str(sig.return_annotation),
             doc=func.__doc__,
