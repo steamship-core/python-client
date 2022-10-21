@@ -3,8 +3,8 @@ Steamship
 
 Welcome to Steamship!
 
-The best way to get started is with our command line utility.
-In your terminal, run the following command (you'll need `NPM`_):
+The best way to get started is by trying out a package.
+First, you'll need to install our CLI. In your terminal, run the following command (you'll need `NPM`_):
 
 .. code:: bash
 
@@ -22,21 +22,24 @@ Or develop your own :ref:`package<Packages>` or :ref:`plugin<Plugins>` with:
 
    ship create
 
+..
+    TODO: Carry an example through to Package API calls
+
 Contents
 ========
 
 .. toctree::
    :maxdepth: 2
 
-   License <license>
-   Authors <authors>
    Authentication <authentication>
-   HTTP Operation <http_operation>
-   Workspaces <workspaces/index>
-   Plugins <plugins/index>
    Packages <packages/index>
+   Plugins <plugins/index>
+   Workspaces <workspaces/index>
+   HTTP Operation <http_operation>
    Developing <developing/index>
    Python Client Reference <api/modules>
+   License <license>
+   Authors <authors>
 
 
 .. _NPM: http://npmjs.com/
