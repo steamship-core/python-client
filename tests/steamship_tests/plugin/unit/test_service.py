@@ -3,21 +3,21 @@ from typing import Type, Union
 
 import pytest
 
-from steamship.app.response import Response
-from steamship.base import Client
+from steamship.base.client import Client
+from steamship.invocable import InvocableResponse
+from steamship.invocable.plugin_service import PluginRequest, PluginService
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
-from steamship.plugin.service import PluginRequest, PluginService
 from steamship.plugin.tagger import TrainableTagger
 from steamship.plugin.trainable_model import TrainableModel
 
 
 class ValidStringToStringPlugin(PluginService):
-    def run(self, request: PluginRequest[str]) -> Union[str, Response[str]]:
+    def run(self, request: PluginRequest[str]) -> Union[str, InvocableResponse[str]]:
         pass
 
 
@@ -51,21 +51,23 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
 
     def run_with_model(
         self, request: PluginRequest[str], model: TrainableModel
-    ) -> Union[str, Response[str]]:
+    ) -> Union[str, InvocableResponse[str]]:
         pass
 
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
-    ) -> Response[TrainingParameterPluginOutput]:
-        return Response(data=TrainingParameterPluginOutput())
+    ) -> InvocableResponse[TrainingParameterPluginOutput]:
+        return InvocableResponse(data=TrainingParameterPluginOutput())
 
-    def train(self, request: PluginRequest[TrainPluginInput], model) -> Response[TrainPluginOutput]:
-        return Response(data=TrainPluginOutput())
+    def train(
+        self, request: PluginRequest[TrainPluginInput], model
+    ) -> InvocableResponse[TrainPluginOutput]:
+        return InvocableResponse(data=TrainPluginOutput())
 
     def train_status(
         self, request: PluginRequest[TrainStatusPluginInput], model
-    ) -> Response[TrainPluginOutput]:
-        return Response(data=TrainPluginOutput())
+    ) -> InvocableResponse[TrainPluginOutput]:
+        return InvocableResponse(data=TrainPluginOutput())
 
 
 #

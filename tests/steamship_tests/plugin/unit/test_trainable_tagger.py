@@ -1,18 +1,18 @@
 from assets.plugins.taggers.plugin_trainable_tagger import (
-    TRAIN_RESPONSE,
     TRAINING_PARAMETERS,
     TestTrainableTaggerPlugin,
+    make_train_response,
 )
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import File
 from steamship.base import Task
 from steamship.data.block import Block
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.request import PluginRequestContext
-from steamship.plugin.service import PluginRequest
 
 TEST_REQ = BlockAndTagPluginInput(
     file=File(
@@ -78,7 +78,7 @@ def test_trainable_tagger():
         ),
         model,
     )
-    train_response = TRAIN_RESPONSE()
+    train_response = make_train_response()
     train_response.data.archive_path = "000/default.zip"
     train_response.data = train_response.data.dict(by_alias=True)
     assert tagger1.data == train_response.data

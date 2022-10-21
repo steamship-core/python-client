@@ -1,10 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import List, Optional
 
-from steamship.base import Client, Request, Response
-from steamship.base.configuration import CamelModel
-from steamship.base.request import IdentifierRequest
+from pydantic import Field
+
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
+from steamship.base.request import DeleteRequest, IdentifierRequest, Request
+from steamship.base.response import Response
 from steamship.data.tags.tag import Tag
 
 
@@ -13,7 +16,7 @@ class BlockQueryRequest(Request):
 
 
 class Block(CamelModel):
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     file_id: str = None
     text: str = None
@@ -24,10 +27,6 @@ class Block(CamelModel):
         file_id: str = None
         text: str = None
         tags: Optional[List[Tag.CreateRequest]] = []
-        upsert: bool = None
-
-    class DeleteRequest(Request):
-        id: str = None
 
     class ListRequest(Request):
         file_id: str = None
@@ -39,17 +38,11 @@ class Block(CamelModel):
     def get(
         client: Client,
         _id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ) -> Response[Block]:
+    ) -> Block:
         return client.post(
             "block/get",
             IdentifierRequest(id=_id),
             expect=Block,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     @staticmethod
@@ -58,38 +51,18 @@ class Block(CamelModel):
         file_id: str = None,
         text: str = None,
         tags: List[Tag.CreateRequest] = None,
-        upsert: bool = None,
-        space_id: str = None,
-        space_handle: str = None,
-    ) -> Response[Block]:
-        req = Block.CreateRequest(file_id=file_id, text=text, tags=tags, upsert=upsert)
+    ) -> Block:
+        req = Block.CreateRequest(file_id=file_id, text=text, tags=tags)
         return client.post(
             "block/create",
             req,
             expect=Block,
-            space_id=space_id,
-            space_handle=space_handle,
         )
 
-    @staticmethod
-    def list_public(
-        client: Client,
-        file_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-    ) -> Response[Block.ListResponse]:
-        return client.post(
-            "block/list",
-            Block.ListRequest(file_id=file_id),
-            expect=Block.ListResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-        )
-
-    def delete(self) -> Response[Block]:
+    def delete(self) -> Block:
         return self.client.post(
             "block/delete",
-            Block.DeleteRequest(id=self.id),
+            DeleteRequest(id=self.id),
             expect=Tag,
         )
 
@@ -97,19 +70,12 @@ class Block(CamelModel):
     def query(
         client: Client,
         tag_filter_query: str,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ) -> Response[BlockQueryResponse]:
-        # TODO: Is this a static method?
+    ) -> BlockQueryResponse:
         req = BlockQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
             "block/query",
             payload=req,
             expect=BlockQueryResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
         return res
 

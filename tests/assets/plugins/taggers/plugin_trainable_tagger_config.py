@@ -3,8 +3,8 @@ from pathlib import Path
 from typing import Any, Dict, Type
 
 from steamship import File
-from steamship.app import Response, create_handler
-from steamship.base import Client
+from steamship.base.client import Client
+from steamship.invocable import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -49,12 +49,12 @@ class TestTrainableTaggerConfigModel(TrainableModel[TestConfig]):
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
-    ) -> Response[BlockAndTagPluginOutput]:
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
         """Tags the incoming data for any instance of the keywords in the parameter file."""
         assert self.config is not None
         assert self.config.test_value1 is not None
         assert self.config.test_value2 is not None
-        response = Response(data=BlockAndTagPluginOutput(file=File.CreateRequest(tags=[])))
+        response = InvocableResponse(data=BlockAndTagPluginOutput(file=File.CreateRequest(tags=[])))
         logging.info(f"TestTrainableTaggerModel:run() returning {response}")
         return response
 
@@ -89,8 +89,8 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
         self,
         request: PluginRequest[BlockAndTagPluginInput],
         model: TestTrainableTaggerConfigModel,
-    ) -> Response[BlockAndTagPluginOutput]:
-        """Downloads the model file from the provided space"""
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
+        """Downloads the model file from the provided workspace"""
         logging.debug(f"run_with_model {request} {model}")
         logging.info(
             f"TestTrainableTaggerPlugin:run_with_model() got request {request} and model {model}"
@@ -99,21 +99,21 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
 
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
-    ) -> Response[TrainingParameterPluginOutput]:
-        ret = Response(data={})
+    ) -> InvocableResponse[TrainingParameterPluginOutput]:
+        ret = InvocableResponse(data={})
         return ret
 
     def train(
         self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerConfigModel
-    ) -> Response[TrainPluginOutput]:
+    ) -> InvocableResponse[TrainPluginOutput]:
         _ = model.train(request)
-        return Response(data=TrainPluginOutput())
+        return InvocableResponse(data=TrainPluginOutput())
 
     def train_status(
         self, request: PluginRequest[TrainPluginInput], model: TrainableModel
-    ) -> Response[TrainPluginOutput]:
+    ) -> InvocableResponse[TrainPluginOutput]:
         model.train_status(request)
-        return Response(data=TrainPluginOutput())
+        return InvocableResponse(data=TrainPluginOutput())
 
 
 handler = create_handler(TestTrainableTaggerConfigPlugin)

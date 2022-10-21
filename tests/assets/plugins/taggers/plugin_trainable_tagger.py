@@ -4,8 +4,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Type
 
 from steamship import File, SteamshipError, Tag
-from steamship.app import Response, create_handler
-from steamship.base import Client, Task, TaskState
+from steamship.base import Task, TaskState
+from steamship.base.client import Client
+from steamship.invocable import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -25,8 +26,8 @@ TRAINING_PARAMETERS = TrainingParameterPluginOutput(
 )
 
 
-def TRAIN_RESPONSE():
-    return Response(data=TrainPluginOutput())
+def make_train_response():
+    return InvocableResponse(data=TrainPluginOutput())
 
 
 class EmptyConfig(Config):
@@ -78,7 +79,7 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
         with open(checkpoint_path / TestTrainableTaggerModel.KEYWORD_LIST_FILE, "w") as f:
             f.write(json.dumps(self.keyword_list))
 
-    def train(self, input: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
+    def train(self, input: PluginRequest[TrainPluginInput]) -> InvocableResponse[TrainPluginOutput]:
         """Training for this model is to set the parameters to those provided in the input object.
 
         This allows us to test that we're properly passing through the training parameters to the train process.
@@ -87,9 +88,11 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
         """
         logging.info("TestTrainableTaggerModel:train()")
         self.keyword_list = input.data.training_params.get("keyword_list", [])
-        return TRAIN_RESPONSE()
+        return make_train_response()
 
-    def train_status(self, input: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
+    def train_status(
+        self, input: PluginRequest[TrainPluginInput]
+    ) -> InvocableResponse[TrainPluginOutput]:
         """Training for this model is to set the parameters to those provided in the input object.
 
         This allows us to test that we're properly passing through the training parameters to the train process.
@@ -100,13 +103,13 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
-    ) -> Response[BlockAndTagPluginOutput]:
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
         """Tags the incoming data for any instance of the keywords in the parameter file."""
         logging.info(f"TestTrainableTaggerModel:run() - My keyword list is {self.keyword_list}")
-        response = Response(
+        response = InvocableResponse(
             data=BlockAndTagPluginOutput(
                 file=File.CreateRequest(
-                    tags=[Tag.CreateRequest(name=word) for word in self.keyword_list]
+                    tags=[Tag.CreateRequest(kind=word) for word in self.keyword_list]
                 )
             )
         )
@@ -144,8 +147,8 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         self,
         request: PluginRequest[BlockAndTagPluginInput],
         model: TestTrainableTaggerModel,
-    ) -> Response[BlockAndTagPluginOutput]:
-        """Downloads the model file from the provided space"""
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
+        """Downloads the model file from the provided workspace"""
         logging.debug(f"run_with_model {request} {model}")
         logging.info(
             f"TestTrainableTaggerPlugin:run_with_model() got request {request} and model {model}"
@@ -154,19 +157,19 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
-    ) -> Response[TrainingParameterPluginOutput]:
-        ret = Response[TrainingParameterPluginOutput](data=TRAINING_PARAMETERS)
+    ) -> InvocableResponse[TrainingParameterPluginOutput]:
+        ret = InvocableResponse[TrainingParameterPluginOutput](data=TRAINING_PARAMETERS)
         return ret
 
     def train(
         self, request: PluginRequest[TrainPluginInput], model: TestTrainableTaggerModel
-    ) -> Response[TrainPluginOutput]:
+    ) -> InvocableResponse[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
         logging.info(f"TestTrainableTaggerPlugin:train() {request}")
 
         # Create a Response object at the top with a Task attached. This will let us stream back updates
         # TODO: This is very non-intuitive. We should improve this.
-        response = Response(status=Task(state=TaskState.running))
+        response = InvocableResponse(status=Task(state=TaskState.running))
 
         # Example of recording training progress
         # response.status.status_message = "About to train!"
@@ -204,7 +207,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
     def train_status(
         self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
-    ) -> Response[TrainPluginOutput]:
+    ) -> InvocableResponse[TrainPluginOutput]:
         # This plugin never keeps a training task going beyond one function call.  This method should not be called.
         raise SteamshipError(message="The train_status call should not happen on this model.")
 

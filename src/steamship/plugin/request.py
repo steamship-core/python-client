@@ -11,8 +11,7 @@ from pydantic.generics import GenericModel
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
 from steamship.base import Task
-from steamship.base.configuration import CamelModel
-from steamship.base.utils import to_camel
+from steamship.base.model import CamelModel, to_camel
 
 T = TypeVar("T")
 U = TypeVar("U")

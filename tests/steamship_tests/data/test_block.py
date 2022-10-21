@@ -11,28 +11,28 @@ def test_query(client: Steamship):
     a = File.create(
         client=client,
         blocks=[
-            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(name="BlockTag")]),
+            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(kind="BlockTag")]),
             Block.CreateRequest(text="B"),
         ],
-    ).data
+    )
     assert a.id is not None
-    a = a.refresh().data
+    a = a.refresh()
     b = File.create(
         client=client,
         blocks=[
             Block.CreateRequest(text="A"),
-            Block.CreateRequest(text="B", tags=[Tag.CreateRequest(name="Test")]),
+            Block.CreateRequest(text="B", tags=[Tag.CreateRequest(kind="Test")]),
         ],
-        tags=[Tag.CreateRequest(name="FileTag")],
-    ).data
+        tags=[Tag.CreateRequest(kind="FileTag")],
+    )
     assert b.id is not None
-    b = b.refresh().data
+    b = b.refresh()
 
-    blocks = Block.query(client=client, tag_filter_query='blocktag and name "BlockTag"').data.blocks
+    blocks = Block.query(client=client, tag_filter_query='blocktag and kind "BlockTag"').blocks
     assert len(blocks) == 1
     assert blocks[0].id == a.blocks[0].id
 
-    blocks = Block.query(client=client, tag_filter_query='blocktag and name "Test"').data.blocks
+    blocks = Block.query(client=client, tag_filter_query='blocktag and kind "Test"').blocks
     assert len(blocks) == 1
     assert blocks[0].id == b.blocks[1].id
 

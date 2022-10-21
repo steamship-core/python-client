@@ -20,8 +20,8 @@ from assets.plugins.taggers.plugin_trainable_tagger import (
 )
 
 from steamship import Block, File, SteamshipError, Tag
-from steamship.app import Response, create_handler
 from steamship.base import Task, TaskState
+from steamship.invocable import InvocableResponse, create_handler
 from steamship.plugin.config import Config
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -102,22 +102,24 @@ class ThirdPartyModel(TrainableModel):
         with open(checkpoint_path / self.PARAM_FILE, "w") as f:
             f.write(json.dumps(self.params))
 
-    def train(self, input: PluginRequest[TrainPluginInput]) -> Response[TrainPluginOutput]:
+    def train(self, input: PluginRequest[TrainPluginInput]) -> InvocableResponse[TrainPluginOutput]:
         """Trains using the MockClient."""
         if self.client is None:
             raise SteamshipError(message="MockClient was null.")
         reference_data = {"num_checkins": 0}
-        return Response(status=Task(state=TaskState.running, remote_status_input=reference_data))
+        return InvocableResponse(
+            status=Task(state=TaskState.running, remote_status_input=reference_data)
+        )
 
     def train_status(
         self, input: PluginRequest[TrainStatusPluginInput]
-    ) -> Response[TrainPluginOutput]:
+    ) -> InvocableResponse[TrainPluginOutput]:
         logging.info(f'Called train_status with {input.status.remote_status_input["num_checkins"]}')
         input.status.remote_status_input["num_checkins"] += 1
         complete = input.status.remote_status_input["num_checkins"] > 2
 
         if not complete:
-            return Response(
+            return InvocableResponse(
                 status=Task(
                     state=TaskState.running, remote_status_input=input.status.remote_status_input
                 )
@@ -137,7 +139,7 @@ class ThirdPartyModel(TrainableModel):
         model_id = self.client.train(data_file_id)
         self.params["model_id"] = model_id
 
-        return Response(data=TrainPluginOutput())
+        return InvocableResponse(data=TrainPluginOutput())
 
     def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> BlockAndTagPluginOutput:
         """Runs the mock client"""
@@ -152,7 +154,7 @@ class ThirdPartyModel(TrainableModel):
         for in_block in request.data.file.blocks:
             tags = self.client.infer(in_block.text, self.params["model_id"])
             out_block = Block.CreateRequest(
-                id=in_block.id, tags=[Tag.CreateRequest(name=tag) for tag in tags]
+                id=in_block.id, tags=[Tag.CreateRequest(kind=tag) for tag in tags]
             )
             output.file.blocks.append(out_block)
 
@@ -177,27 +179,27 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
 
     def run_with_model(
         self, request: PluginRequest[BlockAndTagPluginInput], model: TestTrainableTaggerModel
-    ) -> Response[BlockAndTagPluginOutput]:
-        """Downloads the model file from the provided space"""
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
+        """Downloads the model file from the provided workspace"""
         logging.debug(f"run_with_model {request} {model}")
-        return Response(json=model.run(request))
+        return InvocableResponse(json=model.run(request))
 
     def get_training_parameters(
         self, request: PluginRequest[TrainingParameterPluginInput]
-    ) -> Response[TrainingParameterPluginOutput]:
+    ) -> InvocableResponse[TrainingParameterPluginOutput]:
         logging.debug(f"get_training_parameters {request}")
-        return Response(data=TRAINING_PARAMETERS)
+        return InvocableResponse(data=TRAINING_PARAMETERS)
 
     def train(
         self, request: PluginRequest[TrainPluginInput], model: ThirdPartyModel
-    ) -> Response[TrainPluginOutput]:
+    ) -> InvocableResponse[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
         logging.debug(f"train {request}")
         return model.train(request)
 
     def train_status(
         self, request: PluginRequest[TrainStatusPluginInput], model: ThirdPartyModel
-    ) -> Response[TrainPluginOutput]:
+    ) -> InvocableResponse[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
 
         # Call train status

@@ -9,21 +9,21 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .base import Configuration, MimeTypes, SteamshipError
+from .base import Configuration, MimeTypes, SteamshipError, Task, TaskState
 from .data import (
-    App,
-    AppInstance,
-    AppVersion,
     Block,
     DocTag,
     EmbeddingIndex,
+    EmotionTag,
     File,
+    Package,
+    PackageInstance,
+    PackageVersion,
     PluginInstance,
     PluginVersion,
-    Space,
+    SentimentTag,
     Tag,
-    TagKind,
-    TextTag,
+    Workspace,
 )
 
 from .client import Steamship  # isort:skip
@@ -33,17 +33,19 @@ __all__ = [
     "Configuration",
     "SteamshipError",
     "MimeTypes",
-    "App",
-    "AppInstance",
-    "AppVersion",
+    "Package",
+    "PackageInstance",
+    "PackageVersion",
     "File",
+    "Task",
+    "TaskState",
     "Block",
     "Tag",
-    "Space",
+    "Workspace",
     "PluginInstance",
     "PluginVersion",
-    "TagKind",
-    "TextTag",
+    "SentimentTag",
+    "EmotionTag",
     "DocTag",
     "EmbeddingIndex",
 ]

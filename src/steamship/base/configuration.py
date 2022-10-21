@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 import json
-import logging
 import os
 from pathlib import Path
 from typing import Optional
 
 import inflection
-from pydantic import BaseModel, HttpUrl
+from pydantic import HttpUrl
 
-from steamship.base.utils import format_uri, to_camel
+from steamship.base.model import CamelModel
+from steamship.utils.utils import format_uri
 
 DEFAULT_WEB_BASE = "https://app.steamship.com/"
 DEFAULT_APP_BASE = "https://steamship.run/"
@@ -20,29 +20,28 @@ ENVIRONMENT_VARIABLES_TO_PROPERTY = {
     "STEAMSHIP_API_BASE": "api_base",
     "STEAMSHIP_APP_BASE": "app_base",
     "STEAMSHIP_WEB_BASE": "web_base",
-    "STEAMSHIP_SPACE_ID": "space_id",
-    "STEAMSHIP_SPACE_HANDLE": "space_handle",
+    "STEAMSHIP_WORKSPACE_ID": "workspace_id",
+    "STEAMSHIP_WORKSPACE_HANDLE": "workspace_handle",
 }
 DEFAULT_CONFIG_FILE = Path.home() / ".steamship.json"
 
-
-class CamelModel(BaseModel):
-    def __init__(self, **kwargs):
-        kwargs = {k: v for k, v in kwargs.items() if v is not None}
-        super().__init__(**kwargs)
-
-    class Config:
-        alias_generator = to_camel
-        allow_population_by_field_name = True
+# This stops us from including the `client` object in the dict() output, which is fine in a dict()
+# but explodes if that dict() is turned into JSON. Sadly the `exclude` option in Pydantic doesn't
+# cascade down nested objects, so we have to use this structure to catch all the possible combinations
+EXCLUDE_FROM_DICT = {
+    "client": True,
+    "blocks": {"__all__": {"client": True, "tags": {"__all__": {"client": True}}}},
+    "tags": {"__all__": {"client": True}},
+}
 
 
 class Configuration(CamelModel):
     api_key: str
-    api_base: Optional[HttpUrl] = DEFAULT_API_BASE
-    app_base: Optional[HttpUrl] = DEFAULT_APP_BASE
-    web_base: Optional[HttpUrl] = DEFAULT_WEB_BASE
-    space_id: str = None
-    space_handle: str = None
+    api_base: HttpUrl = DEFAULT_API_BASE
+    app_base: HttpUrl = DEFAULT_APP_BASE
+    web_base: HttpUrl = DEFAULT_WEB_BASE
+    workspace_id: str = None
+    workspace_handle: str = None
     profile: Optional[str] = None
 
     def __init__(
@@ -98,20 +97,3 @@ class Configuration(CamelModel):
             for environment_variable_name, property_name in ENVIRONMENT_VARIABLES_TO_PROPERTY.items()
             if environment_variable_name in os.environ
         }
-
-    def for_space(
-        self, space_id: Optional[str] = None, space_handle: Optional[str] = None
-    ) -> Configuration:
-        """Return a new Configuration, identical to this, but anchored in a different space.
-
-        Providing either `space_id` or `space_handle` will work; both need not be provided.
-        """
-        logging.info(f"Loading Configuration for_space: {self.api_key}")
-        return Configuration(
-            api_key=self.api_key,
-            api_base=self.api_base,
-            app_base=self.app_base,
-            web_base=self.web_base,
-            space_id=space_id,
-            space_handle=space_handle,
-        )

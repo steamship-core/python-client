@@ -43,12 +43,14 @@ class SteamshipError(Exception):
 
     def log(self):
         logging.error(
-            f"[{self.code}] {self.message}. [Internal: {self.internal_message}] [Suggestion: {self.suggestion}]"
+            f"[{self.code}] {self.message}. [Internal: {self.internal_message}] [Suggestion: {self.suggestion}]",
+            exc_info=self,
         )
         if self.error:
             logging.error(self.error)
 
     def to_dict(self) -> dict:
+        # Required since Exception cannot be combined with pydantic.BaseModel
         return {
             "message": self.message,
             "internalMessage": self.internal_message,
@@ -60,6 +62,7 @@ class SteamshipError(Exception):
     @staticmethod
     def from_dict(d: Any) -> SteamshipError:
         """Last resort if subclass doesn't override: pass through."""
+        # Required since Exception cannot be combined with pydantic.BaseModel
         return SteamshipError(
             message=d.get("statusMessage", d.get("message")),
             internal_message=d.get("internalMessage"),

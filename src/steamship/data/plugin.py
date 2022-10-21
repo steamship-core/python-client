@@ -1,7 +1,7 @@
 # Plugin
 #
 # This file contains the abstractions for managing Steamship plugins.
-# To see how to implement a Steamship Plugin, see service.py in the same folder.
+# To see how to implement a Steamship Plugin, see plugin_service.py in the same folder.
 #
 #
 
@@ -11,11 +11,11 @@ import json
 from enum import Enum
 from typing import Any, Dict, List, Optional, Type, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from steamship.base.client import Client
-from steamship.base.configuration import CamelModel
-from steamship.base.request import Request
+from steamship.base.model import CamelModel
+from steamship.base.request import IdentifierRequest, Request
 from steamship.base.response import Response
 
 
@@ -93,29 +93,14 @@ class CreatePluginRequest(Request):
     handle: str = None
     description: str = None
     metadata: str = None
-    upsert: bool = None
 
 
-class DeletePluginRequest(Request):
-    id: str
-
-
-class ListPublicPluginsRequest(Request):
+class ListPluginsRequest(Request):
     type: Optional[str] = None
-
-
-class ListPrivatePluginsRequest(Request):
-    type: str
 
 
 class ListPluginsResponse(Response):
     plugins: List[Plugin]
-
-
-class GetPluginRequest(Request):
-    type: str = None
-    id: str = None
-    handle: str = None
 
 
 class PluginType(str, Enum):
@@ -133,19 +118,18 @@ class PluginAdapterType(str, Enum):
 
 
 class PluginTargetType(str, Enum):
-    file = "file"
-    space = "space"
+    FILE = "file"
+    WORKSPACE = "workspace"
 
 
 class LimitUnit(str, Enum):
-    words = "words"
-    characters = "characters"
-    bytes = "bytes"
+    WORDS = "words"
+    CHARACTERS = "characters"
+    BYTES = "bytes"
 
 
 class Plugin(CamelModel):
-    # TODO (enias): Document, Plugins are just a name placeholder with some settings
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     type: str = None
     transport: str = None
@@ -171,10 +155,7 @@ class Plugin(CamelModel):
         handle: str = None,
         training_platform: Optional[HostingType] = None,
         metadata: Union[str, Dict, List] = None,
-        upsert: bool = False,
-        space_id: str = None,
-        space_handle: str = None,
-    ) -> Response[Plugin]:
+    ) -> Plugin:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
 
@@ -186,38 +167,24 @@ class Plugin(CamelModel):
             handle=handle,
             description=description,
             metadata=metadata,
-            upsert=upsert,
         )
         return client.post(
             "plugin/create",
             req,
             expect=Plugin,
-            space_id=space_id,
-            space_handle=space_handle,
         )
 
     @staticmethod
-    def list(
-        client: Client, t: str = None, space_id: str = None, space_handle: str = None
-    ) -> Response[ListPluginsResponse]:
+    def list(client: Client, t: str = None) -> ListPluginsResponse:
         return client.post(
             "plugin/list",
-            ListPublicPluginsRequest(type=t),
+            ListPluginsRequest(type=t),
             expect=ListPluginsResponse,
-            space_id=space_id,
-            space_handle=space_handle,
         )
 
     @staticmethod
     def get(client: Client, handle: str):
-        return client.post("plugin/get", GetPluginRequest(handle=handle), expect=Plugin)
-
-    def delete(self) -> Response[Plugin]:
-        return self.client.post(
-            "plugin/delete",
-            DeletePluginRequest(id=self.id),
-            expect=Plugin,
-        )
+        return client.post("plugin/get", IdentifierRequest(handle=handle), expect=Plugin)
 
 
 ListPluginsResponse.update_forward_refs()

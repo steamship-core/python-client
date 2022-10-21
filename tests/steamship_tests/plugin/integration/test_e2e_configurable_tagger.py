@@ -31,14 +31,13 @@ def test_e2e_parser():
         test_doc = "Hi there"
         res = instance.tag(doc=test_doc)
         res.wait()
-        assert res.error is None
-        assert res.data is not None
-        assert len(res.data.file.blocks) == 1
-        assert res.data.file.blocks[0].text == test_doc
+        assert res.output is not None
+        assert len(res.output.file.blocks) == 1
+        assert res.output.file.blocks[0].text == test_doc
 
         # Validate configured content
-        assert len(res.data.file.tags) == 1
-        tag = res.data.file.tags[0]
+        assert len(res.output.file.tags) == 1
+        tag = res.output.file.tags[0]
         assert tag.name == instance_config1["tagName"]
         assert tag.kind == instance_config1["tagKind"]
         tag_value = tag.value
@@ -58,21 +57,17 @@ def test_e2e_parser():
             plugin_version_id=version.id,
             config=instance_config2,
         )
-        instance2.wait()
-        assert instance2.error is None
-        assert instance2.data is not None
-        instance2 = instance2.data
+        assert instance2 is not None
 
         res = instance2.tag(doc=test_doc)
         res.wait()
-        assert res.error is None
-        assert res.data is not None
-        assert len(res.data.file.blocks) == 1
-        assert res.data.file.blocks[0].text == test_doc
+        assert res.output is not None
+        assert len(res.output.file.blocks) == 1
+        assert res.output.file.blocks[0].text == test_doc
 
         # Validate configured content
-        assert len(res.data.file.tags) == 1
-        tag = res.data.file.tags[0]
+        assert len(res.output.file.tags) == 1
+        tag = res.output.file.tags[0]
         assert tag.name == instance_config2["tagName"]
         assert tag.kind == instance_config2["tagKind"]
         tag_value = tag.value

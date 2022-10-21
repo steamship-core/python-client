@@ -1,17 +1,28 @@
-from steamship.base.configuration import CamelModel
+from steamship.base.model import CamelModel
 
 
 class Request(CamelModel):
-    class Config:
-        use_enum_values = True
+    pass
 
 
 class GetRequest(Request):
     id: str = None
     handle: str = None
-    upsert: bool = None
+
+
+class CreateRequest(Request):
+    id: str = None
+    handle: str = None
 
 
 class IdentifierRequest(Request):
     id: str = None
     handle: str = None
+
+
+class ListRequest(Request):
+    pass
+
+
+class DeleteRequest(Request):
+    id: str
