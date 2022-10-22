@@ -138,9 +138,9 @@ def test_instance_invoke():
 
         # Test that the __steamship_dir__ method works
         steamship_dir = instance.invoke("__dir__")
-        steamship_dir_json = json.dumps(steamship_dir, indent=2)
         with open(TEST_ASSETS_PATH / "demo_package_spec.json", "r") as f:
-            assert f.read() == steamship_dir_json
+            steamship_dir_golden = json.loads(f.read())
+            assert steamship_dir == steamship_dir_golden
 
 
 def test_deploy_in_workspace():
