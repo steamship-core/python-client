@@ -14,7 +14,7 @@ from typing import Any, Dict, Optional
 
 import toml
 
-from steamship.base.package_spec import ArgSpec, MethodSpec, PackageSpec
+from steamship.base.package_spec import MethodSpec, PackageSpec
 from steamship.client import Steamship
 from steamship.invocable.invocable_request import InvocableRequest
 from steamship.invocable.invocable_response import InvocableResponse
@@ -151,32 +151,7 @@ class Invocable(ABC):
         cls, name: str, verb: Optional[Verb] = None, path: str = ""
     ) -> MethodSpec:
         """Registering a mapping permits the method to be invoked via HTTP."""
-
-        verb = verb or Verb.GET
-
-        if path is None and name is not None:
-            path = f"/{name}"
-
-        path = cls._clean_path(path)
-
-        # Create the spec desribing this mapping.
-        args = []
-
-        func = getattr(cls, name)
-        sig = inspect.signature(func)
-        for p in sig.parameters:
-            if p == "self":
-                continue
-            args.append(ArgSpec(name=p, kind=str(sig.parameters[p].annotation)))
-
-        method_spec = MethodSpec(
-            verb=Verb(verb.strip().upper()) or Verb.POST,
-            path=path,
-            returns=str(sig.return_annotation),
-            doc=func.__doc__,
-            args=args,
-        )
-
+        method_spec = MethodSpec(cls, name, path=path, verb=verb)
         cls._method_mappings[verb][path] = name
         # TODO Dave: this log call is not going to the remote logger, but should
         logging.info(f"[{cls.__name__}] {verb} {path} => {name}")

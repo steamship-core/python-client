@@ -1,14 +1,33 @@
+"""Objects for recording and reporting upon the introspected interface of a Steamship Package."""
+import inspect
 from typing import List, Optional
 
+from steamship import SteamshipError
 from steamship.base.configuration import CamelModel
+from steamship.utils.url import Verb
 
 
 class ArgSpec(CamelModel):
+    """An argument passed to a method."""
+
+    # The name of the argument.
     name: str
+    # The kind of the argument, reported by str(annotation) via the `inspect` library. E.g. <class 'int'>
     kind: str
+    # The docstring of the argument.
     doc: Optional[str] = None
 
-    def doc_string(self, name_width: Optional[int] = None, prefix: str = "") -> str:
+    def __init__(self, name: str, parameter: inspect.Parameter):
+        if name == "self":
+            raise SteamshipError(
+                message="Attempt to interpret the `self` object as a method parameter."
+            )
+        self.name = name
+        self.kind = str(parameter.annotation)
+        self.doc = parameter.__doc__
+
+    def pprint(self, name_width: Optional[int] = None, prefix: str = "") -> str:
+        """Returns a pretty printable representation of this argument."""
         width = name_width or len(self.name)
         ret = f"{prefix}{self.name.ljust(width)} - {self.kind}"
         if self.doc:
@@ -17,29 +36,85 @@ class ArgSpec(CamelModel):
 
 
 class MethodSpec(CamelModel):
+    """A method, callable remotely, on an object."""
+
+    # The HTTP Path at which the method is callable.
     path: str
+
+    # The HTTP Verb at which the method is callable. Defaults to POST
     verb: str
+
+    # The return type. Reported by str(annotation) via the `inspect` library. E.g. <class 'int'>
     returns: str
+
+    # The docstring of the method.
     doc: Optional[str] = None
+
+    # The named arguments of the method. Positional arguments are not permitted.
     args: Optional[List[ArgSpec]] = None
 
-    def doc_string(self, name_width: Optional[int] = None, prefix: str = "  ") -> str:
+    @staticmethod
+    def _clean_path(path: str = "") -> str:
+        """Ensure that the path always starts with /, and at minimum must be at least /."""
+        if not path:
+            path = "/"
+        elif path[0] != "/":
+            path = f"/{path}"
+        return path
+
+    def __init__(self, cls: object, name: str, path: str = None, verb: Verb = Verb.POST):
+        # Set the path
+        if path is None and name is not None:
+            path = f"/{name}"
+        self.path = self._clean_path(path)
+
+        # Set the verb
+        self.verb = verb
+
+        # Get the function on the class so that we can inspect it
+        func = getattr(cls, name)
+        sig = inspect.signature(func)
+
+        # Set the return type
+        self.returns = str(sig.return_annotation)
+
+        # Set the docstring
+        self.doc = func.__doc__
+
+        # Set the arguments
+        self.args = []
+        for p in sig.parameters:
+            if p == "self":
+                continue
+            self.args.append(ArgSpec(p, sig.parameters[p]))
+
+    def pprint(self, name_width: Optional[int] = None, prefix: str = "  ") -> str:
+        """Returns a pretty printable representation of this method."""
+
         width = name_width or len(self.path)
         ret = f"{self.verb.ljust(4)} {self.path.lstrip('/').ljust(width)} -> {self.returns}"
         if self.args:
             name_width = max([len(arg.name) or 0 for arg in self.args])
             for arg in self.args:
-                arg_doc_string = arg.doc_string(name_width, prefix)
+                arg_doc_string = arg.print(name_width, prefix)
                 ret += f"\n{arg_doc_string}"
         return ret
 
 
 class PackageSpec(CamelModel):
+    """A package, representing a remotely instantiable service."""
+
+    # The name of the package
     name: str
+
+    # The docstring of the package
     doc: Optional[str] = None
+
+    # The list of methods the package exposes remotely
     methods: Optional[List[MethodSpec]] = None
 
-    def doc_string(self, prefix: str = "  ") -> str:
+    def pprint(self, prefix: str = "  ") -> str:
+        """Returns a pretty printable representation of this package."""
         underline = "=" * len(self.name)
         ret = f"{self.name}\n{underline}\n"
         if self.doc:
@@ -50,6 +125,6 @@ class PackageSpec(CamelModel):
         if self.methods:
             name_width = max([len(method.path) or 0 for method in self.methods])
             for method in self.methods:
-                method_doc_string = method.doc_string(name_width, prefix)
+                method_doc_string = method.pprint(name_width, prefix)
                 ret += f"\n{method_doc_string}"
         return ret
