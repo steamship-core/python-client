@@ -14,24 +14,18 @@ class ArgSpec(CamelModel):
     name: str
     # The kind of the argument, reported by str(annotation) via the `inspect` library. E.g. <class 'int'>
     kind: str
-    # The docstring of the argument.
-    doc: Optional[str] = None
 
     def __init__(self, name: str, parameter: inspect.Parameter):
         if name == "self":
             raise SteamshipError(
                 message="Attempt to interpret the `self` object as a method parameter."
             )
-        self.name = name
-        self.kind = str(parameter.annotation)
-        self.doc = parameter.__doc__
+        super().__init__(name=name, kind=str(parameter.annotation))
 
     def pprint(self, name_width: Optional[int] = None, prefix: str = "") -> str:
         """Returns a pretty printable representation of this argument."""
         width = name_width or len(self.name)
         ret = f"{prefix}{self.name.ljust(width)} - {self.kind}"
-        if self.doc:
-            ret += f"\n{prefix}  {self.doc}"
         return ret
 
 
@@ -54,7 +48,7 @@ class MethodSpec(CamelModel):
     args: Optional[List[ArgSpec]] = None
 
     @staticmethod
-    def _clean_path(path: str = "") -> str:
+    def clean_path(path: str = "") -> str:
         """Ensure that the path always starts with /, and at minimum must be at least /."""
         if not path:
             path = "/"
@@ -66,27 +60,26 @@ class MethodSpec(CamelModel):
         # Set the path
         if path is None and name is not None:
             path = f"/{name}"
-        self.path = self._clean_path(path)
-
-        # Set the verb
-        self.verb = verb
+        path = MethodSpec.clean_path(path)
 
         # Get the function on the class so that we can inspect it
         func = getattr(cls, name)
         sig = inspect.signature(func)
 
         # Set the return type
-        self.returns = str(sig.return_annotation)
+        returns = str(sig.return_annotation)
 
         # Set the docstring
-        self.doc = func.__doc__
+        doc = func.__doc__
 
         # Set the arguments
-        self.args = []
+        args = []
         for p in sig.parameters:
             if p == "self":
                 continue
-            self.args.append(ArgSpec(p, sig.parameters[p]))
+            args.append(ArgSpec(p, sig.parameters[p]))
+
+        super().__init__(path=path, verb=verb, returns=returns, doc=doc, args=args)
 
     def pprint(self, name_width: Optional[int] = None, prefix: str = "  ") -> str:
         """Returns a pretty printable representation of this method."""

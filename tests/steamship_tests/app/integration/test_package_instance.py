@@ -1,4 +1,5 @@
 import base64
+import json
 
 import pytest
 import requests
@@ -134,6 +135,12 @@ def test_instance_invoke():
         # isn't trying to coerce it to a Task object and throwing.
         resp_obj = instance.invoke("json_with_status", verb=Verb.POST)
         assert resp_obj == {"status": "a string"}
+
+        # Test that the __steamship_dir__ method works
+        steamship_dir = instance.invoke("__dir__")
+        steamship_dir_json = json.dumps(steamship_dir, indent=2)
+        with open(TEST_ASSETS_PATH / "demo_package_spec.json", "r") as f:
+            assert f.read() == steamship_dir_json
 
 
 def test_deploy_in_workspace():

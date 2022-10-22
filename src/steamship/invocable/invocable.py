@@ -6,6 +6,7 @@ Please see https://docs.steamship.com/ for information about building a Steamshi
 import inspect
 import logging
 import pathlib
+import time
 from abc import ABC
 from collections import defaultdict
 from functools import wraps
@@ -113,6 +114,8 @@ class Invocable(ABC):
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+
+        start_time = time.time()
         cls._package_spec = PackageSpec(name=cls.__name__, doc=cls.__doc__, methods=[])
         cls._method_mappings = defaultdict(dict)
         base_fn_list = [
@@ -131,8 +134,13 @@ class Invocable(ABC):
                     )
                     cls._package_spec.methods.append(method_spec)
 
-        # Add the HTTP GET /__steamship_dir__ method which returns a serialization of the PackageSpec
+        # Add the HTTP GET /__dir__ method which returns a serialization of the PackageSpec.
+        # Wired up to both GET and POST for convenience (since POST is the default from the Python client, but
+        # GET is the default if using from a browser).
         cls._register_mapping(name="__steamship_dir__", verb=Verb.GET, path="/__dir__")
+        cls._register_mapping(name="__steamship_dir__", verb=Verb.POST, path="/__dir__")
+        end_time = time.time()
+        logging.info(f"Registered package functions in {end_time - start_time} seconds.")
 
     def __steamship_dir__(self) -> dict:
         """Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation."""
@@ -144,7 +152,8 @@ class Invocable(ABC):
     ) -> MethodSpec:
         """Registering a mapping permits the method to be invoked via HTTP."""
         method_spec = MethodSpec(cls, name, path=path, verb=verb)
-        cls._method_mappings[verb][path] = name
+        # It's important to use method_spec.path below since that's the CLEANED path.
+        cls._method_mappings[verb][method_spec.path] = name
         # TODO Dave: this log call is not going to the remote logger, but should
         logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
         return method_spec
@@ -166,7 +175,7 @@ class Invocable(ABC):
         verb = Verb(request.invocation.http_verb.strip().upper())
         path = request.invocation.invocation_path
 
-        path = self._clean_path(path)
+        path = MethodSpec.clean_path(path)
 
         logging.info(f"[{verb}] {path}")
 
