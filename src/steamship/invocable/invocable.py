@@ -131,20 +131,12 @@ class Invocable(ABC):
                     )
                     cls._package_spec.methods.append(method_spec)
 
-        # Add the dir method
+        # Add the HTTP GET /__steamship_dir__ method which returns a serialization of the PackageSpec
         cls._register_mapping(name="__steamship_dir__", verb=Verb.GET, path="/__dir__")
 
-    def __steamship_dir__(self, **kwargs) -> dict:
-        """Return this Invocable's API from the Steamship perspective."""
-        return {"methods": self._package_spec.methods}
-
-    @staticmethod
-    def _clean_path(path: str = "") -> str:
-        if not path:
-            path = "/"
-        elif path[0] != "/":
-            path = f"/{path}"
-        return path
+    def __steamship_dir__(self) -> dict:
+        """Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation."""
+        return self._package_spec.dict()
 
     @classmethod
     def _register_mapping(
