@@ -220,11 +220,11 @@ class Client(CamelModel, ABC):
 
         if is_app_call:
             if app_owner:
-                headers["X-App-Owner-Handle"] = app_owner
+                headers["X-Package-Owner-Handle"] = app_owner
             if app_id:
-                headers["X-App-Id"] = app_id
+                headers["X-Package-Id"] = app_id
             if app_instance_id:
-                headers["X-App-Instance-Id"] = app_instance_id
+                headers["X-Package-Instance-Id"] = app_instance_id
 
         if wait_on_tasks:
             # Will result in the engine persisting the inbound HTTP request as a Task for deferred
