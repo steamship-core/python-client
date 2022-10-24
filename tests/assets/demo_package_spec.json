@@ -1,0 +1,142 @@
+{
+  "name": "TestPackage",
+  "doc": null,
+  "methods": [
+    {
+      "path": "/resp_string",
+      "doc": null,
+      "args": [],
+      "returns": "<class 'l_22bcb053.InvocableResponse[str]'>",
+      "verb": "GET"
+    },
+    {
+      "path": "/resp_dict",
+      "doc": null,
+      "args": [],
+      "verb": "GET",
+      "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>"
+    },
+    {
+      "path": "/resp_obj",
+      "doc": null,
+      "args": [],
+      "verb": "GET",
+      "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>"
+    },
+    {
+      "path": "/resp_binary",
+      "doc": null,
+      "verb": "GET",
+      "returns": "<class 'l_22bcb053.InvocableResponse[bytes]'>",
+      "args": []
+    },
+    {
+      "path": "/resp_bytes_io",
+      "doc": null,
+      "verb": "GET",
+      "returns": "<class 'l_22bcb053.InvocableResponse[bytes]'>",
+      "args": []
+    },
+    {
+      "path": "/resp_image",
+      "doc": null,
+      "returns": "<class 'l_22bcb053.InvocableResponse[bytes]'>",
+      "verb": "GET",
+      "args": []
+    },
+    {
+      "path": "/greet",
+      "doc": null,
+      "args": [
+        {
+          "name": "name",
+          "kind": "<class 'str'>"
+        }
+      ],
+      "verb": "GET",
+      "returns": "<class 'l_22bcb053.InvocableResponse[str]'>"
+    },
+    {
+      "path": "/greet",
+      "doc": null,
+      "returns": "<class 'l_22bcb053.InvocableResponse[str]'>",
+      "args": [
+        {
+          "kind": "<class 'str'>",
+          "name": "name"
+        }
+      ],
+      "verb": "POST"
+    },
+    {
+      "path": "/workspace",
+      "doc": null,
+      "returns": "<class 'l_22bcb053.InvocableResponse[str]'>",
+      "args": [],
+      "verb": "GET"
+    },
+    {
+      "path": "/raise_steamship_error",
+      "doc": null,
+      "verb": "POST",
+      "args": [],
+      "returns": "<class 'l_22bcb053.InvocableResponse[str]'>"
+    },
+    {
+      "path": "/raise_python_error",
+      "doc": null,
+      "verb": "POST",
+      "returns": "<class 'l_22bcb053.InvocableResponse[str]'>",
+      "args": []
+    },
+    {
+      "path": "/user_info",
+      "doc": null,
+      "verb": "POST",
+      "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>",
+      "args": []
+    },
+    {
+      "path": "/json_with_status",
+      "doc": "Our base client tries to be smart with parsing things that look like SteamshipResponse objects, but there's\n        a problem with this when our packages response with a JSON string of the sort {\"status\": \"foo\"} -- the Client\n        will unhelpfully try to coerce that string value into a Task object and fail. This method helps us test that\n        we are handling it properly.",
+      "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>",
+      "verb": "POST",
+      "args": []
+    },
+    {
+      "path": "/config",
+      "doc": "This is called get_config because there's already `.config` object on the class.",
+      "args": [],
+      "verb": "GET",
+      "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>"
+    },
+    {
+      "path": "/learn",
+      "doc": "Learns a new fact.",
+      "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>",
+      "args": [
+        {
+          "name": "fact",
+          "kind": "<class 'str'>"
+        }
+      ],
+      "verb": "POST"
+    },
+    {
+      "path": "/query",
+      "doc": "Learns a new fact.",
+      "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>",
+      "args": [
+        {
+          "name": "query",
+          "kind": "<class 'str'>"
+        },
+        {
+          "name": "k",
+          "kind": "<class 'int'>"
+        }
+      ],
+      "verb": "POST"
+    }
+  ]
+}

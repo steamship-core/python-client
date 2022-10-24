@@ -6,6 +6,7 @@ Please see https://docs.steamship.com/ for information about building a Steamshi
 import inspect
 import logging
 import pathlib
+import time
 from abc import ABC, abstractmethod
 from collections import defaultdict
 from functools import wraps
@@ -14,6 +15,7 @@ from typing import Any, Dict, Optional, Type
 
 import toml
 
+from steamship.base.package_spec import MethodSpec, PackageSpec
 from steamship.client import Steamship
 from steamship.invocable import Config
 from steamship.invocable.invocable_request import InvocableRequest
@@ -89,6 +91,7 @@ class Invocable(ABC):
     """
 
     _method_mappings = defaultdict(dict)
+    _package_spec: PackageSpec
     config: Config
 
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
@@ -125,20 +128,37 @@ class Invocable(ABC):
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
+
+        start_time = time.time()
+        cls._package_spec = PackageSpec(name=cls.__name__, doc=cls.__doc__, methods=[])
         cls._method_mappings = defaultdict(dict)
         base_fn_list = [
             may_be_decorated
             for base_cls in cls.__bases__
             for may_be_decorated in base_cls.__dict__.values()
         ]
-
         for attribute in base_fn_list + list(cls.__dict__.values()):
             decorator = getattr(attribute, "decorator", None)
             if decorator:
                 if getattr(decorator, "__is_endpoint__", False):
                     path = getattr(attribute, "__path__", None)
                     verb = getattr(attribute, "__verb__", None)
-                    cls._register_mapping(name=attribute.__name__, verb=verb, path=path)
+                    method_spec = cls._register_mapping(
+                        name=attribute.__name__, verb=verb, path=path
+                    )
+                    cls._package_spec.methods.append(method_spec)
+
+        # Add the HTTP GET /__dir__ method which returns a serialization of the PackageSpec.
+        # Wired up to both GET and POST for convenience (since POST is the default from the Python client, but
+        # GET is the default if using from a browser).
+        cls._register_mapping(name="__steamship_dir__", verb=Verb.GET, path="/__dir__")
+        cls._register_mapping(name="__steamship_dir__", verb=Verb.POST, path="/__dir__")
+        end_time = time.time()
+        logging.info(f"Registered package functions in {end_time - start_time} seconds.")
+
+    def __steamship_dir__(self) -> dict:
+        """Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation."""
+        return self._package_spec.dict()
 
     @abstractmethod
     def config_cls(self) -> Type[Config]:
@@ -156,28 +176,17 @@ class Invocable(ABC):
         """
         raise NotImplementedError()
 
-    @staticmethod
-    def _clean_path(path: str = "") -> str:
-        if not path:
-            path = "/"
-        elif path[0] != "/":
-            path = f"/{path}"
-        return path
-
     @classmethod
-    def _register_mapping(cls, name: str, verb: Optional[Verb] = None, path: str = "") -> None:
+    def _register_mapping(
+        cls, name: str, verb: Optional[Verb] = None, path: str = ""
+    ) -> MethodSpec:
         """Registering a mapping permits the method to be invoked via HTTP."""
-
-        verb = verb or Verb.GET
-
-        if path is None and name is not None:
-            path = f"/{name}"
-
-        path = cls._clean_path(path)
-
-        cls._method_mappings[verb][path] = name
+        method_spec = MethodSpec(cls, name, path=path, verb=verb)
+        # It's important to use method_spec.path below since that's the CLEANED path.
+        cls._method_mappings[verb][method_spec.path] = name
         # TODO Dave: this log call is not going to the remote logger, but should
         logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
+        return method_spec
 
     def __call__(self, request: InvocableRequest, context: Any = None) -> InvocableResponse:
         """Invokes a method call if it is registered."""
@@ -196,7 +205,7 @@ class Invocable(ABC):
         verb = Verb(request.invocation.http_verb.strip().upper())
         path = request.invocation.invocation_path
 
-        path = self._clean_path(path)
+        path = MethodSpec.clean_path(path)
 
         logging.info(f"[{verb}] {path}")
 
