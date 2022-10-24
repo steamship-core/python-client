@@ -32,18 +32,21 @@ def test_file_tag(client: Steamship):
         if tag.kind == "test1":
             tag.delete()
 
+    Tag.create(client, file_id=a.id, kind="test3")
+
     tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"')
     assert tags is not None
     assert tags.tags is not None
-    assert len(tags.tags) == 1
+    assert len(tags.tags) == 2
 
-    must = ["test2"]
+    must = ["test2", "test3"]
     for tag in tags.tags:
         assert tag.kind in must
         must.remove(tag.kind)
     assert len(must) == 0
 
     tags.tags[0].delete()
+    tags.tags[1].delete()
 
     tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"')
     assert tags is not None
