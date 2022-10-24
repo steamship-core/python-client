@@ -87,7 +87,7 @@ class MethodSpec(CamelModel):
         width = name_width or len(self.path)
         ret = f"{self.verb.ljust(4)} {self.path.lstrip('/').ljust(width)} -> {self.returns}"
         if self.args:
-            name_width = max([len(arg.name) or 0 for arg in self.args])
+            name_width = max([(len(arg.name) if arg.name else 0) for arg in self.args])
             for arg in self.args:
                 arg_doc_string = arg.print(name_width, prefix)
                 ret += f"\n{arg_doc_string}"
