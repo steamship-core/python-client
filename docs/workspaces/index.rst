@@ -3,7 +3,7 @@
 Workspaces
 ==========
 
-Steamship Workspaces encapsulate all the data,
+Steamship Workspaces encapsulate the data,
 infrastructure, and task management necessary for a langauge AI project.
 
 Workspaces are typically used in the following way:
