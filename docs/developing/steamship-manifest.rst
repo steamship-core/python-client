@@ -18,8 +18,8 @@ They are how other code will refer to your project when using it.
 
 The full list of fields is:
 
--  ``type`` - Either ``app`` or ``plugin``. Tells Steamship how to
-   interpret this project. An ``app`` (package) is a user library that
+-  ``type`` - Either ``package`` or ``plugin``. Tells Steamship how to
+   interpret this project. A ``package`` is a user library that
    others import and use. It can define custom endpoints and do anything
    from process audio files to implement a calculator. A ``plugin`` is
    an extension to the Steamship Engine. Plugins follow a strict
