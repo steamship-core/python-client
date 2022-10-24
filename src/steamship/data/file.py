@@ -192,7 +192,7 @@ class File(CamelModel):
             raw_response=True,
         )
 
-    def blockify(self, plugin_instance: str = None) -> Task:
+    def blockify(self, plugin_instance: str = None, wait_on_tasks: List[Task] = None) -> Task:
         from steamship.data.operations.blockifier import BlockifyRequest
         from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
@@ -202,11 +202,13 @@ class File(CamelModel):
             "plugin/instance/blockify",
             payload=req,
             expect=BlockAndTagPluginOutput,
+            wait_on_tasks=wait_on_tasks,
         )
 
     def tag(
         self,
         plugin_instance: str = None,
+        wait_on_tasks: List[Task] = None,
     ) -> Task[Tag]:  # This actually is Task[TagResponse], right?
         # TODO (enias): Fix Circular imports
         from steamship.data.operations.tagger import TagRequest, TagResponse
@@ -214,9 +216,7 @@ class File(CamelModel):
 
         req = TagRequest(type=PluginTargetType.FILE, id=self.id, plugin_instance=plugin_instance)
         return self.client.post(
-            "plugin/instance/tag",
-            payload=req,
-            expect=TagResponse,
+            "plugin/instance/tag", payload=req, expect=TagResponse, wait_on_tasks=wait_on_tasks
         )
 
     def index(
