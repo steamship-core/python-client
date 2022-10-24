@@ -4,14 +4,15 @@
 Developing Packages and Plugins
 *******************************
 
-Think of Steamship plugins and packages as a PyPi modules that run in the cloud.
+Think of Steamship packages and plugins as PyPi modules that run in the cloud.
 
--  :ref:`Packages` expose open-ended endpoints that can do work on an associated :ref:`workspace<Workspaces>`
--  :ref:`Plugins` conform to specific interfaces that the Steamship Engine uses to perform work.
+-  :ref:`Packages` expose endpoints that can do work on an associated :ref:`workspace<Workspaces>`
+-  :ref:`Plugins` conform to interfaces defined by the Steamship Engine to perform common tasks.
 
-..
-    Should we note here that self-plugin development is in alpha right now?  It might be worth pointing out
-    and asking them to contact us.
+.. warning::
+    Third-party plugin development is currently in Alpha and the interface may change.
+    If you want to build a plugin, we are eager to chat!
+    Just email hello@steamship.com
 
 Steamship is designed from the ground up to support building, modifying, and sharing both packages and plugins.
 Each one you create is cloned from an existing template of your choosing.
