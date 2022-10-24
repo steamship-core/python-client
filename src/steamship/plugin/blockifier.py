@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Type
 
-from steamship.base.client import Client
 from steamship.invocable import InvocableResponse, post
 from steamship.invocable.plugin_service import PluginRequest, PluginService
-from steamship.plugin.config import Config
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
@@ -19,18 +16,6 @@ from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPlug
 
 
 class Blockifier(PluginService[RawDataPluginInput, BlockAndTagPluginOutput], ABC):
-    # noinspection PyUnusedLocal
-    def __init__(self, client: Client = None, config: Dict[str, Any] = None):
-        super().__init__(client, config)
-        if self.config:
-            self.config = self.config_cls()(**self.config)
-        else:
-            self.config = self.config_cls()()
-
-    @abstractmethod
-    def config_cls(self) -> Type[Config]:
-        raise NotImplementedError()
-
     @abstractmethod
     def run(
         self, request: PluginRequest[RawDataPluginInput]

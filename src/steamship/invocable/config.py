@@ -6,7 +6,7 @@ from steamship.base.model import CamelModel
 
 
 class Config(CamelModel):
-    """Base class for a Steamship Plugin's configuration object."""
+    """Base class Steamship Package and Plugin configuration objects."""
 
     def __init__(self, **kwargs):
         kwargs = {k: v for k, v in kwargs.items() if v is not None}

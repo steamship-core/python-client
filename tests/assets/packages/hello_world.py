@@ -1,7 +1,12 @@
-from steamship.invocable import InvocableResponse, PackageService, create_handler, get, post
+from typing import Type
+
+from steamship.invocable import Config, Invocable, InvocableResponse, create_handler, get, post
 
 
-class HelloWorld(PackageService):
+class HelloWorld(Invocable):
+    def config_cls(self) -> Type[Config]:
+        return Config
+
     @post("greet")
     def greet(self, name: str = "Person") -> InvocableResponse:
         return InvocableResponse(string=f"Hello, {name}")
