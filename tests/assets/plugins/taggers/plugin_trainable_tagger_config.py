@@ -4,8 +4,7 @@ from typing import Any, Dict, Type
 
 from steamship import File
 from steamship.base.client import Client
-from steamship.invocable import InvocableResponse, create_handler
-from steamship.plugin.config import Config
+from steamship.invocable import Config, InvocableResponse, create_handler
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput

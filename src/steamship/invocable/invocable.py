@@ -7,16 +7,17 @@ import inspect
 import logging
 import pathlib
 import time
-from abc import ABC
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Type
 
 import toml
 
 from steamship.base.package_spec import MethodSpec, PackageSpec
 from steamship.client import Steamship
+from steamship.invocable import Config
 from steamship.invocable.invocable_request import InvocableRequest
 from steamship.invocable.invocable_response import InvocableResponse
 from steamship.utils.url import Verb
@@ -91,6 +92,7 @@ class Invocable(ABC):
 
     _method_mappings = defaultdict(dict)
     _package_spec: PackageSpec
+    config: Config
 
     def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
         try:
@@ -104,13 +106,25 @@ class Invocable(ABC):
             except (TypeError, FileNotFoundError):
                 secret_kwargs = {}
 
+        # The configuration for the Invocable is the union of:
+        #
+        # 1) The `secret_kwargs` dict, read in from .steamship/secrets.toml, if it exists, and
+        # 2) The `config` dict, provided upon instantiation.
+        #
+        # When invoked from within Steamship, the `config` dict is frozen, at the instance level, upon instance
+        # creation. All subsequent method invocations reuse that frozen config.
         config = {
             **secret_kwargs,
             **{k: v for k, v in (config or {}).items() if v != ""},
         }
 
+        # Finally, we set the config object to an instance of the class returned by `self.config_cls`
+        if config:
+            self.config = self.config_cls()(**config)
+        else:
+            self.config = self.config_cls()()
+
         self.client = client
-        self.config = config
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
@@ -145,6 +159,22 @@ class Invocable(ABC):
     def __steamship_dir__(self) -> dict:
         """Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation."""
         return self._package_spec.dict()
+
+    @abstractmethod
+    def config_cls(self) -> Type[Config]:
+        """Returns the configuration object for the Invocable.
+
+        All Steamship packages and plugins must declare a configuration object which extends from Config. You may
+        implement an empty object using the below style:
+
+        class MyPackageOrPlugin:
+            class MyConfig(Config):
+                pass
+
+            def config_cls(self):
+                return MyPackageOrPlugin.MyConfig
+        """
+        raise NotImplementedError()
 
     @classmethod
     def _register_mapping(
