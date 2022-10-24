@@ -1,8 +1,8 @@
 from typing import Any
 
-from steamship.app.response import Response
 from steamship.base.mime_types import MimeTypes
 from steamship.data.file import File
+from steamship.invocable import InvocableResponse
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
 
@@ -21,7 +21,7 @@ def check_val(d: dict, val: Any):
 
 
 def test_text_response():
-    r = Response.from_obj("Hi there")
+    r = InvocableResponse.from_obj("Hi there")
     d = r.dict()
     check_mime(d, MimeTypes.TXT)
     check_type(d, str)
@@ -29,7 +29,7 @@ def test_text_response():
 
 
 def test_dict_response():
-    r = Response.from_obj({"a": 1})
+    r = InvocableResponse.from_obj({"a": 1})
     d = r.dict()
     check_mime(d, MimeTypes.JSON)
     check_type(d, dict)
@@ -38,7 +38,7 @@ def test_dict_response():
 
 def test_resp_response():
     o = BlockAndTagPluginOutput(file=File.CreateRequest(value="Foo", blocks=[], tags=[]))
-    r = Response(json=o)
+    r = InvocableResponse(json=o)
     d = r.dict()
     check_mime(d, MimeTypes.JSON)
     check_type(d, dict)

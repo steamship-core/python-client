@@ -2,7 +2,7 @@ from contextlib import contextmanager
 from typing import Any, Dict
 
 from steamship import Steamship
-from steamship.data.app_instance import AppInstance
+from steamship.data.package_instance import PackageInstance
 from steamship.data.plugin_instance import PluginInstance
 
 
@@ -19,17 +19,17 @@ def steamship_use(
     config: Dict[str, Any] = None,
     version: str = None,
     reuse: bool = True,
-    delete_space: bool = True,
+    delete_workspace: bool = True,
     **kwargs
-) -> AppInstance:
+) -> PackageInstance:
     # Always use the `test` profile
     kwargs["profile"] = "test"
     instance = Steamship.use(package_handle, instance_handle, config, version, reuse, **kwargs)
-    assert instance.client.config.space_id == instance.space_id
+    assert instance.client.config.workspace_id == instance.workspace_id
     yield instance
-    # Clean up the space
-    if delete_space:
-        instance.client.get_space().delete()
+    # Clean up the workspace
+    if delete_workspace:
+        instance.client.get_workspace().delete()
 
 
 @contextmanager
@@ -39,7 +39,7 @@ def steamship_use_plugin(
     config: Dict[str, Any] = None,
     version: str = None,
     reuse: bool = True,
-    delete_space: bool = True,
+    delete_workspace: bool = True,
     **kwargs
 ) -> PluginInstance:
     # Always use the `test` profile
@@ -47,8 +47,8 @@ def steamship_use_plugin(
     instance = Steamship.use_plugin(
         plugin_handle, instance_handle, config, version, reuse, **kwargs
     )
-    assert instance.client.config.space_id == instance.space_id
+    assert instance.client.config.workspace_id == instance.workspace_id
     yield instance
-    # Clean up the space
-    if delete_space:
-        instance.client.get_space().delete()
+    # Clean up the workspace
+    if delete_workspace:
+        instance.client.get_workspace().delete()

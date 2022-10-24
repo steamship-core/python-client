@@ -9,15 +9,12 @@ version_scheme = "no-guess-dev"
 
 [project]
 name = "steamship"
-description = "TEST"
-dependencies = [
-    "requests==2.27.1",
-    "pydantic==1.9.0",
-    "aiohttp==3.8.1",
-    "inflection==0.5.1",
-    "fluent-logger==0.10.0",
-]
-dynamic = ["version"]
+description = "The fastest way to add language AI to your product."
+dynamic = ["dependencies", "version"]
+readme = "README.md"
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
 
 # https://black.readthedocs.io/en/stable/usage_and_configuration/the_basics.html#configuration-via-a-file
 [tool.black]

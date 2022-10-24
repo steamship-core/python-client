@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Set, Type, TypeVar
+import time
+from typing import Any, Dict, Generic, List, Optional, Set, Type, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from steamship.base.base import IResponse
-from steamship.base.configuration import CamelModel
 from steamship.base.error import SteamshipError
-from steamship.base.metadata import metadata_to_str, str_to_metadata
-from steamship.base.request import IdentifierRequest, Request
+from steamship.base.model import CamelModel, GenericCamelModel
+from steamship.base.request import DeleteRequest, IdentifierRequest, Request
+from steamship.utils.metadata import metadata_to_str, str_to_metadata
 
 T = TypeVar("T")
 
@@ -19,7 +19,6 @@ class CreateTaskCommentRequest(Request):
     external_type: str = None
     external_group: str = None
     metadata: str = None
-    upsert: bool = None
 
 
 class ListTaskCommentRequest(Request):
@@ -29,12 +28,8 @@ class ListTaskCommentRequest(Request):
     external_group: str = None
 
 
-class DeleteTaskCommentRequest(Request):
-    id: str = None
-
-
 class TaskComment(CamelModel):
-    client: Any = None
+    client: Any = Field(None, exclude=True)
     id: str = None
     user_id: str = None
     task_id: str = None
@@ -62,15 +57,13 @@ class TaskComment(CamelModel):
         external_type: str = None,
         external_group: str = None,
         metadata: Any = None,
-        upsert: bool = True,
-    ) -> IResponse[TaskComment]:
+    ) -> TaskComment:
         req = CreateTaskCommentRequest(
             taskId=task_id,
             external_id=external_id,
             external_type=external_type,
             externalGroup=external_group,
             metadata=metadata_to_str(metadata),
-            upsert=upsert,
         )
         return client.post(
             "task/comment/create",
@@ -85,7 +78,7 @@ class TaskComment(CamelModel):
         external_id: str = None,
         external_type: str = None,
         external_group: str = None,
-    ) -> IResponse[TaskCommentList]:
+    ) -> TaskCommentList:
         req = ListTaskCommentRequest(
             taskId=task_id,
             external_id=external_id,
@@ -98,8 +91,8 @@ class TaskComment(CamelModel):
             expect=TaskCommentList,
         )
 
-    def delete(self) -> IResponse[TaskComment]:
-        req = DeleteTaskCommentRequest(id=self.id)
+    def delete(self) -> TaskComment:
+        req = DeleteRequest(id=self.id)
         return self.client.post(
             "task/comment/delete",
             req,
@@ -108,7 +101,6 @@ class TaskComment(CamelModel):
 
 
 class TaskCommentList(CamelModel):
-    # TODO (enias): Not needed
     comments: List[TaskComment]
 
 
@@ -133,17 +125,18 @@ class TaskStatusRequest(Request):
     task_id: str
 
 
-class Task(CamelModel):
+class Task(GenericCamelModel, Generic[T]):
     """Encapsulates a unit of asynchronously performed work."""
 
-    client: Any = None  # Steamship client
+    client: Any = Field(None, exclude=True)  # Steamship client
 
     task_id: str = None  # The id of this task
     user_id: str = None  # The user who requested this task
-    space_id: str = None  # The space in which this task is executing
+    workspace_id: str = None  # The workspace in which this task is executing
+    expect: Type = None  # Type of the expected output once the output is complete
 
     input: str = None  # The input provided to the task
-    output: str = None  # The output of the task
+    output: T = None  # The output of the task
     state: str = None  # A value in class TaskState
 
     status_message: str = None  # User-facing message concerning task status
@@ -185,34 +178,16 @@ class Task(CamelModel):
         obj = obj["task"] if "task" in obj else obj
         return super().parse_obj(obj)
 
-    def dict(self, **kwargs) -> Dict[str, Any]:
-        if "exclude" in kwargs:
-            kwargs["exclude"] = {*(kwargs.get("exclude", set()) or set()), "client"}
-        else:
-            kwargs = {
-                **kwargs,
-                "exclude": {
-                    "client",
-                },
-            }
-        return super().dict(**kwargs)
-
     @staticmethod
     def get(
         client,
         _id: str = None,
         handle: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ) -> IResponse[Task]:
+    ) -> Task:
         return client.post(
             "task/get",
             IdentifierRequest(id=_id, handle=handle),
             expect=Task,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     def update(self, other: Optional[Task] = None):
@@ -227,8 +202,7 @@ class Task(CamelModel):
         external_type: str = None,
         external_group: str = None,
         metadata: Any = None,
-        upsert: bool = True,
-    ) -> IResponse[TaskComment]:
+    ) -> TaskComment:
         return TaskComment.create(
             client=self.client,
             task_id=self.task_id,
@@ -236,15 +210,35 @@ class Task(CamelModel):
             external_type=external_type,
             external_group=external_group,
             metadata=metadata,
-            upsert=upsert,
         )
 
-    def list_comments(self) -> IResponse[TaskCommentList]:
-        return TaskComment.list(client=self.client, task_id=self.task_id)
-
-    def post_update(self, fields: Set[str] = None) -> IResponse[Task]:
+    def post_update(self, fields: Set[str] = None) -> Task:
         """Updates this task in the Steamship Engine."""
         if not isinstance(fields, set):
             raise RuntimeError(f'Unexpected type of "fields": {type(fields)}. Expected type set.')
         body = self.dict(by_alias=True, include={*fields, "task_id"})
         return self.client.post("task/update", body, expect=Task)
+
+    def wait(self, max_timeout_s: float = 60, retry_delay_s: float = 1):
+        """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
+        t0 = time.perf_counter()
+        while time.perf_counter() - t0 < max_timeout_s and self.state not in (
+            TaskState.succeeded,
+            TaskState.failed,
+        ):
+            self.refresh()
+            time.sleep(retry_delay_s)
+
+        # If the task did not complete within the timeout, throw an error
+        if self.state not in (TaskState.succeeded, TaskState.failed):
+            raise SteamshipError(
+                message=f"Task {self.task_id} did not complete within requested timeout of {max_timeout_s}s"
+            )
+
+    def refresh(self):
+        req = TaskStatusRequest(taskId=self.task_id)
+        # TODO (enias): A status call can return both data and task
+        # In this case both task and data will include the output (one is string serialized, the other is parsed)
+        # Ideally task status only returns the status, not the full output object
+        resp = self.client.post("task/status", payload=req, expect=self.expect)
+        self.update(resp)

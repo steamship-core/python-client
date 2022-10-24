@@ -1,28 +1,31 @@
-from .app import App
-from .app_instance import AppInstance
-from .app_version import AppVersion
 from .block import Block
 from .embeddings import EmbeddingIndex
 from .file import File
+from .package import Package
+from .package_instance import PackageInstance
+from .package_version import PackageVersion
 from .plugin import Plugin
 from .plugin_instance import PluginInstance
 from .plugin_version import PluginVersion
-from .space import Space
-from .tags import DocTag, Tag, TagKind, TextTag
+from .tags import DocTag, EmotionTag, SentimentTag, Tag, TagKind, TagValue, TokenTag
+from .workspace import Workspace
 
 __all__ = [
-    "App",
-    "AppInstance",
-    "AppVersion",
+    "Package",
+    "PackageInstance",
+    "PackageVersion",
     "Block",
     "EmbeddingIndex",
     "File",
     "Plugin",
     "PluginInstance",
     "PluginVersion",
-    "Space",
+    "Workspace",
     "DocTag",
+    "EmotionTag",
+    "SentimentTag",
     "Tag",
     "TagKind",
-    "TextTag",
+    "TokenTag",
+    "TagValue",
 ]

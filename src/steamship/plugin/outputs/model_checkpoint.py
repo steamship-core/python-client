@@ -4,9 +4,9 @@ from pathlib import Path
 from typing import ClassVar, Optional
 
 from steamship import Steamship, SteamshipError
-from steamship.base import Client
-from steamship.base.configuration import CamelModel
-from steamship.data.space import SignedUrl, Space
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
+from steamship.data.workspace import SignedUrl, Workspace
 from steamship.utils.signed_urls import download_from_signed_url, upload_to_signed_url
 from steamship.utils.zip_archives import unzip_folder, zip_folder
 
@@ -18,7 +18,7 @@ class ModelCheckpoint(CamelModel):
     """Represents the saved state of a trained PluginInstance.
     """
     client: Client
-    space: Optional[Space] = None
+    workspace: Optional[Workspace] = None
     plugin_instance_id: str
 
     parent_directory: Optional[Path] = None  # e.g. /tmp
@@ -42,7 +42,7 @@ class ModelCheckpoint(CamelModel):
         if self.plugin_instance_id is None:
             raise SteamshipError("Null plugin_instance_id provided ModelCheckpoint")
 
-        self.space = client.get_space()
+        self.workspace = client.get_workspace()
 
         if parent_directory is None:
             # TODO(ted): We may want to not use a tempdir so that we can cache it.
@@ -71,7 +71,7 @@ class ModelCheckpoint(CamelModel):
     def archive_path_in_steamship(self, as_handle: str = None) -> str:
         """Returns the path to the checkpoint archive on Steamship.
 
-        On steamship, the checkpoint is archived in the Space's PluginInstance bucket as:
+        On steamship, the checkpoint is archived in the Workspace's PluginInstance bucket as:
         `{plugin_instance_bucket}/{plugin_instance_id}/{checkpoint_handle}.zip`
 
         Here we only return the following path since the bucket is specified separately
@@ -81,24 +81,24 @@ class ModelCheckpoint(CamelModel):
 
     def download_model_bundle(self) -> Path:
         """Download's the model from Steamship and unzips to `parent_directory`"""
-        download_resp = self.space.create_signed_url(
+        download_resp = self.workspace.create_signed_url(
             SignedUrl.Request(
                 bucket=SignedUrl.Bucket.PLUGIN_DATA,
                 filepath=self.archive_path_in_steamship(),
                 operation=SignedUrl.Operation.READ,
             )
         )
-        if not download_resp.data or not download_resp.data.signed_url:
+        if not download_resp or not download_resp.signed_url:
             raise SteamshipError(
                 message=f"Received empty Signed URL for model download of '{self.handle}."
             )
-        download_from_signed_url(download_resp.data.signed_url, to_file=self.archive_path_on_disk())
+        download_from_signed_url(download_resp.signed_url, to_file=self.archive_path_on_disk())
         unzip_folder(self.archive_path_on_disk(), into_folder=self.folder_path_on_disk())
-        if not download_resp.data or not download_resp.data.signed_url:
+        if not download_resp or not download_resp.signed_url:
             raise SteamshipError(
                 message=f"Received empty Signed URL for model download of '{self.handle}."
             )
-        download_from_signed_url(download_resp.data.signed_url, to_file=self.archive_path_on_disk())
+        download_from_signed_url(download_resp.signed_url, to_file=self.archive_path_on_disk())
         unzip_folder(self.archive_path_on_disk(), into_folder=self.folder_path_on_disk())
         return self.folder_path_on_disk()
 
@@ -107,7 +107,7 @@ class ModelCheckpoint(CamelModel):
 
         This is an internal function. Please use upload_model_bundle as an caller."""
         logging.info(f"ModelCheckpoint:_upload_model_zip - handle={as_handle}")
-        signed_url_resp = self.space.create_signed_url(
+        signed_url_resp = self.workspace.create_signed_url(
             SignedUrl.Request(
                 bucket=SignedUrl.Bucket.PLUGIN_DATA,
                 filepath=self.archive_path_in_steamship(as_handle=as_handle),
@@ -115,18 +115,16 @@ class ModelCheckpoint(CamelModel):
             )
         )
 
-        if signed_url_resp.error:
-            raise signed_url_resp.error
-        if not signed_url_resp.data:
+        if not signed_url_resp:
             raise SteamshipError(
                 message="Empty result on Signed URL request while uploading model checkpoint"
             )
-        if not signed_url_resp.data.signed_url:
+        if not signed_url_resp.signed_url:
             raise SteamshipError(
                 message="Empty signedUrl on Signed URL request while uploading model checkpoint"
             )
 
-        upload_to_signed_url(signed_url_resp.data.signed_url, filepath=self.archive_path_on_disk())
+        upload_to_signed_url(signed_url_resp.signed_url, filepath=self.archive_path_on_disk())
 
     def upload_model_bundle(self, set_as_default: bool = True):
         """Zips and uploads the Model to steamship"""

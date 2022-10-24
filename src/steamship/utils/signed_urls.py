@@ -40,7 +40,7 @@ def url_to_bytes(url: str) -> bytes:
 
     resp = requests.get(url)
     if resp.status_code != 200:
-        # TODO: At least Localstack seend to reply with HTTP 200 even if the file isn't found!
+        # TODO: At least Localstack send to reply with HTTP 200 even if the file isn't found!
         # The full response contains:
         # <Error>
         #     <Code>NoSuchKey</Code>
@@ -101,7 +101,7 @@ def upload_to_signed_url(url: str, _bytes: Optional[bytes] = None, filepath: Opt
         # When uploading to AWS Localstack, the format of the URL should be https://DOMAIN/BUCKET
         # And we must, in addition, re-format the POST request. This appears to be a quick of using Localstack
         # and here should be considered a special case to enable testing.
-        logging.info("Space.upload_to_signed_url is using the LOCALSTACK upload strategy.")
+        logging.info("Workspace.upload_to_signed_url is using the LOCALSTACK upload strategy.")
 
         params = parse_qs(parsed_url.query)
         params = {p: params[p][0] for p in params}

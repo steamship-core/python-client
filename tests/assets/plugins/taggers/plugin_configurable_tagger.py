@@ -1,11 +1,10 @@
 from typing import Optional, Type, Union
 
 from steamship import Tag
-from steamship.app import Response, create_handler
-from steamship.plugin.config import Config
+from steamship.invocable import Config, InvocableResponse, create_handler
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginRequest
 from steamship.plugin.tagger import Tagger
 
 
@@ -26,7 +25,7 @@ class TestParserPlugin(Tagger):
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
-    ) -> Response[BlockAndTagPluginOutput]:
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
         tag_kind = self.config.tag_kind
         tag_name = self.config.tag_name
         tag_value = {
@@ -41,7 +40,7 @@ class TestParserPlugin(Tagger):
                 file.tags.append(tag)
             else:
                 file.tags = [tag]
-            return Response(data=BlockAndTagPluginOutput(file=file))
+            return InvocableResponse(data=BlockAndTagPluginOutput(file=file))
 
 
 handler = create_handler(TestParserPlugin)

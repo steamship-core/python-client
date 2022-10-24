@@ -7,8 +7,8 @@ from steamship_tests import TEST_ASSETS_PATH
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
 
-from steamship import Space
-from steamship.data.space import SignedUrl
+from steamship import Workspace
+from steamship.data.workspace import SignedUrl
 from steamship.utils.signed_urls import download_from_signed_url, upload_to_signed_url
 from steamship.utils.zip_archives import zip_folder
 
@@ -23,9 +23,9 @@ def test_upload_download_text():
 
     # Grab a Steamship client and generate an upload url
     client = get_steamship_client()
-    space = Space.get(client=client).data
+    workspace = Workspace.get(client=client)
     upload_name = random_name()
-    url_resp = space.create_signed_url(
+    url_resp = workspace.create_signed_url(
         SignedUrl.Request(
             bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=upload_name,
@@ -33,14 +33,13 @@ def test_upload_download_text():
         )
     )
     assert url_resp is not None
-    assert url_resp.data is not None
-    assert url_resp.data.signed_url is not None
+    assert url_resp.signed_url is not None
 
     # Upload the zip file to the URL
-    upload_to_signed_url(url_resp.data.signed_url, filepath=upfile)
+    upload_to_signed_url(url_resp.signed_url, filepath=upfile)
 
     # Now create a download signed URL
-    download_resp = space.create_signed_url(
+    download_resp = workspace.create_signed_url(
         SignedUrl.Request(
             bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=upload_name,
@@ -48,8 +47,7 @@ def test_upload_download_text():
         )
     )
     assert download_resp is not None
-    assert download_resp.data is not None
-    assert download_resp.data.signed_url is not None
+    assert download_resp.signed_url is not None
 
     # Verify that we get an exception when downloading something that doesn't exist
     # TODO: Follow up after we get a firmer understaing of the failure semantics of Localstack 404 errors with
@@ -64,7 +62,7 @@ def test_upload_download_text():
     #     download_from_signed_url(download_resp.data.signedUrl, to_file=bad_download_path)
 
     # Download the zip file to the URL
-    download_from_signed_url(download_resp.data.signed_url, to_file=downfile)
+    download_from_signed_url(download_resp.signed_url, to_file=downfile)
 
     # Verify the download URL is there
     assert os.path.exists(downfile)
@@ -83,9 +81,9 @@ def test_upload_download():
     It performs the following steps:
 
     1. Zips up a folder
-    2. Creates a signed-url with Write access in the "model" bucket of a space
+    2. Creates a signed-url with Write access in the "model" bucket of a workspace
     3. Uploads the zip file
-    4. Creates a signed-url with Read access in the "model" bucket of a space, pointing to the same file
+    4. Creates a signed-url with Read access in the "model" bucket of a workspace, pointing to the same file
     5. Downloads the file
     6. Verifies that they are the same file
 
@@ -103,9 +101,9 @@ def test_upload_download():
 
     # Grab a Steamship client and generate an upload url
     client = get_steamship_client()
-    space = Space.get(client=client).data
+    workspace = Workspace.get(client=client)
     upload_name = random_name()
-    url_resp = space.create_signed_url(
+    url_resp = workspace.create_signed_url(
         SignedUrl.Request(
             bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=upload_name,
@@ -113,14 +111,13 @@ def test_upload_download():
         )
     )
     assert url_resp is not None
-    assert url_resp.data is not None
-    assert url_resp.data.signed_url is not None
+    assert url_resp.signed_url is not None
 
     # Upload the zip file to the URL
-    upload_to_signed_url(url_resp.data.signed_url, filepath=zip_path)
+    upload_to_signed_url(url_resp.signed_url, filepath=zip_path)
 
     # Now create a download signed URL
-    download_resp = space.create_signed_url(
+    download_resp = workspace.create_signed_url(
         SignedUrl.Request(
             bucket=SignedUrl.Bucket.PLUGIN_DATA,
             filepath=upload_name,
@@ -128,8 +125,7 @@ def test_upload_download():
         )
     )
     assert download_resp is not None
-    assert download_resp.data is not None
-    assert download_resp.data.signed_url is not None
+    assert download_resp.signed_url is not None
 
     # Verify that we get an exception when downloading something that doesn't exist
     # TODO: Follow up after we get a firmer understaing of the failure semantics of Localstack 404 errors with
@@ -145,7 +141,7 @@ def test_upload_download():
 
     # Download the zip file to the URL
     download_path = tempbase / Path("out.zip")
-    download_from_signed_url(download_resp.data.signed_url, to_file=download_path)
+    download_from_signed_url(download_resp.signed_url, to_file=download_path)
 
     # Verify the download URL is there
     assert os.path.exists(download_path)

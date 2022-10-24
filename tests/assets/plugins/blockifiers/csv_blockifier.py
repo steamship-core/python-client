@@ -6,15 +6,15 @@ from typing import List, Optional, Type, Union
 
 from pydantic import constr
 
-from steamship.app import Response, create_handler
-from steamship.base.error import SteamshipError
+from steamship.base import SteamshipError
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags import Tag
-from steamship.plugin.blockifier import Blockifier, Config
+from steamship.invocable import Config, InvocableResponse, create_handler
+from steamship.invocable.plugin_service import PluginRequest
+from steamship.plugin.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
-from steamship.plugin.service import PluginRequest
 
 
 class CsvBlockifier(Blockifier):
@@ -60,9 +60,9 @@ class CsvBlockifier(Blockifier):
 
     def run(
         self, request: PluginRequest[RawDataPluginInput]
-    ) -> Union[Response, Response[BlockAndTagPluginOutput]]:
+    ) -> Union[InvocableResponse, InvocableResponse[BlockAndTagPluginOutput]]:
         if request is None or request.data is None or request.data.data is None:
-            return Response(
+            return InvocableResponse(
                 error=SteamshipError(message="Missing data field on the incoming request.")
             )
         data = request.data.data  # TODO (enias): Simplify
@@ -70,7 +70,7 @@ class CsvBlockifier(Blockifier):
             data = data.decode("utf-8")
 
         if not isinstance(data, str):
-            return Response(
+            return InvocableResponse(
                 error=SteamshipError(message="The incoming data was not of expected String type")
             )
 
@@ -95,7 +95,7 @@ class CsvBlockifier(Blockifier):
             )
             file.blocks.append(block)
 
-        return Response(data=BlockAndTagPluginOutput(file=file))
+        return InvocableResponse(data=BlockAndTagPluginOutput(file=file))
 
 
 handler = create_handler(CsvBlockifier)

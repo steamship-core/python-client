@@ -5,15 +5,9 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
-from steamship import Block, Configuration, PluginInstance, SteamshipError
-from steamship.base import Client, Response
-from steamship.base.base import IResponse
-from steamship.base.tasks import TaskComment, TaskCommentList
-from steamship.data import File
-from steamship.data.app_instance import AppInstance
-from steamship.data.embeddings import EmbedAndSearchRequest, EmbeddingIndex, QueryResults
-from steamship.data.operations.tagger import TagRequest, TagResponse
-from steamship.data.space import Space
+from steamship import Configuration, PackageInstance, PluginInstance, SteamshipError, Workspace
+from steamship.base.client import Client
+from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
 
 _logger = logging.getLogger(__name__)
 
@@ -32,6 +26,7 @@ class Steamship(Client):
         profile: str = None,
         config_file: str = None,
         config: Configuration = None,
+        trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspace
         **kwargs,
     ):
         super().__init__(
@@ -44,6 +39,7 @@ class Steamship(Client):
             profile=profile,
             config_file=config_file,
             config=config,
+            trust_workspace_config=trust_workspace_config,
             **kwargs,
         )
         # We use object.__setattr__ here in order to bypass Pydantic's overloading of it (which would block this
@@ -60,68 +56,18 @@ class Steamship(Client):
             if key != "use" and key != "use_plugin"
         ]
 
-    def create_index(
-        self,
-        handle: str = None,
-        plugin_instance: str = None,
-        upsert: bool = True,
-        external_id: str = None,
-        external_type: str = None,
-        metadata: Any = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
-    ) -> Response[EmbeddingIndex]:
-        return EmbeddingIndex.create(
-            client=self,
-            handle=handle,
-            plugin_instance=plugin_instance,
-            upsert=upsert,
-            external_id=external_id,
-            external_type=external_type,
-            metadata=metadata,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
-        )
-
-    def upload(
-        self,
-        filename: str = None,
-        content: str = None,
-        mime_type: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
-    ) -> Response[File]:
-        return File.create(
-            self,
-            filename=filename,
-            content=content,
-            mime_type=mime_type,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
-        )
-
     def embed_and_search(
         self,
         query: str,
         docs: List[str],
         plugin_instance: str,
         k: int = 1,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
-    ) -> Response[QueryResults]:
+    ) -> QueryResults:
         req = EmbedAndSearchRequest(query=query, docs=docs, plugin_instance=plugin_instance, k=k)
         return self.post(
             "plugin/instance/embeddingSearch",
             req,
             expect=QueryResults,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
 
     @staticmethod
@@ -133,7 +79,7 @@ class Steamship(Client):
         reuse: bool = True,
         workspace_handle: Optional[str] = None,
         **kwargs,
-    ) -> AppInstance:
+    ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
 
         The instance is named `instance_handle` and located in the Workspace named `instance_handle`.
@@ -165,26 +111,20 @@ class Steamship(Client):
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
         reuse: bool = True,
-    ) -> AppInstance:
+    ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
 
         The instance is named `instance_handle` and located in the workspace this client is anchored to.."""
-        instance = AppInstance.create(
+        instance = PackageInstance.create(
             self,
-            app_handle=package_handle,
-            app_version_handle=version,
+            package_handle=package_handle,
+            package_version_handle=version,
             handle=instance_handle,
             config=config,
-            upsert=reuse,
+            fetch_if_exists=reuse,
         )
 
-        if instance.error:
-            raise instance.error
-        if not instance.data:
-            raise SteamshipError(
-                f"Unable to create an instance of App {package_handle} with handle {instance_handle} in workspace {self.config.space_handle}."
-            )
-        return instance.data
+        return instance
 
     @staticmethod
     def use_plugin(
@@ -234,67 +174,26 @@ class Steamship(Client):
             plugin_version_handle=version,
             handle=instance_handle,
             config=config,
-            upsert=reuse,
+            fetch_if_exists=reuse,
         )
 
-        if instance.error:
-            raise instance.error
-        if not instance.data:
-            raise SteamshipError(
-                f"Unable to create an instance of Plugin {plugin_handle} with handle {instance_handle} in workspace {self.config.space_handle}."
-            )
-        return instance.data
+        return instance
 
-    def tag(
-        self,
-        doc: str,
-        plugin_instance: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Space = None,
-    ) -> Response[TagResponse]:
-        req = TagRequest(
-            type="inline",
-            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]),
-            plugin_instance=plugin_instance,
-        )
-        return self.post(
-            "plugin/instance/tag",
-            req,
-            expect=TagResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
-        )
-
-    def get_space(self) -> Space:
+    def get_workspace(self) -> Workspace:
         # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes
-        # pre-configured with an API key and the Space in which this client should be operating.
-        # This is a way to load the model object for that space.
+        # pre-configured with an API key and the Workspace in which this client should be operating.
+        # This is a way to load the model object for that workspace.
         logging.info(
-            f"get_space() called on client with config space {self.config.space_handle}/{self.config.space_id}"
+            f"get_workspace() called on client with config workspace {self.config.workspace_handle}/{self.config.workspace_id}"
         )
-        space = Space.get(self, id_=self.config.space_id, handle=self.config.space_handle)
-        if not space.data:
-            logging.error("Unable to get space.")
+        workspace = Workspace.get(
+            self, id_=self.config.workspace_id, handle=self.config.workspace_handle
+        )
+        if not workspace:
+            logging.error("Unable to get workspace.")
             raise SteamshipError(
-                message="Error while retrieving the Space associated with this client config.",
-                internal_message=f"space_id={self.config.space_id} space_handle={self.config.space_handle}",
+                message="Error while retrieving the Workspace associated with this client config.",
+                internal_message=f"workspace_id={self.config.workspace_id} workspace_handle={self.config.workspace_handle}",
             )
-        logging.info(f"Got space: {space.data.handle}/{space.data.id}")
-        return space.data
-
-    def list_comments(
-        self,
-        task_id: str = None,
-        external_id: str = None,
-        external_type: str = None,
-        external_group: str = None,
-    ) -> IResponse[TaskCommentList]:
-        return TaskComment.list(
-            client=self,
-            task_id=task_id,
-            external_id=external_id,
-            external_type=external_type,
-            external_group=external_group,
-        )
+        logging.info(f"Got workspace: {workspace.handle}/{workspace.id}")
+        return workspace

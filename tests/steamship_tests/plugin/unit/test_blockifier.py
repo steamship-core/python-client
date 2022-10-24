@@ -1,10 +1,10 @@
 import pytest
 from assets.plugins.blockifiers.blockifier import DummyBlockifierPlugin
 
+from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
-from steamship.plugin.service import PluginRequest
 
 TEST_REQ = RawDataPluginInput(data="Hi there")
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)

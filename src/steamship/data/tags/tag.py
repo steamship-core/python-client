@@ -3,8 +3,12 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, List
 
-from steamship.base import Client, Request, Response
-from steamship.base.configuration import CamelModel
+from pydantic import Field
+
+from steamship.base.client import Client
+from steamship.base.model import CamelModel
+from steamship.base.request import Request
+from steamship.base.response import Response
 
 
 class TagQueryRequest(Request):
@@ -12,7 +16,7 @@ class TagQueryRequest(Request):
 
 
 class Tag(CamelModel):
-    client: Client = None
+    client: Client = Field(None, exclude=True)
     id: str = None
     file_id: str = None
     block_id: str = None
@@ -31,7 +35,6 @@ class Tag(CamelModel):
         start_idx: int = None
         end_idx: int = None
         value: Dict[str, Any] = None
-        upsert: bool = None
 
     class DeleteRequest(Request):
         id: str = None
@@ -55,10 +58,7 @@ class Tag(CamelModel):
         start_idx: int = None,
         end_idx: int = None,
         value: Any = None,
-        upsert: bool = None,
-        space_id: str = None,
-        space_handle: str = None,
-    ) -> Response[Tag]:
+    ) -> Tag:
         if isinstance(value, dict) or isinstance(value, list):
             value = json.dumps(value)
 
@@ -70,29 +70,10 @@ class Tag(CamelModel):
             start_idx=start_idx,
             end_idx=end_idx,
             value=value,
-            upsert=upsert,
         )
-        return client.post(
-            "tag/create", req, expect=Tag, space_id=space_id, space_handle=space_handle
-        )
+        return client.post("tag/create", req, expect=Tag)
 
-    @staticmethod
-    def list_public(
-        client: Client,
-        file_id: str = None,
-        block_id: str = None,
-        space_id: str = None,
-        space_handle: str = None,
-    ) -> Response[Tag.ListResponse]:
-        return client.post(
-            "tag/list",
-            Tag.ListRequest(file_id=file_id, block_id=block_id),
-            expect=Tag.ListResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-        )
-
-    def delete(self) -> Response[Tag]:
+    def delete(self) -> Tag:
         return self.client.post(
             "tag/delete",
             Tag.DeleteRequest(id=self.id, file_id=self.file_id, block_id=self.block_id),
@@ -103,18 +84,12 @@ class Tag(CamelModel):
     def query(
         client: Client,
         tag_filter_query: str,
-        space_id: str = None,
-        space_handle: str = None,
-        space: Any = None,
-    ) -> Response[TagQueryResponse]:
+    ) -> TagQueryResponse:
         req = TagQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
             "tag/query",
             payload=req,
             expect=TagQueryResponse,
-            space_id=space_id,
-            space_handle=space_handle,
-            space=space,
         )
         return res
 

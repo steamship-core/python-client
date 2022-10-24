@@ -9,19 +9,19 @@ import zipfile
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from steamship_tests import SRC_PATH, TEST_ASSETS_PATH
+from steamship_tests import ROOT_PATH, SRC_PATH, TEST_ASSETS_PATH
 
-from steamship import App, AppInstance, AppVersion, Steamship
+from steamship import Package, PackageInstance, PackageVersion, Steamship
 from steamship.data.plugin import HostingType, Plugin
 from steamship.data.plugin_instance import PluginInstance
 from steamship.data.plugin_version import PluginVersion
 from steamship.data.user import User
 
 
-def install_package(package: str, into_folder: str):
-    logging.info(f"Installing {package} into: {into_folder}")
+def install_dependencies(folder: str, requirements_path: Path):
     subprocess.run(  # noqa: S607,S603
-        ["pip", "install", "--target", into_folder, package], stdout=subprocess.PIPE
+        ["pip", "install", "--target", folder, "-r", str(requirements_path.resolve())],
+        stdout=subprocess.PIPE,
     )
 
 
@@ -30,9 +30,6 @@ def zip_deployable(file_path: Path) -> bytes:
 
     package_paths = [
         SRC_PATH / "steamship",
-        SRC_PATH
-        / ".."
-        / "steamship_tests",  # This is included to test plugin development using inheritance
     ]
 
     zip_buffer = io.BytesIO()
@@ -51,19 +48,9 @@ def zip_deployable(file_path: Path) -> bytes:
         # Copy in package paths from pip
         with tempfile.TemporaryDirectory() as package_dir:
             logging.info(f"Created tempdir for pip installs: {package_dir}")
-            for package in [
-                "setuptools_scm",
-                "requests",
-                "charset_normalizer",
-                "certifi",
-                "urllib3",
-                "idna",
-                "pydantic==1.9.0",
-                "typing_extensions",
-                "inflection==0.5.1",
-                "fluent-logger==0.10.0",
-            ]:
-                install_package(package, into_folder=package_dir)
+            install_dependencies(
+                folder=package_dir, requirements_path=ROOT_PATH / "requirements.txt"
+            )
             # Now write that whole folder
             for root, _, files in os.walk(package_dir):
                 for file in files:
@@ -77,12 +64,7 @@ def zip_deployable(file_path: Path) -> bytes:
                 relative_path = the_file.relative_to(TEST_ASSETS_PATH.parent)
                 zip_file.write(the_file, relative_path)
 
-    # Leaving this in as a reminder: this is an easy way to generate the app zip for use in
-    # updating engine unit steamship_tests.
-    #
-    # with open("demo_app.zip", 'wb') as f:
-    #     f.write(zip_buffer.getvalue())
-    #
+    # To generate zip files for engine tests, use the create_engine_test_assets script in Scripts
 
     return zip_buffer.getvalue()
 
@@ -95,7 +77,6 @@ def deploy_plugin(
     training_platform: Optional[HostingType] = None,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
-    space_id: Optional[str] = None,
 ):
     plugin = Plugin.create(
         client,
@@ -105,12 +86,9 @@ def deploy_plugin(
         description="A Plugin (python client steamship_tests)",
         is_public=False,
     )
-    assert plugin.error is None
-    assert plugin.data is not None
-    plugin = plugin.data
 
     zip_bytes = zip_deployable(py_path)
-    version = PluginVersion.create(
+    plugin_version = PluginVersion.create(
         client,
         "test-version",
         plugin_id=plugin.id,
@@ -119,92 +97,69 @@ def deploy_plugin(
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
-    version = _wait_for_version(version)
+    _wait_for_version(plugin_version)
 
-    instance = PluginInstance.create(
+    plugin_instance = PluginInstance.create(
         client,
-        space_id=space_id,
         plugin_id=plugin.id,
-        plugin_version_id=version.id,
+        plugin_version_id=plugin_version.id,
         config=instance_config,
     )
-    instance = _wait_for_instance(instance)
 
-    assert instance.plugin_id == plugin.id
-    assert instance.plugin_version_id == version.id
+    assert plugin_instance.plugin_id == plugin.id
+    assert plugin_instance.plugin_version_id == plugin_version.id
 
-    _check_user(client, instance)
+    _check_user(client, plugin_instance)
 
-    yield plugin, version, instance
+    yield plugin, plugin_version, plugin_instance
 
-    _delete_deployable(instance, version, plugin)
+    _delete_deployable(plugin_instance, plugin_version, plugin)
 
 
 @contextlib.contextmanager
-def deploy_app(
+def deploy_package(
     client: Steamship,
     py_path: Path,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
-    space_id: str = None,
 ):
-    app = App.create(client)
-    assert app.error is None
-    assert app.data is not None
-    app = app.data
+    package = Package.create(client)
 
     zip_bytes = zip_deployable(py_path)
-    version = AppVersion.create(
+    version = PackageVersion.create(
         client,
-        app_id=app.id,
+        package_id=package.id,
         filebytes=zip_bytes,
         config_template=version_config_template,
     )
 
-    version = _wait_for_version(version)
-    instance = AppInstance.create(
+    _wait_for_version(version)
+    package_instance = PackageInstance.create(
         client,
-        app_id=app.id,
-        app_version_id=version.id,
+        package_id=package.id,
+        package_version_id=version.id,
         config=instance_config,
-        space_id=space_id,
     )
-    instance = _wait_for_instance(instance)
 
-    assert instance.app_id == app.id
-    assert instance.app_version_id == version.id
+    assert package_instance.package_id == package.id
+    assert package_instance.package_version_id == version.id
 
-    _check_user(client, instance)
+    _check_user(client, package_instance)
 
-    yield app, version, instance
+    yield package, version, package_instance
 
-    _delete_deployable(instance, version, app)
+    _delete_deployable(package_instance, version, package)
 
 
 def _check_user(client, instance):
-    user = User.current(client).data
+    user = User.current(client)
     assert instance.user_id == user.id
 
 
 def _delete_deployable(instance, version, deployable):
-    res = instance.delete()
-    assert res.error is None
-    res = version.delete()
-    assert res.error is None
-    res = deployable.delete()
-    assert res.error is None
+    instance.delete()
 
 
-def _wait_for_instance(instance):
-    instance.wait()
-    assert instance.error is None
-    assert instance.data is not None
-    return instance.data
-
-
-def _wait_for_version(version):
+def _wait_for_version(version: [PackageVersion, PluginVersion]):
     time.sleep(15)
-    version.wait()
-    assert version.error is None
-    assert version.data is not None
-    return version.data
+    assert version is not None

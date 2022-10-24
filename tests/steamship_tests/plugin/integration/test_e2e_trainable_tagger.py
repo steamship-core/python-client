@@ -32,10 +32,10 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
         client=client,
         handle=EXPORTER_HANDLE,
         plugin_handle=EXPORTER_HANDLE,
-        upsert=True,
+        fetch_if_exists=True,
     )
-    assert exporter_plugin_r.data is not None
-    exporter_plugin = exporter_plugin_r.data
+    assert exporter_plugin_r is not None
+    exporter_plugin = exporter_plugin_r
     assert exporter_plugin.handle is not None
 
     csv_blockifier_path = PLUGINS_PATH / "blockifiers" / "csv_blockifier.py"
@@ -50,10 +50,10 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
         instance_config=instance_config,
     ) as (plugin, version, instance):
         with upload_file(client, "utterances.csv") as file:
-            assert len(file.refresh().data.blocks) == 0
+            assert len(file.refresh().blocks) == 0
             # Use the plugin we just registered
             file.blockify(plugin_instance=instance.handle).wait()
-            assert len(file.refresh().data.blocks) == 5
+            assert len(file.refresh().blocks) == 5
 
             # Now make a trainable tagger to train on those tags
             with deploy_plugin(
@@ -105,9 +105,8 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
                 test_doc = "Hi there"
                 res = tagger_instance.tag(doc=test_doc)
                 res.wait()
-                assert res.error is None
-                assert res.data is not None
-                assert res.data.file is not None
-                assert res.data.file.tags is not None
-                assert len(res.data.file.tags) == len(KEYWORDS)
-                assert sorted([tag.name for tag in res.data.file.tags]) == sorted(KEYWORDS)
+                assert res.output is not None
+                assert res.output.file is not None
+                assert res.output.file.tags is not None
+                assert len(res.output.file.tags) == len(KEYWORDS)
+                assert sorted([tag.kind for tag in res.output.file.tags]) == sorted(KEYWORDS)

@@ -1,9 +1,9 @@
 import base64
 import json
 
-from steamship.base.binary_utils import flexi_create
-from steamship.base.configuration import CamelModel
+from steamship.base.model import CamelModel
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
+from steamship.utils.binary_utils import flexi_create
 
 
 def test_dump_string():
@@ -23,15 +23,6 @@ def test_dump_json():
 
     person = Person(name="Ted")
     assert json.dumps(flexi_create(json=person)[0]) == '{"name": "Ted"}'
-
-    class Person2(CamelModel):
-        name: str
-
-        def to_dict(self):
-            return {"takes": "precedence"}
-
-    person2 = Person2(name="Ted")
-    assert json.dumps(flexi_create(json=person2)[0]) == '{"takes": "precedence"}'
 
 
 def _base64_decode(base64_message: str) -> str:

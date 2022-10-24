@@ -8,7 +8,7 @@ from pydantic import ValidationError
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import Steamship
-from steamship.base import Client
+from steamship.base.client import Client
 from steamship.base.configuration import DEFAULT_API_BASE, DEFAULT_APP_BASE, DEFAULT_WEB_BASE
 from steamship.data.user import User
 
@@ -18,7 +18,7 @@ def test_get_steamship_client():
     assert client.config is not None
     assert client.config.profile == "test"
     assert client.config.api_key is not None
-    user = User.current(client).data
+    user = User.current(client)
     assert user.id is not None
     assert user.handle is not None
 
@@ -36,7 +36,11 @@ empty_base_uris = [
 
 
 def switch_workspace(
-    self, workspace: str = None, workspace_id: str = None, fail_if_workspace_exists: bool = False
+    self,
+    workspace_handle: str = None,
+    workspace_id: str = None,
+    fail_if_workspace_exists: bool = False,
+    trust_workspace_config: bool = False,
 ):
     pass
 
@@ -120,10 +124,10 @@ def test_incorrect_config_type() -> None:
         ),
     ],
 )
-def test_app_call_rewriting(app_base: str, user: str, fixed_base: str):
+def test_invocable_call_rewriting(app_base: str, user: str, fixed_base: str):
     client = get_steamship_client()
     client.config.app_base = app_base
     operation = "foo"
 
-    output_url = client._url(is_app_call=True, app_owner=user, operation=operation)
+    output_url = client._url(is_package_call=True, package_owner=user, operation=operation)
     assert output_url == f"{fixed_base}{operation}"
