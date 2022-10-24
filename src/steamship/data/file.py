@@ -207,7 +207,7 @@ class File(CamelModel):
     def tag(
         self,
         plugin_instance: str = None,
-    ) -> Task[Tag]:
+    ) -> Task[Tag]:  # This actually is Task[TagResponse], right?
         # TODO (enias): Fix Circular imports
         from steamship.data.operations.tagger import TagRequest, TagResponse
         from steamship.data.plugin import PluginTargetType

@@ -113,7 +113,7 @@ class PluginInstance(CamelModel):
         req = DeleteRequest(id=self.id)
         return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
 
-    def train(self, training_request: TrainingParameterPluginInput) -> TrainPluginOutput:
+    def train(self, training_request: TrainingParameterPluginInput) -> Task[TrainPluginOutput]:
         return self.client.post(
             "plugin/instance/train",
             payload=training_request,
