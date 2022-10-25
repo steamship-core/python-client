@@ -454,7 +454,7 @@ class Client(CamelModel, ABC):
             data = response_data
 
         if error is not None:
-            logging.error(f"Client received error from server: {error}", exc_info=error)
+            logging.warning(f"Client received error from server: {error}", exc_info=error)
             raise error
 
         elif task is not None:
