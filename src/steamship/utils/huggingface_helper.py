@@ -33,8 +33,8 @@ async def _model_call(
     if it believes you have 'too many' requests simultaneously, so the logic retries in this case, but fails on
     other errors.
     """
-    n_tries = 0
-    while n_tries <= max_error_retries:
+    tries = 0
+    while tries <= max_error_retries:
         async with session.post(api_url, headers=headers, json=json_input) as response:
             if response.status == HTTPStatus.OK and response.content_type == "application/json":
                 ok_response = await response.json()
@@ -44,15 +44,15 @@ async def _model_call(
                 nok_response = await response.text()
                 if "is currently loading" not in nok_response:
                     logging.info(
-                        f'Received text response "{nok_response}" for input text "{text}" [attempt {n_tries}/{max_error_retries}]'
+                        f'Received text response "{nok_response}" for input text "{text}" [attempt {tries}/{max_error_retries}]'
                     )
-                    n_tries += 1
+                    tries += 1
                 else:
                     await asyncio.sleep(1)
     if ok_response is None:
         raise SteamshipError(
             message="Unable to query Hugging Face model",
-            internal_message=f"HF returned error: {nok_response} after {n_tries} attempts",
+            internal_message=f"HF returned error: {nok_response} after {tries} attempts",
         )
     return ok_response
 
