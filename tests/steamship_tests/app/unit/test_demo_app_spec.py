@@ -6,7 +6,7 @@ from assets.packages.demo_package import TestPackage
 
 
 @pytest.mark.parametrize("invocable_handler", [TestPackage], indirect=True)
-def test_app_spec(invocable_handler: Callable[[str, str, Optional[dict]], dict]):
+def test_package_spec(invocable_handler: Callable[[str, str, Optional[dict]], dict]):
     """Test that the handler returns the proper directory information"""
     response_dict = invocable_handler("GET", "/__dir__", {})
     pp = pprint.PrettyPrinter(indent=4)
