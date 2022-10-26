@@ -128,10 +128,10 @@ def test_use_package_fails_with_same_instance_name_but_different_package_name():
 
     instance_handle = random_name()
 
-    demo_app_path = PACKAGES_PATH / "demo_package.py"
+    demo_package_path = PACKAGES_PATH / "demo_package.py"
 
-    with deploy_package(client, demo_app_path) as (app, version, instance):
-        with deploy_package(client, demo_app_path) as (app2, version2, instance2):
+    with deploy_package(client, demo_package_path) as (app, version, instance):
+        with deploy_package(client, demo_package_path) as (app2, version2, instance2):
             client.use(app.handle, instance_handle)
 
             # Should fail because we're using the shortcut `import_plugin` method with the same instance
