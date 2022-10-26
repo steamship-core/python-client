@@ -82,7 +82,7 @@ class PackageInstance(CamelModel):
                 self.workspace_handle = workspace.handle
 
     @staticmethod
-    def get(client: Client, handle: str):
+    def get(client: Client, handle: str) -> PackageInstance:
         return client.post(
             "package/instance/get", IdentifierRequest(handle=handle), expect=PackageInstance
         )

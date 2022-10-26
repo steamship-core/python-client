@@ -85,7 +85,7 @@ class PluginInstance(CamelModel):
         return client.post("plugin/instance/create", payload=req, expect=PluginInstance)
 
     @staticmethod
-    def get(client: Client, handle: str):
+    def get(client: Client, handle: str) -> PluginInstance:
         return client.post(
             "plugin/instance/get", IdentifierRequest(handle=handle), expect=PluginInstance
         )

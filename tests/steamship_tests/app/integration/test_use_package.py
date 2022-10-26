@@ -78,7 +78,7 @@ def test_use_package():
 
             # Or we could have (1) created a client anchored to the Workspace `package_handle_1` and then
             # (2) Loaded that handle from within the client.
-            client2 = get_steamship_client(workspace=package_handle_1)
+            client2 = get_steamship_client(workspace_handle=package_handle_1)
             assert client2.config.workspace_handle == package_handle_1
             assert client2.config.workspace_id == static_use_instance1.workspace_id
 

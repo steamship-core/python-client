@@ -45,7 +45,7 @@ class Client(CamelModel, ABC):
         config_file: str = None,
         config: Configuration = None,
         trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspace
-        **kwargs,
+        **z,
     ):
         """Create a new client.
 

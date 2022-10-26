@@ -1,15 +1,17 @@
 from contextlib import contextmanager
 from typing import Any, Dict
 
-from steamship import Steamship
+from steamship import Configuration, Steamship
 from steamship.data.package_instance import PackageInstance
 from steamship.data.plugin_instance import PluginInstance
 
 
-def get_steamship_client(**kwargs) -> Steamship:
+def get_steamship_client(fail_if_workspace_exists=False, **kwargs) -> Steamship:
     # Always use the `test` profile
     kwargs["profile"] = "test"
-    return Steamship(**kwargs)
+    return Steamship(
+        fail_if_workspace_exists=fail_if_workspace_exists, config=Configuration.parse_obj(kwargs)
+    )
 
 
 @contextmanager

@@ -113,10 +113,10 @@ def test_kv_namespace_works():
 
 def test_kv_multi_space_works():
     space_handle = random_name()
-    client1 = get_steamship_client(workspace=space_handle)
+    client1 = get_steamship_client(workspace_handle=space_handle)
 
     space_handle2 = random_name()
-    client2 = get_steamship_client(workspace=space_handle2)
+    client2 = get_steamship_client(workspace_handle=space_handle2)
 
     kv1 = KeyValueStore(client=client1)
     kv2 = KeyValueStore(client=client2)
