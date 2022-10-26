@@ -100,7 +100,7 @@ class DocTag(str, Enum):
         elif name == "strong":
             return DocTag.STRONG
         elif name == "b":
-            return DocTag.EMPHASIZED
+            return DocTag.STRONG
         elif name == "emph":
             return DocTag.EMPHASIZED
         elif name == "i":
