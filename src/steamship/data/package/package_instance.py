@@ -96,10 +96,10 @@ class PackageInstance(CamelModel):
             verb=verb,
             operation=f"/{self.workspace_handle or '_'}/{self.handle or '_'}/{path}",
             payload=kwargs,
-            is_app_call=True,
-            app_owner=self.user_handle,
-            app_id=self.package_id,
-            app_instance_id=self.id,
+            is_package_call=True,
+            package_owner=self.user_handle,
+            package_id=self.package_id,
+            package_instance_id=self.id,
             as_background_task=False,
         )
 
