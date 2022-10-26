@@ -5,7 +5,7 @@ from steamship_tests.utils.random import random_index
 from steamship import Steamship, SteamshipError
 from steamship.base import TaskState
 from steamship.data.embeddings import EmbeddedItem, EmbeddingIndex
-from steamship.data.plugin_instance import PluginInstance
+from steamship.data.plugin.plugin_instance import PluginInstance
 
 _TEST_EMBEDDER = "test-embedder"
 
