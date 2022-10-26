@@ -155,3 +155,28 @@ def test_query(client: Steamship):
 
     a.delete()
     b.delete()
+
+
+def test_file_list(client: Steamship):
+    a = File.create(
+        client=client,
+        tags=[Tag.CreateRequest(kind="FileTag")],
+    )
+    b = File.create(
+        client=client,
+        tags=[Tag.CreateRequest(kind="FileTag")],
+    )
+    c = File.create(
+        client=client,
+        tags=[Tag.CreateRequest(kind="FileTag")],
+    )
+
+    files = File.list(client=client).files
+    assert len(files) == 3
+    assert a in files
+    assert b in files
+    assert c in files
+
+    a.delete()
+    b.delete()
+    c.delete()

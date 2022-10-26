@@ -37,6 +37,14 @@ class FileClearResponse(Response):
     id: str
 
 
+class ListFileRequest(Request):
+    pass
+
+
+class ListFileResponse(Response):
+    files: List[File]
+
+
 class FileQueryRequest(Request):
     tag_filter_query: str
 
@@ -258,9 +266,18 @@ class File(CamelModel):
 
         return e_index
 
+    @staticmethod
+    def list(client: Client) -> ListFileResponse:
+        return client.post(
+            "file/list",
+            ListFileRequest(),
+            expect=ListFileResponse,
+        )
+
 
 class FileQueryResponse(Response):
     files: List[File]
 
 
 File.CreateRequest.update_forward_refs()
+ListFileResponse.update_forward_refs()
