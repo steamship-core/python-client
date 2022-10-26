@@ -7,7 +7,10 @@ from pydantic import BaseModel, Field
 from steamship.base import Task
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import Request
+from steamship.base.request import DeleteRequest, IdentifierRequest, Request
+from steamship.data.block import Block
+from steamship.data.file import File
+from steamship.data.operations.tagger import TagRequest, TagResponse
 from steamship.data.plugin import (
     HostingCpu,
     HostingEnvironment,
@@ -18,11 +21,6 @@ from steamship.data.plugin import (
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
-
-from ..base.request import DeleteRequest, IdentifierRequest
-from .block import Block
-from .file import File
-from .operations.tagger import TagRequest, TagResponse
 
 
 class CreatePluginInstanceRequest(Request):
@@ -113,7 +111,7 @@ class PluginInstance(CamelModel):
         req = DeleteRequest(id=self.id)
         return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
 
-    def train(self, training_request: TrainingParameterPluginInput) -> TrainPluginOutput:
+    def train(self, training_request: TrainingParameterPluginInput) -> Task[TrainPluginOutput]:
         return self.client.post(
             "plugin/instance/train",
             payload=training_request,

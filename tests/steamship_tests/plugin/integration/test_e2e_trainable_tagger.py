@@ -10,7 +10,7 @@ from steamship_tests.utils.file import upload_file
 
 from steamship.client import Steamship
 from steamship.data.plugin import HostingType
-from steamship.data.plugin_instance import PluginInstance
+from steamship.data.plugin.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint

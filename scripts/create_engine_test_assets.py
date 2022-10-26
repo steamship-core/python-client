@@ -15,6 +15,7 @@ def main():
     assets_to_build = [
         (PLUGINS_PATH / "blockifiers" / "csv_blockifier.py", "csv-blockifier.zip"),
         (PACKAGES_PATH / "demo_package.py", "demo-package.zip"),
+        (PACKAGES_PATH / "configurable_hello_world.py", "configurable_hello_world.zip"),
         (PLUGINS_PATH / "blockifiers" / "blockifier.py", "dummy_blockifier.zip"),
     ]
 

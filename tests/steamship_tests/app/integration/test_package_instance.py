@@ -1,4 +1,6 @@
 import base64
+import json
+import re
 
 import pytest
 import requests
@@ -134,6 +136,26 @@ def test_instance_invoke():
         # isn't trying to coerce it to a Task object and throwing.
         resp_obj = instance.invoke("json_with_status", verb=Verb.POST)
         assert resp_obj == {"status": "a string"}
+
+        # Test that the __steamship_dir__ method works
+        #
+        # Note: The output of the InvocableResponse includes a dynamically generated value:
+        #
+        #       returns': "<class 'l_dd6730cb.InvocableResponse[bytes]'>"
+        #
+        # So we've got to do a little regex switcheroo
+
+        search_pattern = r"'[a-zA-Z0-9_]+\.InvocableResponse\["
+        replace_pattern = "'foo.InvocableResponse["
+
+        def replace_string(s: str):
+            return re.sub(search_pattern, replace_pattern, s)
+
+        steamship_dir = instance.invoke("__dir__")
+        with open(TEST_ASSETS_PATH / "demo_package_spec.json", "r") as f:
+            steamship_dir_golden = json.loads(replace_string(f.read()))
+            steamship_dir_fixed = json.loads(replace_string(json.dumps(steamship_dir)))
+            assert steamship_dir_fixed == steamship_dir_golden
 
 
 def test_deploy_in_workspace():

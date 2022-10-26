@@ -29,7 +29,7 @@ class ListTaskCommentRequest(Request):
 
 
 class TaskComment(CamelModel):
-    client: Any = Field(None, exclude=True)
+    client: Client = Field(None, exclude=True)
     id: str = None
     user_id: str = None
     task_id: str = None
@@ -51,7 +51,7 @@ class TaskComment(CamelModel):
 
     @staticmethod
     def create(
-        client: Any,  # TODO (Enias): Solve circular dependency
+        client: Client,
         task_id: str = None,
         external_id: str = None,
         external_type: str = None,
@@ -73,7 +73,7 @@ class TaskComment(CamelModel):
 
     @staticmethod
     def list(
-        client: Any,
+        client: Client,
         task_id: str = None,
         external_id: str = None,
         external_type: str = None,
@@ -128,7 +128,7 @@ class TaskStatusRequest(Request):
 class Task(GenericCamelModel, Generic[T]):
     """Encapsulates a unit of asynchronously performed work."""
 
-    client: Any = Field(None, exclude=True)  # Steamship client
+    client: Client = Field(None, exclude=True)  # Steamship client
 
     task_id: str = None  # The id of this task
     user_id: str = None  # The user who requested this task
@@ -242,3 +242,9 @@ class Task(GenericCamelModel, Generic[T]):
         # Ideally task status only returns the status, not the full output object
         resp = self.client.post("task/status", payload=req, expect=self.expect)
         self.update(resp)
+
+
+from .client import Client  # noqa: E402
+
+Task.update_forward_refs()
+TaskComment.update_forward_refs()

@@ -29,59 +29,59 @@ class TestPackage(PackageService):
         return Config
 
     @get("resp_string")
-    def resp_string(self) -> InvocableResponse:
+    def resp_string(self) -> InvocableResponse[str]:
         return InvocableResponse(string="A String")
 
     @get("resp_dict")
-    def resp_dict(self) -> InvocableResponse:
+    def resp_dict(self) -> InvocableResponse[dict]:
         return InvocableResponse(json={"string": "A String", "int": 10})
 
     @get("resp_obj")
-    def resp_obj(self) -> InvocableResponse:
+    def resp_obj(self) -> InvocableResponse[dict]:
         return InvocableResponse(json=TestObj(name="Foo"))
 
     @get("resp_binary")
-    def resp_binary(self) -> InvocableResponse:
+    def resp_binary(self) -> InvocableResponse[bytes]:
         _bytes = base64.b64decode(PALM_TREE_BASE_64)
         return InvocableResponse(_bytes=_bytes)
 
     @get("resp_bytes_io")
-    def resp_bytes_io(self) -> InvocableResponse:
+    def resp_bytes_io(self) -> InvocableResponse[bytes]:
         _bytes = base64.b64decode(PALM_TREE_BASE_64)
         return InvocableResponse(_bytes=io.BytesIO(_bytes))
 
     @get("resp_image")
-    def resp_image(self) -> InvocableResponse:
+    def resp_image(self) -> InvocableResponse[bytes]:
         _bytes = base64.b64decode(PALM_TREE_BASE_64)
         return InvocableResponse(_bytes=_bytes, mime_type=MimeTypes.PNG)
 
     @get("greet")
-    def greet1(self, name: str = "Person") -> InvocableResponse:
+    def greet1(self, name: str = "Person") -> InvocableResponse[str]:
         return InvocableResponse(string=f"Hello, {name}!")
 
     @post("greet")
-    def greet2(self, name: str = "Person") -> InvocableResponse:
+    def greet2(self, name: str = "Person") -> InvocableResponse[str]:
         return InvocableResponse(string=f"Hello, {name}!")
 
     @get("workspace")
-    def workspace(self) -> InvocableResponse:
+    def workspace(self) -> InvocableResponse[str]:
         return InvocableResponse(string=self.client.config.workspace_id)
 
     @post("raise_steamship_error")
-    def raise_steamship_error(self) -> InvocableResponse:
+    def raise_steamship_error(self) -> InvocableResponse[str]:
         raise SteamshipError(message="raise_steamship_error")
 
     @post("raise_python_error")
-    def raise_python_error(self) -> InvocableResponse:
+    def raise_python_error(self) -> InvocableResponse[str]:
         raise Exception("raise_python_error")
 
     @post("user_info")
-    def user_info(self) -> InvocableResponse:
+    def user_info(self) -> InvocableResponse[dict]:
         user = User.current(self.client)
         return InvocableResponse(json={"handle": user.handle})
 
     @post("json_with_status")
-    def json_with_status(self) -> InvocableResponse:
+    def json_with_status(self) -> InvocableResponse[dict]:
         """Our base client tries to be smart with parsing things that look like SteamshipResponse objects, but there's
         a problem with this when our packages response with a JSON string of the sort {"status": "foo"} -- the Client
         will unhelpfully try to coerce that string value into a Task object and fail. This method helps us test that
@@ -89,7 +89,7 @@ class TestPackage(PackageService):
         return InvocableResponse(json={"status": "a string"})
 
     @get("config")
-    def get_config(self) -> InvocableResponse:
+    def get_config(self) -> InvocableResponse[dict]:
         """This is called get_config because there's already `.config` object on the class."""
         return InvocableResponse(
             json={
@@ -101,7 +101,7 @@ class TestPackage(PackageService):
         )
 
     @post("learn")
-    def learn(self, fact: str = None) -> InvocableResponse:
+    def learn(self, fact: str = None) -> InvocableResponse[dict]:
         """Learns a new fact."""
         if fact is None:
             return InvocableResponse.error(500, "Empty fact provided to learn.")
@@ -118,7 +118,7 @@ class TestPackage(PackageService):
         return InvocableResponse(json=res.data)
 
     @post("query")
-    def query(self, query: str = None, k: int = 1) -> InvocableResponse:
+    def query(self, query: str = None, k: int = 1) -> InvocableResponse[dict]:
         """Learns a new fact."""
         if query is None:
             return InvocableResponse.error(500, "Empty query provided.")

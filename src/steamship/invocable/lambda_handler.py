@@ -27,7 +27,7 @@ def encode_exception(obj):
     return obj
 
 
-def create_handler(app_cls: Type[Invocable]):  # noqa: C901
+def create_handler(invocable_cls: Type[Invocable]):  # noqa: C901
     """Wrapper function for a Steamship invocable within an AWS Lambda function."""
 
     def _handler(
@@ -57,7 +57,7 @@ def create_handler(app_cls: Type[Invocable]):  # noqa: C901
             error_prefix = "[ERROR - ?VERB ?PATH] "
 
         try:
-            invocable = app_cls(client=client, config=request.invocation.config)
+            invocable = invocable_cls(client=client, config=request.invocation.config)
         except SteamshipError as se:
             return InvocableResponse.from_obj(se)
         except Exception as ex:
