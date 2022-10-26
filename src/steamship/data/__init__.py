@@ -1,12 +1,8 @@
 from .block import Block
 from .embeddings import EmbeddingIndex
 from .file import File
-from .package import Package
-from .package_instance import PackageInstance
-from .package_version import PackageVersion
-from .plugin import Plugin
-from .plugin_instance import PluginInstance
-from .plugin_version import PluginVersion
+from .package import Package, PackageInstance, PackageVersion
+from .plugin import Plugin, PluginInstance, PluginVersion
 from .tags import DocTag, EmotionTag, SentimentTag, Tag, TagKind, TagValue, TokenTag
 from .workspace import Workspace
 

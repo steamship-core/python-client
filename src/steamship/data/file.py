@@ -3,7 +3,7 @@ from __future__ import annotations
 import io
 import logging
 from enum import Enum
-from typing import Any, List, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
@@ -16,6 +16,9 @@ from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
 from steamship.data.tags import Tag
 from steamship.utils.binary_utils import flexi_create
+
+if TYPE_CHECKING:
+    from steamship.data.operations.tagger import TagResponse
 
 
 class FileUploadType(str, Enum):
@@ -209,8 +212,7 @@ class File(CamelModel):
         self,
         plugin_instance: str = None,
         wait_on_tasks: List[Task] = None,
-    ) -> Task[Tag]:  # This actually is Task[TagResponse], right?
-        # TODO (enias): Fix Circular imports
+    ) -> Task[TagResponse]:
         from steamship.data.operations.tagger import TagRequest, TagResponse
         from steamship.data.plugin import PluginTargetType
 
@@ -226,8 +228,6 @@ class File(CamelModel):
         e_index: EmbeddingIndex = None,
         reindex: bool = True,
     ) -> EmbeddingIndex:
-        # TODO: This should really be done all on the invocable, but for now we'll do it in the client
-        # to facilitate demos.
         from steamship import EmbeddingIndex
         from steamship.data.embeddings import EmbeddedItem
 

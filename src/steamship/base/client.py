@@ -34,18 +34,18 @@ class Client(CamelModel, ABC):
     _session: Session = PrivateAttr()
 
     def __init__(
-        self,
-        api_key: str = None,
-        api_base: str = None,
-        app_base: str = None,
-        web_base: str = None,
-        workspace: str = None,
-        fail_if_workspace_exists: bool = False,
-        profile: str = None,
-        config_file: str = None,
-        config: Configuration = None,
-        trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspace
-        **kwargs,
+            self,
+            api_key: str = None,
+            api_base: str = None,
+            app_base: str = None,
+            web_base: str = None,
+            workspace: str = None,
+            fail_if_workspace_exists: bool = False,
+            profile: str = None,
+            config_file: str = None,
+            config: Configuration = None,
+            trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspace
+            **kwargs,
     ):
         """Create a new client.
 
@@ -76,11 +76,12 @@ class Client(CamelModel, ABC):
         )
 
     def switch_workspace(  # noqa: C901
-        self,
-        workspace_handle: str = None,
-        workspace_id: str = None,
-        fail_if_workspace_exists: bool = False,
-        trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspacetrust_workspace_config: bool = False, # For use by lambda_handler; don't fetch the workspace
+            self,
+            workspace_handle: str = None,
+            workspace_id: str = None,
+            fail_if_workspace_exists: bool = False,
+            trust_workspace_config: bool = False,
+            # For use by lambda_handler; don't fetch the workspacetrust_workspace_config: bool = False, # For use by lambda_handler; don't fetch the workspace
     ):
         """Switches this client to the requested workspace, possibly creating it. If all arguments are None, the client
         actively switches into the default workspace.
@@ -171,10 +172,10 @@ class Client(CamelModel, ABC):
         return super().dict(**kwargs)
 
     def _url(
-        self,
-        is_package_call: bool = False,
-        package_owner: str = None,
-        operation: str = None,
+            self,
+            is_package_call: bool = False,
+            package_owner: str = None,
+            operation: str = None,
     ):
         if not is_package_call:
             # Regular API call
@@ -203,13 +204,13 @@ class Client(CamelModel, ABC):
         return f"{base}/{operation}"
 
     def _headers(
-        self,
-        is_app_call: bool = False,
-        app_owner: str = None,
-        app_id: str = None,
-        app_instance_id: str = None,
-        as_background_task: bool = False,
-        wait_on_tasks: List[Task] = None,
+            self,
+            is_app_call: bool = False,
+            app_owner: str = None,
+            app_id: str = None,
+            app_instance_id: str = None,
+            as_background_task: bool = False,
+            wait_on_tasks: List[Task] = None,
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
@@ -314,10 +315,10 @@ class Client(CamelModel, ABC):
     def _add_client_to_object(self, expect, response_data):
         if expect and isclass(expect):
             if len(response_data.keys()) == 1 and list(response_data.keys())[0] in (
-                to_camel(expect.__name__),
-                to_camel(expect.__name__).replace("package", "invocable"),
-                # Hack since engine uses "App" instead of "Package"
-                "index",
+                    to_camel(expect.__name__),
+                    to_camel(expect.__name__).replace("package", "invocable"),
+                    # Hack since engine uses "App" instead of "Package"
+                    "index",
             ):
                 # TODO (enias): Hack since the engine responds with incosistent formats e.g. {"plugin" : {plugin_fields}}
                 for _, v in response_data.items():
@@ -333,20 +334,20 @@ class Client(CamelModel, ABC):
                     pass
 
     def call(  # noqa: C901
-        self,
-        verb: Verb,
-        operation: str,
-        payload: Union[Request, dict] = None,
-        file: Any = None,
-        expect: Type[T] = None,
-        debug: bool = False,
-        raw_response: bool = False,
-        is_app_call: bool = False,
-        app_owner: str = None,
-        app_id: str = None,
-        app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
-        as_background_task: bool = False,
-        wait_on_tasks: List[Task] = None,
+            self,
+            verb: Verb,
+            operation: str,
+            payload: Union[Request, dict] = None,
+            file: Any = None,
+            expect: Type[T] = None,
+            debug: bool = False,
+            raw_response: bool = False,
+            is_app_call: bool = False,
+            app_owner: str = None,
+            app_id: str = None,
+            app_instance_id: str = None,  # TODO (Enias): Where is the app_version_id ?
+            as_background_task: bool = False,
+            wait_on_tasks: List[Task] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -465,19 +466,19 @@ class Client(CamelModel, ABC):
             raise SteamshipError("Inconsistent response from server. Please contact support.")
 
     def post(
-        self,
-        operation: str,
-        payload: Union[Request, dict, BaseModel] = None,
-        file: Any = None,
-        expect: Any = None,
-        debug: bool = False,
-        raw_response: bool = False,
-        app_call: bool = False,
-        app_owner: str = None,
-        app_id: str = None,
-        app_instance_id: str = None,
-        as_background_task: bool = False,
-        wait_on_tasks: List[Task] = None,
+            self,
+            operation: str,
+            payload: Union[Request, dict, BaseModel] = None,
+            file: Any = None,
+            expect: Any = None,
+            debug: bool = False,
+            raw_response: bool = False,
+            app_call: bool = False,
+            app_owner: str = None,
+            app_id: str = None,
+            app_instance_id: str = None,
+            as_background_task: bool = False,
+            wait_on_tasks: List[Task] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -498,19 +499,19 @@ class Client(CamelModel, ABC):
         )
 
     def get(
-        self,
-        operation: str,
-        payload: Union[Request, dict] = None,
-        file: Any = None,
-        expect: Any = None,
-        debug: bool = False,
-        raw_response: bool = False,
-        app_call: bool = False,
-        app_owner: str = None,
-        app_id: str = None,
-        app_instance_id: str = None,
-        as_background_task: bool = False,
-        wait_on_tasks: List[Task] = None,
+            self,
+            operation: str,
+            payload: Union[Request, dict] = None,
+            file: Any = None,
+            expect: Any = None,
+            debug: bool = False,
+            raw_response: bool = False,
+            app_call: bool = False,
+            app_owner: str = None,
+            app_id: str = None,
+            app_instance_id: str = None,
+            as_background_task: bool = False,
+            wait_on_tasks: List[Task] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any

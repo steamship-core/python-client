@@ -13,8 +13,8 @@ from steamship_tests import ROOT_PATH, SRC_PATH, TEST_ASSETS_PATH
 
 from steamship import Package, PackageInstance, PackageVersion, Steamship
 from steamship.data.plugin import HostingType, Plugin
-from steamship.data.plugin_instance import PluginInstance
-from steamship.data.plugin_version import PluginVersion
+from steamship.data.plugin.plugin_instance import PluginInstance
+from steamship.data.plugin.plugin_version import PluginVersion
 from steamship.data.user import User
 
 
