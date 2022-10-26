@@ -29,7 +29,7 @@ def test_client_has_default_workspace_unless_otherwise_specified():
 def test_client_can_create_new_workspace():
     # Create a new workspace anchored in a randomly generated workspace name
     workspace_handle = random_name()
-    custom_client = get_steamship_client(workspace=workspace_handle)
+    custom_client = get_steamship_client(workspace_handle=workspace_handle)
 
     # The custom_client is not in the default workspace
     default_client = get_steamship_client()
@@ -37,14 +37,14 @@ def test_client_can_create_new_workspace():
     assert custom_client.config.workspace_id != default_client.config.workspace_id
 
     # Another client specifying the same workspace will be anchored to that workspace.
-    custom_client_2 = get_steamship_client(workspace=workspace_handle)
+    custom_client_2 = get_steamship_client(workspace_handle=workspace_handle)
     assert custom_client.config.workspace_handle == custom_client_2.config.workspace_handle
     assert custom_client.config.workspace_id == custom_client_2.config.workspace_id
 
     # .. But if we specify that workspace with the `fail_if_workspace_exists` option it will fail.
     with pytest.raises(SteamshipError):
         get_steamship_client(
-            workspace=custom_client.config.workspace_handle, fail_if_workspace_exists=True
+            workspace_handle=custom_client.config.workspace_handle, fail_if_workspace_exists=True
         )
 
     Workspace(client=custom_client, id=custom_client.config.workspace_id).delete()
@@ -53,8 +53,8 @@ def test_client_can_create_new_workspace():
 def test_switch_workspace():
     """Tests that the client actively loads the default workspace ID and Handle, and that we can revert to it later."""
     default_client = get_steamship_client()
-    custom_client = get_steamship_client(workspace=random_name())
-    custom_client_2 = get_steamship_client(workspace=custom_client.config.workspace_handle)
+    custom_client = get_steamship_client(workspace_handle=random_name())
+    custom_client_2 = get_steamship_client(workspace_handle=custom_client.config.workspace_handle)
 
     assert custom_client.config.workspace_handle != default_client.config.workspace_handle
     assert custom_client_2.config.workspace_handle == custom_client.config.workspace_handle
