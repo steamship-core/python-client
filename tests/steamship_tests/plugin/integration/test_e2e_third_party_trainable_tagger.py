@@ -7,7 +7,7 @@ from steamship_tests.utils.deployables import deploy_plugin
 
 from steamship.base import TaskState
 from steamship.data.plugin import HostingType
-from steamship.data.plugin_instance import PluginInstance
+from steamship.data.plugin.plugin_instance import PluginInstance
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 

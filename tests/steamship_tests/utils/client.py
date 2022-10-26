@@ -2,8 +2,8 @@ from contextlib import contextmanager
 from typing import Any, Dict
 
 from steamship import Steamship
-from steamship.data.package_instance import PackageInstance
-from steamship.data.plugin_instance import PluginInstance
+from steamship.data.package.package_instance import PackageInstance
+from steamship.data.plugin.plugin_instance import PluginInstance
 
 
 def get_steamship_client(**kwargs) -> Steamship:
