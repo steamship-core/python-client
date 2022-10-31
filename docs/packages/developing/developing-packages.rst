@@ -1,5 +1,5 @@
-Implementing Packages
-~~~~~~~~~~~~~~~~~~~~~
+Developing Packages
+~~~~~~~~~~~~~~~~~~~
 
 From the implementation perspective, think of a package as a Flask app.
 It looks and feels like a regular Python class,

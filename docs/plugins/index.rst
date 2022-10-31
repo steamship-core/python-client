@@ -38,7 +38,14 @@ this way, Steamship plugins lets developers build packages across
 different data and AI services without worrying about the details of
 tasking, persistence, and integration.
 
-Developing new Plugins
-~~~~~~~~~~~~~~~~~~~~~~
 
-For those interested in developing plugins, see :ref:`Developing Packages and Plugins<DevelopingPackagesAndPlugins>`.
+Packages Table of Contents
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. toctree::
+   :maxdepth: 3
+
+   Using Plugins <using>
+   Developing Plugins <developing/index>
+
+

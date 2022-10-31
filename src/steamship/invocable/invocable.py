@@ -1,8 +1,4 @@
-"""
-
-Please see https://docs.steamship.com/ for information about building a Steamship App
-
-"""
+"""Please see https://docs.steamship.com/ for information about building a Steamship Package"""
 import inspect
 import logging
 import pathlib
@@ -54,7 +50,7 @@ def make_registering_decorator(decorator):
 # https://stackoverflow.com/questions/2366713/can-a-decorator-of-an-instance-method-access-the-class
 # noinspection PyUnusedLocal
 def endpoint(verb: str = None, path: str = None, **kwargs):
-    """By using **kwargs we can tag the function with Any parameters."""  # noqa: RST210
+    """By using ``kwargs`` we can tag the function with Any parameters."""  # noqa: RST210
 
     def decorator(function):
         # This is used in conjunction with the __init_subclass__ code!

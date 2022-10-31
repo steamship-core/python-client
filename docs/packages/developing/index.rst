@@ -1,5 +1,24 @@
-Implementing Plugins and Packages
----------------------------------
+Developing Packages
+-------------------
+
+Develop Steamship packages with our low-code Python stack and publish them for anyone to use.
+It's the fastest way to build a full-lifecycle language AI service.
+
+Here's how to go from zero-to-deployed in about 60 seconds.
+Then you can customize your new package from there.
+
+First, create a new package with our CLI:
+
+.. code-block:: bash
+
+   ship create
+
+Then publish it
+
+.. code-block:: python
+
+   result = instance.invoke('method_name', arg1=val1, arg2=val2)
+
 
 Both plugins and packages are designed to be regular Python objects that you can use and test locally,
 but which can also be mounted by Steamship for running in the cloud.

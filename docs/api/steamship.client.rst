@@ -4,10 +4,10 @@ steamship.client package
 Submodules
 ----------
 
-steamship.client.client module
-------------------------------
+steamship.client.steamship module
+---------------------------------
 
-.. automodule:: steamship.client.client
+.. automodule:: steamship.client.steamship
    :members:
    :undoc-members:
    :show-inheritance:
