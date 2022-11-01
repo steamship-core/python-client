@@ -94,6 +94,8 @@ class Steamship(Client):
         If you wish to override the usage of a workspace named `instance_handle`, you can provide the `workspace_handle`
         parameter.
         """
+        if instance_handle is None:
+            instance_handle = f"{package_handle}-default"
         kwargs["workspace"] = workspace_handle or instance_handle
         client = Steamship(**kwargs)
         return client._instance_use(
@@ -115,6 +117,8 @@ class Steamship(Client):
         """Creates/loads an instance of package `package_handle`.
 
         The instance is named `instance_handle` and located in the workspace this client is anchored to.."""
+        if instance_handle is None:
+            instance_handle = f"{package_handle}-default"
         instance = PackageInstance.create(
             self,
             package_handle=package_handle,
@@ -147,6 +151,8 @@ class Steamship(Client):
         plugin = Steamship.use_plugin('plugin-handle', 'instance-handle')
         ```
         """
+        if instance_handle is None:
+            instance_handle = f"{plugin_handle}-default"
         kwargs["workspace"] = workspace_handle or instance_handle
         client = Steamship(**kwargs)
         return client._instance_use_plugin(
@@ -168,6 +174,8 @@ class Steamship(Client):
         """Creates/loads an instance of plugin `plugin_handle`.
 
         The instance is named `instance_handle` and located in the workspace this client is anchored to."""
+        if instance_handle is None:
+            instance_handle = f"{plugin_handle}-default"
         instance = PluginInstance.create(
             self,
             plugin_handle=plugin_handle,

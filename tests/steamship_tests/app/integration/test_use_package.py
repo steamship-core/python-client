@@ -21,6 +21,24 @@ def test_use_package():
         package_handle_1 = random_name()
         package_handle_2 = random_name()
 
+        # Test that without specifying an instance handle, the user is delivered into a workspace called
+        # packageHandle-default and delivered an instance called workspaceHandle-default
+        #
+        # These are the same semantics as workspaces: if you don't specify, you get taken to a `default` space,
+        # but in this case we need to prefix with the type to avoid namespace collision within the space.
+        with steamship_use(package.handle) as static_use_instance1:
+            with steamship_use(package.handle, delete_workspace=False) as static_use_instance2:
+                assert (
+                    static_use_instance1.client.config.workspace_handle
+                    == static_use_instance2.client.config.workspace_handle
+                )
+                assert static_use_instance1.handle == static_use_instance2.handle
+                assert (
+                    static_use_instance1.client.config.workspace_handle
+                    == f"{package.handle}-default"
+                )
+                assert static_use_instance1.handle == f"{package.handle}-default"
+
         with steamship_use(package.handle, package_handle_1) as static_use_instance1:
             with steamship_use(package.handle, package_handle_2) as static_use_instance2:
                 # Instance 1 and 2 have handles equal to their workspace handles
