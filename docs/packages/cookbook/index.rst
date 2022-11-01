@@ -15,4 +15,4 @@ Convert (Blockify) Files into Steamship Format
 .. toctree::
    :maxdepth: 1
 
-   Accepting Markdown Files <how-to-upload-markdown>
+   Extracting an outline from markdown <how-to-extract-outline-from-markdown>
