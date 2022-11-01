@@ -1,13 +1,16 @@
 Package Development Cookbook
 ----------------------------
 
-Importing Data
-~~~~~~~~~~~~~~
+..
+    TODO: reorganize headings
+
+Importing and Querying Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. toctree::
    :maxdepth: 1
 
-   Upload Files from a User <how-to-upload-files>
+   Collect and Query Sentiment <collecting-and-querying-sentiment>
 
 Convert (Blockify) Files into Steamship Format
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

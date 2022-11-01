@@ -49,8 +49,8 @@ Implementation
         # This method defines the package user's endpoint. The @post annotation
         # automatically makes the method available as an HTTP Post request.
         # The name in the annotation defines the HTTP route suffix, see <link>
-        @post("get_markdown_outline")
-        def get_markdown_outline(self, content: str = None) -> str:
+        @post("create_markdown_outline")
+        def create_markdown_outline(self, content: str = None) -> str:
             """Accept markdown content and extract its outline"""
 
             # Upload the content of the Markdown file into Steamship.
