@@ -1,37 +1,81 @@
 Developing Packages
 -------------------
 
-Develop Steamship packages with our low-code Python stack and publish them for anyone to use.
-It's the fastest way to build a full-lifecycle language AI service.
+Steamship is the fastest way to build and deploy a full-stack language AI package.
 
 Here's how to go from zero-to-deployed in about 60 seconds.
 Then you can customize your new package from there.
 
-First, create a new package with our CLI:
+First, create a new package with our CLI.
 
 .. code-block:: bash
 
    ship create
 
-Then publish it
+   > Select *Package*
+   > Select *Empty Package*
+
+Then deploy the package to the cloud:
+
+.. code-block:: bash
+
+   ship deploy
+
+Now create a new instance of your package. If you used the **Empty Package** template, you can use the CLI to create one:
+
+.. code-block:: bash
+
+   ship package:instance:create --default_name="Beautiful"
+
+That keyword argument above is part of the required configuration.
+You can see where that argument is defined in the ``src/api.py`` file of your new package, and you can see
+where it is required in the ``steamship.json`` file.
+
+The response you get back will contain your **Instance Handle**.
+
+Let's invoke a method on that instance. Replacing your Instance Handle below, run:
+
+.. code-block:: bash
+
+   ship package:instance:invoke --instance="INSTANCE_HANDLE" --method="greet"
+
+Now let's create an instance and invoke it from Python.
+After running ``pip install steamship``, run the following code, replacing your package and instance handles:
 
 .. code-block:: python
+   from steamship import Steamship
 
-   result = instance.invoke('method_name', arg1=val1, arg2=val2)
+   # TODO: Replace with your package and instance handle below
+   instance = Steamship.use("PACKAGE_HANDLE", "INSTANCE_HANDLE", config={
+       "default_name": "Beautiful"
+   })
 
+   print(instance.invoke("greet"))
 
-Both plugins and packages are designed to be regular Python objects that you can use and test locally,
-but which can also be mounted by Steamship for running in the cloud.
+That's it!
+You've just created a new package, deployed it, and invoked it from two different environments.
 
-In both cases, your implementation lives in the  ``src/api.py`` file of your project.
-This file will have been created for you by the template you selected when starting your project.
+Now the real fun begins...
 
-- If you are developing a package, you will find a class that derives from the ``App`` base class
-- If you are developing a plugin, you will find a class that derives from a base class specific to the plugin type.
+Customizing your Package
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-In both cases, this ``src/api.py`` template concludes by setting a ``handler`` variable that is required by the Steamship bootloader for cloud operation.
+Steamship packages run on top of a cloud stack designed for Language AI.
+You can import files, parse and tag them, query over them, and return custom results -- and far more.
 
-The following sections contain a brief overview of the differences between package and plugin development.
+.. grid::  1 1 2 3
 
-.. include:: ./developing-packages.rst
-.. include:: ./developing-plugins.rst
+   .. grid-item-card:: **Package Project Structure**
+      :link: project-structure.html
+
+      Understand the basic project structure that defines a package and how to develop in it.
+
+   .. grid-item-card:: **Package Cookbook**
+      :link: ../cookbook/index.html
+
+      A cookbook of common operations you may want to perform, such as parsing files, transcribing audio, and querying results.
+
+   .. grid-item-card:: **Package Cookbook**
+      :link: ../../developing/index.html
+
+      Lower-level details on Steamship development, such as environment setup, configuration, testing, and secret management.

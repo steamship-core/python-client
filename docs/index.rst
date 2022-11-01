@@ -5,13 +5,13 @@ Steamship is the fastest way to add Language AI to your software. The best way t
 
 First, install our CLI with the following terminal command (you'll need `NPM`_):
 
-.. code:: bash
+.. code-block:: bash
 
    npm install -g @steamship/cli
 
 Next, select a Steamship :ref:`package<Packages>` to try with:
 
-.. code:: bash
+.. code-block:: bash
 
    ship try
 
@@ -20,22 +20,20 @@ Next, select a Steamship :ref:`package<Packages>` to try with:
 Learn More
 ==========
 
-
-
 .. grid::  1 1 2 3
 
    .. grid-item-card:: **Using Packages**
-      :link: packages
+      :link: packages/index.html
 
       Import and use full-lifecycle language-AI packages in your Python, Javascript, and HTTP projects.
 
    .. grid-item-card:: **Developing Packages**
-      :link: developing/developing-packages
+      :link: developing/developing-packages/index.html
 
       Build and deploy your own packages with our low-code framework. Works with your favorite AI services.
 
    .. grid-item-card:: **Package Cookbook**
-      :link: developing/package-cookbook
+      :link: developing/package-cookbook/index.html
 
       Code snippets for converting content, tagging entities, searching content, anad more.
 
@@ -44,7 +42,7 @@ Contents
 ========
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    Configuration <configuration/index>
    Packages <packages/index>

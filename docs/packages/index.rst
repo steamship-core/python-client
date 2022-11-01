@@ -36,7 +36,7 @@ Think of them as regular software libraries with an upgrade:
       Build and deploy your own packages with our low-code framework. Works with your favorite AI services.
 
    .. grid-item-card:: **Package Cookbook**
-      :link: cookbook.html
+      :link: cookbook/index.html
 
       Code snippets for converting content, tagging entities, searching content, anad more.
 
@@ -48,3 +48,5 @@ Packages Table of Contents
 
    Using Packages <using>
    Developing Packages <developing/index>
+   Package Project Structure <developing/project-structure>
+   Package Cookbook <cookbook/index>

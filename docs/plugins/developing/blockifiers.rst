@@ -15,7 +15,7 @@ The Blockifier Contract
 Blockifiers are responsible for transforming raw data into Steamship Block Format.
 Using our SDK, that means implementing the following method:
 
-.. code:: python
+.. code-block:: python
 
    class MyBlockifier(Blockifier):
        def run(
@@ -43,7 +43,7 @@ A trivial implementation of this contract would be a pseudo-Markdown blockifier.
 Let's say this blockifier assumes the input data is UTF-8, assumes that empty new lines represent paragraph breaks.
 You could implement such a blockifier with this following code:
 
-.. code:: python
+.. code-block:: python
 
    class PretendMarkdownBlockifier(Blockifier):
        def run(self, request: PluginRequest[RawDataPluginInput]) -> Union[PluginRequest[BlockAndTagPluginOutput], BlockAndTagPluginOutput]:

@@ -20,7 +20,7 @@ Upload a file on disk with the ``File.create`` method.
 
 If you pass a ``path`` argument to this method, the file will be read from disk:
 
-.. code:: python
+.. code-block:: python
 
    file = File.create(
       client=client,
@@ -29,7 +29,7 @@ If you pass a ``path`` argument to this method, the file will be read from disk:
 
 If you pass a ``content`` argument to this method, the file will be created from the provided string:
 
-.. code:: python
+.. code-block:: python
 
    file = File.create(
       client=client,
@@ -39,7 +39,7 @@ If you pass a ``content`` argument to this method, the file will be created from
 If you pass a ``blocks`` argument to this method, you can provided structured, pre-created :ref:`Blocks`,
 removing the need to :ref:`blockify<Blockifiers>` your file later.
 
-.. code:: python
+.. code-block:: python
 
    file = File.create(
       client=client,
@@ -53,7 +53,7 @@ Uploading a URL
 
 Upload the file resolved by some URL by providing it to the ``File.create`` method.
 
-.. code:: python
+.. code-block:: python
 
    file = File.create(
       client=client,
@@ -72,7 +72,7 @@ This might be paired with a Notion File Blockifier that converts Notion's API re
 
 To upload a file via a Plugin, first create an instance of the plugin in your workspace and then provide that instance to the ``File.create`` command:
 
-.. code:: python
+.. code-block:: python
 
    importer = client.use_plugin("plugin-handle", "instance-handle", config={})
    importer = File.create(

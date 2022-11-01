@@ -12,7 +12,7 @@ This file contains your API Key, and our client libraries will auto-load informa
 
 It looks like this:
 
-.. code:: json
+.. code-block:: json
 
    {
      "apiKey": "mykey"
@@ -24,7 +24,7 @@ Using Multiple Profiles
 The Steamship configuration file supports multiple profiles.
 To create multiple profiles, use the following structure:
 
-.. code:: json
+.. code-block:: json
 
    {
      "apiKey": "mykey",

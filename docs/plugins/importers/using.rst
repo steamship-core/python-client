@@ -3,7 +3,7 @@ Using File Importers
 
 To use a :ref:`file importer<File Importers>`, create an instance within your workspace and then refer to it when creating a file.
 
-.. code:: python
+.. code-block:: python
 
    # Load a Steamship Worksapce
    from steamship import Steamship, File
@@ -28,7 +28,7 @@ this client to import any File Importers that package uses.
 
 Do that with the ``client.use_plugin`` method, like this:
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship, App
 
@@ -61,7 +61,7 @@ Workspace provides a scope in which data and infrastructure can live.
 Create a plugin instance within a Workspace by simply using the
 Steamship client, like this:
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship
 
@@ -83,7 +83,7 @@ Using a File Importer as a one-off operation
 If you wish to use a File Importer in-line without a known workspace, you
 can create a File Importer from the Steamship client’s static class.
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship
 

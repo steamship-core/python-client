@@ -11,13 +11,13 @@ Requests
 In general, most API requests consist of an HTTP ``POST`` with a JSON payload.
 For such requests, make sure to set the ``Content-Type`` header as follows:
 
-.. code:: bash
+.. code-block:: bash
 
    Content-Type: application/json
 
 Also include your API Key as a Bearer token in the header:
 
-.. code:: bash
+.. code-block:: bash
 
    Authorization: Bearer [YOUR TOKEN HERE]
 
@@ -27,7 +27,7 @@ Responses
 All Steamship responses use the following JSON format over the wire.
 Each field is optional.
 
-.. code:: json
+.. code-block:: json
 
    {
      "data":any,

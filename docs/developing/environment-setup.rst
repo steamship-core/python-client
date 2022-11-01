@@ -11,19 +11,19 @@ Otherwise they will not be available when you deploy your plugin to the cloud.
 
 To set up your virtual environment for the first time, run this command from your plugin's root directory:
 
-.. code:: bash
+.. code-block:: bash
 
    python3 -m venv .venv
 
 You can activate your virtual environment by running:
 
-.. code:: bash
+.. code-block:: bash
 
    source .venv/bin/activate
 
 Your first time, or any time you add a dependency, run:
 
-.. code:: bash
+.. code-block:: bash
 
    python -m pip install -r requirements.dev.txt
    python -m pip install -r requirements.txt

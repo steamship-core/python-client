@@ -5,13 +5,13 @@ Steamship Python Client
 
 To install the Steamship Python Client, run:
 
-.. code:: bash
+.. code-block:: bash
 
    pip install steamship
 
 Then, import and use Steamship with:
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship
 

@@ -5,7 +5,7 @@ Steamship CLI
 
 To install the Steamship CLI, run:
 
-.. code:: bash
+.. code-block:: bash
 
    npm install -g @steamship/cli
 
