@@ -4,22 +4,6 @@ steamship.base package
 Submodules
 ----------
 
-steamship.base.base module
---------------------------
-
-.. automodule:: steamship.base.base
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-steamship.base.binary\_utils module
------------------------------------
-
-.. automodule:: steamship.base.binary_utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 steamship.base.client module
 ----------------------------
 
@@ -44,18 +28,26 @@ steamship.base.error module
    :undoc-members:
    :show-inheritance:
 
-steamship.base.metadata module
-------------------------------
-
-.. automodule:: steamship.base.metadata
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 steamship.base.mime\_types module
 ---------------------------------
 
 .. automodule:: steamship.base.mime_types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+steamship.base.model module
+---------------------------
+
+.. automodule:: steamship.base.model
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+steamship.base.package\_spec module
+-----------------------------------
+
+.. automodule:: steamship.base.package_spec
    :members:
    :undoc-members:
    :show-inheritance:

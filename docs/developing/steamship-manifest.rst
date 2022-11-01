@@ -50,7 +50,7 @@ specific to Plugins.
 
 That configuration looks like this:
 
-.. code:: json
+.. code-block:: json
 
    {
      "plugin": {

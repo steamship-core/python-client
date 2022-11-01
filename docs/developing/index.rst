@@ -32,7 +32,6 @@ The process for  details are located in the following pages:
    Cloning a Starter Project <project-creation>
    The Steamship Manifest file <steamship-manifest>
    Python Environment Setup <environment-setup>
-   Implementing your Project <developing>
    Accepting Configuration <configuration>
    Storing Secrets <storing-secrets>
    Writing Tests <testing>

@@ -3,7 +3,7 @@ Using Blockifiers
 
 To use a blockifier, create an instance with your Steamship client and apply it to a file.
 
-.. code:: python
+.. code-block:: python
 
    # Load a Steamship Workspace
    from steamship import Steamship, File
@@ -28,7 +28,7 @@ To use a blockifier, create an instance with your Steamship client and apply it 
 
 In the above code, the two key lines are:
 
-.. code:: python
+.. code-block:: python
 
    blockifier = client.use_plugin('blockifier-handle', 'instance-handle')
    task = file.blockify(blockifier.handle)
@@ -61,7 +61,7 @@ this client to import any Blockifiers that package uses.
 
 Do that with the ``client.use_plugin`` method, like this:
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship, App
 
@@ -94,7 +94,7 @@ Workspace provides a scope in which data and infrastructure can live.
 Create a plugin instance within a Workspace by simply using the
 Steamship client, like this:
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship
 
@@ -116,7 +116,7 @@ Using a Blockifier as a one-off operation
 If you wish to use a Blockifier in-line without a known workspace, you
 can create a Blockifier from the Steamship client’s static class.
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship
 

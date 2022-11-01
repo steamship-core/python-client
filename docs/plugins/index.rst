@@ -1,7 +1,7 @@
 .. _Plugins:
 
 Plugins
-=====
+=======
 
 Plugins help the Steamship Engine perform specific tasks related to
 Language AI.
@@ -16,7 +16,7 @@ Steamship supports the following types of plugins:
 .. toctree::
    :maxdepth: 1
 
-   File Importers <file_importers/index>
+   Importers <importers/index>
    Blockifiers <blockifiers/index>
    Taggers <taggers/index>
    Embedders <embedders/index>
@@ -38,7 +38,11 @@ this way, Steamship plugins lets developers build packages across
 different data and AI services without worrying about the details of
 tasking, persistence, and integration.
 
-Developing new Plugins
-~~~~~~~~~~~~~~~~~~~~~~
+Additional Links
+~~~~~~~~~~~~~~~~
 
-For those interested in developing plugins, see :ref:`Developing Packages and Plugins<DevelopingPackagesAndPlugins>`.
+.. toctree::
+   :maxdepth: 3
+
+   Developing Plugins <developing/index>
+

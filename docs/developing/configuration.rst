@@ -22,7 +22,7 @@ frozen and saved with your instance for reuse.
 
 The value of the ``configTemplate`` block takes the following form:
 
-.. code:: json
+.. code-block:: json
 
    {
      "configTemplate": {
@@ -57,7 +57,7 @@ Defining and using configuration in your plugin code
 After defining your ``configTemplate``, you must create a matching object in your plugin's Python implementation.
 This object should extend the ``steamship.plugin.config.Config`` class.
 
-.. code:: python
+.. code-block:: python
 
    from steamship.plugin.config import Config
 
@@ -71,7 +71,7 @@ This object should extend the ``steamship.plugin.config.Config`` class.
 In your plugin class, you will also have to return this object from the abstract ``config_cls`` method.
 This enables the plugin loader to construct the correct configuration object for your plugin.
 
-.. code:: python
+.. code-block:: python
 
    class MyPlugin(Blockifier):
       def config_cls(self) -> Type[Config]:=

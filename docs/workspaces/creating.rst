@@ -7,7 +7,7 @@ Workspaces are created (or resumed) when creating a new Steamship client.
 In your client's constructor, specify the workspace you'd like.
 If it doesn't exist, it will be created for you.
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship
 
@@ -18,7 +18,7 @@ This includes file uploads, plugin training, plugin inference, queries, and any 
 
 If you need to switch your workspace, you can either create a new client or type:
 
-.. code:: python
+.. code-block:: python
 
    client.switch_workspace("new-workspace-name")
 

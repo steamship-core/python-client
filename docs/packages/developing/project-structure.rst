@@ -1,5 +1,13 @@
-Implementing Packages
-~~~~~~~~~~~~~~~~~~~~~
+Package Project Structure
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Your main implementation lives in the  ``src/api.py`` file of your project.
+This file will have been created for you by the template you selected when starting your project.
+
+- If you are developing a package, you will find a class that derives from the ``Invocable`` base class
+- If you are developing a plugin, you will find a class that derives from a base class specific to the plugin type.
+
+In both cases, this ``src/api.py`` template concludes by setting a ``handler`` variable that is required by the Steamship bootloader for cloud operation.
 
 From the implementation perspective, think of a package as a Flask app.
 It looks and feels like a regular Python class,
@@ -8,7 +16,7 @@ You can call instances of your package over HTTP, or you can use a Steamship cli
 
 Consider the following package:
 
-.. code:: python
+.. code-block:: python
 
    class MyPackage(App):
        @get("say_hello")
@@ -26,7 +34,7 @@ Once deployed to Steamship, every new instance of this package would be associat
 
 These per-instance endpoints could also be called using convenience functions in the Steamship Python client:
 
-.. code:: python
+.. code-block:: python
 
    # Create or reuse an instance of the package
    instance = Steamship.use("my-package", "instance-id")
