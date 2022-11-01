@@ -142,7 +142,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", ".venv"]
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
+# pygments_style = "xcode"
 pygments_dark_style = "monokai"
 
 # A list of ignored prefixes for module index sorting.
@@ -169,10 +169,7 @@ html_title = "Steamship Documentation"
 html_theme_options = {
     "light_logo": "Steamship-symbol-dark.png",
     "dark_logo": "Steamship-symbol-light.png",
-    "light_css_variables": {
-        "color-brand-primary": "#202b45",
-        "color-brand-content": "#333333",
-    },
+    "light_css_variables": {"color-brand-primary": "#202b45", "color-brand-content": "#333333"},
     "dark_css_variables": {
         "color-brand-content": "#EEEEEE",
     },
