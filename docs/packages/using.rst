@@ -1,60 +1,116 @@
+.. _UsingPackages:
+
 Using Packages
 --------------
 
-Instantiating Packages
-~~~~~~~~~~~~~~~~~~~~~~
+To use a Steamship package, instantiate it and give it an instance handle.
+Make sure you've created your Steamship keys first with ```npm install -g @steamship/cli && ship login```
 
-To use a package, first create an instance with the ``Steamship.use`` command:
-
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship
 
    instance = Steamship.use("package-handle", "instance-handle")
 
-In the above code, ``package-handle`` identifies which package you would like to use,
-and ``instance-handle`` identifies your particular instance of the package.
+Once you have a package instance, invoke a method by calling ``invoke``.
+The method name is the first argument.
+All other arguments are passed as keyword args.
 
-The ``instance`` object returned is a client-side stub for the cloud package whose state is isolated to a :ref:`workspace<Workspaces>` named ``instance-handle``:
+.. code-block:: python
 
--  Providing a different ``instance-handle`` will result in an instance with a different workspace, and thus distinct state.
--  Providing the same ``instance-handle`` will result in an instance with the same workspace, and thus the same state.
+   result = instance.invoke('method_name', arg1=val1, arg2=val2)
 
-Additional Options
-^^^^^^^^^^^^^^^^^^
 
-The ``Steamship.use`` command supports a few additional keyword arguments that may be useful:
+Package FAQ
+~~~~~~~~~~~
 
-- ``version_handle`` lets you pin an instance to a specific package version.
-- ``config`` accepts a Python ``dict`` that acts as required configuration for the package
+- :ref:`What is a Package Handle?<what-is-a-package-handle>`
+- :ref:`What is an Instance Handle?<what-is-an-instance-handle>`
+- :ref:`Can I reload the same instance?<can-i-reload-the-same-instance>`
+- :ref:`How do I specify a package version?<how-do-i-specify-a-package-version>`
+- :ref:`How do I provide package configuration?<how-do-i-provide-package-configuration>`
+- :ref:`How do I know what methods to call?<how-do-i-know-what-methods-to-call>`
 
-Both ``version_handle`` and ``config`` are frozen upon the first instantiation of a package, per ``instance_handle``.
-Creating an instance with the same ``instance_handle``, but different ``version_handle`` or ``config`` will result in an Exception.
+.. _what-is-a-package-handle:
 
-Invoking Methods on Packages
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+What is a Package Handle?
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once you have a package instance, you can invoke methods on packages similarly to regular Python objects.
+A **Package Handle** identifies a Steamship package, in the same way that NPM and PyPI packages have identifiers.
 
-- ``instance.get`` invokes an HTTP GET-bound package method
-- ``instance.post`` invokes an HTTP POST-bound package method
-- The first argument is the method name
-- All remaining keyword arguments are conveyed in an HTTP-appropriate manner, depending on the verb
+.. code-block:: python
 
-For example, you might issue one of the following method invocations:
+   from steamship import Steamship
+   instance = Steamship.use("package-handle", "instance-handle")
 
-.. code:: python
+Package handles always composed of lowercase letters and dashes.
 
-   greeting = instance.get("greeting")
-   custom_greeting = instance.get("greeting", name="Ted")
-   status = instance.post("upload_url", url="https://example.org/some.pdf")
+.. _what-is-an-instance-handle:
 
-Usability Notes
-~~~~~~~~~~~~~~~
+What is an Instance Handle?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We're currently working on ways to make package invocation feel like a first-class citizen,
-both from a Python perspective and from an HTTP perspective.
+An **Instance Handle** identifies a particular instance of the package.
 
-While we pursue that, the preferred way to document (and discover) the available methods on a package is the README
-file in its GitHub repository.
+.. code-block:: python
 
+   from steamship import Steamship
+   instance = Steamship.use("package-handle", "instance-handle")
+
+
+Steamship packages manage their own configuration, data, endpoints, and infrastructure in the cloud.
+Your instance handle of a package creates a scope, private to you, to contain that.
+
+.. _can-i-reload-the-same-instance:
+
+Can I reload the same instance?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You can reload a package instance by providing the same instance handle again.
+All of the correct configuration, data, and models will be bound to the instance.
+
+In the below code,
+
+*  ``instance_1`` and ``instance_2`` are operating upon the same data and infrastructure.
+*  ``instance_3`` is operating upon a different set of data and infrastructure
+
+.. code-block:: python
+
+   instance_1 = Steamship.use("package-handle", "instance-handle")
+   instance_2 = Steamship.use("package-handle", "instance-handle")
+   instance_3 = Steamship.use("package-handle", "some-other-handle")
+
+.. _how-do-i-specify-a-package-version:
+
+How do I specify a package version?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When instantiating a package, you can pin it to a particular version with the ``version`` keyword argument.
+
+.. code-block:: python
+
+   instance_1 = Steamship.use("package-handle", "instance-handle", version="1.0.0")
+
+If you do not specify a version, the last deployed version of that package will be used.
+
+.. _how-do-i-provide-package-configuration:
+
+How do I provide package configuration?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When instantiating a package, you can provide configuration with the ``config`` keyword argument.
+
+.. code-block:: python
+
+   instance_1 = Steamship.use("package-handle", "instance-handle", config=config_dict)
+
+To learn what configuration is required, consult the README.md file in the package's GitHub repository.
+
+.. _how-do-i-know-what-methods-to-call:
+
+How do I know what methods to call?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+To learn what methods are available on a package, consult the README.md file in the package's GitHub repository.
+
+We are working on a more streamlined way to generate and publish per-package documentation.

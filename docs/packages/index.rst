@@ -3,26 +3,50 @@
 Packages
 ========
 
-Steamship Packages are full-lifecycle language AI libraries that you can use from any programming environment.
+Steamship Packages are cloud-hosted software libraries you can import into any programming environment.
 
-Packages bundle up everything you need -- from code, to models, to task queues, to data storage -- so that you
-can just import them and use them.
+Think of them as regular software libraries with an upgrade:
 
-- **Packages run in the cloud.**
-  You interact with them using our client libraries or via HTTP APIs.
-  Running them in the cloud enables Steamship to auto-manage the infrastructure each one requires.
+- **They bundle a full-lifecycle Language AI stack.**
+  Everything necessary to go from demo to production in minutes: code, models, data, and infrastructure.
 
-- **Packages are stateful.**
-  Each package instance you create manages its own configuration, data, and models.
-  We call that unit of state a ":ref:`workspace<Workspaces>`".
-  You can create as many as you want, and you can reload each one whenever you want.
+- **They auto-manage their own infrastructure.**
+  If the package depends on an embedding index or a fine-tuned endpoint, you don't have to care.
 
-- **Packages are written in Python and deployed via our CLI.**
-  New packages are developed using our Python SDK and deployed using the ``ship`` command line utility.
+- **They're stateful.** Each package instance maintains cloud-hosted configuration, data, and models.
+  Create or reuse as many instances as you want.
 
-.. include:: ./using.rst
 
-Developing new Packages
------------------------
+.. grid::  1 1 2 2
+   :gutter: 2 2 3 4
 
-For those interested in developing packages, see :ref:`Developing Packages and Plugins<DevelopingPackagesAndPlugins>`.
+   .. grid-item-card:: **Using Packages**
+      :link: using.html
+
+      Import and use full-lifecycle language-AI packages in your Python, Javascript, and HTTP projects.
+
+   .. grid-item-card:: **Package Directory**
+      :link: https://www.steamship.com/packages
+
+      Browse our directory of packages ready to import.
+
+   .. grid-item-card:: **Developing Packages**
+      :link: developing/index.html
+
+      Build and deploy your own packages with our low-code framework. Works with your favorite AI services.
+
+   .. grid-item-card:: **Package Cookbook**
+      :link: cookbook/index.html
+
+      Code snippets for converting content, tagging entities, searching content, anad more.
+
+Packages Table of Contents
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. toctree::
+   :maxdepth: 2
+
+   Using Packages <using>
+   Developing Packages <developing/index>
+   Package Project Structure <developing/project-structure>
+   Package Cookbook <cookbook/index>

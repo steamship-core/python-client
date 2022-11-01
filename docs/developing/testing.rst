@@ -1,3 +1,5 @@
+.. _Testing:
+
 Throw, Log, and Test!
 ---------------------
 
@@ -16,7 +18,7 @@ Logging
 We recommend that you log liberally within your plugin code.
 Use Python's default ``logging`` library.
 
-.. code:: python
+.. code-block:: python
 
    import logging
    logging.info("Hi there!")
@@ -27,7 +29,7 @@ Throwing Errors
 When something goes wrong in a plugin, the correct response is to throw a ``SteamshipError``.
 This will result in an error message returned to the end-user.
 
-.. code:: python
+.. code-block:: python
 
    from steamship import SteamshipError
    raise SteamshipError(
@@ -40,7 +42,7 @@ Manual Testing
 
 Your plugin template comes with a ``test/`` folder that stores ``pytest`` tests. You can run them with:
 
-.. code:: bash
+.. code-block:: bash
 
    pytest
 

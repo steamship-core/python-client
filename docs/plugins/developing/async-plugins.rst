@@ -14,7 +14,7 @@ Signaling an Asynchronous Response
 A synchronous plugin method response always returns either a raw object or a ``Response`` object
 wrapping a raw object:
 
-.. code:: python
+.. code-block:: python
 
    class SomePlugin:
       def run(request):
@@ -23,7 +23,7 @@ wrapping a raw object:
 To make this response asynchronous, return a ``Response`` object with the ``status`` field set to a
 running ``Task`` object:
 
-.. code:: python
+.. code-block:: python
 
    class SomePlugin:
       def run(request):
@@ -55,7 +55,7 @@ If this field is ``false``, the request is initiating new work.
 In a fully synchronous plugin method, it is generally safe to ignore the ``is_status_check`` field,
 but if a plugin method is asynchronous, you must take care to always check it, like so:
 
-.. code:: python
+.. code-block:: python
 
     def run(
             self, request: PluginRequest[InputType]
@@ -69,7 +69,7 @@ but if a plugin method is asynchronous, you must take care to always check it, l
 In the above code, the ``initiate_work`` method would return a ``Task`` in the running
 state with a useful ``remote_status_input`` field, as follows:
 
-.. code:: python
+.. code-block:: python
 
     def initiate_work(
             self, request: PluginRequest[InputType]
@@ -93,7 +93,7 @@ on the status of the remote work.
 If the work remains in progress, it responds with a task in the running state, just as before.
 If the work is complete, it responds with the raw data object or a ``Response`` object wrapping it.
 
-.. code:: python
+.. code-block:: python
 
     def check_status(
             self, request: PluginRequest[InputType]
@@ -120,7 +120,7 @@ Throwing errors from an asynchronous plugin
 Errors can be thrown from an asynchronous plugin just as they would be from a synchronous plugin.
 Just raise a ``SteamshipError`` and the Engine will set the task's state to ``TaskState.FAILED`` and record the error output.
 
-.. code:: python
+.. code-block:: python
 
    from steamship import SteamshipError
    raise SteamshipError(

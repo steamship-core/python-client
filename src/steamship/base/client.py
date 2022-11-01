@@ -357,10 +357,10 @@ class Client(CamelModel, ABC):
 
         .. code-block:: json
 
-        {
-            "data": "<actual response>",
-            "error": {"reason": "<message>"}
-        } # noqa: RST203
+           {
+               "data": "<actual response>",
+               "error": {"reason": "<message>"}
+           } # noqa: RST203
 
         For the Python client we return the contents of the `data` field if present, and we raise an exception
         if the `error` field is filled in.

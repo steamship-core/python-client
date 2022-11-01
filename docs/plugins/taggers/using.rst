@@ -4,7 +4,7 @@ Using Taggers
 To use a tagger, create an instance within your workspace and then apply it to a file.
 Note that a file must have first been :ref:`blockified<Blockifiers>` in order to be tagged.
 
-.. code:: python
+.. code-block:: python
 
    # Load a Steamship Worksapce
    from steamship import Steamship, File
@@ -46,7 +46,7 @@ this client to import any File Importers that package uses.
 
 Do that with the ``client.use_plugin`` method, like this:
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship, App
 
@@ -79,7 +79,7 @@ Workspace provides a scope in which data and infrastructure can live.
 Create a plugin instance within a Workspace by simply using the
 Steamship client, like this:
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship
 
@@ -101,7 +101,7 @@ Using a Tagger as a one-off operation
 If you wish to use a Tagger in-line without a known workspace, you
 can create a Tagger from the Steamship client’s static class.
 
-.. code:: python
+.. code-block:: python
 
    from steamship import Steamship
 

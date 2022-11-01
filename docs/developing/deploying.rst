@@ -19,7 +19,7 @@ Deploying with the Steamship CLI
 You can deploy a package or plugin with the Steamship CLI with single command from
 the project root:
 
-.. code:: bash
+.. code-block:: bash
 
    ship deploy
 

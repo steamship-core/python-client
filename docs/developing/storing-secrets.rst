@@ -8,7 +8,7 @@ Simply place your secrets in ``src/.steamship/secrets.toml`` and ensure that the
 All default plugin templates should have this file already git-ignored.
 For example, your ``secrets.toml`` file might look like this:
 
-.. code:: toml
+.. code-block:: toml
 
    api_key="be#45jdkjdsdfse3"
    random_seed=12345

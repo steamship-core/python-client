@@ -7,10 +7,10 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   steamship.app
    steamship.base
    steamship.client
    steamship.data
+   steamship.invocable
    steamship.plugin
    steamship.utils
 

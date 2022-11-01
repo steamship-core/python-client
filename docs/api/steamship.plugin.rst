@@ -21,14 +21,6 @@ steamship.plugin.blockifier module
    :undoc-members:
    :show-inheritance:
 
-steamship.plugin.config module
-------------------------------
-
-.. automodule:: steamship.plugin.config
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 steamship.plugin.embedder module
 --------------------------------
 
@@ -49,14 +41,6 @@ steamship.plugin.request module
 -------------------------------
 
 .. automodule:: steamship.plugin.request
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-steamship.plugin.service module
--------------------------------
-
-.. automodule:: steamship.plugin.service
    :members:
    :undoc-members:
    :show-inheritance:
