@@ -4,7 +4,7 @@ Package Development Cookbook
 ..
     TODO: reorganize headings
 
-Importing and Querying Data
+Basic Recipes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. toctree::
@@ -12,10 +12,6 @@ Importing and Querying Data
 
    Collect and Query Sentiment <collecting-and-querying-sentiment>
 
-Convert (Blockify) Files into Steamship Format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. toctree::
-   :maxdepth: 1
-
    Extracting an outline from markdown <how-to-extract-outline-from-markdown>
+
+   Auto tag articles and query by tag <article-tagging>

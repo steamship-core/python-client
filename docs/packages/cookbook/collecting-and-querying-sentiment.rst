@@ -1,5 +1,5 @@
 Collecting and Querying Sentiment
-~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This example package collects plain text files and stores them in Steamship. It runs a sentiment analysis
 package (OneAI) on them as they are added.  Two endpoints allow fetching all of the positive and
@@ -49,7 +49,9 @@ negative tagged documents.
             """Accept a new document in plaintext and start sentiment analysis"""
 
             # Upload the content of the file into Steamship.
-            file = File.create(self.client, content)
+            # Put the content directly into a Block, since we assume it is plaintext.
+            file = File.create(self.client,
+                           blocks=[Block.CreateRequest(text=content)])
 
             # Tag the file with the sentiment analysis plugin
             # Using a plugin is an asynchronous call within Steamship. The

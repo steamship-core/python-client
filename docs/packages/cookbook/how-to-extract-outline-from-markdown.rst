@@ -21,8 +21,8 @@ would generate the following output:
     This is an h1
         This is an h2
 
-Implementation
-~~~~~~~~~~~~~~
+Implementation:
+
 .. code-block:: python
 
     """
