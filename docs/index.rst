@@ -28,12 +28,12 @@ Learn More
       Import and use full-lifecycle language-AI packages in your Python, Javascript, and HTTP projects.
 
    .. grid-item-card:: **Developing Packages**
-      :link: developing/developing-packages/index.html
+      :link: packages/developing/index.html
 
       Build and deploy your own packages with our low-code framework. Works with your favorite AI services.
 
    .. grid-item-card:: **Package Cookbook**
-      :link: developing/package-cookbook/index.html
+      :link: packages/cookbook/index.html
 
       Code snippets for converting content, tagging entities, searching content, anad more.
 

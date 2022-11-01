@@ -1,7 +1,18 @@
 Package Development Cookbook
 ----------------------------
 
-.. toctree::
-   :maxdepth: 3
+Importing Data
+~~~~~~~~~~~~~~
 
-   Accept a File <how-to-upload-files>
+.. toctree::
+   :maxdepth: 1
+
+   Upload Files from a User <how-to-upload-files>
+
+Convert (Blockify) Files into Steamship Format
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. toctree::
+   :maxdepth: 1
+
+   Accepting Markdown Files <how-to-upload-markdown>

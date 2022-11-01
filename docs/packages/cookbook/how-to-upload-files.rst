@@ -1,3 +1,5 @@
+.. _HowToUploadFile:
+
 Upload a File
 ~~~~~~~~~~~~~
 
@@ -5,6 +7,7 @@ Accept a File from the remote user by creating a method that takes in the file c
 then returns its ID.
 
 .. code-block:: python
+
    """Accept and save a file from the remote user."""
     from typing import Optional, Type
 

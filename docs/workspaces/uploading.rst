@@ -46,36 +46,25 @@ removing the need to :ref:`blockify<Blockifiers>` your file later.
       blocks=Block.CreateRequest(...)
    ).data
 
-.. _Uploading a URL:
-
-Uploading a URL
-^^^^^^^^^^^^^^^
-
-Upload the file resolved by some URL by providing it to the ``File.create`` method.
-
-.. code-block:: python
-
-   file = File.create(
-      client=client,
-      url=url
-   ).data
-
 .. _Uploading via Plugin:
 
 Uploading via Plugin
 ^^^^^^^^^^^^^^^^^^^^
 
-:ref:`File Importer plugins<File Importers>` provide a way to perform more complex imports to Steamship.
+:ref:`Importer plugins<File Importers>` provide a way to perform more complex imports to Steamship.
 
 For example, a Notion File Importer might implement the logic necessary to authenticate against Notion and fetch the data corresponding to a particular page.
 This might be paired with a Notion File Blockifier that converts Notion's API response format into :ref:`Steamship Block Format<Data Model>`
 
-To upload a file via a Plugin, first create an instance of the plugin in your workspace and then provide that instance to the ``File.create`` command:
+To upload a file via a Plugin, first create an instance of the plugin in your workspace and then provide that instance to the ``File.create_with_plugin`` command.
+Unlike uploading a file directly, uploading a file via an :ref:`Importer plugins<File Importers>` returns a ``Task`` object.
 
 .. code-block:: python
 
    importer = client.use_plugin("plugin-handle", "instance-handle", config={})
-   importer = File.create(
+   task = File.create_with_plugin(
       client=client,
-      pluginInstance=importer.handle
+      plugin_instancenstance=importer.handle
    )
+   task.wait()
+   file = File.parse_obj(task.output)
