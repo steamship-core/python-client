@@ -530,6 +530,3 @@ class Client(CamelModel, ABC):
             as_background_task=as_background_task,
             wait_on_tasks=wait_on_tasks,
         )
-
-    def get_workspace(self):
-        pass
