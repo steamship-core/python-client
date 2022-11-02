@@ -5,9 +5,6 @@ This example package collects plain text files and stores them in Steamship. It 
 zero-shot classifier with a set of labels provided by the package user.  The results
 can then be queried by tag with a configurable threshold.
 
-..
-    TODO: Test this once oneai tagger is updated
-
 .. code-block:: python
 
     """
