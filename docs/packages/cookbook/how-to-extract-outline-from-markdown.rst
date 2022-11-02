@@ -40,7 +40,8 @@ Implementation:
 
         # The config method allows your package to return a class
         # that defines its required configuration.
-        # See <link> for more details.  This package doesn't have any specific
+        # See Developer Reference -> Accepting Configuration
+        # for more details.  This package doesn't have any specific
         # required configuration, so we return the default Config object.
         def config_cls(self) -> Type[Config]:
             """Return Config if your package requires no config."""
@@ -48,7 +49,8 @@ Implementation:
 
         # This method defines the package user's endpoint. The @post annotation
         # automatically makes the method available as an HTTP Post request.
-        # The name in the annotation defines the HTTP route suffix, see <link>
+        # The name in the annotation defines the HTTP route suffix,
+        #  see Packages -> Package Project Structure.
         @post("create_markdown_outline")
         def create_markdown_outline(self, content: str = None) -> str:
             """Accept markdown content and extract its outline"""
@@ -57,7 +59,10 @@ Implementation:
             file = File.create(self.client, content, mime_type=MimeTypes.MKD)
 
             # Now blockify it (convert it to raw text with tags) with the markdown blockifier
-            blockifier = self.client.use_plugin("markdown-blockifier-default")
+            blockifier = self.client.use_plugin(
+                plugin_handle="markdown-blockifier-default",
+                instance_handle="my-blockifier"
+            )
             task = file.blockify(blockifier.handle)
 
             # Using a plugin is an asynchronous call within Steamship. Here we
@@ -98,5 +103,3 @@ Implementation:
     # This line connects our Package implementation class to the surrounding
     # Steamship handler code.
     handler = create_handler(MarkdownOutlinePackage)
-
-

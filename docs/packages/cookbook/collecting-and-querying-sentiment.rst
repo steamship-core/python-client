@@ -15,7 +15,7 @@ negative tagged documents.
     """
     from typing import Type, Dict, Any
 
-    from steamship import File, Steamship
+    from steamship import Block, File, Steamship
     from steamship.data import TagKind, SentimentTag
     from steamship.invocable import Config, create_handler, post, PackageService
 
@@ -34,7 +34,8 @@ negative tagged documents.
 
         # The config method allows your package to return a class
         # that defines its required configuration.
-        # See <link> for more details.  This package doesn't have any specific
+        # See Developer Reference -> Accepting Configuration
+        # for more details. This package doesn't have any specific
         # required configuration, so we return the default Config object.
         def config_cls(self) -> Type[Config]:
             """Return Config if your package requires no config."""
@@ -43,7 +44,7 @@ negative tagged documents.
         # This method defines the package user's endpoint for adding content
         # The @post annotation automatically makes the method available as
         # an HTTP Post request. The name in the annotation defines the HTTP
-        # route suffix, see <link>
+        # route suffix, see Packages -> Package Project Structure.
         @post("add_document")
         def add_document(self, content: str = None) -> str:
             """Accept a new document in plaintext and start sentiment analysis"""
@@ -51,7 +52,7 @@ negative tagged documents.
             # Upload the content of the file into Steamship.
             # Put the content directly into a Block, since we assume it is plaintext.
             file = File.create(self.client,
-                           blocks=[Block.CreateRequest(text=content)])
+                               blocks=[Block.CreateRequest(text=content)])
 
             # Tag the file with the sentiment analysis plugin
             # Using a plugin is an asynchronous call within Steamship. The
@@ -86,6 +87,7 @@ negative tagged documents.
     # This line connects our Package implementation class to the surrounding
     # Steamship handler code.
     handler = create_handler(SimpleSentimentPackage)
+
 
 
 

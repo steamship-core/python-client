@@ -41,7 +41,8 @@ can then be queried by tag with a configurable threshold.
 
         # The config method allows your package to return a class
         # that defines its required configuration.
-        # See <link> for more details.  This package doesn't have any specific
+        # See Developer Reference -> Accepting Configuration
+        # for more details. This package doesn't have any specific
         # required configuration, so we return the default Config object.
         def config_cls(self) -> Type[Config]:
             """Return Config if your package requires no config."""
@@ -50,7 +51,7 @@ can then be queried by tag with a configurable threshold.
         # This method defines the package user's endpoint for adding content
         # The @post annotation automatically makes the method available as
         # an HTTP Post request. The name in the annotation defines the HTTP
-        # route suffix, see <link>
+        # route suffix, see Packages -> Package Project Structure.
         @post("add_document")
         def add_document(self, content: str, url: str) -> str:
             """Accept a new document in plaintext and start sentiment analysis"""
