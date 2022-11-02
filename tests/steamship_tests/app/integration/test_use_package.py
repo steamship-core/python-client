@@ -33,11 +33,8 @@ def test_use_package():
                     == static_use_instance2.client.config.workspace_handle
                 )
                 assert static_use_instance1.handle == static_use_instance2.handle
-                assert (
-                    static_use_instance1.client.config.workspace_handle
-                    == f"{package.handle}-default"
-                )
-                assert static_use_instance1.handle == f"{package.handle}-default"
+                assert static_use_instance1.client.config.workspace_handle == package.handle
+                assert static_use_instance1.handle == package.handle
 
         with steamship_use(package.handle, package_handle_1) as static_use_instance1:
             with steamship_use(package.handle, package_handle_2) as static_use_instance2:

@@ -36,11 +36,8 @@ def test_use_plugin():
                     == static_use_instance2.client.config.workspace_handle
                 )
                 assert static_use_instance1.handle == static_use_instance2.handle
-                assert (
-                    static_use_instance1.client.config.workspace_handle
-                    == f"{plugin.handle}-default"
-                )
-                assert static_use_instance1.handle == f"{plugin.handle}-default"
+                assert static_use_instance1.client.config.workspace_handle == plugin.handle
+                assert static_use_instance1.handle == plugin.handle
 
         with steamship_use_plugin(plugin_handle, plugin_handle_1) as static_use_instance1:
             with steamship_use_plugin(plugin_handle, plugin_handle_2) as static_use_instance2:
