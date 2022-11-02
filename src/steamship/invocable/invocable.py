@@ -3,7 +3,7 @@ import inspect
 import logging
 import pathlib
 import time
-from abc import ABC, abstractmethod
+from abc import ABC
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
@@ -156,21 +156,20 @@ class Invocable(ABC):
         """Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation."""
         return self._package_spec.dict()
 
-    @abstractmethod
     def config_cls(self) -> Type[Config]:
         """Returns the configuration object for the Invocable.
 
-        All Steamship packages and plugins must declare a configuration object which extends from Config. You may
-        implement an empty object using the below style:
+        By default, Steamship packages and plugins will not take any configuration. Steamship packages and plugins may
+        declare a configuration object which extends from Config, if needed, as follows:
 
         class MyPackageOrPlugin:
             class MyConfig(Config):
-                pass
+                ...
 
             def config_cls(self):
                 return MyPackageOrPlugin.MyConfig
         """
-        raise NotImplementedError()
+        return Config
 
     @classmethod
     def _register_mapping(
