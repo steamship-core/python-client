@@ -7,7 +7,6 @@ from steamship.base.client import Client
 from steamship.invocable import Config, InvocableResponse
 from steamship.invocable.plugin_service import PluginRequest, PluginService
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
@@ -34,7 +33,7 @@ class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
     def train(self, input: TrainPluginInput) -> TrainPluginOutput:
         pass
 
-    def train_status(self, input: TrainStatusPluginInput) -> TrainPluginOutput:
+    def train_status(self, input: TrainPluginInput) -> TrainPluginOutput:
         pass
 
     def save_to_folder(self, checkpoint_path: Path):
@@ -67,7 +66,7 @@ class ValidTrainableStringToStringPlugin(TrainableTagger):
         return InvocableResponse(data=TrainPluginOutput())
 
     def train_status(
-        self, request: PluginRequest[TrainStatusPluginInput], model
+        self, request: PluginRequest[TrainPluginInput], model
     ) -> InvocableResponse[TrainPluginOutput]:
         return InvocableResponse(data=TrainPluginOutput())
 
