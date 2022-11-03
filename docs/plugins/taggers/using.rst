@@ -14,7 +14,7 @@ Note that a file must have first been :ref:`blockified<Blockifiers>` in order to
    importer = client.use_plugin("file-importer-handle", "instance-handle", config={})
 
    # Create a file via that plugin instance.
-   file = File.create(client, pluginInstance=importer.handle)
+   file = File.create_with_plugin(client, plugin_instance=importer.handle)
 
    # Create the blockifier instance
    blockifier = client.use_plugin('blockifier-handle', 'instance-handle')
@@ -31,9 +31,7 @@ Note that a file must have first been :ref:`blockified<Blockifiers>` in order to
    tagger_task.wait()
 
    # Query across the persisted tags returned from tagging.
-   file.query("""
-       blocktag AND name "paragraph" AND contains "foobar"
-   """)
+   file.query('blocktag AND name "paragraph"')
 
 
 Using a Tagger from within a Steamship Package
