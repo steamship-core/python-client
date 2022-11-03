@@ -36,13 +36,13 @@ can then be queried by tag with a configurable threshold.
                         }
             )
 
-        # The config method allows your package to return a class
+        # The config_cls method allows your package to return a class
         # that defines its required configuration.
         # See Developer Reference -> Accepting Configuration
         # for more details. This package doesn't have any specific
         # required configuration, so we return the default Config object.
         def config_cls(self) -> Type[Config]:
-            """Return Config if your package requires no config."""
+            """Return our specific config type."""
             return self.ArticleTaggerConfig
 
         # This method defines the package user's endpoint for adding content
@@ -89,3 +89,4 @@ can then be queried by tag with a configurable threshold.
     # This line connects our Package implementation class to the surrounding
     # Steamship handler code.
     handler = create_handler(ArticleTaggerPackage)
+
