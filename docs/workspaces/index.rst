@@ -3,24 +3,22 @@
 Workspaces
 ==========
 
-Steamship Workspaces encapsulate the data,
-infrastructure, and task management necessary for a langauge AI project.
+Steamship Workspaces manage the data, models, and infrastructure necessary for a language AI project.
 
-Workspaces are typically used in the following way:
+Workspaces can be used in two ways:
 
--  :ref:`Create a workspace<Creating Workspaces>` to isolate your data
--  :ref:`Upload data<Uploading data>` to your workspace
--  :ref:`Train or run plugins<Plugins>` on your data
--  :ref:`Query the results<Queries>`
+1. **As a cloud environment for language AI projects.**
+   You can use Workspaces on their own from Jupyter notebooks or your own application code.
 
-Workspaces also encapsulate the state that backs Steamship Packages.
-Each instance of a package runs within the context of a workspace --- usually one created specifically for that
-package instance.
+2. **As the backing store to :ref:`Steamship Packages<Packages>`.**
+   Each Steamship Package instance is bound to a Workspace, giving it an isolated environment to store state and model parameters.
+
+The following sections cover the core lifecycle and data model of a Workspace.
 
 .. toctree::
    :maxdepth: 2
 
    Creating Workspaces <creating>
    Uploading Data <uploading>
-   Data Model <data_model/index>
+   Workspace Data Model <data_model/index>
    Querying Data <queries/index>
