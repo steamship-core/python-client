@@ -24,7 +24,6 @@ from steamship.base import Task, TaskState
 from steamship.invocable import Config, InvocableResponse, create_handler
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -111,7 +110,7 @@ class ThirdPartyModel(TrainableModel):
         )
 
     def train_status(
-        self, input: PluginRequest[TrainStatusPluginInput]
+        self, input: PluginRequest[TrainPluginInput]
     ) -> InvocableResponse[TrainPluginOutput]:
         logging.info(f'Called train_status with {input.status.remote_status_input["num_checkins"]}')
         input.status.remote_status_input["num_checkins"] += 1
@@ -191,7 +190,7 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
         return model.train(request)
 
     def train_status(
-        self, request: PluginRequest[TrainStatusPluginInput], model: ThirdPartyModel
+        self, request: PluginRequest[TrainPluginInput], model: ThirdPartyModel
     ) -> InvocableResponse[TrainPluginOutput]:
         """Since trainable can't be assumed to be asynchronous, the trainer is responsible for uploading its own model file."""
 

@@ -7,7 +7,6 @@ from steamship.base.client import Client
 from steamship.invocable import Config, InvocableResponse, create_handler
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -41,7 +40,7 @@ class TestTrainableTaggerConfigModel(TrainableModel[TestConfig]):
         assert self.config.test_value1 is not None
         assert self.config.test_value2 is not None
 
-    def train_status(self, input: TrainStatusPluginInput) -> None:
+    def train_status(self, input: TrainPluginInput) -> None:
         assert self.config is not None
         assert self.config.test_value1 is not None
         assert self.config.test_value2 is not None

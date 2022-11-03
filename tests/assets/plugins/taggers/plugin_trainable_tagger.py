@@ -9,7 +9,6 @@ from steamship.base.client import Client
 from steamship.invocable import Config, InvocableResponse, create_handler
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
-from steamship.plugin.inputs.train_status_plugin_input import TrainStatusPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -205,7 +204,7 @@ class TestTrainableTaggerPlugin(TrainableTagger):
         return response
 
     def train_status(
-        self, request: PluginRequest[TrainStatusPluginInput], model: TrainableModel
+        self, request: PluginRequest[TrainPluginInput], model: TrainableModel
     ) -> InvocableResponse[TrainPluginOutput]:
         # This plugin never keeps a training task going beyond one function call.  This method should not be called.
         raise SteamshipError(message="The train_status call should not happen on this model.")
