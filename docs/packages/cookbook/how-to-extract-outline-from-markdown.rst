@@ -38,15 +38,6 @@ Implementation:
 
     class MarkdownOutlinePackage(PackageService):
 
-        # The config method allows your package to return a class
-        # that defines its required configuration.
-        # See Developer Reference -> Accepting Configuration
-        # for more details.  This package doesn't have any specific
-        # required configuration, so we return the default Config object.
-        def config_cls(self) -> Type[Config]:
-            """Return Config if your package requires no config."""
-            return Config
-
         # This method defines the package user's endpoint. The @post annotation
         # automatically makes the method available as an HTTP Post request.
         # The name in the annotation defines the HTTP route suffix,
@@ -103,3 +94,4 @@ Implementation:
     # This line connects our Package implementation class to the surrounding
     # Steamship handler code.
     handler = create_handler(MarkdownOutlinePackage)
+
