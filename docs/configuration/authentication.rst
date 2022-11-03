@@ -47,9 +47,16 @@ Use a profile from the command line by setting the  ``STEAMSHIP_PROFILE`` enviro
 
 Use a profile from the Python Client by passing it into the ``Steamship`` constructor:
 
+In Python:
+
 .. code-block:: python
 
    client = Steamship(profile="work")
+
+Or in Typescript:
+
+.. code-block:: typescript
+   const client = new Steamship({profile: "work"})
 
 Environment Variables
 ~~~~~~~~~~~~~~~~~~~~~
