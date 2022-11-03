@@ -1,5 +1,3 @@
-from typing import Type
-
 from steamship import MimeTypes
 from steamship.invocable import Config, InvocableResponse, create_handler
 from steamship.invocable.plugin_service import PluginRequest
@@ -17,11 +15,6 @@ TEST_DOC = f"# {TEST_H1}\n\n{TEST_S1} {TEST_S2}\n\n{TEST_S3}\n"
 
 
 class TestFileImporterPlugin(FileImporter):
-    class EmptyConfig(Config):
-        pass
-
-    def config_cls(self) -> Type[Config]:
-        return self.EmptyConfig
 
     def run(
         self, request: PluginRequest[FileImportPluginInput]

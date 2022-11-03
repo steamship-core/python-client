@@ -3,42 +3,37 @@
 Packages
 ========
 
-Steamship Packages are cloud-hosted software libraries you can import into any programming environment.
+`Steamship Packages <https://www.steamship.com/packages>`_ are cloud-hosted software libraries you can use in any programming environment.
 
 Think of them as regular software libraries with an upgrade:
 
-- **They bundle a full-lifecycle Language AI stack.**
+- **Packages bundle a full-lifecycle Language AI stack.**
   Everything necessary to go from demo to production in minutes: code, models, data, and infrastructure.
 
-- **They auto-manage their own infrastructure.**
-  If the package depends on an embedding index or a fine-tuned endpoint, you don't have to care.
+- **Packages auto-manage their own infrastructure.**
+  If a package depends on an embedding index or a fine-tuned model, you don't have to care.
 
-- **They're stateful.** Each package instance maintains cloud-hosted configuration, data, and models.
-  Create or reuse as many instances as you want.
+- **Packages are stateful.**
+  You can create as many instances as you want: one per user, one per chat room, one per document folder. They remember their context.
 
+That gives you the ability to use the full breadth of modern AI with a single ``import`` statement.
 
-.. grid::  1 1 2 2
-   :gutter: 2 2 3 4
+.. grid::  1 1 2 3
 
    .. grid-item-card:: **Using Packages**
-      :link: using.html
+      :link: packages/using.html
 
       Import and use full-lifecycle language-AI packages in your Python, Javascript, and HTTP projects.
 
-   .. grid-item-card:: **Package Directory**
-      :link: https://www.steamship.com/packages
-
-      Browse our directory of packages ready to import.
-
    .. grid-item-card:: **Developing Packages**
-      :link: developing/index.html
+      :link: packages/developing/index.html
 
       Build and deploy your own packages with our low-code framework. Works with your favorite AI services.
 
    .. grid-item-card:: **Package Cookbook**
-      :link: cookbook/index.html
+      :link: packages/cookbook/index.html
 
-      Code snippets for converting content, tagging entities, searching content, anad more.
+      Code snippets for converting content, tagging entities, searching content, and more.
 
 Packages Table of Contents
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

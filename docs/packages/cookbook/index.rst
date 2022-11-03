@@ -1,18 +1,23 @@
 Package Development Cookbook
 ----------------------------
 
-Importing Data
-~~~~~~~~~~~~~~
+..
+    TODO: reorganize headings
+
+Basic Recipes
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. toctree::
    :maxdepth: 1
 
-   Upload Files from a User <how-to-upload-files>
+   Collect and query sentiment <collecting-and-querying-sentiment>
 
-Convert (Blockify) Files into Steamship Format
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Extracting an outline from markdown <how-to-extract-outline-from-markdown>
 
-.. toctree::
-   :maxdepth: 1
+   Making a package or plugin user-configurable <adding-configuration>
 
-   Accepting Markdown Files <how-to-upload-markdown>
+   Auto tag articles and query by tag <article-tagging>
+
+   Modifying an existing package <modifying-an-existing-package>
+
+

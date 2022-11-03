@@ -1,5 +1,4 @@
 import logging
-from typing import Type
 
 from steamship.invocable import Config, InvocableResponse, create_handler
 from steamship.invocable.plugin_service import PluginRequest
@@ -9,11 +8,6 @@ from steamship.plugin.tagger import Tagger
 
 
 class TestLoggingTaggerPlugin(Tagger):
-    class EmptyConfig(Config):
-        pass
-
-    def config_cls(self) -> Type[Config]:
-        return self.EmptyConfig
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]

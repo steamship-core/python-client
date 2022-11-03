@@ -1,7 +1,11 @@
 Steamship
 =========
 
-Steamship is the fastest way to add Language AI to your software. The best way to start is by trying out a :ref:`package<Packages>`.
+Steamship is the fastest way to add Language AI to your software.
+
+Think of us as a package manager for AI.
+Each `Steamship package <https://www.steamship.com/packages>`_ runs in the cloud on a managed stack.
+The best way to start is to try one out.
 
 First, install our CLI with the following terminal command (you'll need `NPM`_):
 
@@ -15,27 +19,29 @@ Next, select a Steamship :ref:`package<Packages>` to try with:
 
    ship try
 
+We'll help you pick a Jupyter Notebook demo you can run on your own machine.
+
 ..
 
-Learn More
+Next Steps
 ==========
 
 .. grid::  1 1 2 3
 
    .. grid-item-card:: **Using Packages**
-      :link: packages/index.html
+      :link: packages/using.html
 
-      Import and use full-lifecycle language-AI packages in your Python, Javascript, and HTTP projects.
+      Use full-stack language AI packages in your own code.
 
    .. grid-item-card:: **Developing Packages**
       :link: packages/developing/index.html
 
-      Build and deploy your own packages with our low-code framework. Works with your favorite AI services.
+      Build and deploy packages with our low-code framework.
 
    .. grid-item-card:: **Package Cookbook**
       :link: packages/cookbook/index.html
 
-      Code snippets for converting content, tagging entities, searching content, anad more.
+      Package examples for common scenarios.
 
 
 Contents

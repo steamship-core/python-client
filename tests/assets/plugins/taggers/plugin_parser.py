@@ -1,6 +1,5 @@
 import logging
 import re
-from typing import Type
 
 from steamship import Block, DocTag, Tag
 from steamship.data import TagKind
@@ -37,11 +36,6 @@ class TestParserPlugin(Tagger):
     # TODO: WARNING! We will need to implement some logic that prevents
     # a distributed endless loop. E.g., a parser plugin returning the results
     # of using the Steamship client to call parse.. via itself!
-    class EmptyConfig(Config):
-        pass
-
-    def config_cls(self) -> Type[Config]:
-        return self.EmptyConfig
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]

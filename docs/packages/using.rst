@@ -3,14 +3,26 @@
 Using Packages
 --------------
 
-To use a Steamship package, instantiate it and give it an instance handle.
-Make sure you've created your Steamship keys first with ```npm install -g @steamship/cli && ship login```
+.. note::
+   Before you begin, make sure you've created your Steamship keys with:
+
+   ``npm install -g @steamship/cli && ship login``
+
+   And installed our Python Client with:
+
+   ``pip install steamship``
+
+Steamship packages are listed in our `package directory <https://www.steamship.com/packages>`_.
+To use one, instantiate it with ``Steamship.use``, giving it a package handle and an instance handle.
 
 .. code-block:: python
 
    from steamship import Steamship
 
    instance = Steamship.use("package-handle", "instance-handle")
+
+The **package handle** references the package you'd like to use.
+The **instance handle** creates a private stack for data and infrastructure that package depends on.
 
 Once you have a package instance, invoke a method by calling ``invoke``.
 The method name is the first argument.
@@ -20,12 +32,15 @@ All other arguments are passed as keyword args.
 
    result = instance.invoke('method_name', arg1=val1, arg2=val2)
 
+The method will run in the cloud, and you'll get back the response as a Python object.
+Packages can also be used as :ref:`HTTP APIs<HTTP>`.
 
 Package FAQ
 ~~~~~~~~~~~
 
 - :ref:`What is a Package Handle?<what-is-a-package-handle>`
 - :ref:`What is an Instance Handle?<what-is-an-instance-handle>`
+- :ref:`Do I need an Instance Handle?<do-i-need-an-instance-handle>`
 - :ref:`Can I reload the same instance?<can-i-reload-the-same-instance>`
 - :ref:`How do I specify a package version?<how-do-i-specify-a-package-version>`
 - :ref:`How do I provide package configuration?<how-do-i-provide-package-configuration>`
@@ -60,6 +75,30 @@ An **Instance Handle** identifies a particular instance of the package.
 
 Steamship packages manage their own configuration, data, endpoints, and infrastructure in the cloud.
 Your instance handle of a package creates a scope, private to you, to contain that.
+
+.. _do-i-need-an-instance-handle:
+
+Do I need an Instance Handle?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you do not provide an **Instance Handle**, the default value will be identical to the **Package Handle**.
+
+.. code-block:: python
+
+   from steamship import Steamship
+   instance = Steamship.use("package-handle")
+   instance = Steamship.use("package-handle")
+   instance = Steamship.use("package-handle")
+
+The above code loads three copies of the **same instance**, bound to the **same data and infrastructure**.
+It is equivalent to having run this code:
+
+.. code-block:: python
+
+   from steamship import Steamship
+   instance = Steamship.use("package-handle", "package-handle")
+   instance = Steamship.use("package-handle", "package-handle")
+   instance = Steamship.use("package-handle", "package-handle")
 
 .. _can-i-reload-the-same-instance:
 
@@ -114,3 +153,10 @@ How do I know what methods to call?
 To learn what methods are available on a package, consult the README.md file in the package's GitHub repository.
 
 We are working on a more streamlined way to generate and publish per-package documentation.
+
+In the meantime, you can also explore a package's methods from your REPL with:
+
+.. code-block:: python
+
+   instance = Steamship.use("package-handle")
+   instance.invoke("__dir__")

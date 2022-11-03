@@ -76,7 +76,7 @@ class Steamship(Client):
         instance_handle: Optional[str] = None,
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
-        reuse: bool = True,
+        fetch_if_exists: bool = True,
         workspace_handle: Optional[str] = None,
         **kwargs,
     ) -> PackageInstance:
@@ -110,7 +110,7 @@ class Steamship(Client):
             instance_handle=instance_handle,
             config=config,
             version=version,
-            reuse=reuse,
+            fetch_if_exists=fetch_if_exists,
         )
 
     def _instance_use(
@@ -119,7 +119,7 @@ class Steamship(Client):
         instance_handle: Optional[str] = None,
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
-        reuse: bool = True,
+        fetch_if_exists: bool = True,
     ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
 
@@ -134,7 +134,7 @@ class Steamship(Client):
             package_version_handle=version,
             handle=instance_handle,
             config=config,
-            fetch_if_exists=reuse,
+            fetch_if_exists=fetch_if_exists,
         )
 
         return instance
@@ -145,7 +145,7 @@ class Steamship(Client):
         instance_handle: Optional[str] = None,
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
-        reuse: bool = True,
+        fetch_if_exists: bool = True,
         workspace_handle: Optional[str] = None,
         **kwargs,
     ) -> PluginInstance:
@@ -176,7 +176,7 @@ class Steamship(Client):
             instance_handle=instance_handle,
             config=config,
             version=version,
-            reuse=reuse,
+            fetch_if_exists=fetch_if_exists,
         )
 
     def _instance_use_plugin(
@@ -185,7 +185,7 @@ class Steamship(Client):
         instance_handle: str = None,
         config: Dict[str, Any] = None,
         version: str = None,
-        reuse: bool = True,
+        fetch_if_exists: bool = True,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 
@@ -200,7 +200,7 @@ class Steamship(Client):
             plugin_version_handle=version,
             handle=instance_handle,
             config=config,
-            fetch_if_exists=reuse,
+            fetch_if_exists=fetch_if_exists,
         )
 
         return instance
