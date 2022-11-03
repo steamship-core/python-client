@@ -22,9 +22,7 @@ To use a blockifier, create an instance with your Steamship client and apply it 
    task.wait()
 
    # Query across the persisted blocks and tags returned from blockification.
-   file.query("""
-       blocktag AND name "paragraph" AND contains "foobar"
-   """)
+   file.query('blocktag AND name "paragraph"')
 
 In the above code, the two key lines are:
 
@@ -46,10 +44,11 @@ about the details of model selection and tuning.
 
 Our current list of supported blockifiers are:
 
-* ``markdown-default`` - Converts HTML to Steamship Blocks
-* ``html-default`` - Converts audio to Steamship Blocks
-* ``speech-to-text-default`` - Converts audio to Steamship Blocks
-* ``csv-blockifier`` - Converts CSV to Steamship Blocks
+* `markdown-default <https://www.steamship.com/plugins/markdown-blockifier-default>`_ - Converts Markdown to Steamship Blocks
+* `speech-to-text-default <https://www.steamship.com/plugins/s2t-blockifier-default>`_ - Converts audio to Steamship Blocks
+* `whisper-s2t-blockifier <https://www.steamship.com/plugins/whisper-s2t-blockifier>`_ - Converts audio to Steamship Blocks (via `Whisper <https://openai.com/blog/whisper/>`_) 
+* `wikipedia-blockifier <https://www.steamship.com/plugins/wikipedia-blockifier>`_ - Converts Wikipedia pages to Steamship Blocks
+* `csv-blockifier <https://www.steamship.com/plugins/csv-blockifier>`_ - Converts CSV to Steamship Blocks
 
 Using a Blockifier from within a Steamship Package
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
