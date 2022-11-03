@@ -3,14 +3,26 @@
 Using Packages
 --------------
 
-To use a Steamship package, instantiate it and give it an instance handle.
-Make sure you've created your Steamship keys first with ```npm install -g @steamship/cli && ship login```
+.. note::
+   Before you begin, make sure you've created your Steamship keys with:
+
+   ``npm install -g @steamship/cli && ship login``
+
+   And installed our Python Client with:
+
+   ``pip install steamship``
+
+Steamship packages are listed in our `package directory <https://www.steamship.com/packages>`_.
+To use one, instantiate it with ``Steamship.use``, giving it a package handle and an instance handle.
 
 .. code-block:: python
 
    from steamship import Steamship
 
    instance = Steamship.use("package-handle", "instance-handle")
+
+The **package handle** references the package you'd like to use.
+The **instance handle** creates a private stack for data and infrastructure that package depends on.
 
 Once you have a package instance, invoke a method by calling ``invoke``.
 The method name is the first argument.
@@ -20,6 +32,8 @@ All other arguments are passed as keyword args.
 
    result = instance.invoke('method_name', arg1=val1, arg2=val2)
 
+The method will run in the cloud, and you'll get back the response as a Python object.
+Packages can also be used as :ref:`HTTP APIs<HTTP>`.
 
 Package FAQ
 ~~~~~~~~~~~

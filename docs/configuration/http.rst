@@ -1,4 +1,4 @@
-.. _CLI:
+.. _HTTP:
 
 HTTP Operation
 --------------

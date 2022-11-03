@@ -29,7 +29,7 @@ Next Steps
 .. grid::  1 1 2 3
 
    .. grid-item-card:: **Using Packages**
-      :link: packages/using/index.html
+      :link: packages/using.html
 
       Use full-stack language AI packages in your own code.
 
