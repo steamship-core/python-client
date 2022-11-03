@@ -76,7 +76,7 @@ You can import files, parse and tag them, query over them, and return custom res
 
       A cookbook of common operations you may want to perform, such as parsing files, transcribing audio, and querying results.
 
-   .. grid-item-card:: **Package Cookbook**
+   .. grid-item-card:: **Developer Reference**
       :link: ../../developing/index.html
 
       Lower-level details on Steamship development, such as environment setup, configuration, testing, and secret management.
