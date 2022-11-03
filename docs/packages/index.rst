@@ -3,7 +3,7 @@
 Packages
 ========
 
-Steamship Packages are cloud-hosted software libraries you can use in any programming environment.
+`Steamship Packages <https://www.steamship.com/packages>`_ are cloud-hosted software libraries you can use in any programming environment.
 
 Think of them as regular software libraries with an upgrade:
 
