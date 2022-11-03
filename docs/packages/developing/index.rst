@@ -43,6 +43,7 @@ Now let's create an instance and invoke it from Python.
 After running ``pip install steamship``, run the following code, replacing your package and instance handles:
 
 .. code-block:: python
+
    from steamship import Steamship
 
    # TODO: Replace with your package and instance handle below
