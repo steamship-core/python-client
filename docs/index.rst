@@ -23,7 +23,7 @@ Learn More
 .. grid::  1 1 2 3
 
    .. grid-item-card:: **Using Packages**
-      :link: packages/index.html
+      :link: packages/using/index.html
 
       Import and use full-lifecycle language-AI packages in your Python, Javascript, and HTTP projects.
 
@@ -35,7 +35,7 @@ Learn More
    .. grid-item-card:: **Package Cookbook**
       :link: packages/cookbook/index.html
 
-      Code snippets for converting content, tagging entities, searching content, anad more.
+      Code snippets for converting content, tagging entities, searching content, and more.
 
 
 Contents
