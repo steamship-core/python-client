@@ -37,7 +37,7 @@ provide a configuration when instantiating this package:
 
 .. code-block:: python
 
-    steamship.use("a-configurable-package", config={
+    Steamship.use("a-configurable-package", config={
         "name": "Dave",
         "favorite_color": "blue",
         "lucky_number": 6,
@@ -62,7 +62,7 @@ Now, within the code, you must do a few things.  First, you define the inner cla
             lucky_number: float
             favorite_true_false_value: bool
 
-The names of the fields must align with the names in the ``configTemplate``.
+The names of the fields **must** align with the names in the ``configTemplate``.
 
 Next, we tell the Steamship handler how to find our config class:
 

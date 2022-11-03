@@ -15,9 +15,6 @@ Consider the following tagger plugin:
 .. code-block:: python
 
    class TagFileTagger(Tagger):
-     def config_cls(self) -> Type[Config]:
-        return self.EmptyConfig
-
     def run(self, request: PluginRequest[BlockAndTagPluginInput]) -> BlockAndTagPluginOutput:
         file = request.data.file
         file.tags.append(

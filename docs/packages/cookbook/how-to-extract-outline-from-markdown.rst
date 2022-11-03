@@ -1,8 +1,8 @@
 Extract an Outline from a Markdown File
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Accept a Markdown File from the remote user, convert it to text blocks using the markdown blockifier plugin, and then
-generate an outline for the text using the tags.  For example, the following Markdown file:
+Accept a Markdown file from the remote user, convert it to text blocks using the Markdown Blockifier plugin, and then
+generate an outline for the text using the tags. For example, the following Markdown file:
 
 .. code-block:: markdown
 
