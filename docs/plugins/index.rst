@@ -3,8 +3,7 @@
 Plugins
 =======
 
-Plugins help the Steamship Engine perform specific tasks related to
-Language AI.
+`Steamship Plugins <https://www.steamship.com/plugins>`_ perform specific tasks related to Language AI.
 
 Each plugin is a stateless, Python-based microservice that runs in the
 cloud and conforms to a strict interface and data model. Plugins may do

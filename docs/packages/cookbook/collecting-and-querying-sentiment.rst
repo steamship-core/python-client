@@ -2,8 +2,8 @@ Collecting and Querying Sentiment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This example package collects plain text files and stores them in Steamship. It runs a sentiment analysis
-package (OneAI) on them as they are added.  Two endpoints allow fetching all of the positive and
-negative tagged documents.
+tagger (`OneAI Tagger <https://www.steamship.com/plugins/oneai-tagger>`_) on them as they are added.
+Two endpoints allow fetching all of the positive and negative tagged documents.
 
 ..
     TODO: Test this once oneai tagger is updated

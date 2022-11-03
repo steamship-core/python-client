@@ -39,8 +39,9 @@ These per-instance endpoints could also be called using convenience functions in
    # Create or reuse an instance of the package
    instance = Steamship.use("my-package", "instance-id")
 
-   # Invoke the method
-   resp = instance.get("say_hello", name="Ted").data
+   # Invoke the methods
+   hello_resp = instance.invoke("say_hello", verb="GET", name="Ted")
+   do_resp = instance.invoke("do_something", number=5)
 
 A few rules about writing package methods:
 
