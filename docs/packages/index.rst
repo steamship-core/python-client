@@ -21,7 +21,7 @@ That gives you the ability to use the full breadth of modern AI with a single ``
 .. grid::  1 1 2 3
 
    .. grid-item-card:: **Using Packages**
-      :link: packages/index.html
+      :link: packages/using.html
 
       Import and use full-lifecycle language-AI packages in your Python, Javascript, and HTTP projects.
 
