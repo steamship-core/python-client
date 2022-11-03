@@ -2,7 +2,7 @@ Auto-Tagging and Querying Articles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This example package collects plain text files and stores them in Steamship. It tags them by running a
-zero-shot classifier with a set of labels provided by the package user.  The results
+`zero-shot <https://www.steamship.com/plugins/zero-shot-tagger-default>`_ classifier with a set of labels provided by the package user.  The results
 can then be queried by tag with a configurable threshold.
 
 .. code-block:: python
