@@ -4,7 +4,7 @@ Steamship
 Steamship is the fastest way to add Language AI to your software.
 
 Think of us as a package manager for AI.
-Each package runs in the cloud on a managed stack.
+Each `Steamship package <https://www.steamship.com/packages>`_ runs in the cloud on a managed stack.
 The best way to start is to try one out.
 
 First, install our CLI with the following terminal command (you'll need `NPM`_):
