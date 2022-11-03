@@ -18,6 +18,7 @@ class TagKind(str, Enum):
     TOKEN = "token"  # noqa: S105
     INTENT = "intent"
     EMBEDDING = "embedding"
+    GENERATION = "generation"
 
 
 class DocTag(str, Enum):
@@ -220,3 +221,10 @@ class EntityTags(str, Enum):
     PERCENT = "percent"
     FACILITY = "facility"
     GEO_POLITICAL_ENTITY = "geo-political-entity"
+
+
+class GenerationTags(str, Enum):
+    """A set of `name` constants for Tags with a `kind` of `TagKind.generation`."""
+
+    SUMMARY = "summary"
+    PROMPT_COMPLETION = "prompt-completion"

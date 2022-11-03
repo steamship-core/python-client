@@ -3,15 +3,70 @@
 Tags
 ~~~~
 
-We encourage you to think of Steamship's ``Tag`` object as typed key-values.
-Using this framing:
+Steamship uses Tags to represent all commentary about text.
 
-- The ``kind`` field on a Tag represents its type
-- The ``name`` field on a Tag represents its name
-- The ``value`` field on a Tag is an optional JSON object representing its value
+- The intent of a chat message
+- The embedding of a sentence
+- The sentiment of a phase
+- THe markdown semantics of a region of text
 
-This results in an extraordinarily flexible data storage scheme that can be adapted to a number of
+Steamship Files and Blocks are mostly semantics-free containers.
+Tags are where all the action is.
+
+The full :py:class:`Tag PyDoc spec is here<steamship.data.tags.tag.Tag>`, but it's useful to look at a summarized version:
+
+.. code-block:: python
+
+   class Tag:
+     """Subset of the Tag object -- within the context of a Block"""
+
+     # What the tag is
+     kind:  str
+     name:  Optional[str]
+     value: Optional[Dict]
+
+     # The span of text the tag is commenting upon.
+     # Indices are relative to the block's text.
+     start_idx: Optional[int]
+     end_idx: Optional[int]
+
+This design results in an extraordinarily flexible data storage scheme that can be adapted to a number of
 different scenarios.
+In the Engine, we optimize our data storage so that you can query over tags and their contents.
+
+Ways to us Tags
+^^^^^^^^^^^^^^^
+
+Here are a few examples to help you think of how tags are used.
+The ``start_idx`` and ``end_idx`` have been left out of the pseudo-code below.
+
+- An entity
+
+  .. code-block:: python
+
+     Tag(kind="entity", name="person", value={"canonical": "Donald Duck"})
+
+- A part of speech
+
+  .. code-block:: python
+
+     Tag(kind="part-of-speech", name="adj"})
+
+- An embedding
+
+  .. code-block:: python
+
+     Tag(kind="embedding", name="my-embedder", value: {
+       "vector-value": [0, 0, 0, 1, 0 .. 0]
+     })
+
+- A summary
+
+  .. code-block:: python
+
+     Tag(kind="generation", name="summary", value: {
+       "text-value": "In which we show how to use tags"
+     })
 
 Block Tags
 ^^^^^^^^^^
