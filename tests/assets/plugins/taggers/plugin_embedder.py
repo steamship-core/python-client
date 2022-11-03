@@ -1,4 +1,4 @@
-from typing import List, Type
+from typing import List
 
 from steamship import Block, File, Tag
 from steamship.data import TagKind, TagValue
@@ -93,11 +93,6 @@ def _embed_block(block: Block) -> Block.CreateRequest:
 
 
 class TestEmbedderPlugin(Embedder):
-    class EmptyConfig(Config):
-        pass
-
-    def config_cls(self) -> Type[Config]:
-        return self.EmptyConfig
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]

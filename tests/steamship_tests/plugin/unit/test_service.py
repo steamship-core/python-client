@@ -16,8 +16,6 @@ from steamship.plugin.trainable_model import TrainableModel
 
 
 class ValidStringToStringPlugin(PluginService):
-    def config_cls(self) -> Type[Config]:
-        return Config
 
     def run(self, request: PluginRequest[str]) -> Union[str, InvocableResponse[str]]:
         pass

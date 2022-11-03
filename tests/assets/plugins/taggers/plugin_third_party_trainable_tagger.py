@@ -167,12 +167,6 @@ class ThirdPartyTrainableTaggerPlugin(TrainableTagger):
     into calls on the `ThirdPartyModel` object above.
     """
 
-    class EmptyConfig(Config):
-        pass
-
-    def config_cls(self) -> Type[Config]:
-        return self.EmptyConfig
-
     def model_cls(self) -> Type[ThirdPartyModel]:
         return ThirdPartyModel
 
