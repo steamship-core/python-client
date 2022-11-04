@@ -47,21 +47,23 @@ Use a profile from the command line by setting the  ``STEAMSHIP_PROFILE`` enviro
 
 Use a profile from the Python Client by passing it into the ``Steamship`` constructor:
 
-In Python:
 
-.. code-block:: python
+.. tab:: Python
 
-   client = Steamship(profile="work")
+    .. code-block:: python
 
-Or in Typescript:
+       client = Steamship(profile="work")
 
-.. code-block:: typescript
+.. tab:: Typescript
 
-   const client = new Steamship({profile: "work"})
+    .. code-block:: typescript
+
+       const client = new Steamship({profile: "work"})
 
 Environment Variables
 ~~~~~~~~~~~~~~~~~~~~~
 
-If the ``STEAMSHIP_KEY`` environment variable is set, our client libraries will prioritize it over your ``steamship.json`` file.
+If the ``STEAMSHIP_KEY`` environment variable is set,
+our client libraries will prioritize it over your ``steamship.json`` file.
 
 
