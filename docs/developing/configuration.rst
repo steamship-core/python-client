@@ -57,11 +57,11 @@ Defining and using configuration in your code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 After defining your ``configTemplate``, you must create a matching object in your package or plugin's Python implementation.
-This object should extend the ``steamship.invocable.config.Config`` class.
+This object should extend the ``steamship.invocable.Config`` class.
 
 .. code-block:: python
 
-   from steamship.invocable.config import Config
+   from steamship.invocable import Config
 
    class MyPluginConfig(Config):
        """Config object containing required parameters to initialize
