@@ -27,8 +27,8 @@ The full :py:class:`Tag PyDoc spec is here<steamship.data.tags.tag.Tag>`, but it
 
      # The span of text the tag is commenting upon.
      # Indices are relative to the block's text.
-     start_idx: Optional[int]
-     end_idx: Optional[int]
+     start_idx: Optional[int] # Start inclusive
+     end_idx: Optional[int]   # End exclusive
 
 This design results in an extraordinarily flexible data storage scheme that can be adapted to a number of
 different scenarios.
@@ -60,12 +60,12 @@ The ``start_idx`` and ``end_idx`` have been left out of the pseudo-code below.
        "vector-value": [0, 0, 0, 1, 0 .. 0]
      })
 
-- A summary
+- A summarization
 
   .. code-block:: python
 
      Tag(kind="generation", name="summary", value: {
-       "text-value": "In which we show how to use tags"
+       "string-value": "... summary of the span covered by this tag ..."
      })
 
 - A dictionary lookup
@@ -76,17 +76,18 @@ The ``start_idx`` and ``end_idx`` have been left out of the pseudo-code below.
        "chinese": "你好", "pinyin": "nǐhǎo", "english": "hello"
      })
 
+Tag Schemas
+^^^^^^^^^^^
 
-Tag schema convergence
-^^^^^^^^^^^^^^^^^^^^^^
+Steamship brings together many models under one roof using tags as the common representation for interoperation.
+But doesn't fully solve the model interop problem: how do we make sure all models use the same tags?
 
-Steamship is designed to bring together many models under one roof.
-We do this by wrapping each model as a :ref:`Tagger plugin<Taggers>` --- tags are the common language for interaction.
-But this produces a secondary problem: how do we make sure they all use the same tags?
+Our answer to this is to converge -- where possible -- upon a common schema for the ``kind``, ``name``, and ``value`` properties of a tag.
+If all sentiment models emit a tag with kind ``sentiment`` and a range of names ``[positive, neutral, negative]``, for example, then we can swap them in and out as it suits us.
 
-We recommend looking at the `tag_constants.py file <https://github.com/steamship-core/python-client/blob/main/src/steamship/data/tags/tag_constants.py>`_
-on Github for our recommended solution.
-There you will find a set of Python Enum classes that we add to as we encounter domains across our plugins.
+Our ongoing pursuit of this can be found in the `tag_constants.py file <https://github.com/steamship-core/python-client/blob/main/src/steamship/data/tags/tag_constants.py>`_
+in Github.
+There you will find Python Enum classes that we curate as we encounter common domains across our plugins.
 
 - :py:class:`TagKind class<steamship.data.tags.tag_constants.TagKind>` contains suggested values for the ``kind`` field of a Tag.
 - :py:class:`TagValue class<steamship.data.tags.tag_constants.TagValue>` contains suggested keys for the ``valu`` dictionary of a Tag.
@@ -99,27 +100,64 @@ There you will find a set of Python Enum classes that we add to as we encounter 
   - :py:class:`IntentTag<steamship.data.tags.tag_constants.IntentTag>` for intent classification
   - :py:class:`SentimentTag<steamship.data.tags.tag_constants.SentimentTag>` for sentiment classification
 
-These constants are by no means required, but using them increases the chance that what you build will interoperate cleanly with everyone else that uses them.
+These constants are by no means required, but using them increases the chance that what you build will
+interoperate cleanly with everyone else that uses them.
+
+Here is what some of the above tag examples would look like using these enum classes.
+Notice how it is a combination of standard constant and "magic string" depending on whether a constant exists for that concept.
+
+- An entity
+
+  .. code-block:: python
+
+     from steamship.data import TagKind, EntityTag
+     Tag(kind=TagKind.ENTITY, name=EntityTag.PERSON, value={"canonical": "Donald Duck"})
+
+- A part of speech
+
+  .. code-block:: python
+
+     from steamship.data import TagKind
+     Tag(kind=TagKind.PART_OF_SPEECH, name="adj"})
+
+- An embedding
+
+  .. code-block:: python
+
+     from steamship.data import TagKind, TagValue
+     Tag(kind=TagKind.EMBEDDING, name="my-embedder", value: {
+       TagValue.VECTOR_VALUE: [0, 0, 0, 1, 0 .. 0]
+     })
+
+- A summarization
+
+  .. code-block:: python
+
+     from steamship.data import TagKind, GenerationTag, TagValue
+     Tag(kind=TagKind.GENERATION, name=GenerationTag.SUMMARY, value: {
+       TagValue.STRING_VALUE: "... summary of the span covered by this tag ..."
+     })
+
+- A dictionary lookup
+
+  .. code-block:: python
+
+     from steamship.data import TagKind
+     Tag(kind=TagKind.TOKEN, name="ce-dict", value: {
+       "chinese": "你好", "pinyin": "nǐhǎo", "english": "hello"
+     })
 
 
 Block and File Tags
 ^^^^^^^^^^^^^^^^^^^
 
+The above text discusses tags upon spans of text.
+But Steamship actually supports two types of tags.
 
-Tags located on blocks are called "Block Tags".
-They do not annotate the blocks but rather the text within them.
+- **File Tags** are attached to the :ref:`File<Files>` object. They annotate the file itself. Their ``block_id``, ``start_idx``, and ``end_idx`` are always null.
+- **Block Tags** are attached to the :ref:`Block<Blocks>` object. They annotate text within that block. Their ``block_id``, ``start_idx``, and ``end_idx`` are always **non-null**.
 
-Block Tags specifying a ``startIdx`` and ``endIdx`` which represent offsets into the text that is spanned by that block.
-A blank ``startIdx`` is interpreted as the start of that text, and a blank ``endIdx`` is interpreted as the end of that text.
+There are two edge cases important to call out here:
 
-File Tags
-^^^^^^^^^
-
-Tags located on files are called "File Tags".
-
-File tags are different than Block Tags in that they annotate the file itself, not the text within it.
-The ``startIdx`` and ``endIdx`` fields must remain blank on a File Tag.
-
-You can use a File Tag to store arbitrary information about a file that you wish to use in queries later,
-such as source information, summaries, provenance, and so on.
-
+- A block tag that covers the entire text of the block always has ``start_idx = 0`` and ``end_idx = len(block.text)``
+- It is impossible for a tag to cover text spanning multiple blocks. This is a limitation of our current data model.
