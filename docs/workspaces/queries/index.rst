@@ -3,20 +3,20 @@
 Queries
 -------
 
-Steamship contains a query language called **Document Query Language** (DQuery) designed to help you fetch Files, Blocks, and Tags.
-DQuery enables you to query the results of multiple AI models applied to the same text, to find documents or sections identified by language AI features.
+Steamship contains a query language, **ShipQL**, designed to help you fetch Files, Blocks, and Tags.
+ShipQL enables you to query the results of multiple AI models applied to the same text, to find files or sections identified by language AI features.
 
-DQuery Version 1 supports only the criteria on which objects are matched (like a SQL WHERE clause).
+ShipQL Version 1 supports only the criteria on which objects are matched (like a SQL WHERE clause).
 It does not yet support projection and selection (like the SQL SELECT clause).
 
 Usage
 ~~~~~
 
-File, Block, and Tag objects are all queryable via DQuery.
-Their objects in the Python Client have a static ``query`` method which accepts a DQuery string.
+File, Block, and Tag objects are all queryable via ShipQL.
+Their objects in the Python Client have a static ``query`` method which accepts a ShipQL string.
 
 The object type returned from that query method depends upon the object you used to call it.
-However the DQuery predicates always refer to ``Tags``.
+However the ShipQL predicates always refer to ``Tags``.
 
 For example: executing the query ``name "Dave"`` on the ``Block.query`` endpoint will return ``Blocks`` which have ``Tags`` which have ``name="Dave"``.
 
