@@ -10,8 +10,8 @@ For example, your ``secrets.toml`` file might look like this:
 
 .. code-block:: toml
 
-   api_key="be#45jdkjdsdfse3"
-   random_seed=12345
+   api_key = "be#45jdkjdsdfse3"
+   random_seed = 12345
 
 Steamship's plugin loader will automatically detect this file and attempt to set any properties on your plugin's
 configuration object that have matching keys.
