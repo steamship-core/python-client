@@ -19,8 +19,8 @@ Block Tags
 Tags located on blocks are called "Block Tags".
 They do not annotate the blocks but rather the text within them.
 
-Block Tags specifying a ``startIdx`` and ``endIdx`` which represent offsets into the text that is spanned by that block.
-A blank ``startIdx`` is interpreted as the start of that text, and a blank ``endIdx`` is interpreted as the end of that text.
+Block Tags specify a ``start_idx`` and ``end_idx``, which represent offsets into the text that is spanned by that block.
+
 
 File Tags
 ^^^^^^^^^
@@ -28,7 +28,7 @@ File Tags
 Tags located on files are called "File Tags".
 
 File tags are different than Block Tags in that they annotate the file itself, not the text within it.
-The ``startIdx`` and ``endIdx`` fields must remain blank on a File Tag.
+The ``start_idx`` and ``end_idx`` fields must remain blank on a File Tag.
 
 You can use a File Tag to store arbitrary information about a file that you wish to use in queries later,
 such as source information, summaries, provenance, and so on.
