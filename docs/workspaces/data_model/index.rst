@@ -3,7 +3,7 @@
 Data Model
 ----------
 
-Workspaces have a managed data model that covers the 80% case of language AI.
+Workspaces have a managed data model that covers the 80% case of Language AI.
 The data model is simple, but flexible, and provides a common integration point for tasks as disparate as file conversion
 to classification to text generation to embedding search.
 
