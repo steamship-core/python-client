@@ -6,7 +6,7 @@ Blockifying Data
 Blockifying content transforms raw bytes (audio, text, markdown, HTML) into Steamship's :ref:`Block and Tag Format<Data Model>`
 format. This is how Steamship creates a space for many different AI models to interoperate over the same data.
 
-Steamship's plugin index maintains `a list of Blockifiers you can use<https://www.steamship.com/plugins/>`_.
+Steamship's plugin index maintains `a list of Blockifiers you can use <https://www.steamship.com/plugins/>`_.
 Select the one appropriate for your data type and then apply it.
 
 Here is how to blockify a Markdown file using the ``markdown-blockifier-default`` blockifier:
