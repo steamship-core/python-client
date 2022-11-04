@@ -3,18 +3,20 @@
 Blocks
 ~~~~~~
 
-We encourage you to think of Steamship's ``Block`` object as a necessary unit of data
-paging, but otherwise completely free of meaning.
-That it so say: it is useful to have some way to break a very large file into chunks
-in order to optimnize processing and network traffic. But those chunks are considered
-an implementation detail with respect to the contents of the file.
+Blocks are ordered pages of text within a file.
 
-Consider a UTF-8 encoded CSV file uploaded to Steamship.
-It should not matter whether this file is represented as:
+They enable you to describe a portion of a file without describing the whole thing,
+but they are otherwise free of meaning.
 
-- One block per row
-- One block per 10 rows
-- One block for the whole file
+This means that different packages and plugins may choose divide files into blocks using different schemes.
+Consider a CSV file uploaded to Steamship.
+The following divisions of this file into blocks are all perfectly fine:
 
-All semantic information about that file --- such as row and column boundaries --- should be
-provided via tags atop the data, not blocks.
+- Each CSV row is a block of text.
+- Each 10 CSV rows is a block
+- The entire CSV file is one block
+
+All semantic information about that file's content --- such as row and column boundaries --- should be
+provided via tags in the block.
+
+Read the :py:class:`Block PyDoc spec here<steamship.data.block.Block>`.

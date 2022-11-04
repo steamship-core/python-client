@@ -1,20 +1,25 @@
 .. _Data Model:
 
-Data Model
-----------
+Workspace Data Model
+--------------------
 
-Workspaces have a managed data model that covers the 80% case of Language AI.
-The data model is simple, but flexible, and provides a common integration point for tasks as disparate as file conversion
-to classification to text generation to embedding search.
+Workspaces have a managed data model that covers the 80% case of language AI.
+It is simple, but flexible, and supports tasks as disparate as:
 
-There are only three core concepts you need to know:
+- file conversion
+- text extraction
+- classification
+- text generation
+- embedding search
 
-- :ref:`Files` - The top level object for storing data
-- :ref:`Blocks` - Ordered regions of text within a file.
-- :ref:`Tags` - Typed key-valued commentary on the text within a block.
+There are only three core concepts you need to know.
+**Files** are the top level object for storing data.
+**Blocks** are regions of text within a file.
+**Tags** are typed, key-valued assertions about a span of text.
 
-In addition to those core concepts, you can also create instances of plugins and packages to do things to or with your data.
+.. toctree::
+   :maxdepth: 2
 
-.. include:: files.rst
-.. include:: blocks.rst
-.. include:: tags.rst
+   Files <files>
+   Blocks <blocks>
+   Tags <tags>

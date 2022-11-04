@@ -44,14 +44,6 @@ steamship.plugin.inputs.train\_plugin\_input module
    :undoc-members:
    :show-inheritance:
 
-steamship.plugin.inputs.train\_status\_plugin\_input module
------------------------------------------------------------
-
-.. automodule:: steamship.plugin.inputs.train_status_plugin_input
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 steamship.plugin.inputs.training\_parameter\_plugin\_input module
 -----------------------------------------------------------------
 

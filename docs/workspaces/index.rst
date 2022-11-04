@@ -19,6 +19,7 @@ The following sections cover the core lifecycle and data model of a Workspace.
    :maxdepth: 2
 
    Creating Workspaces <creating>
-   Uploading Data <uploading>
+   Importing Data <importing>
+   Blockifying Data <blockifying>
    Workspace Data Model <data_model/index>
    Querying Data <queries/index>

@@ -23,6 +23,18 @@ If it doesn't exist, it will be created for you.
 
        const client = Steamship({workspace: "my-workspace-name"})
 
+.. tab:: HTTP
+
+    .. code-block:: bash
+
+       curl \
+           --header "Content-Type: application/json" \
+           --header "Authorization: Bearer $STEAMSHIP_KEY" \
+           --request POST \
+           --data '{"handle":"your-handle", "fetchIfExist":true}' \
+           https://api.steamship.com/api/v1/workspace/create
+
+
 Every workspace-specific operation this client performs will now take part in that workspace.
 This includes file uploads, plugin training, plugin inference, queries, and any infrastructure associated.
 

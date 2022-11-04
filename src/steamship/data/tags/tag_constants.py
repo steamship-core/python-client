@@ -18,6 +18,7 @@ class TagKind(str, Enum):
     TOKEN = "token"  # noqa: S105
     INTENT = "intent"
     EMBEDDING = "embedding"
+    GENERATION = "generation"
 
 
 class DocTag(str, Enum):
@@ -183,7 +184,7 @@ class EmotionTag(str, Enum):
     SCORE = "score"
 
 
-class IntentTags(str, Enum):
+class IntentTag(str, Enum):
     """A set of `name` constants for Tags with a `kind` of `TagKind.intent`."""
 
     SALUTATION = "salutation"
@@ -207,7 +208,7 @@ class TagValue(str, Enum):
     STRING_VALUE = "string-value"
 
 
-class EntityTags(str, Enum):
+class EntityTag(str, Enum):
     """A set of `name` constants for Tags with a `kind` of `TagKind.entity`."""
 
     PERSON = "person"
@@ -220,3 +221,10 @@ class EntityTags(str, Enum):
     PERCENT = "percent"
     FACILITY = "facility"
     GEO_POLITICAL_ENTITY = "geo-political-entity"
+
+
+class GenerationTag(str, Enum):
+    """A set of `name` constants for Tags with a `kind` of `TagKind.generation`."""
+
+    SUMMARY = "summary"
+    PROMPT_COMPLETION = "prompt-completion"
