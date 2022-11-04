@@ -20,7 +20,8 @@ Import content directly
 
 Import a file on disk with the ``File.create`` method.
 
-To provide raw content, use the ``content`` kwarg and add an optional ``mime_type``:
+If you pass a ``content`` argument to this method, a file will be created from the provided string.
+An optional ``mime_type`` argument can also be provided.
 
 .. tab:: Python
 
@@ -35,6 +36,9 @@ To provide raw content, use the ``content`` kwarg and add an optional ``mime_typ
           mime_type=MimeTypes.MKD
        )
 
+
+For local files, ``content`` can be supplied via` ``read()``. If the file is a binary file, you may want to supply
+a custom MIME type, via the ``mime_type`` parameter.
 
 If you pass a ``blocks`` argument to this method, you can provided structured, pre-created :ref:`Blocks`,
 removing the need to :ref:`blockify<Blockifiers>` your file later.
