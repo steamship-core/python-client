@@ -11,6 +11,7 @@ Actions on Files
 
 You can take the following actions on files.
 
-- Upload
+- Create
 - Blockify
+- Tag
 - Query
