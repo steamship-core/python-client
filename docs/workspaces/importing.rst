@@ -11,7 +11,7 @@ Here are some ways to do it:
 
 Each of these methods always results in a new  :ref:`File<Files>` object.
 **But you can't use it yet!**
-After you import a File, you must :ref:`Blockify<Blockifying>` to transform it into Steamship format.
+After you import a File, you must :ref:`Blockify<Blockifying Data>` to transform it into Steamship format.
 
 .. _Import content directly:
 
