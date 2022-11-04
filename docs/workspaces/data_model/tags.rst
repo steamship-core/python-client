@@ -152,12 +152,22 @@ Block and File Tags
 ^^^^^^^^^^^^^^^^^^^
 
 The above text discusses tags upon spans of text.
-But Steamship actually supports two types of tags.
+But Steamship actually supports two types of tags: **File Tags** and **Block Tags**.
 
-- **File Tags** are attached to the :ref:`File<Files>` object. They annotate the file itself. Their ``block_id``, ``start_idx``, and ``end_idx`` are always null.
-- **Block Tags** are attached to the :ref:`Block<Blocks>` object. They annotate text within that block. Their ``block_id``, ``start_idx``, and ``end_idx`` are always **non-null**.
+**File Tags** annotate a :ref:`File<Files>` object itself:
 
-There are two edge cases important to call out here:
+- They are attached to the :ref:`File<Files>` object (``file.tags``)
+- Their ``block_id``, ``start_idx``, and ``end_idx`` are always null.
+- They are referenced via the ``filetag`` keyword in our query system.
 
+**Block Tags** annotate text within a :ref:`Block<Blocks>` object:
+
+- They are attached to the :ref:`Block<Blocks>` object (``block.tags``)
+- Their ``start_idx`` and ``end_idx`` fields are non-null. They  represent offsets into the text that is spanned by that block.
+- They are referenced via the ``blocktag`` keyword in our query system.
+
+There are a few edge cases important to call out here:
+
+- Whereas file tags annotate the file itself, block tags do not annotate the block: they annotate text within the block.
 - A block tag that covers the entire text of the block always has ``start_idx = 0`` and ``end_idx = len(block.text)``
 - It is impossible for a tag to cover text spanning multiple blocks. This is a limitation of our current data model.
