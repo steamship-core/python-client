@@ -6,7 +6,6 @@ Uploading Data
 There are three ways to upload data to a workspace:
 
 - :ref:`From a local file<Uploading a local file>`
-- :ref:`From a URL<Uploading a URL>`
 - :ref:`Via a Plugin<Uploading via Plugin>`
 
 Each of these methods always results in a new  :ref:`File<Files>` object.
@@ -18,23 +17,17 @@ Uploading a local file
 
 Upload a file on disk with the ``File.create`` method.
 
-If you pass a ``path`` argument to this method, the file will be read from disk:
-
-.. code-block:: python
-
-   file = File.create(
-      client=client,
-      path="path/to/some_file"
-   ).data
-
-If you pass a ``content`` argument to this method, the file will be created from the provided string:
+If you pass a ``content`` argument to this method, a file will be created from the provided string:
 
 .. code-block:: python
 
    file = File.create(
       client=client,
       content="String content"
-   ).data
+   )
+   
+For local files, ``content`` can be supplied via `read()`. If the file is a binary file, you may want to supply
+a custom MIME type, via the `mime_type` parameter.
 
 If you pass a ``blocks`` argument to this method, you can provided structured, pre-created :ref:`Blocks`,
 removing the need to :ref:`blockify<Blockifiers>` your file later.
@@ -44,7 +37,7 @@ removing the need to :ref:`blockify<Blockifiers>` your file later.
    file = File.create(
       client=client,
       blocks=Block.CreateRequest(...)
-   ).data
+   )
 
 .. _Uploading via Plugin:
 
@@ -64,7 +57,7 @@ Unlike uploading a file directly, uploading a file via an :ref:`Importer plugins
    importer = client.use_plugin("plugin-handle", "instance-handle", config={})
    task = File.create_with_plugin(
       client=client,
-      plugin_instancenstance=importer.handle
+      plugin_instance=importer.handle
    )
    task.wait()
    file = File.parse_obj(task.output)
