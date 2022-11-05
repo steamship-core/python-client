@@ -1,8 +1,10 @@
 """A simple key-value store implemented atop Files and Tags."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from steamship import Block, File, Steamship, Tag
+
+KV_STORE_MARKER = "__init__"
 
 
 class KeyValueStore:
@@ -47,13 +49,13 @@ class KeyValueStore:
             return File.create(
                 self.client,
                 blocks=[Block.CreateRequest(text="")],
-                tags=[Tag.CreateRequest(kind=self.store_identifier, name="__init__")],
+                tags=[Tag.CreateRequest(kind=self.store_identifier, name=KV_STORE_MARKER)],
             )
         else:
             return status_files[0]
 
     def get(self, key: str) -> Optional[Dict]:
-        """Gets the value represented by `key`."""
+        """Get the value represented by `key`."""
         file = self._get_file()
 
         if file is None:
@@ -64,7 +66,7 @@ class KeyValueStore:
                 return tag.value
 
     def delete(self, key: str) -> bool:
-        """Deletes the entry represented by `key`"""
+        """Delete the entry represented by `key`"""
         file = self._get_file()
 
         if file is None:
@@ -79,7 +81,7 @@ class KeyValueStore:
         return deleted
 
     def set(self, key: str, value: Dict[str, Any]):
-        # Sets the entry (key, value)
+        """Set the entry (key, value)."""
 
         # First delete it if it exists to avoid duplicate tags.
         self.delete(key)
@@ -90,8 +92,24 @@ class KeyValueStore:
         req = Tag.CreateRequest(file_id=file.id, kind=self.store_identifier, name=key, value=value)
         return self.client.post("tag/create", req, expect=Tag)
 
+    def list(self, filter_keys: Optional[List[str]] = None) -> List[Tuple[str, Dict[str, Any]]]:
+        """Return all key-value entries as a list of (key, value) tuples.
+
+        If `filter_keys` is provided, only returns keys within that list."""
+
+        file = self._get_file(or_create=True)
+        return [
+            (tag.name, tag.value)
+            for tag in file.tags
+            if (
+                tag.kind == self.store_identifier
+                and tag.name != KV_STORE_MARKER
+                and (filter_keys is None or tag.name in filter_keys)
+            )
+        ]
+
     def reset(self):
-        """Deletes all keys"""
+        """Delete all key-values."""
         file = self._get_file()
         if file is not None:
             file.delete()
