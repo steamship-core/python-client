@@ -1,9 +1,10 @@
 from enum import Enum
 
+import pytest
 from steamship_tests.utils.client import get_steamship_client
 from steamship_tests.utils.random import random_name
 
-from steamship import Workspace
+from steamship import Steamship, Workspace
 from steamship.utils.kv_store import KeyValueStore
 
 
@@ -13,10 +14,10 @@ class ExampleEnum(str, Enum):
     VALUE_3 = "value_3"
 
 
-def test_key_value_store():
+@pytest.mark.usefixtures("client")
+def test_key_value_store(client: Steamship):
     """We can test the app like a regular python object!"""
-    space_handle = random_name()
-    client = get_steamship_client(workspace=space_handle)
+    client = get_steamship_client()
 
     kv = KeyValueStore(client=client)
     kv.reset()
@@ -75,13 +76,10 @@ def test_key_value_store():
     kv.reset()
     assert kv.get(key2) is None
 
-    # Clean up
-    Workspace(client=client, id=client.config.workspace_id).delete()
 
-
-def test_kv_namespace_works():
-    space_handle = random_name()
-    client = get_steamship_client(workspace=space_handle)
+@pytest.mark.usefixtures("client")
+def test_kv_namespace_works(client: Steamship):
+    client = get_steamship_client()
 
     kv1 = KeyValueStore(client=client, store_identifier="namespace1")
     kv2 = KeyValueStore(client=client, store_identifier="namespace2")
@@ -106,9 +104,6 @@ def test_kv_namespace_works():
     kv2.set(key, val2)
     assert kv1.get(key) == val1
     assert kv2.get(key) == val2
-
-    # Clean up
-    Workspace(client=client, id=client.config.workspace_id).delete()
 
 
 def test_kv_multi_space_works():
