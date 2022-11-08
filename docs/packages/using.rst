@@ -6,20 +6,42 @@ Using Packages
 .. note::
    Before you begin, make sure you've created your Steamship keys with:
 
-   ``npm install -g @steamship/cli && ship login``
+   .. code-block:: bash
 
-   And installed our Python Client with:
+      npm install -g @steamship/cli && ship login
 
-   ``pip install steamship``
+   And installed a Steamship client library with:
+
+    .. tab:: Python
+
+        .. code-block:: bash
+
+           pip install steamship
+
+    .. tab:: Typescript (Alpha)
+
+        .. code-block:: bash
+
+           npm install --save @steamship/client
 
 Steamship packages are listed in our `package directory <https://www.steamship.com/packages>`_.
 To use one, instantiate it with ``Steamship.use``, giving it a package handle and an instance handle.
 
-.. code-block:: python
+.. tab:: Python
 
-   from steamship import Steamship
+    .. code-block:: python
 
-   instance = Steamship.use("package-handle", "instance-handle")
+       from steamship import Steamship
+
+       instance = Steamship.use("package-handle", "instance-handle")
+
+.. tab:: Typescript
+
+    .. code-block:: typescript
+
+       import { Steamship } from "@steamship/client"
+
+       const instance = Steamship.use("package-handle", "instance-handle")
 
 The **package handle** references the package you'd like to use.
 The **instance handle** creates a private stack for data and infrastructure that package depends on.
@@ -28,9 +50,17 @@ Once you have a package instance, invoke a method by calling ``invoke``.
 The method name is the first argument.
 All other arguments are passed as keyword args.
 
-.. code-block:: python
+.. tab:: Python
 
-   result = instance.invoke('method_name', arg1=val1, arg2=val2)
+    .. code-block:: python
+
+       result = instance.invoke('method_name', arg1=val1, arg2=val2)
+
+.. tab:: Typescript
+
+    .. code-block:: typescript
+
+       const result = await instance.invoke('method_name', {arg1: val1, arg2: val2})
 
 The method will run in the cloud, and you'll get back the response as a Python object.
 Packages can also be used as :ref:`HTTP APIs<HTTP>`.
@@ -53,10 +83,20 @@ What is a Package Handle?
 
 A **Package Handle** identifies a Steamship package, in the same way that NPM and PyPI packages have identifiers.
 
-.. code-block:: python
+.. tab:: Python
 
-   from steamship import Steamship
-   instance = Steamship.use("package-handle", "instance-handle")
+    .. code-block:: python
+
+       from steamship import Steamship
+       instance = Steamship.use("package-handle", "instance-handle")
+
+.. tab:: Typescript
+
+    .. code-block:: typescript
+
+       import { Steamship } from "@steamship/client"
+       const instance = Steamship.use("package-handle", "instance-handle")
+
 
 Package handles always composed of lowercase letters and dashes.
 
@@ -67,11 +107,19 @@ What is an Instance Handle?
 
 An **Instance Handle** identifies a particular instance of the package.
 
-.. code-block:: python
+.. tab:: Python
 
-   from steamship import Steamship
-   instance = Steamship.use("package-handle", "instance-handle")
+    .. code-block:: python
 
+       from steamship import Steamship
+       instance = Steamship.use("package-handle", "instance-handle")
+
+.. tab:: Typescript
+
+    .. code-block:: typescript
+
+       import { Steamship } from "@steamship/client"
+       const instance = Steamship.use("package-handle", "instance-handle")
 
 Steamship packages manage their own configuration, data, endpoints, and infrastructure in the cloud.
 Your instance handle of a package creates a scope, private to you, to contain that.
@@ -83,22 +131,47 @@ Do I need an Instance Handle?
 
 If you do not provide an **Instance Handle**, the default value will be identical to the **Package Handle**.
 
-.. code-block:: python
+.. tab:: Python
 
-   from steamship import Steamship
-   instance = Steamship.use("package-handle")
-   instance = Steamship.use("package-handle")
-   instance = Steamship.use("package-handle")
+    .. code-block:: python
+
+       from steamship import Steamship
+       instance1 = Steamship.use("package-handle")
+       instance1_copy = Steamship.use("package-handle")
+       instance1_copy2 = Steamship.use("package-handle")
+
+.. tab:: Typescript
+
+    .. code-block:: typescript
+
+       import { Steamship } from "@steamship/client"
+
+       const instance1 = Steamship.use("package-handle")
+       const instance1_copy = Steamship.use("package-handle")
+       const instance1_copy2 = Steamship.use("package-handle")
 
 The above code loads three copies of the **same instance**, bound to the **same data and infrastructure**.
 It is equivalent to having run this code:
 
-.. code-block:: python
+.. tab:: Python
 
-   from steamship import Steamship
-   instance = Steamship.use("package-handle", "package-handle")
-   instance = Steamship.use("package-handle", "package-handle")
-   instance = Steamship.use("package-handle", "package-handle")
+    .. code-block:: python
+
+       from steamship import Steamship
+       instance = Steamship.use("package-handle", "package-handle")
+       instance1_copy = Steamship.use("package-handle", "package-handle")
+       instance1_copy2 = Steamship.use("package-handle", "package-handle")
+
+.. tab:: Typescript
+
+    .. code-block:: typescript
+
+       import { Steamship } from "@steamship/client"
+
+       const instance1 = Steamship.use("package-handle", "package-handle")
+       const instance1_copy = Steamship.use("package-handle", "package-handle")
+       const instance1_copy2 = Steamship.use("package-handle", "package-handle")
+
 
 .. _can-i-reload-the-same-instance:
 
@@ -110,14 +183,26 @@ All of the correct configuration, data, and models will be bound to the instance
 
 In the below code,
 
-*  ``instance_1`` and ``instance_2`` are operating upon the same data and infrastructure.
-*  ``instance_3`` is operating upon a different set of data and infrastructure
+*  ``instance1`` and ``instance1_copy`` are operating upon the same data and infrastructure.
+*  ``instance2`` is operating upon a different set of data and infrastructure
 
-.. code-block:: python
+.. tab:: Python
 
-   instance_1 = Steamship.use("package-handle", "instance-handle")
-   instance_2 = Steamship.use("package-handle", "instance-handle")
-   instance_3 = Steamship.use("package-handle", "some-other-handle")
+    .. code-block:: python
+
+       instance1 = Steamship.use("package-handle", "instance-handle")
+       instance1_copy = Steamship.use("package-handle", "instance-handle")
+       instace2 = Steamship.use("package-handle", "some-other-handle")
+
+.. tab:: Typescript
+
+    .. code-block:: typescript
+
+       import { Steamship } from "@steamship/client"
+
+       const instance1 = Steamship.use("package-handle", "instance-handle")
+       const instance1_copy = Steamship.use("package-handle", "instance-handle")
+       const instance2 = Steamship.use("package-handle", "some-other-handle")
 
 .. _how-do-i-specify-a-package-version:
 
@@ -126,9 +211,19 @@ How do I specify a package version?
 
 When instantiating a package, you can pin it to a particular version with the ``version`` keyword argument.
 
-.. code-block:: python
+.. tab:: Python
 
-   instance_1 = Steamship.use("package-handle", "instance-handle", version="1.0.0")
+    .. code-block:: python
+
+       instance = Steamship.use("package-handle", "instance-handle", version="1.0.0")
+
+.. tab:: Typescript
+
+    .. code-block:: typescript
+
+       import { Steamship } from "@steamship/client"
+
+       const instance = Steamship.use("package-handle", "instance-handle", "1.0.0")
 
 If you do not specify a version, the last deployed version of that package will be used.
 
@@ -139,9 +234,19 @@ How do I provide package configuration?
 
 When instantiating a package, you can provide configuration with the ``config`` keyword argument.
 
-.. code-block:: python
+.. tab:: Python
 
-   instance_1 = Steamship.use("package-handle", "instance-handle", config=config_dict)
+    .. code-block:: python
+
+       instance = Steamship.use("package-handle", "instance-handle", config=config_dict)
+
+.. tab:: Typescript
+
+    .. code-block:: typescript
+
+       import { Steamship } from "@steamship/client"
+
+       const instance = Steamship.use("package-handle", "instance-handle", undefined, {key: "value"})
 
 To learn what configuration is required, consult the README.md file in the package's GitHub repository.
 
@@ -156,7 +261,16 @@ We are working on a more streamlined way to generate and publish per-package doc
 
 In the meantime, you can also explore a package's methods from your REPL with:
 
-.. code-block:: python
+.. tab:: Python
 
-   instance = Steamship.use("package-handle")
-   instance.invoke("__dir__")
+    .. code-block:: python
+
+       instance = Steamship.use("package-handle")
+       instance.invoke("__dir__")
+
+.. tab:: Typescript
+
+    .. code-block:: typescript
+
+       const instance = Steamship.use("package-handle")
+       instance.invoke("__dir__")
