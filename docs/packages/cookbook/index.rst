@@ -5,7 +5,7 @@ Package Development Cookbook
     TODO: reorganize headings
 
 Basic Recipes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~
 
 .. toctree::
    :maxdepth: 1
@@ -21,3 +21,7 @@ Basic Recipes
    Modifying an existing package <modifying-an-existing-package>
 
 
+Interacting with Other Services
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Receiving webhooks in your package <receive-webhooks>
