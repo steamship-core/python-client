@@ -180,6 +180,7 @@ class File(CamelModel):
     def refresh(self) -> File:
         refreshed = File.get(self.client, self.id)
         self.__init__(**refreshed.dict())
+        self.client = refreshed.client
         return self
 
     @staticmethod
