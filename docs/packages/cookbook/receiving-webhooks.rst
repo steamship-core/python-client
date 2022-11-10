@@ -29,7 +29,7 @@ It is annotated with the ``@post`` annotation to register it as an ``HTTP POST``
          return "OK"
 
 
-**Step 2. Deploy your package and create an instance **
+**Step 2. Deploy your package and create an instance**
 
 Code packages themselves don't do anything.
 To create your API, you have to first:
