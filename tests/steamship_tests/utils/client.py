@@ -5,10 +5,12 @@ from steamship import Configuration, Steamship
 from steamship.data.package.package_instance import PackageInstance
 from steamship.data.plugin.plugin_instance import PluginInstance
 
+TESTING_PROFILE = "test"
+
 
 def get_steamship_client(fail_if_workspace_exists=False, **kwargs) -> Steamship:
     # Always use the `test` profile
-    kwargs["profile"] = "test"
+    kwargs["profile"] = TESTING_PROFILE
     return Steamship(
         fail_if_workspace_exists=fail_if_workspace_exists, config=Configuration.parse_obj(kwargs)
     )
@@ -25,7 +27,7 @@ def steamship_use(
     **kwargs
 ) -> PackageInstance:
     # Always use the `test` profile
-    kwargs["profile"] = "test"
+    kwargs["profile"] = TESTING_PROFILE
     instance = Steamship.use(
         package_handle, instance_handle, config, version, fetch_if_exists, **kwargs
     )
@@ -47,7 +49,7 @@ def steamship_use_plugin(
     **kwargs
 ) -> PluginInstance:
     # Always use the `test` profile
-    kwargs["profile"] = "test"
+    kwargs["profile"] = TESTING_PROFILE
     instance = Steamship.use_plugin(
         plugin_handle, instance_handle, config, version, fetch_if_exists, **kwargs
     )
