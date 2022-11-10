@@ -21,7 +21,7 @@ from assets.plugins.taggers.plugin_trainable_tagger import (
 
 from steamship import Block, File, SteamshipError, Tag
 from steamship.base import Task, TaskState
-from steamship.invocable import Config, InvocableResponse, create_handler
+from steamship.invocable import InvocableResponse, create_handler
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
