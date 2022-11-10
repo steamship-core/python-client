@@ -4,19 +4,29 @@ Package Development Cookbook
 ..
     TODO: reorganize headings
 
-Basic Recipes
-~~~~~~~~~~~~~
+Working with Language
+~~~~~~~~~~~~~~~~~~~~~
 
 .. toctree::
    :maxdepth: 1
 
    Collect and query sentiment <collecting-and-querying-sentiment>
 
-   Extracting an outline from markdown <how-to-extract-outline-from-markdown>
-
-   Making a package or plugin user-configurable <adding-configuration>
+   Extract an outline from markdown <how-to-extract-outline-from-markdown>
 
    Auto tag articles and query by tag <article-tagging>
 
-   Modifying an existing package <modifying-an-existing-package>
+
+Building Packages
+~~~~~~~~~~~~~~~~~
+
+.. toctree::
+   :maxdepth: 1
+
+   Modify an existing package <modifying-an-existing-package>
+
+   Make a package or plugin user-configurable <adding-configuration>
+
+   Receive webhooks from another service <receiving-webhooks>
+
 
