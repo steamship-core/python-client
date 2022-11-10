@@ -19,14 +19,16 @@ For information about *using* this library, please see README.md
 
 ### Set up virtual environment
 
+First make sure you have Python3.8 -- the officially supported version
+
 We highly recommend using virtual environments for development. 
 Set up your virtual environment using the following commands:
 
 ```
-python3 -m venv .venv
+python3.8 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements.txt
-python -m pip install -r requirements.dev.txt
+python3.8 -m pip install -r requirements.txt
+python3.8 -m pip install -r requirements.dev.txt
 ```
 
 This will install the required dependencies (runtime and development) and register the project source tree with your virtual environment so that `import steamship` statements will resolve correctly.
