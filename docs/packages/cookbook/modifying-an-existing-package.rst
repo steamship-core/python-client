@@ -1,5 +1,5 @@
 Modifying an Existing Package
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You may want to modify an existing package to:
  * Add a new method

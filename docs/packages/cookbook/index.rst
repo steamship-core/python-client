@@ -20,8 +20,3 @@ Basic Recipes
 
    Modifying an existing package <modifying-an-existing-package>
 
-
-Interacting with Other Services
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-   Receiving webhooks in your package <receive-webhooks>

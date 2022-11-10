@@ -75,6 +75,7 @@ Package FAQ
 - :ref:`How do I specify a package version?<how-do-i-specify-a-package-version>`
 - :ref:`How do I provide package configuration?<how-do-i-provide-package-configuration>`
 - :ref:`How do I know what methods to call?<how-do-i-know-what-methods-to-call>`
+- :ref:`Can I access my package over HTTP?<can-i-access-my-package-over-http>`
 
 .. _what-is-a-package-handle:
 
@@ -274,3 +275,55 @@ In the meantime, you can also explore a package's methods from your REPL with:
 
        const instance = Steamship.use("package-handle")
        instance.invoke("__dir__")
+
+.. _can-i-access-my-package-over-http:
+
+Can I access my package over HTTP?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Every instance of your package exposes an HTTP API that you can call. The **Instance Base URL** is:
+
+    .. code-block::
+
+       https://{userHandle}.steamship.run/{workspaceHandle}/{instanceHandle}/
+
+In that URL:
+
+- ``{userHandle}`` is your user handle (not the handle of the person who create the package)
+- ``{workspaceHandle}`` is the handle of the workspace that package is running in. It is usually equal to the ``instanceHandle``
+- ``{instanceHandle}`` is the name you gave your instance
+
+You can always find out your **Instance Base URL** via the Python Client with the ``PackageInstance.invocation_url`` property:
+
+    .. code-block:: python
+
+       instance = Steamship.use('some-package', 'my-handle')
+       print(instance.invocation_url)
+
+       # Prints:
+       # https://{you}.steamship.run/my-handle/my-handle/
+
+Calling this URL is simple with a few conventions:
+
+- Set the ``Content-Type`` header to ``application/json``
+- Set the ``Authorization`` header to ``Bearer {api-key}``, replacing ``{api-key}`` with your API Key
+- Default to ``HTTP POST`` if you're not sure which verb to use. The package documentation should specify.
+- Add the method name you wish to invoke as the path.
+- Add the arguments as a JSON-encoded POST Body
+
+For example, the HTTP equivalent of:
+
+    .. code-block:: python
+
+       instance.invoke('greet', name='Beautiful')
+
+would be:
+
+    .. code-block::
+
+       POST /{workspace-handle}/{instance-handle}/greet
+       Content-Type: application/json
+       Authorization: Bearer {api-key}
+
+       {"name": "Beautiful"}
+
