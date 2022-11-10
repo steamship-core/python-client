@@ -62,7 +62,7 @@ Customizing your Package
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Steamship packages run on top of a cloud stack designed for Language AI.
-You can import files, parse and tag them, query over them, and return custom results -- and far more.
+You can import files, parse and tag them, query over them, return custom results -- and far more.
 
 .. grid::  1 1 2 3
 

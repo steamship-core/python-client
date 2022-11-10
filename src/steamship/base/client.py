@@ -106,7 +106,7 @@ class Client(CamelModel, ABC):
             )
 
         # Zero out the workspace_handle on the config block in case we're being invoked from
-        # `init` (otherwise we'll attempt to create the sapce IN that nonexistant workspace)
+        # `init` (otherwise we'll attempt to create the space IN that non-existant workspace)
         old_workspace_handle = self.config.workspace_handle
         self.config.workspace_handle = None
 
