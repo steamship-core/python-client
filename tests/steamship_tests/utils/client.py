@@ -16,17 +16,19 @@ def get_steamship_client(fail_if_workspace_exists=False, **kwargs) -> Steamship:
 
 @contextmanager
 def steamship_use(
-        package_handle: str,
-        instance_handle: str = None,
-        config: Dict[str, Any] = None,
-        version: str = None,
-        fetch_if_exists: bool = True,
-        delete_workspace: bool = True,
-        **kwargs
+    package_handle: str,
+    instance_handle: str = None,
+    config: Dict[str, Any] = None,
+    version: str = None,
+    fetch_if_exists: bool = True,
+    delete_workspace: bool = True,
+    **kwargs
 ) -> PackageInstance:
     # Always use the `test` profile
     kwargs["profile"] = "test"
-    instance = Steamship.use(package_handle, instance_handle, config, version, fetch_if_exists, **kwargs)
+    instance = Steamship.use(
+        package_handle, instance_handle, config, version, fetch_if_exists, **kwargs
+    )
     assert instance.client.config.workspace_id == instance.workspace_id
     yield instance
     # Clean up the workspace
@@ -36,13 +38,13 @@ def steamship_use(
 
 @contextmanager
 def steamship_use_plugin(
-        plugin_handle: str,
-        instance_handle: str = None,
-        config: Dict[str, Any] = None,
-        version: str = None,
-        fetch_if_exists: bool = True,
-        delete_workspace: bool = True,
-        **kwargs
+    plugin_handle: str,
+    instance_handle: str = None,
+    config: Dict[str, Any] = None,
+    version: str = None,
+    fetch_if_exists: bool = True,
+    delete_workspace: bool = True,
+    **kwargs
 ) -> PluginInstance:
     # Always use the `test` profile
     kwargs["profile"] = "test"

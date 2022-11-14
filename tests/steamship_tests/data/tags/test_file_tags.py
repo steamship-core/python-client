@@ -52,7 +52,12 @@ def test_file_tag(client: Steamship):
     assert tags is not None
     assert len(tags) == 0
 
-    Tag.create(client, file_id=a.id, kind="test4", value={"test_str": "str", "test_int": 1, "test_float": 2.2})
+    Tag.create(
+        client,
+        file_id=a.id,
+        kind="test4",
+        value={"test_str": "str", "test_int": 1, "test_float": 2.2},
+    )
     tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"').tags
     assert tags is not None
     assert len(tags) == 1
