@@ -57,11 +57,8 @@ class Tag(CamelModel):
         name: str = None,
         start_idx: int = None,
         end_idx: int = None,
-        value: Any = None,
+        value: Dict[str, Any] = None,
     ) -> Tag:
-        if isinstance(value, dict) or isinstance(value, list):
-            value = json.dumps(value)
-
         req = Tag.CreateRequest(
             file_id=file_id,
             block_id=block_id,
