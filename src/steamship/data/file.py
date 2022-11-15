@@ -178,7 +178,10 @@ class File(CamelModel):
         return client.post("file/create", payload=req, expect=File, as_background_task=True)
 
     def refresh(self) -> File:
-        return File.get(self.client, self.id)
+        refreshed = File.get(self.client, self.id)
+        self.__init__(**refreshed.dict())
+        self.client = refreshed.client
+        return self
 
     @staticmethod
     def query(

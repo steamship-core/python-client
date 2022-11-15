@@ -1,5 +1,5 @@
 from steamship import MimeTypes
-from steamship.invocable import Config, InvocableResponse, create_handler
+from steamship.invocable import InvocableResponse, create_handler
 from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.file_importer import FileImporter
 from steamship.plugin.inputs.file_import_plugin_input import FileImportPluginInput
@@ -15,7 +15,6 @@ TEST_DOC = f"# {TEST_H1}\n\n{TEST_S1} {TEST_S2}\n\n{TEST_S3}\n"
 
 
 class TestFileImporterPlugin(FileImporter):
-
     def run(
         self, request: PluginRequest[FileImportPluginInput]
     ) -> InvocableResponse[RawDataPluginOutput]:
