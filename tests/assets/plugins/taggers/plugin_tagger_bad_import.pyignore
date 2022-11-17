@@ -14,6 +14,3 @@ class TestTaggerPluginBadImport(Tagger):
     ) -> InvocableResponse[BlockAndTagPluginOutput]:
         file = request.data.file
         return InvocableResponse(data=BlockAndTagPluginOutput(file=file))
-
-
-invocable_class = TestTaggerPluginBadImport

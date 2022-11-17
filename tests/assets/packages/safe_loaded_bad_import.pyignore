@@ -13,4 +13,3 @@ class BadImportHelloWorld(Invocable):
         return InvocableResponse(string=self.client.config.workspace_id)
 
 
-invocable_class = BadImportHelloWorld

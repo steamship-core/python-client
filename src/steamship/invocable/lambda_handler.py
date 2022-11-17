@@ -1,3 +1,4 @@
+import inspect
 import json
 import logging
 import sys
@@ -13,8 +14,7 @@ from steamship import Configuration
 from steamship.base import SteamshipError
 from steamship.client import Steamship
 from steamship.data.workspace import SignedUrl
-from steamship.invocable import InvocableRequest, InvocableResponse, InvocationContext
-from steamship.invocable.invocable import Invocable
+from steamship.invocable import Invocable, InvocableRequest, InvocableResponse, InvocationContext
 from steamship.utils.signed_urls import upload_to_signed_url
 
 
@@ -234,17 +234,29 @@ def safely_find_invocable_class() -> Type[Invocable]:
     Safely find the invocable class within invocable code.
     """
     try:
-        from api import invocable_class
+        import api
     except Exception as e:
         logging.exception(e)
         raise SteamshipError(
             message=f"There was an error loading the main file:\n{traceback.format_exc()}", error=e
         )
+
+    invocable_classes = []
+    for element in [getattr(api, x) for x in dir(api)]:
+        if inspect.isclass(element):
+            # Using names and not issubclass(element, Invocable) because latter was returning false?
+            superclass_names = [c.__name__ for c in inspect.getmro(element)]
+            if "Invocable" in superclass_names and element.__module__ == "api":
+                invocable_classes.append(element)
+    if len(invocable_classes) == 0:
+        raise SteamshipError(message="Could not find package or plugin class in api.py.")
+    if len(invocable_classes) > 1:
+        raise SteamshipError(
+            message=f"Found too many invocable classes {invocable_classes} in api.py. Only one is supported."
+        )
+    invocable_class = invocable_classes[0]
     logging.info(f"Safely loaded main class: {invocable_class.__name__}")
     return invocable_class
-
-    # alt version
-    # for element in [getattr(api, x) for x in dir(api)]
 
 
 def create_safe_handler():

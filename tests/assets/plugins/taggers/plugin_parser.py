@@ -48,6 +48,3 @@ class TestParserPlugin(Tagger):
             ret = InvocableResponse(data=BlockAndTagPluginOutput(file=file))
             logging.info(f"Ret: {ret}")
             return ret
-
-
-invocable_class = TestParserPlugin
