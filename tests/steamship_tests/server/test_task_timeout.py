@@ -9,7 +9,11 @@ def test_task_timeout():
     client = get_steamship_client()
     parser_path = PLUGINS_PATH / "taggers" / "plugin_parser.py"
     # TODO (enias): Use Enum for plugin type
-    with deploy_plugin(client, parser_path, "tagger") as (plugin, version, instance):
+    with deploy_plugin(client, parser_path, "tagger", safe_load_handler=True) as (
+        plugin,
+        version,
+        instance,
+    ):
         test_doc = "Hi there"
         res = instance.tag(doc=test_doc)
         try:
