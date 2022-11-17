@@ -243,6 +243,9 @@ def safely_find_invocable_class() -> Type[Invocable]:
     logging.info(f"Safely loaded main class: {invocable_class.__name__}")
     return invocable_class
 
+    # alt version
+    # for element in [getattr(api, x) for x in dir(api)]
+
 
 def create_safe_handler():
     bound_internal_handler = lambda event, client: internal_handler(  # noqa: E731
