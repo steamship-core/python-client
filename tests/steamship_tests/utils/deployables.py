@@ -94,9 +94,7 @@ def deploy_plugin(
     )
 
     zip_bytes = zip_deployable(py_path)
-    hosting_handler = (
-        "steamship.invocable.lambda_handler.safe_handler" if safe_load_handler else None
-    )
+    hosting_handler = "steamship.invocable.safe_handler" if safe_load_handler else None
     plugin_version = PluginVersion.create(
         client,
         "test-version",
@@ -137,9 +135,7 @@ def deploy_package(
     package = Package.create(client)
 
     zip_bytes = zip_deployable(py_path)
-    hosting_handler = (
-        "steamship.invocable.lambda_handler.safe_handler" if safe_load_handler else None
-    )
+    hosting_handler = "steamship.invocable.safe_handler" if safe_load_handler else None
     version = PackageVersion.create(
         client,
         package_id=package.id,

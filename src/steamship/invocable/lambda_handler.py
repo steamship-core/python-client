@@ -28,7 +28,6 @@ def encode_exception(obj):
     return obj
 
 
-# I am a closure around invocable_cls
 def internal_handler(  # noqa: C901
     invocable_cls_func: Callable[[], Type[Invocable]],
     event: Dict,
@@ -91,7 +90,6 @@ def internal_handler(  # noqa: C901
         )
 
 
-# I am called first, call _handler, and don't require knowledge of invocable_cls
 def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C901
     logging_config = event.get("loggingConfig")
 
