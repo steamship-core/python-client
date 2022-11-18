@@ -1,9 +1,7 @@
 import json
 import logging
-import urllib
 from pathlib import Path
 from typing import Optional
-from urllib.parse import parse_qs
 
 import requests
 
@@ -90,36 +88,36 @@ def upload_to_signed_url(url: str, _bytes: Optional[bytes] = None, filepath: Opt
             suggestion="Please provide either the `bytes` or the `filepath` argument",
         )
 
-    parsed_url = urllib.parse.urlparse(url)
+    # parsed_url = urllib.parse.urlparse(url)
 
-    if "amazonaws.com" in parsed_url.netloc:
-        # When uploading to AWS Production, the format of the URL should be https://BUCKET.DOMAIN/KEY
-        http_response = requests.put(
-            url, data=_bytes, headers={"Content-Type": "application/octet-stream"}
-        )
-    else:
-        # When uploading to AWS Localstack, the format of the URL should be https://DOMAIN/BUCKET
-        # And we must, in addition, re-format the POST request. This appears to be a quick of using Localstack
-        # and here should be considered a special case to enable testing.
-        logging.info("Workspace.upload_to_signed_url is using the LOCALSTACK upload strategy.")
-
-        params = parse_qs(parsed_url.query)
-        params = {p: params[p][0] for p in params}
-        path_parts = parsed_url.path.lstrip("/").split("/")
-        bucket = path_parts[0]
-
-        # This result in http://DOMAIN/BUCKET
-        newurl = f"{parsed_url.scheme}://{parsed_url.netloc}/{bucket}"
-
-        # The key, and a selected subset of the former query args, become multi-part mime data
-        key = "/".join(path_parts[1:])
-        data = {
-            "key": key,
-            "AWSAccessKeyId": params["X-Amz-Credential"].split("/")[0],
-            "signature": params["X-Amz-Signature"],
-        }
-        files = {"file": _bytes}
-        http_response = requests.post(newurl, data=data, files=files)
+    # if "amazonaws.com" in parsed_url.netloc:
+    #     # When uploading to AWS Production, the format of the URL should be https://BUCKET.DOMAIN/KEY
+    http_response = requests.put(
+        url, data=_bytes, headers={"Content-Type": "application/octet-stream"}
+    )
+    # else:
+    #     # When uploading to AWS Localstack, the format of the URL should be https://DOMAIN/BUCKET
+    #     # And we must, in addition, re-format the POST request. This appears to be a quick of using Localstack
+    #     # and here should be considered a special case to enable testing.
+    #     logging.info("Workspace.upload_to_signed_url is using the LOCALSTACK upload strategy.")
+    #
+    #     params = parse_qs(parsed_url.query)
+    #     params = {p: params[p][0] for p in params}
+    #     path_parts = parsed_url.path.lstrip("/").split("/")
+    #     bucket = path_parts[0]
+    #
+    #     # This result in http://DOMAIN/BUCKET
+    #     newurl = f"{parsed_url.scheme}://{parsed_url.netloc}/{bucket}"
+    #
+    #     # The key, and a selected subset of the former query args, become multi-part mime data
+    #     key = "/".join(path_parts[1:])
+    #     data = {
+    #         "key": key,
+    #         "AWSAccessKeyId": params["X-Amz-Credential"].split("/")[0],
+    #         "signature": params["X-Amz-Signature"],
+    #     }
+    #     files = {"file": _bytes}
+    #     http_response = requests.post(newurl, data=data, files=files)
 
     # S3 returns 204 upon success; we include 200 here for safety.
     if http_response.status_code not in [200, 204]:
