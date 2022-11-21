@@ -1,9 +1,10 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_index, random_name
 
-from steamship import PluginInstance
 from steamship.base.tasks import TaskComment
 from steamship.data.embeddings import EmbeddedItem
+
+_TEST_EMBEDDER = "test-embedder"
 
 
 def _list_equal(actual, expected):
@@ -13,26 +14,25 @@ def _list_equal(actual, expected):
 
 def test_basic_task_comment():
     steamship = get_steamship_client()
-    embedder = PluginInstance.create(steamship, plugin_handle="test-embedder")
-    with random_index(steamship, embedder.handle) as index:
+    with random_index(steamship, _TEST_EMBEDDER) as index:
         item1 = EmbeddedItem(
             value="Pizza", external_id="pizza", external_type="food", metadata=[1, 2, 3]
         )
 
-        index.insert(
+        index.index.insert(
             item1.value,
             external_id=item1.external_id,
             external_type=item1.external_type,
             metadata=item1.metadata,
         )
-        task = index.embed()
+        task = index.index.embed()
         task.wait()
 
-        res2 = index.search(item1.value, include_metadata=True, k=1)
+        res2 = index.index.search(item1.value, include_metadata=True, k=1)
         res2.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
         # We don't return to Res2 until the end to make sure we aren't co-mingling comments!
 
-        res = index.search(item1.value, include_metadata=True, k=1)
+        res = index.index.search(item1.value, include_metadata=True, k=1)
         res.wait()
         items = res.output.items
         assert items is not None
@@ -104,8 +104,7 @@ def test_task_comment_feedback_reporting():
     So really we just need to test the group aggregation
     """
     client = get_steamship_client()
-    embedder = PluginInstance.create(client, plugin_handle="test-embedder")
-    with random_index(client, plugin_instance=embedder.handle) as index:
+    with random_index(client, plugin_instance=_TEST_EMBEDDER) as index:
         item1 = EmbeddedItem(
             value="Pizza", external_id="pizza", external_type="food", metadata=[1, 2, 3]
         )
@@ -113,16 +112,16 @@ def test_task_comment_feedback_reporting():
         group_name_1 = random_name()
         group_name_2 = random_name()
 
-        index.insert(
+        index.index.insert(
             item1.value,
             external_id=item1.external_id,
             external_type=item1.external_type,
             metadata=item1.metadata,
         )
-        task = index.embed()
+        task = index.index.embed()
         task.wait()
 
-        res = index.search(item1.value, include_metadata=True, k=1)
+        res = index.index.search(item1.value, include_metadata=True, k=1)
         res.add_comment(
             external_id="Foo1",
             external_type="Bar1",
