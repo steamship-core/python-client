@@ -1,11 +1,11 @@
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, cast
 
 from pydantic import Field
 
-from steamship import SteamshipError
+from steamship import SteamshipError, Tag, Task
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.data.embeddings import EmbeddingIndex
+from steamship.data.embeddings import EmbeddedItem, EmbeddingIndex, QueryResult, QueryResults
 from steamship.data.plugin.plugin_instance import PluginInstance
 
 
@@ -24,6 +24,31 @@ class EmbedderInvocation(CamelModel):
 SHIMMED_INDEX_PLUGIN_HANDLES = ["embedding-index"]
 
 
+class SearchResult(CamelModel):
+    tag: Optional[Tag] = None
+    score: Optional[float] = None
+
+    @staticmethod
+    def from_query_result(query_result: QueryResult):
+        hit = query_result.value
+        tag = Tag(
+            id=hit.id,
+            kind=hit.external_type,
+            name=hit.external_id,
+            value=hit.metadata,
+        )
+        return SearchResult(tag=tag, score=query_result.score)
+
+
+class SearchResults(CamelModel):
+    items: List[QueryResult] = None
+
+    @staticmethod
+    def from_query_results(query_results: QueryResults):
+        items = [SearchResult.from_query_result(qr) for qr in query_results.items or []]
+        return SearchResults(items=items)
+
+
 class EmbeddingIndexPluginInstance(PluginInstance):
     """A persistent, read-optimized index over embeddings.
 
@@ -37,6 +62,54 @@ class EmbeddingIndexPluginInstance(PluginInstance):
 
     def delete(self):
         return self.index.delete()
+
+    def insert(self, tags: List[Tag]):
+        """Inserts a tag into the embedding index."""
+        for tag in tags:
+            if not tag.text:
+                raise SteamshipError(
+                    message="Please set the `text` field of your Tag before inserting it into an index."
+                )
+
+        # Now we need to prepare an EmbeddingIndexItem of a particular shape that encodes the tag.
+        embedded_items = [
+            EmbeddedItem(
+                file_id=tag.file_id,
+                block_id=tag.block_id,
+                tag_id=tag.id,
+                value=tag.text,
+                external_id=tag.name,
+                external_type=tag.kind,
+                metadata=tag.value,
+            )
+            for tag in tags
+        ]
+
+        # We always reindex in this new style; to not do so is to expose details (when embedding occurrs) we'd rather
+        # not have users exercise control over.
+        self.index.insert_many(embedded_items, reindex=True)
+
+        # We always snapshot in this new style; to not do so is to expose details we'd rather not have
+        # users exercise control over.
+        self.index.create_snapshot()
+
+    def search(self, query: str, k: Optional[int]) -> Task[SearchResults]:
+        """Search the embedding index.
+
+        This wrapper implementation simply projects the `Hit` data structure into a `Tag`
+        """
+        # Metadata will always be included; this is the equivalent of Tag.value
+        wrapped_result = self.index.search(query, k=k, include_metadata=True)
+
+        # For now, we'll have to do this synchronously since we're trying to avoid changing things on the engine.
+        wrapped_result.wait()
+
+        # We're going to do a switcheroo on the output type of Task here.
+        search_results = SearchResults.from_query_results(wrapped_result.output)
+        wrapped_result.output = search_results
+
+        # Return the index's search result, but projected into the data structure of Tags
+        return cast(Task[SearchResults], wrapped_result)
 
     @staticmethod
     def create(
