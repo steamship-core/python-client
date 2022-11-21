@@ -1,6 +1,8 @@
 import json
 
 import pytest
+from steamship_tests import PLUGINS_PATH
+from steamship_tests.utils.deployables import deploy_plugin
 
 from steamship import MimeTypes
 from steamship.client import Steamship
@@ -180,3 +182,18 @@ def test_file_list(client: Steamship):
     a.delete()
     b.delete()
     c.delete()
+
+
+def test_file_refresh(client: Steamship):
+    blockifier_path = PLUGINS_PATH / "blockifiers" / "blockifier.py"
+    with deploy_plugin(client, blockifier_path, "blockifier") as (
+        plugin,
+        version,
+        instance,
+    ):
+        file = File.create(client=client, content="This is a test.")
+        assert len(file.blocks) == 0
+        file.blockify(plugin_instance=instance.handle).wait()
+        file.refresh()  # don't reassign file
+        assert len(file.blocks) == 4
+        file.delete()

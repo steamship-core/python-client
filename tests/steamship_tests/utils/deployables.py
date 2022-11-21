@@ -23,6 +23,11 @@ def install_dependencies(folder: str, requirements_path: Path):
         ["pip", "install", "--target", folder, "-r", str(requirements_path.resolve())],
         stdout=subprocess.PIPE,
     )
+    # Write an empty requirements.txt to the test deployment.
+    # Note that this is INTENTIONALLY different than the behavior of a deployable
+    # deployed with the CLI, so that you can use the steamship version that you're currently editing
+    with open(Path(folder) / "requirements.txt", "w") as requirements_file:
+        requirements_file.write("")
 
 
 def zip_deployable(file_path: Path) -> bytes:
