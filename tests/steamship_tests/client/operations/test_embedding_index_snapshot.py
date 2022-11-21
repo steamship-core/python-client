@@ -6,6 +6,8 @@ from steamship.data.embeddings import EmbeddingIndex, IndexSnapshotRequest, Inde
 
 _TEST_EMBEDDER = "test-embedder"
 
+# TODO(ted): Leave this as-is as a test of the underlying index snapshotting process.
+
 
 def _insert(index, items):
     for item in items:
