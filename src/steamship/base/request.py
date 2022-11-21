@@ -5,11 +5,6 @@ class Request(CamelModel):
     pass
 
 
-class IdOnlyRequest(Request):
-    id: str = None
-    handle: str = None
-
-
 class GetRequest(Request):
     id: str = None
     handle: str = None
