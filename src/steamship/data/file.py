@@ -67,6 +67,7 @@ class File(CamelModel):
         data: str = None
         id: str = None
         url: str = None
+        handle: str = None
         filename: str = None
         type: FileUploadType = None
         mime_type: str = None
@@ -130,6 +131,7 @@ class File(CamelModel):
         client: Client,
         content: Union[str, bytes] = None,
         mime_type: str = None,
+        handle: str = None,
         blocks: List[Block.CreateRequest] = None,
         tags: List[Tag.CreateRequest] = None,
     ) -> File:
@@ -151,6 +153,7 @@ class File(CamelModel):
             raise Exception("Unable to determine upload type.")
 
         req = File.CreateRequest(
+            handle=handle,
             type=upload_type,
             mime_type=mime_type,
             blocks=blocks,

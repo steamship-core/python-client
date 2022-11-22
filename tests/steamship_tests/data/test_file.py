@@ -13,9 +13,10 @@ from steamship.data.tags.tag import Tag
 
 @pytest.mark.usefixtures("client")
 def test_file_upload(client: Steamship):
-    a = File.create(client=client, content="A", mime_type=MimeTypes.MKD)
+    a = File.create(client=client, handle="foo", content="A", mime_type=MimeTypes.MKD)
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
+    assert a.handle == "foo"
 
     b = File.create(client=client, content="B", mime_type=MimeTypes.TXT)
     assert b.id is not None
