@@ -51,7 +51,7 @@ def test_file_parse():
         embed_resp = index.index.embed()
         embed_resp.wait()
 
-        res = index.index.search("What color are roses?")
+        res = index.search("What color are roses?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
@@ -154,26 +154,29 @@ def test_file_embed_lookup():
         index.index.insert_file(file.id, block_type="sentence", reindex=True)
         index.index.insert_file(b.id, block_type="sentence", reindex=True)
 
-        res = index.index.search("What does Ted like to do?")
+        res = index.search("What does Ted like to do?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
         assert items[0].value.text == content_a
 
-        res = index.index.search("What does Grace like to do?")
+        res = index.search("What does Grace like to do?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
         assert items[0].value.text == content_b
 
-        # Now we list the items
-        itemsa = index.index.list_items(file_id=file.id)
-        assert len(itemsa.items) == 1
-        assert len(itemsa.items[0].embedding) > 0
-        assert itemsa.items[0].value == content_a
+        # TODO(ted): Do we want to support the the `list` operation on an index?
+        #            The below code is left in as we decide.
 
-        itemsb = index.index.list_items(file_id=b.id)
-        assert len(itemsb.items) == 1
-        assert len(itemsb.items[0].embedding) > 0
-        assert len(itemsb.items[0].embedding) == len(itemsa.items[0].embedding)
-        assert itemsb.items[0].value == content_b
+        # Now we list the items
+        # itemsa = index.index.list_items(file_id=file.id)
+        # assert len(itemsa.items) == 1
+        # assert len(itemsa.items[0].embedding) > 0
+        # assert itemsa.items[0].value == content_a
+
+        # itemsb = index.index.list_items(file_id=b.id)
+        # assert len(itemsb.items) == 1
+        # assert len(itemsb.items[0].embedding) > 0
+        # assert len(itemsb.items[0].embedding) == len(itemsa.items[0].embedding)
+        # assert itemsb.items[0].value == content_b

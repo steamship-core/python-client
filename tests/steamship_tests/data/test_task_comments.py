@@ -1,6 +1,7 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_index, random_name
 
+from steamship import Tag
 from steamship.base.tasks import TaskComment
 from steamship.data.embeddings import EmbeddedItem
 
@@ -15,32 +16,23 @@ def _list_equal(actual, expected):
 def test_basic_task_comment():
     steamship = get_steamship_client()
     with random_index(steamship, _TEST_EMBEDDER) as index:
-        item1 = EmbeddedItem(
-            value="Pizza", external_id="pizza", external_type="food", metadata=[1, 2, 3]
-        )
+        item1 = Tag(text="Pizza", name="pizza", kind="food", value=[1, 2, 3])
 
-        index.index.insert(
-            item1.value,
-            external_id=item1.external_id,
-            external_type=item1.external_type,
-            metadata=item1.metadata,
-        )
-        task = index.index.embed()
-        task.wait()
+        index.insert(item1)
 
-        res2 = index.index.search(item1.value, include_metadata=True, k=1)
+        res2 = index.search(item1.text, k=1)
         res2.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
         # We don't return to Res2 until the end to make sure we aren't co-mingling comments!
 
-        res = index.index.search(item1.value, include_metadata=True, k=1)
+        res = index.search(item1.text, k=1)
         res.wait()
         items = res.output.items
         assert items is not None
         assert len(items) == 1
-        assert items[0].value.value == item1.value
-        assert items[0].value.external_id == item1.external_id
-        assert items[0].value.external_type == item1.external_type
-        _list_equal(items[0].value.metadata, item1.metadata)
+        assert items[0].value.text == item1.text
+        assert items[0].value.name == item1.name
+        assert items[0].value.kind == item1.kind
+        _list_equal(items[0].value.value, item1.value)
 
         res.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
 
@@ -112,16 +104,16 @@ def test_task_comment_feedback_reporting():
         group_name_1 = random_name()
         group_name_2 = random_name()
 
-        index.index.insert(
-            item1.value,
-            external_id=item1.external_id,
-            external_type=item1.external_type,
-            metadata=item1.metadata,
+        index.insert(
+            Tag(
+                text=item1.value,
+                name=item1.external_id,
+                kind=item1.external_type,
+                value=item1.metadata,
+            )
         )
-        task = index.index.embed()
-        task.wait()
 
-        res = index.index.search(item1.value, include_metadata=True, k=1)
+        res = index.search(item1.value, k=1)
         res.add_comment(
             external_id="Foo1",
             external_type="Bar1",

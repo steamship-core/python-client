@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, cast
+from typing import Any, Dict, List, Optional, Union, cast
 
 from pydantic import Field
 
@@ -77,8 +77,13 @@ class EmbeddingIndexPluginInstance(PluginInstance):
         """
         return self.index.delete()
 
-    def insert(self, tags: List[Tag]):
+    def insert(self, tags: Union[Tag, List[Tag]]):
         """Insert tags into the embedding index."""
+
+        # Make a list if a single tag was provided
+        if isinstance(tags, Tag):
+            tags = [tags]
+
         for tag in tags:
             if not tag.text:
                 raise SteamshipError(
