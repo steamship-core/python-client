@@ -58,6 +58,7 @@ def internal_handler(  # noqa: C901
     try:
         invocable = invocable_cls_func()(client=client, config=request.invocation.config)
     except SteamshipError as se:
+        logging.exception(se)
         return InvocableResponse.from_obj(se)
     except Exception as ex:
         logging.exception(ex)
@@ -255,7 +256,9 @@ def safely_find_invocable_class() -> Type[Invocable]:
             if "Invocable" in superclass_names and element.__module__ == "api":
                 invocable_classes.append(element)
     if len(invocable_classes) == 0:
-        raise SteamshipError(message="Could not find package or plugin class in api.py.")
+        raise SteamshipError(
+            message="Could not find package or plugin class in api.py. Define your package or plugin by subclassing from PluginService or PackageService."
+        )
     if len(invocable_classes) > 1:
         raise SteamshipError(
             message=f"Found too many invocable classes {invocable_classes} in api.py. Only one is supported."
