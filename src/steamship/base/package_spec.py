@@ -1,6 +1,6 @@
 """Objects for recording and reporting upon the introspected interface of a Steamship Package."""
 import inspect
-from typing import List, Optional
+from typing import Dict, List, Optional, Union
 
 from steamship import SteamshipError
 from steamship.base.configuration import CamelModel
@@ -47,6 +47,9 @@ class MethodSpec(CamelModel):
     # The named arguments of the method. Positional arguments are not permitted.
     args: Optional[List[ArgSpec]] = None
 
+    # Additional configuration around this endpoint.
+    config: Optional[Dict[str, Union[str, bool, int, float]]] = None
+
     @staticmethod
     def clean_path(path: str = "") -> str:
         """Ensure that the path always starts with /, and at minimum must be at least /."""
@@ -56,7 +59,14 @@ class MethodSpec(CamelModel):
             path = f"/{path}"
         return path
 
-    def __init__(self, cls: object, name: str, path: str = None, verb: Verb = Verb.POST):
+    def __init__(
+        self,
+        cls: object,
+        name: str,
+        path: str = None,
+        verb: Verb = Verb.POST,
+        config: Dict[str, Union[str, bool, int, float]] = None,
+    ):
         # Set the path
         if path is None and name is not None:
             path = f"/{name}"
@@ -79,7 +89,7 @@ class MethodSpec(CamelModel):
                 continue
             args.append(ArgSpec(p, sig.parameters[p]))
 
-        super().__init__(path=path, verb=verb, returns=returns, doc=doc, args=args)
+        super().__init__(path=path, verb=verb, returns=returns, doc=doc, args=args, config=config)
 
     def pprint(self, name_width: Optional[int] = None, prefix: str = "  ") -> str:
         """Returns a pretty printable representation of this method."""
