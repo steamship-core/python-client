@@ -56,9 +56,9 @@ class EmbeddingIndexPluginInstance(PluginInstance):
     it isn't from an implementation perspective on the back-end.
     """
 
-    client: Client = Field(..., exclude=True)
-    embedder: PluginInstance = Field(..., exclude=True)
-    index: EmbeddingIndex = Field(..., exclude=True)
+    client: Client = Field(None, exclude=True)
+    embedder: PluginInstance = Field(None, exclude=True)
+    index: EmbeddingIndex = Field(None, exclude=True)
 
     def delete(self):
         return self.index.delete()
