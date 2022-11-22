@@ -5,6 +5,7 @@ import sys
 import traceback
 import uuid
 from http import HTTPStatus
+from os import environ
 from typing import Callable, Dict, Type
 
 from fluent import asynchandler as fluenthandler
@@ -57,6 +58,7 @@ def internal_handler(  # noqa: C901
     try:
         invocable = invocable_cls_func()(client=client, config=request.invocation.config)
     except SteamshipError as se:
+        logging.exception(se)
         return InvocableResponse.from_obj(se)
     except Exception as ex:
         logging.exception(ex)
@@ -176,7 +178,7 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
             message="Plugin/App handler was unable to create Steamship client.",
             exception=ex,
         ).dict(by_alias=True)
-
+    logging.info(f"Localstack hostname: {environ.get('LOCALSTACK_HOSTNAME')}.")
     response = internal_handler(event, client)
 
     result = response.dict(by_alias=True, exclude={"client"})
@@ -218,15 +220,19 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
 
 
 def create_handler(invocable_cls: Type[Invocable]):
-    """Legacy wrapper function for a Steamship invocable within an AWS Lambda function. Called by code within a
+    """Deprecated wrapper function for a Steamship invocable within an AWS Lambda function. Called by code within a
     plugin or package.
     """
-    logging.info("Using legacy (unsafe imports) create_handler")
-    invocable_cls_lambda = lambda: invocable_cls  # noqa: E731
-    bound_internal_handler = lambda event, client: internal_handler(  # noqa: E731
-        invocable_cls_lambda, event, client
+    logging.warning(
+        "Creating deprecated (unsafe imports) create_handler. This is no longer necessary. Please remove handler = create_handler(...) from your package or plugin."
     )
-    return lambda event, context=None: handler(bound_internal_handler, event, context)
+
+    def deprecated_handler(event, context=None):
+        logging.error(
+            "Calling deprecated (unsafe imports) create_handler. This indicates use of newer SDK against an older platform version."
+        )
+
+    return deprecated_handler
 
 
 def safely_find_invocable_class() -> Type[Invocable]:
@@ -238,7 +244,8 @@ def safely_find_invocable_class() -> Type[Invocable]:
     except Exception as e:
         logging.exception(e)
         raise SteamshipError(
-            message=f"There was an error loading the main file:\n{traceback.format_exc()}", error=e
+            message=f"There was an error loading the main file (it must be named api.py):\n{traceback.format_exc()}",
+            error=e,
         )
 
     invocable_classes = []
@@ -249,7 +256,9 @@ def safely_find_invocable_class() -> Type[Invocable]:
             if "Invocable" in superclass_names and element.__module__ == "api":
                 invocable_classes.append(element)
     if len(invocable_classes) == 0:
-        raise SteamshipError(message="Could not find package or plugin class in api.py.")
+        raise SteamshipError(
+            message="Could not find package or plugin class in api.py. Define your package or plugin by subclassing from PluginService or PackageService."
+        )
     if len(invocable_classes) > 1:
         raise SteamshipError(
             message=f"Found too many invocable classes {invocable_classes} in api.py. Only one is supported."
@@ -259,9 +268,13 @@ def safely_find_invocable_class() -> Type[Invocable]:
     return invocable_class
 
 
-def create_safe_handler():
+def create_safe_handler(known_invocable_for_testing: Type[Invocable] = None):
+    if known_invocable_for_testing is not None:
+        invocable_getter = lambda: known_invocable_for_testing  # noqa: E731
+    else:
+        invocable_getter = safely_find_invocable_class
     bound_internal_handler = lambda event, client: internal_handler(  # noqa: E731
-        safely_find_invocable_class, event, client
+        invocable_getter, event, client
     )
     return lambda event, context=None: handler(bound_internal_handler, event, context)
 

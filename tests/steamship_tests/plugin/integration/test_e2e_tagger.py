@@ -11,7 +11,7 @@ def test_e2e_tagger():
     client = get_steamship_client()
     parser_path = PLUGINS_PATH / "taggers" / "plugin_parser.py"
     # TODO (enias): Use Enum for plugin type
-    with deploy_plugin(client, parser_path, "tagger", safe_load_handler=True) as (
+    with deploy_plugin(client, parser_path, "tagger") as (
         plugin,
         version,
         instance,
@@ -32,7 +32,7 @@ def test_e2e_tagger_bad_import():
     client = get_steamship_client()
     parser_path = PLUGINS_PATH / "taggers" / "plugin_tagger_bad_import.pyignore"
     # TODO (enias): Use Enum for plugin type
-    with deploy_plugin(client, parser_path, "tagger", safe_load_handler=True) as (
+    with deploy_plugin(client, parser_path, "tagger") as (
         plugin,
         version,
         instance,

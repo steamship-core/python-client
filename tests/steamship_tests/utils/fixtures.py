@@ -7,7 +7,7 @@ from steamship_tests.utils.random import random_name
 from steamship import Steamship, Workspace
 from steamship.invocable import InvocableRequest, Invocation, InvocationContext, LoggingConfig
 from steamship.invocable.invocable import Invocable
-from steamship.invocable.lambda_handler import create_handler as _create_handler
+from steamship.invocable.lambda_handler import create_safe_handler as _create_handler
 
 
 @pytest.fixture()
@@ -62,7 +62,7 @@ def invocable_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     new_client = get_steamship_client(workspace=workspace_handle)
 
     def handle(verb: str, invocation_path: str, arguments: Optional[dict] = None) -> dict:
-        _handler = _create_handler(invocable)
+        _handler = _create_handler(known_invocable_for_testing=invocable)
         invocation = Invocation(
             http_verb=verb, invocation_path=invocation_path, arguments=arguments or {}
         )
@@ -74,7 +74,7 @@ def invocable_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
             invocation_context=InvocationContext(),
         )
         event = request.dict(by_alias=True)
-        return _handler(event)
+        return _handler(event, None)
 
     yield handle
     workspace.delete()

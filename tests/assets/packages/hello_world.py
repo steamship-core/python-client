@@ -1,4 +1,5 @@
-from steamship.invocable import Invocable, InvocableResponse, create_handler, get, post
+from steamship.invocable import Invocable, InvocableResponse, get, post
+from steamship.invocable.lambda_handler import create_safe_handler
 
 
 class HelloWorld(Invocable):
@@ -11,4 +12,4 @@ class HelloWorld(Invocable):
         return InvocableResponse(string=self.client.config.workspace_id)
 
 
-handler = create_handler(HelloWorld)
+handler = create_safe_handler(known_invocable_for_testing=HelloWorld)
