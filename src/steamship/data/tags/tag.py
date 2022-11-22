@@ -118,6 +118,26 @@ class Tag(CamelModel):
         )
         return res
 
+    # @staticmethod
+    # def search(
+    #     client: Client,
+    #     search_index: Any,
+    # ) -> TagQueryResponse:
+    #     # Avoid the circular import.
+    #     from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
+    #
+    #     if not isinstance(search_index, EmbeddingIndexPluginInstance):
+    #         raise SteamshipError(message="The search_index field")
+    #
+    #
+    #     req = TagQueryRequest(tag_filter_query=tag_filter_query)
+    #     res = client.post(
+    #         "tag/query",
+    #         payload=req,
+    #         expect=TagQueryResponse,
+    #     )
+    #     return res
+
 
 class TagQueryResponse(Response):
     tags: List[Tag]
