@@ -5,7 +5,7 @@ import logging
 import typing
 from abc import ABC
 from inspect import isclass
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import Any, List, Type, TypeVar, Union
 
 import inflection
 from pydantic import BaseModel, PrivateAttr
@@ -293,10 +293,12 @@ class Client(CamelModel, ABC):
         result = {}
         for key, val in data.items():
             if val:
-                if isinstance(val, Dict):
+                if isinstance(val, dict):
+                    result[key] = (None, json.dumps(val), "application/json")
+                elif isinstance(val, list):
                     result[key] = (None, json.dumps(val), "application/json")
                 else:
-                    result[key] = (None, str(val))
+                    result[key] = (None, str(val), "application/json")
         result["file"] = file
         return result
 
