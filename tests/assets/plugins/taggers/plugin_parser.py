@@ -3,7 +3,7 @@ import re
 
 from steamship import Block, DocTag, Tag
 from steamship.data import TagKind
-from steamship.invocable import InvocableResponse, create_handler
+from steamship.invocable import InvocableResponse
 from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
@@ -48,6 +48,3 @@ class TestParserPlugin(Tagger):
             ret = InvocableResponse(data=BlockAndTagPluginOutput(file=file))
             logging.info(f"Ret: {ret}")
             return ret
-
-
-handler = create_handler(TestParserPlugin)

@@ -1,0 +1,16 @@
+# Weird file extension necessary because otherwise pytest will choke when scanning this file.
+
+from steamship.invocable import InvocableResponse
+from steamship.invocable.plugin_service import PluginRequest
+from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
+from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
+from steamship.plugin.tagger import Tagger
+
+import somethingthatclearlydoesnotexist # Clearly it is intentional that this does not exist
+
+class TestTaggerPluginBadImport(Tagger):
+    def run(
+        self, request: PluginRequest[BlockAndTagPluginInput]
+    ) -> InvocableResponse[BlockAndTagPluginOutput]:
+        file = request.data.file
+        return InvocableResponse(data=BlockAndTagPluginOutput(file=file))
