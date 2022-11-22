@@ -44,7 +44,7 @@ def test_snapshot_create():
     plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER)
     index = EmbeddingIndex.create(
         client=steamship,
-        plugin_instance=plugin_instance.handle,
+        embedder_plugin_instance_handle=plugin_instance.handle,
     )
 
     _insert(index, ["Oranges are orange."])
@@ -96,7 +96,7 @@ def test_snapshot_create():
 
     index = EmbeddingIndex.create(
         client=steamship,
-        plugin_instance=plugin_instance.handle,
+        embedder_plugin_instance_handle=plugin_instance.handle,
     )
 
     sentences = []

@@ -101,7 +101,7 @@ def test_insert_many():
         assert len(list_response.items[1].embedding) > 0
         assert len(list_response.items[0].embedding) == len(list_response.items[1].embedding)
 
-        res = index.search(item1.value, include_metadata=True, k=100)
+        res = index.index.search(item1.value, include_metadata=True, k=100)
         res.wait()
         items = res.output.items
         assert items is not None
@@ -112,7 +112,7 @@ def test_insert_many():
         assert item0.kind == item1.external_type
         _list_equal(item0.text, item1.metadata)
 
-        res = index.search(item2.value, include_metadata=True)
+        res = index.index.search(item2.value, include_metadata=True)
         res.wait()
         items = res.output.items
         assert items is not None
@@ -161,7 +161,7 @@ def test_index_usage():
         task.wait()
         assert task.state == TaskState.succeeded
 
-        search_results = index.search(q1)
+        search_results = index.index.search(q1)
         search_results.wait()
         search_results = search_results.output.items
         assert len(search_results) == 1
@@ -191,7 +191,7 @@ def test_index_usage():
         assert tag0.kind is None
         assert tag0.value is None
 
-        search_results3 = index.search(q2, include_metadata=True)
+        search_results3 = index.index.search(q2, include_metadata=True)
         search_results3.wait()
         search_results = search_results3.output.items
         assert len(search_results) == 1
@@ -203,7 +203,7 @@ def test_index_usage():
         assert tag0.value["id"] == a2id
         assert tag0.value["idid"] == f"{a2id}{a2id}"
 
-        search_results4 = index.search(q2, k=10)
+        search_results4 = index.index.search(q2, k=10)
         search_results4.wait()
         search_results = search_results4.output.items
         assert len(search_results) == 2
@@ -220,9 +220,10 @@ def test_empty_queries():
         index.index.embed().wait()
 
         with pytest.raises(SteamshipError):
-            _ = index.search(None)
+            _ = index.index.search(None)
 
         search_results = index.search("")
+
         search_results.wait()
         search_results = search_results.output
         # noinspection PyUnresolvedReferences

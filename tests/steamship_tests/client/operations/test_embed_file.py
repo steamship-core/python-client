@@ -51,7 +51,7 @@ def test_file_parse():
         embed_resp = index.index.embed()
         embed_resp.wait()
 
-        res = index.search("What color are roses?")
+        res = index.index.search("What color are roses?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
@@ -154,13 +154,13 @@ def test_file_embed_lookup():
         index.index.insert_file(file.id, block_type="sentence", reindex=True)
         index.index.insert_file(b.id, block_type="sentence", reindex=True)
 
-        res = index.search("What does Ted like to do?")
+        res = index.index.search("What does Ted like to do?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
         assert items[0].value.text == content_a
 
-        res = index.search("What does Grace like to do?")
+        res = index.index.search("What does Grace like to do?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
