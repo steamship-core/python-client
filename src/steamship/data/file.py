@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
+from steamship import SteamshipError
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest, Request
@@ -134,9 +135,15 @@ class File(CamelModel):
     ) -> File:
 
         if content is None and blocks is None and tags is None:
-            raise Exception("Either filename, content, url, or plugin Instance must be provided.")
+            raise SteamshipError(
+                message="Either filename, content, url, or plugin Instance must be provided."
+            )
+        if content is not None and blocks is not None:
+            raise SteamshipError(
+                message="Please provide only `blocks` or `content` to `File.create`."
+            )
 
-        if blocks is not None or tags is not None:
+        if blocks is not None:
             upload_type = FileUploadType.BLOCKS
         elif content is not None:
             upload_type = FileUploadType.FILE
@@ -150,13 +157,17 @@ class File(CamelModel):
             tags=tags,
         )
 
+        file_data = (
+            ("file-part", content, "multipart/form-data")
+            if upload_type != FileUploadType.BLOCKS
+            else None
+        )
+
         # Defaulting this here, as opposed to in the Engine, because it is processed by Vapor
         return client.post(
             "file/create",
             payload=req,
-            file=("file-part", content, "multipart/form-data")
-            if upload_type != FileUploadType.BLOCKS
-            else None,
+            file=file_data,
             expect=File,
         )
 
