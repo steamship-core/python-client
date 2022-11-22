@@ -25,6 +25,10 @@ SHIMMED_INDEX_PLUGIN_HANDLES = ["embedding-index"]
 
 
 class SearchResult(CamelModel):
+    """A single scored search result -- which is always a tag.
+
+    This class is intended to eventually replace the QueryResult object currently used with the Embedding layer."""
+
     tag: Optional[Tag] = None
     score: Optional[float] = None
 
@@ -41,6 +45,11 @@ class SearchResult(CamelModel):
 
 
 class SearchResults(CamelModel):
+    """Results of a search operation -- which is always a list of ranked tag.
+
+    This class is intended to eventually replace the QueryResults object currently used with the Embedding layer.
+    TODO: add in paging support."""
+
     items: List[QueryResult] = None
 
     @staticmethod
@@ -61,10 +70,15 @@ class EmbeddingIndexPluginInstance(PluginInstance):
     index: EmbeddingIndex = Field(None, exclude=True)
 
     def delete(self):
+        """Delete the EmbeddingIndexPluginInstnace.
+
+        For now, we will have this correspond to deleting the `index` but not the `embedder`. This is likely
+        a temporary design.
+        """
         return self.index.delete()
 
     def insert(self, tags: List[Tag]):
-        """Inserts a tag into the embedding index."""
+        """Insert tags into the embedding index."""
         for tag in tags:
             if not tag.text:
                 raise SteamshipError(
@@ -93,7 +107,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
         # users exercise control over.
         self.index.create_snapshot()
 
-    def search(self, query: str, k: Optional[int]) -> Task[SearchResults]:
+    def search(self, query: str, k: Optional[int] = None) -> Task[SearchResults]:
         """Search the embedding index.
 
         This wrapper implementation simply projects the `Hit` data structure into a `Tag`
