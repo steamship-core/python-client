@@ -82,6 +82,7 @@ def deploy_plugin(
     training_platform: Optional[HostingType] = None,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
+    safe_load_handler: bool = False,
 ):
     plugin = Plugin.create(
         client,
@@ -93,12 +94,14 @@ def deploy_plugin(
     )
 
     zip_bytes = zip_deployable(py_path)
+    hosting_handler = "steamship.invocable.entrypoint.safe_handler" if safe_load_handler else None
     plugin_version = PluginVersion.create(
         client,
         "test-version",
         plugin_id=plugin.id,
         filebytes=zip_bytes,
         config_template=version_config_template,
+        hosting_handler=hosting_handler,
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
@@ -127,15 +130,18 @@ def deploy_package(
     py_path: Path,
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
+    safe_load_handler: bool = False,
 ):
     package = Package.create(client)
 
     zip_bytes = zip_deployable(py_path)
+    hosting_handler = "steamship.invocable.entrypoint.safe_handler" if safe_load_handler else None
     version = PackageVersion.create(
         client,
         package_id=package.id,
         filebytes=zip_bytes,
         config_template=version_config_template,
+        hosting_handler=hosting_handler,
     )
 
     _wait_for_version(version)
