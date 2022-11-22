@@ -36,14 +36,20 @@ class Tag(CamelModel):
     # The value payload of the tag. Always a JSON-style object.
     value: Optional[Dict[str, Any]] = None
 
-    # Start-index of the text covered by the tag, using python slice semantics.
+    # Character index in associated block of the start of the span of text this tag comments upon. Start-inclusive.
     start_idx: Optional[int] = None
 
-    # End-index of the text covered by the tag, using python slice semantics.
+    # Character index in associated block of the end of the span of text this tag comments upon. End-exclusive.
     end_idx: Optional[int] = None
 
-    # The text covered by the tag. Note that text will not always be materialized into the tag object
-    # itself; you may have to fetch it with file.text[tag.start_idx:tag.end_idx]
+    # The text covered by the tag.
+    # Note:
+    #   The text will not always be materialized into the tag object
+    #   itself; you may have to fetch it with file.text[tag.start_idx:tag.end_idx]
+    # Note:
+    #   Changing this field will not result in changes to Steamship's database.
+    #   TODO(ted): Consider refactoring as a read-only property.
+    #
     text: Optional[str] = None
 
     class CreateRequest(Request):
