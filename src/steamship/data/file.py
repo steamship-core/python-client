@@ -248,7 +248,7 @@ class File(CamelModel):
         if index_id is None and e_index is None:
             e_index = EmbeddingIndex.create(
                 client=self.client,
-                plugin_instance=plugin_instance,
+                embedder_plugin_instance_handle=plugin_instance,
                 fetch_if_exists=True,
             )
         elif e_index is None:

@@ -4,9 +4,9 @@ from steamship_tests.client.operations.test_embed import (
     basic_embeddings,
     count_embeddings,
 )
-from steamship_tests.client.operations.test_embedding_index import create_index
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
+from steamship_tests.utils.random import random_name
 
 from steamship.data import TagKind, TagValue
 from steamship.data.plugin import PluginType
@@ -42,5 +42,16 @@ def test_e2e_embedder():
         # Now lets run all the other embedding steamship_tests
         basic_embeddings(instance)
         basic_embedding_search(client, plugin_instance=instance.handle)
-        index = create_index(client, plugin_instance=instance.handle)
+        index = client.use_plugin(
+            "embedding-index",
+            random_name(),
+            config={
+                "embedder": {
+                    "plugin_handle": plugin.handle,
+                    "plugin_instance_handle": instance.handle,
+                    "fetch_if_exists": True,
+                }
+            },
+            fetch_if_exists=True,
+        )
         index.delete()

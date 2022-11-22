@@ -325,7 +325,7 @@ class EmbeddingIndex(CamelModel):
         client: Client,
         handle: str = None,
         name: str = None,
-        plugin_instance: str = None,
+        embedder_plugin_instance_handle: str = None,
         fetch_if_exists: bool = True,
         external_id: str = None,
         external_type: str = None,
@@ -334,7 +334,7 @@ class EmbeddingIndex(CamelModel):
         req = IndexCreateRequest(
             handle=handle,
             name=name,
-            plugin_instance=plugin_instance,
+            plugin_instance=embedder_plugin_instance_handle,
             fetch_if_exists=fetch_if_exists,
             external_id=external_id,
             external_type=external_type,

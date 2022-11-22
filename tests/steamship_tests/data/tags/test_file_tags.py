@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from steamship import Block, File, MimeTypes
 from steamship.client import Steamship
@@ -18,40 +19,54 @@ def test_file_tag(client: Steamship):
     _ = Tag.create(client, file_id=a.id, kind="test1")
     _ = Tag.create(client, file_id=a.id, kind="test2")
 
-    tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"')
-    assert tags.tags is not None
-    assert len(tags.tags) == 2
+    tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"').tags
+    assert tags is not None
+    assert len(tags) == 2
 
     must = ["test1", "test2"]
-    for tag in tags.tags:
+    for tag in tags:
         assert tag.kind in must
         must.remove(tag.kind)
     assert len(must) == 0
 
-    for tag in tags.tags:
+    for tag in tags:
         if tag.kind == "test1":
             tag.delete()
 
     Tag.create(client, file_id=a.id, kind="test3")
 
-    tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"')
+    tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"').tags
     assert tags is not None
-    assert tags.tags is not None
-    assert len(tags.tags) == 2
+    assert len(tags) == 2
 
     must = ["test2", "test3"]
-    for tag in tags.tags:
+    for tag in tags:
         assert tag.kind in must
         must.remove(tag.kind)
     assert len(must) == 0
 
-    tags.tags[0].delete()
-    tags.tags[1].delete()
+    tags[0].delete()
+    tags[1].delete()
 
-    tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"')
+    tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"').tags
     assert tags is not None
-    assert tags.tags is not None
-    assert len(tags.tags) == 0
+    assert len(tags) == 0
+
+    Tag.create(
+        client,
+        file_id=a.id,
+        kind="test4",
+        value={"test_str": "str", "test_int": 1, "test_float": 2.2},
+    )
+    tags = Tag.query(client, tag_filter_query=f'file_id "{a.id}"').tags
+    assert tags is not None
+    assert len(tags) == 1
+    assert tags[0].kind == "test4"
+
+    with pytest.raises(ValidationError):
+        Tag.create(client, file_id=a.id, kind="test3", value=23)
+    with pytest.raises(ValidationError):
+        Tag.create(client, file_id=a.id, kind="test3", value="invalid")
 
     a.delete()
 
