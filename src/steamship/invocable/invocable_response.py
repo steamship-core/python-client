@@ -182,7 +182,9 @@ class InvocableResponse(GenericModel, Generic[T]):
         elif isinstance(obj, BaseModel):
             return InvocableResponse(json=obj.dict())
 
-        return InvocableResponse.error(500, message="Handler provided unknown response type.")
+        return InvocableResponse.error(
+            500, message=f"Handler provided unknown response type: {type(obj)}"
+        )
 
     def post_update(self, client: Client):
         """Pushes this response object to the corresponding Task on the Steamship Engine.

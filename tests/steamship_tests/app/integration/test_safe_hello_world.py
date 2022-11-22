@@ -8,7 +8,7 @@ def test_safe_loaded_hello_world():
     client = get_steamship_client()
     demo_package_path = PACKAGES_PATH / "safe_loaded_hello_world.py"
 
-    with deploy_package(client, demo_package_path, safe_load_handler=True) as (_, _, instance):
+    with deploy_package(client, demo_package_path) as (_, _, instance):
         response = instance.invoke("greet")
         assert response is not None
         assert response == "Hello, Person"

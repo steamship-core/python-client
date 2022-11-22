@@ -19,11 +19,9 @@ def is_local(base: str) -> bool:
 
 def apply_localstack_url_fix(url: Optional[str]) -> Optional[str]:
     logging.debug(f"URL {url}")
-    if url and "host.docker.internal" in url:
-        localstack_hostname = environ.get("LOCALSTACK_HOSTNAME")
-        # Note: I realize this expression below looks weird, but deleting the left-most predicate
-        # cause it to become incorrect.
-        if localstack_hostname and localstack_hostname != "localhost":
-            logging.info(f"Replacing domain in {url} with {localstack_hostname}")
-            return url.replace("host.docker.internal", localstack_hostname)
+    localstack_hostname = environ.get("LOCALSTACK_HOSTNAME")
+    if url and localstack_hostname is not None and localstack_hostname != "localhost":
+        for host in ["127.0.0.1", "host.docker.internal"]:
+            url = url.replace(host, localstack_hostname)
+            logging.info(f"Replacing domain {host} in {url} with {localstack_hostname}")
     return url

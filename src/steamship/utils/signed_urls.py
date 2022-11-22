@@ -76,6 +76,7 @@ def upload_to_signed_url(url: str, _bytes: Optional[bytes] = None, filepath: Opt
     Uploads either the bytes or filepath contents to the provided Signed URL.
     """
 
+    url = apply_localstack_url_fix(url)
     if _bytes is not None:
         logging.info(f"Uploading provided bytes to: {url}")
     elif filepath is not None:
