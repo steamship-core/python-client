@@ -51,7 +51,9 @@ class TestPackage(PackageService):
         _bytes = base64.b64decode(PALM_TREE_BASE_64)
         return InvocableResponse(_bytes=_bytes, mime_type=MimeTypes.PNG)
 
-    @get("greet")
+    @get(
+        "greet", public=True, timeout=10, identifier="foo", body=98.6, not_there={"not": "included"}
+    )
     def greet1(self, name: str = "Person") -> InvocableResponse[str]:
         return InvocableResponse(string=f"Hello, {name}!")
 

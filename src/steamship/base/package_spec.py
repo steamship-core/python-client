@@ -48,7 +48,9 @@ class MethodSpec(CamelModel):
     args: Optional[List[ArgSpec]] = None
 
     # Additional configuration around this endpoint.
-    config: Optional[Dict[str, Union[str, bool, int, float]]] = None
+    # Note: The actual type of this is Optional[Dict[str, Union[str, bool, int, float]]]
+    #       But if Pydantic sees that, it attempts to force all values to be str, which is wrong.
+    config: Optional[Dict] = None
 
     @staticmethod
     def clean_path(path: str = "") -> str:
