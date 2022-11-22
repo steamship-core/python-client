@@ -31,9 +31,9 @@ class EmbeddingIndexPluginInstance(PluginInstance):
     it isn't from an implementation perspective on the back-end.
     """
 
-    client: Client = Field(None, exclude=True)
-    embedder: PluginInstance = Field(None, exclude=True)
-    index: EmbeddingIndex = Field(None, exclude=True)
+    client: Client = Field(..., exclude=True)
+    embedder: PluginInstance = Field(..., exclude=True)
+    index: EmbeddingIndex = Field(..., exclude=True)
 
     def delete(self):
         return self.index.delete()
@@ -61,7 +61,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
             )
 
         # Just for pydantic validation.
-        embedder_invocation = EmbedderInvocation.parse_obj(config.get("embedder"))
+        embedder_invocation = EmbedderInvocation.parse_obj(config["embedder"])
 
         # Create the embedder
         embedder = client.use_plugin(**embedder_invocation.dict())
@@ -70,7 +70,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
         index = EmbeddingIndex.create(
             client=client,
             handle=handle,
-            plugin_instance=embedder.handle,
+            embedder_plugin_instance_handle=embedder.handle,
             fetch_if_exists=fetch_if_exists,
         )
 
