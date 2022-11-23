@@ -6,6 +6,7 @@
       "path": "/resp_string",
       "doc": null,
       "args": [],
+      "config": {},
       "returns": "<class 'l_22bcb053.InvocableResponse[str]'>",
       "verb": "GET"
     },
@@ -13,6 +14,7 @@
       "path": "/resp_dict",
       "doc": null,
       "args": [],
+      "config": {},
       "verb": "GET",
       "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>"
     },
@@ -20,6 +22,7 @@
       "path": "/resp_obj",
       "doc": null,
       "args": [],
+      "config": {},
       "verb": "GET",
       "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>"
     },
@@ -28,21 +31,24 @@
       "doc": null,
       "verb": "GET",
       "returns": "<class 'l_22bcb053.InvocableResponse[bytes]'>",
-      "args": []
+      "args": [],
+      "config": {}
     },
     {
       "path": "/resp_bytes_io",
       "doc": null,
       "verb": "GET",
       "returns": "<class 'l_22bcb053.InvocableResponse[bytes]'>",
-      "args": []
+      "args": [],
+      "config": {}
     },
     {
       "path": "/resp_image",
       "doc": null,
       "returns": "<class 'l_22bcb053.InvocableResponse[bytes]'>",
       "verb": "GET",
-      "args": []
+      "args": [],
+      "config": {}
     },
     {
       "path": "/greet",
@@ -53,6 +59,12 @@
           "kind": "<class 'str'>"
         }
       ],
+      "config": {
+        "body": 98.6,
+        "identifier": "foo",
+        "public": true,
+        "timeout": 10
+      },
       "verb": "GET",
       "returns": "<class 'l_22bcb053.InvocableResponse[str]'>"
     },
@@ -66,6 +78,7 @@
           "name": "name"
         }
       ],
+      "config": {},
       "verb": "POST"
     },
     {
@@ -73,6 +86,7 @@
       "doc": null,
       "returns": "<class 'l_22bcb053.InvocableResponse[str]'>",
       "args": [],
+      "config": {},
       "verb": "GET"
     },
     {
@@ -80,6 +94,7 @@
       "doc": null,
       "verb": "POST",
       "args": [],
+      "config": {},
       "returns": "<class 'l_22bcb053.InvocableResponse[str]'>"
     },
     {
@@ -87,6 +102,7 @@
       "doc": null,
       "verb": "POST",
       "returns": "<class 'l_22bcb053.InvocableResponse[str]'>",
+      "config": {},
       "args": []
     },
     {
@@ -94,6 +110,7 @@
       "doc": null,
       "verb": "POST",
       "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>",
+      "config": {},
       "args": []
     },
     {
@@ -101,11 +118,13 @@
       "doc": "Our base client tries to be smart with parsing things that look like SteamshipResponse objects, but there's\n        a problem with this when our packages response with a JSON string of the sort {\"status\": \"foo\"} -- the Client\n        will unhelpfully try to coerce that string value into a Task object and fail. This method helps us test that\n        we are handling it properly.",
       "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>",
       "verb": "POST",
+      "config": {},
       "args": []
     },
     {
       "path": "/config",
       "doc": "This is called get_config because there's already `.config` object on the class.",
+      "config": {},
       "args": [],
       "verb": "GET",
       "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>"
@@ -114,6 +133,7 @@
       "path": "/learn",
       "doc": "Learns a new fact.",
       "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>",
+      "config": {},
       "args": [
         {
           "name": "fact",
@@ -126,6 +146,7 @@
       "path": "/query",
       "doc": "Learns a new fact.",
       "returns": "<class 'l_22bcb053.InvocableResponse[dict]'>",
+      "config": {},
       "args": [
         {
           "name": "query",
