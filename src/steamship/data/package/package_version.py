@@ -13,6 +13,7 @@ class CreatePackageVersionRequest(Request):
     package_id: str = None
     handle: str = None
     type: str = "file"
+    hosting_handler: str = None
     config_template: Dict[str, Any] = None
 
 
@@ -37,6 +38,7 @@ class PackageVersion(CamelModel):
         filename: str = None,
         filebytes: bytes = None,
         config_template: Dict[str, Any] = None,
+        hosting_handler: str = None,
     ) -> PackageVersion:
 
         if filename is None and filebytes is None:
@@ -49,7 +51,10 @@ class PackageVersion(CamelModel):
                 filebytes = f.read()
 
         req = CreatePackageVersionRequest(
-            handle=handle, package_id=package_id, config_template=config_template
+            handle=handle,
+            package_id=package_id,
+            config_template=config_template,
+            hosting_handler=hosting_handler,
         )
 
         task = client.post(

@@ -46,13 +46,12 @@ def test_file_parse():
     assert len(q2.blocks) == 6
 
     # Now we add the file to the index
-    plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER)
-    with random_index(steamship, plugin_instance=plugin_instance.handle) as index:
-        index.insert_file(file.id, reindex=False)
-        embed_resp = index.embed()
+    with random_index(steamship, plugin_instance=_TEST_EMBEDDER) as index:
+        index.index.insert_file(file.id, reindex=False)
+        embed_resp = index.index.embed()
         embed_resp.wait()
 
-        res = index.search("What color are roses?")
+        res = index.index.search("What color are roses?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
@@ -63,6 +62,7 @@ def test_file_parse():
 
 
 def test_file_index():
+    # TODO(ted) - Refactor this to the new index plugin style on a later pass.
     steamship = get_steamship_client()
     t = "A nice poem"
     p1_1 = "Roses are red."
@@ -149,31 +149,30 @@ def test_file_embed_lookup():
     parse_res = b.tag(plugin_instance=parser.handle)
     parse_res.wait()
 
-    embedder = PluginInstance.create(steamship, plugin_handle="test-embedder")
     # Now we add the file to the index
-    with random_index(steamship, embedder.handle) as index:
-        index.insert_file(file.id, block_type="sentence", reindex=True)
-        index.insert_file(b.id, block_type="sentence", reindex=True)
+    with random_index(steamship, _TEST_EMBEDDER) as index:
+        index.index.insert_file(file.id, block_type="sentence", reindex=True)
+        index.index.insert_file(b.id, block_type="sentence", reindex=True)
 
-        res = index.search("What does Ted like to do?")
+        res = index.index.search("What does Ted like to do?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
         assert items[0].value.value == content_a
 
-        res = index.search("What does Grace like to do?")
+        res = index.index.search("What does Grace like to do?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
         assert items[0].value.value == content_b
 
         # Now we list the items
-        itemsa = index.list_items(file_id=file.id)
+        itemsa = index.index.list_items(file_id=file.id)
         assert len(itemsa.items) == 1
         assert len(itemsa.items[0].embedding) > 0
         assert itemsa.items[0].value == content_a
 
-        itemsb = index.list_items(file_id=b.id)
+        itemsb = index.index.list_items(file_id=b.id)
         assert len(itemsb.items) == 1
         assert len(itemsb.items[0].embedding) > 0
         assert len(itemsb.items[0].embedding) == len(itemsa.items[0].embedding)
