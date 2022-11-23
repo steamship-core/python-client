@@ -33,7 +33,7 @@ class SearchResult(CamelModel):
     score: Optional[float] = None
 
     @staticmethod
-    def from_query_result(query_result: QueryResult):
+    def from_query_result(query_result: QueryResult) -> "SearchResult":
         hit = query_result.value
         value = hit.metadata or {}
 
@@ -42,18 +42,18 @@ class SearchResult(CamelModel):
         # this refactor to the engine.
         block_id = None
         if "_block_id" in value:
-            block_id = value.get("block_id")
-            del value["block_id"]
+            block_id = value.get("_block_id")
+        del value["_block_id"]
 
         file_id = None
         if "_file_id" in value:
-            file_id = value.get("file_id")
-            del value["file_id"]
+            file_id = value.get("_file_id")
+        del value["_file_id"]
 
         tag_id = None
         if "_tag_id" in value:
-            tag_id = value.get("tag_id")
-            del value["tag_id"]
+            tag_id = value.get("_tag_id")
+        del value["_tag_id"]
 
         tag = Tag(
             id=hit.id,
@@ -74,10 +74,10 @@ class SearchResults(CamelModel):
     This class is intended to eventually replace the QueryResults object currently used with the Embedding layer.
     TODO: add in paging support."""
 
-    items: List[QueryResult] = None
+    items: List[SearchResult] = None
 
     @staticmethod
-    def from_query_results(query_results: QueryResults):
+    def from_query_results(query_results: QueryResults) -> "SearchResults":
         items = [SearchResult.from_query_result(qr) for qr in query_results.items or []]
         return SearchResults(items=items)
 
@@ -114,20 +114,21 @@ class EmbeddingIndexPluginInstance(PluginInstance):
                     message="Please set the `text` field of your Tag before inserting it into an index."
                 )
 
-        # Now we need to prepare an EmbeddingIndexItem of a particular shape that encodes the tag.
-        metadata = tag.value or {}
-        if not isinstance(metadata, dict):
-            raise SteamshipError(
-                "Only Tags with a dict or None value can be embedded. "
-                + f"This tag had a value of type: {type(tag.value)}"
-            )
+            # Now we need to prepare an EmbeddingIndexItem of a particular shape that encodes the tag.
+            metadata = tag.value or {}
+            if not isinstance(metadata, dict):
+                raise SteamshipError(
+                    "Only Tags with a dict or None value can be embedded. "
+                    + f"This tag had a value of type: {type(tag.value)}"
+                )
 
-        # To make this change Python-only, some fields are stached in `hit.metadata`.
-        # This has the temporary consequence of these keys not being safe. This will be resolved when we spread
-        # this refactor to the engine.
-        metadata["_file_id"] = tag.file_id
-        metadata["_tag_id"] = tag.tag_id
-        metadata["_block_id"] = tag.block_id
+            # To make this change Python-only, some fields are stached in `hit.metadata`.
+            # This has the temporary consequence of these keys not being safe. This will be resolved when we spread
+            # this refactor to the engine.
+            metadata["_file_id"] = tag.file_id
+            metadata["_tag_id"] = tag.id
+            metadata["_block_id"] = tag.block_id
+            tag.value = metadata
 
         embedded_items = [
             EmbeddedItem(

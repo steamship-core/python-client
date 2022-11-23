@@ -105,6 +105,10 @@ class Tag(CamelModel):
             expect=Tag,
         )
 
+    def index(self, plugin_instance: Any = None):
+        """Index this tag."""
+        return plugin_instance.insert(self)
+
     @staticmethod
     def query(
         client: Client,

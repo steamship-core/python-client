@@ -3,7 +3,7 @@
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_index
 
-from steamship import File, MimeTypes, PluginInstance
+from steamship import DocTag, File, MimeTypes, PluginInstance, Tag
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -47,16 +47,15 @@ def test_file_parse():
 
     # Now we add the file to the index
     with random_index(steamship, plugin_instance=_TEST_EMBEDDER) as index:
-        index.index.insert_file(file.id, reindex=False)
-        embed_resp = index.index.embed()
-        embed_resp.wait()
-
+        file.index(index)
         res = index.search("What color are roses?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
         # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
-        assert items[0].value.text == " ".join([P1_1, P1_2])
+        assert items[0].tag.text == " ".join([P1_1, P1_2])
+        assert items[0].tag.file_id == file.id
+        assert items[0].tag.block_id is not None
 
     file.delete()
 
@@ -99,26 +98,23 @@ def test_file_index():
     q2 = file.refresh()
     assert len(q2.blocks) == 6
 
-    # Now we add the file to the index via the shortcut.
-    embedder = PluginInstance.create(steamship, plugin_handle="test-embedder")
-    # noinspection PyUnresolvedReferences
-    index = file.index(plugin_instance=embedder.handle)
+    with random_index(steamship, plugin_instance=_TEST_EMBEDDER) as index:
+        file.index(index)
 
-    res = index.search("What color are roses?")
-    res.wait()
-    items = res.output.items
-    assert len(items) == 1
-    # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
-    assert items[0].value.value == " ".join([p1_1, p1_2])
+        res = index.search("What color are roses?")
+        res.wait()
+        items = res.output.items
+        assert len(items) == 1
+        # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
+        assert items[0].tag.text == " ".join([p1_1, p1_2])
 
-    res = index.search("What flavors does cake come in?")
-    res.wait()
-    items = res.output.items
-    assert len(items) == 1
-    # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
-    assert items[0].value.value == " ".join([p4_1, p4_2])
+        res = index.search("What flavors does cake come in?")
+        res.wait()
+        items = res.output.items
+        assert len(items) == 1
+        # Because the simdex now indexes entire blocks and not sentences, the result of this is the whole block text
+        assert items[0].tag.text == " ".join([p4_1, p4_2])
 
-    index.delete()
     file.delete()
 
 
@@ -128,55 +124,83 @@ def test_file_embed_lookup():
     content_a = "Ted likes to run."
     content_b = "Grace likes to bike."
 
-    file = File.create(
+    file_1 = File.create(
         steamship,
         content=content_a,
         mime_type=MimeTypes.MKD,
     )
 
-    blockify_task = file.blockify(plugin_instance="markdown-blockifier-default-1.0")
+    blockify_task = file_1.blockify(plugin_instance="markdown-blockifier-default-1.0")
     blockify_task.wait()
 
     parser = PluginInstance.create(steamship, plugin_handle="test-tagger")
-    parse_res = file.tag(plugin_instance=parser.handle)
+    parse_res = file_1.tag(plugin_instance=parser.handle)
     parse_res.wait()
 
-    b = File.create(client=steamship, content=content_b, mime_type=MimeTypes.MKD)
-    blockify_task = b.blockify(plugin_instance="markdown-blockifier-default-1.0")
+    file_2 = File.create(client=steamship, content=content_b, mime_type=MimeTypes.MKD)
+    blockify_task = file_2.blockify(plugin_instance="markdown-blockifier-default-1.0")
     blockify_task.wait()
 
     parser = PluginInstance.create(steamship, plugin_handle="test-tagger")
-    parse_res = b.tag(plugin_instance=parser.handle)
+    parse_res = file_2.tag(plugin_instance=parser.handle)
     parse_res.wait()
 
     # Now we add the file to the index
     with random_index(steamship, _TEST_EMBEDDER) as index:
-        index.index.insert_file(file.id, block_type="sentence", reindex=True)
-        index.index.insert_file(b.id, block_type="sentence", reindex=True)
+        # Insert the tags from file
+
+        # TODO(dave, ted) - Note for future.
+        # This is a really interesting place for us to experiment with tag.text, query results, etc.
+        #
+        # It would be interesting if we could do something like:
+        #
+        #   File.index(index, tag_query='name "sentence"')
+        #
+        # Which I think might require something like:
+        #   - Query to return Tag.text filled out
+        #   - Query system to be able to auto-prepend "file_id {file.id}" in a way that "just works"
+        #     (e.g. would this be a string operation in string query-rewriting space, or a scoping within which
+        #           the un-modified query was executed)
+        #
+        # At the moment, I think the below is what it takes to get sentence tags from a file into an index.
+        res = Tag.query(
+            steamship, f"""blocktag and file_id "{file_1.id}" and name "{DocTag.SENTENCE}" """
+        )
+
+        # Fill in the tag.text field
+        file_1 = file_1.refresh()
+        file_1_tag = None
+        for tag in res.tags:
+            for block in file_1.blocks:
+                if tag.block_id == block.id:
+                    tag.text = block.text[tag.start_idx : tag.end_idx]
+                    file_1_tag = tag
+
+        index.insert(res.tags)
+
+        res = Tag.query(
+            steamship, f"""blocktag and file_id "{file_2.id}" and name "{DocTag.SENTENCE}" """
+        )
+
+        # Fill in the tag.text field
+        file_2 = file_2.refresh()
+        file_2_tag = None
+        for tag in res.tags:
+            for block in file_2.blocks:
+                if tag.block_id == block.id:
+                    tag.text = block.text[tag.start_idx : tag.end_idx]
+                    file_2_tag = tag
+
+        index.insert(res.tags)
 
         res = index.search("What does Ted like to do?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
-        assert items[0].value.text == content_a
+        assert items[0].tag.text == file_1_tag.text
 
         res = index.search("What does Grace like to do?")
         res.wait()
         items = res.output.items
         assert len(items) == 1
-        assert items[0].value.text == content_b
-
-        # TODO(ted): Do we want to support the the `list` operation on an index?
-        #            The below code is left in as we decide.
-
-        # Now we list the items
-        # itemsa = index.index.list_items(file_id=file.id)
-        # assert len(itemsa.items) == 1
-        # assert len(itemsa.items[0].embedding) > 0
-        # assert itemsa.items[0].value == content_a
-
-        # itemsb = index.index.list_items(file_id=b.id)
-        # assert len(itemsb.items) == 1
-        # assert len(itemsb.items[0].embedding) > 0
-        # assert len(itemsb.items[0].embedding) == len(itemsa.items[0].embedding)
-        # assert itemsb.items[0].value == content_b
+        assert items[0].tag.text == file_2_tag.text
