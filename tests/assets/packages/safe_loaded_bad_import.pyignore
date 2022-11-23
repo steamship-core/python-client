@@ -1,0 +1,15 @@
+# Weird file extension necessary because otherwise pytest will choke when scanning this file.
+
+from steamship.invocable import Invocable, InvocableResponse, get, post
+import somethingthatclearlydoesnotexist # Clearly it is intentional that this does not exist
+
+class BadImportHelloWorld(Invocable):
+    @post("greet")
+    def greet(self, name: str = "Person") -> InvocableResponse:
+        return InvocableResponse(string=f"Goodbye, {name}")
+
+    @get("workspace")
+    def workspace(self) -> InvocableResponse:
+        return InvocableResponse(string=self.client.config.workspace_id)
+
+
