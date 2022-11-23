@@ -62,14 +62,8 @@ def endpoint(verb: str = None, path: str = None, **kwargs):
         # Build a dictionary of String->Primitive Types to pass back with endpoint
         # This enables the Engine to add support for features like public=True, etc, without the Client changing.
         config: Dict[str, Union[str, bool, int, float]] = {}
-        for key in kwargs:
-            val = kwargs[key]
-            if (
-                isinstance(val, str)
-                or isinstance(val, bool)
-                or isinstance(val, int)
-                or isinstance(val, float)
-            ):
+        for key, val in kwargs.items():
+            if isinstance(val, (str, bool, int, float)):
                 config[key] = val
 
         wrap.__path__ = path
