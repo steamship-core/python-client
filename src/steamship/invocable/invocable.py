@@ -7,7 +7,7 @@ from abc import ABC
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional, Type, Union
 
 import toml
 
@@ -43,7 +43,6 @@ def make_registering_decorator(decorator):
     new_decorator.__name__ = decorator.__name__
     new_decorator.__doc__ = decorator.__doc__
     new_decorator.__is_endpoint__ = True
-
     return new_decorator
 
 
@@ -60,8 +59,17 @@ def endpoint(verb: str = None, path: str = None, **kwargs):
         def wrap(self, *args, **kwargs):
             return function(self, *args, **kwargs)
 
+        # Build a dictionary of String->Primitive Types to pass back with endpoint
+        # This enables the Engine to add support for features like public=True, etc, without the Client changing.
+        config: Dict[str, Union[str, bool, int, float]] = {}
+        for key, val in kwargs.items():
+            if isinstance(val, (str, bool, int, float)):
+                config[key] = val
+
         wrap.__path__ = path
         wrap.__verb__ = verb
+        wrap.__endpoint_config__ = config
+
         return wrap
 
     decorator = make_registering_decorator(decorator)
@@ -139,8 +147,9 @@ class Invocable(ABC):
                 if getattr(decorator, "__is_endpoint__", False):
                     path = getattr(attribute, "__path__", None)
                     verb = getattr(attribute, "__verb__", None)
+                    config = getattr(attribute, "__endpoint_config__", {})
                     method_spec = cls._register_mapping(
-                        name=attribute.__name__, verb=verb, path=path
+                        name=attribute.__name__, verb=verb, path=path, config=config
                     )
                     cls._package_spec.methods.append(method_spec)
 
@@ -173,10 +182,14 @@ class Invocable(ABC):
 
     @classmethod
     def _register_mapping(
-        cls, name: str, verb: Optional[Verb] = None, path: str = ""
+        cls,
+        name: str,
+        verb: Optional[Verb] = None,
+        path: str = "",
+        config: Dict[str, Union[int, float, bool, str]] = None,
     ) -> MethodSpec:
         """Registering a mapping permits the method to be invoked via HTTP."""
-        method_spec = MethodSpec(cls, name, path=path, verb=verb)
+        method_spec = MethodSpec(cls, name, path=path, verb=verb, config=config)
         # It's important to use method_spec.path below since that's the CLEANED path.
         cls._method_mappings[verb][method_spec.path] = name
         # TODO Dave: this log call is not going to the remote logger, but should

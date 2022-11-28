@@ -2,7 +2,7 @@ from .config import Config
 from .invocable import Invocable, get, post
 from .invocable_request import InvocableRequest, Invocation, InvocationContext, LoggingConfig
 from .invocable_response import InvocableResponse
-from .lambda_handler import create_handler
+from .lambda_handler import create_handler, safe_handler
 from .package_service import PackageService
 
 __all__ = [
@@ -17,4 +17,5 @@ __all__ = [
     "InvocationContext",
     "LoggingConfig",
     "PackageService",
+    "safe_handler",
 ]

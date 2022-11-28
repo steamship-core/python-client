@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel, Field
@@ -21,7 +22,8 @@ class CreatePluginVersionRequest(Request):
     is_public: bool = None
     is_default: bool = None
     type: str = "file"
-    config_template: Dict[str, Any] = None
+    # Note: this is a Dict[str, Any] but should be transmitted to the Engine as a JSON string
+    config_template: str = None
 
 
 class ListPluginVersionsRequest(Request):
@@ -83,7 +85,7 @@ class PluginVersion(CamelModel):
             hosting_handler=hosting_handler,
             is_public=is_public,
             is_default=is_default,
-            config_template=config_template,
+            config_template=json.dumps(config_template or {}),
         )
 
         task = client.post(
