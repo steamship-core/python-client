@@ -136,10 +136,11 @@ class File(CamelModel):
         tags: List[Tag.CreateRequest] = None,
     ) -> File:
 
-        if content is None and blocks is None and tags is None:
-            raise SteamshipError(
-                message="Either filename, content, url, or plugin Instance must be provided."
-            )
+        if content is None and blocks is None:
+            if tags is None:
+                raise SteamshipError(message="Either filename, content, or tags must be provided.")
+            else:
+                content = ""
         if content is not None and blocks is not None:
             raise SteamshipError(
                 message="Please provide only `blocks` or `content` to `File.create`."
