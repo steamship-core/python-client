@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Dict, Type
 
 from pydantic import BaseModel, Field
@@ -14,7 +15,8 @@ class CreatePackageVersionRequest(Request):
     handle: str = None
     type: str = "file"
     hosting_handler: str = None
-    config_template: Dict[str, Any] = None
+    # Note: this is a Dict[str, Any] but should be transmitted to the Engine as a JSON string
+    config_template: str = None
 
 
 class PackageVersion(CamelModel):
@@ -53,7 +55,7 @@ class PackageVersion(CamelModel):
         req = CreatePackageVersionRequest(
             handle=handle,
             package_id=package_id,
-            config_template=config_template,
+            config_template=json.dumps(config_template or {}),
             hosting_handler=hosting_handler,
         )
 

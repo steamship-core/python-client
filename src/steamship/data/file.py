@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
+from steamship import SteamshipError
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest, Request
@@ -66,6 +67,7 @@ class File(CamelModel):
         data: str = None
         id: str = None
         url: str = None
+        handle: str = None
         filename: str = None
         type: FileUploadType = None
         mime_type: str = None
@@ -129,14 +131,22 @@ class File(CamelModel):
         client: Client,
         content: Union[str, bytes] = None,
         mime_type: str = None,
+        handle: str = None,
         blocks: List[Block.CreateRequest] = None,
         tags: List[Tag.CreateRequest] = None,
     ) -> File:
 
-        if content is None and blocks is None and tags is None:
-            raise Exception("Either filename, content, url, or plugin Instance must be provided.")
+        if content is None and blocks is None:
+            if tags is None:
+                raise SteamshipError(message="Either filename, content, or tags must be provided.")
+            else:
+                content = ""
+        if content is not None and blocks is not None:
+            raise SteamshipError(
+                message="Please provide only `blocks` or `content` to `File.create`."
+            )
 
-        if blocks is not None or tags is not None:
+        if blocks is not None:
             upload_type = FileUploadType.BLOCKS
         elif content is not None:
             upload_type = FileUploadType.FILE
@@ -144,19 +154,24 @@ class File(CamelModel):
             raise Exception("Unable to determine upload type.")
 
         req = File.CreateRequest(
+            handle=handle,
             type=upload_type,
             mime_type=mime_type,
             blocks=blocks,
             tags=tags,
         )
 
+        file_data = (
+            ("file-part", content, "multipart/form-data")
+            if upload_type != FileUploadType.BLOCKS
+            else None
+        )
+
         # Defaulting this here, as opposed to in the Engine, because it is processed by Vapor
         return client.post(
             "file/create",
             payload=req,
-            file=("file-part", content, "multipart/form-data")
-            if upload_type != FileUploadType.BLOCKS
-            else None,
+            file=file_data,
             expect=File,
         )
 
