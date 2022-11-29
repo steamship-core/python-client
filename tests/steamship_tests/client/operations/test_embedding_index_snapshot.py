@@ -1,3 +1,9 @@
+"""Tests the Embedding Index Snapshot functionality.
+
+When we finish re-factoring the index code in the Engine, these tests can be deleted.
+For now, it's useful to have them as-is, as they target a detail of index operation that the old interface
+captures, but the new interface does not.
+"""
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import PluginInstance
@@ -5,8 +11,6 @@ from steamship.base import TaskState
 from steamship.data.embeddings import EmbeddingIndex, IndexSnapshotRequest, IndexSnapshotResponse
 
 _TEST_EMBEDDER = "test-embedder"
-
-# TODO(ted): Leave this as-is as a test of the underlying index snapshotting process.
 
 
 def _insert(index, items):

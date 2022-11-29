@@ -247,42 +247,19 @@ class File(CamelModel):
             "plugin/instance/tag", payload=req, expect=TagResponse, wait_on_tasks=wait_on_tasks
         )
 
-    def index(
-        self,
-        plugin_instance: str = None,
-        index_id: str = None,
-        e_index: EmbeddingIndex = None,
-        reindex: bool = True,
-    ) -> EmbeddingIndex:
-        from steamship import EmbeddingIndex
-        from steamship.data.embeddings import EmbeddedItem
+    def index(self, plugin_instance: Any = None) -> EmbeddingIndex:
+        """Index every block in the file.
 
-        if index_id is None and e_index is not None:
-            index_id = e_index.id
+        TODO(ted): Enable indexing the results of a tag query.
+        TODO(ted): It's hard to load the EmbeddingIndexPluginInstance with just a handle because of the chain
+        of things that need to be created to it to function."""
 
-        if index_id is None and e_index is None:
-            e_index = EmbeddingIndex.create(
-                client=self.client,
-                embedder_plugin_instance_handle=plugin_instance,
-                fetch_if_exists=True,
-            )
-        elif e_index is None:
-            e_index = EmbeddingIndex(client=self.client, id=index_id)
-
-        # We have an index available to us now. Perform the query.
-        blocks = self.refresh().blocks
-
-        items = []
-        for block in blocks:
-            item = EmbeddedItem(value=block.text, external_id=block.id, external_type="block")
-            items.append(item)
-
-        _ = e_index.insert_many(
-            items,
-            reindex=reindex,
-        )
-
-        return e_index
+        # Preserve the prior behavior of embedding the full text of each block.
+        tags = [
+            Tag(text=block.text, file_id=self.id, block_id=block.id, kind="block")
+            for block in self.blocks or []
+        ]
+        return plugin_instance.insert(tags)
 
     @staticmethod
     def list(client: Client) -> ListFileResponse:
