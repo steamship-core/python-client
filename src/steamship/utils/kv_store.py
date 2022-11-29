@@ -92,7 +92,7 @@ class KeyValueStore:
         req = Tag.CreateRequest(file_id=file.id, kind=self.store_identifier, name=key, value=value)
         return self.client.post("tag/create", req, expect=Tag)
 
-    def list(self, filter_keys: Optional[List[str]] = None) -> List[Tuple[str, Dict[str, Any]]]:
+    def items(self, filter_keys: Optional[List[str]] = None) -> List[Tuple[str, Dict[str, Any]]]:
         """Return all key-value entries as a list of (key, value) tuples.
 
         If `filter_keys` is provided, only returns keys within that list."""

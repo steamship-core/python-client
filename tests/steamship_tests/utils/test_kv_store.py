@@ -46,13 +46,13 @@ def test_key_value_store(client: Steamship):
     assert kv.get(key2) != value
 
     # List all the keys
-    res = kv.list()
+    res = kv.items()
     assert len(res) == 2
     assert (key1, value) in res
     assert (key2, value_2) in res
 
     # List just the keys with val1
-    res = kv.list(filter_keys=[key1])
+    res = kv.items(filter_keys=[key1])
     assert len(res) == 1
     assert (key1, value) in res
     assert (key2, value_2) not in res
@@ -64,7 +64,7 @@ def test_key_value_store(client: Steamship):
     got_3 = kv.get(key2)
 
     # List just the keys with val1
-    res = kv.list(filter_keys=[key2])
+    res = kv.items(filter_keys=[key2])
     assert len(res) == 1
     assert (key1, value) not in res
     assert (key2, value_3) in res
