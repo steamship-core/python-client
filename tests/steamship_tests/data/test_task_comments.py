@@ -16,12 +16,12 @@ def _list_equal(actual, expected):
 def test_basic_task_comment():
     steamship = get_steamship_client()
     with random_index(steamship, _TEST_EMBEDDER) as index:
-        item1 = Tag(text="Pizza", name="pizza", kind="food", value=[1, 2, 3])
+        item1 = Tag(text="Pizza", name="pizza", kind="food", value={"value": [1, 2, 3]})
 
         index.insert(item1)
 
         res2 = index.search(item1.text, k=1)
-        res2.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
+        res2.add_comment(external_id="Foo", external_type="Bar", metadata={"value": [1, 2]})
         # We don't return to Res2 until the end to make sure we aren't co-mingling comments!
 
         res = index.search(item1.text, k=1)
@@ -29,10 +29,10 @@ def test_basic_task_comment():
         items = res.output.items
         assert items is not None
         assert len(items) == 1
-        assert items[0].value.text == item1.text
-        assert items[0].value.name == item1.name
-        assert items[0].value.kind == item1.kind
-        _list_equal(items[0].value.value, item1.value)
+        assert items[0].tag.text == item1.text
+        assert items[0].tag.name == item1.name
+        assert items[0].tag.kind == item1.kind
+        _list_equal(items[0].tag.value.get("value"), item1.value.get("value"))
 
         res.add_comment(external_id="Foo", external_type="Bar", metadata=[1, 2])
 
@@ -55,7 +55,6 @@ def test_basic_task_comment():
 
         comments = TaskComment.list(client=steamship, task_id=res.task_id)
         assert len(comments.comments) == 2
-
         comment = comments.comments[0]
         assert comment.external_id == "Foo1"
         assert comment.external_type == "Bar1"
@@ -78,7 +77,7 @@ def test_basic_task_comment():
         comment = comments.comments[0]
         assert comment.external_id == "Foo"
         assert comment.external_type == "Bar"
-        _list_equal(comment.metadata, [1, 2])
+        _list_equal(comment.metadata, {"value": [1, 2]})
         comments.comments[0].delete()
         comments = TaskComment.list(client=steamship, task_id=res.task_id)
         assert len(comments.comments) == 0
@@ -98,7 +97,7 @@ def test_task_comment_feedback_reporting():
     client = get_steamship_client()
     with random_index(client, plugin_instance=_TEST_EMBEDDER) as index:
         item1 = EmbeddedItem(
-            value="Pizza", external_id="pizza", external_type="food", metadata=[1, 2, 3]
+            value="Pizza", external_id="pizza", external_type="food", metadata={"value": [1, 2, 3]}
         )
 
         group_name_1 = random_name()

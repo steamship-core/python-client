@@ -153,6 +153,9 @@ class EmbeddingIndexPluginInstance(PluginInstance):
 
         This wrapper implementation simply projects the `Hit` data structure into a `Tag`
         """
+        if query is None or len(query.strip()) == 0:
+            raise SteamshipError(message="Query field must be non-empty.")
+
         # Metadata will always be included; this is the equivalent of Tag.value
         wrapped_result = self.index.search(query, k=k, include_metadata=True)
 

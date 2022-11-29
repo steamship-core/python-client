@@ -79,10 +79,19 @@ class Block(CamelModel):
         )
         return res
 
-    def index(self, plugin_instance: Any = None):
+    def index(self, embedding_plugin_instance: Any = None):
         """Index this block."""
-        tags = [Tag(text=self.text, file_id=self.id, block_id=self.id, kind="block")]
-        return plugin_instance.insert(tags)
+        tags = [
+            Tag(
+                text=self.text,
+                file_id=self.file_id,
+                block_id=self.id,
+                kind="block",
+                start_idx=0,
+                end_idx=len(self.text),
+            )
+        ]
+        return embedding_plugin_instance.insert(tags)
 
 
 class BlockQueryResponse(Response):

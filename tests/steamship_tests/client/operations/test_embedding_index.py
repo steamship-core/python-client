@@ -183,9 +183,8 @@ def test_empty_queries():
         with pytest.raises(SteamshipError):
             _ = index.search(None)
 
-        search_results = index.search("")
+        with pytest.raises(SteamshipError):
+            index.search("")
 
-        search_results.wait()
-        search_results = search_results.output
-        # noinspection PyUnresolvedReferences
-        assert len(search_results.items) == 1
+        with pytest.raises(SteamshipError):
+            index.search("  ")
