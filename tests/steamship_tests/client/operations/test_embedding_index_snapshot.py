@@ -1,3 +1,9 @@
+"""Tests the Embedding Index Snapshot functionality.
+
+When we finish re-factoring the index code in the Engine, these tests can be deleted.
+For now, it's useful to have them as-is, as they target a detail of index operation that the old interface
+captures, but the new interface does not.
+"""
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import PluginInstance
@@ -42,7 +48,7 @@ def test_snapshot_create():
     plugin_instance = PluginInstance.create(steamship, plugin_handle=_TEST_EMBEDDER)
     index = EmbeddingIndex.create(
         client=steamship,
-        plugin_instance=plugin_instance.handle,
+        embedder_plugin_instance_handle=plugin_instance.handle,
     )
 
     _insert(index, ["Oranges are orange."])
@@ -94,7 +100,7 @@ def test_snapshot_create():
 
     index = EmbeddingIndex.create(
         client=steamship,
-        plugin_instance=plugin_instance.handle,
+        embedder_plugin_instance_handle=plugin_instance.handle,
     )
 
     sentences = []

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
+from steamship import SteamshipError
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest, Request
@@ -66,6 +67,7 @@ class File(CamelModel):
         data: str = None
         id: str = None
         url: str = None
+        handle: str = None
         filename: str = None
         type: FileUploadType = None
         mime_type: str = None
@@ -129,14 +131,22 @@ class File(CamelModel):
         client: Client,
         content: Union[str, bytes] = None,
         mime_type: str = None,
+        handle: str = None,
         blocks: List[Block.CreateRequest] = None,
         tags: List[Tag.CreateRequest] = None,
     ) -> File:
 
-        if content is None and blocks is None and tags is None:
-            raise Exception("Either filename, content, url, or plugin Instance must be provided.")
+        if content is None and blocks is None:
+            if tags is None:
+                raise SteamshipError(message="Either filename, content, or tags must be provided.")
+            else:
+                content = ""
+        if content is not None and blocks is not None:
+            raise SteamshipError(
+                message="Please provide only `blocks` or `content` to `File.create`."
+            )
 
-        if blocks is not None or tags is not None:
+        if blocks is not None:
             upload_type = FileUploadType.BLOCKS
         elif content is not None:
             upload_type = FileUploadType.FILE
@@ -144,19 +154,24 @@ class File(CamelModel):
             raise Exception("Unable to determine upload type.")
 
         req = File.CreateRequest(
+            handle=handle,
             type=upload_type,
             mime_type=mime_type,
             blocks=blocks,
             tags=tags,
         )
 
+        file_data = (
+            ("file-part", content, "multipart/form-data")
+            if upload_type != FileUploadType.BLOCKS
+            else None
+        )
+
         # Defaulting this here, as opposed to in the Engine, because it is processed by Vapor
         return client.post(
             "file/create",
             payload=req,
-            file=("file-part", content, "multipart/form-data")
-            if upload_type != FileUploadType.BLOCKS
-            else None,
+            file=file_data,
             expect=File,
         )
 
@@ -178,7 +193,10 @@ class File(CamelModel):
         return client.post("file/create", payload=req, expect=File, as_background_task=True)
 
     def refresh(self) -> File:
-        return File.get(self.client, self.id)
+        refreshed = File.get(self.client, self.id)
+        self.__init__(**refreshed.dict())
+        self.client = refreshed.client
+        return self
 
     @staticmethod
     def query(
@@ -229,42 +247,19 @@ class File(CamelModel):
             "plugin/instance/tag", payload=req, expect=TagResponse, wait_on_tasks=wait_on_tasks
         )
 
-    def index(
-        self,
-        plugin_instance: str = None,
-        index_id: str = None,
-        e_index: EmbeddingIndex = None,
-        reindex: bool = True,
-    ) -> EmbeddingIndex:
-        from steamship import EmbeddingIndex
-        from steamship.data.embeddings import EmbeddedItem
+    def index(self, plugin_instance: Any = None) -> EmbeddingIndex:
+        """Index every block in the file.
 
-        if index_id is None and e_index is not None:
-            index_id = e_index.id
+        TODO(ted): Enable indexing the results of a tag query.
+        TODO(ted): It's hard to load the EmbeddingIndexPluginInstance with just a handle because of the chain
+        of things that need to be created to it to function."""
 
-        if index_id is None and e_index is None:
-            e_index = EmbeddingIndex.create(
-                client=self.client,
-                plugin_instance=plugin_instance,
-                fetch_if_exists=True,
-            )
-        elif e_index is None:
-            e_index = EmbeddingIndex(client=self.client, id=index_id)
-
-        # We have an index available to us now. Perform the query.
-        blocks = self.refresh().blocks
-
-        items = []
-        for block in blocks:
-            item = EmbeddedItem(value=block.text, external_id=block.id, external_type="block")
-            items.append(item)
-
-        _ = e_index.insert_many(
-            items,
-            reindex=reindex,
-        )
-
-        return e_index
+        # Preserve the prior behavior of embedding the full text of each block.
+        tags = [
+            Tag(text=block.text, file_id=self.id, block_id=block.id, kind="block")
+            for block in self.blocks or []
+        ]
+        return plugin_instance.insert(tags)
 
     @staticmethod
     def list(client: Client) -> ListFileResponse:

@@ -17,6 +17,7 @@ def main():
         (PACKAGES_PATH / "demo_package.py", "demo-package.zip"),
         (PACKAGES_PATH / "configurable_hello_world.py", "configurable_hello_world.zip"),
         (PLUGINS_PATH / "blockifiers" / "blockifier.py", "dummy_blockifier.zip"),
+        (PACKAGES_PATH / "bad_package.py", "bad-package.zip"),
     ]
 
     for path, output in assets_to_build:

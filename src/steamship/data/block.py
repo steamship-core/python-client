@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from pydantic import Field
 
@@ -78,6 +78,20 @@ class Block(CamelModel):
             expect=BlockQueryResponse,
         )
         return res
+
+    def index(self, embedding_plugin_instance: Any = None):
+        """Index this block."""
+        tags = [
+            Tag(
+                text=self.text,
+                file_id=self.file_id,
+                block_id=self.id,
+                kind="block",
+                start_idx=0,
+                end_idx=len(self.text),
+            )
+        ]
+        return embedding_plugin_instance.insert(tags)
 
 
 class BlockQueryResponse(Response):

@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import json
 import logging
 import typing
 from abc import ABC
 from inspect import isclass
-from typing import Any, Dict, List, Type, TypeVar, Union
+from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
 
 import inflection
 from pydantic import BaseModel, PrivateAttr
@@ -22,6 +21,31 @@ from steamship.utils.url import Verb, is_local
 _logger = logging.getLogger(__name__)
 
 T = TypeVar("T")  # TODO (enias): Do we need this?
+
+
+def _multipart_name(path: str, val: Any) -> List[Tuple[Optional[str], str, Optional[str]]]:
+    """Decode any object into a series of HTTP Multi-part segments that Vapor will consume.
+
+    https://github.com/vapor/multipart-kit
+    When sending a JSON object in a MultiPart request, Vapor wishes to see multi part segments as follows:
+
+    single_key
+    array_key[idx]
+    obj_key[prop]
+
+    So a File with a list of one tag with kind=Foo would be transmitted as setting the part:
+    [tags][0][kind]
+    """
+    ret = []
+    if isinstance(val, dict):
+        for key, subval in val.items():
+            ret.extend(_multipart_name(f"{path}[{key}]", subval))
+    elif isinstance(val, list):
+        for idx, subval in enumerate(val):
+            ret.extend(_multipart_name(f"{path}[{idx}]", subval))
+    elif val is not None:
+        ret.append((path, val, None))
+    return ret
 
 
 class Client(CamelModel, ABC):
@@ -106,7 +130,7 @@ class Client(CamelModel, ABC):
             )
 
         # Zero out the workspace_handle on the config block in case we're being invoked from
-        # `init` (otherwise we'll attempt to create the sapce IN that nonexistant workspace)
+        # `init` (otherwise we'll attempt to create the space IN that non-existant workspace)
         old_workspace_handle = self.config.workspace_handle
         self.config.workspace_handle = None
 
@@ -292,11 +316,8 @@ class Client(CamelModel, ABC):
 
         result = {}
         for key, val in data.items():
-            if val:
-                if isinstance(val, Dict):
-                    result[key] = (None, json.dumps(val), "application/json")
-                else:
-                    result[key] = (None, str(val))
+            for t in _multipart_name(key, val):
+                result[t[0]] = t
         result["file"] = file
         return result
 

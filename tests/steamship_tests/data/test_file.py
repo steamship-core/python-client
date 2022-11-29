@@ -1,8 +1,10 @@
 import json
 
 import pytest
+from steamship_tests import PLUGINS_PATH
+from steamship_tests.utils.deployables import deploy_plugin
 
-from steamship import MimeTypes
+from steamship import MimeTypes, SteamshipError
 from steamship.client import Steamship
 from steamship.data.block import Block
 from steamship.data.file import File
@@ -11,17 +13,40 @@ from steamship.data.tags.tag import Tag
 
 @pytest.mark.usefixtures("client")
 def test_file_upload(client: Steamship):
-    a = File.create(client=client, content="A", mime_type=MimeTypes.MKD)
+    a = File.create(client=client, handle="foo", content="A", mime_type=MimeTypes.MKD)
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
+    assert a.handle == "foo"
 
     b = File.create(client=client, content="B", mime_type=MimeTypes.TXT)
     assert b.id is not None
     assert b.mime_type == MimeTypes.TXT
     assert a.id != b.id
-
+    assert a.raw().decode("utf-8") == "A"
     a.delete()
     b.delete()
+
+
+@pytest.mark.usefixtures("client")
+def test_only_blocks_or_content(client: Steamship):
+    with pytest.raises(SteamshipError):
+        _ = File.create(client=client, content="A", blocks=[], mime_type=MimeTypes.MKD)
+
+
+@pytest.mark.usefixtures("client")
+def test_file_upload_with_content_and_tags(client: Steamship):
+    a = File.create(
+        client=client,
+        content="ABC",
+        mime_type=MimeTypes.MKD,
+        tags=[Tag.CreateRequest(kind="SomeKind")],
+    )
+    assert a.id is not None
+    assert a.mime_type == MimeTypes.MKD
+    assert len(a.tags) == 1
+    assert a.tags[0].file_id == a.id
+    assert a.tags[0].kind == "SomeKind"
+    assert a.raw().decode("utf-8") == "ABC"
 
 
 def test_file_import_response_dict():
@@ -180,3 +205,18 @@ def test_file_list(client: Steamship):
     a.delete()
     b.delete()
     c.delete()
+
+
+def test_file_refresh(client: Steamship):
+    blockifier_path = PLUGINS_PATH / "blockifiers" / "blockifier.py"
+    with deploy_plugin(client, blockifier_path, "blockifier") as (
+        plugin,
+        version,
+        instance,
+    ):
+        file = File.create(client=client, content="This is a test.")
+        assert len(file.blocks) == 0
+        file.blockify(plugin_instance=instance.handle).wait()
+        file.refresh()  # don't reassign file
+        assert len(file.blocks) == 4
+        file.delete()

@@ -1,10 +1,11 @@
 import logging
 
+import pytest
 from assets.plugins.taggers.plugin_third_party_trainable_tagger import MockClient
 from steamship_tests import PLUGINS_PATH
-from steamship_tests.utils.client import get_steamship_client
 from steamship_tests.utils.deployables import deploy_plugin
 
+from steamship import Steamship
 from steamship.base import TaskState
 from steamship.data.plugin import HostingType
 from steamship.data.plugin.plugin_instance import PluginInstance
@@ -14,9 +15,8 @@ from steamship.plugin.inputs.training_parameter_plugin_input import TrainingPara
 EXPORTER_HANDLE = "signed-url-exporter"
 
 
-def test_e2e_third_party_trainable_tagger_lambda_training():
-    client = get_steamship_client()
-
+@pytest.mark.usefixtures("client")
+def test_e2e_third_party_trainable_tagger_lambda_training(client: Steamship):
     exporter_plugin_r = PluginInstance.create(
         client=client,
         handle=EXPORTER_HANDLE,

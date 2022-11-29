@@ -8,6 +8,10 @@ from pydantic import BaseModel
 from steamship import Configuration, PackageInstance, PluginInstance, SteamshipError, Workspace
 from steamship.base.client import Client
 from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
+from steamship.data.plugin.index_plugin_instance import (
+    SHIMMED_INDEX_PLUGIN_HANDLES,
+    EmbeddingIndexPluginInstance,
+)
 
 _logger = logging.getLogger(__name__)
 
@@ -194,6 +198,20 @@ class Steamship(Client):
         """
         if instance_handle is None:
             instance_handle = plugin_handle
+
+        # This is a shim to make Embedding Indices feel as if they are Plugins.
+        # If it works well, we'll turn them into actual plugins on the engine-side.
+        if plugin_handle in SHIMMED_INDEX_PLUGIN_HANDLES:
+            instance = EmbeddingIndexPluginInstance.create(
+                self,
+                plugin_handle=plugin_handle,
+                plugin_version_handle=version,
+                handle=instance_handle,
+                config=config,
+                fetch_if_exists=fetch_if_exists,
+            )
+            return instance
+
         instance = PluginInstance.create(
             self,
             plugin_handle=plugin_handle,
