@@ -6,7 +6,6 @@ from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.client import steamship_use_skill
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
-from steamship_tests.utils.random import random_name
 
 
 def test_use_skill():
@@ -79,26 +78,3 @@ def _test_skill_instance(skill_instance_1, test_str):
     assert tag.kind == config["tagKind"]
     assert tag.value["numberValue"] == config["numberValue"]
     assert tag.value["booleanValue"] == config["booleanValue"]
-
-
-def test_use_plugin_fails_with_same_instance_name_but_different_plugin_name():
-    client = get_steamship_client()
-
-    instance_handle = random_name()
-
-    blockifier_path = PLUGINS_PATH / "blockifiers" / "blockifier.py"
-    with deploy_plugin(client, blockifier_path, "blockifier") as (
-            plugin,
-            version,
-            instance,
-    ):
-        with deploy_plugin(client, blockifier_path, "blockifier") as (
-                plugin2,
-                version2,
-                instance2,
-        ):
-            client.use_plugin(plugin.handle, instance_handle)
-
-            # Should fail because we're using the shortcut `import_plugin` method with the same instance
-            with pytest.raises(SteamshipError):
-                client.use_plugin(plugin2.handle, instance_handle)
