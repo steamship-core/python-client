@@ -254,7 +254,7 @@ class Client(CamelModel, ABC):
         if wait_on_tasks:
             # Will result in the engine persisting the inbound HTTP request as a Task for deferred
             # execution. Additionally, the task will be scheduled to first wait on the other tasks
-            # provided in the list of IDs.
+            # provided in the list of IDs. Accepts a list of EITHER Task objects OR task_id strings.
             as_background_task = True
             task_ids = []
             for task_or_id in wait_on_tasks:

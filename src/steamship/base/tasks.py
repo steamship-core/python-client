@@ -128,14 +128,17 @@ class TaskStatusRequest(Request):
 class Task(GenericCamelModel, Generic[T]):
     """Encapsulates a unit of asynchronously performed work."""
 
+    # Note: The Field object prevents this from being serialized into JSON (and causing a crash)
     client: Client = Field(None, exclude=True)  # Steamship client
 
     task_id: str = None  # The id of this task
     user_id: str = None  # The user who requested this task
     workspace_id: str = None  # The workspace in which this task is executing
+
+    # Note: The Field object prevents this from being serialized into JSON (and causing a crash)
     expect: Type = Field(
         None, exclude=True
-    )  # Type of the expected output once the output is complete
+    )  # Type of the expected output once the output is complete.
 
     input: str = None  # The input provided to the task
     output: T = None  # The output of the task

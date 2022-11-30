@@ -200,7 +200,7 @@ class Invocable(ABC):
 
         :param method: The method to invoke, as registered with Steamship in the @get or @post decorator.
         :param verb: The HTTP Verb to use. Default is POST.
-        :param after_tasks: A list of Task objects (or task IDs) that should be waited upon before invocation.
+        :param wait_on_tasks: A list of Task objects (or task IDs) that should be waited upon before invocation.
         :param arguments: The keyword arguments of the invoked method
 
         :return: returns a Task representing the future work
