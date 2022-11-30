@@ -18,11 +18,11 @@ def test_configurable_instance_invoke():
         "snake_case_config": "hisss",
         "camelCaseConfig": "spit!",
     }
-    hello_world_path = PACKAGES_PATH / "configurable_hello_world.py"
     client = get_steamship_client()
+    hello_world_path = PACKAGES_PATH / "configurable_hello_world.py"
 
     with deploy_package(
-        get_steamship_client(),
+        client,
         hello_world_path,
         version_config_template=config_template,
         instance_config=instance_config,
