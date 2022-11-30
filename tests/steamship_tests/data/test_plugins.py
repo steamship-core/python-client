@@ -17,7 +17,7 @@ def test_plugin_create():
     plugin_args = {
         "client": steamship,
         "description": "This is just for test",
-        "type_": PluginType.embedder,
+        "type_": PluginType.tagger,
         "transport": PluginAdapterType.steamship_docker,
         "is_public": True,
     }
@@ -31,13 +31,7 @@ def test_plugin_create():
     my_plugins = Plugin.list(steamship)
     assert len(my_plugins.plugins) == orig_count
 
-    plugin = Plugin.create(
-        client=steamship,
-        description="This is just for test",
-        type_=PluginType.tagger,
-        transport=PluginAdapterType.steamship_docker,
-        is_public=False,
-    )
+    plugin = Plugin.create(**plugin_args)
     my_plugins = Plugin.list(steamship)
     assert len(my_plugins.plugins) == orig_count + 1
 

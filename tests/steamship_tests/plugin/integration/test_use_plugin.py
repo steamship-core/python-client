@@ -6,6 +6,7 @@ from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
 
 from steamship import SteamshipError
+from steamship.client.steamship import SKILL_TO_PROVIDER
 
 
 def test_use_plugin():
@@ -13,6 +14,8 @@ def test_use_plugin():
 
     plugin_handle_1 = random_name()
     plugin_handle_2 = random_name()
+
+    SKILL_TO_PROVIDER["hello"] = {""}
 
     blockifier_path = PLUGINS_PATH / "blockifiers" / "blockifier.py"
     with deploy_plugin(client, blockifier_path, "blockifier") as (
