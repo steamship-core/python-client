@@ -55,6 +55,10 @@ def internal_handler(  # noqa: C901
     else:
         error_prefix = "[ERROR - ?VERB ?PATH] "
 
+    if request.invocation.invocation_path == "/__dir__":
+        # Return the DIR result without (1) Constructing invocable_cls or (2) Parsing its config (in the constructor)
+        return InvocableResponse(json=invocable_cls_func().__steamship_dir__(invocable_cls_func()))
+
     try:
         invocable = invocable_cls_func()(client=client, config=request.invocation.config)
     except SteamshipError as se:
