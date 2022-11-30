@@ -81,6 +81,22 @@
       "config": {},
       "verb": "POST"
     },
+     {
+         "args": [{"kind": "<class 'str'>", "name": "name"}],
+         "config": {},
+         "doc": null,
+         "path": "/future_greet",
+         "returns": "<class 'foo.InvocableResponse[Task]'>",
+         "verb": "POST"
+     },
+     {
+         "args": [{"kind": "<class 'str'>", "name": "name"}],
+         "config": {},
+         "doc": null,
+         "path": "/future_greet_then_greet_again",
+         "returns": "<class 'foo.InvocableResponse[Task]'>",
+         "verb": "POST"
+     },
     {
       "path": "/workspace",
       "doc": null,

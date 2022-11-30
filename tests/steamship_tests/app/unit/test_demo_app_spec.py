@@ -11,7 +11,7 @@ def test_package_spec(invocable_handler: Callable[[str, str, Optional[dict]], di
 
     assert rd.get("doc") is None
     assert rd.get("methods") is not None
-    assert len(rd.get("methods")) == 16
+    assert len(rd.get("methods")) == 18
 
     saw_public = False
 

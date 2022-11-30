@@ -227,14 +227,14 @@ class Client(CamelModel, ABC):
 
         return f"{base}/{operation}"
 
-    def _headers(
+    def _headers(  # noqa: C901
         self,
         is_package_call: bool = False,
         package_owner: str = None,
         package_id: str = None,
         package_instance_id: str = None,
         as_background_task: bool = False,
-        wait_on_tasks: List[Task] = None,
+        wait_on_tasks: List[Union[str, Task]] = None,
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key}"}
 
@@ -256,7 +256,18 @@ class Client(CamelModel, ABC):
             # execution. Additionally, the task will be scheduled to first wait on the other tasks
             # provided in the list of IDs.
             as_background_task = True
-            headers["X-Task-Dependency"] = ",".join([task.task_id for task in wait_on_tasks])
+            task_ids = []
+            for task_or_id in wait_on_tasks:
+                if isinstance(task_or_id, str):
+                    task_ids.append(task_or_id)
+                elif isinstance(task_or_id, Task):
+                    task_ids.append(task_or_id.task_id)
+                else:
+                    raise SteamshipError(
+                        message=f"`wait_on_tasks` should only contain Task of str objects. Got a {type(task_or_id)}."
+                    )
+
+            headers["X-Task-Dependency"] = ",".join(task_ids)
 
         if as_background_task:
             # Will result in the engine persisting the inbound HTTP request as a Task for deferred
@@ -368,7 +379,7 @@ class Client(CamelModel, ABC):
         package_id: str = None,
         package_instance_id: str = None,
         as_background_task: bool = False,
-        wait_on_tasks: List[Task] = None,
+        wait_on_tasks: List[Union[str, Task]] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -499,7 +510,7 @@ class Client(CamelModel, ABC):
         package_id: str = None,
         package_instance_id: str = None,
         as_background_task: bool = False,
-        wait_on_tasks: List[Task] = None,
+        wait_on_tasks: List[Union[str, Task]] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -532,7 +543,7 @@ class Client(CamelModel, ABC):
         package_id: str = None,
         package_instance_id: str = None,
         as_background_task: bool = False,
-        wait_on_tasks: List[Task] = None,
+        wait_on_tasks: List[Union[str, Task]] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any

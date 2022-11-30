@@ -7,14 +7,15 @@ from abc import ABC
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 import toml
 
+from steamship import SteamshipError, Task
 from steamship.base.package_spec import MethodSpec, PackageSpec
 from steamship.client import Steamship
 from steamship.invocable import Config
-from steamship.invocable.invocable_request import InvocableRequest
+from steamship.invocable.invocable_request import InvocableRequest, InvocationContext
 from steamship.invocable.invocable_response import InvocableResponse
 from steamship.utils.url import Verb
 
@@ -97,8 +98,16 @@ class Invocable(ABC):
     _method_mappings = defaultdict(dict)
     _package_spec: PackageSpec
     config: Config
+    context: InvocationContext
 
-    def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
+    def __init__(
+        self,
+        client: Steamship = None,
+        config: Dict[str, Any] = None,
+        context: InvocationContext = None,
+    ):
+        self.context = context
+
         try:
             secret_kwargs = toml.load(".steamship/secrets.toml")
         except FileNotFoundError:  # Support local secret loading
@@ -179,6 +188,55 @@ class Invocable(ABC):
                 return MyPackageOrPlugin.MyConfig
         """
         return Config
+
+    def invoke_later(
+        self,
+        method: str,
+        verb: Verb = Verb.POST,
+        wait_on_tasks: List[Union[Task, str]] = None,
+        arguments: Dict[str, Any] = None,
+    ) -> Task[Any]:
+        """Schedule a method for future invocation.
+
+        :param method: The method to invoke, as registered with Steamship in the @get or @post decorator.
+        :param verb: The HTTP Verb to use. Default is POST.
+        :param after_tasks: A list of Task objects (or task IDs) that should be waited upon before invocation.
+        :param arguments: The keyword arguments of the invoked method
+
+        :return: returns a Task representing the future work
+        """
+
+        if self.context is None:
+            raise SteamshipError(
+                message="Unable to call invoke_later because the InvocationContext was None"
+            )
+        if self.context.invocable_instance_handle is None:
+            raise SteamshipError(
+                message="Unable to call invoke_later because the invocable_instance_handle on InvocationContext was None"
+            )
+
+        payload = {
+            "instanceHandle": self.context.invocable_instance_handle,
+            "payload": {
+                "httpVerb": verb.value,
+                "invocationPath": method,
+                "arguments": arguments or {},
+            },
+        }
+        operation = "package/instance/invoke"
+
+        logging.info(
+            f"Scheduling {verb} {method} for future invocation on me ({self.context.invocable_handle})"
+        )
+
+        resp = self.client.post(
+            operation,
+            payload,
+            expect=Task[Task],  # This operation should return a task
+            as_background_task=True,  # This operation should always be asynchronous
+            wait_on_tasks=wait_on_tasks,  # This operation might await other tasks first
+        )
+        return resp
 
     @classmethod
     def _register_mapping(
