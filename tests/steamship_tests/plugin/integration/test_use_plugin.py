@@ -1,11 +1,11 @@
 import pytest
-
-from steamship import SteamshipError
 from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.client import steamship_use_plugin
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
+
+from steamship import SteamshipError
 
 
 def test_use_plugin():
@@ -16,9 +16,9 @@ def test_use_plugin():
 
     blockifier_path = PLUGINS_PATH / "blockifiers" / "blockifier.py"
     with deploy_plugin(client, blockifier_path, "blockifier") as (
-            plugin,
-            version,
-            instance,
+        plugin,
+        version,
+        instance,
     ):
         plugin_handle = plugin.handle
 
@@ -29,11 +29,11 @@ def test_use_plugin():
         # but in this case we need to prefix with the type to avoid namespace collision within the space.
         with steamship_use_plugin(plugin_handle) as static_use_instance1:
             with steamship_use_plugin(
-                    plugin_handle, delete_workspace=False
+                plugin_handle, delete_workspace=False
             ) as static_use_instance2:
                 assert (
-                        static_use_instance1.client.config.workspace_handle
-                        == static_use_instance2.client.config.workspace_handle
+                    static_use_instance1.client.config.workspace_handle
+                    == static_use_instance2.client.config.workspace_handle
                 )
                 assert static_use_instance1.handle == static_use_instance2.handle
                 assert static_use_instance1.client.config.workspace_handle == plugin.handle
@@ -43,20 +43,20 @@ def test_use_plugin():
             with steamship_use_plugin(plugin_handle, plugin_handle_2) as static_use_instance2:
                 # Instance 1 and 2 have handles equal to their workspace handles
                 assert (
-                        static_use_instance1.client.config.workspace_handle
-                        == static_use_instance1.handle
+                    static_use_instance1.client.config.workspace_handle
+                    == static_use_instance1.handle
                 )
                 assert (
-                        static_use_instance1.client.config.workspace_id
-                        == static_use_instance1.workspace_id
+                    static_use_instance1.client.config.workspace_id
+                    == static_use_instance1.workspace_id
                 )
                 assert (
-                        static_use_instance2.client.config.workspace_handle
-                        == static_use_instance2.handle
+                    static_use_instance2.client.config.workspace_handle
+                    == static_use_instance2.handle
                 )
                 assert (
-                        static_use_instance2.client.config.workspace_id
-                        == static_use_instance2.workspace_id
+                    static_use_instance2.client.config.workspace_id
+                    == static_use_instance2.workspace_id
                 )
 
                 # Instance 1 and 2 are in different workspaces
@@ -75,23 +75,23 @@ def test_use_plugin():
 
             # We can also bring up a second instance of the same invocable
             with steamship_use_plugin(
-                    plugin_handle, plugin_handle_1, delete_workspace=False
+                plugin_handle, plugin_handle_1, delete_workspace=False
             ) as static_use_instance1a:
                 assert (
-                        static_use_instance1a.client.config.workspace_handle
-                        == static_use_instance1a.handle
+                    static_use_instance1a.client.config.workspace_handle
+                    == static_use_instance1a.handle
                 )
                 assert (
-                        static_use_instance1a.client.config.workspace_id
-                        == static_use_instance1a.workspace_id
+                    static_use_instance1a.client.config.workspace_id
+                    == static_use_instance1a.workspace_id
                 )
                 assert static_use_instance1a.workspace_id == static_use_instance1.workspace_id
                 # And the handle is the same
                 assert (
-                        static_use_instance1a.handle == static_use_instance1.handle
+                    static_use_instance1a.handle == static_use_instance1.handle
                 )  # It's the same instance (handle)
                 assert (
-                        static_use_instance1a.id == static_use_instance1.id
+                    static_use_instance1a.id == static_use_instance1.id
                 )  # It's the same instance (id)
 
             # Or we could have (1) created a client anchored to the Workspace `plugin_handle_1` and then
@@ -102,21 +102,21 @@ def test_use_plugin():
 
             static_use_instance1a = client2.use_plugin(plugin_handle, plugin_handle_1)
             assert (
-                    static_use_instance1a.client.config.workspace_handle == static_use_instance1a.handle
+                static_use_instance1a.client.config.workspace_handle == static_use_instance1a.handle
             )  # The client is in the same workspace (handle)!
             assert (
-                    static_use_instance1a.client.config.workspace_id
-                    == static_use_instance1a.workspace_id
+                static_use_instance1a.client.config.workspace_id
+                == static_use_instance1a.workspace_id
             )  # The client is in the same workspace (id)!
             assert (
-                    static_use_instance1a.workspace_id == static_use_instance1.workspace_id
+                static_use_instance1a.workspace_id == static_use_instance1.workspace_id
             )  # It's in the same workspace!
             # And the handle is the same
             assert (
-                    static_use_instance1a.handle == static_use_instance1.handle
+                static_use_instance1a.handle == static_use_instance1.handle
             )  # It's the same instance! (handle)
             assert (
-                    static_use_instance1a.id == static_use_instance1.id
+                static_use_instance1a.id == static_use_instance1.id
             )  # It's the same instance! (id)
 
             # And here's the potentially hazardous thing that's possible:
@@ -129,11 +129,11 @@ def test_use_plugin():
             plugin_handle_1b = random_name()
             static_use_instance1b = client2.use_plugin(plugin_handle, plugin_handle_1b)
             assert (
-                    static_use_instance1b.client.config.workspace_handle == static_use_instance1.handle
+                static_use_instance1b.client.config.workspace_handle == static_use_instance1.handle
             )
             assert (
-                    static_use_instance1b.client.config.workspace_id
-                    == static_use_instance1.workspace_id
+                static_use_instance1b.client.config.workspace_id
+                == static_use_instance1.workspace_id
             )
             assert static_use_instance1b.workspace_id == static_use_instance1.workspace_id
             # But the handle isn't the same
@@ -148,14 +148,14 @@ def test_use_plugin_fails_with_same_instance_name_but_different_plugin_name():
 
     blockifier_path = PLUGINS_PATH / "blockifiers" / "blockifier.py"
     with deploy_plugin(client, blockifier_path, "blockifier") as (
-            plugin,
-            version,
-            instance,
+        plugin,
+        version,
+        instance,
     ):
         with deploy_plugin(client, blockifier_path, "blockifier") as (
-                plugin2,
-                version2,
-                instance2,
+            plugin2,
+            version2,
+            instance2,
         ):
             client.use_plugin(plugin.handle, instance_handle)
 
