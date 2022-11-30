@@ -1,11 +1,11 @@
 import pytest
-
-from steamship import SteamshipError
-from steamship.client.steamship import SKILL_TO_PROVIDER
 from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.client import steamship_use_skill
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
+
+from steamship import SteamshipError
+from steamship.client.steamship import SKILL_TO_PROVIDER
 
 
 def test_use_skill():
@@ -25,11 +25,11 @@ def test_use_skill():
     }
 
     with deploy_plugin(
-            client,
-            tagger_plugin_path,
-            "tagger",
-            version_config_template=config_template,
-            instance_config=instance_config1,
+        client,
+        tagger_plugin_path,
+        "tagger",
+        version_config_template=config_template,
+        instance_config=instance_config1,
     ) as (plugin, version, instance):
         plugin_handle = plugin.handle
 
@@ -58,7 +58,7 @@ def test_use_skill():
             _test_skill_instance(skill_instance_1, test_str)
 
         with steamship_use_skill(
-                skill="hello", provider="steamship", delete_workspace=False
+            skill="hello", provider="steamship", delete_workspace=False
         ) as skill_instance_1:
             _test_skill_instance(skill_instance_1, test_str)
 

@@ -8,6 +8,8 @@ from pydantic import BaseModel
 from steamship import Configuration, PackageInstance, PluginInstance, SteamshipError, Workspace
 from steamship.base.client import Client
 from steamship.client.skill_to_provider import SKILL_TO_PROVIDER
+from steamship.client.skills import Skill
+from steamship.client.vendors import Vendor
 from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
 from steamship.data.plugin.index_plugin_instance import (
     SHIMMED_INDEX_PLUGIN_HANDLES,
@@ -21,18 +23,18 @@ class Steamship(Client):
     """Steamship Python Client."""
 
     def __init__(
-            self,
-            api_key: str = None,
-            api_base: str = None,
-            app_base: str = None,
-            web_base: str = None,
-            workspace: str = None,
-            fail_if_workspace_exists: bool = False,
-            profile: str = None,
-            config_file: str = None,
-            config: Configuration = None,
-            trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspace
-            **kwargs,
+        self,
+        api_key: str = None,
+        api_base: str = None,
+        app_base: str = None,
+        web_base: str = None,
+        workspace: str = None,
+        fail_if_workspace_exists: bool = False,
+        profile: str = None,
+        config_file: str = None,
+        config: Configuration = None,
+        trust_workspace_config: bool = False,  # For use by lambda_handler; don't fetch the workspace
+        **kwargs,
     ):
         super().__init__(
             api_key=api_key,
@@ -62,11 +64,11 @@ class Steamship(Client):
         ]
 
     def embed_and_search(
-            self,
-            query: str,
-            docs: List[str],
-            plugin_instance: str,
-            k: int = 1,
+        self,
+        query: str,
+        docs: List[str],
+        plugin_instance: str,
+        k: int = 1,
     ) -> QueryResults:
         req = EmbedAndSearchRequest(query=query, docs=docs, plugin_instance=plugin_instance, k=k)
         return self.post(
@@ -77,13 +79,13 @@ class Steamship(Client):
 
     @staticmethod
     def use(
-            package_handle: str,
-            instance_handle: Optional[str] = None,
-            config: Optional[Dict[str, Any]] = None,
-            version: Optional[str] = None,
-            fetch_if_exists: bool = True,
-            workspace_handle: Optional[str] = None,
-            **kwargs,
+        package_handle: str,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        fetch_if_exists: bool = True,
+        workspace_handle: Optional[str] = None,
+        **kwargs,
     ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
 
@@ -119,12 +121,12 @@ class Steamship(Client):
         )
 
     def _instance_use(
-            self,
-            package_handle: str,
-            instance_handle: Optional[str] = None,
-            config: Optional[Dict[str, Any]] = None,
-            version: Optional[str] = None,
-            fetch_if_exists: bool = True,
+        self,
+        package_handle: str,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        fetch_if_exists: bool = True,
     ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
 
@@ -146,13 +148,13 @@ class Steamship(Client):
 
     @staticmethod
     def use_plugin(
-            plugin_handle: str,
-            instance_handle: Optional[str] = None,
-            config: Optional[Dict[str, Any]] = None,
-            version: Optional[str] = None,
-            fetch_if_exists: bool = True,
-            workspace_handle: Optional[str] = None,
-            **kwargs,
+        plugin_handle: str,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        fetch_if_exists: bool = True,
+        workspace_handle: Optional[str] = None,
+        **kwargs,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 
@@ -185,11 +187,11 @@ class Steamship(Client):
         )
 
     def use_skill(
-            self,
-            skill: str,
-            provider: Optional[str] = None,
-            instance_handle: Optional[str] = None,
-            fetch_if_exists: Optional[bool] = True,
+        self,
+        skill: Skill,
+        provider: Optional[Vendor] = None,
+        instance_handle: Optional[str] = None,
+        fetch_if_exists: Optional[bool] = True,
     ) -> PluginInstance:
 
         if skill not in SKILL_TO_PROVIDER:
@@ -218,12 +220,12 @@ class Steamship(Client):
         )
 
     def _instance_use_plugin(
-            self,
-            plugin_handle: str,
-            instance_handle: Optional[str] = None,
-            config: Optional[Dict[str, Any]] = None,
-            version: Optional[str] = None,
-            fetch_if_exists: Optional[bool] = True,
+        self,
+        plugin_handle: str,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        fetch_if_exists: Optional[bool] = True,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 

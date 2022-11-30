@@ -31,7 +31,13 @@ def test_plugin_create():
     my_plugins = Plugin.list(steamship)
     assert len(my_plugins.plugins) == orig_count
 
-    plugin = Plugin.create(**plugin_args)
+    plugin = Plugin.create(
+        client=steamship,
+        description="This is just for test",
+        type_=PluginType.tagger,
+        transport=PluginAdapterType.steamship_docker,
+        is_public=False,
+    )
     my_plugins = Plugin.list(steamship)
     assert len(my_plugins.plugins) == orig_count + 1
 
