@@ -40,6 +40,8 @@ class PluginInstance(CamelModel):
     handle: str = None
     plugin_id: str = None
     plugin_version_id: str = None
+    plugin_handle: Optional[str] = None
+    plugin_version_handle: Optional[str] = None
     workspace_id: Optional[str] = None
     user_id: str = None
     config: Dict[str, Any] = None

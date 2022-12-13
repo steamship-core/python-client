@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Type
+from typing import Any, Dict, Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -28,9 +28,10 @@ class PackageInstance(CamelModel):
     id: str = None
     handle: str = None
     package_id: str = None
-    package_handle: str = None
+    package_handle: Optional[str] = None
     user_handle: str = None
     package_version_id: str = None
+    package_version_handle: Optional[str] = None
     user_id: str = None
     invocation_url: str = None
     config: Dict[str, Any] = None
