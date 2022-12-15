@@ -24,5 +24,3 @@ def test_e2e_importer(client: Steamship):
         assert data.decode("utf-8") == TEST_DOC
 
         file.delete()
-
-
