@@ -8,7 +8,7 @@ from typing import Optional
 import inflection
 from pydantic import HttpUrl
 
-from steamship import SteamshipError
+from steamship.base.error import SteamshipError
 from steamship.base.model import CamelModel
 from steamship.utils.utils import format_uri
 
