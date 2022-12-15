@@ -1,4 +1,6 @@
 from steamship.invocable import Invocable, InvocableResponse, get, post
+from steamship.invocable.lambda_handler import create_safe_handler
+
 
 class HelloWorld(Invocable):
     @post("greet")
