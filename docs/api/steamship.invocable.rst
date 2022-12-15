@@ -12,6 +12,14 @@ steamship.invocable.config module
    :undoc-members:
    :show-inheritance:
 
+steamship.invocable.entrypoint module
+-------------------------------------
+
+.. automodule:: steamship.invocable.entrypoint
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.invocable.invocable module
 ------------------------------------
 
