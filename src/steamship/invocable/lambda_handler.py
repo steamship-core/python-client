@@ -168,6 +168,7 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
             "invocableHandle": invocation_context.invocable_handle,
             "invocableVersionHandle": invocation_context.invocable_version_handle,
             "invocableType": invocation_context.invocable_type,
+            "invocableOwnerId": invocation_context.invocable_owner_id,
             "path": event.get("invocation", {}).get("invocationPath"),
         }
         logging_handler = fluenthandler.FluentHandler(
