@@ -103,3 +103,22 @@ def test_plugin_instance_quick_create():
     assert p1.id == p3.id
     assert p1.id != p2.id
     assert p1.id != p4.id
+
+
+def test_plugin_instance_handle_refs():
+    steamship = get_steamship_client()
+    handle = f"test_tagger_test_handle{uuid.uuid4()}"
+    instance = PluginInstance.create(
+        steamship, plugin_handle="test-tagger", plugin_version_handle="1.0", handle=handle
+    )
+
+    assert instance.plugin_handle == "test-tagger"
+    assert instance.plugin_version_handle == "1.0"
+
+    got_instance = PluginInstance.get(steamship, handle=handle)
+    assert got_instance.plugin_handle == "test-tagger"
+    assert got_instance.plugin_version_handle == "1.0"
+
+    use_instance = steamship.use_plugin("test-tagger", handle)
+    assert use_instance.plugin_handle == "test-tagger"
+    assert use_instance.plugin_version_handle == "1.0"
