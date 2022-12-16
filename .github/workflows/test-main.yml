@@ -1,6 +1,6 @@
 # This workflow will run Python tests against Steamship Production
 
-name: Test against Production
+name: Run Tests
 
 on:
   pull_request:
@@ -17,7 +17,19 @@ jobs:
     timeout-minutes: 30
     strategy:
       matrix:
+        environment: [production, staging]
         python-version: [ "3.8" ]
+        include:
+          - environment: production
+            api-key: STEAMSHIP_PROD_TEST_KEY
+            api-base: STEAMSHIP_PROD_TEST_API_BASE
+            app-base: STEAMSHIP_PROD_TEST_APP_BASE
+            blocks-merge: false
+          - environment: staging
+            api-key: STEAMSHIP_STAGING_TEST_KEY
+            api-base: STEAMSHIP_STAGING_TEST_API_BASE
+            app-base: STEAMSHIP_STAGING_TEST_APP_BASE
+            blocks-merge: true
       fail-fast: false
     steps:
       - name: Checkout
@@ -57,9 +69,10 @@ jobs:
       - name: Install Local Package
         run: python -m pip install -e .
 
-      - name: Test against Steamship Production
+      - name: Run Tests
         run: pytest
+        continue-on-error: ${{ matrix.blocks-merge }}
         env:
-          STEAMSHIP_API_KEY: ${{ secrets.STEAMSHIP_PROD_TEST_KEY }}
-          STEAMSHIP_API_BASE: ${{ secrets.STEAMSHIP_PROD_TEST_API_BASE }}
-          STEAMSHIP_APP_BASE: ${{ secrets.STEAMSHIP_PROD_TEST_APP_BASE }}
+          STEAMSHIP_API_KEY: ${{ secrets[matrix.api-key] }}
+          STEAMSHIP_API_BASE: ${{ secrets[matrix.api-base] }}
+          STEAMSHIP_APP_BASE: ${{ secrets[matrix.app-base] }}
