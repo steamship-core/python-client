@@ -76,3 +76,10 @@ jobs:
           STEAMSHIP_API_KEY: ${{ secrets[matrix.api-key] }}
           STEAMSHIP_API_BASE: ${{ secrets[matrix.api-base] }}
           STEAMSHIP_APP_BASE: ${{ secrets[matrix.app-base] }}
+          pytest_github_report: true
+          pytest_report_title: "Test Report"
+          pytest_passed_emoji: ":ship:"
+          pytest_failed_emoji: ":x:"
+          pytest_xpassed_emoji: ":bangbang:"
+          pytest_xfailed_emoji: ":bangbang:"
+          pytest_skipped_emoji: ":interrobang:"

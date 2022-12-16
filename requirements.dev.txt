@@ -55,3 +55,4 @@ tomli==2.0.0
 typing-extensions==4.2.0
 urllib3==1.26.8
 virtualenv==20.13.0
+pytest-github-report
