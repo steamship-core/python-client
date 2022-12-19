@@ -43,7 +43,7 @@ class PackageService(Invocable):
         wait_on_tasks: List[Task]
                 A list of Task objects (or task IDs) that should be waited upon before invocation.
         arguments: Dict[str, Any]
-                The keyword arguments of the invoked method
+                The keyword arguments of the invoked   method
 
         Returns
         -------
