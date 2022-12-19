@@ -210,3 +210,28 @@ def test_package_instance_get():
         assert other_instance.handle == instance.handle
         assert other_instance.package_id == instance.package_id
         assert other_instance.package_version_id == instance.package_version_id
+
+
+def test_plugin_instance_handle_refs():
+    steamship = get_steamship_client()
+
+    demo_package_path = PACKAGES_PATH / "demo_package.py"
+
+    workspace = Workspace.create(steamship)
+    steamship.switch_workspace(workspace_id=workspace.id)
+
+    assert workspace.handle != "default"
+
+    with deploy_package(steamship, demo_package_path) as (package, version, instance):
+
+        assert instance.package_handle == package.handle
+        assert instance.package_version_handle == version.handle
+
+        got_instance = PackageInstance.get(steamship, instance.handle)
+
+        assert got_instance.package_handle == package.handle
+        assert got_instance.package_version_handle == version.handle
+
+        use_instance = steamship.use(package_handle=package.handle, version=version.handle)
+        assert use_instance.package_handle == package.handle
+        assert use_instance.package_version_handle == version.handle
