@@ -8,9 +8,7 @@ from steamship_tests import PACKAGES_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_package
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import PackageInstance, SteamshipError, Workspace
-from steamship.base import TaskState
-from steamship.base.mime_types import MimeTypes
+from steamship import MimeTypes, PackageInstance, SteamshipError, TaskState, Workspace
 from steamship.utils.url import Verb
 
 
@@ -136,6 +134,18 @@ def test_instance_invoke():
         # isn't trying to coerce it to a Task object and throwing.
         resp_obj = instance.invoke("json_with_status", verb=Verb.POST)
         assert resp_obj == {"status": "a string"}
+
+        # Test that a package can send back a Steamship-style Task response that represents failure.
+        failed_task = instance.invoke("failed_task")
+        assert failed_task == {"status": "a string"}
+
+        # Test that a package can send back a Steamship-style Task response
+        running_task = instance.invoke("running_task")
+        assert running_task == {"status": "a string"}
+
+        # Test that a package can send back a Steamship-style Task response
+        succeeded_task = instance.invoke("succeeded_task")
+        assert succeeded_task == {"status": "a string"}
 
         # Test that the __steamship_dir__ method works
         #

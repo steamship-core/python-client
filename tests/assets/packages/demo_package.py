@@ -2,7 +2,7 @@ import base64
 import io
 from typing import Any, Dict
 
-from steamship import SteamshipError
+from steamship import SteamshipError, Task, TaskState
 from steamship.base.mime_types import MimeTypes
 from steamship.base.model import CamelModel
 from steamship.client import Steamship
@@ -77,6 +77,23 @@ class TestPackage(PackageService):
     def user_info(self) -> InvocableResponse[dict]:
         user = User.current(self.client)
         return InvocableResponse(json={"handle": user.handle})
+
+    @post("running_task")
+    def running_task(self) -> InvocableResponse[dict]:
+        return InvocableResponse(status=Task(state=TaskState.running))
+
+    @post("failed_task")
+    def failed_task(self) -> InvocableResponse[dict]:
+        return InvocableResponse(
+            status=Task(state=TaskState.failed, status_message="This task failed.")
+        )
+
+    @post("succeeded_task")
+    def succeeded_task(self) -> InvocableResponse[dict]:
+        return InvocableResponse(
+            status=Task(state=TaskState.succeeded, status_message="This task succeeded."),
+            json={"key": "value"},
+        )
 
     @post("json_with_status")
     def json_with_status(self) -> InvocableResponse[dict]:
