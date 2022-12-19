@@ -264,7 +264,7 @@ class Client(CamelModel, ABC):
                     task_ids.append(task_or_id.task_id)
                 else:
                     raise SteamshipError(
-                        message=f"`wait_on_tasks` should only contain Task of str objects. Got a {type(task_or_id)}."
+                        message=f"`wait_on_tasks` should only contain Task or str objects. Got a {type(task_or_id)}."
                     )
 
             headers["X-Task-Dependency"] = ",".join(task_ids)
