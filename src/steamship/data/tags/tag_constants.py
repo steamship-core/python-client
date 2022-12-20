@@ -19,6 +19,8 @@ class TagKind(str, Enum):
     INTENT = "intent"
     EMBEDDING = "embedding"
     GENERATION = "generation"
+    PROVENANCE = "provenance"
+    TOPIC = "topic"
 
 
 class DocTag(str, Enum):
@@ -58,6 +60,8 @@ class DocTag(str, Enum):
     TELETYPE = "teletype"
     ARTICLE = "article"
     MAIN = "main"
+    CHAPTER = "chapter"
+    TEXT = "text"
 
     @staticmethod
     def from_html_tag(tagname: Optional[str]) -> Optional["DocTag"]:  # noqa: C901
@@ -126,6 +130,7 @@ class TokenTag(str, Enum):
     """A set of `name` constants for Tags with a `kind` of `TagKind.token`; appropriate for parsing-level ideas."""
 
     TEXT_WITH_WHITESPACE = "text-with-whitespace"
+    TEXT = "text"
     WHITESPACE = "whitespace"
     HEAD = "head"
     LEFT_EDGE = "left-edge"
@@ -201,11 +206,32 @@ class IntentTag(str, Enum):
 class TagValue(str, Enum):
     """A set of key constants for the `value` object within a tag.."""
 
+    # Catch-all for confidence, score, ranking
     SCORE = "score"
+
+    # A list of numbers. E.g. for an embedding
     VECTOR_VALUE = "vector-value"
     NUMBER_VALUE = "number-value"
     BOOL_VALUE = "bool-value"
     STRING_VALUE = "string-value"
+
+    # Whether some annotation is direct ("Susan said 'Hi'")
+    DIRECT = "direct"
+
+    # Whether some annotation is indirect ("Susan said Bob said 'Hi'")
+    INDIRECT = "indirect"
+
+    # Start time of a region of a document, in some other medium (seconds)
+    START_TIME_S = "start-time-s"
+
+    # End time of a region of a document, in some other medium (seconds)
+    END_TIME_S = "end-time-s"
+
+    # Start time of a region of a document, in some other medium (milliseconds)
+    START_TIME_MS = "start-time-ms"
+
+    # End time of a region of a document, in some other medium (milliseconds)
+    END_TIME_MS = "end-time-ms"
 
 
 class EntityTag(str, Enum):
@@ -226,5 +252,27 @@ class EntityTag(str, Enum):
 class GenerationTag(str, Enum):
     """A set of `name` constants for Tags with a `kind` of `TagKind.generation`."""
 
+    # A generated summary of some region of a document
     SUMMARY = "summary"
+
+    # A generated headline for some region of a document
+    HEADLINE = "headline"
+
+    # A generated "micro summary" of some region of a document
+    GIST = "gist"
+
+    # A generated completion using some region of the document as input
     PROMPT_COMPLETION = "prompt-completion"
+
+
+class ProvenanceTag(str, Enum):
+    """A set of `name` constants for Tags with a `kind` of `TagKind.provenance`."""
+
+    # The speaker of a section of a document
+    SPEAKER = "speaker"
+
+    # The URL from which some section of a document was sourced
+    URL = "url"
+
+    # The File from which some section of a document was sourced
+    FILE = "file"
