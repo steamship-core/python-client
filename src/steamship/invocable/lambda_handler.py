@@ -58,8 +58,20 @@ def internal_handler(  # noqa: C901
 
     if request.invocation.invocation_path == "/__dir__":
         # Return the DIR result without (1) Constructing invocable_cls or (2) Parsing its config (in the constructor)
-        cls = invocable_cls_func()
-        return InvocableResponse(json=cls.__steamship_dir__(cls))
+        try:
+            cls = invocable_cls_func()
+            return InvocableResponse(json=cls.__steamship_dir__(cls))
+        except SteamshipError as se:
+            logging.exception(se)
+            return InvocableResponse.from_obj(se)
+        except Exception as ex:
+            logging.exception(ex)
+            return InvocableResponse.error(
+                code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                prefix=error_prefix,
+                message="Unable to initialize package/plugin.",
+                exception=ex,
+            )
 
     try:
         invocable = invocable_cls_func()(
