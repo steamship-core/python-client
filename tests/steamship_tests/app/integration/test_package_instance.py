@@ -8,7 +8,7 @@ from steamship_tests import PACKAGES_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_package
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import PackageInstance, SteamshipError, Workspace
+from steamship import PackageInstance, SteamshipError, Task, Workspace
 from steamship.base import TaskState
 from steamship.base.mime_types import MimeTypes
 from steamship.utils.url import Verb
@@ -156,6 +156,22 @@ def test_instance_invoke():
             steamship_dir_golden = json.loads(replace_string(f.read()))
             steamship_dir_fixed = json.loads(replace_string(json.dumps(steamship_dir)))
             assert steamship_dir_fixed == steamship_dir_golden
+
+        # Test that we can call a task which SCHEDULES another task
+        future_greet_resp = instance.invoke("future_greet", name="Unicorn")
+        future_task = Task(client=client, **future_greet_resp)
+        future_task.wait()
+        future_task_bytes = base64.b64decode(future_task.output)
+        future_task_string = future_task_bytes.decode("utf-8")
+        assert future_task_string == "Hello, Unicorn!"
+
+        # Test that we can call a task which SCHEDULES another task itself dependent on another task
+        future_greet_resp2 = instance.invoke("future_greet_then_greet_again", name="Decacorn")
+        future_task2 = Task(client=client, **future_greet_resp2)
+        future_task2.wait()
+        future_task_bytes2 = base64.b64decode(future_task2.output)
+        future_task_string2 = future_task_bytes2.decode("utf-8")
+        assert future_task_string2 == "Hello, Decacorn 2!"
 
 
 def test_deploy_in_workspace():
