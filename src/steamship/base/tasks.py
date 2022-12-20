@@ -241,6 +241,9 @@ class Task(GenericCamelModel, Generic[T]):
             )
 
     def refresh(self):
+        if self.task_id is None:
+            raise SteamshipError(message="Unable to refresh task because `task_id` is None")
+
         req = TaskStatusRequest(taskId=self.task_id)
         # TODO (enias): A status call can return both data and task
         # In this case both task and data will include the output (one is string serialized, the other is parsed)
