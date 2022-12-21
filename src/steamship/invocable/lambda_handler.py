@@ -33,6 +33,7 @@ def internal_handler(  # noqa: C901
     invocable_cls_func: Callable[[], Type[Invocable]],
     event: Dict,
     client: Steamship,
+    invocation_context: InvocationContext,
 ) -> InvocableResponse:
 
     try:
@@ -57,11 +58,25 @@ def internal_handler(  # noqa: C901
 
     if request.invocation.invocation_path == "/__dir__":
         # Return the DIR result without (1) Constructing invocable_cls or (2) Parsing its config (in the constructor)
-        cls = invocable_cls_func()
-        return InvocableResponse(json=cls.__steamship_dir__(cls))
+        try:
+            cls = invocable_cls_func()
+            return InvocableResponse(json=cls.__steamship_dir__(cls))
+        except SteamshipError as se:
+            logging.exception(se)
+            return InvocableResponse.from_obj(se)
+        except Exception as ex:
+            logging.exception(ex)
+            return InvocableResponse.error(
+                code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                prefix=error_prefix,
+                message="Unable to initialize package/plugin.",
+                exception=ex,
+            )
 
     try:
-        invocable = invocable_cls_func()(client=client, config=request.invocation.config)
+        invocable = invocable_cls_func()(
+            client=client, config=request.invocation.config, context=invocation_context
+        )
     except SteamshipError as se:
         logging.exception(se)
         return InvocableResponse.from_obj(se)
@@ -184,7 +199,7 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
             exception=ex,
         ).dict(by_alias=True)
     logging.info(f"Localstack hostname: {environ.get('LOCALSTACK_HOSTNAME')}.")
-    response = internal_handler(event, client)
+    response = internal_handler(event, client, invocation_context)
 
     result = response.dict(by_alias=True, exclude={"client"})
     # When created with data > 4MB, data is uploaded to a bucket.
@@ -278,8 +293,8 @@ def create_safe_handler(known_invocable_for_testing: Type[Invocable] = None):
         invocable_getter = lambda: known_invocable_for_testing  # noqa: E731
     else:
         invocable_getter = safely_find_invocable_class
-    bound_internal_handler = lambda event, client: internal_handler(  # noqa: E731
-        invocable_getter, event, client
+    bound_internal_handler = lambda event, client, context: internal_handler(  # noqa: E731
+        invocable_getter, event, client, context
     )
     return lambda event, context=None: handler(bound_internal_handler, event, context)
 
