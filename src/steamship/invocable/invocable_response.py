@@ -173,6 +173,8 @@ class InvocableResponse(GenericModel, Generic[T]):
             return InvocableResponse(_bytes=obj)
         elif isinstance(obj, dict):
             return InvocableResponse(json=obj)
+        elif isinstance(obj, list):
+            return InvocableResponse(json=obj)
         elif isinstance(obj, str):
             return InvocableResponse(string=obj)
         elif isinstance(obj, (float, int, bool)):

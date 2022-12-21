@@ -2,12 +2,19 @@ import base64
 import io
 from typing import Any, Dict
 
-from steamship import SteamshipError
+from steamship import SteamshipError, Task
 from steamship.base.mime_types import MimeTypes
 from steamship.base.model import CamelModel
 from steamship.client import Steamship
 from steamship.data.user import User
-from steamship.invocable import InvocableResponse, PackageService, create_handler, get, post
+from steamship.invocable import (
+    InvocableResponse,
+    InvocationContext,
+    PackageService,
+    create_handler,
+    get,
+    post,
+)
 
 
 class TestObj(CamelModel):
@@ -20,8 +27,13 @@ PALM_TREE_BASE_64 = PALM_TREE_BASE_64.encode("ascii")
 
 
 class TestPackage(PackageService):
-    def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
-        super().__init__(client, config)
+    def __init__(
+        self,
+        client: Steamship = None,
+        config: Dict[str, Any] = None,
+        context: InvocationContext = None,
+    ):
+        super().__init__(client, config, context)
         self.index = None
 
     @get("resp_string")
@@ -60,6 +72,17 @@ class TestPackage(PackageService):
     @post("greet")
     def greet2(self, name: str = "Person") -> InvocableResponse[str]:
         return InvocableResponse(string=f"Hello, {name}!")
+
+    @post("future_greet")
+    def future_greet(self, name: str = "Person") -> InvocableResponse[Task]:
+        task_1 = self.invoke_later("greet", arguments={"name": name})
+        return InvocableResponse(json=task_1)
+
+    @post("future_greet_then_greet_again")
+    def future_greet_then_greet_again(self, name: str = "Person") -> InvocableResponse[Task]:
+        task_1 = self.invoke_later("greet", arguments={"name": name})
+        task_2 = self.invoke_later("greet", arguments={"name": f"{name} 2"}, wait_on_tasks=[task_1])
+        return InvocableResponse(json=task_2)
 
     @get("workspace")
     def workspace(self) -> InvocableResponse[str]:

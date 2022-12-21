@@ -8,6 +8,7 @@ from typing import Optional
 import inflection
 from pydantic import HttpUrl
 
+from steamship.base.error import SteamshipError
 from steamship.base.model import CamelModel
 from steamship.utils.utils import format_uri
 
@@ -64,6 +65,15 @@ class Configuration(CamelModel):
         kwargs["api_base"] = format_uri(kwargs.get("api_base"))
         kwargs["app_base"] = format_uri(kwargs.get("app_base"))
         kwargs["web_base"] = format_uri(kwargs.get("web_base"))
+
+        if not kwargs.get("api_key") and not kwargs.get("apiKey"):
+            raise SteamshipError(
+                "You're trying to access steamship without passing an api token. \n"
+                "You can fix this error in two ways: \n"
+                '\tOption 1: Directly pass your private api_key using `Steamship(api_key="YOUR-API-KEY")`. '
+                "You can find your private api key on: https://app.steamship.com/key \n"
+                "\tOption 2: Authenticate using the Steamship cli `npm install -g @steamship/cli && ship login`"
+            )
 
         super().__init__(**kwargs)
 
