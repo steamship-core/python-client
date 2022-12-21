@@ -14,7 +14,7 @@ import toml
 from steamship.base.package_spec import MethodSpec, PackageSpec
 from steamship.client import Steamship
 from steamship.invocable import Config
-from steamship.invocable.invocable_request import InvocableRequest
+from steamship.invocable.invocable_request import InvocableRequest, InvocationContext
 from steamship.invocable.invocable_response import InvocableResponse
 from steamship.utils.url import Verb
 
@@ -97,8 +97,16 @@ class Invocable(ABC):
     _method_mappings = defaultdict(dict)
     _package_spec: PackageSpec
     config: Config
+    context: InvocationContext
 
-    def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
+    def __init__(
+        self,
+        client: Steamship = None,
+        config: Dict[str, Any] = None,
+        context: InvocationContext = None,
+    ):
+        self.context = context
+
         try:
             secret_kwargs = toml.load(".steamship/secrets.toml")
         except FileNotFoundError:  # Support local secret loading

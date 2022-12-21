@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Generic, Type, TypeVar, Union
+from typing import Generic, Type, TypeVar, Union
 
 # Note!
 # =====
@@ -10,7 +10,6 @@ from typing import Any, Dict, Generic, Type, TypeVar, Union
 # This the files in this package are for Plugin Implementors.
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
-from steamship.client import Steamship
 from steamship.invocable import Invocable, InvocableResponse
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
@@ -61,10 +60,6 @@ class PluginService(Invocable, Generic[IN, OUT], ABC):
 
 
 class TrainablePluginService(PluginService, Generic[IN, OUT], ABC):
-    # noinspection PyUnusedLocal
-    def __init__(self, client: Steamship = None, config: Dict[str, Any] = None):
-        super().__init__(client, config)
-
     @abstractmethod
     def model_cls(self) -> Type[TrainableModel]:
         """Returns the constructor of the TrainableModel this TrainablePluginService uses.

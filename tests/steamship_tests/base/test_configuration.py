@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from steamship import Configuration
+from steamship import Configuration, SteamshipError
 from steamship.base.configuration import DEFAULT_API_BASE, DEFAULT_APP_BASE, DEFAULT_WEB_BASE
 
 TEST_WEB_BASE = "https://app.test.com/"
@@ -44,3 +44,9 @@ def test_empty_base_uris() -> None:
     assert configuration.web_base is not None
     assert configuration.app_base is not None
     assert configuration.api_base is not None
+
+
+def test_empty_api_key() -> None:
+    with pytest.raises(SteamshipError):
+        # Note: We're referencing a non existing profile to make sure the api key is not loaded from the default profile in steamship.json
+        Configuration(api_key=None, profile="non-existing-profile")

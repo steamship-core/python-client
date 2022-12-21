@@ -1,9 +1,8 @@
 import logging
 from pathlib import Path
-from typing import Any, Dict, Type
+from typing import Type
 
 from steamship import File
-from steamship.base.client import Client
 from steamship.invocable import Config, InvocableResponse, create_handler
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.inputs.train_plugin_input import TrainPluginInput
@@ -73,9 +72,6 @@ class TestTrainableTaggerConfigPlugin(TrainableTagger):
     - It could be orchestrated from here, but runs in HuggingFace / SageMaker / or elsewhere
 
     """
-
-    def __init__(self, client: Client, config: Dict[str, Any] = None):
-        super().__init__(client, config)
 
     def config_cls(self) -> Type[Config]:
         return TestConfig
