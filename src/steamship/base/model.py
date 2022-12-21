@@ -24,6 +24,5 @@ class CamelModel(BaseModel):
         # Populate enum values with their value, rather than the raw enum. Important to serialise model.dict()
         use_enum_values = True
 
-
 class GenericCamelModel(CamelModel, GenericModel):
     pass
