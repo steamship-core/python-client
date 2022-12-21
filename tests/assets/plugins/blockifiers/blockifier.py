@@ -33,21 +33,21 @@ class DummyBlockifierPlugin(Blockifier):
             data=BlockAndTagPluginOutput(
                 file=File.CreateRequest(
                     blocks=[
-                        Block.CreateRequest(
+                        Block(
                             text=TEST_H1,
-                            tags=[Tag.CreateRequest(kind=TagKind.DOCUMENT, name=DocTag.H1)],
+                            tags=[Tag(kind=TagKind.DOCUMENT, name=DocTag.H1)],
                         ),
-                        Block.CreateRequest(
+                        Block(
                             text=TEST_S1,
-                            tags=[Tag.CreateRequest(kind=TagKind.DOCUMENT, name=DocTag.SENTENCE)],
+                            tags=[Tag(kind=TagKind.DOCUMENT, name=DocTag.SENTENCE)],
                         ),
-                        Block.CreateRequest(
+                        Block(
                             text=TEST_S2,
-                            tags=[Tag.CreateRequest(kind=TagKind.DOCUMENT, name=DocTag.SENTENCE)],
+                            tags=[Tag(kind=TagKind.DOCUMENT, name=DocTag.SENTENCE)],
                         ),
-                        Block.CreateRequest(
+                        Block(
                             text=TEST_S3,
-                            tags=[Tag.CreateRequest(kind=TagKind.DOCUMENT, name=DocTag.PARAGRAPH)],
+                            tags=[Tag(kind=TagKind.DOCUMENT, name=DocTag.PARAGRAPH)],
                         ),
                     ]
                 )
