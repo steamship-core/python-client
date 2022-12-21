@@ -7,6 +7,9 @@ from pydantic import BaseModel
 
 from steamship import Configuration, PackageInstance, PluginInstance, SteamshipError, Workspace
 from steamship.base.client import Client
+from steamship.client.skill_to_provider import SKILL_TO_PROVIDER
+from steamship.client.skills import Skill
+from steamship.client.vendors import Vendor
 from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
 from steamship.data.plugin.index_plugin_instance import (
     SHIMMED_INDEX_PLUGIN_HANDLES,
@@ -183,19 +186,53 @@ class Steamship(Client):
             fetch_if_exists=fetch_if_exists,
         )
 
+    def use_skill(
+        self,
+        skill: Skill,
+        provider: Optional[Vendor] = None,
+        instance_handle: Optional[str] = None,
+        fetch_if_exists: Optional[bool] = True,
+    ) -> PluginInstance:
+
+        if skill not in SKILL_TO_PROVIDER:
+            raise SteamshipError(
+                f"Unsupported skill provided. "
+                f"Use one of our supported skills: {','.join(SKILL_TO_PROVIDER)}"
+            )
+
+        if provider and provider not in SKILL_TO_PROVIDER[skill]:
+            raise SteamshipError(
+                f"The provider {provider} has no support for the skill {skill}."
+                f"Use one of the providers that support your skill: "
+                f"{','.join(SKILL_TO_PROVIDER[skill])}"
+            )
+
+        plugin_setup = (
+            SKILL_TO_PROVIDER[skill][provider]
+            if provider
+            else list(SKILL_TO_PROVIDER[skill].values())[0]
+        )
+        return self._instance_use_plugin(
+            plugin_handle=plugin_setup["plugin_handle"],
+            instance_handle=instance_handle,
+            config=plugin_setup["config"],
+            fetch_if_exists=fetch_if_exists,
+        )
+
     def _instance_use_plugin(
         self,
         plugin_handle: str,
-        instance_handle: str = None,
-        config: Dict[str, Any] = None,
-        version: str = None,
-        fetch_if_exists: bool = True,
+        instance_handle: Optional[str] = None,
+        config: Optional[Dict[str, Any]] = None,
+        version: Optional[str] = None,
+        fetch_if_exists: Optional[bool] = True,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 
         The instance is named `instance_handle` and located in the workspace this client is anchored to.
         If no `instance_handle` is provided, the default is `plugin_handle`.
         """
+
         if instance_handle is None:
             instance_handle = plugin_handle
 

@@ -17,7 +17,7 @@ def test_plugin_create():
     plugin_args = {
         "client": steamship,
         "description": "This is just for test",
-        "type_": PluginType.embedder,
+        "type_": PluginType.tagger,
         "transport": PluginAdapterType.steamship_docker,
         "is_public": True,
     }

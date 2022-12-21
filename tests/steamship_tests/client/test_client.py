@@ -1,4 +1,5 @@
 import pytest
+from steamship_tests.utils.client import TESTING_PROFILE
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
 
@@ -10,7 +11,7 @@ def test_connect():
     """Test basic connection"""
     client = get_steamship_client()
     assert client.config is not None
-    assert client.config.profile == "test"
+    assert client.config.profile == TESTING_PROFILE
     assert client.config.api_key is not None
 
 

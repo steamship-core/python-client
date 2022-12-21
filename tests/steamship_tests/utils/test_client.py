@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
+from steamship_tests.utils.client import TESTING_PROFILE
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import Steamship
@@ -16,7 +17,7 @@ from steamship.data.user import User
 def test_get_steamship_client():
     client = get_steamship_client()
     assert client.config is not None
-    assert client.config.profile == "test"
+    assert client.config.profile == TESTING_PROFILE
     assert client.config.api_key is not None
     user = User.current(client)
     assert user.id is not None
