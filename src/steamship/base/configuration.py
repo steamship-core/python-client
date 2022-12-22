@@ -66,7 +66,7 @@ class Configuration(CamelModel):
         kwargs["app_base"] = format_uri(kwargs.get("app_base"))
         kwargs["web_base"] = format_uri(kwargs.get("web_base"))
 
-        if not kwargs.get("api_key"):
+        if not kwargs.get("api_key") and not kwargs.get("apiKey"):
             raise SteamshipError(
                 "You're trying to access steamship without passing an api token. \n"
                 "You can fix this error in two ways: \n"

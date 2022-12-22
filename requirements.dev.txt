@@ -54,4 +54,8 @@ toml==0.10.2
 tomli==2.0.0
 typing-extensions==4.2.0
 urllib3==1.26.8
-virtualenv==20.13.0
+virtualenv
+inflection~=0.5.1
+pydantic~=1.10.2
+aiohttp~=3.8.3
+msgpack~=1.0.4
