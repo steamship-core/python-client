@@ -7,7 +7,7 @@ from steamship import SteamshipError
 from steamship.base import Task, TaskState
 from steamship.invocable import InvocableResponse, create_handler
 from steamship.invocable.plugin_service import PluginRequest
-from steamship.plugin.blockifier import Blockifier
+from steamship.plugin.blockifier.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 from steamship.utils.binary_utils import to_b64
