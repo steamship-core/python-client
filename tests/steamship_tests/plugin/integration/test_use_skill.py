@@ -52,13 +52,11 @@ def test_use_skill():
         with pytest.raises(SteamshipError):
             client.use_skill(skill="hello", provider="doesnotexist")
 
-        with client.use_skill(skill="hello", delete_workspace=False) as skill_instance_1:
-            _test_skill_instance(skill_instance_1, test_str)
+        skill_instance_1 = client.use_skill(skill="hello")
+        _test_skill_instance(skill_instance_1, test_str)
 
-        with client.use_skill(
-            skill="hello", provider="steamship", delete_workspace=False
-        ) as skill_instance_1:
-            _test_skill_instance(skill_instance_1, test_str)
+        skill_instance_1 = client.use_skill(skill="hello", provider="steamship")
+        _test_skill_instance(skill_instance_1, test_str)
 
 
 def _test_skill_instance(skill_instance_1, test_str):
