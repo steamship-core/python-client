@@ -1,6 +1,5 @@
 import pytest
 from steamship_tests import PLUGINS_PATH
-from steamship_tests.utils.client import steamship_use_skill
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 
@@ -48,17 +47,15 @@ def test_use_skill():
 
         test_str = "Hi there!"
         with pytest.raises(SteamshipError):
-            with steamship_use_skill(skill="doesnotexist"):
-                pass
+            client.use_skill(skill="doesnotexist")
 
         with pytest.raises(SteamshipError):
-            with steamship_use_skill(skill="hello", provider="doesnotexist"):
-                pass
+            client.use_skill(skill="hello", provider="doesnotexist")
 
-        with steamship_use_skill(skill="hello", delete_workspace=False) as skill_instance_1:
+        with client.use_skill(skill="hello", delete_workspace=False) as skill_instance_1:
             _test_skill_instance(skill_instance_1, test_str)
 
-        with steamship_use_skill(
+        with client.use_skill(
             skill="hello", provider="steamship", delete_workspace=False
         ) as skill_instance_1:
             _test_skill_instance(skill_instance_1, test_str)
