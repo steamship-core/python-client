@@ -155,6 +155,7 @@ class Steamship(Client):
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
         fetch_if_exists: Optional[bool] = True,
+        recreate: Optional[bool] = False,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 
@@ -190,6 +191,12 @@ class Steamship(Client):
                 fetch_if_exists=fetch_if_exists,
             )
             return instance
+
+        if recreate:
+            try:
+                PluginInstance.get(client=self, handle=instance_handle).delete()
+            except SteamshipError:
+                pass
 
         instance = PluginInstance.create(
             self,
