@@ -18,6 +18,7 @@ from steamship.data.plugin import (
     HostingTimeout,
     HostingType,
 )
+from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
 from steamship.plugin.outputs.training_parameter_plugin_output import TrainingParameterPluginOutput
@@ -32,6 +33,9 @@ class CreatePluginInstanceRequest(Request):
     handle: str = None
     fetch_if_exists: bool = None
     config: Dict[str, Any] = None
+
+
+SIGNED_URL_EXPORTER_INSTANCE_HANDLE = "signed-url-exporter-1.0"
 
 
 class PluginInstance(CamelModel):
@@ -111,10 +115,33 @@ class PluginInstance(CamelModel):
         req = DeleteRequest(id=self.id)
         return self.client.post("plugin/instance/delete", payload=req, expect=PluginInstance)
 
-    def train(self, training_request: TrainingParameterPluginInput) -> Task[TrainPluginOutput]:
+    def train(
+        self,
+        training_request: TrainingParameterPluginInput = None,
+        training_epochs: Optional[int] = None,
+        export_query: Optional[str] = None,
+        testing_holdout_percent: Optional[float] = None,
+        test_split_seed: Optional[int] = None,
+        training_params: Optional[Dict] = None,
+        inference_params: Optional[Dict] = None,
+    ) -> Task[TrainPluginOutput]:
+        """Train a plugin instance.  Please provide either training_request OR the other parameters; passing
+        training_request ignores all other parameters, but is kept for backwards compatibility.
+        """
+        input_params = training_request or TrainingParameterPluginInput(
+            plugin_instance=self.handle,
+            training_epochs=training_epochs,
+            export_plugin_input=ExportPluginInput(
+                plugin_instance=SIGNED_URL_EXPORTER_INSTANCE_HANDLE, type="file", query=export_query
+            ),
+            testing_holdout_percent=testing_holdout_percent,
+            test_split_seed=test_split_seed,
+            training_params=training_params,
+            inference_params=inference_params,
+        )
         return self.client.post(
             "plugin/instance/train",
-            payload=training_request,
+            payload=input_params,
             expect=TrainPluginOutput,
         )
 

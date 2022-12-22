@@ -25,6 +25,7 @@ def _fix_url(s: str) -> str:
     return s
 
 
+@pytest.mark.xfail()
 def test_instance_invoke():
     palm_tree_path = TEST_ASSETS_PATH / "palm_tree.png"
 

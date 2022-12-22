@@ -1,7 +1,4 @@
-from enum import Enum
-
-
-class MimeTypes(str, Enum):
+class MimeTypes:
     UNKNOWN = "unknown"
     TXT = "text/plain"
     JSON = "application/json"
@@ -28,7 +25,7 @@ class MimeTypes(str, Enum):
     WEBM_AUDIO = "audio/webm"
 
 
-class ContentEncodings(str, Enum):
+class ContentEncodings:
     BASE64 = "base64"
 
 
