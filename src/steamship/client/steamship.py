@@ -49,10 +49,6 @@ class Steamship(Client):
             trust_workspace_config=trust_workspace_config,
             **kwargs,
         )
-        # We use object.__setattr__ here in order to bypass Pydantic's overloading of it (which would block this
-        # set unless we were to add this as a field)
-        object.__setattr__(self, "use", self._instance_use)
-        object.__setattr__(self, "use_plugin", self._instance_use_plugin)
 
     def __repr_args__(self: BaseModel) -> Any:
         """Because of the trick we've done with `use` and `use_plugin`, we need to exclude these from __repr__
@@ -77,50 +73,7 @@ class Steamship(Client):
             expect=QueryResults,
         )
 
-    @staticmethod
     def use(
-        package_handle: str,
-        instance_handle: Optional[str] = None,
-        config: Optional[Dict[str, Any]] = None,
-        version: Optional[str] = None,
-        fetch_if_exists: bool = True,
-        workspace_handle: Optional[str] = None,
-        **kwargs,
-    ) -> PackageInstance:
-        """Creates/loads an instance of package `package_handle`.
-
-        The instance is named `instance_handle` and located in the Workspace named `instance_handle`. If no
-        `instance_handle` is provided, the default is `package_handle`.
-
-        For example, one may write the following to always get back the same package instance, no matter how many
-        times you run it, scoped into its own workspace:
-
-        ```python
-        instance = Steamship.use('package-handle', 'instance-handle')
-        ```
-
-        One may also write:
-
-        ```python
-        instance = Steamship.use('package-handle') # Instance will also be named `package-handle`
-        ```
-
-        If you wish to override the usage of a workspace named `instance_handle`, you can provide the `workspace_handle`
-        parameter.
-        """
-        if instance_handle is None:
-            instance_handle = package_handle
-        kwargs["workspace"] = workspace_handle or instance_handle
-        client = Steamship(**kwargs)
-        return client._instance_use(
-            package_handle=package_handle,
-            instance_handle=instance_handle,
-            config=config,
-            version=version,
-            fetch_if_exists=fetch_if_exists,
-        )
-
-    def _instance_use(
         self,
         package_handle: str,
         instance_handle: Optional[str] = None,
@@ -132,6 +85,22 @@ class Steamship(Client):
 
         The instance is named `instance_handle` and located in the workspace this client is anchored to.
         If no `instance_handle` is provided, the default is `package_handle`.
+
+        For example, one may write the following to always get back the same package instance, no matter how many
+        times you run it, scoped into its own workspace:
+
+        ```python
+        instance = Steamship().use('package-handle', 'instance-handle')
+        ```
+
+        One may also write:
+
+        ```python
+        instance = Steamship().use('package-handle') # Instance will also be named `package-handle`
+        ```
+
+        If you wish to override the usage of a workspace named `instance_handle`, you can provide the `workspace_handle`
+        parameter.
         """
         if instance_handle is None:
             instance_handle = package_handle
@@ -145,46 +114,6 @@ class Steamship(Client):
         )
 
         return instance
-
-    @staticmethod
-    def use_plugin(
-        plugin_handle: str,
-        instance_handle: Optional[str] = None,
-        config: Optional[Dict[str, Any]] = None,
-        version: Optional[str] = None,
-        fetch_if_exists: bool = True,
-        workspace_handle: Optional[str] = None,
-        **kwargs,
-    ) -> PluginInstance:
-        """Creates/loads an instance of plugin `plugin_handle`.
-
-        The instance is named `instance_handle` and located in the Workspace named `instance_handle`.
-        If no `instance_handle` is provided, the default is `plugin_handle`.
-
-        For example, one may write the following to always get back the same plugin instance, no matter how many
-        times you run it, scoped into its own workspace:
-
-        ```python
-        instance = Steamship.use_plugin('plugin-handle', 'instance-handle')
-        ```
-
-        One may also write:
-
-        ```python
-        instance = Steamship.use('plugin-handle') # Instance will also be named `plugin-handle`
-        ```
-        """
-        if instance_handle is None:
-            instance_handle = plugin_handle
-        kwargs["workspace"] = workspace_handle or instance_handle
-        client = Steamship(**kwargs)
-        return client._instance_use_plugin(
-            plugin_handle=plugin_handle,
-            instance_handle=instance_handle,
-            config=config,
-            version=version,
-            fetch_if_exists=fetch_if_exists,
-        )
 
     def use_skill(
         self,
@@ -212,14 +141,14 @@ class Steamship(Client):
             if provider
             else list(SKILL_TO_PROVIDER[skill].values())[0]
         )
-        return self._instance_use_plugin(
-            plugin_handle=plugin_setup["plugin_handle"],
+        return self.use_plugin(
+            plugin_handle=plugin_setup.plugin_handle,
             instance_handle=instance_handle,
-            config=plugin_setup["config"],
+            config=plugin_setup.config,
             fetch_if_exists=fetch_if_exists,
         )
 
-    def _instance_use_plugin(
+    def use_plugin(
         self,
         plugin_handle: str,
         instance_handle: Optional[str] = None,
@@ -231,6 +160,19 @@ class Steamship(Client):
 
         The instance is named `instance_handle` and located in the workspace this client is anchored to.
         If no `instance_handle` is provided, the default is `plugin_handle`.
+
+        For example, one may write the following to always get back the same plugin instance, no matter how many
+        times you run it, scoped into its own workspace:
+
+        ```python
+        instance = Steamship().use_plugin('plugin-handle', 'instance-handle')
+        ```
+
+        One may also write:
+
+        ```python
+        instance = Steamship().use('plugin-handle') # Instance will also be named `plugin-handle`
+        ```
         """
 
         if instance_handle is None:

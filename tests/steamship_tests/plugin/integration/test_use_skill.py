@@ -5,6 +5,7 @@ from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import SteamshipError
+from steamship.client.skill_to_provider import SkillVendorConfig
 from steamship.client.steamship import SKILL_TO_PROVIDER
 
 
@@ -34,15 +35,15 @@ def test_use_skill():
         plugin_handle = plugin.handle
 
         SKILL_TO_PROVIDER["hello"] = {
-            "steamship": {
-                "plugin_handle": plugin_handle,
-                "config": {
+            "steamship": SkillVendorConfig(
+                plugin_handle=plugin_handle,
+                config={
                     "tagKind": "testTagKind2",
                     "tagName": "testTagName2",
                     "numberValue": 4,
                     "booleanValue": False,
                 },
-            }
+            )
         }
 
         test_str = "Hi there!"
@@ -73,7 +74,7 @@ def _test_skill_instance(skill_instance_1, test_str):
     # Validate configured content
     assert len(res.output.file.tags) == 1
     tag = res.output.file.tags[0]
-    config = SKILL_TO_PROVIDER["hello"]["steamship"]["config"]
+    config = SKILL_TO_PROVIDER["hello"]["steamship"].config
     assert tag.name == config["tagName"]
     assert tag.kind == config["tagKind"]
     assert tag.value["numberValue"] == config["numberValue"]

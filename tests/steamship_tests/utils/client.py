@@ -24,12 +24,9 @@ def steamship_use(
     version: str = None,
     fetch_if_exists: bool = True,
     delete_workspace: bool = True,
-    **kwargs
 ) -> PackageInstance:
-    # Always use the `test` profile
-    kwargs["profile"] = TESTING_PROFILE
-    instance = Steamship.use(
-        package_handle, instance_handle, config, version, fetch_if_exists, **kwargs
+    instance = get_steamship_client().use(
+        package_handle, instance_handle, config, version, fetch_if_exists
     )
     assert instance.client.config.workspace_id == instance.workspace_id
     yield instance
@@ -48,10 +45,8 @@ def steamship_use_plugin(
     delete_workspace: bool = True,
     **kwargs
 ) -> PluginInstance:
-    # Always use the `test` profile
-    kwargs["profile"] = TESTING_PROFILE
-    instance = Steamship.use_plugin(
-        plugin_handle, instance_handle, config, version, fetch_if_exists, **kwargs
+    instance = get_steamship_client().use_plugin(
+        plugin_handle, instance_handle, config, version, fetch_if_exists
     )
     assert instance.client.config.workspace_id == instance.workspace_id
     yield instance
