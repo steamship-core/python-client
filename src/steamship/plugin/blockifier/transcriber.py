@@ -5,7 +5,7 @@ from steamship import Block, File, SteamshipError, Tag, Task, TaskState
 from steamship.base.mime_types import MimeTypes
 from steamship.invocable import InvocableResponse
 from steamship.invocable.plugin_service import PluginRequest
-from steamship.plugin.blockifier import Blockifier
+from steamship.plugin.blockifier.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 

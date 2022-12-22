@@ -5,7 +5,7 @@ from typing import Any, Dict
 from assets.plugins.blockifiers.csv_blockifier import CsvBlockifier
 
 from steamship.invocable import InvocationContext, create_handler
-from steamship.plugin.blockifier import Blockifier
+from steamship.plugin.blockifier.blockifier import Blockifier
 
 
 class TsvBlockifier(CsvBlockifier, Blockifier):
