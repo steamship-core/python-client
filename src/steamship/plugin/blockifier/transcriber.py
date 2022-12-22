@@ -5,7 +5,7 @@ from steamship import Block, File, SteamshipError, Tag, Task, TaskState
 from steamship.base.mime_types import MimeTypes
 from steamship.invocable import InvocableResponse
 from steamship.invocable.plugin_service import PluginRequest
-from steamship.plugin.blockifier.blockifier import Blockifier
+from steamship.plugin.blockifier import Blockifier
 from steamship.plugin.inputs.raw_data_plugin_input import RawDataPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
 
@@ -15,7 +15,7 @@ TRANSCRIPT_ID = "transcript_id"
 class Transcriber(Blockifier):
     @abstractmethod
     def start_transcription(
-            self, audio_file: PluginRequest[RawDataPluginInput], mime_type: MimeTypes
+        self, audio_file: PluginRequest[RawDataPluginInput], mime_type: MimeTypes
     ) -> str:
         """Transcribe an audio file and turn it into a transcription and optional Tags."""
         raise NotImplementedError()
@@ -30,9 +30,7 @@ class Transcriber(Blockifier):
         raise NotImplementedError()
 
     def _get_transcript(self, transcript_id: str) -> InvocableResponse:
-        transcript, tags = self.get_transcript(
-            transcript_id
-        )
+        transcript, tags = self.get_transcript(transcript_id)
         if transcript is None and tags is None:
             return InvocableResponse(
                 status=Task(
@@ -56,7 +54,7 @@ class Transcriber(Blockifier):
             )
 
     def run(
-            self, request: PluginRequest[RawDataPluginInput]
+        self, request: PluginRequest[RawDataPluginInput]
     ) -> InvocableResponse[BlockAndTagPluginOutput]:
 
         if request.is_status_check:
