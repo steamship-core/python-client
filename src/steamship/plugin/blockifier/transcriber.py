@@ -1,8 +1,7 @@
 from abc import abstractmethod
-from typing import List, Optional, Set
+from typing import List, Optional
 
 from steamship import Block, File, SteamshipError, Tag, Task, TaskState
-from steamship.base.mime_types import MimeTypes
 from steamship.invocable import InvocableResponse
 from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.blockifier.blockifier import Blockifier
@@ -14,10 +13,8 @@ TRANSCRIPT_ID = "transcript_id"
 
 class Transcriber(Blockifier):
     @abstractmethod
-    def start_transcription(
-        self, audio_file: PluginRequest[RawDataPluginInput], mime_type: MimeTypes
-    ) -> str:
-        """Transcribe an audio file and turn it into a transcription and optional Tags."""
+    def start_transcription(self, audio_file: PluginRequest[RawDataPluginInput]) -> str:
+        """Start a transcription job and return an id to identify the transcription."""
         raise NotImplementedError()
 
     @abstractmethod
@@ -25,11 +22,8 @@ class Transcriber(Blockifier):
         """Method to retrieve the transcript and optional Tags. If the transcription is not ready, return None"""
         raise NotImplementedError()
 
-    @abstractmethod
-    def supported_mime_types(self) -> Set[MimeTypes]:
-        raise NotImplementedError()
-
     def _get_transcript(self, transcript_id: str) -> InvocableResponse:
+        """Retrieve the transcript using the transcript_id."""
         transcript, tags = self.get_transcript(transcript_id)
         if transcript is None and tags is None:
             return InvocableResponse(
@@ -56,7 +50,6 @@ class Transcriber(Blockifier):
     def run(
         self, request: PluginRequest[RawDataPluginInput]
     ) -> InvocableResponse[BlockAndTagPluginOutput]:
-
         if request.is_status_check:
             if TRANSCRIPT_ID not in request.status.remote_status_input:
                 raise SteamshipError(message="Status check requests need to provide a valid job id")
@@ -64,14 +57,5 @@ class Transcriber(Blockifier):
             return self._get_transcript(transcript_id)
 
         else:
-            supported_mime_types = self.supported_mime_types()
-            if request.data.default_mime_type not in supported_mime_types:
-                raise SteamshipError(
-                    "Unsupported mimeType. "
-                    f"The following mimeTypes are supported: {supported_mime_types}"
-                )
-
-            transcript_id = self.start_transcription(
-                audio_file=request.data.data, mime_type=request.data.default_mime_type
-            )
+            transcript_id = self.start_transcription(audio_file=request.data.data)
             return self._get_transcript(transcript_id)
