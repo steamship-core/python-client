@@ -80,6 +80,7 @@ class Steamship(Client):
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
         fetch_if_exists: bool = True,
+        recreate: Optional[bool] = False,
     ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
 
@@ -104,7 +105,14 @@ class Steamship(Client):
         """
         if instance_handle is None:
             instance_handle = package_handle
-        instance = PackageInstance.create(
+
+        if recreate:
+            try:
+                PackageInstance.get(client=self, handle=instance_handle).delete()
+            except SteamshipError:
+                pass
+
+        return PackageInstance.create(
             self,
             package_handle=package_handle,
             package_version_handle=version,
@@ -113,14 +121,13 @@ class Steamship(Client):
             fetch_if_exists=fetch_if_exists,
         )
 
-        return instance
-
     def use_skill(
         self,
         skill: Skill,
         provider: Optional[Vendor] = None,
         instance_handle: Optional[str] = None,
         fetch_if_exists: Optional[bool] = True,
+        recreate: Optional[bool] = False,
     ) -> PluginInstance:
 
         if skill not in SKILL_TO_PROVIDER:
@@ -146,6 +153,7 @@ class Steamship(Client):
             instance_handle=instance_handle,
             config=plugin_setup.config,
             fetch_if_exists=fetch_if_exists,
+            recreate=recreate,
         )
 
     def use_plugin(
@@ -198,7 +206,7 @@ class Steamship(Client):
             except SteamshipError:
                 pass
 
-        instance = PluginInstance.create(
+        return PluginInstance.create(
             self,
             plugin_handle=plugin_handle,
             plugin_version_handle=version,
@@ -206,8 +214,6 @@ class Steamship(Client):
             config=config,
             fetch_if_exists=fetch_if_exists,
         )
-
-        return instance
 
     def get_workspace(self) -> Workspace:
         # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes
