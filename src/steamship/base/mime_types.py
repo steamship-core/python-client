@@ -1,4 +1,7 @@
-class MimeTypes:
+from enum import Enum
+
+
+class MimeTypes(str, Enum):
     UNKNOWN = "unknown"
     TXT = "text/plain"
     JSON = "application/json"

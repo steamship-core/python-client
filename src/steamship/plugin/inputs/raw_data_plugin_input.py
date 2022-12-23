@@ -3,7 +3,7 @@ from __future__ import annotations
 import base64
 from typing import Any
 
-from steamship.base.mime_types import TEXT_MIME_TYPES
+from steamship.base.mime_types import TEXT_MIME_TYPES, MimeTypes
 from steamship.base.model import CamelModel
 from steamship.utils.signed_urls import url_to_bytes
 
@@ -46,7 +46,7 @@ class RawDataPluginInput(CamelModel):
 
     plugin_instance: str = None
     data: Any = None
-    default_mime_type: str = None
+    default_mime_type: MimeTypes = None
 
     def __init__(self, **kwargs):
         data = kwargs.get("data")
