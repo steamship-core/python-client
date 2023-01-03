@@ -42,7 +42,7 @@ The full list of fields is:
 .. _Plugin Manifest Config:
 
 Plugin Configuration
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 If your project is a Plugin, its ``steamship.json`` file contains a
 ``plugin`` variable that defines further parameterization that is
@@ -67,3 +67,41 @@ That code shows the following required settings:
 
 A trainable plugin obligates it to implement a few extra methods as a
 part of its contract with the Steamship Engine.
+
+.. _SteamshipOutline:
+
+Steamship Registry
+~~~~~~~~~~~~~~~~~~
+
+Steamship generates a :ref:`public web listing<UploadingWebListing>` for each public package and plugin.
+The ``steamshipRegistry`` block in your ``steamship.json`` file contains a fields which enhance this web listing:
+
+That configuration looks like this:
+
+.. code-block:: json
+
+  {
+      "steamshipRegistry": {
+        "imageUrl": "Url of an image icon for your project",
+        "tagline": "One short sentence that describes your project.",
+        "tagline2": "One short sentence that elaborates on the tagline.",
+        "usefulFor": "Useful for <insert your info here>.",
+        "videoUrl": null,
+        "githubUrl": null,
+        "demoUrl": null,
+        "blogUrl": null,
+        "jupyterUrl": null,
+        "authorName": "Name for Display on Steamship",
+        "authorImageUrl": "Direct URL for author image",
+        "authorGithub": "GitHub Account used for author image as backup",
+        "authorEmail": null,
+        "authorTwitter": null,
+        "authorUrl": null,
+        "tags": [
+          "Tag1",
+          "Tag2"
+        ]
+      }
+  }
+
+All these fields are optional. When non-empty, your project's web listing will gain additional UI features.
