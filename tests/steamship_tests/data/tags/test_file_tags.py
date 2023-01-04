@@ -75,8 +75,8 @@ def test_query(client: Steamship):
     a = File.create(
         client=client,
         blocks=[
-            Block(text="A", tags=[Tag(kind="BlockTag")]),
-            Block(text="B"),
+            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(kind="BlockTag")]),
+            Block.CreateRequest(text="B"),
         ],
     )
     assert a.id is not None
@@ -84,10 +84,10 @@ def test_query(client: Steamship):
     b = File.create(
         client=client,
         blocks=[
-            Block(text="A"),
-            Block(text="B", tags=[Tag(kind="Test")]),
+            Block.CreateRequest(text="A"),
+            Block.CreateRequest(text="B", tags=[Tag.CreateRequest(kind="Test")]),
         ],
-        tags=[Tag(kind="FileTag")],
+        tags=[Tag.CreateRequest(kind="FileTag")],
     )
     assert b.id is not None
     b = b.refresh()

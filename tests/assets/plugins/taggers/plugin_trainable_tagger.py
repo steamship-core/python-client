@@ -105,7 +105,9 @@ class TestTrainableTaggerModel(TrainableModel[EmptyConfig]):
         logging.info(f"TestTrainableTaggerModel:run() - My keyword list is {self.keyword_list}")
         response = InvocableResponse(
             data=BlockAndTagPluginOutput(
-                file=File.CreateRequest(tags=[Tag(kind=word) for word in self.keyword_list])
+                file=File.CreateRequest(
+                    tags=[Tag.CreateRequest(kind=word) for word in self.keyword_list]
+                )
             )
         )
         logging.info(f"TestTrainableTaggerModel:run() returning {response}")

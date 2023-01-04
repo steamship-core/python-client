@@ -36,8 +36,8 @@ class Block(CamelModel):
 
     @staticmethod
     def get(
-            client: Client,
-            _id: str = None,
+        client: Client,
+        _id: str = None,
     ) -> Block:
         return client.post(
             "block/get",
@@ -47,12 +47,12 @@ class Block(CamelModel):
 
     @staticmethod
     def create(
-            client: Client,
-            file_id: str = None,
-            text: str = None,
-            tags: List[Tag.CreateRequest] = None,
+        client: Client,
+        file_id: str = None,
+        text: str = None,
+        tags: List[Tag.CreateRequest] = None,
     ) -> Block:
-        req = Block(file_id=file_id, text=text, tags=tags)
+        req = Block.CreateRequest(file_id=file_id, text=text, tags=tags)
         return client.post(
             "block/create",
             req,
@@ -68,8 +68,8 @@ class Block(CamelModel):
 
     @staticmethod
     def query(
-            client: Client,
-            tag_filter_query: str,
+        client: Client,
+        tag_filter_query: str,
     ) -> BlockQueryResponse:
         req = BlockQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(

@@ -81,15 +81,15 @@ def embed(s: str) -> List[float]:
     return list(map(lambda word: 1.0 if word in s else 0.0, FEATURES))
 
 
-def _embed_to_tag(s: str) -> Tag:
+def _embed_to_tag(s: str) -> Tag.CreateRequest:
     embedding = embed(s)
-    return Tag(
+    return Tag.CreateRequest(
         kind=TagKind.EMBEDDING, name="my-embedding", value={TagValueKey.VECTOR_VALUE: embedding}
     )
 
 
-def _embed_block(block: Block) -> Block:
-    return Block(id=block.id, text=block.text, tags=[_embed_to_tag(block.text)])
+def _embed_block(block: Block) -> Block.CreateRequest:
+    return Block.CreateRequest(id=block.id, text=block.text, tags=[_embed_to_tag(block.text)])
 
 
 class TestEmbedderPlugin(Embedder):

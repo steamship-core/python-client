@@ -53,6 +53,7 @@ class Tag(CamelModel):
     #   Changing this field will not result in changes to Steamship's database.
     #   TODO(ted): Consider refactoring as a read-only property.
     #
+    text: Optional[str] = None
 
     class CreateRequest(Request):
         """Request to create a new Tag."""
@@ -65,8 +66,6 @@ class Tag(CamelModel):
         start_idx: int = None
         end_idx: int = None
         value: Dict[str, Any] = None
-
-    text: Optional[str] = None
 
     class DeleteRequest(Request):
         id: str = None
@@ -82,14 +81,14 @@ class Tag(CamelModel):
 
     @staticmethod
     def create(
-            client: Client,
-            file_id: str = None,
-            block_id: str = None,
-            kind: str = None,
-            name: str = None,
-            start_idx: int = None,
-            end_idx: int = None,
-            value: Dict[str, Any] = None,
+        client: Client,
+        file_id: str = None,
+        block_id: str = None,
+        kind: str = None,
+        name: str = None,
+        start_idx: int = None,
+        end_idx: int = None,
+        value: Dict[str, Any] = None,
     ) -> Tag:
         req = Tag.CreateRequest(
             file_id=file_id,
@@ -115,8 +114,8 @@ class Tag(CamelModel):
 
     @staticmethod
     def query(
-            client: Client,
-            tag_filter_query: str,
+        client: Client,
+        tag_filter_query: str,
     ) -> TagQueryResponse:
         req = TagQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
@@ -129,12 +128,12 @@ class Tag(CamelModel):
 
 class TimestampTag(Tag):
     def __init__(
-            self,
-            start_time_s: float,
-            end_time_s: float,
-            start_idx: Optional[int] = None,
-            end_idx: Optional[int] = None,
-            value: Optional[Dict[str, Any]] = None,
+        self,
+        start_time_s: float,
+        end_time_s: float,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
     ):
         value = value or {}
         super().__init__(
@@ -157,11 +156,11 @@ class TokenizationTag(Tag):
         CHARACTER = "character"
 
     def __init__(
-            self,
-            type=Type,
-            start_idx: Optional[int] = None,
-            end_idx: Optional[int] = None,
-            value: Optional[Dict[str, Any]] = None,
+        self,
+        type=Type,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(
             kind=TagKind.TOKENIZATION, name=type, start_idx=start_idx, end_idx=end_idx, value=value
@@ -170,11 +169,11 @@ class TokenizationTag(Tag):
 
 class SummaryTag(Tag):
     def __init__(
-            self,
-            summary: str,
-            start_idx: Optional[int] = None,
-            end_idx: Optional[int] = None,
-            value: Optional[Dict[str, Any]] = None,
+        self,
+        summary: str,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
     ):
         value = value or {}
         super().__init__(
@@ -187,11 +186,11 @@ class SummaryTag(Tag):
 
 class TopicTag(Tag):
     def __init__(
-            self,
-            topic: str,
-            start_idx: Optional[int] = None,
-            end_idx: Optional[int] = None,
-            value: Optional[Dict[str, Any]] = None,
+        self,
+        topic: str,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(
             kind=TagKind.TOPIC, name=topic, start_idx=start_idx, end_idx=end_idx, value=value
@@ -216,11 +215,11 @@ class EmotionTag(Tag):
         SCORE = "score"
 
     def __init__(
-            self,
-            emotion: Emotion,
-            start_idx: Optional[int] = None,
-            end_idx: Optional[int] = None,
-            value: Optional[Dict[str, Any]] = None,
+        self,
+        emotion: Emotion,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(
             kind=TagKind.EMOTION, name=emotion, start_idx=start_idx, end_idx=end_idx, value=value
@@ -240,11 +239,11 @@ class IntentTag(Tag):
         REVISITING_TOPIC = "revisiting-topic"
 
     def __init__(
-            self,
-            intent: Intent,
-            start_idx: Optional[int] = None,
-            end_idx: Optional[int] = None,
-            value: Optional[Dict[str, Any]] = None,
+        self,
+        intent: Intent,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(
             kind=TagKind.INTENT, name=intent, start_idx=start_idx, end_idx=end_idx, value=value
@@ -265,12 +264,12 @@ class EntityTag(Tag):
         GEO_POLITICAL_ENTITY = "geo-political-entity"
 
     def __init__(
-            self,
-            entity_name: str,
-            entity_type: EntityType,
-            start_idx: Optional[int] = None,
-            end_idx: Optional[int] = None,
-            value: Optional[Dict[str, Any]] = None,
+        self,
+        entity_name: str,
+        entity_type: EntityType,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
     ):
         if TagValueKey.ENTITY_NAME in value:
             raise SteamshipError(
@@ -293,11 +292,11 @@ class SentimentTag(Tag):
         SCORE = "score"
 
     def __init__(
-            self,
-            sentiment: Sentiment,
-            start_idx: Optional[int] = None,
-            end_idx: Optional[int] = None,
-            value: Optional[Dict[str, Any]] = None,
+        self,
+        sentiment: Sentiment,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(
             kind=TagKind.ENTITY, name=sentiment, start_idx=start_idx, end_idx=end_idx, value=value

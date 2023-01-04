@@ -88,7 +88,10 @@ class CsvBlockifier(Blockifier):
 
             block = Block.CreateRequest(
                 text=text,
-                tags=[Tag.CreateRequest(kind=self.config.tag_kind, name=tag_value) for tag_value in tag_values],
+                tags=[
+                    Tag.CreateRequest(kind=self.config.tag_kind, name=tag_value)
+                    for tag_value in tag_values
+                ],
             )
             file.blocks.append(block)
 
