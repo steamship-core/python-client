@@ -12,7 +12,7 @@ class TagRequest(Request):
     name: str = None
     handle: str = None
     plugin_instance: str = None
-    file: File.CreateRequest = None
+    file: File = None
 
 
 class TagResponse(Response):

@@ -7,7 +7,7 @@ from steamship.invocable import InvocableResponse
 from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.outputs.raw_data_plugin_output import RawDataPluginOutput
 
-TEST_REQ = File.CreateRequest()
+TEST_REQ = File()
 TEST_PLUGIN_REQ = PluginRequest(data=TEST_REQ)
 TEST_PLUGIN_REQ_DICT = TEST_PLUGIN_REQ.dict()
 
