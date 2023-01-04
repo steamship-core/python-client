@@ -171,8 +171,11 @@ class TagValueKey(str, Enum):
     # Catch-all for confidence, score, ranking
     SCORE = "score"
 
-    # A list of numbers
+    # Catch-all for values of different types such as integers, floats, booleans, and strings
     VALUE = "value"
+
+    # Special type for vectors
+    VECTOR_VALUE = "vector-value"
 
     # Whether some annotation is direct ("Susan said 'Hi'")
     DIRECT = "direct"
