@@ -133,13 +133,13 @@ class File(CamelModel):
         else:
             raise Exception("Unable to determine upload type.")
 
-        req = {
-            "handle": handle,
-            "type": upload_type,
-            "mime_type": mime_type,
-            "blocks": blocks,
-            "tags": tags,
-        }
+        req = File(
+            handle=handle,
+            type=upload_type,
+            mime_type=mime_type,
+            blocks=blocks,
+            tags=tags,
+        )
 
         file_data = (
             ("file-part", content, "multipart/form-data")
