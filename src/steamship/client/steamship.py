@@ -85,6 +85,7 @@ class Steamship(Client):
         version: Optional[str] = None,
         fetch_if_exists: bool = True,
         workspace_handle: Optional[str] = None,
+        force_create: Optional[bool] = False,
         **kwargs,
     ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
@@ -118,6 +119,7 @@ class Steamship(Client):
             config=config,
             version=version,
             fetch_if_exists=fetch_if_exists,
+            force_create=force_create,
         )
 
     def _instance_use(
@@ -126,7 +128,8 @@ class Steamship(Client):
         instance_handle: Optional[str] = None,
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
-        fetch_if_exists: bool = True,
+        fetch_if_exists: Optional[bool] = True,
+        force_create: Optional[bool] = False,
     ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
 
@@ -135,6 +138,13 @@ class Steamship(Client):
         """
         if instance_handle is None:
             instance_handle = package_handle
+
+        if force_create:
+            try:
+                PackageInstance.get(client=self, handle=instance_handle).delete()
+            except SteamshipError:
+                pass
+
         instance = PackageInstance.create(
             self,
             package_handle=package_handle,
@@ -154,6 +164,7 @@ class Steamship(Client):
         version: Optional[str] = None,
         fetch_if_exists: bool = True,
         workspace_handle: Optional[str] = None,
+        force_create: Optional[bool] = False,
         **kwargs,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
@@ -184,6 +195,7 @@ class Steamship(Client):
             config=config,
             version=version,
             fetch_if_exists=fetch_if_exists,
+            force_create=force_create,
         )
 
     def use_skill(
@@ -192,6 +204,7 @@ class Steamship(Client):
         provider: Optional[Vendor] = None,
         instance_handle: Optional[str] = None,
         fetch_if_exists: Optional[bool] = True,
+        force_create: Optional[bool] = False,
     ) -> PluginInstance:
 
         if skill not in SKILL_TO_PROVIDER:
@@ -217,6 +230,7 @@ class Steamship(Client):
             instance_handle=instance_handle,
             config=plugin_setup["config"],
             fetch_if_exists=fetch_if_exists,
+            force_create=force_create,
         )
 
     def _instance_use_plugin(
@@ -226,6 +240,7 @@ class Steamship(Client):
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
         fetch_if_exists: Optional[bool] = True,
+        force_create: Optional[bool] = False,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 
@@ -248,6 +263,12 @@ class Steamship(Client):
                 fetch_if_exists=fetch_if_exists,
             )
             return instance
+
+        if force_create:
+            try:
+                PluginInstance.get(client=self, handle=instance_handle).delete()
+            except SteamshipError:
+                pass
 
         instance = PluginInstance.create(
             self,
