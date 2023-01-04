@@ -21,17 +21,17 @@ That gives you the ability to use the full breadth of modern AI with a single ``
 .. grid::  1 1 2 3
 
    .. grid-item-card:: **Using Packages**
-      :link: packages/using.html
+      :link: using.html
 
       Import and use full-lifecycle language-AI packages in your Python, Javascript, and HTTP projects.
 
    .. grid-item-card:: **Developing Packages**
-      :link: packages/developing/index.html
+      :link: developing/index.html
 
       Build and deploy your own packages with our low-code framework. Works with your favorite AI services.
 
    .. grid-item-card:: **Package Cookbook**
-      :link: packages/cookbook/index.html
+      :link: cookbook/index.html
 
       Code snippets for converting content, tagging entities, searching content, and more.
 

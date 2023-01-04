@@ -7,19 +7,12 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
+   steamship.plugin.blockifier
    steamship.plugin.inputs
    steamship.plugin.outputs
 
 Submodules
 ----------
-
-steamship.plugin.blockifier module
-----------------------------------
-
-.. automodule:: steamship.plugin.blockifier
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 steamship.plugin.embedder module
 --------------------------------
