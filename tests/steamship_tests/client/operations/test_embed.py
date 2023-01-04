@@ -22,13 +22,13 @@ def basic_embeddings(plugin_instance: PluginInstance):
     e1b.wait()
     assert count_embeddings(e1.output.file) == 1
     assert count_embeddings(e1b.output.file) == 1
-    assert len(e1.output.file.blocks[0].tags[0].value[TagValueKey.VALUE]) > 1
+    assert len(e1.output.file.blocks[0].tags[0].value[TagValueKey.VECTOR_VALUE]) > 1
 
     e2 = plugin_instance.tag("This is a test")
     e2.wait()
     assert count_embeddings(e2.output.file) == 1
-    assert len(e2.output.file.blocks[0].tags[0].value[TagValueKey.VALUE]) == len(
-        e1.output.file.blocks[0].tags[0].value[TagValueKey.VALUE]
+    assert len(e2.output.file.blocks[0].tags[0].value[TagValueKey.VECTOR_VALUE]) == len(
+        e1.output.file.blocks[0].tags[0].value[TagValueKey.VECTOR_VALUE]
     )
 
     e4 = plugin_instance.tag("This is a test")
