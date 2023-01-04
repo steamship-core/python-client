@@ -86,9 +86,9 @@ class CsvBlockifier(Blockifier):
             text = self._get_text(row)
             tag_values = self._get_tags(row)
 
-            block = Block(
+            block = Block.CreateRequest(
                 text=text,
-                tags=[Tag(kind=self.config.tag_kind, name=tag_value) for tag_value in tag_values],
+                tags=[Tag.CreateRequest(kind=self.config.tag_kind, name=tag_value) for tag_value in tag_values],
             )
             file.blocks.append(block)
 

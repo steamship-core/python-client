@@ -71,8 +71,8 @@ class File(CamelModel):
         filename: str = None
         type: FileUploadType = None
         mime_type: str = None
-        blocks: Optional[List[Block]] = []
-        tags: Optional[List[Tag]] = []
+        blocks: Optional[List[Block.CreateRequest]] = []
+        tags: Optional[List[Tag.CreateRequest]] = []
         plugin_instance: str = None
 
     class CreateResponse(Response):
@@ -132,8 +132,8 @@ class File(CamelModel):
         content: Union[str, bytes] = None,
         mime_type: str = None,
         handle: str = None,
-        blocks: List[Block] = None,
-        tags: List[Tag] = None,
+        blocks: List[Block.CreateRequest] = None,
+        tags: List[Tag.CreateRequest] = None,
     ) -> File:
 
         if content is None and blocks is None:

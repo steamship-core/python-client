@@ -102,7 +102,7 @@ class PluginInstance(CamelModel):
     ]:  # TODO (enias): Should we remove this helper function in favor of always working with files?
         req = TagRequest(
             type="inline",
-            file=File.CreateRequest(blocks=[Block(text=doc)]) if isinstance(doc, str) else doc,
+            file=File.CreateRequest(blocks=[Block.CreateRequest(text=doc)]) if isinstance(doc, str) else doc,
             plugin_instance=self.handle,
         )
         return self.client.post(
