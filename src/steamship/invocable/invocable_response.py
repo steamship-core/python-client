@@ -13,11 +13,7 @@ from steamship.base.client import Client
 from steamship.base.error import DEFAULT_ERROR_MESSAGE
 from steamship.base.mime_types import ContentEncodings
 from steamship.base.model import CamelModel
-
-# If this isn't present, Localstack won't show logs
 from steamship.utils.binary_utils import flexi_create
-
-logging.getLogger().setLevel(logging.INFO)
 
 
 class Http(CamelModel):
