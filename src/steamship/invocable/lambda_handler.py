@@ -167,6 +167,7 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
             "tenantId": invocation_context.tenant_id,
             "invocableHandle": invocation_context.invocable_handle,
             "invocableVersionHandle": invocation_context.invocable_version_handle,
+            "invocableInstanceHandle": invocation_context.invocable_instance_handle,
             "invocableType": invocation_context.invocable_type,
             "invocableOwnerId": invocation_context.invocable_owner_id,
             "path": event.get("invocation", {}).get("invocationPath"),
