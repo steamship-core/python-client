@@ -236,7 +236,6 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
     if logging_handler is not None:
         logging_handler.close()
 
-    logging.info(result)
     return result
 
 

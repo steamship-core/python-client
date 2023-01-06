@@ -75,7 +75,7 @@ class Workspace(CamelModel):
         ret = self.client.post(
             "workspace/createSignedUrl", payload=request, expect=SignedUrl.Response
         )
-        logging.info(f"Got signed URL: {ret}")
+        logging.debug(f"Got signed URL: {ret}")
         return ret
 
     @staticmethod
