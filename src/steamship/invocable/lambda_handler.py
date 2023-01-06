@@ -172,6 +172,11 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
             "invocableOwnerId": invocation_context.invocable_owner_id,
             "path": event.get("invocation", {}).get("invocationPath"),
         }
+
+        # At the point in the code, the root log level seems to default to WARNING unless set to INFO, even with
+        # the BasicConfig setting to INFO above.
+        logging.root.setLevel(logging.INFO)
+
         logging_handler = fluenthandler.FluentHandler(
             "steamship.deployed_lambda",
             host=logging_host,
@@ -179,6 +184,10 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
             nanosecond_precision=True,
             msgpack_kwargs={"default": encode_exception},
         )
+
+        # Without explicit instruction, the fluent handler defaults to UNSET. We want to make sure it is INFO.
+        logging_handler.setLevel(logging.INFO)
+
         formatter = FluentRecordFormatter(custom_format)
         logging_handler.setFormatter(formatter)
         # The below should make it so calls to logging.info etc are also routed to the remote logger
