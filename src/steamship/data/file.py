@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, List, Type, Union
 
 from pydantic import BaseModel, Field
 
-from steamship import SteamshipError
+from steamship import SteamshipError, MimeTypes
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest, Request
@@ -49,7 +49,7 @@ class File(CamelModel):
     client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
-    mime_type: str = None
+    mime_type: MimeTypes = None
     workspace_id: str = None
     blocks: List[Block] = []
     tags: List[Tag] = []
@@ -110,7 +110,7 @@ class File(CamelModel):
     def create(
         client: Client,
         content: Union[str, bytes] = None,
-        mime_type: str = None,
+        mime_type: MimeTypes = None,
         handle: str = None,
         blocks: List[Block] = None,
         tags: List[Tag] = None,

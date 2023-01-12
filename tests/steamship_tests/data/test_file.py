@@ -21,7 +21,9 @@ def test_file_upload(client: Steamship):
     b = File.create(client=client, content="B", mime_type=MimeTypes.TXT)
     assert b.id is not None
     assert b.mime_type == MimeTypes.TXT
+
     assert a.id != b.id
+
     assert a.raw().decode("utf-8") == "A"
     a.delete()
     b.delete()
