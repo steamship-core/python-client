@@ -56,7 +56,8 @@
       "args": [
         {
           "name": "name",
-          "kind": "<class 'str'>"
+          "kind": "<class 'str'>",
+          "values": null
         }
       ],
       "config": {
@@ -75,14 +76,16 @@
       "args": [
         {
           "kind": "<class 'str'>",
-          "name": "name"
+          "name": "name",
+          "values": null
         }
       ],
       "config": {},
       "verb": "POST"
     },
      {
-         "args": [{"kind": "<class 'str'>", "name": "name"}],
+         "args": [{"kind": "<class 'str'>", "name": "name",
+          "values": null}],
          "config": {},
          "doc": null,
          "path": "/future_greet",
@@ -90,7 +93,8 @@
          "verb": "POST"
      },
      {
-         "args": [{"kind": "<class 'str'>", "name": "name"}],
+         "args": [{"kind": "<class 'str'>", "name": "name",
+          "values": null}],
          "config": {},
          "doc": null,
          "path": "/future_greet_then_greet_again",
@@ -153,7 +157,8 @@
       "args": [
         {
           "name": "fact",
-          "kind": "<class 'str'>"
+          "kind": "<class 'str'>",
+          "values": null
         }
       ],
       "verb": "POST"
@@ -166,11 +171,13 @@
       "args": [
         {
           "name": "query",
-          "kind": "<class 'str'>"
+          "kind": "<class 'str'>",
+          "values": null
         },
         {
           "name": "k",
-          "kind": "<class 'int'>"
+          "kind": "<class 'int'>",
+          "values": null
         }
       ],
       "verb": "POST"

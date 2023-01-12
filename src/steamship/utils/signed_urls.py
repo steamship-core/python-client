@@ -8,9 +8,6 @@ import requests
 from steamship import SteamshipError
 from steamship.utils.url import apply_localstack_url_fix
 
-# If this isn't present, Localstack won't show logs
-logging.getLogger().setLevel(logging.INFO)
-
 
 def url_to_json(url: str) -> any:
     """
@@ -65,9 +62,9 @@ def download_from_signed_url(url: str, to_file: Path = None) -> Path:
         to_file.parent.mkdir(parents=True, exist_ok=True)
 
     with open(to_file, "wb") as f:
-        logging.info(f"Got contents of: {url}")
+        logging.debug(f"Got contents of: {url}")
         f.write(content)
-        logging.info(f"Wrote contents of: {url} to {to_file}")
+        logging.debug(f"Wrote contents of: {url} to {to_file}")
     return Path(to_file)
 
 
