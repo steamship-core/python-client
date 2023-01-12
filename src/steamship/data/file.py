@@ -166,8 +166,8 @@ class File(CamelModel):
         req = {
             "type": FileUploadType.FILE_IMPORTER,
             "url": url,
-            "mime_type": mime_type,
-            "plugin_instance": plugin_instance,
+            "mimeType": mime_type,
+            "pluginInstance": plugin_instance,
         }
 
         return client.post("file/create", payload=req, expect=File, as_background_task=True)
