@@ -303,6 +303,23 @@ class SentimentTag(Tag):
         )
 
 
+class EmbeddingTag(Tag):
+    def __init__(
+        self,
+        embedding: List[Union[float, int]] = None,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(
+            kind=TagKind.EMBEDDING,
+            name="embedding",
+            start_idx=start_idx,
+            end_idx=end_idx,
+            value={**value, TagValueKey.VECTOR_VALUE: embedding},
+        )
+
+
 class TagQueryResponse(Response):
     tags: List[Tag]
 
