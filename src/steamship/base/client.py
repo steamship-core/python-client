@@ -415,7 +415,7 @@ class Client(CamelModel, ABC):
 
         data = self._prepare_data(payload=payload)
 
-        logging.info(
+        logging.debug(
             f"Making {verb} to {url} in workspace {self.config.workspace_handle}/{self.config.workspace_id}"
         )
         if verb == Verb.POST:
@@ -429,7 +429,7 @@ class Client(CamelModel, ABC):
         else:
             raise Exception(f"Unsupported verb: {verb}")
 
-        logging.info(f"From {verb} to {url} got HTTP {resp.status_code}")
+        logging.debug(f"From {verb} to {url} got HTTP {resp.status_code}")
 
         if debug is True:
             logging.debug(f"Got response {resp}")

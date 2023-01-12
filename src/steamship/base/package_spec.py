@@ -1,5 +1,6 @@
 """Objects for recording and reporting upon the introspected interface of a Steamship Package."""
 import inspect
+from enum import Enum
 from typing import Dict, List, Optional, Union
 
 from steamship import SteamshipError
@@ -14,13 +15,19 @@ class ArgSpec(CamelModel):
     name: str
     # The kind of the argument, reported by str(annotation) via the `inspect` library. E.g. <class 'int'>
     kind: str
+    # Possible values, if the kind is an enum type
+    values: Optional[List[str]]
 
     def __init__(self, name: str, parameter: inspect.Parameter):
         if name == "self":
             raise SteamshipError(
                 message="Attempt to interpret the `self` object as a method parameter."
             )
-        super().__init__(name=name, kind=str(parameter.annotation))
+        if issubclass(parameter.annotation, Enum):
+            values = [choice.value for choice in parameter.annotation]
+        else:
+            values = None
+        super().__init__(name=name, kind=str(parameter.annotation), values=values)
 
     def pprint(self, name_width: Optional[int] = None, prefix: str = "") -> str:
         """Returns a pretty printable representation of this argument."""

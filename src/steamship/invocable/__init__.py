@@ -4,6 +4,7 @@ from .invocable_request import InvocableRequest, Invocation, InvocationContext, 
 from .invocable_response import InvocableResponse
 from .lambda_handler import create_handler, safe_handler
 from .package_service import PackageService
+from .paramater_types import longstr
 
 __all__ = [
     "Invocable",
@@ -18,4 +19,5 @@ __all__ = [
     "LoggingConfig",
     "PackageService",
     "safe_handler",
+    "longstr",
 ]

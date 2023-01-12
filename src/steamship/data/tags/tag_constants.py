@@ -174,8 +174,17 @@ class TagValueKey(str, Enum):
     # Catch-all for values of different types such as integers, floats, booleans, and strings
     VALUE = "value"
 
-    # Special type for vectors
+    # An array of floats or integers
     VECTOR_VALUE = "vector-value"
+
+    # A float or integer
+    NUMBER_VALUE = "number-value"
+
+    # A bool
+    BOOL_VALUE = "bool-value"
+
+    # A string
+    STRING_VALUE = "string-value"
 
     # Whether some annotation is direct ("Susan said 'Hi'")
     DIRECT = "direct"
