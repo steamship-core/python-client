@@ -8,7 +8,7 @@ from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
 
-from steamship.data import TagKind, TagValue
+from steamship.data import TagKind, TagValueKey
 from steamship.data.plugin import PluginType
 
 
@@ -25,14 +25,14 @@ def test_e2e_embedder():
         e1.wait()
         assert count_embeddings(e1.output.file) == 1
         assert e1.output.file.blocks[0].tags[0].kind == TagKind.EMBEDDING
-        assert len(e1.output.file.blocks[0].tags[0].value[TagValue.VECTOR_VALUE]) > 1
+        assert len(e1.output.file.blocks[0].tags[0].value[TagValueKey.VECTOR_VALUE]) > 1
 
         e2 = instance.tag("This is a test")
         e2.wait()
         assert count_embeddings(e2.output.file) == 1
         assert e2.output.file.blocks[0].tags[0].kind == TagKind.EMBEDDING
-        assert len(e2.output.file.blocks[0].tags[0].value[TagValue.VECTOR_VALUE]) == len(
-            e1.output.file.blocks[0].tags[0].value[TagValue.VECTOR_VALUE]
+        assert len(e2.output.file.blocks[0].tags[0].value[TagValueKey.VECTOR_VALUE]) == len(
+            e1.output.file.blocks[0].tags[0].value[TagValueKey.VECTOR_VALUE]
         )
 
         e4 = instance.tag("This is a test")

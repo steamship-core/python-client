@@ -1,25 +1,11 @@
 from .tag import Tag
-from .tag_constants import (
-    DocTag,
-    EmotionTag,
-    EntityTag,
-    GenerationTag,
-    IntentTag,
-    SentimentTag,
-    TagKind,
-    TagValue,
-    TokenTag,
-)
+from .tag_constants import DocTag, GenerationTag, TagKind, TagValueKey, TokenTag
 
 __all__ = [
     "DocTag",
-    "EmotionTag",
-    "SentimentTag",
-    "IntentTag",
-    "EntityTag",
     "Tag",
     "TagKind",
     "TokenTag",
-    "TagValue",
+    "TagValueKey",
     "GenerationTag",
 ]

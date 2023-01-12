@@ -200,7 +200,6 @@ class Invocable(ABC):
         method_spec = MethodSpec(cls, name, path=path, verb=verb, config=config)
         # It's important to use method_spec.path below since that's the CLEANED path.
         cls._method_mappings[verb][method_spec.path] = name
-        # TODO Dave: this log call is not going to the remote logger, but should
         logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
         return method_spec
 

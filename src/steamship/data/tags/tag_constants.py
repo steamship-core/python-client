@@ -21,6 +21,10 @@ class TagKind(str, Enum):
     GENERATION = "generation"
     PROVENANCE = "provenance"
     TOPIC = "topic"
+    TOKENIZATION = "tokenization"
+    KIND = "summary"
+    TIMESTAMP = "timestamp"
+    SUMMARY = "summary"
 
 
 class DocTag(str, Enum):
@@ -161,65 +165,29 @@ class TokenTag(str, Enum):
     LANGUAGE = "language"
 
 
-class SentimentTag(str, Enum):
-    """A set of `name` constants for Tags with a `kind` of `TagKind.sentiment`."""
-
-    POSITIVE = "positive"
-    NEUTRAL = "neutral"
-    NEGATIVE = "negative"
-    SCORE = "score"
-
-
-class EmotionTag(str, Enum):
-    """A set of `name` constants for Tags with a `kind` of `TagKind.emotion`."""
-
-    POSITIVE = "positive"
-    NEUTRAL = "neutral"
-    NEGATIVE = "negative"
-    HAPPINESS = "happiness"
-    SADNESS = "sadness"
-    JOY = "joy"
-    LOVE = "love"
-    ANGER = "anger"
-    FEAR = "fear"
-    SURPRISE = "surprise"
-    HUMOR = "humor"
-    CONCERN = "concern"
-    SERIOUSNESS = "seriousness"
-    SCORE = "score"
-
-
-class IntentTag(str, Enum):
-    """A set of `name` constants for Tags with a `kind` of `TagKind.intent`."""
-
-    SALUTATION = "salutation"
-    PRAISE = "praise"
-    COMPLAINT = "complaint"
-    QUESTION = "question"
-    REQUEST = "request"
-    EXPLANATION = "explanation"
-    SCHEDULING_REQUEST = "scheduling-request"
-    ARE_YOU_THERE = "are-you-there"
-    REVISITING_TOPIC = "revisiting-topic"
-
-
-class TagValue(str, Enum):
+class TagValueKey(str, Enum):
     """A set of key constants for the `value` object within a tag.."""
 
     # Catch-all for confidence, score, ranking
     SCORE = "score"
 
-    # A list of numbers. E.g. for an embedding
+    # Catch-all for values of different types such as integers, floats, booleans, and strings
+    VALUE = "value"
+
+    # An array of floats or integers
     VECTOR_VALUE = "vector-value"
+
+    # A float or integer
     NUMBER_VALUE = "number-value"
+
+    # A bool
     BOOL_VALUE = "bool-value"
+
+    # A string
     STRING_VALUE = "string-value"
 
     # Whether some annotation is direct ("Susan said 'Hi'")
     DIRECT = "direct"
-
-    # Whether some annotation is indirect ("Susan said Bob said 'Hi'")
-    INDIRECT = "indirect"
 
     # Start time of a region of a document, in some other medium (seconds)
     START_TIME_S = "start-time-s"
@@ -227,26 +195,8 @@ class TagValue(str, Enum):
     # End time of a region of a document, in some other medium (seconds)
     END_TIME_S = "end-time-s"
 
-    # Start time of a region of a document, in some other medium (milliseconds)
-    START_TIME_MS = "start-time-ms"
-
-    # End time of a region of a document, in some other medium (milliseconds)
-    END_TIME_MS = "end-time-ms"
-
-
-class EntityTag(str, Enum):
-    """A set of `name` constants for Tags with a `kind` of `TagKind.entity`."""
-
-    PERSON = "person"
-    ORGANIZATION = "organization"
-    PRODUCT = "product"
-    LOCATION = "location"
-    DATE = "date"
-    TIME = "time"
-    MONEY = "money"
-    PERCENT = "percent"
-    FACILITY = "facility"
-    GEO_POLITICAL_ENTITY = "geo-political-entity"
+    # The normalized name of an entity
+    ENTITY_NAME = "entity_name"
 
 
 class GenerationTag(str, Enum):
