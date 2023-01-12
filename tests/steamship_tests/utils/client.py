@@ -5,7 +5,7 @@ from steamship import Configuration, Steamship
 from steamship.data.package.package_instance import PackageInstance
 from steamship.data.plugin.plugin_instance import PluginInstance
 
-TESTING_PROFILE = "staging"
+TESTING_PROFILE = "test"
 
 
 def get_steamship_client(fail_if_workspace_exists=False, **kwargs) -> Steamship:
