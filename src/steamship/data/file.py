@@ -60,12 +60,12 @@ class File(CamelModel):
         mime_type: str = None
 
         def __init__(
-            self,
-            data: Any = None,
-            string: str = None,
-            _bytes: Union[bytes, io.BytesIO] = None,
-            json: io.BytesIO = None,
-            mime_type: str = None,
+                self,
+                data: Any = None,
+                string: str = None,
+                _bytes: Union[bytes, io.BytesIO] = None,
+                json: io.BytesIO = None,
+                mime_type: str = None,
         ):
             super().__init__()
             data, mime_type, encoding = flexi_create(
@@ -96,9 +96,9 @@ class File(CamelModel):
 
     @staticmethod
     def get(
-        client: Client,
-        _id: str = None,
-        handle: str = None,
+            client: Client,
+            _id: str = None,
+            handle: str = None,
     ) -> File:
         return client.post(
             "file/get",
@@ -108,12 +108,12 @@ class File(CamelModel):
 
     @staticmethod
     def create(
-        client: Client,
-        content: Union[str, bytes] = None,
-        mime_type: MimeTypes = None,
-        handle: str = None,
-        blocks: List[Block] = None,
-        tags: List[Tag] = None,
+            client: Client,
+            content: Union[str, bytes] = None,
+            mime_type: MimeTypes = None,
+            handle: str = None,
+            blocks: List[Block] = None,
+            tags: List[Tag] = None,
     ) -> File:
 
         if content is None and blocks is None:
@@ -133,13 +133,13 @@ class File(CamelModel):
         else:
             raise Exception("Unable to determine upload type.")
 
-        req = File(
-            handle=handle,
-            type=upload_type,
-            mime_type=mime_type,
-            blocks=blocks,
-            tags=tags,
-        )
+        req = {
+            "handle": handle,
+            "type": upload_type,
+            "mimeType": mime_type,
+            "blocks": blocks,
+            "tags": tags,
+        }
 
         file_data = (
             ("file-part", content, "multipart/form-data")
@@ -157,10 +157,10 @@ class File(CamelModel):
 
     @staticmethod
     def create_with_plugin(
-        client: Client,
-        plugin_instance: str,
-        url: str = None,
-        mime_type: str = None,
+            client: Client,
+            plugin_instance: str,
+            url: str = None,
+            mime_type: str = None,
     ) -> Task[File]:
 
         req = {
@@ -180,8 +180,8 @@ class File(CamelModel):
 
     @staticmethod
     def query(
-        client: Client,
-        tag_filter_query: str,
+            client: Client,
+            tag_filter_query: str,
     ) -> FileQueryResponse:
 
         req = FileQueryRequest(tag_filter_query=tag_filter_query)
@@ -215,9 +215,9 @@ class File(CamelModel):
         )
 
     def tag(
-        self,
-        plugin_instance: str = None,
-        wait_on_tasks: List[Task] = None,
+            self,
+            plugin_instance: str = None,
+            wait_on_tasks: List[Task] = None,
     ) -> Task[TagResponse]:
         from steamship.data.operations.tagger import TagRequest, TagResponse
         from steamship.data.plugin import PluginTargetType

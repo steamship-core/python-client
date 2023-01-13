@@ -195,6 +195,7 @@ class TagValueKey(str, Enum):
     # End time of a region of a document, in some other medium (seconds)
     END_TIME_S = "end-time-s"
 
+    # The normalized name of an entity
     ENTITY_NAME = "entity_name"
 
 
