@@ -1,6 +1,7 @@
 from typing import Optional, Type, Union
 
 from steamship import Tag
+from steamship.data import TagValueKey
 from steamship.invocable import Config, InvocableResponse, create_handler
 from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
@@ -19,6 +20,9 @@ class TestParserPlugin(Tagger):
         # If this is non-optional, the typecheck fails despite the fact that the test passes
         # in a value of false....
         boolean_value: Optional[bool] = False
+        string_value: Optional[str] = ""
+
+    config: TestParserConfig
 
     def config_cls(self) -> Type[Config]:
         return self.TestParserConfig
@@ -29,8 +33,9 @@ class TestParserPlugin(Tagger):
         tag_kind = self.config.tag_kind
         tag_name = self.config.tag_name
         tag_value = {
-            "numberValue": self.config.number_value,
-            "booleanValue": self.config.boolean_value,
+            TagValueKey.NUMBER_VALUE: self.config.number_value,
+            TagValueKey.BOOL_VALUE: self.config.boolean_value,
+            TagValueKey.STRING_VALUE: self.config.string_value,
         }
 
         if request.data is not None:

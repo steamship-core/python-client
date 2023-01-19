@@ -15,12 +15,20 @@ from steamship.data.plugin.index_plugin_instance import (
     SHIMMED_INDEX_PLUGIN_HANDLES,
     EmbeddingIndexPluginInstance,
 )
+from steamship.data.plugin.prompt_generation_plugin_instance import PromptGenerationPluginInstance
 
 _logger = logging.getLogger(__name__)
 
 
 class Steamship(Client):
     """Steamship Python Client."""
+
+    # Some plugins get special subclasses to support experimentation with helper methods and/or
+    # complex plugins (like embedding indices) that rely on the coordination of several moving parts.
+    _PLUGIN_SHIMS = {
+        "prompt-generation-default": PromptGenerationPluginInstance,
+        "prompt-generation-trainable-default": PromptGenerationPluginInstance,
+    }
 
     def __init__(
         self,
@@ -147,6 +155,10 @@ class Steamship(Client):
         return instance
 
     @staticmethod
+    def register_plugin_shim(plugin_handle: str, plugin_class: PluginInstance):
+        Steamship._PLUGIN_SHIMS[plugin_handle] = plugin_class
+
+    @staticmethod
     def use_plugin(
         plugin_handle: str,
         instance_handle: Optional[str] = None,
@@ -239,7 +251,7 @@ class Steamship(Client):
         # This is a shim to make Embedding Indices feel as if they are Plugins.
         # If it works well, we'll turn them into actual plugins on the engine-side.
         if plugin_handle in SHIMMED_INDEX_PLUGIN_HANDLES:
-            instance = EmbeddingIndexPluginInstance.create(
+            return EmbeddingIndexPluginInstance.create(
                 self,
                 plugin_handle=plugin_handle,
                 plugin_version_handle=version,
@@ -247,7 +259,15 @@ class Steamship(Client):
                 config=config,
                 fetch_if_exists=fetch_if_exists,
             )
-            return instance
+        elif plugin_handle in Steamship._PLUGIN_SHIMS:
+            return Steamship._PLUGIN_SHIMS[plugin_handle].create(
+                self,
+                plugin_handle=plugin_handle,
+                plugin_version_handle=version,
+                handle=instance_handle,
+                config=config,
+                fetch_if_exists=fetch_if_exists,
+            )
 
         instance = PluginInstance.create(
             self,

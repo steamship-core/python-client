@@ -1,15 +1,19 @@
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from steamship import Block, File, PluginInstance
+from steamship.base.client import Client
+from steamship.data.plugin.plugin_instance import CreatePluginInstanceRequest
 from steamship.data.tags.tag_constants import TagKind, TagValueKey
 
 
-class PromptPluginInstance(PluginInstance):
-    """An instance of a configured prompt-completion service.
+class PromptGenerationPluginInstance(PluginInstance):
+    """An instance of a configured prompt completion service such as GPT-3.
 
-    Usage:
-       llm = Steamship.use('llm', config={ args })
+    The `generate` method synchronously invokes the prompt against a set of variables that parameterize it.
+    The return value is a single string.
 
+    Example Usage:
+       llm = Steamship.use('prompt-generation-default', config={ "temperature": 0.9 })
        PROMPT = "Greet {name} as if he were a {relation}."
        greeting = llm.generate(PROMPT, {"name": "Ted", "relation": "old friend"})
     """
@@ -43,8 +47,36 @@ class PromptPluginInstance(PluginInstance):
             for block_tag in text_block.tags:
                 if block_tag.kind == TagKind.GENERATION:
                     return self._clean_output(block_tag.value[TagValueKey.STRING_VALUE])
-
         return ""
+
+    @staticmethod
+    def create(
+        client: Client,
+        plugin_id: str = None,
+        plugin_handle: str = None,
+        plugin_version_id: str = None,
+        plugin_version_handle: str = None,
+        handle: str = None,
+        fetch_if_exists: bool = True,
+        config: Dict[str, Any] = None,
+    ) -> "PromptGenerationPluginInstance":
+        """Create a plugin instance
+
+        When handle is empty the engine will automatically assign one
+        fetch_if_exists controls whether we want to re-use an existing plugin instance or not."""
+        req = CreatePluginInstanceRequest(
+            handle=handle,
+            plugin_id=plugin_id,
+            plugin_handle=plugin_handle,
+            plugin_version_id=plugin_version_id,
+            plugin_version_handle=plugin_version_handle,
+            fetch_if_exists=fetch_if_exists,
+            config=config,
+        )
+
+        return client.post(
+            "plugin/instance/create", payload=req, expect=PromptGenerationPluginInstance
+        )
 
     def _clean_output(self, text: str):
         """Remove any leading/trailing whitespace and partial sentences.
