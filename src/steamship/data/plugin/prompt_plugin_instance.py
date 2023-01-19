@@ -5,7 +5,14 @@ from steamship.data.tags.tag_constants import TagKind, TagValueKey
 
 
 class PromptPluginInstance(PluginInstance):
-    """An instance of a configured prompt-completion service.s"""
+    """An instance of a configured prompt-completion service.
+
+    Usage:
+       llm = Steamship.use('llm', config={ args })
+
+       PROMPT = "Greet {name} as if he were a {relation}."
+       greeting = llm.generate(PROMPT, {"name": "Ted", "relation": "old friend"})
+    """
 
     def generate(self, prompt: str, variables: Optional[Dict] = None) -> str:
         """Complete the provided prompt, interpolating any variables."""
