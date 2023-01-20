@@ -81,17 +81,14 @@ class CsvBlockifier(Blockifier):
             escapechar=self.config.escapechar,
             skipinitialspace=self.config.skipinitialspace,
         )
-        file = File.CreateRequest(blocks=[])
+        file = File(blocks=[])
         for row in reader:
             text = self._get_text(row)
             tag_values = self._get_tags(row)
 
-            block = Block.CreateRequest(
+            block = Block(
                 text=text,
-                tags=[
-                    Tag.CreateRequest(kind=self.config.tag_kind, name=tag_value)
-                    for tag_value in tag_values
-                ],
+                tags=[Tag(kind=self.config.tag_kind, name=tag_value) for tag_value in tag_values],
             )
             file.blocks.append(block)
 

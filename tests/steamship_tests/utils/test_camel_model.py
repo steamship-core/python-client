@@ -3,13 +3,13 @@ from steamship.invocable import InvocableResponse
 
 
 def test_camel_all_levels():
-    tag = Tag.CreateRequest(kind="kind", name="name", start_idx=0, end_idx=10)
+    tag = Tag(kind="kind", name="name", start_idx=0, end_idx=10)
     tagd = tag.dict(by_alias=True)
 
     assert tagd.get("startIdx") == 0
     assert tagd.get("endIdx") == 10
 
-    block = Block.CreateRequest(tags=[tag])
+    block = Block(tags=[tag])
     blockd = block.dict(by_alias=True)
 
     tags = blockd.get("tags")

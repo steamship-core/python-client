@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import io
-import logging
 from enum import Enum
-from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, List, Type, Union
 
 from pydantic import BaseModel, Field
 
-from steamship import SteamshipError
+from steamship import MimeTypes, SteamshipError
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest, Request
@@ -23,15 +22,9 @@ if TYPE_CHECKING:
 
 
 class FileUploadType(str, Enum):
-    FILE = "file"  # The CreateRequest contains a file upload that should be used
-    VALUE = "value"  # The Create Request contains a `text` field that should be used
-    FILE_IMPORTER = (
-        "fileImporter"  # The CreateRequest contains a fileImporter handle that should be used
-    )
-    BLOCKS = "blocks"  # The CreateRequest contains blocks and tags that should be read in directly
-
-
-_logger = logging.getLogger(__name__)
+    FILE = "file"  # A file uploaded as bytes or a string
+    FILE_IMPORTER = "fileImporter"  # A fileImporter will be used to create the file
+    BLOCKS = "blocks"  # Blocks are sent to create a file
 
 
 class FileClearResponse(Response):
@@ -56,24 +49,11 @@ class File(CamelModel):
     client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
-    mime_type: str = None
+    mime_type: MimeTypes = None
     workspace_id: str = None
     blocks: List[Block] = []
     tags: List[Tag] = []
     filename: str = None
-
-    class CreateRequest(Request):
-        value: str = None
-        data: str = None
-        id: str = None
-        url: str = None
-        handle: str = None
-        filename: str = None
-        type: FileUploadType = None
-        mime_type: str = None
-        blocks: Optional[List[Block.CreateRequest]] = []
-        tags: Optional[List[Tag.CreateRequest]] = []
-        plugin_instance: str = None
 
     class CreateResponse(Response):
         data_: Any = None
@@ -130,10 +110,10 @@ class File(CamelModel):
     def create(
         client: Client,
         content: Union[str, bytes] = None,
-        mime_type: str = None,
+        mime_type: MimeTypes = None,
         handle: str = None,
-        blocks: List[Block.CreateRequest] = None,
-        tags: List[Tag.CreateRequest] = None,
+        blocks: List[Block] = None,
+        tags: List[Tag] = None,
     ) -> File:
 
         if content is None and blocks is None:
@@ -153,13 +133,18 @@ class File(CamelModel):
         else:
             raise Exception("Unable to determine upload type.")
 
-        req = File.CreateRequest(
-            handle=handle,
-            type=upload_type,
-            mime_type=mime_type,
-            blocks=blocks,
-            tags=tags,
-        )
+        req = {
+            "handle": handle,
+            "type": upload_type,
+            "mimeType": mime_type,
+            "blocks": [
+                block.dict(by_alias=True, exclude_unset=True, exclude_none=True)
+                for block in blocks or []
+            ],
+            "tags": [
+                tag.dict(by_alias=True, exclude_unset=True, exclude_none=True) for tag in tags or []
+            ],
+        }
 
         file_data = (
             ("file-part", content, "multipart/form-data")
@@ -183,12 +168,12 @@ class File(CamelModel):
         mime_type: str = None,
     ) -> Task[File]:
 
-        req = File.CreateRequest(
-            type=FileUploadType.FILE_IMPORTER,
-            url=url,
-            mime_type=mime_type,
-            plugin_instance=plugin_instance,
-        )
+        req = {
+            "type": FileUploadType.FILE_IMPORTER,
+            "url": url,
+            "mimeType": mime_type,
+            "pluginInstance": plugin_instance,
+        }
 
         return client.post("file/create", payload=req, expect=File, as_background_task=True)
 
@@ -274,5 +259,4 @@ class FileQueryResponse(Response):
     files: List[File]
 
 
-File.CreateRequest.update_forward_refs()
 ListFileResponse.update_forward_refs()

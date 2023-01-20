@@ -51,7 +51,7 @@ class TestTrainableTaggerConfigModel(TrainableModel[TestConfig]):
         assert self.config is not None
         assert self.config.test_value1 is not None
         assert self.config.test_value2 is not None
-        response = InvocableResponse(data=BlockAndTagPluginOutput(file=File.CreateRequest(tags=[])))
+        response = InvocableResponse(data=BlockAndTagPluginOutput(file=File(tags=[])))
         logging.info(f"TestTrainableTaggerModel:run() returning {response}")
         return response
 
