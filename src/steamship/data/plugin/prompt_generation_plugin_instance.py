@@ -1,6 +1,6 @@
 from typing import Any, Dict, Optional
 
-from steamship import Block, File, PluginInstance
+from steamship import Block, File, PluginInstance, SteamshipError
 from steamship.base.client import Client
 from steamship.data.plugin.plugin_instance import CreatePluginInstanceRequest
 from steamship.data.tags.tag_constants import TagKind, TagValueKey
@@ -21,7 +21,13 @@ class PromptGenerationPluginInstance(PluginInstance):
     def generate(self, prompt: str, variables: Optional[Dict] = None) -> str:
         """Complete the provided prompt, interpolating any variables."""
 
-        prompt_text = prompt.format(**variables)
+        # Interpolate the prompt with Python formatting semantics. If no variables provided, supply an empty dict.
+        try:
+            prompt_text = prompt.format(**(variables or {}))
+        except KeyError as e:
+            raise SteamshipError(
+                message="Some variables in the prompt template were not provided.", error=e
+            )
 
         # Each prompt will be stored in Steamship as a File. The generated text will be
         # associated with the prompt File via Steamship tags. This enables later retrieval
@@ -35,7 +41,10 @@ class PromptGenerationPluginInstance(PluginInstance):
         # plugin will result in a new tag that contains the generated output.
         # We `wait()` because generation of text is done asynchronously and may take a few moments
         # (somewhat depending on the complexity of your prompt).
-        file.tag(plugin_instance=self.handle).wait()
+        tag_task = file.tag(plugin_instance=self.handle)
+
+        # Prompt completion happens asynchronously and remotely. We await the results here.
+        tag_task.wait()
 
         # Here, we iterate through the content blocks associated with a file
         # as well as any tags on that content to find the generated text.
@@ -43,7 +52,7 @@ class PromptGenerationPluginInstance(PluginInstance):
         # The Steamship data model provides flexible content organization,
         # storage, and lookup. Read more about the data model via:
         # https://docs.steamship.com/workspaces/data_model/index.html
-        for text_block in file.blocks:
+        for text_block in tag_task.output.file.blocks:
             for block_tag in text_block.tags:
                 if block_tag.kind == TagKind.GENERATION:
                     return self._clean_output(block_tag.value[TagValueKey.STRING_VALUE])

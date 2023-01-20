@@ -15,7 +15,7 @@ class TestParserPlugin(Tagger):
     class TestParserConfig(Config):
         tag_kind: str
         tag_name: str
-        number_value: Union[int, float]
+        number_value: Optional[Union[int, float]] = None
         # TODO: Check to see if python and/or swift removes False from obj.
         # If this is non-optional, the typecheck fails despite the fact that the test passes
         # in a value of false....

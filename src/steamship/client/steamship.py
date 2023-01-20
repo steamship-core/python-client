@@ -11,10 +11,7 @@ from steamship.client.skill_to_provider import SKILL_TO_PROVIDER
 from steamship.client.skills import Skill
 from steamship.client.vendors import Vendor
 from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
-from steamship.data.plugin.index_plugin_instance import (
-    SHIMMED_INDEX_PLUGIN_HANDLES,
-    EmbeddingIndexPluginInstance,
-)
+from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
 from steamship.data.plugin.prompt_generation_plugin_instance import PromptGenerationPluginInstance
 
 _logger = logging.getLogger(__name__)
@@ -23,11 +20,15 @@ _logger = logging.getLogger(__name__)
 class Steamship(Client):
     """Steamship Python Client."""
 
-    # Some plugins get special subclasses to support experimentation with helper methods and/or
-    # complex plugins (like embedding indices) that rely on the coordination of several moving parts.
-    _PLUGIN_SHIMS = {
+    # Some plugin instances use special subclasses which provide helper methods and/or more complex
+    # behavior than typical PluginInstance subclass permits. Examples are:
+    #
+    # - Embedding indices (which much coordinate both embedding taggers & vector indices)
+    # - Prompt generators (which benefit from supporting, prompt-specific, methods)
+    _PLUGIN_INSTANCE_SUBCLASS_OVERRIDES = {
         "prompt-generation-default": PromptGenerationPluginInstance,
         "prompt-generation-trainable-default": PromptGenerationPluginInstance,
+        "embedding-index": EmbeddingIndexPluginInstance,
     }
 
     def __init__(
@@ -143,7 +144,7 @@ class Steamship(Client):
         """
         if instance_handle is None:
             instance_handle = package_handle
-        instance = PackageInstance.create(
+        return PackageInstance.create(
             self,
             package_handle=package_handle,
             package_version_handle=version,
@@ -152,11 +153,10 @@ class Steamship(Client):
             fetch_if_exists=fetch_if_exists,
         )
 
-        return instance
-
     @staticmethod
-    def register_plugin_shim(plugin_handle: str, plugin_class: PluginInstance):
-        Steamship._PLUGIN_SHIMS[plugin_handle] = plugin_class
+    def register_plugin_instance_subclass(plugin_handle: str, plugin_class: PluginInstance):
+        """Register that subclass `plugin_class` should be used for instances of plugin handle `plugin_handle`."""
+        Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES[plugin_handle] = plugin_class
 
     @staticmethod
     def use_plugin(
@@ -248,19 +248,8 @@ class Steamship(Client):
         if instance_handle is None:
             instance_handle = plugin_handle
 
-        # This is a shim to make Embedding Indices feel as if they are Plugins.
-        # If it works well, we'll turn them into actual plugins on the engine-side.
-        if plugin_handle in SHIMMED_INDEX_PLUGIN_HANDLES:
-            return EmbeddingIndexPluginInstance.create(
-                self,
-                plugin_handle=plugin_handle,
-                plugin_version_handle=version,
-                handle=instance_handle,
-                config=config,
-                fetch_if_exists=fetch_if_exists,
-            )
-        elif plugin_handle in Steamship._PLUGIN_SHIMS:
-            return Steamship._PLUGIN_SHIMS[plugin_handle].create(
+        if plugin_handle in Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES:
+            return Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES[plugin_handle].create(
                 self,
                 plugin_handle=plugin_handle,
                 plugin_version_handle=version,
@@ -269,7 +258,7 @@ class Steamship(Client):
                 fetch_if_exists=fetch_if_exists,
             )
 
-        instance = PluginInstance.create(
+        return PluginInstance.create(
             self,
             plugin_handle=plugin_handle,
             plugin_version_handle=version,
@@ -277,8 +266,6 @@ class Steamship(Client):
             config=config,
             fetch_if_exists=fetch_if_exists,
         )
-
-        return instance
 
     def get_workspace(self) -> Workspace:
         # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes

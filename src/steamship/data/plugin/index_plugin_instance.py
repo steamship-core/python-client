@@ -19,11 +19,6 @@ class EmbedderInvocation(CamelModel):
     fetch_if_exists: bool = True
 
 
-# Hard coded list of plugin handles that the Steamship client will use to create
-# instance of this object instead of a normal PluginInstance.
-SHIMMED_INDEX_PLUGIN_HANDLES = ["embedding-index"]
-
-
 class SearchResult(CamelModel):
     """A single scored search result -- which is always a tag.
 
@@ -181,8 +176,6 @@ class EmbeddingIndexPluginInstance(PluginInstance):
         config: Dict[str, Any] = None,
     ) -> "EmbeddingIndexPluginInstance":
         """Create a class that simulates an embedding index re-implemented as a PluginInstance."""
-        if plugin_handle not in SHIMMED_INDEX_PLUGIN_HANDLES:
-            raise SteamshipError(message=f"No Embedding Index of type {plugin_handle} was found.")
 
         # Perform a manual config validation check since the configuration isn't actually being sent up to the Engine.
         # In this case, an embedding index has special behavior which is to instantiate/fetch an Embedder that it can use.
