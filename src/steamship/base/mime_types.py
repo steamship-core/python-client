@@ -26,6 +26,7 @@ class MimeTypes(str, Enum):
     MP4_AUDIO = "audio/mp4"
     WEBM_VIDEO = "video/webm"
     WEBM_AUDIO = "audio/webm"
+    FILE_JSON = "fileJson"
 
 
 class ContentEncodings:

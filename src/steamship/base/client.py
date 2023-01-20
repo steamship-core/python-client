@@ -282,7 +282,7 @@ class Client(CamelModel, ABC):
         if payload is None:
             data = {}
         elif isinstance(payload, dict):
-            data = payload
+            data = {k: v for k, v in payload.items() if v is not None}
         elif isinstance(payload, BaseModel):
             data = payload.dict(by_alias=True, exclude_unset=True, exclude_none=True)
         else:
