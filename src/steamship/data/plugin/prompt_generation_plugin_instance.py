@@ -56,9 +56,11 @@ class PromptGenerationPluginInstance(PluginInstance):
                         else:
                             return generation
         except Exception as e:
-            logging.error("generate() got unexpected response shape back.")
+            logging.error(
+                "generate() got unexpected response shape back. This suggests an error rather an merely an empty response."
+            )
             logging.exception(e)
-            return ""
+            raise e
         return ""
 
     @staticmethod
