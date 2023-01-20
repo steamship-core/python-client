@@ -282,9 +282,9 @@ class Client(CamelModel, ABC):
         if payload is None:
             data = {}
         elif isinstance(payload, dict):
-            data = {k: v for k, v in payload.items() if v is not None}
+            data = payload
         elif isinstance(payload, BaseModel):
-            data = payload.dict(by_alias=True, exclude_unset=True, exclude_none=True)
+            data = payload.dict(by_alias=True)
         else:
             raise RuntimeError(f"Unable to parse payload of type {type(payload)}")
 

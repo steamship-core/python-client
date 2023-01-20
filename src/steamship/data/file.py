@@ -126,7 +126,7 @@ class File(CamelModel):
                 message="Please provide only `blocks` or `content` to `File.create`."
             )
 
-        if blocks is not None or tags is not None:
+        if blocks is not None:
             upload_type = FileUploadType.BLOCKS
         elif content is not None:
             upload_type = FileUploadType.FILE
