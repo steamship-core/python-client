@@ -1,6 +1,7 @@
+import logging
 from typing import Any, Dict, Optional
 
-from steamship import Block, File, PluginInstance, SteamshipError
+from steamship import PluginInstance, SteamshipError
 from steamship.base.client import Client
 from steamship.data.plugin.plugin_instance import CreatePluginInstanceRequest
 from steamship.data.tags.tag_constants import TagKind, TagValueKey
@@ -18,7 +19,9 @@ class PromptGenerationPluginInstance(PluginInstance):
        greeting = llm.generate(PROMPT, {"name": "Ted", "relation": "old friend"})
     """
 
-    def generate(self, prompt: str, variables: Optional[Dict] = None) -> str:
+    def generate(
+        self, prompt: str, variables: Optional[Dict] = None, clean_output: bool = True
+    ) -> str:
         """Complete the provided prompt, interpolating any variables."""
 
         # Interpolate the prompt with Python formatting semantics. If no variables provided, supply an empty dict.
@@ -29,21 +32,12 @@ class PromptGenerationPluginInstance(PluginInstance):
                 message="Some variables in the prompt template were not provided.", error=e
             )
 
-        # Each prompt will be stored in Steamship as a File. The generated text will be
-        # associated with the prompt File via Steamship tags. This enables later retrieval
-        # of prompts and their results (which may be used in subsequent operations, etc.).
-        #
-        # To learn about the Steamship data model, please consult our the docs:
-        # https://docs.steamship.com/workspaces/data_model/index.html
-        file = File.create(self.client, blocks=[Block.CreateRequest(text=prompt_text)])
-
         # This requests generation from the parameterized prompt. Tagging with our prompt generator
         # plugin will result in a new tag that contains the generated output.
+        tag_task = self.tag(doc=prompt_text)
+
         # We `wait()` because generation of text is done asynchronously and may take a few moments
         # (somewhat depending on the complexity of your prompt).
-        tag_task = file.tag(plugin_instance=self.handle)
-
-        # Prompt completion happens asynchronously and remotely. We await the results here.
         tag_task.wait()
 
         # Here, we iterate through the content blocks associated with a file
@@ -52,10 +46,19 @@ class PromptGenerationPluginInstance(PluginInstance):
         # The Steamship data model provides flexible content organization,
         # storage, and lookup. Read more about the data model via:
         # https://docs.steamship.com/workspaces/data_model/index.html
-        for text_block in tag_task.output.file.blocks:
-            for block_tag in text_block.tags:
-                if block_tag.kind == TagKind.GENERATION:
-                    return self._clean_output(block_tag.value[TagValueKey.STRING_VALUE])
+        try:
+            for text_block in tag_task.output.file.blocks:
+                for block_tag in text_block.tags:
+                    if block_tag.kind == TagKind.GENERATION:
+                        generation = block_tag.value[TagValueKey.STRING_VALUE]
+                        if clean_output:
+                            return self._clean_output(generation)
+                        else:
+                            return generation
+        except Exception as e:
+            logging.error("generate() got unexpected response shape back.")
+            logging.exception(e)
+            return ""
         return ""
 
     @staticmethod

@@ -154,11 +154,6 @@ class Steamship(Client):
         )
 
     @staticmethod
-    def register_plugin_instance_subclass(plugin_handle: str, plugin_class: PluginInstance):
-        """Register that subclass `plugin_class` should be used for instances of plugin handle `plugin_handle`."""
-        Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES[plugin_handle] = plugin_class
-
-    @staticmethod
     def use_plugin(
         plugin_handle: str,
         instance_handle: Optional[str] = None,

@@ -1,11 +1,10 @@
 import pytest
 from steamship_tests import PLUGINS_PATH
-from steamship_tests.utils.client import steamship_use_plugin
+from steamship_tests.utils.client import register_plugin_instance_subclass, steamship_use_plugin
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import SteamshipError
-from steamship.client.steamship import Steamship
 from steamship.data.plugin.prompt_generation_plugin_instance import PromptGenerationPluginInstance
 
 
@@ -20,7 +19,7 @@ def test_use_prompt():
         "tagger",
     ) as (plugin, version, instance):
         # Add this plugin to the list which will be cast into the PromptCompletionPluginInstance class.
-        Steamship.register_plugin_instance_subclass(plugin.handle, PromptGenerationPluginInstance)
+        register_plugin_instance_subclass(plugin.handle, PromptGenerationPluginInstance)
 
         # Now we just invoke use_plugin.
         # Note: this just applies Steamship.use_plugin with the same testing environment as the unit tests.

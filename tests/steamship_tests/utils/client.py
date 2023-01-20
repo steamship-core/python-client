@@ -80,3 +80,8 @@ def steamship_use_skill(
     # Clean up the workspace
     if delete_workspace:
         instance.client.get_workspace().delete()
+
+
+def register_plugin_instance_subclass(plugin_handle: str, plugin_class: PluginInstance):
+    """Register that subclass `plugin_class` should be used for instances of plugin handle `plugin_handle`."""
+    Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES[plugin_handle] = plugin_class
