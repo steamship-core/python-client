@@ -37,7 +37,7 @@ def test_dict_response():
 
 
 def test_resp_response():
-    o = BlockAndTagPluginOutput(file=File.CreateRequest(value="Foo", blocks=[], tags=[]))
+    o = BlockAndTagPluginOutput(file=File(value="Foo", blocks=[], tags=[]))
     r = InvocableResponse(json=o)
     d = r.dict()
     check_mime(d, MimeTypes.JSON)

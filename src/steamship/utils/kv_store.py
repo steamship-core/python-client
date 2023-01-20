@@ -48,8 +48,8 @@ class KeyValueStore:
                 return None
             return File.create(
                 self.client,
-                blocks=[Block.CreateRequest(text="")],
-                tags=[Tag.CreateRequest(kind=self.store_identifier, name=KV_STORE_MARKER)],
+                blocks=[Block(text="")],
+                tags=[Tag(kind=self.store_identifier, name=KV_STORE_MARKER)],
             )
         else:
             return status_files[0]
@@ -89,7 +89,7 @@ class KeyValueStore:
         # Now get/create the file
         file = self._get_file(or_create=True)
 
-        req = Tag.CreateRequest(file_id=file.id, kind=self.store_identifier, name=key, value=value)
+        req = Tag(file_id=file.id, kind=self.store_identifier, name=key, value=value)
         return self.client.post("tag/create", req, expect=Tag)
 
     def items(self, filter_keys: Optional[List[str]] = None) -> List[Tuple[str, Dict[str, Any]]]:

@@ -147,13 +147,11 @@ class ThirdPartyModel(TrainableModel):
                 message="No model_id was found in model parameter file. Has the model been trained?"
             )
 
-        output = BlockAndTagPluginOutput(file=File.CreateRequest(blocks=[]))
+        output = BlockAndTagPluginOutput(file=File(blocks=[]))
 
         for in_block in request.data.file.blocks:
             tags = self.client.infer(in_block.text, self.params["model_id"])
-            out_block = Block.CreateRequest(
-                id=in_block.id, tags=[Tag.CreateRequest(kind=tag) for tag in tags]
-            )
+            out_block = Block(id=in_block.id, tags=[Tag(kind=tag) for tag in tags])
             output.file.blocks.append(out_block)
 
         return output

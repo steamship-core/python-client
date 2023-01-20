@@ -21,7 +21,9 @@ def test_file_upload(client: Steamship):
     b = File.create(client=client, content="B", mime_type=MimeTypes.TXT)
     assert b.id is not None
     assert b.mime_type == MimeTypes.TXT
+
     assert a.id != b.id
+
     assert a.raw().decode("utf-8") == "A"
     a.delete()
     b.delete()
@@ -39,7 +41,7 @@ def test_file_upload_with_content_and_tags(client: Steamship):
         client=client,
         content="ABC",
         mime_type=MimeTypes.MKD,
-        tags=[Tag.CreateRequest(kind="SomeKind")],
+        tags=[Tag(kind="SomeKind")],
     )
     assert a.id is not None
     assert a.mime_type == MimeTypes.MKD
@@ -69,8 +71,8 @@ def test_file_upload_with_blocks(client: Steamship):
     a = File.create(
         client=client,
         blocks=[
-            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(kind="BlockTag")]),
-            Block.CreateRequest(text="B", tags=[Tag.CreateRequest(kind="BlockTag")]),
+            Block(text="A", tags=[Tag(kind="BlockTag")]),
+            Block(text="B", tags=[Tag(kind="BlockTag")]),
         ],
     )
     assert a.id is not None
@@ -97,10 +99,10 @@ def test_file_upload_with_blocks_and_tags(client: Steamship):
     a = File.create(
         client=client,
         blocks=[
-            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(kind="BlockTag")]),
-            Block.CreateRequest(text="B", tags=[Tag.CreateRequest(kind="BlockTag")]),
+            Block(text="A", tags=[Tag(kind="BlockTag")]),
+            Block(text="B", tags=[Tag(kind="BlockTag")]),
         ],
-        tags=[Tag.CreateRequest(kind="FileTag")],
+        tags=[Tag(kind="FileTag")],
     )
     assert a.id is not None
 
@@ -129,7 +131,7 @@ def test_file_upload_with_blocks_and_tags(client: Steamship):
 def test_file_upload_with_tags(client: Steamship):
     a = File.create(
         client=client,
-        tags=[Tag.CreateRequest(kind="FileTag")],
+        tags=[Tag(kind="FileTag")],
     )
     assert a.id is not None
 
@@ -154,15 +156,15 @@ def test_query(client: Steamship):
     a = File.create(
         client=client,
         blocks=[
-            Block.CreateRequest(text="A", tags=[Tag.CreateRequest(kind="BlockTag")]),
-            Block.CreateRequest(text="B"),
+            Block(text="A", tags=[Tag(kind="BlockTag")]),
+            Block(text="B"),
         ],
     )
     assert a.id is not None
     b = File.create(
         client=client,
-        blocks=[Block.CreateRequest(text="A"), Block.CreateRequest(text="B")],
-        tags=[Tag.CreateRequest(kind="FileTag")],
+        blocks=[Block(text="A"), Block(text="B")],
+        tags=[Tag(kind="FileTag")],
     )
     assert b.id is not None
 
@@ -185,15 +187,15 @@ def test_query(client: Steamship):
 def test_file_list(client: Steamship):
     a = File.create(
         client=client,
-        tags=[Tag.CreateRequest(kind="FileTag")],
+        tags=[Tag(kind="FileTag")],
     )
     b = File.create(
         client=client,
-        tags=[Tag.CreateRequest(kind="FileTag")],
+        tags=[Tag(kind="FileTag")],
     )
     c = File.create(
         client=client,
-        tags=[Tag.CreateRequest(kind="FileTag")],
+        tags=[Tag(kind="FileTag")],
     )
 
     files = File.list(client=client).files
