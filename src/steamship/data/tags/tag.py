@@ -55,18 +55,6 @@ class Tag(CamelModel):
     #
     text: Optional[str] = None
 
-    class CreateRequest(Request):
-        """Request to create a new Tag."""
-
-        id: str = None
-        file_id: str = None
-        block_id: str = None
-        kind: str = None
-        name: str = None
-        start_idx: int = None
-        end_idx: int = None
-        value: Dict[str, Any] = None
-
     class DeleteRequest(Request):
         id: str = None
         file_id: str = None
@@ -90,7 +78,7 @@ class Tag(CamelModel):
         end_idx: int = None,
         value: Dict[str, Any] = None,
     ) -> Tag:
-        req = Tag.CreateRequest(
+        req = Tag(
             file_id=file_id,
             block_id=block_id,
             kind=kind,
@@ -313,7 +301,7 @@ class EmbeddingTag(Tag):
     ):
         super().__init__(
             kind=TagKind.EMBEDDING,
-            name="embedding",
+            name=EmbeddingTag,
             start_idx=start_idx,
             end_idx=end_idx,
             value={**value, TagValueKey.VECTOR_VALUE: embedding},

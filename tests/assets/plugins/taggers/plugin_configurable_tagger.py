@@ -35,7 +35,7 @@ class TestParserPlugin(Tagger):
 
         if request.data is not None:
             file = request.data.file
-            tag = Tag.CreateRequest(kind=tag_kind, name=tag_name, value=tag_value)
+            tag = Tag(kind=tag_kind, name=tag_name, value=tag_value)
             if file.tags:
                 file.tags.append(tag)
             else:

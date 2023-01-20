@@ -22,12 +22,6 @@ class Block(CamelModel):
     text: str = None
     tags: Optional[List[Tag]] = []
 
-    class CreateRequest(Request):
-        id: str = None
-        file_id: str = None
-        text: str = None
-        tags: Optional[List[Tag.CreateRequest]] = []
-
     class ListRequest(Request):
         file_id: str = None
 
@@ -50,9 +44,9 @@ class Block(CamelModel):
         client: Client,
         file_id: str = None,
         text: str = None,
-        tags: List[Tag.CreateRequest] = None,
+        tags: List[Tag] = None,
     ) -> Block:
-        req = Block.CreateRequest(file_id=file_id, text=text, tags=tags)
+        req = Block(file_id=file_id, text=text, tags=tags)
         return client.post(
             "block/create",
             req,
