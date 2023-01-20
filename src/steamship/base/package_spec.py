@@ -1,7 +1,7 @@
 """Objects for recording and reporting upon the introspected interface of a Steamship Package."""
 import inspect
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, get_args, get_origin
 
 from steamship import SteamshipError
 from steamship.base.configuration import CamelModel
@@ -23,10 +23,18 @@ class ArgSpec(CamelModel):
             raise SteamshipError(
                 message="Attempt to interpret the `self` object as a method parameter."
             )
-        if issubclass(parameter.annotation, Enum):
-            values = [choice.value for choice in parameter.annotation]
-        else:
-            values = None
+        values = None
+        if isinstance(parameter.annotation, type):
+            if issubclass(parameter.annotation, Enum):
+                values = [choice.value for choice in parameter.annotation]
+        elif get_origin(parameter.annotation) is Union:
+            args = get_args(parameter.annotation)
+            # For now, only deal with the case where the Union is an Optional[Enum]
+            if len(args) == 2 and type(None) in args:
+                optional_arg = [t for t in args if t != type(None)][0]  # noqa: E721
+                if issubclass(optional_arg, Enum):
+                    values = [choice.value for choice in optional_arg]
+
         super().__init__(name=name, kind=str(parameter.annotation), values=values)
 
     def pprint(self, name_width: Optional[int] = None, prefix: str = "") -> str:
