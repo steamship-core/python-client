@@ -4,3 +4,4 @@ aiohttp==3.8.3
 inflection==0.5.1
 fluent-logger==0.10.0
 toml==0.10.2
+click==8.1.3
