@@ -79,6 +79,7 @@ class Client(CamelModel, ABC):
         if config is not None and not isinstance(config, Configuration):
             config = Configuration.parse_obj(config)
 
+        self._session = Session()
         config = config or Configuration(
             api_key=api_key,
             api_base=api_base,
@@ -88,7 +89,7 @@ class Client(CamelModel, ABC):
             profile=profile,
             config_file=config_file,
         )
-        self._session = Session()
+
         super().__init__(config=config)
         # The lambda_handler will pass in the workspace via the workspace_id, so we need to plumb this through to make sure
         # that the workspace switch performed doesn't mistake `workspace=None` as a request for the default workspace

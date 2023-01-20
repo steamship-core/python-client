@@ -8,11 +8,11 @@ from typing import Optional
 import inflection
 from pydantic import HttpUrl
 
-from steamship.base.error import SteamshipError
 from steamship.base.model import CamelModel
+from steamship.cli.login import login
 from steamship.utils.utils import format_uri
 
-DEFAULT_WEB_BASE = "https://app.steamship.com/"
+DEFAULT_WEB_BASE = "https://steamship.com/"
 DEFAULT_APP_BASE = "https://steamship.run/"
 DEFAULT_API_BASE = "https://api.steamship.com/api/v1/"
 
@@ -67,13 +67,14 @@ class Configuration(CamelModel):
         kwargs["web_base"] = format_uri(kwargs.get("web_base"))
 
         if not kwargs.get("api_key") and not kwargs.get("apiKey"):
-            raise SteamshipError(
-                "You're trying to access steamship without passing an api token. \n"
-                "You can fix this error in two ways: \n"
-                '\tOption 1: Directly pass your private api_key using `Steamship(api_key="YOUR-API-KEY")`. '
-                "You can find your private api key on: https://app.steamship.com/key \n"
-                "\tOption 2: Authenticate using the Steamship cli `npm install -g @steamship/cli && ship login`"
+            api_key = login(
+                kwargs.get("api_base") or DEFAULT_API_BASE,
+                kwargs.get("web_base") or DEFAULT_WEB_BASE,
             )
+            Configuration._save_api_key_to_file(
+                api_key, profile, config_file or DEFAULT_CONFIG_FILE
+            )
+            kwargs["api_key"] = api_key
 
         super().__init__(**kwargs)
 
@@ -107,3 +108,32 @@ class Configuration(CamelModel):
             for environment_variable_name, property_name in ENVIRONMENT_VARIABLES_TO_PROPERTY.items()
             if environment_variable_name in os.environ
         }
+
+    @staticmethod
+    def _save_api_key_to_file(new_api_key: Optional[str], profile: Optional[str], file_path: Path):
+        # Minimally rewrite config file, adding api key
+        try:
+            with file_path.open() as f:
+                config_file = json.load(f)
+            if profile:
+                if "profiles" not in config_file or profile not in config_file["profiles"]:
+                    raise RuntimeError(f"Could not update API key for {profile} in {file_path}")
+                config = config_file["profiles"][profile]
+            else:
+                config = config_file
+        except FileNotFoundError:
+            config_file = {}
+            config = config_file
+
+        config["apiKey"] = new_api_key
+
+        with file_path.open("w") as f:
+            json.dump(config_file, f, indent="\t")
+
+    @staticmethod
+    def default_config_file_has_api_key() -> bool:
+        return Configuration._load_from_file(DEFAULT_CONFIG_FILE).get("api_key") is not None
+
+    @staticmethod
+    def remove_api_key_from_default_config():
+        Configuration._save_api_key_to_file(None, None, DEFAULT_CONFIG_FILE)

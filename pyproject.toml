@@ -13,6 +13,9 @@ description = "The fastest way to add language AI to your product."
 dynamic = ["dependencies", "version"]
 readme = "README.md"
 
+[project.scripts]
+shippy = "steamship.cli.cli:cli"
+
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
 
