@@ -28,6 +28,8 @@ class Steamship(Client):
     _PLUGIN_INSTANCE_SUBCLASS_OVERRIDES = {
         "prompt-generation-default": PromptGenerationPluginInstance,
         "prompt-generation-trainable-default": PromptGenerationPluginInstance,
+        "gpt3": PromptGenerationPluginInstance,
+        "gpt-3": PromptGenerationPluginInstance,
         "embedding-index": EmbeddingIndexPluginInstance,
     }
 
