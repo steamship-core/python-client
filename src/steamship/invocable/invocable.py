@@ -7,13 +7,14 @@ from abc import ABC
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 import toml
 
 from steamship.base.package_spec import MethodSpec, PackageSpec
 from steamship.client import Steamship
 from steamship.invocable import Config
+from steamship.invocable.config import ConfigParameter
 from steamship.invocable.invocable_request import InvocableRequest, InvocationContext
 from steamship.invocable.invocable_response import InvocableResponse
 from steamship.utils.url import Verb
@@ -255,3 +256,6 @@ class Invocable(ABC):
             return getattr(self, method)()
         else:
             return getattr(self, method)(**arguments)
+
+    def get_config_parameters(self) -> List[ConfigParameter]:
+        return self.config.get_config_parameters()
