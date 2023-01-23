@@ -3,6 +3,7 @@ from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import PluginInstance
+from steamship.data import TagValueKey
 
 
 def test_e2e_parser():
@@ -13,12 +14,14 @@ def test_e2e_parser():
         "tagName": {"type": "string"},
         "numberValue": {"type": "number"},
         "booleanValue": {"type": "boolean"},
+        "stringValue": {"type": "string"},
     }
     instance_config1 = {
         "tagKind": "testTagKind",
         "tagName": "testTagName",
         "numberValue": 3,
         "booleanValue": True,
+        "stringValue": "Hi",
     }
 
     with deploy_plugin(
@@ -41,14 +44,16 @@ def test_e2e_parser():
         assert tag.name == instance_config1["tagName"]
         assert tag.kind == instance_config1["tagKind"]
         tag_value = tag.value
-        assert tag_value["numberValue"] == instance_config1["numberValue"]
-        assert tag_value["booleanValue"] == instance_config1["booleanValue"]
+        assert tag_value[TagValueKey.NUMBER_VALUE] == instance_config1["numberValue"]
+        assert tag_value[TagValueKey.BOOL_VALUE] == instance_config1["booleanValue"]
+        assert tag_value[TagValueKey.STRING_VALUE] == instance_config1["stringValue"]
 
         instance_config2 = {
             "tagKind": "testTagKind2",
             "tagName": "testTagName2",
             "numberValue": 4,
             "booleanValue": False,
+            "stringValue": "Hi",
         }
 
         instance2 = PluginInstance.create(
@@ -71,5 +76,6 @@ def test_e2e_parser():
         assert tag.name == instance_config2["tagName"]
         assert tag.kind == instance_config2["tagKind"]
         tag_value = tag.value
-        assert tag_value["numberValue"] == instance_config2["numberValue"]
-        assert tag_value["booleanValue"] == instance_config2["booleanValue"]
+        assert tag_value[TagValueKey.NUMBER_VALUE] == instance_config2["numberValue"]
+        assert tag_value[TagValueKey.BOOL_VALUE] == instance_config2["booleanValue"]
+        assert tag_value[TagValueKey.STRING_VALUE] == instance_config2["stringValue"]

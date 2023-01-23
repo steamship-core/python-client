@@ -6,6 +6,7 @@ from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import SteamshipError
 from steamship.client.steamship import SKILL_TO_PROVIDER
+from steamship.data import TagValueKey
 
 
 def test_use_skill():
@@ -76,5 +77,5 @@ def _test_skill_instance(skill_instance_1, test_str):
     config = SKILL_TO_PROVIDER["hello"]["steamship"]["config"]
     assert tag.name == config["tagName"]
     assert tag.kind == config["tagKind"]
-    assert tag.value["numberValue"] == config["numberValue"]
-    assert tag.value["booleanValue"] == config["booleanValue"]
+    assert tag.value[TagValueKey.NUMBER_VALUE] == config["numberValue"]
+    assert tag.value[TagValueKey.BOOL_VALUE] == config["booleanValue"]

@@ -60,6 +60,14 @@ steamship.invocable.package\_service module
    :undoc-members:
    :show-inheritance:
 
+steamship.invocable.paramater\_types module
+-------------------------------------------
+
+.. automodule:: steamship.invocable.paramater_types
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.invocable.plugin\_service module
 ------------------------------------------
 
