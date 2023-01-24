@@ -3,7 +3,7 @@ from steamship_tests.utils.client import TESTING_PROFILE
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
 
-from steamship import SteamshipError, Workspace
+from steamship import Steamship, SteamshipError, Workspace
 from steamship.data.user import User
 
 
@@ -20,6 +20,45 @@ def test_user():
     user = User.current(client)
     assert user.id is not None
     assert user.handle is not None
+
+
+def test_temporary_workspace():
+    with Steamship.temporary_workspace(profile=TESTING_PROFILE) as client:
+        workspace_handle = client.config.workspace_handle
+        assert workspace_handle.index("temp-") == 0
+        workspace = Workspace.get(client, handle=workspace_handle)
+        assert workspace.handle == workspace_handle
+
+    with Steamship.temporary_workspace(profile=TESTING_PROFILE) as client:
+        # Now it's deleted. It can't be fetched.
+        with pytest.raises(SteamshipError):
+            Workspace.get(client, handle=workspace_handle)
+
+
+def test_temporary_workspace_with_workspace_switch():
+    with Steamship.temporary_workspace(profile=TESTING_PROFILE) as client:
+        workspace_handle = client.config.workspace_handle
+        assert workspace_handle.index("temp-") == 0
+        workspace = Workspace.get(client, handle=workspace_handle)
+        assert workspace.handle == workspace_handle
+
+        # Now we switch the workspace!
+        client.switch_workspace(workspace_handle=random_name())
+
+        # The new workspace handle is different
+        new_workspace_handle = client.config.workspace_handle
+        assert new_workspace_handle != workspace_handle
+
+    # The original workspace is still deleted
+    with Steamship.temporary_workspace(profile=TESTING_PROFILE) as client:
+        # Now it's deleted. It can't be fetched.
+        with pytest.raises(SteamshipError):
+            Workspace.get(client, handle=workspace_handle)
+
+        # But we CAN fetch the one we switched to. It was not auto-deleted.
+        new_workspace = Workspace.get(client, handle=new_workspace_handle)
+        # But delete it for good measure.
+        new_workspace.delete()
 
 
 def test_client_has_default_workspace_unless_otherwise_specified():
