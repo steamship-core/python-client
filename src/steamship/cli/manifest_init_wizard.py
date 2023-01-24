@@ -15,12 +15,17 @@ def validate_handle(handle: str) -> str:
         raise BadParameter("Handle must only include lowercase letters and -")
 
 
+def validate_version_handle(handle: str) -> str:
+    if re.fullmatch(r"[a-z0-9\-.]+", handle) is not None:
+        return handle
+    else:
+        raise BadParameter("Handle must only include lowercase letters, numbers, . and -")
+
+
 def manifest_init_wizard(client: Steamship):
-    click.echo(
-        click.style(
-            "It looks like you don't yet have a steamship.json to deploy. Let's create one.",
-            fg="cyan",
-        )
+    click.secho(
+        "It looks like you don't yet have a steamship.json to deploy. Let's create one.",
+        fg="cyan",
     )
 
     deployable_type = click.prompt(

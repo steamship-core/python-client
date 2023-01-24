@@ -1,10 +1,11 @@
+import logging
 import sys
 from os import path
 
 import click
 
 import steamship
-from steamship import Steamship, SteamshipError
+from steamship import Steamship
 from steamship.base.configuration import Configuration
 from steamship.cli.deploy import PackageDeployer, bundle_deployable, update_config_template
 from steamship.cli.manifest_init_wizard import manifest_init_wizard
@@ -17,13 +18,14 @@ def cli():
     pass
 
 
-def print_info():
+def initialize():
+    logging.root.setLevel(logging.FATAL)
     click.echo(f"Steamship PYTHON cli version {steamship.__version__}")
 
 
 @click.command()
 def login():
-    print_info()
+    initialize()
     click.echo("Logging into Steamship.")
     if sys.argv[1] == "login":
         if Configuration.default_config_file_has_api_key():
@@ -38,17 +40,14 @@ def login():
         # Carry on with login
         client = Steamship()
         user = User.current(client)
-        click.echo(
-            click.style(
-                f"🚢🚢🚢 Hooray! You're logged in with user handle: {user.handle} 🚢🚢🚢", fg="green"
-            )
-        )
+        click.secho(f"🚢🚢🚢 Hooray! You're logged in with user handle: {user.handle} 🚢🚢🚢", fg="green")
 
 
 @click.command()
 def deploy():
-    print_info()
+    initialize()
     client = Steamship()
+    user = User.current(client)
     if path.exists("steamship.json"):
         manifest = Manifest.load_manifest()
     else:
@@ -59,18 +58,20 @@ def deploy():
 
     update_config_template(manifest)
 
-    click.echo("Bundling content... ", nl=False)
-    bundle_deployable(manifest)
-    click.echo("Done. 📦")
-
+    deployer = None
     if thing_type == DeployableType.PACKAGE:
         deployer = PackageDeployer()
     else:
-        raise SteamshipError("Can only deploy packages right now")
+        click.secho(
+            "Sorry, this version of Steamship CLI can only deploy packages right now.", fg="red"
+        )
+        click.get_current_context().abort()
 
-    click.echo(f"Creating / fetching {thing_type} with handle [{manifest.handle}]... ", nl=False)
-    thing = deployer.create_object(client, manifest)
-    click.echo("Done.")
+    thing = deployer.create_or_fetch_thing(client, user, manifest)
+
+    click.echo("Bundling content... ", nl=False)
+    bundle_deployable(manifest)
+    click.echo("Done. 📦")
 
     click.echo(f"Deploying version {manifest.version} of [{manifest.handle}]... ", nl=False)
     _ = deployer.create_version(client, manifest, thing.id)
@@ -78,10 +79,14 @@ def deploy():
 
     thing_url = f"{client.config.web_base}{thing_type}s/{manifest.handle}"
     click.echo(
-        click.style(
-            f"Deployment was successful.  View and share your new {thing_type} here: {thing_url}"
-        )
+        f"Deployment was successful. View and share your new {thing_type} here:\n\n{thing_url}"
     )
+
+    # Common error conditions:
+    # - Package/plugin handle already taken.
+    # - Version handle already deployed.
+    # - Bad parameter configuration.
+    # - Package content fails health check (ex. bad import)
 
     # with click.progressbar(
     #     length=10,
@@ -99,3 +104,6 @@ def deploy():
 
 cli.add_command(deploy)
 cli.add_command(login)
+
+if __name__ == "__main__":
+    deploy([])

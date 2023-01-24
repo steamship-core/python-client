@@ -11,6 +11,7 @@ from typing import Any, Type
 from pydantic import BaseModel, Field
 
 from steamship.base.client import Client
+from steamship.base.model import CamelModel
 from steamship.base.request import CreateRequest, GetRequest
 
 
@@ -18,10 +19,11 @@ class PackageCreateRequest(CreateRequest):
     fetch_if_exists = False
 
 
-class Package(BaseModel):
+class Package(CamelModel):
     client: Client = Field(None, exclude=True)
     id: str = None
     handle: str = None
+    user_id: str = None
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
