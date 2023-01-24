@@ -1,7 +1,9 @@
 import json
 from enum import Enum
 from pathlib import Path
-from typing import List, Optional, Type, Union
+from typing import Dict, Optional, Type, Union
+
+from pydantic import BaseModel
 
 from steamship import SteamshipError
 from steamship.base.model import CamelModel
@@ -39,9 +41,8 @@ class ConfigParameterType(str, Enum):
             raise SteamshipError(f"Unknown value type in Config: {t}")
 
 
-class ConfigParameter(CamelModel):
-    name: str
-    type_: ConfigParameterType
+class ConfigParameter(BaseModel):
+    type: ConfigParameterType
     description: Optional[str] = None
 
     # Note order is important here in the union; Pydantic will coerce values into the first union type that fits!
@@ -82,21 +83,16 @@ class Config(CamelModel):
                 )
             self.extend_with_dict(data, overwrite)
 
-    def get_config_parameters(self) -> List[ConfigParameter]:
-        result = []
-        for field_name, field in self.__fields__.items():
-            description = self.get_description_for_field(field_name)
+    @classmethod
+    def get_config_parameters(cls) -> Dict[str, ConfigParameter]:
+        result = {}
+        for field_name, field in cls.__fields__.items():
+            description = field.field_info.description
             type_ = ConfigParameterType.from_python_type(field.type_)
-            result.append(
-                ConfigParameter(
-                    name=field_name,
-                    type_=type_,
-                    default=field.default,  # ConfigParameterType.parse_default_value(field.default, field.type_),
-                    description=description,
-                )
+            result[field_name] = ConfigParameter(
+                type=type_,
+                default=field.default,
+                description=description,
             )
 
         return result
-
-    def get_description_for_field(self, field_name: str):
-        return "Todo: usefully extract descriptions"

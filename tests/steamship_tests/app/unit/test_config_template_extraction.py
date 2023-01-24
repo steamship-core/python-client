@@ -1,26 +1,19 @@
 from typing import Optional
 
 from assets.packages.configurable_hello_world import HelloWorld
+from pydantic import Field
 
 from steamship.invocable.config import Config, ConfigParameterType
 
 
 def test_config_parameters():
-    package = HelloWorld(
-        config={
-            "greeting": "yo",
-            "snake_case_config": "hisss",
-            "camelCaseConfig": "spit!",
-            "defaultConfig": "default",
-        }
-    )
-    config_template = package.get_config_parameters()
+    config_template = HelloWorld.get_config_parameters()
     assert len(config_template) == 4
-    for config_param in config_template:
+    for config_param in config_template.values():
         assert config_param.default is None
         assert config_param.type_ == ConfigParameterType.STRING
 
-    names = [p.name for p in config_template]
+    names = config_template.keys()
     assert "greeting" in names
     assert "snake_case_config" in names
     assert "camelCaseConfig" in names
@@ -32,14 +25,13 @@ def test_config_parameter_numbers():
         x: float
         y: int
 
-    number_config = NumberConfig(x=3, y=4)
-    config_template = number_config.get_config_parameters()
+    config_template = NumberConfig.get_config_parameters()
     assert len(config_template) == 2
-    for config_param in config_template:
+    for config_param in config_template.values():
         assert config_param.default is None
         assert config_param.type_ == ConfigParameterType.NUMBER
 
-    names = [p.name for p in config_template]
+    names = config_template.keys()
     assert "x" in names
     assert "y" in names
 
@@ -52,11 +44,11 @@ def test_config_parameter_boolean():
     bool_config = BoolConfig(x=True, y=False)
     config_template = bool_config.get_config_parameters()
     assert len(config_template) == 2
-    for config_param in config_template:
+    for config_param in config_template.values():
         assert config_param.default is None
         assert config_param.type_ == ConfigParameterType.BOOLEAN
 
-    names = [p.name for p in config_template]
+    names = config_template.keys()
     assert "x" in names
     assert "y" in names
 
@@ -72,15 +64,14 @@ def test_config_parameter_with_defaults():
     config_template = defaults_config.get_config_parameters()
     assert len(config_template) == 4
 
-    parameters = {p.name: p for p in config_template}
-    assert parameters["w"].type_ == ConfigParameterType.STRING
-    assert parameters["w"].default == "deeeefault"
-    assert parameters["x"].type_ == ConfigParameterType.BOOLEAN
-    assert parameters["x"].default  # Assert that the default == True
-    assert parameters["y"].type_ == ConfigParameterType.NUMBER
-    assert parameters["y"].default == 3
-    assert parameters["z"].type_ == ConfigParameterType.NUMBER
-    assert parameters["z"].default == 7.5
+    assert config_template["w"].type_ == ConfigParameterType.STRING
+    assert config_template["w"].default == "deeeefault"
+    assert config_template["x"].type_ == ConfigParameterType.BOOLEAN
+    assert config_template["x"].default  # Assert that the default == True
+    assert config_template["y"].type_ == ConfigParameterType.NUMBER
+    assert config_template["y"].default == 3
+    assert config_template["z"].type_ == ConfigParameterType.NUMBER
+    assert config_template["z"].default == 7.5
 
 
 def test_optional_config_parameters():
@@ -98,21 +89,32 @@ def test_optional_config_parameters():
     config_template = defaults_config.get_config_parameters()
     assert len(config_template) == 8
 
-    parameters = {p.name: p for p in config_template}
-    assert parameters["w"].type_ == ConfigParameterType.STRING
-    assert parameters["w"].default == "deeeefault"
-    assert parameters["x"].type_ == ConfigParameterType.BOOLEAN
-    assert parameters["x"].default  # Assert that the default == True
-    assert parameters["y"].type_ == ConfigParameterType.NUMBER
-    assert parameters["y"].default == 3
-    assert parameters["z"].type_ == ConfigParameterType.NUMBER
-    assert parameters["z"].default == 7.5
+    assert config_template["w"].type_ == ConfigParameterType.STRING
+    assert config_template["w"].default == "deeeefault"
+    assert config_template["x"].type_ == ConfigParameterType.BOOLEAN
+    assert config_template["x"].default  # Assert that the default == True
+    assert config_template["y"].type_ == ConfigParameterType.NUMBER
+    assert config_template["y"].default == 3
+    assert config_template["z"].type_ == ConfigParameterType.NUMBER
+    assert config_template["z"].default == 7.5
 
-    assert parameters["w2"].type_ == ConfigParameterType.STRING
-    assert parameters["w2"].default is None
-    assert parameters["x2"].type_ == ConfigParameterType.BOOLEAN
-    assert parameters["x2"].default is None
-    assert parameters["y2"].type_ == ConfigParameterType.NUMBER
-    assert parameters["y2"].default is None
-    assert parameters["z2"].type_ == ConfigParameterType.NUMBER
-    assert parameters["z2"].default is None
+    assert config_template["w2"].type_ == ConfigParameterType.STRING
+    assert config_template["w2"].default is None
+    assert config_template["x2"].type_ == ConfigParameterType.BOOLEAN
+    assert config_template["x2"].default is None
+    assert config_template["y2"].type_ == ConfigParameterType.NUMBER
+    assert config_template["y2"].default is None
+    assert config_template["z2"].type_ == ConfigParameterType.NUMBER
+    assert config_template["z2"].default is None
+
+
+def test_descriptions():
+    class DescriptionConfig(Config):
+        x: int = Field(description="Test Description")
+
+    description_config = DescriptionConfig(x=3)
+    config_template = description_config.get_config_parameters()
+    assert len(config_template) == 1
+
+    # TODO: descriptions
+    assert config_template["x"].description == "Test Description"

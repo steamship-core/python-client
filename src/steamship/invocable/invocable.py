@@ -7,7 +7,7 @@ from abc import ABC
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Type, Union
+from typing import Any, Dict, Optional, Type, Union
 
 import toml
 
@@ -174,7 +174,8 @@ class Invocable(ABC):
         """Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation."""
         return self._package_spec.dict()
 
-    def config_cls(self) -> Type[Config]:
+    @classmethod
+    def config_cls(cls) -> Type[Config]:
         """Returns the configuration object for the Invocable.
 
         By default, Steamship packages and plugins will not take any configuration. Steamship packages and plugins may
@@ -257,5 +258,7 @@ class Invocable(ABC):
         else:
             return getattr(self, method)(**arguments)
 
-    def get_config_parameters(self) -> List[ConfigParameter]:
-        return self.config.get_config_parameters()
+    @classmethod
+    def get_config_parameters(cls) -> Dict[str, ConfigParameter]:
+        # DK: why do I need to pass cls to config_cls here?  If I don't pass it, it throws an error.
+        return cls.config_cls(cls).get_config_parameters()

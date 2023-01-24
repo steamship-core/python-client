@@ -5,6 +5,7 @@ from click import BadParameter
 
 from steamship import Steamship
 from steamship.data.user import User
+from steamship.invocable.manifest import Manifest, SteamshipRegistry
 
 
 def validate_handle(handle: str) -> str:
@@ -44,8 +45,6 @@ def manifest_init_wizard(client: Steamship):
 
     author = click.prompt("How should we list your author name?", default=user.handle)
 
-    # TODO: Config variables
-
     tagline = None
     author_github = None
     if public:
@@ -54,31 +53,15 @@ def manifest_init_wizard(client: Steamship):
             "If you'd like this associated with your github account, please enter it", default=""
         )
 
-    manifest = {
-        "type": deployable_type,
-        "handle": handle,
-        "version": version_handle,
-        "description": "",
-        "author": author,
-        "entrypoint": "api.handler",
-        "public": public,
-        "build_config": {"ignore": ["tests", "examples"]},
-        "configTemplate": {},
-        "steamshipRegistry": {
-            "tagline": tagline,
-            "tagline2": None,
-            "usefulFor": None,
-            "videoUrl": None,
-            "githubUrl": None,
-            "demoUrl": None,
-            "blogUrl": None,
-            "jupyterUrl": None,
-            "authorGithub": author_github,
-            "authorName": author,
-            "authorEmail": None,
-            "authorTwitter": None,
-            "authorUrl": None,
-            "tags": [],
-        },
-    }
-    print(manifest)
+    return Manifest(
+        type=deployable_type,
+        handle=handle,
+        version=version_handle,
+        author=author,
+        public=public,
+        build_config={"ignore": ["tests", "examples"]},
+        configTemplate={},
+        steamshipRegistry=SteamshipRegistry(
+            tagline=tagline, authorGithub=author_github, authorName=author, tags=[]
+        ),
+    )
