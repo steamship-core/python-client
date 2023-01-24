@@ -107,11 +107,12 @@ class Steamship(Client):
 
         yield client
 
-        # Safely delete the workspace.
-        workspace = client.get_workspace()
+        # Safely delete the temporary workspace. Here we re-fetch the workspace using the temporary_handle
+        # in case the user switched workspaces yet again upon the client.
+        workspace = Workspace.get(client, handle=temporary_handle)
         if workspace.handle != temporary_handle:
             raise SteamshipError(
-                message=f"Was about to delete temporary workspace {temporary_handle} but the client claimed to be working from {workspace.handle}"
+                message=f"Was about to delete temporary workspace {temporary_handle} but its handle is different: {workspace.handle}"
             )
         else:
             workspace.delete()
