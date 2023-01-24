@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional
+import uuid
+from contextlib import contextmanager
+from typing import Any, Dict, Generator, List, Optional
 
 from pydantic import BaseModel
 
@@ -87,6 +89,32 @@ class Steamship(Client):
             req,
             expect=QueryResults,
         )
+
+    @staticmethod
+    @contextmanager
+    def temporary_workspace(**kwargs) -> Generator["Steamship", None, None]:
+        """Create a client rooted in a temporary workspace that will be deleted after use."""
+        # Create a new client and switch to a temporary workspace
+        client = Steamship(**kwargs)
+        temporary_handle = "temp-" + str(uuid.uuid4())
+        client.switch_workspace(temporary_handle)
+
+        # Safety check that we are now working form the new workspace.
+        if client.config.workspace_handle != temporary_handle:
+            raise SteamshipError(
+                message=f"Attempted to switch totemporary workspace {temporary_handle} but the client claimed to be working from {client.config.workspace_handle}"
+            )
+
+        yield client
+
+        # Safely delete the workspace.
+        workspace = client.get_workspace()
+        if workspace.handle != temporary_handle:
+            raise SteamshipError(
+                message=f"Was about to delete temporary workspace {temporary_handle} but the client claimed to be working from {workspace.handle}"
+            )
+        else:
+            workspace.delete()
 
     @staticmethod
     def use(

@@ -3,7 +3,7 @@ from steamship_tests.utils.client import TESTING_PROFILE
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_name
 
-from steamship import SteamshipError, Workspace
+from steamship import Steamship, SteamshipError, Workspace
 from steamship.data.user import User
 
 
@@ -20,6 +20,19 @@ def test_user():
     user = User.current(client)
     assert user.id is not None
     assert user.handle is not None
+
+
+def test_temporary_workspace():
+    with Steamship.temporary_workspace(profile=TESTING_PROFILE) as client:
+        workspace_handle = client.config.workspace_handle
+        assert workspace_handle.index("temp-") == 0
+        workspace = Workspace.get(client, handle=workspace_handle)
+        assert workspace.handle == workspace_handle
+
+    with Steamship.temporary_workspace(profile=TESTING_PROFILE) as client:
+        # Now it's deleted. It can't be fetched.
+        with pytest.raises(SteamshipError):
+            Workspace.get(client, handle=workspace_handle)
 
 
 def test_client_has_default_workspace_unless_otherwise_specified():
