@@ -115,6 +115,9 @@ class DeployableDeployer(ABC):
         pass
 
     def create_or_fetch_deployable(self, client: Steamship, user: User, manifest: Manifest):
+        if not manifest.handle or len(manifest.handle) == 0:
+            self.ask_for_new_handle(manifest, was_missing=True)
+
         deployable = None
         while deployable is None:
             click.echo(
@@ -138,26 +141,31 @@ class DeployableDeployer(ABC):
         click.echo("Done.")
         return deployable
 
-    def ask_for_new_handle(self, manifest: Manifest):
-        try_again = click.confirm(
-            click.style(
-                f"\nIt looks like that handle [{manifest.handle}] is already in use. Would you like to change the handle and try again?",
-                fg="yellow",
-            ),
-            default=True,
-        )
-        if try_again:
-            new_handle = click.prompt(
-                f"What handle would you like to use for your {self.deployable_type()}? Valid characters are a-z and -",
-                value_proc=validate_handle,
+    def ask_for_new_handle(self, manifest: Manifest, was_missing: bool = False):
+        if not was_missing:
+            try_again = click.confirm(
+                click.style(
+                    f"\nIt looks like that handle [{manifest.handle}] is already in use. Would you like to change the handle and try again?",
+                    fg="yellow",
+                ),
+                default=True,
             )
-            manifest.handle = new_handle
-            manifest.save()
-        else:
-            click.get_current_context().abort()
+            if not try_again:
+                click.get_current_context().abort()
+
+        new_handle = click.prompt(
+            f"What handle would you like to use for your {self.deployable_type()}? Valid characters are a-z and -",
+            value_proc=validate_handle,
+        )
+        manifest.handle = new_handle
+        manifest.save()
 
     def create_version(self, client: Steamship, manifest: Manifest, thing_id: str):
         version = None
+
+        if not manifest.version or len(manifest.version) == 0:
+            self.ask_for_new_version_handle(manifest, was_missing=True)
+
         while version is None:
             click.echo(f"Deploying version {manifest.version} of [{manifest.handle}]... ", nl=False)
             try:
@@ -173,32 +181,33 @@ class DeployableDeployer(ABC):
                     click.get_current_context().abort()
         click.echo("\nDone. 🚢")
 
-    def ask_for_new_version_handle(self, manifest: Manifest):
-        try_again = click.confirm(
-            click.style(
-                f"\nIt looks like that version [{manifest.version}] has already been deployed. Would you like to change the version handle and try again?",
-                fg="yellow",
-            ),
-            default=True,
-        )
-        if try_again:
-            default_new = "1.0.0"
-            try:
-                default_new = str(VersionInfo.parse(manifest.version).bump_prerelease())
-            except ValueError:
-                pass
-            old_archive_path = get_archive_path(manifest)
-            new_version_handle = click.prompt(
-                "What should the new version be? Valid characters are a-z, 0-9, . and -",
-                value_proc=validate_version_handle,
-                default=default_new,
+    def ask_for_new_version_handle(self, manifest: Manifest, was_missing: bool = False):
+        if not was_missing:
+            try_again = click.confirm(
+                click.style(
+                    f"\nIt looks like that version [{manifest.version}] has already been deployed. Would you like to change the version handle and try again?",
+                    fg="yellow",
+                ),
+                default=True,
             )
-            manifest.version = new_version_handle
-            manifest.save()
-            new_archive_path = get_archive_path(manifest)
-            old_archive_path.rename(new_archive_path)
-        else:
-            click.get_current_context().abort()
+            if not try_again:
+                click.get_current_context().abort()
+
+        default_new = "1.0.0"
+        try:
+            default_new = str(VersionInfo.parse(manifest.version).bump_prerelease())
+        except ValueError:
+            pass
+        old_archive_path = get_archive_path(manifest)
+        new_version_handle = click.prompt(
+            "What should the new version be? Valid characters are a-z, 0-9, . and -",
+            value_proc=validate_version_handle,
+            default=default_new,
+        )
+        manifest.version = new_version_handle
+        manifest.save()
+        new_archive_path = get_archive_path(manifest)
+        old_archive_path.rename(new_archive_path)
 
 
 class PackageDeployer(DeployableDeployer):
