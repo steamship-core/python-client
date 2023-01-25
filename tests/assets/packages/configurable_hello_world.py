@@ -41,8 +41,9 @@ class HelloWorld(Invocable):
     def defaulted(self) -> InvocableResponse:
         return InvocableResponse(string=self.config.defaultConfig)
 
-    def config_cls(self) -> Type[Config]:
-        return self.HelloWorldConfig
+    @classmethod
+    def config_cls(cls) -> Type[Config]:
+        return cls.HelloWorldConfig
 
 
 handler = create_handler(HelloWorld)

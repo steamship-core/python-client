@@ -129,7 +129,8 @@ class TestTrainableTaggerPlugin(TrainableTagger):
 
     """
 
-    def config_cls(self) -> Type[Config]:
+    @classmethod
+    def config_cls(cls) -> Type[Config]:
         return EmptyConfig
 
     def model_cls(self) -> Type[TestTrainableTaggerModel]:

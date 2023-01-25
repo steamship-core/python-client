@@ -24,8 +24,9 @@ class TestParserPlugin(Tagger):
 
     config: TestParserConfig
 
-    def config_cls(self) -> Type[Config]:
-        return self.TestParserConfig
+    @classmethod
+    def config_cls(cls) -> Type[Config]:
+        return cls.TestParserConfig
 
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]

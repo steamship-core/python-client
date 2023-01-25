@@ -185,9 +185,10 @@ class Invocable(ABC):
             class MyConfig(Config):
                 ...
 
-            def config_cls(self):
+            @classmethod
+            def config_cls(cls):
                 return MyPackageOrPlugin.MyConfig
-        """
+        """  # noqa: RST301
         return Config
 
     @classmethod
@@ -260,5 +261,4 @@ class Invocable(ABC):
 
     @classmethod
     def get_config_parameters(cls) -> Dict[str, ConfigParameter]:
-        # DK: why do I need to pass cls to config_cls here?  If I don't pass it, it throws an error.
-        return cls.config_cls(cls).get_config_parameters()
+        return cls.config_cls().get_config_parameters()
