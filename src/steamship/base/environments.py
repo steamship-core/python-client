@@ -1,7 +1,8 @@
 import os
 from enum import Enum
 
-from steamship import Configuration, SteamshipError
+from steamship.base.configuration import Configuration
+from steamship.base.error import SteamshipError
 
 
 class RuntimeEnvironments(str, Enum):
