@@ -11,7 +11,7 @@ def test_config_parameters():
     assert len(config_template) == 4
     for config_param in config_template.values():
         assert config_param.default is None
-        assert config_param.type_ == ConfigParameterType.STRING
+        assert config_param.type == ConfigParameterType.STRING
 
     names = config_template.keys()
     assert "greeting" in names
@@ -29,7 +29,7 @@ def test_config_parameter_numbers():
     assert len(config_template) == 2
     for config_param in config_template.values():
         assert config_param.default is None
-        assert config_param.type_ == ConfigParameterType.NUMBER
+        assert config_param.type == ConfigParameterType.NUMBER
 
     names = config_template.keys()
     assert "x" in names
@@ -46,7 +46,7 @@ def test_config_parameter_boolean():
     assert len(config_template) == 2
     for config_param in config_template.values():
         assert config_param.default is None
-        assert config_param.type_ == ConfigParameterType.BOOLEAN
+        assert config_param.type == ConfigParameterType.BOOLEAN
 
     names = config_template.keys()
     assert "x" in names
@@ -64,13 +64,13 @@ def test_config_parameter_with_defaults():
     config_template = defaults_config.get_config_parameters()
     assert len(config_template) == 4
 
-    assert config_template["w"].type_ == ConfigParameterType.STRING
+    assert config_template["w"].type == ConfigParameterType.STRING
     assert config_template["w"].default == "deeeefault"
-    assert config_template["x"].type_ == ConfigParameterType.BOOLEAN
+    assert config_template["x"].type == ConfigParameterType.BOOLEAN
     assert config_template["x"].default  # Assert that the default == True
-    assert config_template["y"].type_ == ConfigParameterType.NUMBER
+    assert config_template["y"].type == ConfigParameterType.NUMBER
     assert config_template["y"].default == 3
-    assert config_template["z"].type_ == ConfigParameterType.NUMBER
+    assert config_template["z"].type == ConfigParameterType.NUMBER
     assert config_template["z"].default == 7.5
 
 
@@ -89,22 +89,22 @@ def test_optional_config_parameters():
     config_template = defaults_config.get_config_parameters()
     assert len(config_template) == 8
 
-    assert config_template["w"].type_ == ConfigParameterType.STRING
+    assert config_template["w"].type == ConfigParameterType.STRING
     assert config_template["w"].default == "deeeefault"
-    assert config_template["x"].type_ == ConfigParameterType.BOOLEAN
+    assert config_template["x"].type == ConfigParameterType.BOOLEAN
     assert config_template["x"].default  # Assert that the default == True
-    assert config_template["y"].type_ == ConfigParameterType.NUMBER
+    assert config_template["y"].type == ConfigParameterType.NUMBER
     assert config_template["y"].default == 3
-    assert config_template["z"].type_ == ConfigParameterType.NUMBER
+    assert config_template["z"].type == ConfigParameterType.NUMBER
     assert config_template["z"].default == 7.5
 
-    assert config_template["w2"].type_ == ConfigParameterType.STRING
+    assert config_template["w2"].type == ConfigParameterType.STRING
     assert config_template["w2"].default is None
-    assert config_template["x2"].type_ == ConfigParameterType.BOOLEAN
+    assert config_template["x2"].type == ConfigParameterType.BOOLEAN
     assert config_template["x2"].default is None
-    assert config_template["y2"].type_ == ConfigParameterType.NUMBER
+    assert config_template["y2"].type == ConfigParameterType.NUMBER
     assert config_template["y2"].default is None
-    assert config_template["z2"].type_ == ConfigParameterType.NUMBER
+    assert config_template["z2"].type == ConfigParameterType.NUMBER
     assert config_template["z2"].default is None
 
 
