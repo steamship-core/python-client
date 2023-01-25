@@ -111,44 +111,44 @@ class DeployableDeployer(ABC):
         pass
 
     @abstractmethod
-    def thing_type(self):
+    def deployable_type(self):
         pass
 
-    def create_or_fetch_thing(self, client: Steamship, user: User, manifest: Manifest):
-        thing = None
-        while thing is None:
+    def create_or_fetch_deployable(self, client: Steamship, user: User, manifest: Manifest):
+        deployable = None
+        while deployable is None:
             click.echo(
-                f"Creating / fetching {self.thing_type()} with handle [{manifest.handle}]... ",
+                f"Creating / fetching {self.deployable_type()} with handle [{manifest.handle}]... ",
                 nl=False,
             )
             try:
-                thing = self.create_object(client, manifest)
-                if thing.user_id != user.id:
+                deployable = self.create_object(client, manifest)
+                if deployable.user_id != user.id:
                     self.ask_for_new_handle(manifest)
-                    thing = None
+                    deployable = None
             except SteamshipError as e:
                 if e.message == "Something went wrong.":
                     self.ask_for_new_handle(manifest)
                 else:
                     click.secho(
-                        f"Unable to create / fetch {self.thing_type()}. Server returned message: {e.message}"
+                        f"Unable to create / fetch {self.deployable_type()}. Server returned message: {e.message}"
                     )
                     click.get_current_context().abort()
 
         click.echo("Done.")
-        return thing
+        return deployable
 
     def ask_for_new_handle(self, manifest: Manifest):
         try_again = click.confirm(
             click.style(
-                f"\nIt looks like that handle [{manifest.handle}] is already taken by another user.  Would you like to change the handle and try again?",
+                f"\nIt looks like that handle [{manifest.handle}] is already in use. Would you like to change the handle and try again?",
                 fg="yellow",
             ),
             default=True,
         )
         if try_again:
             new_handle = click.prompt(
-                f"What handle would you like to use for your {self.thing_type()}? Valid characters are a-z and -",
+                f"What handle would you like to use for your {self.deployable_type()}? Valid characters are a-z and -",
                 value_proc=validate_handle,
             )
             manifest.handle = new_handle
@@ -168,7 +168,7 @@ class DeployableDeployer(ABC):
                     self.ask_for_new_version_handle(manifest)
                 else:
                     click.secho(
-                        f"Unable to create / fetch {self.thing_type()}. Server returned message: {e.message}"
+                        f"Unable to create / fetch {self.deployable_type()}. Server returned message: {e.message}"
                     )
                     click.get_current_context().abort()
         click.echo("\nDone. 🚢")
@@ -214,5 +214,5 @@ class PackageDeployer(DeployableDeployer):
     def create_object(self, client: Steamship, manifest: Manifest):
         return Package.create(client, handle=manifest.handle, fetch_if_exists=True)
 
-    def thing_type(self):
+    def deployable_type(self):
         return "package"

@@ -54,12 +54,12 @@ def deploy():
         manifest = manifest_init_wizard(client)
         manifest.save()
 
-    thing_type = manifest.type
+    deployable_type = manifest.type
 
     update_config_template(manifest)
 
     deployer = None
-    if thing_type == DeployableType.PACKAGE:
+    if deployable_type == DeployableType.PACKAGE:
         deployer = PackageDeployer()
     else:
         click.secho(
@@ -67,17 +67,17 @@ def deploy():
         )
         click.get_current_context().abort()
 
-    thing = deployer.create_or_fetch_thing(client, user, manifest)
+    deployable = deployer.create_or_fetch_deployable(client, user, manifest)
 
     click.echo("Bundling content... ", nl=False)
     bundle_deployable(manifest)
     click.echo("Done. 📦")
 
-    _ = deployer.create_version(client, manifest, thing.id)
+    _ = deployer.create_version(client, manifest, deployable.id)
 
-    thing_url = f"{client.config.web_base}{thing_type}s/{manifest.handle}"
+    thing_url = f"{client.config.web_base}{deployable_type}s/{manifest.handle}"
     click.echo(
-        f"Deployment was successful. View and share your new {thing_type} here:\n\n{thing_url}\n"
+        f"Deployment was successful. View and share your new {deployable_type} here:\n\n{thing_url}\n"
     )
 
     # Common error conditions:

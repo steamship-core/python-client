@@ -36,17 +36,17 @@ def login(api_base: str, web_base: str) -> str:  # noqa: C901
         )
 
     # Wait on result
-    total_poll_time = 0
-    time_between_polls = 1
+    total_poll_time_s = 0
+    time_between_polls_s = 1
     api_key = None
-    while total_poll_time < 300:  # Five minutes
+    while total_poll_time_s < 300:  # Five minutes
         params = {"token": token}
         login_response = requests.post(f"{api_base}account/poll_login_attempt", json=params).json()
         if login_response.get("data", {}).get("status") == "done":
             api_key = login_response.get("data", {}).get("apiKey")
             break
-        time.sleep(time_between_polls)
-        total_poll_time += time_between_polls
+        time.sleep(time_between_polls_s)
+        total_poll_time_s += time_between_polls_s
 
     if api_key is None:
         raise SteamshipError("Could not fetch api key after login attempt in allotted time.")

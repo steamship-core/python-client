@@ -55,7 +55,8 @@ def manifest_init_wizard(client: Steamship):
     if public:
         tagline = click.prompt(f"Want to give the {deployable_type} a tagline?", default="")
         author_github = click.prompt(
-            "If you'd like this associated with your github account, please enter it", default=""
+            "If you'd like this associated with your github account, please your github username",
+            default="",
         )
 
     return Manifest(
