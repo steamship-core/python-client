@@ -10,7 +10,7 @@ from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import Request
 from steamship.base.response import Response
-from steamship.data.tags.tag_constants import TagKind, TagValueKey
+from steamship.data.tags.tag_constants import GenerationTag, TagKind, TagValueKey
 
 
 class TagQueryRequest(Request):
@@ -305,6 +305,23 @@ class EmbeddingTag(Tag):
             start_idx=start_idx,
             end_idx=end_idx,
             value={**value, TagValueKey.VECTOR_VALUE: embedding},
+        )
+
+
+class PromptCompletionTag(Tag):
+    def __init__(
+        self,
+        text: str = None,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(
+            kind=TagKind.GENERATION,
+            name=GenerationTag.PROMPT_COMPLETION,
+            start_idx=start_idx,
+            end_idx=end_idx,
+            value={**value, TagValueKey.STRING_VALUE: text},
         )
 
 

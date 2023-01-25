@@ -30,3 +30,16 @@ Building Packages
    Receive webhooks from another service <receiving-webhooks>
 
 
+Response Types
+~~~~~~~~~~~~~~
+
+.. toctree::
+   :maxdepth: 1
+
+   Returning Text <return-text>
+
+   Returning JSON <return-json>
+
+   Returning Images <return-image>
+
+   Returning Audio <return-audio>

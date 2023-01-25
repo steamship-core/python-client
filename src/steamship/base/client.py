@@ -352,6 +352,7 @@ class Client(CamelModel, ABC):
                 to_camel(expect.__name__).replace("package", "invocable"),
                 # Hack since engine uses "App" instead of "Package"
                 "index",
+                "pluginInstance",  # Inlined here since `expect` may be a subclass of pluginInstance
             ):
                 # TODO (enias): Hack since the engine responds with incosistent formats e.g. {"plugin" : {plugin_fields}}
                 for _, v in response_data.items():
