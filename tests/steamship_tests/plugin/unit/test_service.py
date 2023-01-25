@@ -38,7 +38,8 @@ class ValidTrainableStringToStringModel(TrainableModel[EmptyConfig]):
 
 
 class ValidTrainableStringToStringPlugin(TrainableTagger):
-    def config_cls(self) -> Type[Config]:
+    @classmethod
+    def config_cls(cls) -> Type[Config]:
         return EmptyConfig
 
     def model_cls(self) -> Type[TrainableModel]:
@@ -80,7 +81,8 @@ def test_plugin_service_is_abstract():
 
 def test_plugin_service_must_implement_run_and_subclass_request_from_dict():
     class BadPlugin(PluginService):
-        def config_cls(self) -> Type[Config]:
+        @classmethod
+        def config_cls(cls) -> Type[Config]:
             return Config
 
     with pytest.raises(TypeError):

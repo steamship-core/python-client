@@ -14,6 +14,7 @@ import toml
 from steamship.base.package_spec import MethodSpec, PackageSpec
 from steamship.client import Steamship
 from steamship.invocable import Config
+from steamship.invocable.config import ConfigParameter
 from steamship.invocable.invocable_request import InvocableRequest, InvocationContext
 from steamship.invocable.invocable_response import InvocableResponse
 from steamship.utils.url import Verb
@@ -173,7 +174,8 @@ class Invocable(ABC):
         """Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation."""
         return self._package_spec.dict()
 
-    def config_cls(self) -> Type[Config]:
+    @classmethod
+    def config_cls(cls) -> Type[Config]:
         """Returns the configuration object for the Invocable.
 
         By default, Steamship packages and plugins will not take any configuration. Steamship packages and plugins may
@@ -183,9 +185,10 @@ class Invocable(ABC):
             class MyConfig(Config):
                 ...
 
-            def config_cls(self):
+            @classmethod
+            def config_cls(cls):
                 return MyPackageOrPlugin.MyConfig
-        """
+        """  # noqa: RST301
         return Config
 
     @classmethod
@@ -255,3 +258,7 @@ class Invocable(ABC):
             return getattr(self, method)()
         else:
             return getattr(self, method)(**arguments)
+
+    @classmethod
+    def get_config_parameters(cls) -> Dict[str, ConfigParameter]:
+        return cls.config_cls().get_config_parameters()

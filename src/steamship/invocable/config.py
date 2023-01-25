@@ -1,8 +1,52 @@
 import json
+from enum import Enum
 from pathlib import Path
+from typing import Dict, Optional, Type, Union
+
+from pydantic import BaseModel
 
 from steamship import SteamshipError
 from steamship.base.model import CamelModel
+
+
+class ConfigParameterType(str, Enum):
+    NUMBER = "number"
+    STRING = "string"
+    BOOLEAN = "boolean"
+
+    @staticmethod
+    def from_python_type(t: Type):
+        if issubclass(t, str):
+            return ConfigParameterType.STRING
+        elif issubclass(t, bool):  # bool is a subclass of int, so must do this first!
+            return ConfigParameterType.BOOLEAN
+        elif issubclass(t, float) or issubclass(t, int):
+            return ConfigParameterType.NUMBER
+        else:
+            raise SteamshipError(f"Unknown value type in Config: {t}")
+
+    @staticmethod
+    def parse_default_value(default_value: str, t: Type):
+        if default_value is None:
+            return None
+        elif issubclass(t, str):
+            return default_value
+        elif issubclass(t, bool):  # bool is a subclass of int, so must do this first!
+            return default_value == "True"
+        elif issubclass(t, int):
+            return int(default_value)
+        elif issubclass(t, float):
+            return float(default_value)
+        else:
+            raise SteamshipError(f"Unknown value type in Config: {t}")
+
+
+class ConfigParameter(BaseModel):
+    type: ConfigParameterType
+    description: Optional[str] = None
+
+    # Note order is important here in the union; Pydantic will coerce values into the first union type that fits!
+    default: Optional[Union[bool, float, str]] = None
 
 
 class Config(CamelModel):
@@ -38,3 +82,17 @@ class Config(CamelModel):
                     message=f"Attempted to extend Config object with {path}, but the file did not contain a JSON `dict` object."
                 )
             self.extend_with_dict(data, overwrite)
+
+    @classmethod
+    def get_config_parameters(cls) -> Dict[str, ConfigParameter]:
+        result = {}
+        for field_name, field in cls.__fields__.items():
+            description = field.field_info.description
+            type_ = ConfigParameterType.from_python_type(field.type_)
+            result[field_name] = ConfigParameter(
+                type=type_,
+                default=field.default,
+                description=description,
+            )
+
+        return result

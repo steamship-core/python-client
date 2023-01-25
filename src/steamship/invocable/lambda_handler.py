@@ -1,3 +1,4 @@
+import importlib
 import inspect
 import json
 import logging
@@ -270,7 +271,8 @@ def safely_find_invocable_class() -> Type[Invocable]:
     Safely find the invocable class within invocable code.
     """
     try:
-        import api
+        module = importlib.import_module("api")
+        return get_class_from_module(module)
     except Exception as e:
         logging.exception(e)
         raise SteamshipError(
@@ -278,8 +280,10 @@ def safely_find_invocable_class() -> Type[Invocable]:
             error=e,
         )
 
+
+def get_class_from_module(module) -> Type[Invocable]:
     invocable_classes = []
-    for element in [getattr(api, x) for x in dir(api)]:
+    for element in [getattr(module, x) for x in dir(module)]:
         if inspect.isclass(element):
             # Using names and not issubclass(element, Invocable) because latter was returning false?
             superclass_names = [c.__name__ for c in inspect.getmro(element)]

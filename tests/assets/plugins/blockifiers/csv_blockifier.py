@@ -41,8 +41,9 @@ class CsvBlockifier(Blockifier):
                 kwargs["tag_columns"] = kwargs["tag_columns"].split(",")
             super().__init__(**kwargs)
 
-    def config_cls(self) -> Type[CsvBlockifierConfig]:
-        return self.CsvBlockifierConfig
+    @classmethod
+    def config_cls(cls) -> Type[CsvBlockifierConfig]:
+        return cls.CsvBlockifierConfig
 
     def _get_text(self, row) -> str:
         text = row.get(self.config.text_column)

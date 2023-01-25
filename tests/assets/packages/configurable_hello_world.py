@@ -7,7 +7,10 @@ class HelloWorld(Invocable):
     # Package configuration is always defined by a Pydantic object which derives from
     # the base `Config` object.
     class HelloWorldConfig(Config):
+        """The configuration class for configurable Hello World"""
+
         greeting: str
+        """ The greeting to greet with """
 
         # The casing of config variables is preserved exactly as the Steamship package author defines them.
         # Snake case is permitted
@@ -38,8 +41,9 @@ class HelloWorld(Invocable):
     def defaulted(self) -> InvocableResponse:
         return InvocableResponse(string=self.config.defaultConfig)
 
-    def config_cls(self) -> Type[Config]:
-        return self.HelloWorldConfig
+    @classmethod
+    def config_cls(cls) -> Type[Config]:
+        return cls.HelloWorldConfig
 
 
 handler = create_handler(HelloWorld)
