@@ -102,7 +102,7 @@ class Steamship(Client):
         # Safety check that we are now working form the new workspace.
         if client.config.workspace_handle != temporary_handle:
             raise SteamshipError(
-                message=f"Attempted to switch totemporary workspace {temporary_handle} but the client claimed to be working from {client.config.workspace_handle}"
+                message=f"Attempted to switch to temporary workspace {temporary_handle} but the client claimed to be working from {client.config.workspace_handle}"
             )
 
         yield client
