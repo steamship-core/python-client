@@ -50,8 +50,7 @@ def update_config_template(manifest: Manifest):
 
     invocable_type = get_class_from_module(module)
 
-    # DK: why do I have to pass invocable_type here into config_cls class method?
-    config_parameters = invocable_type.config_cls(invocable_type).get_config_parameters()
+    config_parameters = invocable_type.config_cls().get_config_parameters()
 
     if manifest.configTemplate != config_parameters:
         if len(config_parameters) > 0:
@@ -74,6 +73,7 @@ def get_archive_path(manifest: Manifest) -> Path:
 
 def bundle_deployable(manifest: Manifest):
     archive_path = get_archive_path(manifest)
+    archive_path.parent.mkdir(parents=True, exist_ok=True)
     excludes = DEFAULT_BUILD_IGNORE + manifest.build_config.get("ignore", [])
 
     archive_path.unlink(missing_ok=True)
