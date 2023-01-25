@@ -10,22 +10,14 @@ class RuntimeEnvironments(str, Enum):
 
 
 def _interactively_get_key(env: RuntimeEnvironments):
-    if env == RuntimeEnvironments.REPLIT:
-        print(
-            """To run this Replit, you will need a Steamship API Key.
+    print(
+        """Get your free API key here: https://steamship.com/account/api
 
-Visit http://steamship.com/account/api to fetch one, and then provide below:
+You'll get immediate access to our SDK for AI models, including OpenAI, GPT, Cohere, and more.
 """
-        )
-    elif env == RuntimeEnvironments.LOCALHOST:
-        print(
-            """To run this script, you will need a Steamship API Key.
+    )
 
-        Visit http://steamship.com/account/api to fetch one, and then provide below:
-"""
-        )
-
-    api_key = input("API Key: ")
+    api_key = input("Paste your API key to run: ")
 
     while len(api_key.strip()) == 0:
         api_key = input("API Key: ")
