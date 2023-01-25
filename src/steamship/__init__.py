@@ -9,7 +9,15 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from .base import Configuration, MimeTypes, SteamshipError, Task, TaskState
+from .base import (
+    Configuration,
+    MimeTypes,
+    RuntimeEnvironments,
+    SteamshipError,
+    Task,
+    TaskState,
+    check_environment,
+)
 from .data import (
     Block,
     DocTag,
@@ -42,8 +50,8 @@ __all__ = [
     "Workspace",
     "PluginInstance",
     "PluginVersion",
-    "SentimentTag",
-    "EmotionTag",
     "DocTag",
     "EmbeddingIndex",
+    "check_environment",
+    "RuntimeEnvironments",
 ]
