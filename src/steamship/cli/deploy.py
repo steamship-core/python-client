@@ -163,7 +163,7 @@ class DeployableDeployer(ABC):
     def create_version(self, client: Steamship, manifest: Manifest, thing_id: str):
         version = None
 
-        if len(manifest.version.strip()) == 0:
+        if not manifest.version or len(manifest.version) == 0:
             self.ask_for_new_version_handle(manifest, was_missing=True)
 
         while version is None:
