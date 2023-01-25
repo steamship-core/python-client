@@ -1,5 +1,6 @@
 import importlib
 import os
+import traceback
 import zipfile
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -36,21 +37,32 @@ def update_config_template(manifest: Manifest):
         if not path.exists():
             raise SteamshipError("Could not find api.py either in root directory or in src.")
 
-    module = importlib.machinery.SourceFileLoader("api", str(path)).load_module()
+    module = None
+    try:
+        module = importlib.machinery.SourceFileLoader("api", str(path)).load_module()
+    except Exception:
+        click.secho(
+            "An error occurred while loading your api.py to check configuration parameters. Full stack trace below.",
+            fg="red",
+        )
+        traceback.print_exc()
+        click.get_current_context().abort()
+
     invocable_type = get_class_from_module(module)
 
     # DK: why do I have to pass invocable_type here into config_cls class method?
     config_parameters = invocable_type.config_cls(invocable_type).get_config_parameters()
 
-    if len(config_parameters) > 0:
-        click.secho("Found the following config parameters; updating steamship.json.", fg="cyan")
-        for param_name, param in config_parameters.items():
-            click.echo(f"{param_name}:")
-            click.echo(f"\tType: {param.type}")
-            click.echo(f"\tDefault: {param.default}")
-            click.echo(f"\tDescription: {param.description}")
-    else:
-        click.secho("Found no config parameters; updating steamship.json.", fg="cyan")
+    if manifest.configTemplate != config_parameters:
+        if len(config_parameters) > 0:
+            click.secho("Config parameters changed; updating steamship.json.", fg="cyan")
+            for param_name, param in config_parameters.items():
+                click.echo(f"{param_name}:")
+                click.echo(f"\tType: {param.type}")
+                click.echo(f"\tDefault: {param.default}")
+                click.echo(f"\tDescription: {param.description}")
+        else:
+            click.secho("Config parameters removed; updating steamship.json.", fg="cyan")
 
     manifest.configTemplate = config_parameters
     manifest.save()
@@ -65,6 +77,10 @@ def bundle_deployable(manifest: Manifest):
     excludes = DEFAULT_BUILD_IGNORE + manifest.build_config.get("ignore", [])
 
     archive_path.unlink(missing_ok=True)
+
+    # This zipfile packaging is modeled after the typescript CLI.
+    # Items in non-excluded root folders are moved to the top-level.
+
     with zipfile.ZipFile(
         file=archive_path, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
     ) as zip_file:
@@ -107,7 +123,6 @@ class DeployableDeployer(ABC):
             )
             try:
                 thing = self.create_object(client, manifest)
-                print(f"Userid: {thing.user_id}")
                 if thing.user_id != user.id:
                     self.ask_for_new_handle(manifest)
                     thing = None
@@ -144,6 +159,7 @@ class DeployableDeployer(ABC):
     def create_version(self, client: Steamship, manifest: Manifest, thing_id: str):
         version = None
         while version is None:
+            click.echo(f"Deploying version {manifest.version} of [{manifest.handle}]... ", nl=False)
             try:
                 with ship_spinner():
                     version = self._create_version(client, manifest, thing_id)
@@ -155,6 +171,7 @@ class DeployableDeployer(ABC):
                         f"Unable to create / fetch {self.thing_type()}. Server returned message: {e.message}"
                     )
                     click.get_current_context().abort()
+        click.echo("\nDone. 🚢")
 
     def ask_for_new_version_handle(self, manifest: Manifest):
         try_again = click.confirm(

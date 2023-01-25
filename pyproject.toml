@@ -14,7 +14,7 @@ dynamic = ["dependencies", "version"]
 readme = "README.md"
 
 [project.scripts]
-shippy = "steamship.cli.cli:cli"
+ship = "steamship.cli.cli:cli"
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }

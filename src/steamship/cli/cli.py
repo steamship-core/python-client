@@ -73,9 +73,7 @@ def deploy():
     bundle_deployable(manifest)
     click.echo("Done. 📦")
 
-    click.echo(f"Deploying version {manifest.version} of [{manifest.handle}]... ", nl=False)
     _ = deployer.create_version(client, manifest, thing.id)
-    click.echo("Done. 🚢")
 
     thing_url = f"{client.config.web_base}{thing_type}s/{manifest.handle}"
     click.echo(
@@ -83,23 +81,10 @@ def deploy():
     )
 
     # Common error conditions:
-    # - Package/plugin handle already taken.
-    # - Version handle already deployed.
-    # - Bad parameter configuration.
-    # - Package content fails health check (ex. bad import)
-
-    # with click.progressbar(
-    #     length=10,
-    #     fill_char="🚢",
-    #     empty_char=" ",
-    #     show_eta=False,
-    #     show_percent=False,
-    #     show_pos=True,
-    #     label="Shipping your package",
-    # ) as bar:
-    #     for _ in range(10):
-    #         time.sleep(1)
-    #         bar.update(1)
+    # - Package/plugin handle already taken. [handled; asks user for new]
+    # - Version handle already deployed. [handled; asks user for new]
+    # - Bad parameter configuration. [mitigated by deriving template from Config object]
+    # - Package content fails health check (ex. bad import) [Error caught while checking config object]
 
 
 cli.add_command(deploy)
