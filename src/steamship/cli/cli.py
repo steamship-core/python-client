@@ -79,7 +79,7 @@ def deploy():
 
     thing_url = f"{client.config.web_base}{thing_type}s/{manifest.handle}"
     click.echo(
-        f"Deployment was successful. View and share your new {thing_type} here:\n\n{thing_url}"
+        f"Deployment was successful. View and share your new {thing_type} here:\n\n{thing_url}\n"
     )
 
     # Common error conditions:

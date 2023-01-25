@@ -126,7 +126,7 @@ class DeployableDeployer(ABC):
     def ask_for_new_handle(self, manifest: Manifest):
         try_again = click.confirm(
             click.style(
-                f"\nIt looks like that handle [{manifest.handle}]is already taken by another user.  Would you like to change the handle and try again?",
+                f"\nIt looks like that handle [{manifest.handle}] is already taken by another user.  Would you like to change the handle and try again?",
                 fg="yellow",
             ),
             default=True,

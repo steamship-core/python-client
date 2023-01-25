@@ -2,6 +2,8 @@ import itertools
 import sys
 import threading
 
+import click
+
 
 class Spinner(object):
     spinner_cycle = itertools.cycle(["   🚢", "  🚢 ", " 🚢  ", "🚢   "])
@@ -24,11 +26,9 @@ class Spinner(object):
 
     def init_spin(self):
         while not self.stop_running.is_set():
-            self.stream.write(next(self.spinner_cycle))
-            self.stream.flush()
+            click.echo(next(self.spinner_cycle), nl=False)
             self.stop_running.wait(0.25)
-            self.stream.write("\b\b\b\b")
-            self.stream.flush()
+            click.echo("\b\b\b\b", nl=False)
 
     def __enter__(self):
         self.start()
