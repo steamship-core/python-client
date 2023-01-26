@@ -7,14 +7,18 @@ from typing import Any, Dict, Generator, List, Optional
 
 from pydantic import BaseModel
 
-from steamship import Configuration, PackageInstance, PluginInstance, SteamshipError, Workspace
 from steamship.base.client import Client
+from steamship.base.configuration import Configuration
+from steamship.base.error import SteamshipError
 from steamship.client.skill_to_provider import SKILL_TO_PROVIDER
 from steamship.client.skills import Skill
 from steamship.client.vendors import Vendor
 from steamship.data.embeddings import EmbedAndSearchRequest, QueryResults
+from steamship.data.package.package_instance import PackageInstance
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
+from steamship.data.plugin.plugin_instance import PluginInstance
 from steamship.data.plugin.prompt_generation_plugin_instance import PromptGenerationPluginInstance
+from steamship.data.workspace import Workspace
 
 _logger = logging.getLogger(__name__)
 

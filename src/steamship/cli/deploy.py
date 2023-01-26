@@ -12,9 +12,9 @@ from semver import VersionInfo
 from steamship import Package, PackageVersion, Steamship, SteamshipError
 from steamship.cli.manifest_init_wizard import validate_handle, validate_version_handle
 from steamship.cli.ship_spinner import ship_spinner
+from steamship.data.manifest import Manifest
 from steamship.data.user import User
 from steamship.invocable.lambda_handler import get_class_from_module
-from steamship.invocable.manifest import Manifest
 
 DEFAULT_BUILD_IGNORE = [
     "build",
@@ -115,6 +115,10 @@ class DeployableDeployer(ABC):
         pass
 
     @abstractmethod
+    def update_object(self, deployable, client: Steamship, manifest: Manifest):
+        pass
+
+    @abstractmethod
     def deployable_type(self):
         pass
 
@@ -141,6 +145,8 @@ class DeployableDeployer(ABC):
                         f"Unable to create / fetch {self.deployable_type()}. Server returned message: {e.message}"
                     )
                     click.get_current_context().abort()
+
+        self.update_object(deployable, client, manifest)
 
         click.echo("Done.")
         return deployable
@@ -225,7 +231,15 @@ class PackageDeployer(DeployableDeployer):
         )
 
     def create_object(self, client: Steamship, manifest: Manifest):
-        return Package.create(client, handle=manifest.handle, fetch_if_exists=True)
+        return Package.create(
+            client, handle=manifest.handle, profile=manifest, fetch_if_exists=True
+        )
+
+    def update_object(self, deployable, client: Steamship, manifest: Manifest):
+        deployable.profile = manifest
+
+        package = deployable.update(client)
+        return package
 
     def deployable_type(self):
         return "package"
