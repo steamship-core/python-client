@@ -59,6 +59,11 @@ def manifest_init_wizard(client: Steamship):
             default="",
         )
 
+    tag_string = click.prompt(
+        f"Want to give the {deployable_type} some tags? (comma separated)", default="Prompt API"
+    )
+    tags = [tag.strip() for tag in tag_string.split(",")]
+
     return Manifest(
         type=deployable_type,
         handle=handle,
@@ -68,6 +73,6 @@ def manifest_init_wizard(client: Steamship):
         build_config={"ignore": ["tests", "examples"]},
         configTemplate={},
         steamshipRegistry=SteamshipRegistry(
-            tagline=tagline, authorGithub=author_github, authorName=author, tags=[]
+            tagline=tagline, authorGithub=author_github, authorName=author, tags=tags
         ),
     )
