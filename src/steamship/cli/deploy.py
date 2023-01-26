@@ -8,9 +8,10 @@ from pathlib import Path
 import click
 from semver import VersionInfo
 
-from steamship import Package, PackageVersion, Steamship, SteamshipError
+from steamship import Package, PackageVersion, PluginVersion, Steamship, SteamshipError
 from steamship.cli.manifest_init_wizard import validate_handle, validate_version_handle
 from steamship.cli.ship_spinner import ship_spinner
+from steamship.data import Plugin
 from steamship.data.user import User
 from steamship.invocable.lambda_handler import get_class_from_module
 from steamship.invocable.manifest import Manifest
@@ -225,3 +226,28 @@ class PackageDeployer(DeployableDeployer):
 
     def deployable_type(self):
         return "package"
+
+
+class PluginDeployer(DeployableDeployer):
+    def _create_version(self, client: Steamship, manifest: Manifest, thing_id: str):
+        return PluginVersion.create(
+            client=client,
+            config_template=manifest.config_template_as_dict(),
+            handle=manifest.version,
+            filename=f"build/archives/{manifest.handle}_v{manifest.version}.zip",
+            plugin_id=thing_id,
+        )
+
+    def create_object(self, client: Steamship, manifest: Manifest):
+        return Plugin.create(
+            client,
+            description=manifest.description,
+            is_public=manifest.public,
+            transport=manifest.plugin.transport,
+            type_=manifest.plugin.type,
+            handle=manifest.handle,
+            fetch_if_exists=True,
+        )
+
+    def deployable_type(self):
+        return "plugin"

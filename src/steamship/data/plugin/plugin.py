@@ -30,6 +30,7 @@ class CreatePluginRequest(Request):
     handle: str = None
     description: str = None
     metadata: str = None
+    fetch_if_exists: bool = False
 
 
 class ListPluginsRequest(Request):
@@ -86,6 +87,7 @@ class Plugin(CamelModel):
         handle: str = None,
         training_platform: Optional[HostingType] = None,
         metadata: Union[str, Dict, List] = None,
+        fetch_if_exists: bool = False,
     ) -> Plugin:
         if isinstance(metadata, dict) or isinstance(metadata, list):
             metadata = json.dumps(metadata)
@@ -98,6 +100,7 @@ class Plugin(CamelModel):
             handle=handle,
             description=description,
             metadata=metadata,
+            fetch_if_exists=fetch_if_exists,
         )
         return client.post(
             "plugin/create",

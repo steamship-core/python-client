@@ -7,7 +7,12 @@ import click
 import steamship
 from steamship import Steamship
 from steamship.base.configuration import Configuration
-from steamship.cli.deploy import PackageDeployer, bundle_deployable, update_config_template
+from steamship.cli.deploy import (
+    PackageDeployer,
+    PluginDeployer,
+    bundle_deployable,
+    update_config_template,
+)
 from steamship.cli.manifest_init_wizard import manifest_init_wizard
 from steamship.data.user import User
 from steamship.invocable.manifest import DeployableType, Manifest
@@ -62,10 +67,7 @@ def deploy():
     if deployable_type == DeployableType.PACKAGE:
         deployer = PackageDeployer()
     else:
-        click.secho(
-            "Sorry, this version of Steamship CLI can only deploy packages right now.", fg="red"
-        )
-        click.get_current_context().abort()
+        deployer = PluginDeployer()
 
     deployable = deployer.create_or_fetch_deployable(client, user, manifest)
 
