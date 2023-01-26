@@ -30,7 +30,7 @@ DEFAULT_BUILD_IGNORE = [
 ]
 
 
-def update_config_template(manifest: Manifest):  # noqa: C901
+def update_config_template(manifest: Manifest):
 
     path = Path("src/api.py")
     if not path.exists():
