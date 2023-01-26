@@ -1,5 +1,6 @@
-import importlib
+import importlib.machinery as machinery
 import os
+import sys
 import traceback
 import zipfile
 from abc import ABC, abstractmethod
@@ -37,9 +38,12 @@ def update_config_template(manifest: Manifest):
         if not path.exists():
             raise SteamshipError("Could not find api.py either in root directory or in src.")
 
-    module = None
+    api_module = None
     try:
-        module = importlib.machinery.SourceFileLoader("api", str(path)).load_module()
+        sys.path.append(str(path.parent.absolute()))
+
+        # load the API module to allow config inspection / generation
+        api_module = machinery.SourceFileLoader("api", str(path)).load_module()
     except Exception:
         click.secho(
             "An error occurred while loading your api.py to check configuration parameters. Full stack trace below.",
@@ -48,7 +52,7 @@ def update_config_template(manifest: Manifest):
         traceback.print_exc()
         click.get_current_context().abort()
 
-    invocable_type = get_class_from_module(module)
+    invocable_type = get_class_from_module(api_module)
 
     config_parameters = invocable_type.config_cls().get_config_parameters()
 
