@@ -32,7 +32,7 @@ def login(api_base: str, web_base: str) -> str:  # noqa: C901
 
     if not opened_browser:
         raise SteamshipError(
-            "Could not launch browser for login flow. If you are in Replit or another headless environment, please set your Steamship API key as an environment variable or in steamship.json.  See more here: https://docs.steamship.com/configuration/authentication.html"
+            "Could not launch browser for login flow. If you are in Replit, you must set the STEAMSHIP_API_KEY as a Secret and close and reopen this shell. If you are in another headless environment, please set your Steamship API key as an environment variable or in steamship.json. See more here: https://docs.steamship.com/configuration/authentication.html"
         )
 
     # Wait on result
