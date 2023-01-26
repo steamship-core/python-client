@@ -4,6 +4,7 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
+from steamship.data.plugin import PluginType
 from steamship.invocable.config import ConfigParameter
 
 
@@ -16,16 +17,23 @@ class SteamshipRegistry(BaseModel):
     tagline: Optional[str]  # noqa: N815
     tagline2: Optional[str]  # noqa: N815
     usefulFor: Optional[str]  # noqa: N815
-    videoURL: Optional[str]  # noqa: N815
-    githubURL: Optional[str]  # noqa: N815
-    demoURL: Optional[str]  # noqa: N815
-    jupyterURL: Optional[str]  # noqa: N815
+    videoUrl: Optional[str]  # noqa: N815
+    githubUrl: Optional[str]  # noqa: N815
+    demoUrl: Optional[str]  # noqa: N815
+    blogUrl: Optional[str]  # noqa: N815
+    jupyterUrl: Optional[str]  # noqa: N815
     authorGithub: Optional[str]  # noqa: N815
     authorName: Optional[str]  # noqa: N815
     authorEmail: Optional[str]  # noqa: N815
     authorTwitter: Optional[str]  # noqa: N815
-    authorURL: Optional[str]  # noqa: N815
+    authorUrl: Optional[str]  # noqa: N815
     tags: List[str]
+
+
+class PluginConfig(BaseModel):
+    isTrainable: bool  # noqa: N815
+    transport: str = "jsonOverHttp"
+    type: PluginType
 
 
 class Manifest(BaseModel):
@@ -36,6 +44,7 @@ class Manifest(BaseModel):
     author: Optional[str]
     entrypoint: str = "Unused"
     public: bool
+    plugin: Optional[PluginConfig]
     build_config: Dict[str, List[str]] = {"ignore": []}
     configTemplate: Dict[str, ConfigParameter]  # noqa: N815
     steamshipRegistry: SteamshipRegistry  # noqa: N815

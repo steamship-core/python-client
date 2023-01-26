@@ -3,7 +3,7 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, Optional, Type, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictBool, StrictFloat, StrictInt, StrictStr
 
 from steamship import SteamshipError
 from steamship.base.model import CamelModel
@@ -45,8 +45,8 @@ class ConfigParameter(BaseModel):
     type: ConfigParameterType
     description: Optional[str] = None
 
-    # Note order is important here in the union; Pydantic will coerce values into the first union type that fits!
-    default: Optional[Union[bool, float, str]] = None
+    # Use strict so that Pydantic doesn't coerce values into the first one that fits
+    default: Optional[Union[StrictStr, StrictBool, StrictFloat, StrictInt]] = None
 
 
 class Config(CamelModel):
