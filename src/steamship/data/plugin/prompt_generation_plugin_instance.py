@@ -1,9 +1,9 @@
 import logging
 from typing import Any, Dict, Optional
 
-from steamship import PluginInstance, SteamshipError
 from steamship.base.client import Client
-from steamship.data.plugin.plugin_instance import CreatePluginInstanceRequest
+from steamship.base.error import SteamshipError
+from steamship.data.plugin.plugin_instance import CreatePluginInstanceRequest, PluginInstance
 from steamship.data.tags.tag_constants import TagKind, TagValueKey
 
 

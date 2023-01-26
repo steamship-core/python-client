@@ -9,8 +9,8 @@ from steamship import Steamship, SteamshipError
 from steamship.base.configuration import Configuration
 from steamship.cli.deploy import PackageDeployer, bundle_deployable, update_config_template
 from steamship.cli.manifest_init_wizard import manifest_init_wizard
+from steamship.data.manifest import DeployableType, Manifest
 from steamship.data.user import User
-from steamship.invocable.manifest import DeployableType, Manifest
 
 
 @click.group()

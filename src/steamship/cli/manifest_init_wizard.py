@@ -4,8 +4,8 @@ import click
 from click import BadParameter
 
 from steamship import Steamship
+from steamship.data.manifest import Manifest, SteamshipRegistry
 from steamship.data.user import User
-from steamship.invocable.manifest import Manifest, SteamshipRegistry
 
 
 def validate_handle(handle: str) -> str:

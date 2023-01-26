@@ -15,6 +15,11 @@ class CreateRequest(Request):
     handle: str = None
 
 
+class UpdateRequest(Request):
+    id: str = None
+    handle: str = None
+
+
 class IdentifierRequest(Request):
     id: str = None
     handle: str = None
