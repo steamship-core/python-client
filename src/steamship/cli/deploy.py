@@ -1,5 +1,6 @@
-import importlib
+import importlib.machinery as machinery
 import os
+import sys
 import traceback
 import zipfile
 from abc import ABC, abstractmethod
@@ -37,39 +38,12 @@ def update_config_template(manifest: Manifest):  # noqa: C901
         if not path.exists():
             raise SteamshipError("Could not find api.py either in root directory or in src.")
 
-    module = None
+    api_module = None
     try:
-        import glob
-        import importlib.util as util
-        import sys
+        sys.path.append(str(path.parent.absolute()))
 
-        for filename in glob.iglob(str(path.parent.absolute()) + "/**/*.py", recursive=True):
-            if filename.endswith("api.py"):
-                continue
-            mpath = Path(filename)
-
-            if mpath.parent != path.parent.absolute():
-                mspec = util.spec_from_file_location(
-                    name=mpath.parent.name,
-                    location=filename,
-                    submodule_search_locations=[],
-                )
-                if mspec is None:
-                    continue
-                module = importlib.util.module_from_spec(mspec)
-                sys.modules[mpath.parent.name] = module
-                mspec.loader.exec_module(module)
-            else:
-                mspec = util.spec_from_file_location(
-                    name=mpath.name[:-3],
-                    location=filename,
-                    submodule_search_locations=["."],
-                )
-                module = importlib.util.module_from_spec(mspec)
-                sys.modules[mpath.name[:-3]] = module
-                mspec.loader.exec_module(module)
-
-        module = importlib.machinery.SourceFileLoader("api", str(path)).load_module()
+        # load the API module to allow config inspection / generation
+        api_module = machinery.SourceFileLoader("api", str(path)).load_module()
     except Exception:
         click.secho(
             "An error occurred while loading your api.py to check configuration parameters. Full stack trace below.",
@@ -78,7 +52,7 @@ def update_config_template(manifest: Manifest):  # noqa: C901
         traceback.print_exc()
         click.get_current_context().abort()
 
-    invocable_type = get_class_from_module(module)
+    invocable_type = get_class_from_module(api_module)
 
     config_parameters = invocable_type.config_cls().get_config_parameters()
 
