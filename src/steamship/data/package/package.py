@@ -46,11 +46,9 @@ class Package(CamelModel):
 
     @staticmethod
     def create(
-        client: Client, handle: str = None, manifest: Manifest = None, fetch_if_exists=False
+        client: Client, handle: str = None, profile: Manifest = None, fetch_if_exists=False
     ) -> Package:
-        req = PackageCreateRequest(
-            handle=handle, manifest=manifest, fetch_if_exists=fetch_if_exists
-        )
+        req = PackageCreateRequest(handle=handle, profile=profile, fetch_if_exists=fetch_if_exists)
         return client.post("package/create", payload=req, expect=Package)
 
     @staticmethod

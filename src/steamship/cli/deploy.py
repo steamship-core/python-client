@@ -232,7 +232,7 @@ class PackageDeployer(DeployableDeployer):
 
     def create_object(self, client: Steamship, manifest: Manifest):
         return Package.create(
-            client, handle=manifest.handle, manifest=manifest, fetch_if_exists=True
+            client, handle=manifest.handle, profile=manifest, fetch_if_exists=True
         )
 
     def update_object(self, deployable, client: Steamship, manifest: Manifest):
