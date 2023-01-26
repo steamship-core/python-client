@@ -29,7 +29,7 @@ DEFAULT_BUILD_IGNORE = [
 ]
 
 
-def update_config_template(manifest: Manifest):
+def update_config_template(manifest: Manifest):  # noqa: C901
 
     path = Path("src/api.py")
     if not path.exists():
@@ -39,6 +39,36 @@ def update_config_template(manifest: Manifest):
 
     module = None
     try:
+        import glob
+        import importlib.util as util
+        import sys
+
+        for filename in glob.iglob(str(path.parent.absolute()) + "/**/*.py", recursive=True):
+            if filename.endswith("api.py"):
+                continue
+            mpath = Path(filename)
+
+            if mpath.parent != path.parent.absolute():
+                mspec = util.spec_from_file_location(
+                    name=mpath.parent.name,
+                    location=filename,
+                    submodule_search_locations=[],
+                )
+                if mspec is None:
+                    continue
+                module = importlib.util.module_from_spec(mspec)
+                sys.modules[mpath.parent.name] = module
+                mspec.loader.exec_module(module)
+            else:
+                mspec = util.spec_from_file_location(
+                    name=mpath.name[:-3],
+                    location=filename,
+                    submodule_search_locations=["."],
+                )
+                module = importlib.util.module_from_spec(mspec)
+                sys.modules[mpath.name[:-3]] = module
+                mspec.loader.exec_module(module)
+
         module = importlib.machinery.SourceFileLoader("api", str(path)).load_module()
     except Exception:
         click.secho(
