@@ -5,7 +5,7 @@ from os import path
 import click
 
 import steamship
-from steamship import Steamship
+from steamship import Steamship, SteamshipError
 from steamship.base.configuration import Configuration
 from steamship.cli.deploy import PackageDeployer, bundle_deployable, update_config_template
 from steamship.cli.manifest_init_wizard import manifest_init_wizard
@@ -46,7 +46,13 @@ def login():
 @click.command()
 def deploy():
     initialize()
-    client = Steamship()
+    client = None
+    try:
+        client = Steamship()
+    except SteamshipError as e:
+        click.secho(e.message, fg="red")
+        click.get_current_context().abort()
+
     user = User.current(client)
     if path.exists("steamship.json"):
         manifest = Manifest.load_manifest()
