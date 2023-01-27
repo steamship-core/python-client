@@ -16,6 +16,7 @@ from steamship.base.request import CreateRequest, GetRequest
 
 
 class PackageCreateRequest(CreateRequest):
+    is_public: bool = False
     fetch_if_exists = False
 
 
@@ -24,6 +25,7 @@ class Package(CamelModel):
     id: str = None
     handle: str = None
     user_id: str = None
+    is_public: bool = False
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
@@ -32,8 +34,12 @@ class Package(CamelModel):
         return super().parse_obj(obj)
 
     @staticmethod
-    def create(client: Client, handle: str = None, fetch_if_exists=False) -> Package:
-        req = PackageCreateRequest(handle=handle, fetch_if_exists=fetch_if_exists)
+    def create(
+        client: Client, handle: str = None, is_public=False, fetch_if_exists=False
+    ) -> Package:
+        req = PackageCreateRequest(
+            handle=handle, is_public=is_public, fetch_if_exists=fetch_if_exists
+        )
         return client.post("package/create", payload=req, expect=Package)
 
     @staticmethod

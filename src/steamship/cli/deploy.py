@@ -225,7 +225,9 @@ class PackageDeployer(DeployableDeployer):
         )
 
     def create_object(self, client: Steamship, manifest: Manifest):
-        return Package.create(client, handle=manifest.handle, fetch_if_exists=True)
+        return Package.create(
+            client, handle=manifest.handle, is_public=manifest.public, fetch_if_exists=True
+        )
 
     def deployable_type(self):
         return "package"
