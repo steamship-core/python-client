@@ -15,8 +15,9 @@ from pydantic import BaseModel, Field
 
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import IdentifierRequest, Request
+from steamship.base.request import IdentifierRequest, Request, UpdateRequest
 from steamship.base.response import Response
+from steamship.data.manifest import Manifest
 
 from .hosting import HostingType
 
@@ -31,6 +32,14 @@ class CreatePluginRequest(Request):
     description: str = None
     metadata: str = None
     fetch_if_exists: bool = False
+
+
+class PluginUpdateRequest(UpdateRequest):
+    id: Optional[str] = None
+    handle: Optional[str] = None
+    description: Optional[str] = None
+    profile: Optional[Manifest] = None
+    readme: Optional[str] = None
 
 
 class ListPluginsRequest(Request):
@@ -70,6 +79,8 @@ class Plugin(CamelModel):
     handle: str = None
     description: str = None
     metadata: str = None
+    profile: Optional[Manifest] = None
+    readme: Optional[str] = None
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
@@ -119,6 +130,15 @@ class Plugin(CamelModel):
     @staticmethod
     def get(client: Client, handle: str):
         return client.post("plugin/get", IdentifierRequest(handle=handle), expect=Plugin)
+
+    def update(self, client: Client) -> Plugin:
+        return client.post(
+            "package/update",
+            PluginUpdateRequest(
+                id=self.id, description=self.description, profile=self.profile, readme=self.readme
+            ),
+            expect=Plugin,
+        )
 
 
 ListPluginsResponse.update_forward_refs()

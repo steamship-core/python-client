@@ -4,7 +4,6 @@ from typing import Dict, List, Optional
 
 from pydantic import BaseModel
 
-from steamship.data.plugin import PluginType
 from steamship.invocable.config import ConfigParameter
 
 
@@ -33,7 +32,7 @@ class SteamshipRegistry(BaseModel):
 class PluginConfig(BaseModel):
     isTrainable: bool  # noqa: N815
     transport: str = "jsonOverHttp"
-    type: PluginType
+    type: str  # Does not use PluginType due to circular import
 
 
 class Manifest(BaseModel):

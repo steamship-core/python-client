@@ -271,5 +271,11 @@ class PluginDeployer(DeployableDeployer):
             fetch_if_exists=True,
         )
 
+    def update_object(self, deployable, client: Steamship, manifest: Manifest):
+        deployable.profile = manifest
+
+        plugin = deployable.update(client)
+        return plugin
+
     def deployable_type(self):
         return "plugin"

@@ -72,8 +72,11 @@ def deploy():
     deployer = None
     if deployable_type == DeployableType.PACKAGE:
         deployer = PackageDeployer()
-    else:
+    elif deployable_type == DeployableType.PLUGIN:
         deployer = PluginDeployer()
+    else:
+        click.secho("Deployable must be of type package or plugin.", fg="red")
+        click.get_current_context().abort()
 
     deployable = deployer.create_or_fetch_deployable(client, user, manifest)
 
