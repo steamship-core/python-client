@@ -2,11 +2,13 @@ from typing import Any, Dict, List, Optional, Union, cast
 
 from pydantic import Field
 
-from steamship import SteamshipError, Tag, Task
 from steamship.base.client import Client
+from steamship.base.error import SteamshipError
 from steamship.base.model import CamelModel
+from steamship.base.tasks import Task
 from steamship.data.embeddings import EmbeddedItem, EmbeddingIndex, QueryResult, QueryResults
 from steamship.data.plugin.plugin_instance import PluginInstance
+from steamship.data.tags.tag import Tag
 
 
 class EmbedderInvocation(CamelModel):

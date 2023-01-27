@@ -1,5 +1,6 @@
-import importlib
+import importlib.machinery as machinery
 import os
+import sys
 import traceback
 import zipfile
 from abc import ABC, abstractmethod
@@ -12,9 +13,9 @@ from steamship import Package, PackageVersion, PluginVersion, Steamship, Steamsh
 from steamship.cli.manifest_init_wizard import validate_handle, validate_version_handle
 from steamship.cli.ship_spinner import ship_spinner
 from steamship.data import Plugin
+from steamship.data.manifest import Manifest
 from steamship.data.user import User
 from steamship.invocable.lambda_handler import get_class_from_module
-from steamship.invocable.manifest import Manifest
 
 DEFAULT_BUILD_IGNORE = [
     "build",
@@ -38,9 +39,12 @@ def update_config_template(manifest: Manifest):
         if not path.exists():
             raise SteamshipError("Could not find api.py either in root directory or in src.")
 
-    module = None
+    api_module = None
     try:
-        module = importlib.machinery.SourceFileLoader("api", str(path)).load_module()
+        sys.path.append(str(path.parent.absolute()))
+
+        # load the API module to allow config inspection / generation
+        api_module = machinery.SourceFileLoader("api", str(path)).load_module()
     except Exception:
         click.secho(
             "An error occurred while loading your api.py to check configuration parameters. Full stack trace below.",
@@ -49,7 +53,7 @@ def update_config_template(manifest: Manifest):
         traceback.print_exc()
         click.get_current_context().abort()
 
-    invocable_type = get_class_from_module(module)
+    invocable_type = get_class_from_module(api_module)
 
     config_parameters = invocable_type.config_cls().get_config_parameters()
 
@@ -112,6 +116,10 @@ class DeployableDeployer(ABC):
         pass
 
     @abstractmethod
+    def update_object(self, deployable, client: Steamship, manifest: Manifest):
+        pass
+
+    @abstractmethod
     def deployable_type(self):
         pass
 
@@ -138,6 +146,8 @@ class DeployableDeployer(ABC):
                         f"Unable to create / fetch {self.deployable_type()}. Server returned message: {e.message}"
                     )
                     click.get_current_context().abort()
+
+        self.update_object(deployable, client, manifest)
 
         click.echo("Done.")
         return deployable
@@ -222,7 +232,19 @@ class PackageDeployer(DeployableDeployer):
         )
 
     def create_object(self, client: Steamship, manifest: Manifest):
-        return Package.create(client, handle=manifest.handle, fetch_if_exists=True)
+        return Package.create(
+            client,
+            handle=manifest.handle,
+            profile=manifest,
+            is_public=manifest.public,
+            fetch_if_exists=True,
+        )
+
+    def update_object(self, deployable, client: Steamship, manifest: Manifest):
+        deployable.profile = manifest
+
+        package = deployable.update(client)
+        return package
 
     def deployable_type(self):
         return "package"
