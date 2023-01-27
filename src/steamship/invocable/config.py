@@ -5,7 +5,7 @@ from typing import Dict, Optional, Type, Union
 
 from pydantic import BaseModel
 
-from steamship import SteamshipError
+from steamship.base.error import SteamshipError
 from steamship.base.model import CamelModel
 
 
