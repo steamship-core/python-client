@@ -17,6 +17,7 @@ from steamship.data.manifest import Manifest
 
 
 class PackageCreateRequest(CreateRequest):
+    is_public: bool = False
     fetch_if_exists = False
     profile: Optional[Manifest] = None
 
@@ -37,6 +38,7 @@ class Package(CamelModel):
     profile: Optional[Manifest] = None
     description: Optional[str] = None
     readme: Optional[str] = None
+    is_public: bool = False
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
@@ -46,9 +48,15 @@ class Package(CamelModel):
 
     @staticmethod
     def create(
-        client: Client, handle: str = None, profile: Manifest = None, fetch_if_exists=False
+        client: Client,
+        handle: str = None,
+        profile: Manifest = None,
+        is_public=False,
+        fetch_if_exists=False,
     ) -> Package:
-        req = PackageCreateRequest(handle=handle, profile=profile, fetch_if_exists=fetch_if_exists)
+        req = PackageCreateRequest(
+            handle=handle, profile=profile, is_public=is_public, fetch_if_exists=fetch_if_exists
+        )
         return client.post("package/create", payload=req, expect=Package)
 
     @staticmethod
