@@ -134,7 +134,7 @@ class Plugin(CamelModel):
 
     def update(self, client: Client) -> Plugin:
         return client.post(
-            "package/update",
+            "plugin/update",
             PluginUpdateRequest(
                 id=self.id, description=self.description, profile=self.profile, readme=self.readme
             ),

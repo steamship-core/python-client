@@ -6,6 +6,7 @@ from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import PluginInstance, SteamshipError, Workspace
 from steamship.data.plugin import Plugin, PluginAdapterType, PluginType
+from steamship.data.user import User
 
 
 def test_plugin_create():
@@ -58,6 +59,9 @@ def test_plugin_create():
     assert plugin.id in [plugin.id for plugin in my_plugins.plugins]
     assert plugin.description in [plugin.description for plugin in my_plugins.plugins]
 
+    user_id = User.current(steamship).id
+    assert plugin.user_id == user_id
+
     # assert(my_plugins.plugins[0].description != plugin.description)
 
 
@@ -69,6 +73,8 @@ def test_plugin_public():
     plugins = resp.plugins
 
     assert len(plugins) > 0
+    for plugin in plugins:
+        assert plugin.user_id is not None
 
 
 def test_deploy_in_workspace():
@@ -87,6 +93,27 @@ def test_plugin_instance_get():
 
     other_instance = PluginInstance.get(steamship, handle=handle)
     assert instance.id == other_instance.id
+
+
+def test_plugin_update():
+    steamship = get_steamship_client()
+
+    plugin = Plugin.create(
+        client=steamship,
+        description="This is just for test",
+        type_=PluginType.tagger,
+        transport=PluginAdapterType.steamship_docker,
+        is_public=False,
+    )
+
+    new_description = "f"
+    plugin.description = new_description
+
+    plugin = plugin.update(steamship)
+    assert plugin.description == new_description
+
+    got_plugin = Plugin.get(steamship, handle=plugin.handle)
+    assert got_plugin.description == new_description
 
 
 def test_plugin_instance_quick_create():
