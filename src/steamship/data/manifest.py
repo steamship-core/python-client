@@ -1,10 +1,35 @@
 import json
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Type, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictBool, StrictFloat, StrictInt, StrictStr
 
-from steamship.invocable.config import ConfigParameter
+from steamship.base.error import SteamshipError
+
+
+class ConfigParameterType(str, Enum):
+    NUMBER = "number"
+    STRING = "string"
+    BOOLEAN = "boolean"
+
+    @staticmethod
+    def from_python_type(t: Type):
+        if issubclass(t, str):
+            return ConfigParameterType.STRING
+        elif issubclass(t, bool):  # bool is a subclass of int, so must do this first!
+            return ConfigParameterType.BOOLEAN
+        elif issubclass(t, float) or issubclass(t, int):
+            return ConfigParameterType.NUMBER
+        else:
+            raise SteamshipError(f"Unknown value type in Config: {t}")
+
+
+class ConfigParameter(BaseModel):
+    type: ConfigParameterType
+    description: Optional[str] = None
+
+    # Use strict so that Pydantic doesn't coerce values into the first one that fits
+    default: Optional[Union[StrictStr, StrictBool, StrictFloat, StrictInt]] = None
 
 
 class DeployableType(str, Enum):
