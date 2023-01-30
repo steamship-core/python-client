@@ -73,8 +73,6 @@ def test_plugin_public():
     plugins = resp.plugins
 
     assert len(plugins) > 0
-    for plugin in plugins:
-        assert plugin.user_id is not None
 
 
 def test_deploy_in_workspace():

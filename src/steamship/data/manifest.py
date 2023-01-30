@@ -55,7 +55,7 @@ class SteamshipRegistry(BaseModel):
 
 
 class PluginConfig(BaseModel):
-    isTrainable: bool  # noqa: N815
+    isTrainable: Optional[bool] = False  # noqa: N815
     transport: str = "jsonOverHttp"
     type: str  # Does not use PluginType due to circular import
 
@@ -70,7 +70,7 @@ class Manifest(BaseModel):
     public: bool
     plugin: Optional[PluginConfig]
     build_config: Dict[str, List[str]] = {"ignore": []}
-    configTemplate: Dict[str, ConfigParameter]  # noqa: N815
+    configTemplate: Optional[Dict[str, ConfigParameter]]  # noqa: N815
     steamshipRegistry: SteamshipRegistry  # noqa: N815
 
     @staticmethod
