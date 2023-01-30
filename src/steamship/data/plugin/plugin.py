@@ -81,6 +81,7 @@ class Plugin(CamelModel):
     metadata: str = None
     profile: Optional[Manifest] = None
     readme: Optional[str] = None
+    user_id: Optional[str] = None
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
