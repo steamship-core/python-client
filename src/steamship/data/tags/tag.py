@@ -100,6 +100,17 @@ class Tag(CamelModel):
         """Index this tag."""
         return plugin_instance.insert(self)
 
+    def matches(self, kind: Optional[str] = None, name: Optional[str] = None) -> bool:
+        """Return true if provided filter criterion match this tag, or if no filter criterion were provided.
+
+        Intended to assist quick retrieval of tags from lists or a top-level File object.
+        """
+        if kind and self.kind != kind:
+            return False
+        if name and self.name != name:
+            return False
+        return True
+
     @staticmethod
     def query(
         client: Client,

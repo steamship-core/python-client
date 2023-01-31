@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import io
 from enum import Enum
-from typing import TYPE_CHECKING, Any, List, Type, Union
+from typing import TYPE_CHECKING, Any, Generator, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
@@ -253,6 +253,16 @@ class File(CamelModel):
             ListFileRequest(),
             expect=ListFileResponse,
         )
+
+    def block_tags_matching(
+        self, kind: Optional[str], name: Optional[str]
+    ) -> Generator[None, Tag, None]:
+        """Generator for all tags matching the provided criteria."""
+        if not self.blocks:
+            return
+        for block in self.blocks:
+            for tag in block.tags_matching(kind=kind, name=name):
+                yield tag
 
 
 class FileQueryResponse(Response):

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import Any, Generator, List, Optional
 
 from pydantic import Field
 
@@ -59,6 +59,15 @@ class Block(CamelModel):
             DeleteRequest(id=self.id),
             expect=Tag,
         )
+
+    def tags_matching(self, kind: Optional[str], name: Optional[str]) -> Generator[None, Tag, None]:
+        """Generator for all tags matching the provided criteria; adds text covered by tag."""
+        if not self.tags:
+            return
+        for tag in self.tags:
+            if tag.matches(kind=kind, name=name):
+                tag.text = self.text[tag.start_idx : tag.end_idx]
+                yield tag
 
     @staticmethod
     def query(
