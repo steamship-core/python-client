@@ -12,7 +12,7 @@ from typing import Any, Dict, Optional, Type, Union
 import toml
 
 from steamship.base.package_spec import MethodSpec, PackageSpec
-from steamship.client import Steamship
+from steamship.client.steamship import Steamship
 from steamship.invocable import Config
 from steamship.invocable.config import ConfigParameter
 from steamship.invocable.invocable_request import InvocableRequest, InvocationContext
