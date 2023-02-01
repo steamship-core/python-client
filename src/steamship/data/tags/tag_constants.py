@@ -186,6 +186,12 @@ class TagValueKey(str, Enum):
     # A string
     STRING_VALUE = "string-value"
 
+    # A URL
+    URL_VALUE = "url-value"
+
+    # The MIME Type
+    MIME_TYPE = "mime-type"
+
     # Whether some annotation is direct ("Susan said 'Hi'")
     DIRECT = "direct"
 
@@ -213,6 +219,12 @@ class GenerationTag(str, Enum):
 
     # A generated completion using some region of the document as input
     PROMPT_COMPLETION = "prompt-completion"
+
+    # A generated image using some region of the document as input
+    IMAGE_GENERATION = "image-generation"
+
+    # A generated image using some region of the document as input
+    AUDIO_GENERATION = "audio-generation"
 
 
 class ProvenanceTag(str, Enum):

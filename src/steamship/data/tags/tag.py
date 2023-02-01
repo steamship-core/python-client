@@ -325,6 +325,40 @@ class PromptCompletionTag(Tag):
         )
 
 
+class ImageGenerationTag(Tag):
+    def __init__(
+        self,
+        url: str = None,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(
+            kind=TagKind.GENERATION,
+            name=GenerationTag.IMAGE_GENERATION,
+            start_idx=start_idx,
+            end_idx=end_idx,
+            value={**value, TagValueKey.URL_VALUE: url},
+        )
+
+
+class AudioGenerationTag(Tag):
+    def __init__(
+        self,
+        url: str = None,
+        start_idx: Optional[int] = None,
+        end_idx: Optional[int] = None,
+        value: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(
+            kind=TagKind.GENERATION,
+            name=GenerationTag.AUDIO_GENERATION,
+            start_idx=start_idx,
+            end_idx=end_idx,
+            value={**value, TagValueKey.URL_VALUE: url},
+        )
+
+
 class TagQueryResponse(Response):
     tags: List[Tag]
 

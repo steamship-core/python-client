@@ -1,49 +1,47 @@
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 from steamship.base.client import Client
 from steamship.data.plugin.plugin_instance import CreatePluginInstanceRequest, PluginInstance
 from steamship.data.tags.tag_constants import GenerationTag, TagKind, TagValueKey
 from steamship.utils.prompt_utils import interpolate_template
+from steamship.utils.signed_urls import url_to_bytes
 from steamship.utils.tagging_utils import tag_then_fetch_first_block_tag
 
 
-class PromptGenerationPluginInstance(PluginInstance):
-    """An instance of a configured prompt completion service such as GPT-3.
+class ImageGenerationPluginInstance(PluginInstance):
+    """An instance of a configured image generation service such as DALL-E.
 
     The `generate` method synchronously invokes the prompt against a set of variables that parameterize it.
     The return value is a single string.
 
     Example Usage:
-       llm = Steamship.use('prompt-generation-default', config={ "temperature": 0.9 })
-       PROMPT = "Greet {name} as if he were a {relation}."
-       greeting = llm.generate(PROMPT, {"name": "Ted", "relation": "old friend"})
+       dalle = Steamship.use('dall-e')
+       PROMPT = "An {animal} standing in {location}, hidef, 4k, in the style of National Geographic."
+       [image, mimeType] = dalle.generate(PROMPT, {"animal": "lion", "location": "the lobby of a building"})
     """
 
     def generate(
-        self, prompt: str, variables: Optional[Dict] = None, clean_output: bool = True
-    ) -> str:
-        """Complete the provided prompt, interpolating any variables."""
+        self, prompt: str, variables: Optional[Dict] = None
+    ) -> tuple[Optional[bytes], Optional[str]]:
+        """Generate the provided image prompt, interpolating any variables."""
 
         prompt_text = interpolate_template(prompt, variables)
-
         generation_tag = tag_then_fetch_first_block_tag(
-            self, prompt_text, TagKind.GENERATION, GenerationTag.PROMPT_COMPLETION
+            self, prompt_text, TagKind.GENERATION, GenerationTag.IMAGE_GENERATION
         )
 
         try:
-            generation = generation_tag.value[TagValueKey.STRING_VALUE]
-            if clean_output:
-                return self._clean_output(generation)
-            else:
-                return generation
+            url = generation_tag.value[TagValueKey.URL_VALUE]
+            _bytes = url_to_bytes(url)
+            mime = generation_tag.value.get(TagValueKey.MIME_TYPE, None)
+            return _bytes, cast(Optional[str], mime)
         except Exception as e:
             logging.error(
                 "generate() got unexpected response shape back. This suggests an error rather an merely an empty response."
             )
             logging.exception(e)
             raise e
-        return ""
 
     @staticmethod
     def create(
@@ -55,7 +53,7 @@ class PromptGenerationPluginInstance(PluginInstance):
         handle: str = None,
         fetch_if_exists: bool = True,
         config: Dict[str, Any] = None,
-    ) -> "PromptGenerationPluginInstance":
+    ) -> "ImageGenerationPluginInstance":
         """Create a plugin instance
 
         When handle is empty the engine will automatically assign one
@@ -71,22 +69,5 @@ class PromptGenerationPluginInstance(PluginInstance):
         )
 
         return client.post(
-            "plugin/instance/create", payload=req, expect=PromptGenerationPluginInstance
+            "plugin/instance/create", payload=req, expect=ImageGenerationPluginInstance
         )
-
-    def _clean_output(self, text: str):
-        """Remove any leading/trailing whitespace and partial sentences.
-
-        This assumes that your generated output will include consistent punctuation. You may
-        want to alter this method to better fit the format of your generated text.
-        """
-        last_punc = -1
-        for i, c in enumerate(reversed(text)):
-            if c in '.!?"':
-                last_punc = len(text) - i
-                break
-        if last_punc != -1:
-            result = text[: last_punc + 1]
-        else:
-            result = text
-        return result.strip()
