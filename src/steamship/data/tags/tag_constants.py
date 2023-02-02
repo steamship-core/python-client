@@ -25,6 +25,8 @@ class TagKind(str, Enum):
     KIND = "summary"
     TIMESTAMP = "timestamp"
     SUMMARY = "summary"
+    LLM_CACHE = "llm-cache"
+    SEARCH_RESULT = "search-result"
 
 
 class DocTag(str, Enum):
@@ -197,6 +199,8 @@ class TagValueKey(str, Enum):
 
     # The normalized name of an entity
     ENTITY_NAME = "entity_name"
+
+    TIMESTAMP_VALUE = "timestamp-value"
 
 
 class GenerationTag(str, Enum):
