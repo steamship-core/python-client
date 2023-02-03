@@ -9,7 +9,7 @@ class SteamshipSearch:
     """Provides a Steamship-compatible Search Tool (with optional caching) for use in LangChain chains and agents."""
 
     client: Steamship
-    cache: Optional[KeyValueStore] = None
+    cache_store: Optional[KeyValueStore] = None
 
     def __init__(
         self, client: Steamship, plugin_handle: str = "serpapi-wrapper", cache: bool = True
@@ -35,26 +35,27 @@ class SteamshipSearch:
         self.search_tool = plugin
 
         if cache:
-            self.cache = KeyValueStore(
+            self.cache_store = KeyValueStore(
                 client=client, store_identifier=f"search-tool-{plugin_handle}"
             )
 
     def search(self, query: str) -> str:
         """Execute a search using the Steamship plugin."""
         try:
-            if self.cache is not None:
-                value = self.cache.get(query)
+            if self.cache_store is not None:
+                value = self.cache_store.get(query)
                 if value is not None:
                     return value.get(TagValueKey.STRING_VALUE, "")
 
             task = self.search_tool.tag(doc=query)
             task.wait()
+            print(f"results == {task.output.file}")
             answer = tag_utils.first_value(
                 task.output.file, TagKind.SEARCH_RESULT, TagValueKey.STRING_VALUE
             )
 
-            if self.cache is not None:
-                self.cache.set(key=query, value={TagValueKey.STRING_VALUE: answer})
+            if self.cache_store is not None:
+                self.cache_store.set(key=query, value={TagValueKey.STRING_VALUE: answer})
 
             return answer
         except SteamshipError:
