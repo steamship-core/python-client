@@ -41,8 +41,7 @@ Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos
     assert (
         memory_variables["history"]
         == """Human: ls ~
-AI:
-```
+AI: \n```
 $ ls ~
 Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos
 ```
@@ -65,15 +64,13 @@ $ pwd
     assert (
         memory_variables["history"]
         == """Human: ls ~
-AI:
-```
+AI: \n```
 $ ls ~
 Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos
 ```
 
 Human: pwd
-AI:
-```
+AI: \n```
 $ pwd
 /
 ```"""
@@ -103,21 +100,18 @@ round-trip min/avg/max/stddev = 14.945/14.945/14.945/0.000 ms
     assert (
         memory_variables["history"]
         == """Human: ls ~
-AI:
-```
+AI: \n```
 $ ls ~
 Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos
 ```
 
 Human: pwd
-AI:
-```
+AI: \n```
 $ pwd
 /
 ```
 Human: ping bbc.com
-AI:
-```
+AI: \n```
 $ ping bbc.com
 PING bbc.com (151.101.65.81): 56 data bytes
 64 bytes from 151.101.65.81: icmp_seq=0 ttl=53 time=14.945 ms
@@ -162,8 +156,7 @@ Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos
     assert (
         memory_variables["history"]
         == """Human: ls ~
-AI:
-```
+AI: \n```
 $ ls ~
 Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos
 ```
@@ -186,15 +179,13 @@ $ pwd
     assert (
         memory_variables["history"]
         == """Human: ls ~
-AI:
-```
+AI: \n```
 $ ls ~
 Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos
 ```
 
 Human: pwd
-AI:
-```
+AI: \n```
 $ pwd
 /
 ```"""
@@ -224,14 +215,12 @@ round-trip min/avg/max/stddev = 14.945/14.945/14.945/0.000 ms
     assert (
         memory_variables["history"]
         == """Human: pwd
-AI:
-```
+AI: \n```
 $ pwd
 /
 ```
 Human: ping bbc.com
-AI:
-```
+AI: \n```
 $ ping bbc.com
 PING bbc.com (151.101.65.81): 56 data bytes
 64 bytes from 151.101.65.81: icmp_seq=0 ttl=53 time=14.945 ms
