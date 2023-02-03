@@ -5,25 +5,19 @@ from steamship.data import TagKind, TagValueKey, tag_utils
 from steamship.utils.kv_store import KeyValueStore
 
 
-class SteamshipSearch:
+class SteamshipSERP:
     """Provides a Steamship-compatible Search Tool (with optional caching) for use in LangChain chains and agents."""
 
     client: Steamship
     cache_store: Optional[KeyValueStore] = None
 
-    def __init__(
-        self, client: Steamship, plugin_handle: str = "serpapi-wrapper", cache: bool = True
-    ):
-        """Initialize the SteamshipSearch tool.
+    def __init__(self, client: Steamship, cache: bool = True):
+        """Initialize the SteamshipSERP tool.
 
-        By default, the serpapi-wrapper plugin will be used. This will use Google searches to provide answers.
-
-        If a custom plugin_handle is supplied, it MUST be for a Steamship Tagger that returns search tags for a query.
-        The search result tags MUST follow the convention of `kind: TagKind.SEARCH_RESULT` and use a value key of
-        `TagValueKey.STRING_VALUE` to hold the result.
+        This tool uses the serpapi-wrapper plugin. This will use Google searches to provide answers.
         """
         self.client = client
-        plugin = self.client.use_plugin(plugin_handle)
+        plugin = self.client.use_plugin("serpapi-wrapper")
 
         tag_func = getattr(plugin, "tag", None)
         if not callable(tag_func):
@@ -36,7 +30,7 @@ class SteamshipSearch:
 
         if cache:
             self.cache_store = KeyValueStore(
-                client=client, store_identifier=f"search-tool-{plugin_handle}"
+                client=client, store_identifier="search-tool-serpapi-wrapper"
             )
 
     def search(self, query: str) -> str:
@@ -49,7 +43,6 @@ class SteamshipSearch:
 
             task = self.search_tool.tag(doc=query)
             task.wait()
-            print(f"results == {task.output.file}")
             answer = tag_utils.first_value(
                 task.output.file, TagKind.SEARCH_RESULT, TagValueKey.STRING_VALUE
             )

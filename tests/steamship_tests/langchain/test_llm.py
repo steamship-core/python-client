@@ -3,12 +3,12 @@ from langchain.agents.react.wiki_prompt import WIKI_PROMPT
 from langchain.agents.self_ask_with_search.prompt import PROMPT
 
 from steamship import Steamship
-from steamship.langchain.llm import SteamshipLLM
+from steamship.langchain.llm import SteamshipGPT
 
 
 @pytest.mark.usefixtures("client")
 def test_llm(client: Steamship):
-    llm_under_test = SteamshipLLM(client=client, temperature=0)
+    llm_under_test = SteamshipGPT(client=client, temperature=0)
 
     # simple prompt
     prompt = "Please respond with a simple 'Hello'"

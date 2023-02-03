@@ -1,7 +1,7 @@
 """Provides Steamship-compatible LLMs for use in langchain (🦜️🔗) chains and agents."""
 
-from .llm import SteamshipLLM
+from .llm import SteamshipGPT
 
 __all__ = [
-    "SteamshipLLM",
+    "SteamshipGPT",
 ]

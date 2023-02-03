@@ -3,20 +3,21 @@ import tempfile
 from typing import Any, List, Mapping, Optional
 
 from langchain.llms.base import LLM
+from pydantic import Field
 from transformers import GPT2TokenizerFast
 
 from steamship import Steamship
 from steamship.data import TagKind, TagValueKey, tag_utils
 
 
-class SteamshipLLM(LLM):
+class SteamshipGPT(LLM):
     """Implements LangChain LLM interface in a Steamship-compatible fashion, allowing use in chains/agents as required.
 
     NOTE: This provides a **synchronous** interaction with the LLM backend.
     """
 
     client: Steamship
-    plugin_handle: str = "gpt-3"
+    plugin_handle: str = Field(default="gpt-3", const=True)
     temperature: float = 0.8
     max_words: int = 500
 
