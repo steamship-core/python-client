@@ -222,3 +222,20 @@ def test_file_refresh(client: Steamship):
         file.refresh()  # don't reassign file
         assert len(file.blocks) == 4
         file.delete()
+
+
+@pytest.mark.usefixtures("client")
+def test_append_indices(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first")])
+    assert len(file.blocks) == 1
+    assert file.blocks[0].index_in_file == 0
+
+    appended_block = file.append_block(text="second")
+    assert appended_block.index_in_file == 1
+
+    file.refresh()
+    assert len(file.blocks) == 2
+    assert file.blocks[0].index_in_file == 0
+    assert file.blocks[0].text == "first"
+    assert file.blocks[1].index_in_file == 1
+    assert file.blocks[1].text == "second"

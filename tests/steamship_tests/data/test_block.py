@@ -38,3 +38,20 @@ def test_query(client: Steamship):
 
     a.delete()
     b.delete()
+
+
+@pytest.mark.usefixtures("client")
+def test_append_indices(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first")])
+    assert len(file.blocks) == 1
+    assert file.blocks[0].index_in_file == 0
+
+    appended_block = Block.create(client, file_id=file.id, text="second")
+    assert appended_block.index_in_file == 1
+
+    file.refresh()
+    assert len(file.blocks) == 2
+    assert file.blocks[0].index_in_file == 0
+    assert file.blocks[0].text == "first"
+    assert file.blocks[1].index_in_file == 1
+    assert file.blocks[1].text == "second"

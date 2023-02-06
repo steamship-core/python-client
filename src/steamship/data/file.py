@@ -254,6 +254,9 @@ class File(CamelModel):
             expect=ListFileResponse,
         )
 
+    def append_block(self, text: str = None, tags: List[Tag] = None) -> Block:
+        return Block.create(self.client, self.id, text, tags)
+
 
 class FileQueryResponse(Response):
     files: List[File]
