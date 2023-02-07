@@ -5,23 +5,52 @@ Steamship is the fastest way to add Language AI to your software.
 
 Think of us as a package manager for AI.
 Each `Steamship package <https://www.steamship.com/packages>`_ runs in the cloud on a managed stack.
-The best way to start is to try one out.
+The best way to start is to make a simple package.
 
-First, install our CLI with the following terminal command (you'll need `NPM`_):
+Start from a template
+---------------------
 
-.. code-block:: bash
-
-   npm install -g @steamship/cli
-
-Next, select a Steamship :ref:`package<Packages>` to try with:
+Clone one of our starter packages (https://github.com/steamship-packages):
 
 .. code-block:: bash
 
-   ship try
+   git clone https://github.com/steamship-packages/empty-package.git
 
-We'll help you pick a Jupyter Notebook demo you can run on your own machine.
 
-..
+Create a virtual environment and install dependencies:
+
+.. code-block:: bash
+
+   python3 -m venv venv
+   source venv/bin/activate
+
+   pip install -r requirements.txt
+   pip install -r requirements.dev.txt
+
+and start editing ``src/api.py``.
+
+Start from scratch
+------------------
+First, install our SDK and CLI (ideally in a virtual environment):
+
+.. code-block:: bash
+
+   python3 -m venv venv
+   source venv/bin/activate
+
+   pip install steamship
+
+Now copy this into ``api.py``:
+
+.. code-block:: python
+
+    from steamship.invocable import post, PackageService
+
+    class MyPackage(PackageService):
+
+        @post("hello_world")
+        def hello_world(self, name: str = None) -> str:
+            return f"Hello, {name}"
 
 Next Steps
 ==========
