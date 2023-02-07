@@ -14,6 +14,7 @@ from steamship.cli.deploy import (
     update_config_template,
 )
 from steamship.cli.manifest_init_wizard import manifest_init_wizard
+from steamship.cli.requirements_init_wizard import requirements_init_wizard
 from steamship.data.manifest import DeployableType, Manifest
 from steamship.data.user import User
 
@@ -64,6 +65,9 @@ def deploy():
     else:
         manifest = manifest_init_wizard(client)
         manifest.save()
+
+    if not path.exists("requirements.txt"):
+        requirements_init_wizard()
 
     deployable_type = manifest.type
 
