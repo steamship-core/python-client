@@ -17,7 +17,7 @@ Clone one of our starter packages (https://github.com/steamship-packages):
    git clone https://github.com/steamship-packages/empty-package.git
 
 
-First, install our SDK and CLI (ideally in a virtual environment):
+Create a virtual environment and install dependencies:
 
 .. code-block:: bash
 
