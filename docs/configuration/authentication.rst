@@ -1,3 +1,5 @@
+.. _Auth
+
 Authentication
 --------------
 
