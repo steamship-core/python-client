@@ -5,7 +5,7 @@ import steamship
 
 def requirements_init_wizard():
     click.secho(
-        "Steamship REQUIRES deployables to use requirements.txt to specify dependencies. You do not currently have a requirements.txt in this directory.",
+        "Steamship uses requirements.txt to specify dependencies. You do not currently have a requirements.txt in this directory.",
         fg="yellow",
     )
     if not click.confirm("Would you like to create one automatically?", default=True):
