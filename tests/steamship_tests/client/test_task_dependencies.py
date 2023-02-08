@@ -21,6 +21,28 @@ def schedule_task(client, please_fail: bool = False, dependencies: List[Task] = 
     return response
 
 
+def test_task_wait_callback():
+    """Test basic connection"""
+    client = get_steamship_client()
+
+    task1 = schedule_task(client)
+
+    retries_checked = 0
+
+    def on_task_check(retry_number, total_sec, task):
+        nonlocal retries_checked
+        retries_checked = retries_checked + 1
+        assert retry_number
+        assert retry_number > 0
+        assert total_sec
+        assert total_sec > 0
+        assert task.task_id == task1.task_id
+
+    task1.wait(on_each_refresh=on_task_check)
+    assert retries_checked > 0
+    assert task1.state == TaskState.succeeded
+
+
 def test_task_dependencies_parallel_success():
     """Test basic connection"""
     client = get_steamship_client()
