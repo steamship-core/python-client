@@ -232,9 +232,17 @@ class Task(GenericCamelModel, Generic[T]):
     ):
         """Polls and blocks until the task has succeeded or failed (or timeout reached).
 
-        - Default wait time is 180s = 3min.
-        - on_each_refresh is an optional callback you can get after each refresh whose callback
-          will be: (refresh #, total_elapsed_time in s, task)
+        Parameters
+        ----------
+        max_timeout_s : int
+            Max timeout in seconds. Default: 180s. After this timeout, an exception will be thrown.
+        retry_delay_s : float
+            Delay between status checks. Default: 1s.
+        on_each_refresh : Optional[Callable[[int, float, Task], None]]
+            Optional call back you can get after each refresh is made, including success state refreshes.
+            The signature represents: (refresh #, total elapsed time, task)
+
+            WARNING: Do not pass a long-running function to this variable. It will block the update polling.
         """
         t0 = time.perf_counter()
         refresh_count = 0
