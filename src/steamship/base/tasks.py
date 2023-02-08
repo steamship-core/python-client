@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Generic, List, Optional, Set, Type, TypeVar
+from typing import Any, Callable, Dict, Generic, List, Optional, Set, Type, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -224,15 +224,31 @@ class Task(GenericCamelModel, Generic[T]):
         body = self.dict(by_alias=True, include={*fields, "task_id"})
         return self.client.post("task/update", body, expect=Task)
 
-    def wait(self, max_timeout_s: float = 60, retry_delay_s: float = 1):
-        """Polls and blocks until the task has succeeded or failed (or timeout reached)."""
+    def wait(
+        self,
+        max_timeout_s: float = 180,
+        retry_delay_s: float = 1,
+        on_each_refresh: "Optional[Callable[[int, float, Task], None]]" = None,
+    ):
+        """Polls and blocks until the task has succeeded or failed (or timeout reached).
+
+        - Default wait time is 180s = 3min.
+        - on_each_refresh is an optional callback you can get after each refresh whose callback
+          will be: (refresh #, total_elapsed_time in s, task)
+        """
         t0 = time.perf_counter()
+        refresh_count = 0
         while time.perf_counter() - t0 < max_timeout_s and self.state not in (
             TaskState.succeeded,
             TaskState.failed,
         ):
-            self.refresh()
             time.sleep(retry_delay_s)
+            self.refresh()
+            refresh_count += 1
+
+            # Possibly make a callback so the caller knows we've tried again
+            if on_each_refresh:
+                on_each_refresh(refresh_count, time.perf_counter() - t0, self)
 
         # If the task did not complete within the timeout, throw an error
         if self.state not in (TaskState.succeeded, TaskState.failed):
