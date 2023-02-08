@@ -4,7 +4,7 @@ import click
 from click import BadParameter
 
 from steamship import Steamship
-from steamship.data.manifest import Manifest, SteamshipRegistry
+from steamship.data.manifest import Manifest, PluginConfig, SteamshipRegistry
 from steamship.data.user import User
 
 
@@ -44,6 +44,22 @@ def manifest_init_wizard(client: Steamship):
 
     version_handle = "0.0.1"
 
+    plugin_detail = None
+    if deployable_type == "plugin":
+        plugin_type = click.prompt(
+            "What type of plugin is this?",
+            default="tagger",
+            type=click.Choice(
+                ["tagger", "blockifier", "exporter", "fileImporter", "corpusImporter"]
+            ),
+            show_choices=True,
+        )
+        if plugin_type == "tagger":
+            trainable = click.confirm("Is the plugin trainable?", default=False)
+        else:
+            trainable = False
+        plugin_detail = PluginConfig(isTrainable=trainable, type=plugin_type)
+
     public = click.confirm(f"Do you want this {deployable_type} to be public?", default=True)
 
     user = User.current(client)
@@ -68,8 +84,10 @@ def manifest_init_wizard(client: Steamship):
         type=deployable_type,
         handle=handle,
         version=version_handle,
+        description="",
         author=author,
         public=public,
+        plugin=plugin_detail,
         build_config={"ignore": ["tests", "examples"]},
         configTemplate={},
         steamshipRegistry=SteamshipRegistry(

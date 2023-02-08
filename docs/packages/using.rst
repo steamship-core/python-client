@@ -4,11 +4,7 @@ Using Packages
 --------------
 
 .. note::
-   Before you begin, make sure you've created your Steamship keys with:
-
-   .. code-block:: bash
-
-      npm install -g @steamship/cli && ship login
+   Before you begin, make sure you've set up your :ref:`authentication<Auth>`
 
    And installed a Steamship client library with:
 
