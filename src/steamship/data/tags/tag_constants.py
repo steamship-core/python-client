@@ -25,6 +25,7 @@ class TagKind(str, Enum):
     KIND = "summary"
     TIMESTAMP = "timestamp"
     SUMMARY = "summary"
+    SEARCH_RESULT = "search-result"
 
 
 class DocTag(str, Enum):
@@ -197,6 +198,9 @@ class TagValueKey(str, Enum):
 
     # The normalized name of an entity
     ENTITY_NAME = "entity_name"
+
+    # Timestamp. Can be used to provide a time-based sort-ordering for tags.
+    TIMESTAMP_VALUE = "timestamp-value"
 
 
 class GenerationTag(str, Enum):

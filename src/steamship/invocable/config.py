@@ -1,4 +1,5 @@
 import json
+from enum import Enum
 from pathlib import Path
 from typing import Dict
 
@@ -41,6 +42,13 @@ class Config(CamelModel):
                 )
             self.extend_with_dict(data, overwrite)
 
+    @staticmethod
+    def strip_enum(default_value):
+        if issubclass(type(default_value), Enum):
+            return default_value.value
+        else:
+            return default_value
+
     @classmethod
     def get_config_parameters(cls) -> Dict[str, ConfigParameter]:
         result = {}
@@ -49,7 +57,7 @@ class Config(CamelModel):
             type_ = ConfigParameterType.from_python_type(field.type_)
             result[field_name] = ConfigParameter(
                 type=type_,
-                default=field.default,
+                default=cls.strip_enum(field.default),
                 description=description,
             )
 
