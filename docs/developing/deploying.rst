@@ -8,22 +8,19 @@ Packages and plugins must be deployed before they can be used.
 New versions of your project automatically become the “default” version when new instances are created.
 Unless an instance specifically requests a version, this new default version will be used.
 
-Before you deploy, make sure the ``handle`` and ``version`` fields in your ``steamship.json`` file are set:
 
--  The ``handle`` property of ``steamship.json``
--  The ``version`` property of ``steamship.json``
 
 Deploying with the Steamship CLI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can deploy a package or plugin with the Steamship CLI with single command from
-the project root:
+the project root (make sure your python environment is active):
 
 .. code-block:: bash
 
    ship deploy
 
-After the command exits, wait a few minutes for your new infrastructure to be ready in the cloud.
+If you don't have a ``steamship.json`` yet, the deploy process will create one. After the command exits, wait a few minutes for your new infrastructure to be ready in the cloud.
 New instances of your project will then be directed to the new version.
 
 Deploying via GitHub Actions
@@ -31,6 +28,11 @@ Deploying via GitHub Actions
 
 Each package and plugin project is created from a a template that has been pre-configured to
 auto-deploy within GitHub Actions when certain situations occur.
+
+Before you deploy, make sure the ``handle`` and ``version`` fields in your ``steamship.json`` file are set:
+
+-  The ``handle`` property of ``steamship.json``
+-  The ``version`` property of ``steamship.json``
 
 Production deployments occur upon:
 

@@ -1,5 +1,6 @@
 import logging
 import sys
+import time
 from os import path
 
 import click
@@ -14,6 +15,7 @@ from steamship.cli.deploy import (
     update_config_template,
 )
 from steamship.cli.manifest_init_wizard import manifest_init_wizard
+from steamship.cli.ship_spinner import ship_spinner
 from steamship.data.manifest import DeployableType, Manifest
 from steamship.data.user import User
 
@@ -30,6 +32,7 @@ def initialize():
 
 @click.command()
 def login():
+    """Log in to Steamship, creating ~/.steamship.json"""
     initialize()
     click.echo("Logging into Steamship.")
     if sys.argv[1] == "login":
@@ -49,7 +52,18 @@ def login():
 
 
 @click.command()
+def ships():
+    """Ship some ships"""
+    initialize()
+    click.secho("Here are some ships:", fg="cyan")
+    with ship_spinner():
+        time.sleep(5)
+    click.secho()
+
+
+@click.command()
 def deploy():
+    """Deploy the package or plugin in this directory"""
     initialize()
     client = None
     try:
@@ -98,8 +112,9 @@ def deploy():
     # - Package content fails health check (ex. bad import) [Error caught while checking config object]
 
 
-cli.add_command(deploy)
 cli.add_command(login)
+cli.add_command(deploy)
+cli.add_command(ships)
 
 if __name__ == "__main__":
     deploy([])
