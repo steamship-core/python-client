@@ -186,9 +186,13 @@ class DeployableDeployer(ABC):
                 if e.message == "The object you are trying to create already exists.":
                     self.ask_for_new_version_handle(manifest)
                 else:
-                    click.secho(
-                        f"Unable to create / fetch {self.deployable_type()}. Server returned message: {e.message}"
-                    )
+                    click.secho(f"\nUnable to deploy {self.deployable_type()} version.", fg="red")
+                    click.secho(f"Server returned message: {e.message}")
+                    if "ModuleNotFoundError" in e.message:
+                        click.secho(
+                            "It looks like you may be missing a dependency in your requirements.txt.",
+                            fg="yellow",
+                        )
                     click.get_current_context().abort()
         click.echo("\nDone. 🚢")
 
