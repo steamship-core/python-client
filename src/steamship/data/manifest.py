@@ -31,6 +31,14 @@ class ConfigParameter(BaseModel):
     # Use strict so that Pydantic doesn't coerce values into the first one that fits
     default: Optional[Union[StrictStr, StrictBool, StrictFloat, StrictInt]] = None
 
+    def parameter_value_from_string(self, string: str):
+        if type == ConfigParameterType.BOOLEAN:
+            return string.lower() == "true"
+        elif type == ConfigParameterType.NUMBER:
+            return float(string)
+        else:
+            return string
+
 
 class DeployableType(str, Enum):
     PLUGIN = "plugin"
