@@ -118,6 +118,7 @@ def deploy():
 
 cli.add_command(login)
 cli.add_command(deploy)
+cli.add_command(deploy, name="it")
 cli.add_command(ships)
 
 if __name__ == "__main__":
