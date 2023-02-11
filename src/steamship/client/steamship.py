@@ -19,6 +19,7 @@ from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInst
 from steamship.data.plugin.plugin_instance import PluginInstance
 from steamship.data.plugin.prompt_generation_plugin_instance import PromptGenerationPluginInstance
 from steamship.data.workspace import Workspace
+from steamship.utils.metadata import hash_dict
 
 _logger = logging.getLogger(__name__)
 
@@ -177,8 +178,13 @@ class Steamship(Client):
         The instance is named `instance_handle` and located in the workspace this client is anchored to.
         If no `instance_handle` is provided, the default is `package_handle`.
         """
+
         if instance_handle is None:
-            instance_handle = package_handle
+            if config is None:
+                instance_handle = package_handle
+            else:
+                instance_handle = f"{package_handle}-{hash_dict(config)}"
+
         return PackageInstance.create(
             self,
             package_handle=package_handle,
@@ -276,7 +282,10 @@ class Steamship(Client):
         """
 
         if instance_handle is None:
-            instance_handle = plugin_handle
+            if config is None:
+                instance_handle = plugin_handle
+            else:
+                instance_handle = f"{plugin_handle}-{hash_dict(config)}"
 
         if plugin_handle in Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES:
             return Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES[plugin_handle].create(
