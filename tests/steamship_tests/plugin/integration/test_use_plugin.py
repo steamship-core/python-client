@@ -162,3 +162,48 @@ def test_use_plugin_fails_with_same_instance_name_but_different_plugin_name():
             # Should fail because we're using the shortcut `import_plugin` method with the same instance
             with pytest.raises(SteamshipError):
                 client.use_plugin(plugin2.handle, instance_handle)
+
+
+def test_use_plugin_fails_with_same_instance_name_but_different_config_unless_anon():
+    client = get_steamship_client()
+    csv_blockifier_plugin_path = PLUGINS_PATH / "blockifiers" / "csv_blockifier.py"
+
+    version_config_template = {
+        "text_column": {"type": "string"},
+        "tag_columns": {"type": "string"},
+        "tag_kind": {"type": "string"},
+    }
+    instance_config = {  # Has to match up
+        "text_column": "Message",
+        "tag_columns": "Category",
+        "tag_kind": "Intent",
+    }
+    instance_config_2 = {  # Has to match up
+        "text_column": "Message",
+        "tag_columns": "Category",
+        "tag_kind": "Other Thing",
+    }
+
+    with deploy_plugin(
+        client,
+        csv_blockifier_plugin_path,
+        "blockifier",
+        version_config_template=version_config_template,
+        instance_config=instance_config,
+    ) as (plugin, version, instance):
+        # This should work
+        instance_2 = client.use_plugin(plugin.handle, instance.handle, config=instance_config)
+        assert instance_2.handle == instance.handle
+
+        # This should fail because config changed
+        with pytest.raises(SteamshipError):
+            client.use_plugin(plugin.handle, instance.handle, config=instance_config_2)
+
+        # This succeeds because the name includes the hash of the config
+        instance_3 = client.use_plugin(plugin.handle, config=instance_config)
+        assert instance_3.handle != plugin.handle
+
+        # This succeeds because the name includes the hash of the config
+        instance_4 = client.use_plugin(plugin.handle, config=instance_config_2)
+        assert instance_4.handle != plugin.handle
+        assert instance_4.handle != instance_3.handle
