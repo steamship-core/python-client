@@ -152,3 +152,48 @@ def test_use_package_fails_with_same_instance_name_but_different_package_name():
             # Should fail because we're using the shortcut `import_plugin` method with the same instance
             with pytest.raises(SteamshipError):
                 client.use(app2.handle, instance_handle)
+
+
+def test_use_package_fails_with_same_instance_name_but_different_config_unless_anon():
+    config_template = {
+        "greeting": {"type": "string"},
+        "snake_case_config": {"type": "string"},
+        "camelCaseConfig": {"type": "string"},
+        "defaultConfig": {"type": "string", "default": "defaulted"},
+    }
+    instance_config = {
+        "greeting": "hi",
+        "snake_case_config": "hisss",
+        "camelCaseConfig": "spit!",
+    }
+    instance_config_2 = {
+        "greeting": "hi there",
+        "snake_case_config": "hisss",
+        "camelCaseConfig": "spit!",
+    }
+
+    client = get_steamship_client()
+    hello_world_path = PACKAGES_PATH / "configurable_hello_world.py"
+
+    with deploy_package(
+        client,
+        hello_world_path,
+        version_config_template=config_template,
+        instance_config=instance_config,
+    ) as (package, version, instance):
+        # This should work
+        instance_2 = client.use(package.handle, instance.handle, config=instance_config)
+        assert instance_2.handle == instance.handle
+
+        # This should fail because config changed
+        with pytest.raises(SteamshipError):
+            client.use(package.handle, instance.handle, config=instance_config_2)
+
+        # This succeeds because the name includes the hash of the config
+        instance_3 = client.use(package.handle, config=instance_config)
+        assert instance_3.handle != package.handle
+
+        # This succeeds because the name includes the hash of the config
+        instance_4 = client.use(package.handle, config=instance_config_2)
+        assert instance_4.handle != package.handle
+        assert instance_4.handle != instance_3.handle
