@@ -161,6 +161,7 @@ def deploy():
 )
 @click.option(
     "--path",
+    "request_path",
     type=str,
     help="Path invoked by a client operation. Used to filter logs returned to a specific invocation path.",
 )
@@ -171,7 +172,7 @@ def logs(
     package: Optional[str] = None,
     instance: Optional[str] = None,
     version: Optional[str] = None,
-    path: Optional[str] = None,
+    request_path: Optional[str] = None,
 ):
     initialize(suppress_message=True)
     client = None
@@ -180,17 +181,7 @@ def logs(
     except SteamshipError as e:
         raise click.UsageError(message=e.message)
 
-    args = {"from": offset, "size": number}
-    if package:
-        args["invocableHandle"] = package
-    if instance:
-        args["invocableInstanceHandle"] = instance
-    if version:
-        args["invocableVersionHandle"] = version
-    if path:
-        args["invocablePath"] = path
-    resp = client.post("logs/list", args)
-    click.echo(json.dumps(resp))
+    click.echo(json.dumps(client.logs(offset, number, package, instance, version, request_path)))
 
 
 cli.add_command(login)
