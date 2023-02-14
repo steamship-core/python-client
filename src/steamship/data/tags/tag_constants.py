@@ -6,7 +6,7 @@ class TagKind(str, Enum):
     """A set of `kind` constants for Tags.
 
     These define broad categories of tags. Suggested `name` values for each category are found in
-    separate enums. For example: kind=TagKind.DOCUMENT, name=DocumentTag.H1
+    separate enums. For example: kind=TagKind.DOCUMENT, name=DocTag.H1
     """
 
     PART_OF_SPEECH = "part-of-speech"
@@ -29,7 +29,7 @@ class TagKind(str, Enum):
 
 
 class DocTag(str, Enum):
-    """A set of `name` constants for for Tags with a `kind` of `TagKind.doc`; appropriate for HTML and Markdown ideas."""
+    """A set of `name` constants for Tags with a `kind` of `TagKind.doc`; appropriate for HTML and Markdown ideas."""
 
     DOCUMENT = "document"
     PAGE = "page"  # E.g. in a PDF
@@ -167,7 +167,7 @@ class TokenTag(str, Enum):
 
 
 class TagValueKey(str, Enum):
-    """A set of key constants for the `value` object within a tag.."""
+    """A set of key constants for the `value` object within a tag."""
 
     # Catch-all for confidence, score, ranking
     SCORE = "score"
