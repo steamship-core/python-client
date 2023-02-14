@@ -5,6 +5,7 @@ from .invocable_response import InvocableResponse
 from .lambda_handler import create_handler, safe_handler
 from .package_service import PackageService
 from .paramater_types import longstr
+from .validation import validate_input_strings
 
 __all__ = [
     "Invocable",
@@ -20,4 +21,5 @@ __all__ = [
     "PackageService",
     "safe_handler",
     "longstr",
+    "validate_input_strings",
 ]

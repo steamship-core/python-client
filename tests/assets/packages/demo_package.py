@@ -14,6 +14,7 @@ from steamship.invocable import (
     create_handler,
     get,
     post,
+    validate_input_strings,
 )
 
 
@@ -70,10 +71,12 @@ class TestPackage(PackageService):
         return InvocableResponse(string=f"Hello, {name}!")
 
     @post("greet")
+    @validate_input_strings(param_names=["name"])
     def greet2(self, name: str = "Person") -> InvocableResponse[str]:
         return InvocableResponse(string=f"Hello, {name}!")
 
     @post("future_greet")
+    @validate_input_strings(param_names=["name"], max_words=4)
     def future_greet(self, name: str = "Person") -> InvocableResponse[Task]:
         task_1 = self.invoke_later("greet", arguments={"name": name})
         return InvocableResponse(json=task_1)
