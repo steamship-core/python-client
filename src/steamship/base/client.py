@@ -4,7 +4,7 @@ import logging
 import typing
 from abc import ABC
 from inspect import isclass
-from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import inflection
 from pydantic import BaseModel, PrivateAttr
@@ -564,3 +564,37 @@ class Client(CamelModel, ABC):
             as_background_task=as_background_task,
             wait_on_tasks=wait_on_tasks,
         )
+
+    def logs(
+        self,
+        offset: int = 0,
+        number: int = 50,
+        invocable_handle: Optional[str] = None,
+        instance_handle: Optional[str] = None,
+        invocable_version_handle: Optional[str] = None,
+        path: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Return generated logs for a client.
+
+        The logs will be workspace-scoped. You will only receive logs
+        for packages and plugins that you own.
+
+        :param offset: The index of the first log entry to return. This can be used with `number` to page through logs.
+        :param number: The number of log entries to return. This can be used with `offset` to page through logs.
+        :param invocable_handle: Enables optional filtering based on the handle of package or plugin. Example: `my-package`
+        :param instance_handle: Enables optional filtering based on the handle of package instance or plugin instance. Example: `my-instance`
+        :param invocable_version_handle: Enables optional filtering based on the version handle of package or plugin. Example: `0.0.2`
+        :param path: Enables optional filtering based on request path. Example: `/generate`.
+        :return: Returns a dictionary containing the offset and number of log entries as well as a list of `entries` that match the specificed filters.
+        """
+        args = {"from": offset, "size": number}
+        if invocable_handle:
+            args["invocableHandle"] = invocable_handle
+        if instance_handle:
+            args["invocableInstanceHandle"] = instance_handle
+        if invocable_version_handle:
+            args["invocableVersionHandle"] = invocable_version_handle
+        if path:
+            args["invocablePath"] = path
+
+        return self.post("logs/list", args)

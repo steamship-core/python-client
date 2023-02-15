@@ -2,7 +2,7 @@
 
 We are excited to have you on board!
 
-These instructions contain the setup for contributors fo the Steamship client library. 
+These instructions contain the setup for contributors to the Steamship client library. 
 
 For information about *using* this library, please see README.md
 
