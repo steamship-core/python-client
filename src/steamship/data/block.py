@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Type
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
@@ -21,12 +21,19 @@ class Block(CamelModel):
     file_id: str = None
     text: str = None
     tags: Optional[List[Tag]] = []
+    index_in_file: Optional[int] = Field(alias="index")
 
     class ListRequest(Request):
         file_id: str = None
 
     class ListResponse(Response):
         blocks: List[Block] = []
+
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["block"] if "block" in obj else obj
+        return super().parse_obj(obj)
 
     @staticmethod
     def get(
