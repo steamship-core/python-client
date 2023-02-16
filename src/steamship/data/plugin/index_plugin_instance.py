@@ -143,7 +143,8 @@ class EmbeddingIndexPluginInstance(PluginInstance):
 
         # We always snapshot in this new style; to not do so is to expose details we'd rather not have
         # users exercise control over.
-        self.index.create_snapshot()
+        response = self.index.create_snapshot()
+        response.wait()
 
     def search(self, query: str, k: Optional[int] = None) -> Task[SearchResults]:
         """Search the embedding index.
