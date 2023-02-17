@@ -237,7 +237,7 @@ class Client(CamelModel, ABC):
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
     ):
-        headers = {"Authorization": f"Bearer {self.config.api_key}"}
+        headers = {"Authorization": f"Bearer {self.config.api_key.get_secret_value()}"}
 
         if self.config.workspace_id:
             headers["X-Workspace-Id"] = self.config.workspace_id
