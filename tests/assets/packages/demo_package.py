@@ -117,7 +117,7 @@ class TestPackage(PackageService):
                 "workspaceId": self.client.config.workspace_id,
                 "appBase": self.client.config.app_base,
                 "apiBase": self.client.config.api_base,
-                "apiKey": self.client.config.api_key,
+                "apiKey": self.client.config.api_key.get_secret_value(),
             }
         )
 
