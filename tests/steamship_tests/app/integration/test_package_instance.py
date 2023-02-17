@@ -42,7 +42,7 @@ def test_instance_invoke():
         def get_raw(path: str):
             return requests.get(
                 instance.full_url_for(path),
-                headers={"authorization": f"Bearer {client.config.api_key}"},
+                headers={"authorization": f"Bearer {client.config.api_key.get_secret_value()}"},
             )
 
         res = instance.invoke("greet", verb=Verb.GET)
@@ -54,13 +54,17 @@ def test_instance_invoke():
         res = instance.invoke("greet", verb=Verb.GET, name="Ted")
         assert res == "Hello, Ted!"
         url = instance.full_url_for("greet?name=Ted")
-        resp = requests.get(url, headers={"authorization": f"Bearer {client.config.api_key}"})
+        resp = requests.get(
+            url, headers={"authorization": f"Bearer {client.config.api_key.get_secret_value()}"}
+        )
         assert resp.text == "Hello, Ted!"
 
         res = instance.invoke("greet", verb=Verb.POST)
         assert res == "Hello, Person!"
         url = instance.full_url_for("greet")
-        resp = requests.post(url, headers={"authorization": f"Bearer {client.config.api_key}"})
+        resp = requests.post(
+            url, headers={"authorization": f"Bearer {client.config.api_key.get_secret_value()}"}
+        )
         assert resp.text == "Hello, Person!"
 
         res = instance.invoke("greet", verb=Verb.POST, name="Ted")
@@ -69,7 +73,7 @@ def test_instance_invoke():
         resp = requests.post(
             url,
             json={"name": "Ted"},
-            headers={"authorization": f"Bearer {client.config.api_key}"},
+            headers={"authorization": f"Bearer {client.config.api_key.get_secret_value()}"},
         )
         assert resp.text == "Hello, Ted!"
 
@@ -121,7 +125,7 @@ def test_instance_invoke():
         assert my_api_base == remote_api_base
 
         # API key should NOT be the same as the original, because the invocable should be given a workspace-scoped key
-        assert configuration_within_lambda["apiKey"] != client.config.api_key
+        assert configuration_within_lambda["apiKey"] != client.config.api_key.get_secret_value()
 
         # WorkspaceId is an exception. Rather than being the WorkspaceId of the client, it should be the WorkspaceId
         # of the App Instance.

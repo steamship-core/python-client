@@ -28,6 +28,16 @@ def test_serialize_client_to_json_works(client: Steamship):
     j = json.dumps(client.dict())  # this will fail if `use` or `use_plugin` are output by dict()
     assert j is not None
 
+    j = json.dumps(
+        client.dict(exclude={"foo"})
+    )  # this will fail if `use` or `use_plugin` are output by dict()
+    assert j is not None
+
+    j = json.dumps(
+        client.dict(exclude={"foo": True})
+    )  # this will fail if `use` or `use_plugin` are output by dict()
+    assert j is not None
+
 
 @pytest.mark.usefixtures("client")
 def test_serialize_many_models(client: Steamship):
