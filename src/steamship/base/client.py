@@ -398,7 +398,7 @@ class Client(CamelModel, ABC):
         package_instance_id: str = None,
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
-        timeout_s: Optional[float] = None
+        timeout_s: Optional[float] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -566,7 +566,6 @@ class Client(CamelModel, ABC):
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
         timeout_s: Optional[float] = None,
-
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
