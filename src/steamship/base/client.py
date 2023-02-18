@@ -398,6 +398,7 @@ class Client(CamelModel, ABC):
         package_instance_id: str = None,
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
+        timeout_s: Optional[float] = None
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -439,11 +440,11 @@ class Client(CamelModel, ABC):
         if verb == Verb.POST:
             if file is not None:
                 files = self._prepare_multipart_data(data, file)
-                resp = self._session.post(url, files=files, headers=headers)
+                resp = self._session.post(url, files=files, headers=headers, timeout=timeout_s)
             else:
-                resp = self._session.post(url, json=data, headers=headers)
+                resp = self._session.post(url, json=data, headers=headers, timeout=timeout_s)
         elif verb == Verb.GET:
-            resp = self._session.get(url, params=data, headers=headers)
+            resp = self._session.get(url, params=data, headers=headers, timeout=timeout_s)
         else:
             raise Exception(f"Unsupported verb: {verb}")
 
@@ -529,6 +530,7 @@ class Client(CamelModel, ABC):
         package_instance_id: str = None,
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
+        timeout_s: Optional[float] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -546,6 +548,7 @@ class Client(CamelModel, ABC):
             package_instance_id=package_instance_id,
             as_background_task=as_background_task,
             wait_on_tasks=wait_on_tasks,
+            timeout_s=timeout_s,
         )
 
     def get(
@@ -562,6 +565,8 @@ class Client(CamelModel, ABC):
         package_instance_id: str = None,
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
+        timeout_s: Optional[float] = None,
+
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -579,6 +584,7 @@ class Client(CamelModel, ABC):
             package_instance_id=package_instance_id,
             as_background_task=as_background_task,
             wait_on_tasks=wait_on_tasks,
+            timeout_s=timeout_s,
         )
 
     def logs(
