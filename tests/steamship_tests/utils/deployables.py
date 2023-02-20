@@ -4,7 +4,6 @@ import logging
 import os
 import subprocess  # noqa: S404
 import tempfile
-import time
 import zipfile
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -172,5 +171,4 @@ def _delete_deployable(instance, version, deployable):
 
 
 def _wait_for_version(version: [PackageVersion, PluginVersion]):
-    time.sleep(15)
     assert version is not None

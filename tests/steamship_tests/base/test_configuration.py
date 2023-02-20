@@ -1,4 +1,5 @@
 import os
+import webbrowser
 from unittest import mock
 
 import pytest
@@ -51,6 +52,9 @@ def test_empty_base_uris() -> None:
 
 @mock.patch.dict(os.environ, {"STEAMSHIP_API_KEY": ""})
 def test_empty_api_key() -> None:
-    with pytest.raises(SteamshipError):
-        # Note: We're referencing a non existing profile to make sure the api key is not loaded from the default profile in steamship.json
-        Configuration(api_key=None, profile="non-existing-profile")
+
+    # Only run this test on non-local (i.e., CI/CD) otherwise will attempt browser login
+    if webbrowser.get() is None:
+        with pytest.raises(SteamshipError):
+            # Note: We're referencing a non existing profile to make sure the api key is not loaded from the default profile in steamship.json
+            Configuration(api_key=None, profile="non-existing-profile")
