@@ -21,9 +21,15 @@ class BlockUploadType(str, Enum):
     FILE = "file"  # A file uploaded as bytes or a string
     BLOCKS = "blocks"  # Blocks are sent to create a file
     URL = "url"  # content will be fetched from a URL
+    NONE = "none"  # No upload; plain text only
 
 
 class Block(CamelModel):
+    """A Block is a chunk of content within a File. It can be plain text content, image content,
+    video content, etc. If the content is not text, the text value may be the empty string
+    for backwards compatibility.
+    """
+
     client: Client = Field(None, exclude=True)
     id: str = None
     file_id: str = None
@@ -58,13 +64,22 @@ class Block(CamelModel):
     @staticmethod
     def create(
         client: Client,
-        file_id: str = None,
+        file_id: str,
         text: str = None,
         tags: List[Tag] = None,
         content: Union[str, bytes] = None,
         url: Optional[str] = None,
         mime_type: Optional[MimeTypes] = None,
     ) -> Block:
+        """
+        Create a new Block within a File specified by file_id.
+
+        You can create a Block in several ways:
+        - Providing raw text as the text parameter;
+        - Providing the content of the block as string or bytes;
+        - Providing a publicly accessible URL where the content is stored.
+
+        """
 
         if content is not None and url is not None:
             raise SteamshipError("May provide content or URL, but not both when creating a Block")
@@ -73,6 +88,8 @@ class Block(CamelModel):
             upload_type = BlockUploadType.FILE
         elif url is not None:
             upload_type = BlockUploadType.URL
+        else:
+            upload_type = BlockUploadType.NONE
 
         req = {
             "fileId": file_id,
@@ -134,7 +151,7 @@ class Block(CamelModel):
         return self.client.post(
             "block/raw",
             payload={
-                id: self.id,
+                "id": self.id,
             },
             raw_response=True,
         )

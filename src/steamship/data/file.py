@@ -181,6 +181,8 @@ class File(CamelModel):
         refreshed = File.get(self.client, self.id)
         self.__init__(**refreshed.dict())
         self.client = refreshed.client
+        for block in self.blocks:
+            block.client = self.client
         return self
 
     @staticmethod

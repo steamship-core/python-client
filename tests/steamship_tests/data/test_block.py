@@ -70,3 +70,16 @@ def test_append_block_url(client: Steamship):
     file.refresh()
     assert len(file.blocks) == 1
     assert file.blocks[0].mime_type == MimeTypes.PNG
+
+    block_content = file.blocks[0].raw()
+    assert len(block_content) == 20693
+
+
+@pytest.mark.usefixtures("client")
+def test_text_mime_type(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first")])
+    _ = Block.create(client, file_id=file.id, text="second")
+    file.refresh()
+    assert len(file.blocks) == 2
+    for block in file.blocks:
+        assert block.mime_type == MimeTypes.TXT
