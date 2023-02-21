@@ -156,6 +156,10 @@ class Block(CamelModel):
             raw_response=True,
         )
 
+    def is_text(self):
+        """Return whether this is a text Block."""
+        return self.mime_type == MimeTypes.TXT
+
 
 class BlockQueryResponse(Response):
     blocks: List[Block]

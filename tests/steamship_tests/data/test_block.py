@@ -73,6 +73,7 @@ def test_append_block_url(client: Steamship):
 
     block_content = file.blocks[0].raw()
     assert len(block_content) == 20693
+    assert not file.blocks[0].is_text()
 
 
 @pytest.mark.usefixtures("client")
@@ -83,3 +84,4 @@ def test_text_mime_type(client: Steamship):
     assert len(file.blocks) == 2
     for block in file.blocks:
         assert block.mime_type == MimeTypes.TXT
+        assert block.is_text()
