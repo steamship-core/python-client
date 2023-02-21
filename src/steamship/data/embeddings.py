@@ -251,7 +251,7 @@ class EmbeddingIndex(CamelModel):
             expect=IndexEmbedResponse,
         )
 
-    def create_snapshot(self) -> IndexSnapshotResponse:
+    def create_snapshot(self) -> Task[IndexSnapshotResponse]:
         req = IndexSnapshotRequest(index_id=self.id)
         return self.client.post(
             "embedding-index/snapshot/create",

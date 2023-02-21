@@ -3,7 +3,7 @@ import logging
 import sys
 import time
 from os import path
-from typing import List
+from typing import List, Optional
 
 import click
 
@@ -28,9 +28,9 @@ def cli():
     pass
 
 
-def initialize(silently=False):
+def initialize(suppress_message: bool = False):
     logging.root.setLevel(logging.FATAL)
-    if not silently:
+    if not suppress_message:
         click.echo(f"Steamship PYTHON cli version {steamship.__version__}")
 
 
@@ -201,10 +201,78 @@ def test_instance(delete_data, config: List[str]):  # noqa: C901
     click.echo(json.dumps(output, indent="  "))
 
 
+@click.command()
+@click.option(
+    "--workspace",
+    "-w",
+    required=True,
+    type=str,
+    help="Workspace handle used for scoping logs request. All requests MUST be scoped by workspace.",
+)
+@click.option(
+    "--offset",
+    "-o",
+    default=0,
+    type=int,
+    help="Starting index from sorted logs to return a chunk. Used for paging. Defaults to 0.",
+)
+@click.option(
+    "--number",
+    "-n",
+    default=50,
+    type=int,
+    help="Number of logs to return in a single batch. Defaults to 50.",
+)
+@click.option(
+    "--package",
+    "-p",
+    type=str,
+    help="Package handle. Used to filter logs returend to a specific package (across all instances).",
+)
+@click.option(
+    "--instance",
+    "-i",
+    type=str,
+    help="Instance handle. Used to filter logs returned to a specific instance of a package.",
+)
+@click.option(
+    "--version",
+    "-v",
+    type=str,
+    help="Version handle. Used to filter logs returned to a specific version of a package.",
+)
+@click.option(
+    "--path",
+    "request_path",
+    type=str,
+    help="Path invoked by a client operation. Used to filter logs returned to a specific invocation path.",
+)
+def logs(
+    workspace: str,
+    offset: int,
+    number: int,
+    package: Optional[str] = None,
+    instance: Optional[str] = None,
+    version: Optional[str] = None,
+    request_path: Optional[str] = None,
+):
+    initialize(suppress_message=True)
+    client = None
+    try:
+        client = Steamship(workspace=workspace)
+    except SteamshipError as e:
+        raise click.UsageError(message=e.message)
+
+    click.echo(json.dumps(client.logs(offset, number, package, instance, version, request_path)))
+
+
 cli.add_command(login)
 cli.add_command(deploy)
+cli.add_command(deploy, name="it")
 cli.add_command(ships)
 cli.add_command(test_instance)
+cli.add_command(logs)
+
 
 if __name__ == "__main__":
     deploy([])

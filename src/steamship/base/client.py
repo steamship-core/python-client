@@ -4,7 +4,7 @@ import logging
 import typing
 from abc import ABC
 from inspect import isclass
-from typing import Any, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
 import inflection
 from pydantic import BaseModel, PrivateAttr
@@ -188,12 +188,28 @@ class Client(CamelModel, ABC):
         # implementations), Pydantic will try to include them by default. So we have to suppress that otherwise
         # downstream serialization into JSON will fail.
         if "exclude" not in kwargs:
-            kwargs["exclude"] = {"use", "use_plugin", "_instance_use", "_instance_use_plugin"}
+            kwargs["exclude"] = {
+                "use": True,
+                "use_plugin": True,
+                "_instance_use": True,
+                "_instance_use_plugin": True,
+                "config": {"api_key"},
+            }
         elif isinstance(kwargs["exclude"], set):
             kwargs["exclude"].add("use")
             kwargs["exclude"].add("use_plugin")
             kwargs["exclude"].add("_instance_use")
             kwargs["exclude"].add("_instance_use_plugin")
+            kwargs["exclude"].add(
+                "config"
+            )  # the set version cannot exclude subcomponents; we must remove all config
+        elif isinstance(kwargs["exclude"], dict):
+            kwargs["exclude"]["use"] = True
+            kwargs["exclude"]["use_plugin"] = True
+            kwargs["exclude"]["_instance_use"] = True
+            kwargs["exclude"]["_instance_use_plugin"] = True
+            kwargs["exclude"]["config"] = {"api_key"}
+
         return super().dict(**kwargs)
 
     def _url(
@@ -237,7 +253,7 @@ class Client(CamelModel, ABC):
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
     ):
-        headers = {"Authorization": f"Bearer {self.config.api_key}"}
+        headers = {"Authorization": f"Bearer {self.config.api_key.get_secret_value()}"}
 
         if self.config.workspace_id:
             headers["X-Workspace-Id"] = self.config.workspace_id
@@ -564,3 +580,37 @@ class Client(CamelModel, ABC):
             as_background_task=as_background_task,
             wait_on_tasks=wait_on_tasks,
         )
+
+    def logs(
+        self,
+        offset: int = 0,
+        number: int = 50,
+        invocable_handle: Optional[str] = None,
+        instance_handle: Optional[str] = None,
+        invocable_version_handle: Optional[str] = None,
+        path: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Return generated logs for a client.
+
+        The logs will be workspace-scoped. You will only receive logs
+        for packages and plugins that you own.
+
+        :param offset: The index of the first log entry to return. This can be used with `number` to page through logs.
+        :param number: The number of log entries to return. This can be used with `offset` to page through logs.
+        :param invocable_handle: Enables optional filtering based on the handle of package or plugin. Example: `my-package`
+        :param instance_handle: Enables optional filtering based on the handle of package instance or plugin instance. Example: `my-instance`
+        :param invocable_version_handle: Enables optional filtering based on the version handle of package or plugin. Example: `0.0.2`
+        :param path: Enables optional filtering based on request path. Example: `/generate`.
+        :return: Returns a dictionary containing the offset and number of log entries as well as a list of `entries` that match the specificed filters.
+        """
+        args = {"from": offset, "size": number}
+        if invocable_handle:
+            args["invocableHandle"] = invocable_handle
+        if instance_handle:
+            args["invocableInstanceHandle"] = instance_handle
+        if invocable_version_handle:
+            args["invocableVersionHandle"] = invocable_version_handle
+        if path:
+            args["invocablePath"] = path
+
+        return self.post("logs/list", args)
