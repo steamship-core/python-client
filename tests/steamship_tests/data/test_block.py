@@ -1,4 +1,5 @@
 import pytest
+from steamship_tests import TEST_ASSETS_PATH
 
 from steamship import MimeTypes
 from steamship.client import Steamship
@@ -85,3 +86,40 @@ def test_text_mime_type(client: Steamship):
     for block in file.blocks:
         assert block.mime_type == MimeTypes.TXT
         assert block.is_text()
+
+
+@pytest.mark.usefixtures("client")
+def test_append_block_content_text(client: Steamship):
+    file = File.create(client, blocks=[])
+
+    appended_block = Block.create(client, file_id=file.id, content=bytes("This is a test", "utf-8"))
+
+    assert appended_block.text == "This is a test"
+    file.refresh()
+    assert len(file.blocks) == 1
+    assert file.blocks[0].mime_type == MimeTypes.TXT
+
+    assert file.blocks[0].is_text()
+
+
+@pytest.mark.usefixtures("client")
+def test_append_block_content_image(client: Steamship):
+    file = File.create(client, blocks=[])
+
+    palm_tree_path = TEST_ASSETS_PATH / "palm_tree.png"
+    with palm_tree_path.open("rb") as f:
+        palm_bytes = f.read()
+
+    appended_block = Block.create(
+        client, file_id=file.id, content=palm_bytes, mime_type=MimeTypes.PNG
+    )
+
+    assert appended_block.text == ""
+    file.refresh()
+    assert len(file.blocks) == 1
+    assert file.blocks[0].mime_type == MimeTypes.PNG
+
+    assert not file.blocks[0].is_text()
+
+    raw_content = file.blocks[0].raw()
+    assert raw_content == palm_bytes

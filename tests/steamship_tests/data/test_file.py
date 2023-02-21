@@ -232,6 +232,7 @@ def test_append_indices(client: Steamship):
 
     appended_block = file.append_block(text="second")
     assert appended_block.index_in_file == 1
+    assert len(file.blocks) == 2
 
     file.refresh()
     assert len(file.blocks) == 2
