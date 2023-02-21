@@ -1,5 +1,6 @@
 import pytest
 
+from steamship import MimeTypes
 from steamship.client import Steamship
 from steamship.data.block import Block
 from steamship.data.file import File
@@ -55,3 +56,17 @@ def test_append_indices(client: Steamship):
     assert file.blocks[0].text == "first"
     assert file.blocks[1].index_in_file == 1
     assert file.blocks[1].text == "second"
+
+
+@pytest.mark.usefixtures("client")
+def test_append_block_url(client: Steamship):
+    file = File.create(client, blocks=[])
+
+    appended_block = Block.create(
+        client, file_id=file.id, url="https://docs.steamship.com/_static/Steamship-symbol-dark.png"
+    )
+
+    assert appended_block.text == ""
+    file.refresh()
+    assert len(file.blocks) == 1
+    assert file.blocks[0].mime_type == MimeTypes.PNG

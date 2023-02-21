@@ -1,9 +1,11 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, Type
+from enum import Enum
+from typing import Any, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
+from steamship import MimeTypes, SteamshipError
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
@@ -15,6 +17,12 @@ class BlockQueryRequest(Request):
     tag_filter_query: str
 
 
+class BlockUploadType(str, Enum):
+    FILE = "file"  # A file uploaded as bytes or a string
+    BLOCKS = "blocks"  # Blocks are sent to create a file
+    URL = "url"  # content will be fetched from a URL
+
+
 class Block(CamelModel):
     client: Client = Field(None, exclude=True)
     id: str = None
@@ -22,6 +30,7 @@ class Block(CamelModel):
     text: str = None
     tags: Optional[List[Tag]] = []
     index_in_file: Optional[int] = Field(alias="index")
+    mime_type: Optional[MimeTypes]
 
     class ListRequest(Request):
         file_id: str = None
@@ -52,12 +61,39 @@ class Block(CamelModel):
         file_id: str = None,
         text: str = None,
         tags: List[Tag] = None,
+        content: Union[str, bytes] = None,
+        url: Optional[str] = None,
+        mime_type: Optional[MimeTypes] = None,
     ) -> Block:
-        req = Block(file_id=file_id, text=text, tags=tags)
+
+        if content is not None and url is not None:
+            raise SteamshipError("May provide content or URL, but not both when creating a Block")
+
+        if content is not None:
+            upload_type = BlockUploadType.FILE
+        elif url is not None:
+            upload_type = BlockUploadType.URL
+
+        req = {
+            "fileId": file_id,
+            "text": text,
+            "tags": tags,
+            "url": url,
+            "mimeType": mime_type,
+            "type": upload_type,
+        }
+
+        file_data = (
+            ("file-part", content, "multipart/form-data")
+            if upload_type == BlockUploadType.FILE
+            else None
+        )
+
         return client.post(
             "block/create",
             req,
             expect=Block,
+            file=file_data,
         )
 
     def delete(self) -> Block:
@@ -93,6 +129,15 @@ class Block(CamelModel):
             )
         ]
         return embedding_plugin_instance.insert(tags)
+
+    def raw(self):
+        return self.client.post(
+            "block/raw",
+            payload={
+                id: self.id,
+            },
+            raw_response=True,
+        )
 
 
 class BlockQueryResponse(Response):
