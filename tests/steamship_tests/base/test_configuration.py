@@ -54,7 +54,9 @@ def test_empty_base_uris() -> None:
 def test_empty_api_key() -> None:
 
     # Only run this test on non-local (i.e., CI/CD) otherwise will attempt browser login
-    if webbrowser.get() is None:
+    try:
+        _ = webbrowser.get()
+    except webbrowser.Error:
         with pytest.raises(SteamshipError):
             # Note: We're referencing a non existing profile to make sure the api key is not loaded from the default profile in steamship.json
             Configuration(api_key=None, profile="non-existing-profile")
