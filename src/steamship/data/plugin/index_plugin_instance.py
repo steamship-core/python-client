@@ -98,7 +98,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
         """
         return self.index.delete()
 
-    def insert(self, tags: Union[Tag, List[Tag]]):
+    def insert(self, tags: Union[Tag, List[Tag]], allow_long_records: bool = False):
         """Insert tags into the embedding index."""
 
         # Make a list if a single tag was provided
@@ -139,7 +139,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
 
         # We always reindex in this new style; to not do so is to expose details (when embedding occurrs) we'd rather
         # not have users exercise control over.
-        self.index.insert_many(embedded_items, reindex=True)
+        self.index.insert_many(embedded_items, reindex=True, allow_long_records=allow_long_records)
 
         # We always snapshot in this new style; to not do so is to expose details we'd rather not have
         # users exercise control over.
