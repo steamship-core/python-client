@@ -220,3 +220,18 @@ def test_oversize_insert_override():
         index.insert_many(items=[long_long_string], allow_long_records=True)
         index.insert_many(items=[EmbeddedItem(value=long_long_string)], allow_long_records=True)
         assert len(index.list_items().items) == 4
+
+
+def test_embedding_failures():
+    steamship = get_steamship_client()
+
+    with random_index(steamship, _TEST_EMBEDDER) as index_plugin_instance:
+        index_plugin_instance.insert(Tag(text="OK"))
+        string_chunks = [
+            "Happy happy",
+            'PYTHONPATH="$PWD/.." asv [remaining arguments].',
+            "joy joy",
+        ]
+        tags = [Tag(text=t) for t in string_chunks]
+        with pytest.raises(SteamshipError):
+            index_plugin_instance.insert(tags)
