@@ -37,6 +37,7 @@ class Steamship(Client):
         "prompt-generation-trainable-default": PromptGenerationPluginInstance,
         "gpt3": PromptGenerationPluginInstance,
         "gpt-3": PromptGenerationPluginInstance,
+        "cerebrium": PromptGenerationPluginInstance,
         "embedding-index": EmbeddingIndexPluginInstance,
     }
 
