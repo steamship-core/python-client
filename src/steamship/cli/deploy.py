@@ -183,7 +183,7 @@ class DeployableDeployer(ABC):
                 with ship_spinner():
                     version = self._create_version(client, manifest, thing_id)
             except SteamshipError as e:
-                if e.message == "The object you are trying to create already exists.":
+                if "The object you are trying to create already exists." in e.message:
                     self.ask_for_new_version_handle(manifest)
                 else:
                     click.secho(f"\nUnable to deploy {self.deployable_type()} version.", fg="red")
