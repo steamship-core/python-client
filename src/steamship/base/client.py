@@ -516,6 +516,15 @@ class Client(CamelModel, ABC):
 
         elif task is not None:
             return task
+        elif data is not None and expect is not None:
+            # if we have data AND we expect it to be of a certain type,
+            # we should probably make sure that expectation is met.
+            if not isinstance(data, expect):
+                raise SteamshipError(
+                    message=f"Inconsistent response from server (data does not match expected type: {expect}.)",
+                    suggestion="Please contact support via hello@steamship.com and report what caused this error.",
+                )
+            return data
         elif data is not None:
             return data
         else:
