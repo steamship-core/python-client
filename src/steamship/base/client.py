@@ -455,11 +455,6 @@ class Client(CamelModel, ABC):
 
         response_data = self._response_data(resp, raw_response=raw_response)
 
-        if not resp.ok:
-            raise SteamshipError(
-                f"API call did not complete successfully.  Server returned: {response_data}"
-            )
-
         logging.debug(f"Response JSON {response_data}")
 
         task = None
@@ -513,6 +508,11 @@ class Client(CamelModel, ABC):
         if error is not None:
             logging.warning(f"Client received error from server: {error}", exc_info=error)
             raise error
+
+        if not resp.ok:
+            raise SteamshipError(
+                f"API call did not complete successfully.  Server returned: {response_data}"
+            )
 
         elif task is not None:
             return task
