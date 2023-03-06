@@ -90,6 +90,15 @@ class EmbeddingIndexPluginInstance(PluginInstance):
     embedder: PluginInstance = Field(None, exclude=True)
     index: EmbeddingIndex = Field(None, exclude=True)
 
+    def reset(self):
+        self.index.delete()
+        self.index = EmbeddingIndex.create(
+            client=self.client,
+            handle=self.handle,
+            embedder_plugin_instance_handle=self.embedder.handle,
+            fetch_if_exists=False,
+        )
+
     def delete(self):
         """Delete the EmbeddingIndexPluginInstnace.
 

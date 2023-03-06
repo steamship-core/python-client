@@ -19,8 +19,8 @@ def metadata_to_str(m: Metadata) -> Optional[str]:
 
 def hash_dict(d: Dict) -> str:
     """Returns the MD5 hash of a dictionary."""
-    dhash = hashlib.md5()  # noqa: S303
-    # Sort arguments so so that the string representation is always the same.
+    dhash = hashlib.md5()  # noqa: S303 S324
+    # Sort arguments so that the string representation is always the same.
     encoded = json.dumps(d, sort_keys=True).encode()
     dhash.update(encoded)
     return dhash.hexdigest()
