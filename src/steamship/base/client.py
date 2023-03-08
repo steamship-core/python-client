@@ -455,11 +455,6 @@ class Client(CamelModel, ABC):
 
         response_data = self._response_data(resp, raw_response=raw_response)
 
-        if not resp.ok:
-            raise SteamshipError(
-                f"API call did not complete successfully.  Server returned: {response_data}"
-            )
-
         logging.debug(f"Response JSON {response_data}")
 
         task = None
@@ -514,8 +509,22 @@ class Client(CamelModel, ABC):
             logging.warning(f"Client received error from server: {error}", exc_info=error)
             raise error
 
+        if not resp.ok:
+            raise SteamshipError(
+                f"API call did not complete successfully.  Server returned: {response_data}"
+            )
+
         elif task is not None:
             return task
+        elif data is not None and expect is not None:
+            # if we have data AND we expect it to be of a certain type,
+            # we should probably make sure that expectation is met.
+            if not isinstance(data, expect):
+                raise SteamshipError(
+                    message=f"Inconsistent response from server (data does not match expected type: {expect}.)",
+                    suggestion="Please contact support via hello@steamship.com and report what caused this error.",
+                )
+            return data
         elif data is not None:
             return data
         else:
