@@ -10,6 +10,7 @@ from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.data.block import Block
 from steamship.data.file import File
+from steamship.data.operations.generator import GenerateRequest, GenerateResponse
 from steamship.data.operations.tagger import TagRequest, TagResponse
 from steamship.data.plugin import (
     HostingCpu,
@@ -110,6 +111,32 @@ class PluginInstance(CamelModel):
             req,
             expect=TagResponse,
         )
+
+    def generate(
+        self,
+        file_id: str = None,
+        input_file_start_index: int = None,
+        input_file_end_index: Optional[int] = None,
+        text: Optional[str] = None,
+        bytes: Optional[bytes] = None,
+        block_query: Optional[str] = None,
+        url: Optional[str] = None,
+        append_output_to_file: bool = False,
+        output_file_id: Optional[str] = None,
+    ):
+        req = GenerateRequest(
+            plugin_instance=self.handle,
+            file_id=file_id,
+            input_file_start_index=input_file_start_index,
+            input_file_end_index=input_file_end_index,
+            text=text,
+            bytes=bytes,
+            block_query=block_query,
+            url=url,
+            append_to_output_file=append_output_to_file,
+            output_file_id=output_file_id,
+        )
+        return self.client.post("plugin/instance/generate", req, expect=GenerateResponse)
 
     def delete(self) -> PluginInstance:
         req = DeleteRequest(id=self.id)
