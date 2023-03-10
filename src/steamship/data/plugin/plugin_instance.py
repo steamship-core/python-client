@@ -118,9 +118,9 @@ class PluginInstance(CamelModel):
         input_file_start_block_index: int = None,
         input_file_end_block_index: Optional[int] = None,
         text: Optional[str] = None,
-        bytes: Optional[bytes] = None,
+        # bytes: Optional[bytes] = None, [Not yet implemented]
         block_query: Optional[str] = None,
-        url: Optional[str] = None,
+        # url: Optional[str] = None, [Not yet implemented]
         append_output_to_file: bool = False,
         output_file_id: Optional[str] = None,
     ):
@@ -130,9 +130,9 @@ class PluginInstance(CamelModel):
             input_file_start_block_index=input_file_start_block_index,
             input_file_end_block_index=input_file_end_block_index,
             text=text,
-            bytes=bytes,
+            # bytes=bytes,
             block_query=block_query,
-            url=url,
+            # url=url,
             append_output_to_file=append_output_to_file,
             output_file_id=output_file_id,
         )

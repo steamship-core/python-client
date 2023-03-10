@@ -25,14 +25,14 @@ class GenerateRequest(Request):
     # May specify raw text
     text: Optional[str] = None
 
-    # May specify raw bytes (ex. an image, audio)
-    bytes: Optional[bytes] = None
+    # May specify raw bytes (ex. an image, audio) [Not yet implemented]
+    # bytes: Optional[bytes] = None
 
     # May specify a block query. This may produce input blocks from multiple files.
     block_query: Optional[str] = None
 
-    # May specify a public URL to fetch the data from.
-    url: Optional[str] = None
+    # May specify a public URL to fetch the data from. [Not yet implemented]
+    # url: Optional[str] = None
 
     # Desired output specification
 
