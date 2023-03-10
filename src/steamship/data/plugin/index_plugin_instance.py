@@ -141,11 +141,6 @@ class EmbeddingIndexPluginInstance(PluginInstance):
         # not have users exercise control over.
         self.index.insert_many(embedded_items, reindex=True, allow_long_records=allow_long_records)
 
-        # We always snapshot in this new style; to not do so is to expose details we'd rather not have
-        # users exercise control over.
-        response = self.index.create_snapshot()
-        response.wait()
-
     def search(self, query: str, k: Optional[int] = None) -> Task[SearchResults]:
         """Search the embedding index.
 
