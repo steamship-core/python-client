@@ -3,6 +3,7 @@ from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_index, random_name
 
 from steamship import SteamshipError, Tag
+from steamship.data.embeddings import EmbeddedItem
 
 _TEST_EMBEDDER = "test-embedder"
 
@@ -188,3 +189,49 @@ def test_empty_queries():
 
         with pytest.raises(SteamshipError):
             index.search("  ")
+
+
+def test_oversize_insert_fails():
+    steamship = get_steamship_client()
+    long_long_string = "x" * 9999
+    with random_index(steamship, _TEST_EMBEDDER) as index_plugin_instance:
+
+        with pytest.raises(SteamshipError):
+            index_plugin_instance.insert(tags=Tag(text=long_long_string))
+
+        index = index_plugin_instance.index
+        with pytest.raises(SteamshipError):
+            index.insert(value=long_long_string)
+        with pytest.raises(SteamshipError):
+            index.insert_many(items=[long_long_string])
+        with pytest.raises(SteamshipError):
+            index.insert_many(items=[EmbeddedItem(value=long_long_string)])
+
+
+def test_oversize_insert_override():
+    steamship = get_steamship_client()
+    long_long_string = "x" * 9999
+    with random_index(steamship, _TEST_EMBEDDER) as index_plugin_instance:
+
+        index_plugin_instance.insert(tags=Tag(text=long_long_string), allow_long_records=True)
+
+        index = index_plugin_instance.index
+        index.insert(value=long_long_string, allow_long_records=True)
+        index.insert_many(items=[long_long_string], allow_long_records=True)
+        index.insert_many(items=[EmbeddedItem(value=long_long_string)], allow_long_records=True)
+        assert len(index.list_items().items) == 4
+
+
+def test_embedding_failures():
+    steamship = get_steamship_client()
+
+    with random_index(steamship, _TEST_EMBEDDER) as index_plugin_instance:
+        index_plugin_instance.insert(Tag(text="OK"))
+        string_chunks = [
+            "Happy happy",
+            'PYTHONPATH="$PWD/.." asv [remaining arguments].',
+            "joy joy",
+        ]
+        tags = [Tag(text=t) for t in string_chunks]
+        with pytest.raises(SteamshipError):
+            index_plugin_instance.insert(tags)

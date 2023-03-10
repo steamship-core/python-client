@@ -398,6 +398,7 @@ class Client(CamelModel, ABC):
         package_instance_id: str = None,
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
+        timeout_s: Optional[float] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -439,11 +440,11 @@ class Client(CamelModel, ABC):
         if verb == Verb.POST:
             if file is not None:
                 files = self._prepare_multipart_data(data, file)
-                resp = self._session.post(url, files=files, headers=headers)
+                resp = self._session.post(url, files=files, headers=headers, timeout=timeout_s)
             else:
-                resp = self._session.post(url, json=data, headers=headers)
+                resp = self._session.post(url, json=data, headers=headers, timeout=timeout_s)
         elif verb == Verb.GET:
-            resp = self._session.get(url, params=data, headers=headers)
+            resp = self._session.get(url, params=data, headers=headers, timeout=timeout_s)
         else:
             raise Exception(f"Unsupported verb: {verb}")
 
@@ -508,8 +509,22 @@ class Client(CamelModel, ABC):
             logging.warning(f"Client received error from server: {error}", exc_info=error)
             raise error
 
+        if not resp.ok:
+            raise SteamshipError(
+                f"API call did not complete successfully.  Server returned: {response_data}"
+            )
+
         elif task is not None:
             return task
+        elif data is not None and expect is not None:
+            # if we have data AND we expect it to be of a certain type,
+            # we should probably make sure that expectation is met.
+            if not isinstance(data, expect):
+                raise SteamshipError(
+                    message=f"Inconsistent response from server (data does not match expected type: {expect}.)",
+                    suggestion="Please contact support via hello@steamship.com and report what caused this error.",
+                )
+            return data
         elif data is not None:
             return data
         else:
@@ -529,6 +544,7 @@ class Client(CamelModel, ABC):
         package_instance_id: str = None,
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
+        timeout_s: Optional[float] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -546,6 +562,7 @@ class Client(CamelModel, ABC):
             package_instance_id=package_instance_id,
             as_background_task=as_background_task,
             wait_on_tasks=wait_on_tasks,
+            timeout_s=timeout_s,
         )
 
     def get(
@@ -562,6 +579,7 @@ class Client(CamelModel, ABC):
         package_instance_id: str = None,
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
+        timeout_s: Optional[float] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -579,6 +597,7 @@ class Client(CamelModel, ABC):
             package_instance_id=package_instance_id,
             as_background_task=as_background_task,
             wait_on_tasks=wait_on_tasks,
+            timeout_s=timeout_s,
         )
 
     def logs(

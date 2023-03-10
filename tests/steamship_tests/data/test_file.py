@@ -1,6 +1,8 @@
+import io
 import json
 
 import pytest
+import requests
 from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 
@@ -240,3 +242,25 @@ def test_append_indices(client: Steamship):
     assert file.blocks[0].text == "first"
     assert file.blocks[1].index_in_file == 1
     assert file.blocks[1].text == "second"
+
+
+@pytest.mark.usefixtures("client")
+def test_file_create_from_resp(client: Steamship):
+    class FakeSession:
+        def post(self, url: str, **kwargs):
+            resp = requests.Response()
+            resp.status_code = 200
+            resp.headers = {"Content-Type": "application/text"}
+            resp.raw = io.BytesIO(bytes("<html>you done goofed</html>", "utf-8"))
+            return resp
+
+    client._session = FakeSession()
+
+    with pytest.raises(SteamshipError) as err:
+        # the content here is not relevant to the test
+        # this should raise a SteamshipError complaining about expectations.
+        File.create(
+            client=client, blocks=[Block(text="/usr/bin/python root.py")], mime_type=MimeTypes.TXT
+        )
+
+    assert "data does not match expected" in str(err)

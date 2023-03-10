@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
+from steamship import SteamshipError
 from steamship.base import Task
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
@@ -12,6 +13,8 @@ from steamship.base.request import DeleteRequest, Request
 from steamship.base.response import Response
 from steamship.data.search import Hit
 from steamship.utils.metadata import metadata_to_str
+
+MAX_RECOMMENDED_ITEM_LENGTH = 5000
 
 
 class EmbedAndSearchRequest(Request):
@@ -110,24 +113,6 @@ class IndexSearchRequest(Request):
     include_metadata: bool = False
 
 
-class IndexSnapshotRequest(Request):
-    index_id: str
-    window_size: int = None  # Used for unit testing
-
-
-class IndexSnapshotResponse(Response):
-    id: Optional[str] = None
-    snapshot_id: str
-
-
-class ListSnapshotsRequest(Request):
-    id: str = None
-
-
-class ListSnapshotsResponse(Response):
-    snapshots: List[IndexSnapshotResponse]
-
-
 class ListItemsRequest(Request):
     id: str = None
     file_id: str = None
@@ -137,14 +122,6 @@ class ListItemsRequest(Request):
 
 class ListItemsResponse(Response):
     items: List[EmbeddedItem]
-
-
-class DeleteSnapshotsRequest(Request):
-    snapshot_id: str = None
-
-
-class DeleteSnapshotsResponse(Response):
-    snapshot_id: str = None
 
 
 class EmbeddingIndex(CamelModel):
@@ -195,10 +172,33 @@ class EmbeddingIndex(CamelModel):
             expect=IndexInsertResponse,
         )
 
+    def _check_input(self, request: IndexInsertRequest, allow_long_records: bool):
+        if not allow_long_records:
+            if request.value is not None and len(request.value) > MAX_RECOMMENDED_ITEM_LENGTH:
+                raise SteamshipError(
+                    f"Inserted item of length {len(request.value)} exceeded maximum recommended length of {MAX_RECOMMENDED_ITEM_LENGTH} characters. You may insert it anyway by passing allow_long_records=True."
+                )
+            if request.items is not None:
+                for i, item in enumerate(request.items):
+                    if item is not None:
+                        if isinstance(item, str) and len(item) > MAX_RECOMMENDED_ITEM_LENGTH:
+                            raise SteamshipError(
+                                f"Inserted item {i} of length {len(item)} exceeded maximum recommended length of {MAX_RECOMMENDED_ITEM_LENGTH} characters. You may insert it anyway by passing allow_long_records=True."
+                            )
+                        if (
+                            isinstance(item, EmbeddedItem)
+                            and item.value is not None
+                            and len(item.value) > MAX_RECOMMENDED_ITEM_LENGTH
+                        ):
+                            raise SteamshipError(
+                                f"Inserted item {i} of length {len(item.value)} exceeded maximum recommended length of {MAX_RECOMMENDED_ITEM_LENGTH} characters. You may insert it anyway by passing allow_long_records=True."
+                            )
+
     def insert_many(
         self,
         items: List[Union[EmbeddedItem, str]],
         reindex: bool = True,
+        allow_long_records=False,
     ) -> IndexInsertResponse:
         new_items = []
         for item in items:
@@ -212,6 +212,7 @@ class EmbeddingIndex(CamelModel):
             items=[item.clone_for_insert() for item in new_items],
             reindex=reindex,
         )
+        self._check_input(req, allow_long_records)
         return self.client.post(
             "embedding-index/item/create",
             req,
@@ -225,6 +226,7 @@ class EmbeddingIndex(CamelModel):
         external_type: str = None,
         metadata: Union[int, float, bool, str, List, Dict] = None,
         reindex: bool = True,
+        allow_long_records=False,
     ) -> IndexInsertResponse:
 
         req = IndexInsertRequest(
@@ -235,6 +237,7 @@ class EmbeddingIndex(CamelModel):
             metadata=metadata_to_str(metadata),
             reindex=reindex,
         )
+        self._check_input(req, allow_long_records)
         return self.client.post(
             "embedding-index/item/create",
             req,
@@ -251,22 +254,6 @@ class EmbeddingIndex(CamelModel):
             expect=IndexEmbedResponse,
         )
 
-    def create_snapshot(self) -> Task[IndexSnapshotResponse]:
-        req = IndexSnapshotRequest(index_id=self.id)
-        return self.client.post(
-            "embedding-index/snapshot/create",
-            req,
-            expect=IndexSnapshotResponse,
-        )
-
-    def list_snapshots(self) -> ListSnapshotsResponse:
-        req = ListSnapshotsRequest(id=self.id)
-        return self.client.post(
-            "embedding-index/snapshot/list",
-            req,
-            expect=ListSnapshotsResponse,
-        )
-
     def list_items(
         self,
         file_id: str = None,
@@ -278,17 +265,6 @@ class EmbeddingIndex(CamelModel):
             "embedding-index/item/list",
             req,
             expect=ListItemsResponse,
-        )
-
-    def delete_snapshot(
-        self,
-        snapshot_id: str,
-    ) -> DeleteSnapshotsResponse:
-        req = DeleteSnapshotsRequest(snapshotId=snapshot_id)
-        return self.client.post(
-            "embedding-index/snapshot/delete",
-            req,
-            expect=DeleteSnapshotsResponse,
         )
 
     def delete(self) -> EmbeddingIndex:
