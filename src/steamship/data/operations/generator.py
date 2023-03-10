@@ -16,9 +16,9 @@ class GenerateRequest(Request):
     plugin_instance: str = None
 
     # May specify blocks by their file_id. If so, may specify start and end index
-    file_id: str = None
-    input_file_start_index: int = None
-    input_file_end_index: Optional[
+    input_file_id: str = None
+    input_file_start_block_index: int = None
+    input_file_end_block_index: Optional[
         int
     ] = None  # EXCLUSIVE end index, like most programming languages
 

@@ -114,9 +114,9 @@ class PluginInstance(CamelModel):
 
     def generate(
         self,
-        file_id: str = None,
-        input_file_start_index: int = None,
-        input_file_end_index: Optional[int] = None,
+        input_file_id: str = None,
+        input_file_start_block_index: int = None,
+        input_file_end_block_index: Optional[int] = None,
         text: Optional[str] = None,
         bytes: Optional[bytes] = None,
         block_query: Optional[str] = None,
@@ -126,14 +126,14 @@ class PluginInstance(CamelModel):
     ):
         req = GenerateRequest(
             plugin_instance=self.handle,
-            file_id=file_id,
-            input_file_start_index=input_file_start_index,
-            input_file_end_index=input_file_end_index,
+            input_file_id=input_file_id,
+            input_file_start_block_index=input_file_start_block_index,
+            input_file_end_block_index=input_file_end_block_index,
             text=text,
             bytes=bytes,
             block_query=block_query,
             url=url,
-            append_to_output_file=append_output_to_file,
+            append_output_to_file=append_output_to_file,
             output_file_id=output_file_id,
         )
         return self.client.post("plugin/instance/generate", req, expect=GenerateResponse)
