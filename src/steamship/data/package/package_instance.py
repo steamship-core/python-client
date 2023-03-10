@@ -88,7 +88,9 @@ class PackageInstance(CamelModel):
             "package/instance/get", IdentifierRequest(handle=handle), expect=PackageInstance
         )
 
-    def invoke(self, path: str, verb: Verb = Verb.POST, **kwargs):
+    def invoke(
+        self, path: str, verb: Verb = Verb.POST, timeout_s: Optional[float] = None, **kwargs
+    ):
         self.load_missing_workspace_handle()
         if path[0] == "/":
             path = path[1:]
@@ -102,6 +104,7 @@ class PackageInstance(CamelModel):
             package_id=self.package_id,
             package_instance_id=self.id,
             as_background_task=False,
+            timeout_s=timeout_s,
         )
 
     def full_url_for(self, path: str):

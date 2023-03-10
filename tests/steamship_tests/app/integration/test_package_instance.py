@@ -4,6 +4,7 @@ import re
 
 import pytest
 import requests
+from requests import ConnectTimeout
 from steamship_tests import PACKAGES_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_package
 from steamship_tests.utils.fixtures import get_steamship_client
@@ -227,7 +228,6 @@ def test_plugin_instance_handle_refs():
     assert workspace.handle != "default"
 
     with deploy_package(steamship, demo_package_path) as (package, version, instance):
-
         assert instance.package_handle == package.handle
         assert instance.package_version_handle == version.handle
 
@@ -239,3 +239,15 @@ def test_plugin_instance_handle_refs():
         use_instance = steamship.use(package_handle=package.handle, version=version.handle)
         assert use_instance.package_handle == package.handle
         assert use_instance.package_version_handle == version.handle
+
+
+def test_package_invoke_timeout():
+    client = get_steamship_client()
+    demo_package_path = PACKAGES_PATH / "demo_package.py"
+
+    with client.temporary_workspace() as client:
+        with deploy_package(client, demo_package_path) as (_, _, instance):
+            with pytest.raises(ConnectTimeout):
+                _ = instance.invoke("greet", verb=Verb.GET, timeout_s=0.001)
+            with pytest.raises(ConnectTimeout):
+                _ = instance.invoke("greet", verb=Verb.POST, timeout_s=0.001)
