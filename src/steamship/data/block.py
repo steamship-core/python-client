@@ -37,6 +37,9 @@ class Block(CamelModel):
     tags: Optional[List[Tag]] = []
     index_in_file: Optional[int] = Field(alias="index")
     mime_type: Optional[MimeTypes]
+    url: Optional[
+        str
+    ] = None  # Only for creation of blocks; used to fetch content from a public URL.
 
     class ListRequest(Request):
         file_id: str = None
