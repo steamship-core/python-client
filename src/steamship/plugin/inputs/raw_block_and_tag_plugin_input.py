@@ -10,7 +10,7 @@ from steamship.utils.signed_urls import url_to_json
 
 class RawBlockAndTagPluginInput(CamelModel):
     blocks: List[Block]
-    runtime_parameters: Optional[dict]
+    options: Optional[dict]
 
     def __init__(self, **kwargs):
         if url := kwargs.get("url"):

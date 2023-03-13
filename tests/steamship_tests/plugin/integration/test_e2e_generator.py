@@ -64,7 +64,7 @@ def test_e2e_generator_with_existing_file():
         assert test_file.blocks[2].text == "Yo! Banana boy!"
 
 
-def test_e2e_generator_runtime_parameters():
+def test_e2e_generator_runtime_options():
     client = get_steamship_client()
     parser_path = PLUGINS_PATH / "generators" / "test_generator.py"
 
@@ -79,7 +79,7 @@ def test_e2e_generator_runtime_parameters():
             input_file_id=test_file.id,
             append_output_to_file=True,
             output_file_id=test_file.id,
-            runtime_parameters={"test": "yes"},
+            options={"test": "yes"},
         )
         res.wait()
         assert res.output is not None

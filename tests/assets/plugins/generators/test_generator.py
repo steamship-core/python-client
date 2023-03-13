@@ -18,7 +18,7 @@ class TestGenerator(Generator):
         for block in request.data.blocks:
             result.append(Block(text=block.text[::-1]))
 
-        if request.data.runtime_parameters is not None:
-            result.append(Block(text=json.dumps(request.data.runtime_parameters)))
+        if request.data.options is not None:
+            result.append(Block(text=json.dumps(request.data.options)))
 
         return InvocableResponse(data=RawBlockAndTagPluginOutput(blocks=result))
