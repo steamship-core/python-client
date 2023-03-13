@@ -113,24 +113,6 @@ class IndexSearchRequest(Request):
     include_metadata: bool = False
 
 
-class IndexSnapshotRequest(Request):
-    index_id: str
-    window_size: int = None  # Used for unit testing
-
-
-class IndexSnapshotResponse(Response):
-    id: Optional[str] = None
-    snapshot_id: str
-
-
-class ListSnapshotsRequest(Request):
-    id: str = None
-
-
-class ListSnapshotsResponse(Response):
-    snapshots: List[IndexSnapshotResponse]
-
-
 class ListItemsRequest(Request):
     id: str = None
     file_id: str = None
@@ -140,14 +122,6 @@ class ListItemsRequest(Request):
 
 class ListItemsResponse(Response):
     items: List[EmbeddedItem]
-
-
-class DeleteSnapshotsRequest(Request):
-    snapshot_id: str = None
-
-
-class DeleteSnapshotsResponse(Response):
-    snapshot_id: str = None
 
 
 class EmbeddingIndex(CamelModel):
@@ -280,22 +254,6 @@ class EmbeddingIndex(CamelModel):
             expect=IndexEmbedResponse,
         )
 
-    def create_snapshot(self) -> Task[IndexSnapshotResponse]:
-        req = IndexSnapshotRequest(index_id=self.id)
-        return self.client.post(
-            "embedding-index/snapshot/create",
-            req,
-            expect=IndexSnapshotResponse,
-        )
-
-    def list_snapshots(self) -> ListSnapshotsResponse:
-        req = ListSnapshotsRequest(id=self.id)
-        return self.client.post(
-            "embedding-index/snapshot/list",
-            req,
-            expect=ListSnapshotsResponse,
-        )
-
     def list_items(
         self,
         file_id: str = None,
@@ -307,17 +265,6 @@ class EmbeddingIndex(CamelModel):
             "embedding-index/item/list",
             req,
             expect=ListItemsResponse,
-        )
-
-    def delete_snapshot(
-        self,
-        snapshot_id: str,
-    ) -> DeleteSnapshotsResponse:
-        req = DeleteSnapshotsRequest(snapshotId=snapshot_id)
-        return self.client.post(
-            "embedding-index/snapshot/delete",
-            req,
-            expect=DeleteSnapshotsResponse,
         )
 
     def delete(self) -> EmbeddingIndex:
