@@ -50,7 +50,7 @@ def manifest_init_wizard(client: Steamship):
             "What type of plugin is this?",
             default="tagger",
             type=click.Choice(
-                ["tagger", "blockifier", "exporter", "fileImporter", "corpusImporter"]
+                ["tagger", "blockifier", "exporter", "fileImporter", "corpusImporter", "generator"]
             ),
             show_choices=True,
         )
