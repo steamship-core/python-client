@@ -2,7 +2,7 @@ from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import Block, File
+from steamship import Block, File, PluginInstance
 
 
 def test_e2e_generator():
@@ -62,3 +62,16 @@ def test_e2e_generator_with_existing_file():
         test_file.refresh()
         assert len(test_file.blocks) == 3
         assert test_file.blocks[2].text == "Yo! Banana boy!"
+
+
+def test_generator_ephemeral_image_output():
+    client = get_steamship_client()
+    plugin_instance = PluginInstance.create(client, plugin_handle="test-image-generator")
+    generate_task = plugin_instance.generate(text="This won't be used")
+
+    generate_task.wait()
+    assert generate_task.output is not None
+    assert len(generate_task.output.blocks) == 1
+    assert generate_task.output.blocks[0].content_url is not None
+    data = generate_task.output.blocks[0].raw()
+    assert data.decode("UTF-8") == "PRETEND THIS IS THE DATA OF AN IMAGE"
