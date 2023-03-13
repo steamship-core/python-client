@@ -1,5 +1,6 @@
 import io
 import json
+from datetime import datetime
 
 import pytest
 import requests
@@ -241,6 +242,25 @@ def test_append_indices(client: Steamship):
     assert file.blocks[0].text == "first"
     assert file.blocks[1].index_in_file == 1
     assert file.blocks[1].text == "second"
+
+
+@pytest.mark.usefixtures("client")
+def test_file_upload_content_with_tags_and_tag_value(client: Steamship):
+    """This test created to test client-side that the multipart file content + tag parsing works correctly"""
+    a = File.create(
+        client=client,
+        handle="foo",
+        content="f",
+        tags=[Tag(kind="created_at", value={"date-value": datetime.now().isoformat()})],
+    )
+    assert a.id is not None
+    assert a.handle == "foo"
+    assert len(a.tags) == 1
+    assert a.tags[0].kind == "created_at"
+    assert a.tags[0].value["date-value"] is not None
+
+    assert a.raw().decode("utf-8") == "f"
+    a.delete()
 
 
 @pytest.mark.usefixtures("client")
