@@ -156,7 +156,7 @@ class Block(CamelModel):
 
     def raw(self):
         if self.content_url is not None:
-            return requests.get(self.content_url)
+            return requests.get(self.content_url).content
         else:
             return self.client.post(
                 "block/raw",
