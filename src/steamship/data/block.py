@@ -3,6 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, List, Optional, Type, Union
 
+import requests
 from pydantic import BaseModel, Field
 
 from steamship import MimeTypes, SteamshipError
@@ -40,6 +41,9 @@ class Block(CamelModel):
     url: Optional[
         str
     ] = None  # Only for creation of blocks; used to fetch content from a public URL.
+    content_url: Optional[
+        str
+    ] = None  # For overriding the URL of the raw data for ephemeral blocks. Setting this will have no effect
 
     class ListRequest(Request):
         file_id: str = None
@@ -151,13 +155,16 @@ class Block(CamelModel):
         return embedding_plugin_instance.insert(tags)
 
     def raw(self):
-        return self.client.post(
-            "block/raw",
-            payload={
-                "id": self.id,
-            },
-            raw_response=True,
-        )
+        if self.content_url is not None:
+            return requests.get(self.content_url)
+        else:
+            return self.client.post(
+                "block/raw",
+                payload={
+                    "id": self.id,
+                },
+                raw_response=True,
+            )
 
     def is_text(self):
         """Return whether this is a text Block."""
