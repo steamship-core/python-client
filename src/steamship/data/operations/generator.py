@@ -44,6 +44,9 @@ class GenerateRequest(Request):
     # create a new file.
     output_file_id: Optional[str] = None
 
+    # Arbitrary runtime parameters which may be passed to a generator
+    runtime_parameters: Optional[dict]
+
 
 class GenerateResponse(Response):
     blocks: List[Block]

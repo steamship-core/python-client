@@ -123,6 +123,7 @@ class PluginInstance(CamelModel):
         # url: Optional[str] = None, [Not yet implemented]
         append_output_to_file: bool = False,
         output_file_id: Optional[str] = None,
+        runtime_parameters: Optional[dict] = None,
     ):
         req = GenerateRequest(
             plugin_instance=self.handle,
@@ -135,6 +136,7 @@ class PluginInstance(CamelModel):
             # url=url,
             append_output_to_file=append_output_to_file,
             output_file_id=output_file_id,
+            runtime_parameters=runtime_parameters,
         )
         return self.client.post("plugin/instance/generate", req, expect=GenerateResponse)
 
