@@ -44,6 +44,9 @@ class Block(CamelModel):
     content_url: Optional[
         str
     ] = None  # For overriding the URL of the raw data for ephemeral blocks. Setting this will have no effect
+    upload_type: Optional[
+        BlockUploadType
+    ] = None  # for returning Blocks as the result of a generate request
 
     class ListRequest(Request):
         file_id: str = None
