@@ -107,7 +107,7 @@ class Block(CamelModel):
             "tags": tags,
             "url": url,
             "mimeType": mime_type,
-            "type": upload_type,
+            "uploadType": upload_type,
         }
 
         file_data = (
