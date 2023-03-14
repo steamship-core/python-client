@@ -55,6 +55,7 @@ class PluginType(str, Enum):
     classifier = "classifier"
     tagger = "tagger"
     embedder = "embedder"
+    generator = "generator"
 
 
 class PluginAdapterType(str, Enum):
