@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import io
 from enum import Enum
-from typing import TYPE_CHECKING, Any, List, Type, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
@@ -181,6 +181,8 @@ class File(CamelModel):
         refreshed = File.get(self.client, self.id)
         self.__init__(**refreshed.dict())
         self.client = refreshed.client
+        for block in self.blocks:
+            block.client = self.client
         return self
 
     @staticmethod
@@ -254,8 +256,31 @@ class File(CamelModel):
             expect=ListFileResponse,
         )
 
-    def append_block(self, text: str = None, tags: List[Tag] = None) -> Block:
-        return Block.create(self.client, file_id=self.id, text=text, tags=tags)
+    def append_block(
+        self,
+        text: str = None,
+        tags: List[Tag] = None,
+        content: Union[str, bytes] = None,
+        url: Optional[str] = None,
+        mime_type: Optional[MimeTypes] = None,
+    ) -> Block:
+        """Append a new block to this File.  This is a convenience wrapper around
+        Block.create(). You should provide only one of text, content, or url.
+
+        This is a server-side operation, saving the new Block to the file. The new block
+        is appended to this client-side File as well for convenience.
+        """
+        block = Block.create(
+            self.client,
+            file_id=self.id,
+            text=text,
+            tags=tags,
+            content=content,
+            url=url,
+            mime_type=mime_type,
+        )
+        self.blocks.append(block)
+        return block
 
 
 class FileQueryResponse(Response):
