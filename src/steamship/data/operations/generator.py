@@ -11,6 +11,12 @@ class GenerateRequest(Request):
     """This class provides the input for a request to a Generator.  There are several ways to specify the input; see below"""
 
     # Input Specification
+    # You must select one of several ways to specify input for a generator. These are exclusive.
+    # 1 - A span of Blocks on a File
+    # 2 - Raw text
+    # 3 - A query for Blocks
+    # 4 - (coming soon) A public URL of content
+    # 5 - (coming soon) Raw bytes of content
 
     # Must specify plugin instance to use
     plugin_instance: str = None
