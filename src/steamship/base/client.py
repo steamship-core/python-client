@@ -369,7 +369,6 @@ class Client(CamelModel, ABC):
                 # Hack since engine uses "App" instead of "Package"
                 "index",
                 "pluginInstance",  # Inlined here since `expect` may be a subclass of pluginInstance
-                "file",  # Inlined here since `expect` may be a chat, subclass of file
             ):
                 # TODO (enias): Hack since the engine responds with incosistent formats e.g. {"plugin" : {plugin_fields}}
                 for _, v in response_data.items():

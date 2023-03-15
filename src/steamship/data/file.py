@@ -115,26 +115,6 @@ class File(CamelModel):
         handle: str = None,
         blocks: List[Block] = None,
         tags: List[Tag] = None,
-    ) -> File:
-        return File._create(
-            client=client,
-            expect=File,
-            content=content,
-            mime_type=mime_type,
-            handle=handle,
-            blocks=blocks,
-            tags=tags,
-        )
-
-    @staticmethod
-    def _create(
-        client: Client,
-        expect: Any,
-        content: Union[str, bytes] = None,
-        mime_type: MimeTypes = None,
-        handle: str = None,
-        blocks: List[Block] = None,
-        tags: List[Tag] = None,
     ) -> Any:
 
         if content is None and blocks is None:
@@ -178,7 +158,7 @@ class File(CamelModel):
             "file/create",
             payload=req,
             file=file_data,
-            expect=expect,
+            expect=File,
         )
 
     @staticmethod

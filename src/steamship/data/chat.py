@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List, Optional, Union
 
-from steamship import File, MimeTypes
+from steamship import File, MimeTypes, SteamshipError
 from steamship.base.client import Client
 from steamship.base.request import IdentifierRequest
-from steamship.base.response import Response
 from steamship.base.tasks import Task
 from steamship.data import TagKind
 from steamship.data.block import Block
-from steamship.data.file import FileQueryRequest, ListFileRequest
+from steamship.data.file import ListFileRequest, ListFileResponse
 from steamship.data.tags import Tag
 from steamship.data.tags.tag_constants import DocTag, RoleTag
 
@@ -17,68 +16,94 @@ if TYPE_CHECKING:
     from steamship.data.operations.generator import GenerateResponse
 
 
-class ListChatResponse(Response):
-    files: List[Chat]
+class ListChatResponse:  # not a pydantic model
+    chats: List[Chat]
+
+    @staticmethod
+    def from_list_file_response(list_file_response: ListFileResponse) -> ListChatResponse:
+        result = ListChatResponse()
+        result.chats = [Chat(file) for file in list_file_response.files]
+        return result
 
 
-class Chat(File):
+CHAT_GENERATOR_INSTANCE_HANDLE = "chat-generator-instance-handle"
+
+
+class Chat:
     """A Chat is a subclass of a File ideal for ongoing interactions between a user and a virtual assistant."""
+
+    generator_instance_handle: str
+    file: File
+
+    def __init__(self, file: File):
+        """This init method is intended only for private use within the class. See `Chat.create()`"""
+        self.file = file
+        self._get_plugin_instance_from_tag()
+
+    def _get_plugin_instance_from_tag(self):
+        for tag in self.file.tags:
+            if tag.kind == CHAT_GENERATOR_INSTANCE_HANDLE:
+                self.generator_instance_handle = tag.name
+        if self.generator_instance_handle is None:
+            raise SteamshipError(
+                f"Attempted to load file with handle {self.file.handle} as a Chat, but it had no generator instance handle"
+            )
 
     @staticmethod
     def get(
         client: Client,
         _id: str = None,
         handle: str = None,
-    ) -> File:
-        return client.post(
+    ) -> Chat:
+        file = client.post(
             "file/get",
             IdentifierRequest(id=_id, handle=handle),
             expect=Chat,
         )
+        return Chat(file)
 
     @staticmethod
     def create(
         client: Client,
+        generator_instance_handle: str,
         content: Union[str, bytes] = None,
         mime_type: MimeTypes = None,
         handle: str = None,
         blocks: List[Block] = None,
         tags: List[Tag] = None,
+        initial_system_prompt: Optional[str] = None,
     ) -> Chat:
 
         tags = tags or []
         tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))
-        return File._create(
+        tags.append(Tag(kind=CHAT_GENERATOR_INSTANCE_HANDLE, name=generator_instance_handle))
+
+        if initial_system_prompt is not None:
+            blocks = blocks or []
+            blocks.append(
+                Block(
+                    text=initial_system_prompt, tags=[Tag(kind=TagKind.ROLE, name=RoleTag.SYSTEM)]
+                )
+            )
+
+        file = File.create(
             client=client,
-            expect=Chat,
             content=content,
             mime_type=mime_type,
             handle=handle,
             blocks=blocks,
             tags=tags,
         )
-
-    @staticmethod
-    def query(
-        client: Client,
-        tag_filter_query: str,
-    ) -> ChatQueryResponse:
-
-        req = FileQueryRequest(tag_filter_query=tag_filter_query)
-        res = client.post(
-            "file/query",
-            payload=req,
-            expect=ChatQueryResponse,
-        )
-        return res
+        return Chat(file)
 
     @staticmethod
     def list(client: Client) -> ListChatResponse:
-        return client.post(
+        files: ListFileResponse = client.post(
             "file/list",
             ListFileRequest(),
-            expect=ListChatResponse,
+            expect=ListFileResponse,
         )
+        return ListChatResponse.from_list_file_response(files)
 
     def append_user_block(
         self,
@@ -91,7 +116,7 @@ class Chat(File):
         """Append a new block to this with content provided by the end-user."""
         tags = tags or []
         tags.append(Tag(kind=TagKind.ROLE, name=RoleTag.USER))
-        return self.append_block(
+        return self.file.append_block(
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )
 
@@ -106,13 +131,12 @@ class Chat(File):
         """Append a new block to this with content provided by the system, i.e., instructions to the assistant."""
         tags = tags or []
         tags.append(Tag(kind=TagKind.ROLE, name=RoleTag.SYSTEM))
-        return self.append_block(
+        return self.file.append_block(
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )
 
     def generate_next_response(
         self,
-        plugin_instance_handle: str,
         start_block_index: int = None,
         end_block_index: Optional[int] = None,
         append_output_to_file: bool = True,
@@ -121,17 +145,32 @@ class Chat(File):
         """Append a new block to this with content provided by the generation plugin (assistant).
         Assumes output will be appended to this chat, or not stored at all.
         """
-        return self.generate(
-            plugin_instance_handle=plugin_instance_handle,
+        return self.file.generate(
+            plugin_instance_handle=self.generator_instance_handle,
             start_block_index=start_block_index,
             end_block_index=end_block_index,
             append_output_to_file=append_output_to_file,
             options=options,
         )
 
+    def refresh(self):
+        self.file.refresh()
 
-class ChatQueryResponse(Response):
-    files: List[Chat]
+    @property
+    def tags(self) -> List[Tag]:
+        return self.file.tags
+
+    @property
+    def blocks(self) -> List[Block]:
+        return self.file.blocks
+
+    @property
+    def client(self) -> Client:
+        return self.file.client
 
 
-ChatQueryResponse.update_forward_refs()
+class ChatQueryResponse:  # Not a pydantic type
+    chats: List[Chat]
+
+
+# ChatQueryResponse.update_forward_refs()
