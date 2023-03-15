@@ -26,6 +26,7 @@ class TagKind(str, Enum):
     TIMESTAMP = "timestamp"
     SUMMARY = "summary"
     SEARCH_RESULT = "search-result"
+    ROLE = "role"
 
 
 class DocTag(str, Enum):
@@ -230,3 +231,16 @@ class ProvenanceTag(str, Enum):
 
     # The File from which some section of a document was sourced
     FILE = "file"
+
+
+class RoleTag(str, Enum):
+    """A set of `name` constants for Tags with a `kind` of `TagKind.ROLE`."""
+
+    # This block's content was created by the System; likely instructional text on how to respond
+    SYSTEM = "system"
+
+    # This block's content was created by an end user
+    USER = "user"
+
+    # This block's content was created by the generative AI assistant
+    ASSISTANT = "assistant"
