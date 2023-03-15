@@ -9,6 +9,7 @@ from steamship_tests.utils.deployables import deploy_plugin
 
 from steamship import MimeTypes, SteamshipError
 from steamship.client import Steamship
+from steamship.data import TagKind
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
@@ -284,3 +285,23 @@ def test_file_create_from_resp(client: Steamship):
         )
 
     assert "data does not match expected" in str(err)
+
+
+@pytest.mark.usefixtures("client")
+def test_append_with_tag(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first")])
+    assert len(file.blocks) == 1
+    assert file.blocks[0].index_in_file == 0
+
+    appended_block = file.append_block(text="second", tags=[Tag(kind=TagKind.DOCUMENT)])
+    assert appended_block.index_in_file == 1
+    assert len(file.blocks) == 2
+
+    file.refresh()
+    assert len(file.blocks) == 2
+    assert file.blocks[0].index_in_file == 0
+    assert file.blocks[0].text == "first"
+    assert file.blocks[1].index_in_file == 1
+    assert file.blocks[1].text == "second"
+    assert len(file.blocks[1].tags) == 1
+    assert file.blocks[1].tags[0].kind == TagKind.DOCUMENT

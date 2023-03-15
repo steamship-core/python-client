@@ -104,7 +104,9 @@ class Block(CamelModel):
         req = {
             "fileId": file_id,
             "text": text,
-            "tags": tags,
+            "tags": [
+                tag.dict(by_alias=True, exclude_unset=True, exclude_none=True) for tag in tags or []
+            ],
             "url": url,
             "mimeType": mime_type,
             "uploadType": upload_type,

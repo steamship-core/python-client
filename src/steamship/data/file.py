@@ -18,6 +18,7 @@ from steamship.data.tags import Tag
 from steamship.utils.binary_utils import flexi_create
 
 if TYPE_CHECKING:
+    from steamship.data.operations.generator import GenerateResponse
     from steamship.data.operations.tagger import TagResponse
 
 
@@ -115,6 +116,26 @@ class File(CamelModel):
         blocks: List[Block] = None,
         tags: List[Tag] = None,
     ) -> File:
+        return File._create(
+            client=client,
+            expect=File,
+            content=content,
+            mime_type=mime_type,
+            handle=handle,
+            blocks=blocks,
+            tags=tags,
+        )
+
+    @staticmethod
+    def _create(
+        client: Client,
+        expect: Any,
+        content: Union[str, bytes] = None,
+        mime_type: MimeTypes = None,
+        handle: str = None,
+        blocks: List[Block] = None,
+        tags: List[Tag] = None,
+    ) -> Any:
 
         if content is None and blocks is None:
             if tags is None:
@@ -157,7 +178,7 @@ class File(CamelModel):
             "file/create",
             payload=req,
             file=file_data,
-            expect=File,
+            expect=expect,
         )
 
     @staticmethod
@@ -232,6 +253,36 @@ class File(CamelModel):
         req = TagRequest(type=PluginTargetType.FILE, id=self.id, plugin_instance=plugin_instance)
         return self.client.post(
             "plugin/instance/tag", payload=req, expect=TagResponse, wait_on_tasks=wait_on_tasks
+        )
+
+    def generate(
+        self,
+        plugin_instance_handle: str,
+        start_block_index: int = None,
+        end_block_index: Optional[int] = None,
+        append_output_to_file: bool = True,
+        options: Optional[dict] = None,
+        wait_on_tasks: List[Task] = None,
+    ) -> Task[GenerateResponse]:
+        """Generate new content from this file. Assumes this file as context for input and output.  May specify start and end blocks."""
+        from steamship.data.operations.generator import GenerateRequest, GenerateResponse
+
+        if append_output_to_file:
+            output_file_id = self.id
+        else:
+            output_file_id = None
+
+        req = GenerateRequest(
+            plugin_instance=plugin_instance_handle,
+            input_file_id=self.id,
+            input_file_start_block_index=start_block_index,
+            input_file_end_block_index=end_block_index,
+            append_output_to_file=append_output_to_file,
+            output_file_id=output_file_id,
+            options=options,
+        )
+        return self.client.post(
+            "plugin/instance/generate", req, expect=GenerateResponse, wait_on_tasks=wait_on_tasks
         )
 
     def index(self, plugin_instance: Any = None) -> EmbeddingIndex:
