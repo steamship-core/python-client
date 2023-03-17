@@ -5,6 +5,6 @@ class longstr(str):  # noqa: N801
 
 
 class fileurl(str):  # noqa: N801
-    """Type function that, if used in a package method argument, will cause a file upload widget to appear."""
+    """Type alias that, if used in a package method argument, will cause a file upload widget to appear."""
 
     pass
