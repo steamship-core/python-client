@@ -104,7 +104,7 @@ class Block(CamelModel):
         req = {
             "fileId": file_id,
             "text": text,
-            "tags": tags,
+            "tags": [t.dict(by_alias=True) for t in tags] if tags else [],
             "url": url,
             "mimeType": mime_type,
             "uploadType": upload_type,
