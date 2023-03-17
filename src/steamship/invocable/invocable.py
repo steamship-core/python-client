@@ -172,7 +172,7 @@ class Invocable(ABC):
 
     def __steamship_dir__(self) -> dict:
         """Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation."""
-        return self._package_spec.dict()
+        return self._package_spec.dict(by_alias=True)
 
     @classmethod
     def config_cls(cls) -> Type[Config]:
