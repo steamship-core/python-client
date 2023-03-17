@@ -123,3 +123,15 @@ def test_append_block_content_image(client: Steamship):
 
     raw_content = file.blocks[0].raw()
     assert raw_content == palm_bytes
+
+
+@pytest.mark.usefixtures("client")
+def test_create_with_tags(client: Steamship):
+    file = File.create(client, content="empty")
+    new_block = Block.create(
+        client,
+        file_id=file.id,
+        text="foo",
+        tags=[Tag(kind="bar", name="foo"), Tag(kind="baz", name="foo")],
+    )
+    assert len(new_block.tags) == 2
