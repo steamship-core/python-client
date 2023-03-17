@@ -3,6 +3,7 @@ from steamship_tests import TEST_ASSETS_PATH
 
 from steamship import MimeTypes
 from steamship.client import Steamship
+from steamship.data import TagKind
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
@@ -123,3 +124,41 @@ def test_append_block_content_image(client: Steamship):
 
     raw_content = file.blocks[0].raw()
     assert raw_content == palm_bytes
+
+
+@pytest.mark.usefixtures("client")
+def test_append_with_tag(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first", tags=[Tag(kind=TagKind.DOCUMENT)])])
+    assert len(file.blocks) == 1
+    assert file.blocks[0].index_in_file == 0
+
+    appended_block = Block.create(
+        client, file_id=file.id, text="second", tags=[Tag(kind=TagKind.DOCUMENT)]
+    )
+    assert appended_block.index_in_file == 1
+
+    file.refresh()
+    assert len(file.blocks) == 2
+    assert file.blocks[0].index_in_file == 0
+    assert file.blocks[0].text == "first"
+    assert file.blocks[1].index_in_file == 1
+    assert file.blocks[1].text == "second"
+
+    assert len(file.blocks[1].tags) == 1
+    assert file.blocks[1].tags[0].kind == TagKind.DOCUMENT
+
+
+def test_append_is_present(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first")])
+    assert len(file.blocks) == 1
+
+    file.append_block(text="second")
+    assert len(file.blocks) == 2
+
+    file.refresh()
+    assert len(file.blocks) == 2
+
+    my_file = File.create(client, handle="my_file", content="")
+    assert len(my_file.blocks) == 0
+    my_file.append_block(text="first")
+    assert len(my_file.blocks) == 1

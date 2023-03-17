@@ -1,5 +1,6 @@
 {
   "name": "TestPackage",
+  "sdk_version": "unknown",
   "doc": null,
   "methods": [
     {
