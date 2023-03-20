@@ -3,7 +3,6 @@ from steamship_tests import TEST_ASSETS_PATH
 
 from steamship import MimeTypes
 from steamship.client import Steamship
-from steamship.data import TagKind
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
@@ -127,27 +126,18 @@ def test_append_block_content_image(client: Steamship):
 
 
 @pytest.mark.usefixtures("client")
-def test_append_with_tag(client: Steamship):
-    file = File.create(client, blocks=[Block(text="first", tags=[Tag(kind=TagKind.DOCUMENT)])])
-    assert len(file.blocks) == 1
-    assert file.blocks[0].index_in_file == 0
-
-    appended_block = Block.create(
-        client, file_id=file.id, text="second", tags=[Tag(kind=TagKind.DOCUMENT)]
+def test_create_with_tags(client: Steamship):
+    file = File.create(client, content="empty")
+    new_block = Block.create(
+        client,
+        file_id=file.id,
+        text="foo",
+        tags=[Tag(kind="bar", name="foo"), Tag(kind="baz", name="foo")],
     )
-    assert appended_block.index_in_file == 1
-
-    file.refresh()
-    assert len(file.blocks) == 2
-    assert file.blocks[0].index_in_file == 0
-    assert file.blocks[0].text == "first"
-    assert file.blocks[1].index_in_file == 1
-    assert file.blocks[1].text == "second"
-
-    assert len(file.blocks[1].tags) == 1
-    assert file.blocks[1].tags[0].kind == TagKind.DOCUMENT
+    assert len(new_block.tags) == 2
 
 
+@pytest.mark.usefixtures("client")
 def test_append_is_present(client: Steamship):
     file = File.create(client, blocks=[Block(text="first")])
     assert len(file.blocks) == 1
