@@ -135,3 +135,20 @@ def test_create_with_tags(client: Steamship):
         tags=[Tag(kind="bar", name="foo"), Tag(kind="baz", name="foo")],
     )
     assert len(new_block.tags) == 2
+
+
+@pytest.mark.usefixtures("client")
+def test_append_is_present(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first")])
+    assert len(file.blocks) == 1
+
+    file.append_block(text="second")
+    assert len(file.blocks) == 2
+
+    file.refresh()
+    assert len(file.blocks) == 2
+
+    my_file = File.create(client, handle="my_file", content="")
+    assert len(my_file.blocks) == 0
+    my_file.append_block(text="first")
+    assert len(my_file.blocks) == 1
