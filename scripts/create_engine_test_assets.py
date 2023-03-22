@@ -19,6 +19,14 @@ def main():
         (PLUGINS_PATH / "blockifiers" / "blockifier.py", "dummy_blockifier.zip"),
         (PACKAGES_PATH / "bad_package.py", "bad-package.zip"),
         (PACKAGES_PATH / "package_with_instance_init.py", "package-with-instance-init.zip"),
+        (
+            PACKAGES_PATH / "package_with_failing_instance_init.py",
+            "package-with-failing-instance-init.zip",
+        ),
+        (
+            PLUGINS_PATH / "generators" / "plugin_with_instance_init.py",
+            "plugin-with-instance-init.zip",
+        ),
     ]
 
     for path, output in assets_to_build:
