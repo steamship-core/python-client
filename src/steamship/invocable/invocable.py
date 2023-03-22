@@ -3,7 +3,7 @@ import inspect
 import logging
 import pathlib
 import time
-from abc import ABC
+from abc import ABC, abstractmethod
 from collections import defaultdict
 from functools import wraps
 from http import HTTPStatus
@@ -173,6 +173,16 @@ class Invocable(ABC):
     def __steamship_dir__(self) -> dict:
         """Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation."""
         return self._package_spec.dict(by_alias=True)
+
+    @post("__instance_init__")
+    def invocable_instance_init(self) -> InvocableResponse:
+        self.instance_init()
+        return InvocableResponse(data=True)
+
+    @abstractmethod
+    def instance_init(self):
+        """The instance init method will be called ONCE by the engine when a new instance of a package or plugin has been created."""
+        pass
 
     @classmethod
     def config_cls(cls) -> Type[Config]:
