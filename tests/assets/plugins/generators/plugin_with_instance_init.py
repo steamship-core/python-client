@@ -2,17 +2,16 @@ import json
 from typing import List
 
 from steamship import Block
-from steamship.invocable import InvocableResponse, post
+from steamship.invocable import InvocableResponse
 from steamship.plugin.generator import Generator
 from steamship.plugin.inputs.raw_block_and_tag_plugin_input import RawBlockAndTagPluginInput
 from steamship.plugin.outputs.raw_block_and_tag_plugin_output import RawBlockAndTagPluginOutput
 from steamship.plugin.request import PluginRequest
 
 
-class TestGenerator(Generator):
-    @post("__instance_init__")
-    def instance_init(self) -> InvocableResponse:
-        return InvocableResponse(data="OK")
+class TestGeneratorWithInit(Generator):
+    def instance_init(self):
+        pass
 
     def run(
         self, request: PluginRequest[RawBlockAndTagPluginInput]
