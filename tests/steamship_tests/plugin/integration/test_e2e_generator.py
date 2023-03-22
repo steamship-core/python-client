@@ -1,8 +1,8 @@
-from steamship_tests import PLUGINS_PATH
+from steamship_tests import PLUGINS_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import Block, File, PluginInstance
+from steamship import Block, File, MimeTypes, PluginInstance
 
 
 def test_e2e_generator():
@@ -99,3 +99,31 @@ def test_generator_ephemeral_image_output():
     assert generate_task.output.blocks[0].content_url is not None
     data = generate_task.output.blocks[0].raw()
     assert data.decode("UTF-8") == "PRETEND THIS IS THE DATA OF AN IMAGE"
+
+
+def test_e2e_generate_from_image():
+    client = get_steamship_client()
+    parser_path = PLUGINS_PATH / "generators" / "test_image_to_text_generator.py"
+
+    with deploy_plugin(client, parser_path, "generator") as (
+        _,
+        _,
+        generator,
+    ):
+        test_file = File.create(client, content="")
+        palm_tree_path = TEST_ASSETS_PATH / "palm_tree.png"
+
+        with palm_tree_path.open("rb") as f:
+            palm_bytes = f.read()
+        block = Block.create(
+            client, file_id=test_file.id, content=palm_bytes, mime_type=MimeTypes.PNG
+        )
+
+        fetched_bytes = block.raw()
+
+        assert palm_bytes == fetched_bytes
+
+        generate_task = generator.generate(input_file_id=test_file.id)
+        generate_task.wait()
+        result = generate_task.output.blocks[0].text
+        assert result == "Found 1 image blocks and fetched data from 1"
