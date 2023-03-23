@@ -16,4 +16,4 @@ You can use blockifiers when developing Steamship :ref:`packages`, in your own P
 or as one-off functions that convert data in the cloud.
 
 .. include:: ./using.rst
-.. include:: ./developing.rst
+

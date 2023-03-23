@@ -3,6 +3,12 @@
 Developing Plugins
 ~~~~~~~~~~~~~~~~~~
 
+Each plugin is a stateless, Python-based microservice that runs in the
+cloud and conforms to a strict interface and data model. Plugins may do
+work themselves, or they may adapt work done by third-party services for
+use with Steamship.
+
+
 From the implementation perspective, think of a plugin as a Python class that implements some abstract base class.
 The specific abstract base class depends on the type of plugin you are writing.
 If you've implemented the required abstract methods, you have successfully built a plugin.

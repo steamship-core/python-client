@@ -3,45 +3,64 @@
 Plugins
 =======
 
-`Steamship Plugins <https://www.steamship.com/plugins>`_ perform specific tasks related to Language AI.
+`Steamship Plugins <https://www.steamship.com/plugins>`_ perform specific tasks related to AI.
 
-Each plugin is a stateless, Python-based microservice that runs in the
-cloud and conforms to a strict interface and data model. Plugins may do
-work themselves, or they may adapt work done by third-party services for
-use with Steamship.
+- How to :ref:`use plugins <Using Plugins>`
+- How to :ref:`develop plugins <DevelopingPluginsSec>`
 
 Steamship supports the following types of plugins:
 
-.. toctree::
-   :maxdepth: 1
+File Importers
+---------
+Importers pull raw data from common external sources into a :ref:`File <Files>`.
 
-   Importers <importers/index>
-   Blockifiers <blockifiers/index>
-   Taggers <taggers/index>
-   Embedders <embedders/index>
+*Examples*: A YouTube video importer imports video content given a URL, A Notion importer imports a document from a Notion space.
 
-Plugins are intended to be created rarely and used prolifically. For
-example, one might create:
+- :ref:`Using File Importers<File Importers>`
+- :ref:`Developing File Importers<DevelopingFileImporters>`
 
--  A **Notion File Importer Plugin** to import a Notion page as
-   Notion-formatted JSON
--  A **Notion Blockifier** to convert Notion-formatted JSON into
-   :ref:`Steamship Block format<Data Model>`
--  A **OpenAI Embedder** to embed sentences to Vectors via GPT-3
+Blockifiers
+-----------
+Blockifiers extract text and other content from raw data in a :ref:`File <Files>` to :ref:`Blocks`.
 
-Having created such plugins, anyone could use them to import, embed, and
-perform question-answering queries over their data in Notion. If someone
-were to create plugin for another embedding service, or another data
-source, it could be mixed and matched with existing plugins as well. In
-this way, Steamship plugins lets developers build packages across
-different data and AI services without worrying about the details of
-tasking, persistence, and integration.
+*Examples*: Whisper speech to text turns an audio file into a text transcript, a PDF extractor could pull the text chunks and images from a PDF document.
 
-Additional Links
-~~~~~~~~~~~~~~~~
+- :ref:`Using Importers<Blockifiers>`
+- :ref:`Developing Importers<DevelopingBlockifiersSec>`
+
+Taggers
+-------
+Taggers create :ref:`Tags` (annotations) on :ref:`Files` and :ref:`Blocks`.
+
+*Examples*: A text classifier would attach a classification ``Tag`` to a ``Block``, an image object recognizer would add ``Tags`` to a ``Block`` that identified known objects.
+
+- :ref:`Using Taggers<Taggers>`
+- :ref:`Developing Taggers<DevelopingTaggers>`
+
+Generators
+----------
+Generators create new content from existing content.
+
+*Examples*: GPT4 creates more text based on the existing text in a conversation, DALL-E creates an image based on a description.
+
+- :ref:`Using Generators<Generators>`
+- :ref:`Developing Taggers<DevelopingGenerators>`
+
+Embedders
+---------
+Embedders convert content into a vector representation. This is primarily used in combination with Steamship's built in :ref:<Embedding Search Index>.
+
+*Examples*: Use OpenAI to embed sentences into vectors for search; embed images into vectors for search
+
+- :ref:`Using Embedders<Embedders>`
+- :ref:`Developing Embedders<DevelopingEmbedders>`
+
+
 
 .. toctree::
    :maxdepth: 3
+   :hidden:
 
+   Using Plugins <using/index>
    Developing Plugins <developing/index>
 
