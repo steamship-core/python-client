@@ -10,7 +10,7 @@ This page is about using existing plugins. If you want to develop a ``Plugin``, 
 Steamship supports the following types of plugins:
 
 
-- :ref:`Importers` pull raw data from common external sources into :ref:`Files`.
+- :ref:`File Importers` pull raw data from common external sources into :ref:`Files`.
 - :ref:`Blockifiers` extract text and other content from raw data from :ref:`Files` to :ref:`Blocks`.
 - :ref:`Taggers` create :ref:`Tags` (annotations) on :ref:`Files` and :ref:`Blocks`.
 - :ref:`Generators` create new :ref:`Blocks` (content) from existing :ref:`Blocks` (content).
@@ -54,7 +54,7 @@ See the plugin individual plugin types for further info on how each can be calle
 .. toctree::
    :hidden:
 
-   Importers <importers/index>
+   File Importers <importers/index>
    Blockifiers <blockifiers/index>
    Taggers <taggers/index>
    Generators <generators/index>

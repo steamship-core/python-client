@@ -91,7 +91,7 @@ Contents
    Configuration <configuration/index>
    Packages <packages/index>
    Plugins <plugins/index>
-   Workspaces <workspaces/index>
+   Data <data/index>
    Developer Reference <developing/index>
    Python Client Reference <api/modules>
    License <license>

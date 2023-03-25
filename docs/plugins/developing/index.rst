@@ -9,9 +9,8 @@ work themselves, or they may adapt work done by third-party services for
 use with Steamship.
 
 
-From the implementation perspective, think of a plugin as a Python class that implements some abstract base class.
-The specific abstract base class depends on the type of plugin you are writing.
-If you've implemented the required abstract methods, you have successfully built a plugin.
+To implement a plugin, you simply fill in the required abstract methods from the appropriate ``PluginService`` abstract class.
+If you've implemented the required abstract methods, you have successfully built a plugin!
 
 Read more here:
 
@@ -19,8 +18,9 @@ Read more here:
    :maxdepth: 1
 
    Plugin Project Structure <project-structure>
-   Developing Importers <importers>
+   Developing File Importers <importers>
    Developing Blockifiers <blockifiers>
+   Developing Generators <generators>
    Developing Taggers <taggers>
    Developing Embedders <embedders>
 
