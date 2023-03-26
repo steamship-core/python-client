@@ -9,6 +9,7 @@ or other content. To use the index, first create an instance of it with your pre
 plugin (we recommend OpenAI):
 
 .. code-block:: python
+
   index = steamship.use_plugin(
         "embedding-index",
         random_name(),

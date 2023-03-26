@@ -32,3 +32,9 @@ You can find the documentation for that here:
    :maxdepth: 1
 
    Writing Async Plugins <async-plugins>
+
+.. _Plugin Accepting Configuration
+
+Accepting Configuration
+-----------------------
+TODO
