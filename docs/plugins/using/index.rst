@@ -17,6 +17,8 @@ Steamship supports the following types of plugins:
 - :ref:`Embedders` convert content into a vector representation. This is primarily used in combination with Steamship's built in Embedding Search.
 
 
+.. _Creating Plugin Instances:
+
 Plugin Instances
 ----------------
 

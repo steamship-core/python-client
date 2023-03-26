@@ -7,7 +7,7 @@ Generators
 Generators create more :ref:`Blocks` (content) on a :ref:`File<Files>`.
 
 Using Generators
--------------
+----------------
 
 To use a generator, create an instance within your workspace and then apply it.
 
@@ -94,3 +94,14 @@ If you want the output to be appended to an existing ``File``, just pass its id 
 
    # if we refresh my_file, we will see new blocks
    my_file.refresh()
+
+
+Steamship provides several Generators:
+
+.. toctree::
+   :maxdepth: 1
+
+   DALL-E <dalle>
+   GPT-4 <gpt4>
+
+Other generators are available on the Steamship `plugins page <https://www.steamship.com/plugins?tab=Public>`_

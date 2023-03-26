@@ -8,7 +8,6 @@ cloud and conforms to a strict interface and data model. Plugins may do
 work themselves, or they may adapt work done by third-party services for
 use with Steamship.
 
-
 To implement a plugin, you simply fill in the required abstract methods from the appropriate ``PluginService`` abstract class.
 If you've implemented the required abstract methods, you have successfully built a plugin!
 
@@ -66,6 +65,10 @@ This will guarantee that ``my_string_config_param`` and ``my_numeric_config_para
 of your plugin.  Since ``my_strong_config_param`` provides a default value, the user can omit it
 from their configuration and the value ``"my-default-value"`` will be used.  Since ``my_numeric_config_param``
 does not have a default value, a user *must* supply a value to create an instance of your plugin.
+
+.. note::
+    There is currently no such thing as an optional configuration parameter. All parameters that do
+    not have a default value must have a value provided by the user at Plugin instantiation.
 
 To use the config values within your plugin code, you can then refer to them from ``self.config``,
 as in ``self.config.my_numeric_config_param``.  They will be automatically populated with the user's

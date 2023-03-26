@@ -6,38 +6,19 @@ Steamship is the fastest way to build and deploy a full-stack language AI packag
 Here's how to go from zero-to-deployed in about 60 seconds.
 Then you can customize your new package from there.
 
-First, create a new package with our CLI.
+First, clone our empty package repository and install requirements.txt:
 
 .. code-block:: bash
 
-   ship create
-
-   > Select *Package*
-   > Select *Empty Package*
+   git clone https://github.com/steamship-packages/empty-package.git my-new-package
+   cd my-new-package
+   pip install -r requirements.txt
 
 Then deploy the package to the cloud:
 
 .. code-block:: bash
 
    ship deploy
-
-Now create a new instance of your package. If you used the **Empty Package** template, you can use the CLI to create one:
-
-.. code-block:: bash
-
-   ship package:instance:create --default_name="Beautiful"
-
-That keyword argument above is part of the required configuration.
-You can see where that argument is defined in the ``src/api.py`` file of your new package, and you can see
-where it is required in the ``steamship.json`` file.
-
-The response you get back will contain your **Instance Handle**.
-
-Let's invoke a method on that instance. Replacing your Instance Handle below, run:
-
-.. code-block:: bash
-
-   ship package:instance:invoke --instance="INSTANCE_HANDLE" --method="greet"
 
 Now let's create an instance and invoke it from Python.
 After running ``pip install steamship``, run the following code, replacing your package and instance handles:
