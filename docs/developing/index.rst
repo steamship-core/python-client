@@ -12,7 +12,7 @@ Think of Steamship packages and plugins as PyPi modules that run in the cloud.
 .. warning::
     Third-party plugin development is currently in Alpha and the interface may change.
     If you want to build a plugin, we are eager to chat!
-    Just email hello@steamship.com
+    Just email hello@steamship.com or hop on our `Discord <http://steamship.com/discord>`_
 
 Steamship is designed from the ground up to support building, modifying, and sharing both packages and plugins.
 Each one you create is cloned from an existing template of your choosing.
