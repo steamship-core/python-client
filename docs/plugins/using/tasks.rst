@@ -2,7 +2,7 @@
 
 Tasks
 =====
-Most :ref:`Plugin<Plugins` operations return a ``Task``.  This allows you to conveniently handle the long,
+Most :ref:`Plugin<Plugins>` operations return a ``Task``.  This allows you to conveniently handle the long,
 asynchronous aspect of many plugin invocations.
 
 Waiting on Tasks

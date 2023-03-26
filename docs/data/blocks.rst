@@ -25,6 +25,6 @@ Creating Blocks
 Blocks may be created when creating a ``File`` by passing them in the ``blocks`` parameter, or they can be appended
 to an existing file.
 
-Please see :py:method:``steamship.data.block.Block.create`` and :py:method:``steamship.data.file.File.append_block``.
+Please see ``Block.create()`` and ``File.append_block()``.
 
 Read the :py:class:`Block PyDoc spec here<steamship.data.block.Block>`.
