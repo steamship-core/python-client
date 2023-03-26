@@ -169,9 +169,15 @@ html_title = "Steamship Documentation"
 html_theme_options = {
     "light_logo": "Steamship-symbol-dark.png",
     "dark_logo": "Steamship-symbol-light.png",
-    "light_css_variables": {"color-brand-primary": "#202b45", "color-brand-content": "#333333"},
+    "light_css_variables": {
+        "color-brand-primary": "#202B45",
+        "color-brand-content": "#9558FC",
+        "font-stack": "Albert Sans, sans-serif",
+        "font-stack--monospace": "Courier, monospace",
+    },
     "dark_css_variables": {
-        "color-brand-content": "#EEEEEE",
+        "color-brand-primary": "#9558FC",
+        "color-brand-content": "#F6B938",
     },
     "footer_icons": [
         {

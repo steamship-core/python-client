@@ -22,16 +22,13 @@ The following diagram shows how data is created and used within Steamship:
 #. Index data for search with :ref:`the embedding search index<Embedding Search Index>`
 
 
-Read More About
----------------
-
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   Workspaces <Workspaces>
-   Files <Files>
-   Blocks <Blocks>
-   Tags <Tags>
+   Workspaces <workspaces>
+   Files <files>
+   Blocks <blocks>
+   Tags <tags>
    Querying Data <queries/index>
 
 
