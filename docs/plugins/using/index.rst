@@ -49,6 +49,10 @@ To use a ``PluginInstance``, call the type-specific methods on it:
 
     result_task = gpt4.generate(text="What's up GPT?")
 
+Plugin invocations return asynchronous :ref:`Tasks` so that you can easily run many plugins and control when you need
+the results.
+
+
 See the plugin individual plugin types for further info on how each can be called.
 
 .. toctree::
@@ -59,3 +63,4 @@ See the plugin individual plugin types for further info on how each can be calle
    Taggers <taggers/index>
    Generators <generators/index>
    Embedders <embedders/index>
+   Tasks <tasks>

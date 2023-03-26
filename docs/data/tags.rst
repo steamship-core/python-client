@@ -3,15 +3,15 @@
 Tags
 ~~~~
 
-Steamship uses Tags to represent all commentary about text.
+Steamship uses Tags to represent all commentary about content.
 
 - The intent of a chat message
 - The embedding of a sentence
 - The sentiment of a phase
-- THe markdown semantics of a region of text
+- The markdown semantics of a region of text
+- Identified object regions of an image
 
-Steamship Files and Blocks are mostly semantics-free containers.
-Tags are where all the action is.
+Steamship Files and Blocks contain content. Tags hold all data **about** the content.
 
 The full :py:class:`Tag PyDoc spec is here<steamship.data.tags.tag.Tag>`, but it's useful to look at a summarized version:
 
@@ -30,9 +30,8 @@ The full :py:class:`Tag PyDoc spec is here<steamship.data.tags.tag.Tag>`, but it
      start_idx: Optional[int] # Start inclusive
      end_idx: Optional[int]   # End exclusive
 
-This design results in an extraordinarily flexible data storage scheme that can be adapted to a number of
-different scenarios.
-In the Engine, we optimize our data storage so that you can query over tags and their contents.
+This design results in a flexible data storage scheme that can be adapted to a number of
+different scenarios. We optimize our data storage so that you can query over tags and their contents.
 
 Ways to use Tags
 ^^^^^^^^^^^^^^^^
@@ -82,12 +81,12 @@ Tag Schemas
 Steamship brings together many models under one roof using tags as the common representation for interoperation.
 But doesn't fully solve the model interop problem: how do we make sure all models use the same tags?
 
-Our answer to this is to converge -- where possible -- upon a common schema for the ``kind``, ``name``, and ``value`` properties of a tag.
-If all sentiment models emit a tag with kind ``sentiment`` and a range of names ``[positive, neutral, negative]``, for example, then we can swap them in and out as it suits us.
+Where possible, we use a common schema for the ``kind``, ``name``, and ``value`` properties of a tag.
+If all sentiment models produce tags with kind ``sentiment`` and a range of names ``[positive, neutral, negative]``, for example, then we can swap them in and out as needed.
 
 Our ongoing pursuit of this can be found in the `tag_constants.py file <https://github.com/steamship-core/python-client/blob/main/src/steamship/data/tags/tag_constants.py>`_
 in Github.
-There you will find Python Enum classes that we curate as we encounter common domains across our plugins.
+There you will find Python Enum classes that have common tags across our plugins.
 
 - :py:class:`TagKind class<steamship.data.tags.tag_constants.TagKind>` contains suggested values for the ``kind`` field of a Tag.
 - :py:class:`TagValue class<steamship.data.tags.tag_constants.TagValue>` contains suggested keys for the ``valu`` dictionary of a Tag.
@@ -99,8 +98,9 @@ There you will find Python Enum classes that we curate as we encounter common do
   - :py:class:`GenerationTag<steamship.data.tags.tag_constants.GenerationTag>` for models which generate new data from the covered span as input
   - :py:class:`IntentTag<steamship.data.tags.tag_constants.IntentTag>` for intent classification
   - :py:class:`SentimentTag<steamship.data.tags.tag_constants.SentimentTag>` for sentiment classification
+  - :py:class:`RoleTag<steamship.data.tags.tag_constants.RoleTag>` for role classification
 
-These constants are by no means required, but using them increases the chance that what you build will
+These constants are not required, but using them increases the chance that what you build will
 interoperate cleanly with everyone else that uses them.
 
 Here is what some of the above tag examples would look like using these enum classes.
@@ -163,11 +163,9 @@ But Steamship actually supports two types of tags: **File Tags** and **Block Tag
 **Block Tags** annotate text within a :ref:`Block<Blocks>` object:
 
 - They are attached to the :ref:`Block<Blocks>` object (``block.tags``)
-- Their ``start_idx`` and ``end_idx`` fields are non-null. They  represent offsets into the text that is spanned by that block.
-- They are referenced via the ``blocktag`` keyword in our query system.
+- Their ``start_idx`` and ``end_idx`` fields are either both null or both non-null. If both are null, the ``Tag is assumed to apply to the whole ``Block``. They  represent offsets into the text that is spanned by that block.
+- They are referenced via the ``blocktag`` keyword in our :ref:`query system<queries>`.
 
-There are a few edge cases important to call out here:
+Notes:
 
-- Whereas file tags annotate the file itself, block tags do not annotate the block: they annotate text within the block.
-- A block tag that covers the entire text of the block always has ``start_idx = 0`` and ``end_idx = len(block.text)``
-- It is impossible for a tag to cover text spanning multiple blocks. This is a limitation of our current data model.
+- It is impossible for a tag to cover text spanning multiple blocks.

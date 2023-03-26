@@ -1,5 +1,3 @@
-.. _Taggers:
-
 Using Taggers
 -------------
 

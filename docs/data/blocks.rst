@@ -18,6 +18,7 @@ The following divisions of this file into blocks are all perfectly fine:
 
 Metadata and annotations about the content of the ``Block`` added via :ref:`Tags` on the ``Block`` .
 
+.. _Creating Blocks:
 Creating Blocks
 ---------------
 

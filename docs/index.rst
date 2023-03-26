@@ -92,6 +92,7 @@ Contents
    Packages <packages/index>
    Plugins <plugins/index>
    Data <data/index>
+   Embedding Search Index <embedding-search/index>
    Developer Reference <developing/index>
    Python Client Reference <api/modules>
    License <license>
