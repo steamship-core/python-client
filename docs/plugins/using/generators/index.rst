@@ -9,7 +9,7 @@ Generators create more :ref:`Blocks` (content) on a :ref:`File<Files>`.
 Using Generators
 ----------------
 
-To use a generator, create an instance within your workspace and then apply it.
+To use a generator, create an instance within your workspace and then invoke it.
 
 .. code-block:: python
 
