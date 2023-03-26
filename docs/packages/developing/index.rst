@@ -1,3 +1,5 @@
+.. _Developing Packages:
+
 Developing Packages
 -------------------
 
@@ -19,6 +21,8 @@ Then deploy the package to the cloud:
 .. code-block:: bash
 
    ship deploy
+
+.. _Creating Package Instances:
 
 Now let's create an instance and invoke it from Python.
 After running ``pip install steamship``, run the following code, replacing your package and instance handles:
