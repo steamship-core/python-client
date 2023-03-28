@@ -31,7 +31,10 @@ class Generator(PluginService[RawBlockAndTagPluginInput, RawBlockAndTagPluginOut
     @post("generate")
     def run_endpoint(self, **kwargs) -> InvocableResponse[RawBlockAndTagPluginOutput]:
         """Exposes the Tagger's `run` operation to the Steamship Engine via the expected HTTP path POST /tag"""
-        return self.run(PluginRequest[RawBlockAndTagPluginInput].parse_obj(kwargs))
+        input = PluginRequest[RawBlockAndTagPluginInput].parse_obj(kwargs)
+        for block in input.data.blocks:
+            block.client = self.client
+        return self.run(input)
 
 
 class TrainableGenerator(

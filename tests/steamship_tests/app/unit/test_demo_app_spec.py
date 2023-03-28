@@ -14,7 +14,7 @@ def test_package_spec(invocable_handler: Callable[[str, str, Optional[dict]], di
 
     assert rd.get("doc") is None
     assert rd.get("methods") is not None
-    assert len(rd.get("methods")) == 18
+    assert len(rd.get("methods")) == 20
 
     saw_public = False
 
@@ -28,6 +28,9 @@ def test_package_spec(invocable_handler: Callable[[str, str, Optional[dict]], di
             assert method.get("config").get("not_there") is None
 
             saw_public = True
+        elif "public" in method.get("path"):
+            assert method.get("config") is not None
+            assert method.get("config").get("public") is True
         else:
             assert method.get("config") == {}
 
