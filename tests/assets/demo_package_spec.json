@@ -1,5 +1,6 @@
 {
   "name": "TestPackage",
+  "sdkVersion": "unknown",
   "doc": null,
   "methods": [
     {
@@ -82,6 +83,22 @@
       ],
       "config": {},
       "verb": "POST"
+    },
+   {
+     "args": [{"kind": "<class 'str'>", "name": "name", "values": null}],
+         "config": {"public": true},
+         "doc": null,
+         "path": "/public_post_greet",
+         "returns": "<class 'foo.InvocableResponse[str]'>",
+         "verb": "POST"
+     },
+     {
+         "args": [{"kind": "<class 'str'>", "name": "name", "values": null}],
+         "config": {"public": true},
+         "doc": null,
+         "path": "/public_get_greet",
+         "returns": "<class 'foo.InvocableResponse[str]'>",
+         "verb": "GET"
     },
      {
          "args": [{"kind": "<class 'str'>", "name": "name",

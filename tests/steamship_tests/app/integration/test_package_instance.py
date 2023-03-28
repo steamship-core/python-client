@@ -4,6 +4,7 @@ import re
 
 import pytest
 import requests
+from assets.packages.demo_package import TestPackage
 from requests import ConnectTimeout
 from steamship_tests import PACKAGES_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_package
@@ -251,3 +252,9 @@ def test_package_invoke_timeout():
                 _ = instance.invoke("greet", verb=Verb.GET, timeout_s=0.001)
             with pytest.raises(ConnectTimeout):
                 _ = instance.invoke("greet", verb=Verb.POST, timeout_s=0.001)
+
+
+def test_package_spec_sdk_version():
+    test_package = TestPackage()
+    spec = test_package.__steamship_dir__()
+    assert spec["sdkVersion"] is not None

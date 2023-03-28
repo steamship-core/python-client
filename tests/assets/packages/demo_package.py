@@ -73,6 +73,14 @@ class TestPackage(PackageService):
     def greet2(self, name: str = "Person") -> InvocableResponse[str]:
         return InvocableResponse(string=f"Hello, {name}!")
 
+    @post("public_post_greet", public=True)
+    def public_post_greet(self, name: str = "Person") -> InvocableResponse[str]:
+        return InvocableResponse(string=f"Hello, {name}!")
+
+    @get("public_get_greet", public=True)
+    def public_get_greet(self, name: str = "Person") -> InvocableResponse[str]:
+        return InvocableResponse(string=f"Hello, {name}!")
+
     @post("future_greet")
     def future_greet(self, name: str = "Person") -> InvocableResponse[Task]:
         task_1 = self.invoke_later("greet", arguments={"name": name})

@@ -3,6 +3,7 @@ import inspect
 from enum import Enum
 from typing import Dict, List, Optional, Union, get_args, get_origin
 
+import steamship
 from steamship import SteamshipError
 from steamship.base.configuration import CamelModel
 from steamship.utils.url import Verb
@@ -129,6 +130,9 @@ class PackageSpec(CamelModel):
 
     # The docstring of the package
     doc: Optional[str] = None
+
+    # The SDK version this package is deployed with
+    sdk_version: str = steamship.__version__
 
     # The list of methods the package exposes remotely
     methods: Optional[List[MethodSpec]] = None
