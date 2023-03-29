@@ -73,6 +73,35 @@ def test_reload_and_delete_index():
     index3.delete()
 
 
+def test_reset_index():
+    steamship = get_steamship_client()
+    with random_index(steamship, _TEST_EMBEDDER) as index:
+        item1 = Tag(text="Pizza", name="pizza", kind="food", value={"nums": [1, 2, 3]})
+        item2 = Tag(
+            text="Rocket Ship",
+            name="workspace",
+            kind="vehicle",
+            value={"name": "Foo"},
+        )
+
+        index.insert([item1, item2])
+
+        res1 = index.search(item1.text, k=100)
+        res1.wait()
+        items_1 = [tag.tag.text for tag in res1.output.items]
+        assert len(items_1) == 2
+        assert item1.text in items_1
+        assert item2.text in items_1
+        index.reset()
+        index.insert([item2])
+        res_2 = index.search(item2.text, k=100)
+        res_2.wait()
+        items_2 = [tag.tag.text for tag in res_2.output.items]
+        assert len(items_2) == 1
+        assert item1.text not in items_2
+        assert item2.text in items_2
+
+
 def _list_equal(actual, expected):
     assert len(actual) == len(expected)
     assert all([a == b for a, b in zip(actual, expected)])
@@ -195,7 +224,6 @@ def test_oversize_insert_fails():
     steamship = get_steamship_client()
     long_long_string = "x" * 9999
     with random_index(steamship, _TEST_EMBEDDER) as index_plugin_instance:
-
         with pytest.raises(SteamshipError):
             index_plugin_instance.insert(tags=Tag(text=long_long_string))
 
@@ -212,7 +240,6 @@ def test_oversize_insert_override():
     steamship = get_steamship_client()
     long_long_string = "x" * 9999
     with random_index(steamship, _TEST_EMBEDDER) as index_plugin_instance:
-
         index_plugin_instance.insert(tags=Tag(text=long_long_string), allow_long_records=True)
 
         index = index_plugin_instance.index
