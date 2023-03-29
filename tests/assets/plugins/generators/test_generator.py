@@ -5,6 +5,7 @@ from steamship import Block
 from steamship.invocable import InvocableResponse
 from steamship.plugin.generator import Generator
 from steamship.plugin.inputs.raw_block_and_tag_plugin_input import RawBlockAndTagPluginInput
+from steamship.plugin.outputs.plugin_output import UsageReport
 from steamship.plugin.outputs.raw_block_and_tag_plugin_output import RawBlockAndTagPluginOutput
 from steamship.plugin.request import PluginRequest
 
@@ -21,4 +22,6 @@ class TestGenerator(Generator):
         if request.data.options is not None:
             result.append(Block(text=json.dumps(request.data.options)))
 
-        return InvocableResponse(data=RawBlockAndTagPluginOutput(blocks=result))
+        return InvocableResponse(
+            data=RawBlockAndTagPluginOutput(blocks=result, usage=[UsageReport.run_tokens(5)])
+        )
