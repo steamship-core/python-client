@@ -4,12 +4,12 @@ from typing import Any, Dict, Optional, Type
 
 from pydantic import BaseModel
 
-from steamship.base.model import CamelModel
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
+from steamship.plugin.outputs.plugin_output import PluginOutput
 
 
-class TrainingParameterPluginOutput(CamelModel):
+class TrainingParameterPluginOutput(PluginOutput):
     machine_type: Optional[str] = None
     training_epochs: int = None
     testing_holdout_percent: float = None
