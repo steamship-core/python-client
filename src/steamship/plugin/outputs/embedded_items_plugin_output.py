@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import List
 
-from steamship.base.model import CamelModel
+from steamship.plugin.outputs.plugin_output import PluginOutput
 
 
-class EmbeddedItemsPluginOutput(CamelModel):
+class EmbeddedItemsPluginOutput(PluginOutput):
     embeddings: List[List[float]]

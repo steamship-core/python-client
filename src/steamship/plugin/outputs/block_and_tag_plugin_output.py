@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from steamship.base.model import CamelModel
 from steamship.data.file import File
+from steamship.plugin.outputs.plugin_output import PluginOutput
 
 
-class BlockAndTagPluginOutput(CamelModel):
+class BlockAndTagPluginOutput(PluginOutput):
     file: File = None
