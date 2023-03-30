@@ -30,6 +30,14 @@ steamship.plugin.file\_importer module
    :undoc-members:
    :show-inheritance:
 
+steamship.plugin.generator module
+---------------------------------
+
+.. automodule:: steamship.plugin.generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.plugin.request module
 -------------------------------
 
