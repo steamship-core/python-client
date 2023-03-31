@@ -6,11 +6,11 @@ from typing import Any, Optional, Type, Union
 from pydantic import BaseModel
 
 from steamship.base import MimeTypes
-from steamship.base.model import CamelModel
+from steamship.plugin.outputs.plugin_output import PluginOutput
 from steamship.utils.binary_utils import flexi_create
 
 
-class RawDataPluginOutput(CamelModel):
+class RawDataPluginOutput(PluginOutput):
     """Represents mime-typed raw data (or a URL pointing to raw data) that can be returned to the engine.
 
     As a few examples, you can return:

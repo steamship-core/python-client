@@ -187,7 +187,7 @@ class Steamship(Client):
             if config is None:
                 instance_handle = package_handle
             else:
-                instance_handle = f"{package_handle}-{hash_dict(config)}"
+                instance_handle = f"{package_handle}-{hash_dict({**config, 'version': version})}"
 
         result = PackageInstance.create(
             self,
@@ -295,7 +295,7 @@ class Steamship(Client):
             if config is None:
                 instance_handle = plugin_handle
             else:
-                instance_handle = f"{plugin_handle}-{hash_dict(config)}"
+                instance_handle = f"{plugin_handle}-{hash_dict({**config, 'version': version})}"
 
         if plugin_handle in Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES:
             result = Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES[plugin_handle].create(

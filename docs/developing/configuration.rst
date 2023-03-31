@@ -7,42 +7,7 @@ Examples might include:
 - An API key to invoke a third-party service
 - A parameter setting, such as a threshold or output class
 
-Your package or plugin's :ref:`Steamship Manifest<Steamship Manifest Files>` file contains a property
-called ``configTemplate`` which enables you to define and strongly type this configuration.
-
-.. _configTemplate Schema:
-
-Declaring your configuration template
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The ``configTemplate`` property in your ``steamship.json`` file defines a schema
-for your package or plugin's configuration.
-This configuration is provided upon each new instance creation, and it is
-frozen and saved with the instance for reuse.
-
-The value of the ``configTemplate`` block takes the following form:
-
-.. code-block:: json
-
-   {
-     "configTemplate": {
-       "param_name": {
-         "type": "boolean",
-         "description": "Whether something should be enabled..",
-         "default": false
-       },
-       "param_name_2": {
-         "type": "string",
-         "description": "Some string parameter.",
-       }
-
-     }
-   }
-
-In the above code, you can see that the parameter name is the key of the
-object, and details about that parameter are in the associated body.
-Those details are:
-
+A configuration parameter has:
 -  ``type`` - Either ``boolean``, ``string``, or ``number``.
 -  ``description`` - A short description of the parameter.
 -  ``default`` - A default value if the user does not provide one.
@@ -50,38 +15,47 @@ Those details are:
 If a parameter does not have a default value, and a Steamship user tries
 to create a new instance without specifying it, that instance creation
 will fail. Similarly, provided values with incorrect types will be rejected. This
-means that your package or plugin is guaranteed to receive a config that structurally
-matches your ``configTemplate``.
+means that your package or plugin is guaranteed to receive a config that structurally matches.
 
-Defining and using configuration in your code
+.. note::
+    There is currently no such thing as an optional configuration parameter. All parameters that do
+    not have a default value must have a value provided by the user at Package instantiation.
+
+
+.. _Accepting Configuration:
+
+Defining and Accepting configuration in your code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-After defining your ``configTemplate``, you must create a matching object in your package or plugin's Python implementation.
-This object should extend the ``steamship.invocable.Config`` class.
+
+To define the configuration for your Package, create a class that inherits from Config:
 
 .. code-block:: python
 
-   from steamship.invocable import Config
+   class MyPackageConfig(Config):
+        my_string_config_param: str = Field("my-default-value",
+                                    description="A param this package needs which is a string.")
+        my_numeric_config_param: float = Field(description="A numeric param this package needs.")
 
-   class MyPluginConfig(Config):
-       """Config object containing required parameters to initialize
-       a MyPlugin object."""
-
-       param_name: bool = False
-       param_name_2: str
-
-In your class, you will also have to return this object from the abstract ``config_cls`` method.
-This enables the package or plugin loader to construct the correct configuration object.
+and then return this class from your package or plugin's ``config_cls`` class method:
 
 .. code-block:: python
 
-   class MyPlugin(Blockifier):
-      def config_cls(self) -> Type[Config]:=
-         return MyPluginConfig
+   class MyPackageClass(PackageService):
+       config: MyPackageConfig
 
-Finally, your package or plugin's base class will always make available a ``self.config`` object whose type
-matches the type returned by ``config_cls``.
+       @classmethod
+       def config_cls(cls) -> Type[Config]:
+            return MyPackageConfig
 
-When users create new instances of your package plugin, the configuration will be type checked against the
-schema provided in ``steamship.json``. When the instance is invoked, the configuration will be
-loaded at runtime into ``self.config``.
+This will guarantee that ``my_string_config_param`` and ``my_numeric_config_param`` are set for all invocations
+of your package or plugin.  Since ``my_strong_config_param`` provides a default value, the user can omit it
+from their configuration and the value ``"my-default-value"`` will be used.  Since ``my_numeric_config_param``
+does not have a default value, a user *must* supply a value to create an instance of your package or plugin.
+
+To use the config values within your code, you can then refer to them from ``self.config``,
+as in ``self.config.my_numeric_config_param``.  They will be automatically populated with the user's
+data by Steamship when invoking your package or plugin.
+
+
+

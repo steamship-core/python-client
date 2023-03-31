@@ -28,6 +28,14 @@ steamship.plugin.inputs.file\_import\_plugin\_input module
    :undoc-members:
    :show-inheritance:
 
+steamship.plugin.inputs.raw\_block\_and\_tag\_plugin\_input module
+------------------------------------------------------------------
+
+.. automodule:: steamship.plugin.inputs.raw_block_and_tag_plugin_input
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.plugin.inputs.raw\_data\_plugin\_input module
 -------------------------------------------------------
 

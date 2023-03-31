@@ -1,4 +1,17 @@
-.. _Creating Workspaces:
+.. _Workspaces:
+
+Workspaces
+==========
+
+Workspaces contain all the data and Package and Plugin instances within Steamship. It is highly recommended
+to create an instance of a ``Package`` in a new ``Workspace`` to avoid data conflicts.
+
+Workspaces can be used in two ways:
+
+1. **As the backing store to Packages.**
+   Each :ref:`Steamship Package<Packages>` instance is bound to a Workspace, giving it an isolated environment to store state and model parameters.
+2. **As a cloud environment for language AI projects.**
+   You can use Workspaces on their own from Jupyter notebooks or your own application code.
 
 Creating Workspaces
 -------------------

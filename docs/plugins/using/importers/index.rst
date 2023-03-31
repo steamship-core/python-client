@@ -16,4 +16,4 @@ You can use File Importers when developing Steamship packages, in your own Pytho
 import data in the cloud.
 
 .. include:: ./using.rst
-.. include:: ./developing.rst
+
