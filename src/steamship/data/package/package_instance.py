@@ -133,14 +133,12 @@ class PackageInstance(CamelModel):
             Delay between status checks. Default: 1s.
         """
         t0 = time.perf_counter()
-        refresh_count = 0
         while (
             time.perf_counter() - t0 < max_timeout_s
             and self.init_status == InvocableInitStatus.INITIALIZING
         ):
             time.sleep(retry_delay_s)
             self.refresh_init_status()
-            refresh_count += 1
 
         # If the task did not complete within the timeout, throw an error
         if self.init_status == InvocableInitStatus.INITIALIZING:
