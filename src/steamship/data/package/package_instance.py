@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import time
 from typing import Any, Dict, Optional, Type
 
 from pydantic import BaseModel, Field
 
+from steamship import SteamshipError
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
+from steamship.data.invocable_init_status import InvocableInitStatus
 from steamship.data.workspace import Workspace
 from steamship.utils.url import Verb
 
@@ -37,6 +40,7 @@ class PackageInstance(CamelModel):
     config: Dict[str, Any] = None
     workspace_id: str = None
     workspace_handle: str = None
+    init_status: Optional[InvocableInitStatus] = None
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
@@ -109,3 +113,35 @@ class PackageInstance(CamelModel):
 
     def full_url_for(self, path: str):
         return f"{self.invocation_url}{path}"
+
+    def refresh_init_status(self):
+        new_self = PackageInstance.get(self.client, handle=self.handle)
+        self.init_status = new_self.init_status
+
+    def wait_for_init(
+        self,
+        max_timeout_s: float = 180,
+        retry_delay_s: float = 1,
+    ):
+        """Polls and blocks until the init has succeeded or failed (or timeout reached).
+
+        Parameters
+        ----------
+        max_timeout_s : int
+            Max timeout in seconds. Default: 180s. After this timeout, an exception will be thrown.
+        retry_delay_s : float
+            Delay between status checks. Default: 1s.
+        """
+        t0 = time.perf_counter()
+        while (
+            time.perf_counter() - t0 < max_timeout_s
+            and self.init_status == InvocableInitStatus.INITIALIZING
+        ):
+            time.sleep(retry_delay_s)
+            self.refresh_init_status()
+
+        # If the task did not complete within the timeout, throw an error
+        if self.init_status == InvocableInitStatus.INITIALIZING:
+            raise SteamshipError(
+                message=f"Package Instance {self.id} did not complete within requested timeout of {max_timeout_s}s. The init is still running on the server. You can retrieve its status via PackageInstance.get() or try waiting again with wait_for_init()."
+            )

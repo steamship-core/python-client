@@ -27,6 +27,7 @@ class InvocationContext(CamelModel):
     invocable_instance_handle: str = None
     invocable_type: str = None
     invocable_owner_id: str = None
+    invocable_url: str = None
 
 
 class InvocableRequest(CamelModel):

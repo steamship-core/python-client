@@ -198,6 +198,14 @@
         }
       ],
       "verb": "POST"
-    }
+    },
+    {
+       "args": [],
+       "config": { },
+       "doc": null,
+       "path": "/__instance_init__",
+       "returns": "<class 'steamship.invocable.invocable_response.InvocableResponse'>",
+       "verb": "POST"
+   }
   ]
 }

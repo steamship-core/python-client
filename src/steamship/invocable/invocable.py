@@ -167,12 +167,27 @@ class Invocable(ABC):
         # GET is the default if using from a browser).
         cls._register_mapping(name="__steamship_dir__", verb=Verb.GET, path="/__dir__")
         cls._register_mapping(name="__steamship_dir__", verb=Verb.POST, path="/__dir__")
+
+        # Connect the __instance_init__ route to the wrapper method; append it to the method list so it's visible to the engine
+        cls._package_spec.methods.append(
+            cls._register_mapping(
+                name="invocable_instance_init", verb=Verb.POST, path="/__instance_init__", config={}
+            )
+        )
         end_time = time.time()
         logging.info(f"Registered package functions in {end_time - start_time} seconds.")
 
     def __steamship_dir__(self) -> dict:
         """Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation."""
         return self._package_spec.dict(by_alias=True)
+
+    def invocable_instance_init(self) -> InvocableResponse:
+        self.instance_init()
+        return InvocableResponse(data=True)
+
+    def instance_init(self):
+        """The instance init method will be called ONCE by the engine when a new instance of a package or plugin has been created. By default, this does nothing."""
+        pass
 
     @classmethod
     def config_cls(cls) -> Type[Config]:
