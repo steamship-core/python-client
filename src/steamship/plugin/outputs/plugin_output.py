@@ -19,6 +19,8 @@ class OperationUnit(str, Enum):
     BYTES = "bytes"
     MS = "ms"  # milliseconds
     TOKENS = "tokens"
+    PROMPT_TOKENS = "promptTokens"
+    SAMPLED_TOKENS = "sampledTokens"
 
 
 class UsageReport(CamelModel):
