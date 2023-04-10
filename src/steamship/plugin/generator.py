@@ -75,8 +75,20 @@ class Generator(PluginService[RawBlockAndTagPluginInput, RawBlockAndTagPluginOut
 
         upload_to_signed_url(signed_url, block.upload_bytes)
 
+        read_signed_url = (
+            self.client.get_workspace()
+            .create_signed_url(
+                SignedUrl.Request(
+                    bucket=SignedUrl.Bucket.PLUGIN_DATA,
+                    filepath=filepath,
+                    operation=SignedUrl.Operation.READ,
+                )
+            )
+            .signed_url
+        )
+
         return Block(
-            url=signed_url,
+            url=read_signed_url,
             upload_type=BlockUploadType.URL,
             mime_type=block.mime_type,
             tags=block.tags,
