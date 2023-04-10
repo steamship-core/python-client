@@ -1,3 +1,4 @@
+from assets.plugins.generators.test_generator_returns_bytes import TEST_BYTES_STRING
 from steamship_tests import PLUGINS_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
@@ -127,3 +128,32 @@ def test_e2e_generate_from_image():
         generate_task.wait()
         result = generate_task.output.blocks[0].text
         assert result == "Found 1 image blocks and fetched data from 1"
+
+
+def test_e2e_generate_returning_bytes():
+    client = get_steamship_client()
+    parser_path = PLUGINS_PATH / "generators" / "test_generator_returns_bytes.py"
+
+    with deploy_plugin(client, parser_path, "generator") as (
+        _,
+        _,
+        generator,
+    ):
+
+        # Test ephemerally
+        generate_task = generator.generate(text="")
+        generate_task.wait()
+
+        ephemeral_block = generate_task.output.blocks[0]
+        assert ephemeral_block.content_url is not None
+        ephemeral_block_content = ephemeral_block.raw()
+        assert ephemeral_block_content == TEST_BYTES_STRING.encode("utf-8")
+
+        # test persisted
+        generate_task_persist = generator.generate(text="", append_output_to_file=True)
+        generate_task_persist.wait()
+        persisted_block = generate_task_persist.output.blocks[0]
+        assert persisted_block.content_url is None
+        assert persisted_block.file_id is not None
+        persisted_block_content = persisted_block.raw()
+        assert persisted_block_content == TEST_BYTES_STRING.encode("utf-8")
