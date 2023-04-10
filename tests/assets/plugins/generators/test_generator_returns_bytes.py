@@ -16,7 +16,9 @@ class TestGeneratorReturnsBytes(Generator):
     ) -> InvocableResponse[RawBlockAndTagPluginOutput]:
 
         _bytes = TEST_BYTES_STRING.encode("utf-8")
-        result = [Block(content=_bytes, mime_type=MimeTypes.MP3, upload_type=BlockUploadType.FILE)]
+        result = [
+            Block(upload_bytes=_bytes, mime_type=MimeTypes.MP3, upload_type=BlockUploadType.FILE)
+        ]
 
         return InvocableResponse(
             data=RawBlockAndTagPluginOutput(blocks=result, usage=[UsageReport.run_tokens(5)])

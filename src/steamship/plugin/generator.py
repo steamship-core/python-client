@@ -54,7 +54,7 @@ class Generator(PluginService[RawBlockAndTagPluginInput, RawBlockAndTagPluginOut
     def upload_block_content_to_signed_url(self, block: Block) -> Block:
         """Recreate the block (create request) as a URL request, rather than direct content, since we can't do a multipart
         file upload from here."""
-        if block.content is None:
+        if block.upload_bytes is None:
             raise SteamshipError(
                 "There was an error with the plugin. When returning upload type FILE, the content may not be None."
             )
@@ -73,7 +73,7 @@ class Generator(PluginService[RawBlockAndTagPluginInput, RawBlockAndTagPluginOut
 
         logging.info(f"Got signed url for uploading block content: {signed_url}")
 
-        upload_to_signed_url(signed_url, block.content)
+        upload_to_signed_url(signed_url, block.upload_bytes)
 
         return Block(
             url=signed_url,
