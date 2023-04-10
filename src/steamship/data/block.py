@@ -47,6 +47,9 @@ class Block(CamelModel):
     upload_type: Optional[
         BlockUploadType
     ] = None  # for returning Blocks as the result of a generate request
+    content: Optional[
+        bytes
+    ] = None  # ONLY for returning Blocks as the result of a generate request. Will not be set when receiving blocks from the server. See raw()
 
     class ListRequest(Request):
         file_id: str = None
