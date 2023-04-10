@@ -2,6 +2,7 @@ import pytest
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import SteamshipError, Workspace
+from steamship.base.request import SortOrder
 
 
 def test_default_workspace():
@@ -98,7 +99,7 @@ def test_list_workspace():
     client = get_steamship_client()
     default = Workspace.get(client=client)
 
-    initial_workspace_count = len(Workspace.list(client).workspaces)
+    initial_workspace_count = len(Workspace.list(client, sort_order=SortOrder.ASC).workspaces)
 
     workspace1 = Workspace.create(client=client)
     workspace2 = Workspace.create(client=client)
@@ -110,6 +111,44 @@ def test_list_workspace():
     assert workspace1 in workspaces
     assert workspace2 in workspaces
     assert workspace3 in workspaces
+
+    workspace1.delete()
+    workspace2.delete()
+    workspace3.delete()
+
+
+def test_list_workspace_paging():
+    client = get_steamship_client()
+    default = Workspace.get(client=client)
+
+    initial_workspace_count = len(Workspace.list(client, sort_order=SortOrder.ASC).workspaces)
+
+    workspace1 = Workspace.create(client=client)
+    workspace2 = Workspace.create(client=client)
+    workspace3 = Workspace.create(client=client)
+
+    resp = Workspace.list(client, page_size=2)
+    workspaces = resp.workspaces
+    assert len(workspaces) == 2
+    assert resp.next_page_token is not None
+    assert default not in workspaces
+    assert workspace1 not in workspaces
+    assert workspace2 in workspaces
+    assert workspace3 in workspaces
+
+    resp = Workspace.list(client, page_size=1, page_token=resp.next_page_token)
+    assert len(resp.workspaces) == 1
+    if initial_workspace_count > 0:
+        assert resp.next_page_token is not None
+    else:
+        assert resp.next_page_token is None
+    assert workspace1 in resp.workspaces
+
+    with pytest.raises(SteamshipError):
+        Workspace.list(client, page_size=-1)
+
+    resp = Workspace.list(client, page_token="not-found-foo")  # noqa: S106
+    assert len(resp.workspaces) == initial_workspace_count + 3
 
     workspace1.delete()
     workspace2.delete()

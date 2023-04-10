@@ -7,8 +7,10 @@ from pydantic import BaseModel, Field
 
 from steamship.base.error import SteamshipError
 from steamship.base.model import CamelModel, GenericCamelModel
-from steamship.base.request import DeleteRequest, IdentifierRequest, Request
+from steamship.base.request import DeleteRequest, IdentifierRequest, ListRequest, Request, SortOrder
 from steamship.utils.metadata import metadata_to_str, str_to_metadata
+
+from .response import ListResponse
 
 T = TypeVar("T")
 
@@ -21,7 +23,7 @@ class CreateTaskCommentRequest(Request):
     metadata: str = None
 
 
-class ListTaskCommentRequest(Request):
+class ListTaskCommentRequest(ListRequest):
     task_id: str = None
     external_id: str = None
     external_type: str = None
@@ -78,12 +80,18 @@ class TaskComment(CamelModel):
         external_id: str = None,
         external_type: str = None,
         external_group: str = None,
+        page_size: Optional[int] = None,
+        page_token: Optional[str] = None,
+        sort_order: Optional[SortOrder] = SortOrder.DESC,
     ) -> TaskCommentList:
         req = ListTaskCommentRequest(
             taskId=task_id,
             external_id=external_id,
             external_type=external_type,
             externalGroup=external_group,
+            page_size=page_size,
+            page_token=page_token,
+            sort_order=sort_order,
         )
         return client.post(
             "task/comment/list",
@@ -100,7 +108,7 @@ class TaskComment(CamelModel):
         )
 
 
-class TaskCommentList(CamelModel):
+class TaskCommentList(ListResponse):
     comments: List[TaskComment]
 
 

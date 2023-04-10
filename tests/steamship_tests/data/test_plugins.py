@@ -147,3 +147,28 @@ def test_plugin_instance_handle_refs():
     use_instance = steamship.use_plugin("test-tagger", handle)
     assert use_instance.plugin_handle == "test-tagger"
     assert use_instance.plugin_version_handle == "1.0"
+
+
+def test_plugin_list_paging():
+    steamship = get_steamship_client()
+
+    resp = Plugin.list(steamship)
+    orig_count = len(resp.plugins)
+
+    Plugin.create(
+        client=steamship,
+        description="This is just for testing list",
+        type_=PluginType.tagger,
+        transport=PluginAdapterType.steamship_docker,
+        is_public=False,
+    )
+    resp = Plugin.list(steamship)
+    assert len(resp.plugins) == orig_count + 1
+
+    resp = Plugin.list(steamship, page_size=1)
+    assert len(resp.plugins) == 1
+    if orig_count > 0:
+        assert resp.next_page_token is not None
+    else:
+        assert resp.next_page_token is None
+    assert resp.plugins[0].description == "This is just for testing list"
