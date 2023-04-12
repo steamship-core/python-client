@@ -2,6 +2,7 @@ import pytest
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import SteamshipError, Workspace
+from steamship.base.request import SortOrder
 
 
 def test_default_workspace():
@@ -96,20 +97,57 @@ def test_create_use_delete_workspace():
 
 def test_list_workspace():
     client = get_steamship_client()
-    default = Workspace.get(client=client)
 
-    initial_workspace_count = len(Workspace.list(client).workspaces)
+    initial_workspace_ids = [
+        w.id for w in Workspace.list(client, sort_order=SortOrder.ASC).workspaces
+    ]
 
     workspace1 = Workspace.create(client=client)
     workspace2 = Workspace.create(client=client)
     workspace3 = Workspace.create(client=client)
 
-    workspaces = Workspace.list(client).workspaces
-    assert len(workspaces) == initial_workspace_count + 3
-    assert default in workspaces
-    assert workspace1 in workspaces
-    assert workspace2 in workspaces
-    assert workspace3 in workspaces
+    latest_workspace_ids = [w.id for w in Workspace.list(client).workspaces]
+    assert workspace1.id not in initial_workspace_ids
+    assert workspace2.id not in initial_workspace_ids
+    assert workspace3.id not in initial_workspace_ids
+    assert workspace1.id in latest_workspace_ids
+    assert workspace2.id in latest_workspace_ids
+    assert workspace3.id in latest_workspace_ids
+
+    workspace1.delete()
+    workspace2.delete()
+    workspace3.delete()
+
+
+def test_list_workspace_paging():
+    client = get_steamship_client()
+
+    orig_first_page_of_workspace_ids = [w.id for w in Workspace.list(client).workspaces]
+
+    workspace1 = Workspace.create(client=client)
+    workspace2 = Workspace.create(client=client)
+    workspace3 = Workspace.create(client=client)
+
+    assert workspace1.id not in orig_first_page_of_workspace_ids
+    assert workspace2.id not in orig_first_page_of_workspace_ids
+    assert workspace3.id not in orig_first_page_of_workspace_ids
+
+    resp = Workspace.list(client, page_size=2)
+    assert resp.next_page_token is not None
+
+    updated_page_of_workspace_ids = [w.id for w in resp.workspaces]
+    assert len(updated_page_of_workspace_ids) == 2
+    assert workspace1.id not in updated_page_of_workspace_ids
+    assert workspace2.id in updated_page_of_workspace_ids
+    assert workspace3.id in updated_page_of_workspace_ids
+
+    resp = Workspace.list(client, page_size=1, page_token=resp.next_page_token)
+    final_page_of_workspace_ids = [w.id for w in resp.workspaces]
+    assert len(final_page_of_workspace_ids) == 1
+    assert workspace1.id in final_page_of_workspace_ids
+
+    with pytest.raises(SteamshipError):
+        Workspace.list(client, page_size=-1)
 
     workspace1.delete()
     workspace2.delete()

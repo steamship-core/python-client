@@ -249,6 +249,33 @@ def test_oversize_insert_override():
         assert len(index.list_items().items) == 4
 
 
+def test_list_items_paging():
+    steamship = get_steamship_client()
+    words = "foo bar" * 9
+    with random_index(steamship, _TEST_EMBEDDER) as index_plugin_instance:
+        index_plugin_instance.insert(tags=Tag(text=words))
+
+        index = index_plugin_instance.index
+        index.insert(value=words)
+        index.insert_many(items=[words])
+        index.insert_many(items=[EmbeddedItem(value=words)])
+        assert len(index.list_items().items) == 4
+
+        resp = index.list_items(page_size=3)
+        assert len(resp.items) == 3
+        assert resp.next_page_token is not None
+
+        resp = index.list_items(page_size=2, page_token=resp.next_page_token)
+        assert len(resp.items) == 1
+        assert resp.next_page_token is None
+
+        with pytest.raises(SteamshipError):
+            index.list_items(page_size=-1)
+
+        resp = index.list_items(page_token="not-found-foo")  # noqa: S106
+        assert len(resp.items) == 4
+
+
 def test_embedding_failures():
     steamship = get_steamship_client()
 

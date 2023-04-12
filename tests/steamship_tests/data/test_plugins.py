@@ -12,8 +12,8 @@ from steamship.data.user import User
 def test_plugin_create():
     steamship = get_steamship_client()
 
-    my_plugins = Plugin.list(steamship)
-    orig_count = len(my_plugins.plugins)
+    resp = Plugin.list(steamship)
+    prior_plugin_ids = [plugin.id for plugin in resp.plugins]
 
     plugin_args = {
         "client": steamship,
@@ -29,9 +29,6 @@ def test_plugin_create():
         with pytest.raises(TypeError):
             Plugin.create(**plugin_args)
 
-    my_plugins = Plugin.list(steamship)
-    assert len(my_plugins.plugins) == orig_count
-
     plugin = Plugin.create(
         client=steamship,
         description="This is just for test",
@@ -39,8 +36,17 @@ def test_plugin_create():
         transport=PluginAdapterType.steamship_docker,
         is_public=False,
     )
-    my_plugins = Plugin.list(steamship)
-    assert len(my_plugins.plugins) == orig_count + 1
+
+    assert plugin.id not in prior_plugin_ids
+
+    resp = Plugin.list(steamship)
+    assert plugin.id in [
+        plugin.id for plugin in resp.plugins
+    ]  # newly-created plugin should be top of list
+    assert plugin.description in [plugin.description for plugin in resp.plugins]
+
+    user_id = User.current(steamship).id
+    assert plugin.user_id == user_id
 
     # No fetch_if_exists doesn't work
     with pytest.raises(SteamshipError):
@@ -52,17 +58,6 @@ def test_plugin_create():
             transport=PluginAdapterType.steamship_docker,
             is_public=False,
         )
-
-    my_plugins = Plugin.list(steamship)
-    assert len(my_plugins.plugins) == orig_count + 1
-
-    assert plugin.id in [plugin.id for plugin in my_plugins.plugins]
-    assert plugin.description in [plugin.description for plugin in my_plugins.plugins]
-
-    user_id = User.current(steamship).id
-    assert plugin.user_id == user_id
-
-    # assert(my_plugins.plugins[0].description != plugin.description)
 
 
 def test_plugin_public():
