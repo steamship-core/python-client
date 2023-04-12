@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from steamship.base import Configuration
 from steamship.base.model import CamelModel
@@ -28,6 +28,8 @@ class InvocationContext(CamelModel):
     invocable_type: str = None
     invocable_owner_id: str = None
     invocable_url: str = None
+    invocable_owner_handle: Optional[str] = None
+    workspace_handle: Optional[str] = None
 
 
 class InvocableRequest(CamelModel):
