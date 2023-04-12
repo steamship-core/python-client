@@ -194,6 +194,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
 
         # Create the embedder
         embedder = client.use_plugin(**embedder_invocation.dict())
+        embedder.wait_for_init()
 
         # Create the index
         index = EmbeddingIndex.create(
