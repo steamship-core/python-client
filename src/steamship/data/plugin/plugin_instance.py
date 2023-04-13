@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
@@ -121,6 +121,7 @@ class PluginInstance(CamelModel):
         input_file_id: str = None,
         input_file_start_block_index: int = None,
         input_file_end_block_index: Optional[int] = None,
+        input_file_block_index_list: Optional[List[int]] = None,
         text: Optional[str] = None,
         # bytes: Optional[bytes] = None, [Not yet implemented]
         block_query: Optional[str] = None,
@@ -129,11 +130,13 @@ class PluginInstance(CamelModel):
         output_file_id: Optional[str] = None,
         options: Optional[dict] = None,
     ):
+        """See GenerateRequest for description of parameter options"""
         req = GenerateRequest(
             plugin_instance=self.handle,
             input_file_id=input_file_id,
             input_file_start_block_index=input_file_start_block_index,
             input_file_end_block_index=input_file_end_block_index,
+            input_file_block_index_list=input_file_block_index_list,
             text=text,
             # bytes=bytes,
             block_query=block_query,

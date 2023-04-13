@@ -64,6 +64,22 @@ def test_e2e_generator_with_existing_file():
         assert len(test_file.blocks) == 3
         assert test_file.blocks[2].text == "Yo! Banana boy!"
 
+        # do an index-list test
+        test_file = File.create(
+            client,
+            blocks=[
+                Block(text="Yo! Banana boy!"),
+                Block(text="A man, a plan, a canal, Panama!"),
+                Block(text="Tacocat!"),
+            ],
+        )
+        res = instance.generate(input_file_id=test_file.id, input_file_block_index_list=[0, 2])
+        res.wait()
+        assert res.output is not None
+        assert len(res.output.blocks) == 2
+        assert res.output.blocks[0].text == "!yob ananaB !oY"
+        assert res.output.blocks[1].text == "!tacocaT"
+
 
 def test_e2e_generator_runtime_options():
     client = get_steamship_client()

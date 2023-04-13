@@ -45,8 +45,13 @@ There are several ways to specify input to a ``Generator``:
    generator_task = generator.generate(input_file_id=my_file.id)
 
    # Pass some of the Blocks in the File
-   # in this example the second and third blocks
+   # in this example the second and third blocks (zero-indexed)
    generator_task = generator.generate(input_file_id=my_file.id, input_file_start_block_index=1, input_file_end_block_index=3)
+
+   # Pass in specific blocks from the file
+   # in this example the third and fifth (zero-indexed)
+   generator_task = generator.generate(input_file_id=my_file.id, input_file_block_index_list=[2, 4])
+
 
 **A query for existing Blocks** You can pass the generator a :ref:`query<Queries>` that will produce ``Blocks`` for the ``Generator``.
 
