@@ -5,6 +5,7 @@ import pathlib
 import time
 from abc import ABC
 from collections import defaultdict
+from copy import deepcopy
 from functools import wraps
 from http import HTTPStatus
 from typing import Any, Dict, Optional, Type, Union
@@ -143,8 +144,17 @@ class Invocable(ABC):
         super().__init_subclass__(**kwargs)
 
         start_time = time.time()
+
+        # The subclass always overrides whatever the superclass set here.
         cls._package_spec = PackageSpec(name=cls.__name__, doc=cls.__doc__, methods=[])
-        cls._method_mappings = defaultdict(dict)
+
+        # The subclass takes care to extend what the superclass may have set here by copying it.
+        if cls._method_mappings:
+            # Make a deep copy so that subclasses don't accidentally modify superclass & sibling instances
+            cls._method_mappings = deepcopy(cls._method_mappings)
+        else:
+            cls._method_mappings = defaultdict(dict)
+
         base_fn_list = [
             may_be_decorated
             for base_cls in cls.__bases__
@@ -218,6 +228,8 @@ class Invocable(ABC):
         method_spec = MethodSpec(cls, name, path=path, verb=verb, config=config)
         # It's important to use method_spec.path below since that's the CLEANED path.
         cls._method_mappings[verb][method_spec.path] = name
+        if name == "baz3":
+            print("h")
         logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
         return method_spec
 
