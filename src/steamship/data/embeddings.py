@@ -9,8 +9,8 @@ from steamship import SteamshipError
 from steamship.base import Task
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import DeleteRequest, Request
-from steamship.base.response import Response
+from steamship.base.request import DeleteRequest, ListRequest, Request, SortOrder
+from steamship.base.response import ListResponse, Response
 from steamship.data.search import Hit
 from steamship.utils.metadata import metadata_to_str
 
@@ -113,14 +113,14 @@ class IndexSearchRequest(Request):
     include_metadata: bool = False
 
 
-class ListItemsRequest(Request):
+class ListItemsRequest(ListRequest):
     id: str = None
     file_id: str = None
     block_id: str = None
     span_id: str = None
 
 
-class ListItemsResponse(Response):
+class ListItemsResponse(ListResponse):
     items: List[EmbeddedItem]
 
 
@@ -259,8 +259,19 @@ class EmbeddingIndex(CamelModel):
         file_id: str = None,
         block_id: str = None,
         span_id: str = None,
+        page_size: Optional[int] = None,
+        page_token: Optional[str] = None,
+        sort_order: Optional[SortOrder] = SortOrder.DESC,
     ) -> ListItemsResponse:
-        req = ListItemsRequest(id=self.id, file_id=file_id, block_id=block_id, spanId=span_id)
+        req = ListItemsRequest(
+            id=self.id,
+            file_id=file_id,
+            block_id=block_id,
+            spanId=span_id,
+            page_size=page_size,
+            page_token=page_token,
+            sort_order=sort_order,
+        )
         return self.client.post(
             "embedding-index/item/list",
             req,

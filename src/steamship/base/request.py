@@ -1,3 +1,6 @@
+from enum import Enum
+from typing import Optional
+
 from steamship.base.model import CamelModel
 
 
@@ -25,8 +28,15 @@ class IdentifierRequest(Request):
     handle: str = None
 
 
+class SortOrder(str, Enum):
+    ASC = "ASC"
+    DESC = "DESC"
+
+
 class ListRequest(Request):
-    pass
+    page_size: Optional[int]
+    page_token: Optional[str]
+    sort_order: Optional[SortOrder] = SortOrder.DESC
 
 
 class DeleteRequest(Request):

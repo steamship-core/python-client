@@ -50,6 +50,7 @@ def test_configurable_instance_invoke():
         instance2 = PackageInstance.create(
             client, package_id=package.id, package_version_id=version.id, config=instance_config2
         )
+        instance2.wait_for_init()
 
         res2 = instance2.invoke("greet")
         assert res2 == f"{greeting2}, Person"

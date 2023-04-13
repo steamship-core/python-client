@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from steamship.base.model import CamelModel
+from steamship.plugin.outputs.plugin_output import PluginOutput
 
 
-class TrainPluginOutput(CamelModel):
+class TrainPluginOutput(PluginOutput):
     """
     This is the object produced by a completed trainable operation, stored as the `output` field of a `train` task.
     """

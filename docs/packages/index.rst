@@ -7,7 +7,7 @@ Packages
 
 Think of them as regular software libraries with an upgrade:
 
-- **Packages bundle a full-lifecycle Language AI stack.**
+- **Packages bundle a full-lifecycle AI stack.**
   Everything necessary to go from demo to production in minutes: code, models, data, and infrastructure.
 
 - **Packages auto-manage their own infrastructure.**

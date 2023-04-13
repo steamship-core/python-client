@@ -9,8 +9,8 @@ from pydantic import BaseModel, Field
 from steamship import MimeTypes, SteamshipError
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import GetRequest, IdentifierRequest, Request
-from steamship.base.response import Response
+from steamship.base.request import GetRequest, IdentifierRequest, ListRequest, Request, SortOrder
+from steamship.base.response import ListResponse, Response
 from steamship.base.tasks import Task
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
@@ -32,11 +32,11 @@ class FileClearResponse(Response):
     id: str
 
 
-class ListFileRequest(Request):
+class ListFileRequest(ListRequest):
     pass
 
 
-class ListFileResponse(Response):
+class ListFileResponse(ListResponse):
     files: List[File]
 
 
@@ -280,10 +280,15 @@ class File(CamelModel):
         return plugin_instance.insert(tags)
 
     @staticmethod
-    def list(client: Client) -> ListFileResponse:
+    def list(
+        client: Client,
+        page_size: Optional[int] = None,
+        page_token: Optional[str] = None,
+        sort_order: Optional[SortOrder] = SortOrder.DESC,
+    ) -> ListFileResponse:
         return client.post(
             "file/list",
-            ListFileRequest(),
+            ListFileRequest(pageSize=page_size, pageToken=page_token, sortOrder=sort_order),
             expect=ListFileResponse,
         )
 

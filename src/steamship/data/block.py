@@ -47,6 +47,9 @@ class Block(CamelModel):
     upload_type: Optional[
         BlockUploadType
     ] = None  # for returning Blocks as the result of a generate request
+    upload_bytes: Optional[
+        bytes
+    ] = None  # ONLY for returning Blocks as the result of a generate request. Will not be set when receiving blocks from the server. See raw()
 
     class ListRequest(Request):
         file_id: str = None
@@ -104,9 +107,7 @@ class Block(CamelModel):
         req = {
             "fileId": file_id,
             "text": text,
-            "tags": [
-                tag.dict(by_alias=True, exclude_unset=True, exclude_none=True) for tag in tags or []
-            ],
+            "tags": [t.dict(by_alias=True) for t in tags] if tags else [],
             "url": url,
             "mimeType": mime_type,
             "uploadType": upload_type,

@@ -8,6 +8,7 @@ from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 
 from steamship import MimeTypes, SteamshipError
+from steamship.base.request import SortOrder
 from steamship.client import Steamship
 from steamship.data import TagKind
 from steamship.data.block import Block
@@ -207,6 +208,51 @@ def test_file_list(client: Steamship):
     assert a in files
     assert b in files
     assert c in files
+
+    a.delete()
+    b.delete()
+    c.delete()
+
+
+def test_file_list_paging(client: Steamship):
+    a = File.create(
+        client=client,
+        tags=[Tag(kind="FileTag", value={"name": "A"})],
+    )
+    b = File.create(
+        client=client,
+        tags=[Tag(kind="FileTag", value={"name": "B"})],
+    )
+    c = File.create(
+        client=client,
+        tags=[Tag(kind="FileTag", value={"name": "C"})],
+    )
+
+    page_size = 1
+    resp = File.list(client=client, page_size=page_size)
+    assert len(resp.files) == page_size
+    assert resp.next_page_token is not None
+    assert c == resp.files[0]  # default is DESC (createdAt)
+
+    resp = File.list(client=client, page_size=page_size, page_token=resp.next_page_token)
+    assert len(resp.files) == page_size
+    assert resp.next_page_token is not None
+    assert b == resp.files[0]
+
+    resp = File.list(client=client, page_size=page_size, page_token=resp.next_page_token)
+    assert len(resp.files) == page_size
+    assert resp.next_page_token is None
+    assert a == resp.files[0]
+
+    files = File.list(client=client, page_size=page_size, sort_order=SortOrder.ASC).files
+    assert len(files) == 1
+    assert files[0] == a
+
+    with pytest.raises(SteamshipError):
+        File.list(client=client, page_size=-1)
+
+    resp = File.list(client=client, page_token="not-found-foo")  # noqa: S106
+    assert len(resp.files) == 3
 
     a.delete()
     b.delete()

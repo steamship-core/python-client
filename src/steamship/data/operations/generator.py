@@ -21,12 +21,13 @@ class GenerateRequest(Request):
     # Must specify plugin instance to use
     plugin_instance: str = None
 
-    # May specify blocks by their file_id. If so, may specify start and end index
+    # May specify blocks by their file_id. If so, may specify either (start and/or end index) or list of block indices.
     input_file_id: str = None
     input_file_start_block_index: int = None
     input_file_end_block_index: Optional[
         int
     ] = None  # EXCLUSIVE end index, like most programming languages
+    input_file_block_index_list: Optional[List[int]]
 
     # May specify raw text
     text: Optional[str] = None
