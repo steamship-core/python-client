@@ -7,6 +7,6 @@ In general, try to avoid introducing new dependencies to requirements.txt, but o
 to try out new metaphors and helper classes!
 """
 
-from .chat import ChatFile
+from .chatfile import ChatFile
 
 __all__ = ["ChatFile"]
