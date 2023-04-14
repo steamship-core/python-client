@@ -4,7 +4,7 @@ from steamship import DocTag
 from steamship.client import Steamship
 from steamship.data import TagKind
 from steamship.data.tags.tag_constants import RoleTag
-from steamship.experimental.chat import ChatFile
+from steamship.experimental.chatfile import ChatFile
 
 
 @pytest.mark.usefixtures("client")
