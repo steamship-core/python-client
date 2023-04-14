@@ -17,19 +17,19 @@ if TYPE_CHECKING:
 
 
 class ListChatResponse:  # not a pydantic model
-    chats: List[Chat]
+    chats: List[ChatFile]
 
     @staticmethod
     def from_list_file_response(list_file_response: ListFileResponse) -> ListChatResponse:
         result = ListChatResponse()
-        result.chats = [Chat(file) for file in list_file_response.files]
+        result.chats = [ChatFile(file) for file in list_file_response.files]
         return result
 
 
 CHAT_GENERATOR_INSTANCE_HANDLE = "chat-generator-instance-handle"
 
 
-class Chat:
+class ChatFile:
     """A Chat is a wrapper of a File ideal for ongoing interactions between a user and a virtual assistant."""
 
     generator_instance_handle: str
@@ -54,13 +54,13 @@ class Chat:
         client: Client,
         _id: str = None,
         handle: str = None,
-    ) -> Chat:
+    ) -> ChatFile:
         file = client.post(
             "file/get",
             IdentifierRequest(id=_id, handle=handle),
-            expect=Chat,
+            expect=ChatFile,
         )
-        return Chat(file)
+        return ChatFile(file)
 
     @staticmethod
     def create(
@@ -72,7 +72,7 @@ class Chat:
         blocks: List[Block] = None,
         tags: List[Tag] = None,
         initial_system_prompt: Optional[str] = None,
-    ) -> Chat:
+    ) -> ChatFile:
 
         tags = tags or []
         tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))
@@ -94,7 +94,7 @@ class Chat:
             blocks=blocks,
             tags=tags,
         )
-        return Chat(file)
+        return ChatFile(file)
 
     @staticmethod
     def list(client: Client) -> ListChatResponse:
@@ -170,7 +170,7 @@ class Chat:
 
 
 class ChatQueryResponse:  # Not a pydantic type
-    chats: List[Chat]
+    chats: List[ChatFile]
 
 
 # ChatQueryResponse.update_forward_refs()
