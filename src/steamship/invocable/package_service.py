@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from steamship import SteamshipError, Task
 from steamship.invocable import Invocable
@@ -31,6 +31,7 @@ class PackageService(Invocable):
         verb: Verb = Verb.POST,
         wait_on_tasks: List[Task] = None,
         arguments: Dict[str, Any] = None,
+        delay_ms: Optional[int] = None,
     ) -> Task[Any]:
         """Schedule a method for future invocation.
 
@@ -43,7 +44,9 @@ class PackageService(Invocable):
         wait_on_tasks: List[Task]
                 A list of Task objects (or task IDs) that should be waited upon before invocation.
         arguments: Dict[str, Any]
-                The keyword arguments of the invoked   method
+                The keyword arguments of the invoked method
+        delay_ms: Optional[int]
+                A delay, in milliseconds, before the invocation should execute.
 
         Returns
         -------
@@ -80,5 +83,6 @@ class PackageService(Invocable):
             expect=Task[Task],  # This operation should return a task
             as_background_task=True,  # This operation should always be asynchronous
             wait_on_tasks=wait_on_tasks,  # This operation might await other tasks first
+            task_delay_ms=delay_ms,  # This operation might have a required delay
         )
         return resp
