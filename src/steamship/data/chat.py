@@ -30,7 +30,7 @@ CHAT_GENERATOR_INSTANCE_HANDLE = "chat-generator-instance-handle"
 
 
 class Chat:
-    """A Chat is a subclass of a File ideal for ongoing interactions between a user and a virtual assistant."""
+    """A Chat is a wrapper of a File ideal for ongoing interactions between a user and a virtual assistant."""
 
     generator_instance_handle: str
     file: File
