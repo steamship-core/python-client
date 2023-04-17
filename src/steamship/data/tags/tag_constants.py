@@ -68,6 +68,7 @@ class DocTag(str, Enum):
     MAIN = "main"
     CHAPTER = "chapter"
     TEXT = "text"
+    CHAT = "chat"
 
     @staticmethod
     def from_html_tag(tagname: Optional[str]) -> Optional["DocTag"]:  # noqa: C901
