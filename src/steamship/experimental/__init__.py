@@ -7,8 +7,6 @@ In general, try to avoid introducing new dependencies to requirements.txt, but o
 to try out new metaphors and helper classes!
 """
 
-from .easy import scrape
+from .easy import blockify, scrape
 
-__all__ = [
-    "scrape",
-]
+__all__ = ["scrape", "blockify"]
