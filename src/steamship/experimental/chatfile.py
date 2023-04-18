@@ -60,6 +60,7 @@ class ChatFile:
         for tag in self.file.tags:
             if tag.kind == MAX_GENERATION_TOKENS:
                 self.max_generation_tokens = int(tag.name)
+        self.max_generation_tokens = None
 
     @staticmethod
     def get(
