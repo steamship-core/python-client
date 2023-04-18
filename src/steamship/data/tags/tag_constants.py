@@ -33,6 +33,8 @@ class DocTag(str, Enum):
     """A set of `name` constants for Tags with a `kind` of `TagKind.doc`; appropriate for HTML and Markdown ideas."""
 
     DOCUMENT = "document"
+    NAME = "name"
+    MIME_TYPE = "mime-type"
     PAGE = "page"  # E.g. in a PDF
     REGION = "region"  # E.g., abstract catchall region in a document
     HEADER = "header"

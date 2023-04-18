@@ -10,7 +10,7 @@ from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import Request
 from steamship.base.response import Response
-from steamship.data.tags.tag_constants import GenerationTag, TagKind, TagValueKey
+from steamship.data.tags.tag_constants import DocTag, GenerationTag, TagKind, TagValueKey
 
 
 class TagQueryRequest(Request):
@@ -329,6 +329,13 @@ class TagQueryResponse(Response):
     tags: List[Tag]
 
 
+class DocumentNameTag(Tag):
+    def __init__(self, name: str, value: Optional[Dict[str, Any]] = None):
+        value = value or {}
+        value[TagValueKey.STRING_VALUE] = name
+        super().__init__(kind=TagKind.DOCUMENT, name=DocTag.NAME, value=value)
+
+
 Tag.ListResponse.update_forward_refs()
 TimestampTag.update_forward_refs()
 TopicTag.update_forward_refs()
@@ -338,3 +345,4 @@ SentimentTag.update_forward_refs()
 EntityTag.update_forward_refs()
 IntentTag.update_forward_refs()
 EmotionTag.update_forward_refs()
+DocumentNameTag.update_forward_refs()
