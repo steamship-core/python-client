@@ -3,7 +3,9 @@ from typing import List, Optional
 
 import requests
 
+from steamship import DocTag
 from steamship.client.steamship import Steamship
+from steamship.data import TagKind, TagValueKey
 from steamship.data.file import File
 from steamship.data.plugin.plugin_instance import PluginInstance
 from steamship.data.tags.tag import Tag
@@ -40,11 +42,12 @@ def scrape(client: Steamship, url: str, tags: Optional[List[Tag]] = None) -> Fil
     """Scrape a file via URL, returning a File object no matter what."""
     file = _scrape(client, url)
 
-    # Add the provided tags.
-    for tag in tags or []:
+    tags = tags or []
+    tags.append(
+        Tag(kind=TagKind.DOCUMENT, name=DocTag.SOURCE, value={TagValueKey.STRING_VALUE: url})
+    )
+    for tag in tags:
         tag.file_id = file.id
         client.post("tag/create", tag, expect=Tag)
-
-    # TODO: Add title, status, and source
 
     return file
