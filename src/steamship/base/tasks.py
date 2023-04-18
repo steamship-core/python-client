@@ -271,6 +271,7 @@ class Task(GenericCamelModel, Generic[T]):
             raise SteamshipError(
                 message=f"Task {self.task_id} did not complete within requested timeout of {max_timeout_s}s. The task is still running on the server. You can retrieve its status via Task.get() or try waiting again with wait()."
             )
+        return self.output
 
     def refresh(self):
         if self.task_id is None:

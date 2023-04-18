@@ -129,7 +129,7 @@ class PluginInstance(CamelModel):
         append_output_to_file: bool = False,
         output_file_id: Optional[str] = None,
         options: Optional[dict] = None,
-    ):
+    ) -> Task[GenerateResponse]:
         """See GenerateRequest for description of parameter options"""
         req = GenerateRequest(
             plugin_instance=self.handle,
