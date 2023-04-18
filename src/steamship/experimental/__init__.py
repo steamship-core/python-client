@@ -8,5 +8,6 @@ to try out new metaphors and helper classes!
 """
 
 from .chatfile import ChatFile
+from .easy import blockify, scrape
 
-__all__ = ["ChatFile"]
+__all__ = ["ChatFile", "scrape", "blockify"]
