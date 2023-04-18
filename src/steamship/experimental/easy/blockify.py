@@ -1,4 +1,4 @@
-"""Quickly adds a file by either downloading it or using a plugin to scrape it. Always returns a File object."""
+"""Blockifies a file using a best effort guess based on mime-type."""
 from typing import Optional
 
 from steamship import MimeTypes, SteamshipError, Task
