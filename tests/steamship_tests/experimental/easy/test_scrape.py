@@ -19,3 +19,4 @@ def test_import_youtube(client: Steamship):
     assert file.id is not None
     content = file.raw()
     assert content is not None
+    file.delete()
