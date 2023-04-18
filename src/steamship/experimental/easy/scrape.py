@@ -38,7 +38,6 @@ def _scrape(client: Steamship, url: str) -> File:
 
 def scrape(client: Steamship, url: str, tags: Optional[List[Tag]] = None) -> File:
     """Scrape a file via URL, returning a File object no matter what."""
-    # Here we do a bit of funny business to pick the right importer.
     file = _scrape(client, url)
 
     # Add the provided tags.
