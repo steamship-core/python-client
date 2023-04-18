@@ -45,4 +45,6 @@ def scrape(client: Steamship, url: str, tags: Optional[List[Tag]] = None) -> Fil
         tag.file_id = file.id
         client.post("tag/create", tag, expect=Tag)
 
+    # TODO: Add title, status, and source
+
     return file

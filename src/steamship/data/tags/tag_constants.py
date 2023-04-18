@@ -36,6 +36,8 @@ class DocTag(str, Enum):
     PAGE = "page"  # E.g. in a PDF
     REGION = "region"  # E.g., abstract catchall region in a document
     HEADER = "header"
+    SOURCE = "source"
+    STATUS = "status"
     H1 = "h1"
     H2 = "h2"
     H3 = "h3"
