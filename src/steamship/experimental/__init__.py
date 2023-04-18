@@ -6,3 +6,9 @@ experiments that aren't yet ready for the core Steamship library.
 In general, try to avoid introducing new dependencies to requirements.txt, but otherwise use this as a place
 to try out new metaphors and helper classes!
 """
+
+from .easy import scrape
+
+__all__ = [
+    "scrape",
+]
