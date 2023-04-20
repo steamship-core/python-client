@@ -78,7 +78,7 @@ def create_instance(
             )
             if instance:
                 click.secho(
-                    f"\nSuccess! New instance '{instance.handle}' for plugin '{manifest.handle}' created "
+                    f"\nSuccess! New instance '{instance.handle}' for {manifest.type} '{manifest.handle}' created "
                     f"in workspace '{client.get_workspace().handle}'.",
                     fg="green",
                 )
