@@ -1,12 +1,25 @@
 import json
+import logging
 from os import path
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 import click
 
 from steamship import Steamship, SteamshipError
 from steamship.cli.ship_spinner import ship_spinner
 from steamship.data.manifest import DeployableType, Manifest
+from steamship.utils.metadata import hash_dict
+from steamship.utils.utils import create_instance_handle
+
+
+class LoggingDisabled:
+    """Context manager that turns off logging within context."""
+
+    def __enter__(self):
+        logging.disable(logging.CRITICAL)
+
+    def __exit__(self, exit_type, exit_value, exit_traceback):
+        logging.disable(logging.NOTSET)
 
 
 @click.command(name="use")
@@ -39,16 +52,17 @@ def create_instance(
 ):
     """Create an instance of your package/plugin for use.
 
-    Must be run from a directory containing a Steamship manifest."""
-    global client
-    global manifest
+    Must be run from a directory containing a Steamship manifest.
+    """
 
-    try:
-        client = Steamship(workspace=workspace)
-    except SteamshipError as e:
-        click.secho(e.message, fg="red")
-        click.get_current_context().abort()
+    with LoggingDisabled():  # keep CLI output as concise as possible
+        return _create_instance(workspace, instance, config)
 
+
+def _create_instance(
+    workspace: Optional[str] = None, instance: Optional[str] = None, config: Optional[str] = None
+):
+    manifest = None
     if path.exists("steamship.json"):
         manifest = Manifest.load_manifest()
     else:
@@ -62,33 +76,76 @@ def create_instance(
 
     invocable_config = config_dict(config)
 
+    if workspace is None or len(workspace) == 0:
+        ws_hash = hash_dict(
+            {
+                **invocable_config,
+                "version": manifest.version,
+                "invocable": manifest.handle,
+            }
+        )
+        workspace = f"space-{ws_hash}"
+
+    client = None
+    try:
+        client = Steamship(workspace=workspace)
+    except SteamshipError as e:
+        click.secho(e.message, fg="red")
+        click.get_current_context().abort()
+
     instance_fn = client.use
     if manifest.type == DeployableType.PLUGIN:
         instance_fn = client.use_plugin
 
+    if instance is None:
+        instance = create_instance_handle(
+            invocable_handle=manifest.handle,
+            version_handle=manifest.version,
+            invocable_config=invocable_config,
+        )
+
     try:
-        click.echo("Creating a new instance for usage: ", nl=False)
-        with ship_spinner():
-            instance = instance_fn(
-                manifest.handle,
-                instance_handle=instance,
-                version=manifest.version,
-                config=invocable_config,
-                wait_for_init=True,
-            )
-            if instance:
-                click.secho(
-                    f"\nSuccess! New instance '{instance.handle}' for {manifest.type} '{manifest.handle}' created "
-                    f"in workspace '{client.get_workspace().handle}'.",
-                    fg="green",
-                )
-                if manifest.type == DeployableType.PACKAGE:
-                    click.echo(f"Instance URL: {instance.invocation_url}")
-                return
+        _call_fn(client, manifest, instance, invocable_config, instance_fn)
 
     except SteamshipError as e:
-        click.secho(f"Failed to create instance: {e.message}", fg="red")
-        click.get_current_context().exit()
+        click.secho(f"\nFailed to create instance: {e.message}", fg="red")
+        click.get_current_context().abort()
+
+
+def _call_fn(
+    client: Steamship,
+    manifest: Manifest,
+    instance: str,
+    config: Optional[Dict[str, Any]],
+    instance_fn: Callable,
+):
+    click.echo("Using values:\n- Workspace: ", nl=False)
+    click.secho(f"{client.get_workspace().handle}", fg="green")
+    click.echo(f"- {manifest.type.title()}: ", nl=False)
+    click.secho(f"{manifest.handle}", fg="green")
+    click.echo("- Version: ", nl=False)
+    click.secho(f"{manifest.version}", fg="green")
+    click.echo("- Instance Handle: ", nl=False)
+    click.secho(f"{instance}", fg="green")
+    click.echo("- Configuration: ", nl=False)
+    click.secho(f"{json.dumps(config)}", fg="green")
+
+    click.echo("Creating new (or fetching existing) instance: ", nl=False)
+    with ship_spinner():
+        instance = instance_fn(
+            manifest.handle,
+            instance_handle=instance,
+            version=manifest.version,
+            config=config,
+            wait_for_init=True,
+        )
+        if instance:
+            click.secho("\nSuccess!", fg="green")
+            if manifest.type == DeployableType.PACKAGE:
+                click.echo(f"Instance URL: {instance.invocation_url}")
+            return
+        else:
+            raise SteamshipError("instance creation unexpectedly returned empty instance.")
 
 
 def config_dict(config: Optional[str]) -> Dict[str, Any]:
