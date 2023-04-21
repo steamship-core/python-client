@@ -1,10 +1,9 @@
 from enum import Enum
 from typing import Optional
 
-from easy import get_tag_value_key
-
 from steamship import Block, SteamshipError, Tag
 from steamship.data.tags.tag_constants import TagValueKey
+from steamship.experimental.easy.tags import get_tag_value_key
 
 
 class ChatTag(str, Enum):
@@ -32,7 +31,7 @@ class ChatMessage(Block):
 
     def set_chat_id(self, chat_id: str):
         existing = self.get_chat_id()
-        if existing:
+        if existing is not None:
             if existing == chat_id:
                 return  # No action necessary
             else:
@@ -58,7 +57,7 @@ class ChatMessage(Block):
 
     def set_message_id(self, message_id: str):
         existing = self.get_message_id()
-        if existing:
+        if existing is not None:
             if existing == message_id:
                 return  # No action necessary
             else:
