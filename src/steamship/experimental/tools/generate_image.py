@@ -8,7 +8,7 @@ from steamship.base.error import SteamshipError
 from steamship.experimental.tools.tool import Tool
 
 
-class DallE(Tool):
+class GenerateImageTool(Tool):
     """Tool used to generate images from a text-prompt."""
 
     name: str = "GenerateImages"
