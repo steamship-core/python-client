@@ -172,9 +172,21 @@ class Block(CamelModel):
                 raw_response=True,
             )
 
-    def is_text(self):
+    def is_text(self) -> bool:
         """Return whether this is a text Block."""
         return self.mime_type == MimeTypes.TXT
+
+    def is_image(self):
+        """Return whether this is an image Block."""
+        return self.mime_type in [MimeTypes.PNG, MimeTypes.JPG, MimeTypes.GIF, MimeTypes.TIFF]
+
+    def is_audio(self):
+        """Return whether this is an audio Block."""
+        return self.mime_type in [MimeTypes.MP3, MimeTypes.MP4_AUDIO, MimeTypes.WEBM_AUDIO]
+
+    def is_video(self):
+        """Return whether this is a video Block."""
+        return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO]
 
 
 class BlockQueryResponse(Response):
