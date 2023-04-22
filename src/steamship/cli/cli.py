@@ -16,6 +16,7 @@ from steamship.cli.deploy import (
     bundle_deployable,
     update_config_template,
 )
+from steamship.cli.http.server import SteamshipHTTPServer
 from steamship.cli.manifest_init_wizard import manifest_init_wizard
 from steamship.cli.requirements_init_wizard import requirements_init_wizard
 from steamship.cli.ship_spinner import ship_spinner
@@ -62,6 +63,15 @@ def ships():
     click.secho("Here are some ships:", fg="cyan")
     with ship_spinner():
         time.sleep(5)
+    click.secho()
+
+
+@click.command()
+def serve():
+    """Serve the local invocable"""
+    initialize()
+    server = SteamshipHTTPServer()
+    server.start()
     click.secho()
 
 
@@ -189,7 +199,8 @@ cli.add_command(deploy)
 cli.add_command(deploy, name="it")
 cli.add_command(ships)
 cli.add_command(logs)
+cli.add_command(serve)
 
 
 if __name__ == "__main__":
-    deploy([])
+    serve([])
