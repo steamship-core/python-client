@@ -72,8 +72,6 @@ def ships():
 def serve():
     """Serve the local invocable"""
     initialize()
-
-    # Find the invocable class
     path = find_api_py()
     api_module = get_api_module(path)
     invocable_class = get_class_from_module(api_module)
