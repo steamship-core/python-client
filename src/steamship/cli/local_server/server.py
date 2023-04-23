@@ -1,3 +1,4 @@
+import threading
 from socketserver import TCPServer
 from typing import Optional, Type
 
@@ -59,5 +60,19 @@ class SteamshipHTTPServer:
         self.server.serve_forever()
 
     def stop(self):
-        """Stop the server."""
-        self.server.shutdown()
+        """Stop the server.
+
+        Note: This has to be called from a different thread or else it will deadlock.
+        """
+        _server = self.server
+
+        class ShutdownThread(threading.Thread):
+            def __init__(self):
+                threading.Thread.__init__(self)
+
+            def run(self):
+                nonlocal _server
+                _server.shutdown()
+
+        shutdown_thread = ShutdownThread()
+        shutdown_thread.start()

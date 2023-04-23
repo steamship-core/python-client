@@ -1,5 +1,6 @@
 import json
 import logging
+import signal
 import sys
 import time
 from os import path
@@ -77,6 +78,15 @@ def serve():
     invocable_class = get_class_from_module(api_module)
     click.secho(f"Found Invocable: {invocable_class.__name__}")
     server = SteamshipHTTPServer(invocable_class)
+
+    def on_exit(signum, frame):
+        click.secho("Shutting down server.")
+        server.stop()
+        click.secho("Shut down.")
+        exit(1)
+
+    signal.signal(signal.SIGINT, on_exit)
+
     click.secho(f"Starting development server on port {server.port}")
     server.start()
     click.secho()

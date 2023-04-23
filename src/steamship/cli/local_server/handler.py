@@ -5,8 +5,9 @@ import sys
 import uuid
 from http import HTTPStatus, server
 from typing import Callable, Dict, Optional, Type
+from urllib.parse import parse_qs, urlparse
 
-from steamship import Configuration, Steamship, SteamshipError
+from steamship import Configuration, MimeTypes, Steamship, SteamshipError
 from steamship.data.user import User
 from steamship.data.workspace import SignedUrl
 from steamship.invocable import (
@@ -189,6 +190,7 @@ def create_safe_handler(invocable: Type[Invocable] = None):
 def make_handler(  # noqa: C901
     invocable_class: Type[Invocable],  # The invocable (package or plugin) that this handler hosts.
     port: int,
+    base_url: Optional[str] = "http://localhost",
     default_api_key: Optional[str] = None,
     invocable_handle: str = None,
     invocable_version_handle: str = None,
@@ -200,7 +202,7 @@ def make_handler(  # noqa: C901
     For use with steamship.cli.http.server.Server.
     """
     # A cache of API Key to User objects, to avoid doing a lookup each request
-    user_for_key: Dict[str, User]
+    user_for_key: Dict[str, User] = {}
 
     # The type of invocable this handler hosts
     invocable_type: Optional[str]
@@ -211,10 +213,11 @@ def make_handler(  # noqa: C901
         invocable_type = "plugin"
 
     class InvocableHTTPHandler(server.SimpleHTTPRequestHandler):
-        def _set_response(self):
+        def _send_response(self, _bytes: bytes, mime_type: MimeTypes):
             self.send_response(200)
-            self.send_header("Content-type", "text/html")
+            self.send_header("Content-type", mime_type)
             self.end_headers()
+            self.wfile.write(_bytes)
 
         def _get_client(self) -> Steamship:
             """Returns a Steamship client.
@@ -244,7 +247,7 @@ def make_handler(  # noqa: C901
                 user = User.current(client)
                 user_for_key[client.config.api_key] = user
 
-            url = "http://localhost:3000/"
+            url = f"{base_url}:{port}/"
 
             return InvocationContext(
                 user_id=user.id,
@@ -259,25 +262,13 @@ def make_handler(  # noqa: C901
                 invocable_url=url,
             )
 
-        def do_GET(self):  # noqa: N802
-            logging.info(
-                "GET request,\nPath: %s\nHeaders:\n%s\n", str(self.path), str(self.headers)
-            )
-            self._set_response()
-            self.wfile.write(f"GET request for {self.path}".encode("utf-8"))
-
-        def do_POST(self):  # noqa: N802
-            content_length = int(self.headers["Content-Length"])  # <--- Gets the size of data
-            post_data = self.rfile.read(content_length)  # <--- Gets the data itself
+        def _do_request(self, payload: dict, http_verb: str):
             try:
-                data_str = post_data.decode("utf8")
-                post_json = json.loads(data_str)
-
                 client = self._get_client()
                 context = self._get_invocation_context(client)
 
                 invocation = Invocation(
-                    http_verb="POST", invocation_path=self.path, arguments=post_json, config=config
+                    http_verb=http_verb, invocation_path=self.path, arguments=payload, config=config
                 )
                 event = InvocableRequest(
                     client_config=client.config,
@@ -288,22 +279,33 @@ def make_handler(  # noqa: C901
 
                 handler = create_safe_handler(invocable_class)
                 resp = handler(event.dict(by_alias=True), context)
-                rr = InvocableRequest.parse_obj(event.dict())
-
-                print(resp)
-                print(rr)
-
-                logging.info(
-                    "POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n",
-                    str(self.path),
-                    str(self.headers),
-                    post_data.decode("utf-8"),
-                )
-                self._set_response()
-                self.wfile.write(f"POST request for {self.path}".encode("utf-8"))
+                res_str = json.dumps(resp)
+                res_bytes = bytes(res_str, "utf-8")
+                self._send_response(res_bytes, MimeTypes.JSON)
             except Exception as e:
-                print(e)
-                self._set_response()
-                self.wfile.write(f"POST request for {self.path}".encode("utf-8"))
+                self._send_response(bytes(f"{e}", "utf-8"), MimeTypes.TXT)
+
+        def do_GET(self):  # noqa: N802
+            logging.info(
+                "GET request,\nPath: %s\nHeaders:\n%s\n", str(self.path), str(self.headers)
+            )
+            try:
+                payload = parse_qs(urlparse(self.path).query)
+                return self._do_request(payload, "GET")
+            except Exception as e:
+                self._send_response(bytes(f"{e}", "utf-8"), MimeTypes.TXT)
+
+        def do_POST(self):  # noqa: N802
+            logging.info(
+                "POST request,\nPath: %s\nHeaders:\n%s\n", str(self.path), str(self.headers)
+            )
+            content_length = int(self.headers["Content-Length"])  # <--- Gets the size of data
+            post_data = self.rfile.read(content_length)  # <--- Gets the data itself
+            try:
+                data_str = post_data.decode("utf8")
+                payload = json.loads(data_str)
+                return self._do_request(payload, "POST")
+            except Exception as e:
+                self._send_response(bytes(f"{e}", "utf-8"), MimeTypes.TXT)
 
     return InvocableHTTPHandler
