@@ -70,14 +70,22 @@ def ships():
 
 
 @click.command()
-def serve():
+@click.option(
+    "--port",
+    "-p",
+    type=int,
+    default=8080,
+    help="Port to host the server on.",
+)
+def serve(port: int = 8080):
     """Serve the local invocable"""
     initialize()
     path = find_api_py()
     api_module = get_api_module(path)
     invocable_class = get_class_from_module(api_module)
     click.secho(f"Found Invocable: {invocable_class.__name__}")
-    server = SteamshipHTTPServer(invocable_class)
+
+    server = SteamshipHTTPServer(invocable_class, port=port)
 
     def on_exit(signum, frame):
         click.secho("Shutting down server.")
