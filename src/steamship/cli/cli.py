@@ -77,7 +77,41 @@ def ships():
     default=8080,
     help="Port to host the server on.",
 )
-def serve(port: int = 8080):
+@click.option(
+    "--invocable_handle",
+    "-i",
+    type=str,
+    default=None,
+    help="Handle of the package or plugin being hosted.",
+)
+@click.option(
+    "--invocable_version_handle",
+    "-v",
+    type=str,
+    default=None,
+    help="Handle of the package or plugin version being hosted.",
+)
+@click.option(
+    "--invocable_instance_handle",
+    "-h",
+    type=str,
+    default=None,
+    help="Handle of the package or plugin instance being hosted.",
+)
+@click.option(
+    "--api_key",
+    "-k",
+    type=str,
+    default=None,
+    help="API Key to hard-code for hosting.",
+)
+def serve(
+    port: int = 8080,
+    invocable_handle: Optional[str] = None,
+    invocable_version_handle: Optional[str] = None,
+    invocable_instance_handle: Optional[str] = None,
+    api_key: Optional[str] = None,
+):
     """Serve the local invocable"""
     initialize()
     path = find_api_py()
@@ -85,7 +119,14 @@ def serve(port: int = 8080):
     invocable_class = get_class_from_module(api_module)
     click.secho(f"Found Invocable: {invocable_class.__name__}")
 
-    server = SteamshipHTTPServer(invocable_class, port=port)
+    server = SteamshipHTTPServer(
+        invocable_class,
+        port=port,
+        invocable_handle=invocable_handle,
+        invocable_version_handle=invocable_version_handle,
+        invocable_instance_handle=invocable_instance_handle,
+        default_api_key=api_key,
+    )
 
     def on_exit(signum, frame):
         click.secho("Shutting down server.")
