@@ -4,8 +4,7 @@ import re
 import sys
 import uuid
 from http import HTTPStatus, server
-from plistlib import Dict
-from typing import Callable, Optional, Type
+from typing import Callable, Dict, Optional, Type
 
 from steamship import Configuration, Steamship, SteamshipError
 from steamship.data.user import User

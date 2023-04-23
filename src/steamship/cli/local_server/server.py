@@ -1,7 +1,7 @@
 from socketserver import TCPServer
-from typing import Optional
+from typing import Optional, Type
 
-from steamship.cli.http.handler import make_handler
+from steamship.cli.local_server.handler import make_handler
 from steamship.invocable import Invocable
 
 
@@ -19,7 +19,7 @@ class SteamshipHTTPServer:
 
     """
 
-    invocable: Invocable
+    invocable: Type[Invocable]
     port: int
     server: TCPServer
     default_api_key: Optional[str] = (None,)
@@ -29,7 +29,7 @@ class SteamshipHTTPServer:
 
     def __init__(
         self,
-        invocable: Invocable,
+        invocable: Type[Invocable],
         port: int = 8080,
         default_api_key: Optional[str] = None,
         invocable_handle: str = None,

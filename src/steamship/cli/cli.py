@@ -16,12 +16,14 @@ from steamship.cli.deploy import (
     bundle_deployable,
     update_config_template,
 )
-from steamship.cli.http.server import SteamshipHTTPServer
+from steamship.cli.local_server.server import SteamshipHTTPServer
 from steamship.cli.manifest_init_wizard import manifest_init_wizard
 from steamship.cli.requirements_init_wizard import requirements_init_wizard
 from steamship.cli.ship_spinner import ship_spinner
+from steamship.cli.utils import find_api_py, get_api_module
 from steamship.data.manifest import DeployableType, Manifest
 from steamship.data.user import User
+from steamship.invocable.lambda_handler import get_class_from_module
 
 
 @click.group()
@@ -32,7 +34,7 @@ def cli():
 def initialize(suppress_message: bool = False):
     logging.root.setLevel(logging.FATAL)
     if not suppress_message:
-        click.echo(f"Steamship PYTHON cli version {steamship.__version__}")
+        click.echo(f"Steamship Python CLI version {steamship.__version__}")
 
 
 @click.command()
@@ -70,7 +72,14 @@ def ships():
 def serve():
     """Serve the local invocable"""
     initialize()
-    server = SteamshipHTTPServer()
+
+    # Find the invocable class
+    path = find_api_py()
+    api_module = get_api_module(path)
+    invocable_class = get_class_from_module(api_module)
+    click.secho(f"Found Invocable: {invocable_class.__name__}")
+    server = SteamshipHTTPServer(invocable_class)
+    click.secho(f"Starting development server on port {server.port}")
     server.start()
     click.secho()
 
