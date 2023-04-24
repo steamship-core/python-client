@@ -54,18 +54,30 @@ class TelegramTransport(Transport):
             if block.is_text() or block.text:
                 params = {"chat_id": int(chat_id), "text": block.text}
                 requests.get(f"{self.api_root}/sendMessage", params=params)
-            elif block.is_image():
+            elif block.is_image() or block.is_audio() or block.is_video():
+                if block.is_image():
+                    suffix = "sendPhoto"
+                    key = "photo"
+                elif block.is_audio():
+                    suffix = "sendAudio"
+                    key = "audio"
+                elif block.is_video():
+                    suffix = "sendVideo"
+                    key = "video"
+
                 _bytes = block.raw()
                 with tempfile.TemporaryFile(mode="r+b") as temp_file:
                     temp_file.write(_bytes)
                     temp_file.seek(0)
                     resp = requests.post(
-                        url=f"{self.api_root}/sendPhoto?chat_id={chat_id}",
-                        files={"photo": temp_file},
+                        url=f"{self.api_root}/{suffix}?chat_id={chat_id}",
+                        files={key: temp_file},
                     )
                     if resp.status_code != 200:
                         logging.error(f"Error sending message: {resp.text} [{resp.status_code}]")
-                        raise SteamshipError(f"Message not sent successfully: {resp.text}")
+                        raise SteamshipError(
+                            f"Message not sent to chat {chat_id} successfully: {resp.text}"
+                        )
             else:
                 logging.error(
                     f"Telegram transport unable to send a block of MimeType {block.mime_type}"
