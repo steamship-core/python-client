@@ -8,34 +8,32 @@ from steamship.base.error import SteamshipError
 from steamship.experimental.tools.tool import Tool
 
 
-class GenerateImageTool(Tool):
+class GenerateSpeechTool(Tool):
     """Tool used to generate images from a text-prompt."""
 
-    name: str = "GenerateImages"
+    name: str = "GenerateSpokenAudio"
     description: str = (
-        "Used to generate images from text prompts. Only use if the user has asked directly for an "
-        "image. When using this tool, the input should be a plain text string that describes, "
-        "in detail, the desired image."
+        "Used to generate spoken audio from text prompts. Only use if the user has asked directly for a "
+        "an audio version of output. When using this tool, the input should be a plain text string containing the "
+        "content to be spoken."
     )
 
     client: Steamship
 
-    def __init__(self, client: Steamship, plugin_handle: Optional[str] = "dall-e"):
+    def __init__(self, client: Steamship, plugin_handle: Optional[str] = "elevenlabs"):
         self.plugin_handle = plugin_handle
         self.client = client
-        self.dalle = client.use_plugin(
-            plugin_handle=self.plugin_handle, config={"n": 1, "size": "256x256"}
-        )
+        self.elevenlabs = client.use_plugin(plugin_handle=self.plugin_handle, config={})
 
     def should_preempt_agent(self, prompt: str) -> float:
-        """Preempt when an inbound message begins with 'dalle '."""
-        if prompt.strip().startswith("dalle "):
+        """Preempt when an inbound message begins with 'speak '."""
+        if prompt.strip().startswith("speak "):
             return 1.0
         return 0.0
 
     def preempt_agent_prompt(self, prompt: str) -> str:
-        """Stripe 'dalle ' from the inbound message."""
-        prefix = "dalle "
+        """Stripe 'speak ' from the inbound message."""
+        prefix = "speak "
         if prompt.startswith(prefix):
             prompt = prompt[len(prefix) :]
 
@@ -46,11 +44,11 @@ class GenerateImageTool(Tool):
         logging.info(f"[{self.name}] {prompt}")
         if not isinstance(prompt, str):
             prompt = json.dumps(prompt)
-        task = self.dalle.generate(text=prompt, append_output_to_file=True)
+        task = self.elevenlabs.generate(text=prompt, append_output_to_file=True)
         task.wait()
         blocks = task.output.blocks
         logging.info(f"[{self.name}] got back {len(blocks)} blocks")
         if len(blocks) > 0:
-            logging.info(f"[{self.name}] image size: {len(blocks[0].raw())}")
+            logging.info(f"[{self.name}] audio size: {len(blocks[0].raw())}")
             return blocks[0].id
-        raise SteamshipError(f"[{self.name}] Tool unable to generate image!")
+        raise SteamshipError(f"[{self.name}] Tool unable to generate audio!")

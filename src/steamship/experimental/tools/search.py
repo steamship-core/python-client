@@ -3,6 +3,7 @@ from typing import Any, Optional
 
 from steamship import File, Steamship, SteamshipError
 from steamship.data import TagValueKey
+from steamship.experimental.easy.tags import get_tag_value_key
 from steamship.utils.kv_store import KeyValueStore
 
 
@@ -51,7 +52,7 @@ class SearchTool:
     def _first_tag_value(file: File, tag_kind: str, value_key: str) -> Optional[Any]:
         """Return the value of the first block tag found in a file for the kind and value_key specified."""
         for block in file.blocks:
-            for block_tag in block.tags:
-                if block_tag.kind == tag_kind:
-                    return block_tag.value.get(value_key, "")
+            val = get_tag_value_key(block.tags, value_key, kind=tag_kind)
+            if val is not None:
+                return val
         return None
