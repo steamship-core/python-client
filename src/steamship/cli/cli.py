@@ -140,7 +140,6 @@ def info():
 
         try:
             user = User.current(client)
-            click.echo("\nSteamship Client Info\n====================\n")
             click.echo(f"User handle: {user.handle}")
             click.echo(f"User ID:     {user.id}")
             click.echo(f"Profile:     {client.config.profile}")
