@@ -134,9 +134,16 @@ def info():
         client = None
         try:
             client = Steamship()
-        except SteamshipError as e:
-            click.secho(e.message, fg="red")
-            click.get_current_context().abort()
+        except BaseException:
+            click.secho("Incorrect API key or network error.\n", fg="red")
+            click.secho(
+                "Your Steamship API Key is set, but we were unable to use it to fetch your account information.\n"
+            )
+            click.secho("- If you are on your own computer, run `ship login` to login.")
+            click.secho(
+                "- If you are in Replit, add the STEAMSHIP_API_KEY secret, then close and re-open this shell.\n"
+            )
+            return
 
         try:
             user = User.current(client)
@@ -145,14 +152,20 @@ def info():
             click.echo(f"Profile:     {client.config.profile}")
             click.echo("\nReady to ship! 🚢🚢🚢\n")
 
-        except SteamshipError as e:
-            click.secho(e.message, fg="red")
-            click.get_current_context().abort()
+        except BaseException:
+            click.secho("Incorrect API key or network error.\n", fg="red")
+            click.secho(
+                "Your Steamship API Key is set, but we were unable to use it to fetch your account information.\n"
+            )
+            click.secho("- If you are on your own computer, run `ship login` to login.")
+            click.secho(
+                "- If you are in Replit, add the STEAMSHIP_API_KEY secret, then close and re-open this shell.\n"
+            )
     else:
         click.secho("You are not logged in.\n")
         click.secho("- If you are on your own computer, run `ship login` to login.")
         click.secho(
-            "- If you in Replit, add the STEAMSHIP_API_KEY secret and then close and re-open this shell.\n"
+            "- If you are in Replit, add the STEAMSHIP_API_KEY secret, then close and re-open this shell.\n"
         )
 
 
