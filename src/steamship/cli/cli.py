@@ -2,7 +2,7 @@ import json
 import logging
 import sys
 import time
-from os import path
+from os import getenv, path
 from typing import Optional
 
 import click
@@ -129,7 +129,7 @@ def info():
     initialize()
     click.echo("\nSteamship Client Info\n=====================\n")
 
-    if Configuration.default_config_file_has_api_key():
+    if Configuration.default_config_file_has_api_key() or getenv("STEAMSHIP_API_KEY", None):
         # User is logged in!
         client = None
         try:
