@@ -27,6 +27,7 @@ class TagKind(str, Enum):
     SUMMARY = "summary"
     SEARCH_RESULT = "search-result"
     ROLE = "role"
+    CHAT = "chat"
 
 
 class DocTag(str, Enum):
@@ -245,3 +246,16 @@ class RoleTag(str, Enum):
 
     # This block's content was created by the generative AI assistant
     ASSISTANT = "assistant"
+
+    # This block's content was created by a non-human agent participating in the chat
+    AGENT = "agent"
+
+
+class ChatTag(str, Enum):
+    """A set of `name` constants for Tags with a `kind` of `TagKind.CHAT`."""
+
+    # The chat id in which a message happened
+    CHAT_ID = "chat-id"
+
+    # The message id of a message
+    MESSAGE_ID = "message-id"

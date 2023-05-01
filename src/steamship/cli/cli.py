@@ -121,6 +121,43 @@ def deploy():
 
 
 @click.command()
+def info():
+    """Displays information about the current Steamship user.
+
+    This is useful to help users (in a support or hackathon context) test whether they have configured their
+    Steamship environment correctly.
+    """
+    initialize()
+    click.echo("\nSteamship Client Info\n=====================\n")
+
+    if Configuration.default_config_file_has_api_key():
+        # User is logged in!
+        client = None
+        try:
+            client = Steamship()
+        except SteamshipError as e:
+            click.secho(e.message, fg="red")
+            click.get_current_context().abort()
+
+        try:
+            user = User.current(client)
+            click.echo(f"User handle: {user.handle}")
+            click.echo(f"User ID:     {user.id}")
+            click.echo(f"Profile:     {client.config.profile}")
+            click.echo("\nReady to ship! 🚢🚢🚢\n")
+
+        except SteamshipError as e:
+            click.secho(e.message, fg="red")
+            click.get_current_context().abort()
+    else:
+        click.secho("You are not logged in.\n")
+        click.secho("- If you are on your own computer, run `ship login` to login.")
+        click.secho(
+            "- If you in Replit, add the STEAMSHIP_API_KEY secret and then close and re-open this shell.\n"
+        )
+
+
+@click.command()
 @click.option(
     "--workspace",
     "-w",
@@ -187,6 +224,7 @@ def logs(
 
 cli.add_command(login)
 cli.add_command(deploy)
+cli.add_command(info)
 cli.add_command(deploy, name="it")
 cli.add_command(ships)
 cli.add_command(logs)
