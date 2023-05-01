@@ -8,18 +8,18 @@ from pydantic import BaseModel, Field
 
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import GetRequest, IdentifierRequest
-from steamship.base.request import Request
+from steamship.base.request import GetRequest, IdentifierRequest, ListRequest
 from steamship.base.request import Request as SteamshipRequest
-from steamship.base.response import Response
+from steamship.base.request import SortOrder
+from steamship.base.response import ListResponse
 from steamship.base.response import Response as SteamshipResponse
 
 
-class ListWorkspacesRequest(Request):
+class ListWorkspacesRequest(ListRequest):
     pass
 
 
-class ListWorkspacesResponse(Response):
+class ListWorkspacesResponse(ListResponse):
     workspaces: List[Workspace]
 
 
@@ -79,10 +79,18 @@ class Workspace(CamelModel):
         return ret
 
     @staticmethod
-    def list(client: Client, t: str = None) -> ListWorkspacesResponse:
+    def list(
+        client: Client,
+        t: str = None,
+        page_size: Optional[int] = None,
+        page_token: Optional[str] = None,
+        sort_order: Optional[SortOrder] = SortOrder.DESC,
+    ) -> ListWorkspacesResponse:
         return client.post(
             "workspace/list",
-            ListWorkspacesRequest(type=t),
+            ListWorkspacesRequest(
+                type=t, page_size=page_size, page_token=page_token, sort_order=sort_order
+            ),
             expect=ListWorkspacesResponse,
         )
 

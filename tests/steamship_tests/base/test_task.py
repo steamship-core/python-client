@@ -1,7 +1,9 @@
 from __future__ import annotations
 
+import pytest
 from steamship_tests.utils.fixtures import get_steamship_client
 
+from steamship import SteamshipError
 from steamship.base.model import CamelModel
 from steamship.base.tasks import TaskState
 
@@ -23,6 +25,32 @@ def test_background_task_call():
 
     # When we background it, we get a task back instead
     result_2_task = client.post("task/noop", expect=NoOpResult, as_background_task=True)
+    assert result_2_task is not None
+    assert result_2_task.state == TaskState.waiting
+
+    result_2_task.wait()
+
+    # And now it has completed
+    assert result_2_task.state == TaskState.succeeded
+    assert result_2_task.output is not None
+    assert type(result_2_task.output) == NoOpResult
+
+
+def test_task_wait_milliseconds():
+    client = get_steamship_client()
+
+    # Can't wait a negative amount
+    with pytest.raises(SteamshipError):
+        result_task_1 = client.post("task/noop", expect=NoOpResult, task_delay_ms=-43)
+
+    # No wait is no wait
+    result_task_1 = client.post("task/noop", expect=NoOpResult, task_delay_ms=0)
+
+    assert result_task_1 is not None
+    assert type(result_task_1) == NoOpResult
+
+    # When we background it, we get a task back instead
+    result_2_task = client.post("task/noop", expect=NoOpResult, task_delay_ms=1000)
     assert result_2_task is not None
     assert result_2_task.state == TaskState.waiting
 

@@ -2,7 +2,6 @@ from typing import Any, Dict, List, Optional, Union, cast
 
 from pydantic import Field
 
-from steamship.base.client import Client
 from steamship.base.error import SteamshipError
 from steamship.base.model import CamelModel
 from steamship.base.tasks import Task
@@ -86,9 +85,17 @@ class EmbeddingIndexPluginInstance(PluginInstance):
     it isn't from an implementation perspective on the back-end.
     """
 
-    client: Client = Field(None, exclude=True)
     embedder: PluginInstance = Field(None, exclude=True)
     index: EmbeddingIndex = Field(None, exclude=True)
+
+    def reset(self):
+        self.index.delete()
+        self.index = EmbeddingIndex.create(
+            client=self.client,
+            handle=self.handle,
+            embedder_plugin_instance_handle=self.embedder.handle,
+            fetch_if_exists=False,
+        )
 
     def delete(self):
         """Delete the EmbeddingIndexPluginInstnace.
@@ -141,11 +148,6 @@ class EmbeddingIndexPluginInstance(PluginInstance):
         # not have users exercise control over.
         self.index.insert_many(embedded_items, reindex=True, allow_long_records=allow_long_records)
 
-        # We always snapshot in this new style; to not do so is to expose details we'd rather not have
-        # users exercise control over.
-        response = self.index.create_snapshot()
-        response.wait()
-
     def search(self, query: str, k: Optional[int] = None) -> Task[SearchResults]:
         """Search the embedding index.
 
@@ -192,6 +194,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
 
         # Create the embedder
         embedder = client.use_plugin(**embedder_invocation.dict())
+        embedder.wait_for_init()
 
         # Create the index
         index = EmbeddingIndex.create(
@@ -203,5 +206,5 @@ class EmbeddingIndexPluginInstance(PluginInstance):
 
         # Now return the plugin wrapper
         return EmbeddingIndexPluginInstance(
-            id=index.id, handle=index.handle, index=index, embedder=embedder
+            client=client, id=index.id, handle=index.handle, index=index, embedder=embedder
         )

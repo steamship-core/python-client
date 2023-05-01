@@ -15,8 +15,8 @@ from pydantic import BaseModel, Field
 
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import IdentifierRequest, Request, UpdateRequest
-from steamship.base.response import Response
+from steamship.base.request import IdentifierRequest, ListRequest, Request, SortOrder, UpdateRequest
+from steamship.base.response import ListResponse
 from steamship.data.manifest import Manifest
 
 from .hosting import HostingType
@@ -42,11 +42,11 @@ class PluginUpdateRequest(UpdateRequest):
     readme: Optional[str] = None
 
 
-class ListPluginsRequest(Request):
+class ListPluginsRequest(ListRequest):
     type: Optional[str] = None
 
 
-class ListPluginsResponse(Response):
+class ListPluginsResponse(ListResponse):
     plugins: List[Plugin]
 
 
@@ -55,6 +55,7 @@ class PluginType(str, Enum):
     classifier = "classifier"
     tagger = "tagger"
     embedder = "embedder"
+    generator = "generator"
 
 
 class PluginAdapterType(str, Enum):
@@ -121,10 +122,18 @@ class Plugin(CamelModel):
         )
 
     @staticmethod
-    def list(client: Client, t: str = None) -> ListPluginsResponse:
+    def list(
+        client: Client,
+        t: str = None,
+        page_size: Optional[int] = None,
+        page_token: Optional[str] = None,
+        sort_order: Optional[SortOrder] = SortOrder.DESC,
+    ) -> ListPluginsResponse:
         return client.post(
             "plugin/list",
-            ListPluginsRequest(type=t),
+            ListPluginsRequest(
+                type=t, page_size=page_size, page_token=page_token, sort_order=sort_order
+            ),
             expect=ListPluginsResponse,
         )
 

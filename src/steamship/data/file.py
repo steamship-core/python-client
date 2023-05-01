@@ -2,15 +2,15 @@ from __future__ import annotations
 
 import io
 from enum import Enum
-from typing import TYPE_CHECKING, Any, List, Type, Union
+from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
 from steamship import MimeTypes, SteamshipError
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import GetRequest, IdentifierRequest, Request
-from steamship.base.response import Response
+from steamship.base.request import GetRequest, IdentifierRequest, ListRequest, Request, SortOrder
+from steamship.base.response import ListResponse, Response
 from steamship.base.tasks import Task
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
@@ -18,6 +18,7 @@ from steamship.data.tags import Tag
 from steamship.utils.binary_utils import flexi_create
 
 if TYPE_CHECKING:
+    from steamship.data.operations.generator import GenerateResponse
     from steamship.data.operations.tagger import TagResponse
 
 
@@ -31,11 +32,11 @@ class FileClearResponse(Response):
     id: str
 
 
-class ListFileRequest(Request):
+class ListFileRequest(ListRequest):
     pass
 
 
-class ListFileResponse(Response):
+class ListFileResponse(ListResponse):
     files: List[File]
 
 
@@ -114,7 +115,7 @@ class File(CamelModel):
         handle: str = None,
         blocks: List[Block] = None,
         tags: List[Tag] = None,
-    ) -> File:
+    ) -> Any:
 
         if content is None and blocks is None:
             if tags is None:
@@ -181,6 +182,8 @@ class File(CamelModel):
         refreshed = File.get(self.client, self.id)
         self.__init__(**refreshed.dict())
         self.client = refreshed.client
+        for block in self.blocks:
+            block.client = self.client
         return self
 
     @staticmethod
@@ -232,6 +235,38 @@ class File(CamelModel):
             "plugin/instance/tag", payload=req, expect=TagResponse, wait_on_tasks=wait_on_tasks
         )
 
+    def generate(
+        self,
+        plugin_instance_handle: str,
+        start_block_index: int = None,
+        end_block_index: Optional[int] = None,
+        block_index_list: Optional[List[int]] = None,
+        append_output_to_file: bool = True,
+        options: Optional[dict] = None,
+        wait_on_tasks: List[Task] = None,
+    ) -> Task[GenerateResponse]:
+        """Generate new content from this file. Assumes this file as context for input and output.  May specify start and end blocks."""
+        from steamship.data.operations.generator import GenerateRequest, GenerateResponse
+
+        if append_output_to_file:
+            output_file_id = self.id
+        else:
+            output_file_id = None
+
+        req = GenerateRequest(
+            plugin_instance=plugin_instance_handle,
+            input_file_id=self.id,
+            input_file_start_block_index=start_block_index,
+            input_file_end_block_index=end_block_index,
+            input_file_block_index_list=block_index_list,
+            append_output_to_file=append_output_to_file,
+            output_file_id=output_file_id,
+            options=options,
+        )
+        return self.client.post(
+            "plugin/instance/generate", req, expect=GenerateResponse, wait_on_tasks=wait_on_tasks
+        )
+
     def index(self, plugin_instance: Any = None) -> EmbeddingIndex:
         """Index every block in the file.
 
@@ -247,15 +282,43 @@ class File(CamelModel):
         return plugin_instance.insert(tags)
 
     @staticmethod
-    def list(client: Client) -> ListFileResponse:
+    def list(
+        client: Client,
+        page_size: Optional[int] = None,
+        page_token: Optional[str] = None,
+        sort_order: Optional[SortOrder] = SortOrder.DESC,
+    ) -> ListFileResponse:
         return client.post(
             "file/list",
-            ListFileRequest(),
+            ListFileRequest(pageSize=page_size, pageToken=page_token, sortOrder=sort_order),
             expect=ListFileResponse,
         )
 
-    def append_block(self, text: str = None, tags: List[Tag] = None) -> Block:
-        return Block.create(self.client, file_id=self.id, text=text, tags=tags)
+    def append_block(
+        self,
+        text: str = None,
+        tags: List[Tag] = None,
+        content: Union[str, bytes] = None,
+        url: Optional[str] = None,
+        mime_type: Optional[MimeTypes] = None,
+    ) -> Block:
+        """Append a new block to this File.  This is a convenience wrapper around
+        Block.create(). You should provide only one of text, content, or url.
+
+        This is a server-side operation, saving the new Block to the file. The new block
+        is appended to this client-side File as well for convenience.
+        """
+        block = Block.create(
+            self.client,
+            file_id=self.id,
+            text=text,
+            tags=tags,
+            content=content,
+            url=url,
+            mime_type=mime_type,
+        )
+        self.blocks.append(block)
+        return block
 
 
 class FileQueryResponse(Response):

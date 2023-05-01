@@ -26,6 +26,8 @@ class TagKind(str, Enum):
     TIMESTAMP = "timestamp"
     SUMMARY = "summary"
     SEARCH_RESULT = "search-result"
+    ROLE = "role"
+    CHAT = "chat"
 
 
 class DocTag(str, Enum):
@@ -67,6 +69,7 @@ class DocTag(str, Enum):
     MAIN = "main"
     CHAPTER = "chapter"
     TEXT = "text"
+    CHAT = "chat"
 
     @staticmethod
     def from_html_tag(tagname: Optional[str]) -> Optional["DocTag"]:  # noqa: C901
@@ -230,3 +233,29 @@ class ProvenanceTag(str, Enum):
 
     # The File from which some section of a document was sourced
     FILE = "file"
+
+
+class RoleTag(str, Enum):
+    """A set of `name` constants for Tags with a `kind` of `TagKind.ROLE`."""
+
+    # This block's content was created by the System; likely instructional text on how to respond
+    SYSTEM = "system"
+
+    # This block's content was created by an end user
+    USER = "user"
+
+    # This block's content was created by the generative AI assistant
+    ASSISTANT = "assistant"
+
+    # This block's content was created by a non-human agent participating in the chat
+    AGENT = "agent"
+
+
+class ChatTag(str, Enum):
+    """A set of `name` constants for Tags with a `kind` of `TagKind.CHAT`."""
+
+    # The chat id in which a message happened
+    CHAT_ID = "chat-id"
+
+    # The message id of a message
+    MESSAGE_ID = "message-id"

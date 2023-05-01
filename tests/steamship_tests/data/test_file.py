@@ -1,11 +1,16 @@
+import io
 import json
+from datetime import datetime
 
 import pytest
+import requests
 from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 
 from steamship import MimeTypes, SteamshipError
+from steamship.base.request import SortOrder
 from steamship.client import Steamship
+from steamship.data import TagKind
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
@@ -209,6 +214,51 @@ def test_file_list(client: Steamship):
     c.delete()
 
 
+def test_file_list_paging(client: Steamship):
+    a = File.create(
+        client=client,
+        tags=[Tag(kind="FileTag", value={"name": "A"})],
+    )
+    b = File.create(
+        client=client,
+        tags=[Tag(kind="FileTag", value={"name": "B"})],
+    )
+    c = File.create(
+        client=client,
+        tags=[Tag(kind="FileTag", value={"name": "C"})],
+    )
+
+    page_size = 1
+    resp = File.list(client=client, page_size=page_size)
+    assert len(resp.files) == page_size
+    assert resp.next_page_token is not None
+    assert c == resp.files[0]  # default is DESC (createdAt)
+
+    resp = File.list(client=client, page_size=page_size, page_token=resp.next_page_token)
+    assert len(resp.files) == page_size
+    assert resp.next_page_token is not None
+    assert b == resp.files[0]
+
+    resp = File.list(client=client, page_size=page_size, page_token=resp.next_page_token)
+    assert len(resp.files) == page_size
+    assert resp.next_page_token is None
+    assert a == resp.files[0]
+
+    files = File.list(client=client, page_size=page_size, sort_order=SortOrder.ASC).files
+    assert len(files) == 1
+    assert files[0] == a
+
+    with pytest.raises(SteamshipError):
+        File.list(client=client, page_size=-1)
+
+    resp = File.list(client=client, page_token="not-found-foo")  # noqa: S106
+    assert len(resp.files) == 3
+
+    a.delete()
+    b.delete()
+    c.delete()
+
+
 def test_file_refresh(client: Steamship):
     blockifier_path = PLUGINS_PATH / "blockifiers" / "blockifier.py"
     with deploy_plugin(client, blockifier_path, "blockifier") as (
@@ -232,6 +282,7 @@ def test_append_indices(client: Steamship):
 
     appended_block = file.append_block(text="second")
     assert appended_block.index_in_file == 1
+    assert len(file.blocks) == 2
 
     file.refresh()
     assert len(file.blocks) == 2
@@ -239,3 +290,64 @@ def test_append_indices(client: Steamship):
     assert file.blocks[0].text == "first"
     assert file.blocks[1].index_in_file == 1
     assert file.blocks[1].text == "second"
+
+
+@pytest.mark.usefixtures("client")
+def test_file_upload_content_with_tags_and_tag_value(client: Steamship):
+    """This test created to test client-side that the multipart file content + tag parsing works correctly"""
+    a = File.create(
+        client=client,
+        handle="foo",
+        content="f",
+        tags=[Tag(kind="created_at", value={"date-value": datetime.now().isoformat()})],
+    )
+    assert a.id is not None
+    assert a.handle == "foo"
+    assert len(a.tags) == 1
+    assert a.tags[0].kind == "created_at"
+    assert a.tags[0].value["date-value"] is not None
+
+    assert a.raw().decode("utf-8") == "f"
+    a.delete()
+
+
+@pytest.mark.usefixtures("client")
+def test_file_create_from_resp(client: Steamship):
+    class FakeSession:
+        def post(self, url: str, **kwargs):
+            resp = requests.Response()
+            resp.status_code = 200
+            resp.headers = {"Content-Type": "application/text"}
+            resp.raw = io.BytesIO(bytes("<html>you done goofed</html>", "utf-8"))
+            return resp
+
+    client._session = FakeSession()
+
+    with pytest.raises(SteamshipError) as err:
+        # the content here is not relevant to the test
+        # this should raise a SteamshipError complaining about expectations.
+        File.create(
+            client=client, blocks=[Block(text="/usr/bin/python root.py")], mime_type=MimeTypes.TXT
+        )
+
+    assert "data does not match expected" in str(err)
+
+
+@pytest.mark.usefixtures("client")
+def test_append_with_tag(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first")])
+    assert len(file.blocks) == 1
+    assert file.blocks[0].index_in_file == 0
+
+    appended_block = file.append_block(text="second", tags=[Tag(kind=TagKind.DOCUMENT)])
+    assert appended_block.index_in_file == 1
+    assert len(file.blocks) == 2
+
+    file.refresh()
+    assert len(file.blocks) == 2
+    assert file.blocks[0].index_in_file == 0
+    assert file.blocks[0].text == "first"
+    assert file.blocks[1].index_in_file == 1
+    assert file.blocks[1].text == "second"
+    assert len(file.blocks[1].tags) == 1
+    assert file.blocks[1].tags[0].kind == TagKind.DOCUMENT

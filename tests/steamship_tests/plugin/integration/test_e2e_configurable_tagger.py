@@ -62,6 +62,7 @@ def test_e2e_parser():
             plugin_version_id=version.id,
             config=instance_config2,
         )
+        instance2.wait_for_init()
         assert instance2 is not None
 
         res = instance2.tag(doc=test_doc)
