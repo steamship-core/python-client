@@ -111,13 +111,13 @@ class Invocable(ABC):
 
         try:
             secret_kwargs = toml.load(".steamship/secrets.toml")
-        except FileNotFoundError:  # Support local secret loading
+        except OSError:  # Support local secret loading
             try:
                 local_secrets_file = (
                     pathlib.Path(inspect.getfile(type(self))).parent / ".steamship" / "secrets.toml"
                 )
                 secret_kwargs = toml.load(str(local_secrets_file))
-            except (TypeError, FileNotFoundError):
+            except (TypeError, OSError):  # Support collab usage
                 secret_kwargs = {}
 
         # The configuration for the Invocable is the union of:
