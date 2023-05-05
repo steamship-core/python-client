@@ -4,6 +4,7 @@ import webbrowser
 import requests
 
 from steamship.base.error import SteamshipError
+from steamship.cli.utils import is_in_replit
 
 
 def login(api_base: str, web_base: str) -> str:  # noqa: C901
@@ -25,10 +26,13 @@ def login(api_base: str, web_base: str) -> str:  # noqa: C901
     login_browser_url = (
         f"{web_base}account/client-login?attemptToken={token}&client=pycli&version=0.0.1"
     )
-    try:
-        opened_browser = webbrowser.open(login_browser_url)
-    except Exception as e:
-        raise SteamshipError("Exception attempting to launch browser for login.", error=e)
+
+    opened_browser = False
+    if not is_in_replit():
+        try:
+            opened_browser = webbrowser.open(login_browser_url)
+        except Exception as e:
+            raise SteamshipError("Exception attempting to launch browser for login.", error=e)
 
     if not opened_browser:
         raise SteamshipError(
