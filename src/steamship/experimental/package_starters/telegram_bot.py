@@ -1,4 +1,5 @@
 import logging
+import uuid
 from abc import ABC, abstractmethod
 from typing import List, Optional, Type
 
@@ -49,6 +50,7 @@ class TelegramBot(WebBot, ABC):
     def respond_to_text_with_sources(
         self, message_text: str, chat_id: str
     ) -> (Optional[str], Optional[List[str]]):
+        """Maps the expectations of the Web UI onto what needs to be implemented for Telegram."""
         if not chat_id:
             chat_id = "0"
         try:
@@ -56,7 +58,9 @@ class TelegramBot(WebBot, ABC):
         except ValueError:
             chat_session_numeric_id = 0
 
-        message_id = 0
+        message_id = (
+            uuid.uuid1().int >> 64
+        )  # This is a way to get a random value in the large int space so that test messages from the web ui don't collide
         return self.respond_to_text(message_text, chat_session_numeric_id, message_id, {}), []
 
     @post("respond", public=True)
