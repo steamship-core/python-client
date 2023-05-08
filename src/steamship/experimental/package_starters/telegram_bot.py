@@ -1,19 +1,20 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Type
+from typing import List, Optional, Type
 
 import requests
 from pydantic import Field
 
 from steamship import SteamshipError
-from steamship.invocable import Config, InvocableResponse, PackageService, post
+from steamship.experimental.package_starters.web_bot import WebBot
+from steamship.invocable import Config, InvocableResponse, post
 
 
 class TelegramBotConfig(Config):
     bot_token: str = Field(description="The secret token for your Telegram bot")
 
 
-class TelegramBot(PackageService, ABC):
+class TelegramBot(WebBot, ABC):
 
     config: TelegramBotConfig
 
@@ -35,7 +36,7 @@ class TelegramBot(PackageService, ABC):
         )
         if not response.ok:
             raise SteamshipError(
-                f"Could not set webhook for bot. Webhook URL was {webhook_url}. Telegram response message: {response.text}"
+                f"Could not set webhook for bot. Is your Telegram token valid? Webhook URL was {webhook_url}. Telegram response message: {response.text}"
             )
         logging.info(f"Initialized webhook with URL {webhook_url}")
 
@@ -45,30 +46,18 @@ class TelegramBot(PackageService, ABC):
     ) -> Optional[str]:
         pass
 
-    @post("answer", public=True)
-    def answer(self, question: str, chat_session_id: Optional[str] = None) -> Dict[str, Any]:
-        """Endpoint that implements the contract for Steamship embeddable chat widgets. This is a PUBLIC endpoint since these webhooks do not pass a token."""
-        logging.info(f"/answer: {question} {chat_session_id}")
-
-        if not chat_session_id:
-            chat_session_numeric_id = 0
+    def respond_to_text_with_sources(
+        self, message_text: str, chat_id: str
+    ) -> (Optional[str], Optional[List[str]]):
+        if not chat_id:
+            chat_id = "0"
         try:
-            chat_session_numeric_id = int(chat_session_id)
+            chat_session_numeric_id = int(chat_id)
         except ValueError:
             chat_session_numeric_id = 0
 
         message_id = 0
-
-        try:
-            response = self.respond_to_text(question, chat_session_numeric_id, message_id, {})
-        except SteamshipError as e:
-            response = self.response_for_exception(e)
-
-        return {
-            "answer": response,
-            "sources": [],
-            "is_plausible": True,
-        }
+        return self.respond_to_text(message_text, chat_session_numeric_id, message_id, {}), []
 
     @post("respond", public=True)
     def respond(self, update_id: int, **kwargs) -> InvocableResponse[str]:
@@ -101,15 +90,6 @@ class TelegramBot(PackageService, ABC):
             if chat_id is not None:
                 self.send_response(chat_id, response)
             return InvocableResponse(string="OK")
-
-    def response_for_exception(self, e: Optional[Exception]) -> str:
-        if e is None:
-            return "An unknown error happened. Please reach out to support@steamship.com or on our discord at https://steamship.com/discord"
-
-        if "usage limit" in f"{e}":
-            return "You have reached the introductory limit of Steamship. Visit https://steamship.com/account/plan to sign up for a plan."
-
-        return f"An error happened while creating a response: {e}"
 
     def send_response(self, chat_id: int, text: str):
         """Send a response to the chat in Telegram"""
