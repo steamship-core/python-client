@@ -40,7 +40,9 @@ class TelegramBot(PackageService, ABC):
         logging.info(f"Initialized webhook with URL {webhook_url}")
 
     @abstractmethod
-    def respond_to_text(self, message_text: str, chat_id: int, message_id: int) -> Optional[str]:
+    def respond_to_text(
+        self, message_text: str, chat_id: int, message_id: int, update_kwargs: dict
+    ) -> Optional[str]:
         pass
 
     @post("answer", public=True)
@@ -58,7 +60,7 @@ class TelegramBot(PackageService, ABC):
         message_id = 0
 
         try:
-            response = self.respond_to_text(question, chat_session_numeric_id, message_id)
+            response = self.respond_to_text(question, chat_session_numeric_id, message_id, {})
         except SteamshipError as e:
             response = self.response_for_exception(e)
 
@@ -85,7 +87,7 @@ class TelegramBot(PackageService, ABC):
             # TODO: must reject things not from the package
             try:
                 try:
-                    response = self.respond_to_text(message_text, chat_id, message_id)
+                    response = self.respond_to_text(message_text, chat_id, message_id, kwargs)
                 except SteamshipError as e:
                     response = self.response_for_exception(e)
                 if response is not None:
