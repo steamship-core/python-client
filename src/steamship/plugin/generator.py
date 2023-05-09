@@ -42,13 +42,14 @@ class Generator(PluginService[RawBlockAndTagPluginInput, RawBlockAndTagPluginOut
         result = self.run(input)
 
         # Rewrite block output by changing any blocks with byte content to pass by URL
-        result_blocks = []
-        for block in result.data.blocks:
-            if block.upload_type == BlockUploadType.FILE:
-                result_blocks.append(self.upload_block_content_to_signed_url(block))
-            else:
-                result_blocks.append(block)
-        result.data.blocks = result_blocks
+        if result.data is not None and result.data.blocks is not None:
+            result_blocks = []
+            for block in result.data.blocks:
+                if block.upload_type == BlockUploadType.FILE:
+                    result_blocks.append(self.upload_block_content_to_signed_url(block))
+                else:
+                    result_blocks.append(block)
+            result.data.blocks = result_blocks
         return result
 
     def upload_block_content_to_signed_url(self, block: Block) -> Block:
