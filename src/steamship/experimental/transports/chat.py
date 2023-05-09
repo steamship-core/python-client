@@ -6,7 +6,7 @@ from steamship.experimental.easy.tags import get_tag_value_key
 
 
 class ChatMessage(Block):
-    def __init__(self, chat_id: Optional[str] = None, message_id: Optional[str] = None, **kwargs):
+    def __init__(self, chat_id: Optional[int] = None, message_id: Optional[int] = None, **kwargs):
         super().__init__(**kwargs)
 
         # Note: Keep the str() wrappings below since Telegram sends int values.
@@ -18,7 +18,7 @@ class ChatMessage(Block):
         if message_id:
             self.set_message_id(message_id)
 
-    def set_chat_id(self, chat_id: str):
+    def set_chat_id(self, chat_id: int):
         existing = self.get_chat_id()
         if existing is not None:
             if existing == chat_id:
@@ -46,7 +46,7 @@ class ChatMessage(Block):
 
         self.tags.append(tag)
 
-    def set_message_id(self, message_id: str):
+    def set_message_id(self, message_id: int):
         existing = self.get_message_id()
         if existing is not None:
             if existing == message_id:
@@ -74,12 +74,12 @@ class ChatMessage(Block):
 
         self.tags.append(tag)
 
-    def get_chat_id(self) -> str:
-        return get_tag_value_key(
+    def get_chat_id(self) -> int:
+        return int(get_tag_value_key(
             self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.CHAT_ID
-        )
+        ))
 
-    def get_message_id(self) -> str:
-        return get_tag_value_key(
+    def get_message_id(self) -> int:
+        return int(get_tag_value_key(
             self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.MESSAGE_ID
-        )
+        ))

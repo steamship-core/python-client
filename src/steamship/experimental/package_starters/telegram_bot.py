@@ -2,11 +2,12 @@ import logging
 from abc import ABC, abstractmethod
 from typing import List, Optional, Type
 
-import requests
 from pydantic import Field
 
 from steamship import SteamshipError
 from steamship.experimental.package_starters.web_bot import WebBot
+from steamship.experimental.transports import TelegramTransport
+from steamship.experimental.transports.chat import ChatMessage
 from steamship.invocable import Config, InvocableResponse, post
 
 
@@ -15,8 +16,8 @@ class TelegramBotConfig(Config):
 
 
 class TelegramBot(WebBot, ABC):
-
     config: TelegramBotConfig
+    telegram_transport: TelegramTransport
 
     @classmethod
     def config_cls(cls) -> Type[Config]:
@@ -25,97 +26,60 @@ class TelegramBot(WebBot, ABC):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.api_root = f"https://api.telegram.org/bot{self.config.bot_token}"
 
     def instance_init(self):
         """This instance init method is called automatically when an instance of this package is created. It registers the URL of the instance as the Telegram webhook for messages."""
-        webhook_url = self.context.invocable_url + "respond"
-        response = requests.get(
-            f"{self.api_root}/setWebhook",
-            params={"url": webhook_url, "allowed_updates": ["message"]},
-        )
-        if not response.ok:
-            raise SteamshipError(
-                f"Could not set webhook for bot. Is your Telegram token valid? Webhook URL was {webhook_url}. Telegram response message: {response.text}"
-            )
-        logging.info(f"Initialized webhook with URL {webhook_url}")
-
-    @abstractmethod
-    def respond_to_text(
-        self, message_text: str, chat_id: int, message_id: int, update_kwargs: dict
-    ) -> Optional[str]:
-        pass
-
-    def respond_to_text_with_sources(
-        self, message_text: str, chat_id: str
-    ) -> (Optional[str], Optional[List[str]]):
-        if not chat_id:
-            chat_id = "0"
         try:
-            chat_session_numeric_id = int(chat_id)
-        except ValueError:
-            chat_session_numeric_id = 0
+            webhook_url = self.context.invocable_url + "respond"
+            self.telegram_transport = TelegramTransport(bot_token=self.config.bot_token)
+            self.telegram_transport.instance_init(webhook_url=webhook_url)
+        except Exception as ex:
+            logging.error(ex)
 
-        message_id = 0
-        return self.respond_to_text(message_text, chat_session_numeric_id, message_id, {}), []
-
-    @post("respond", public=True)
-    def respond(self, update_id: int, **kwargs) -> InvocableResponse[str]:
-        """Endpoint implementing the Telegram WebHook contract. This is a PUBLIC endpoint since Telegram cannot pass a Bearer token."""
+    @post("telegram_respond", public=True)
+    def telegram_respond(self, **kwargs) -> InvocableResponse:
+        """Respond to a Telegram message.
+        This is a PUBLIC endpoint since Telegram cannot pass a Bearer token."""
         chat_id = None
         try:
-            message = kwargs.get("message", None)
-            message_text = (message or {}).get("text", "")
+            input_message = self.telegram_transport.parse_inbound(payload=kwargs["message"])
 
-            if (not message_text) or len(message_text) == 0:
+            if not input_message.text:
                 # If we do nothing, make sure we return ok
                 return InvocableResponse(string="OK")
-
             else:
-                chat_id = message["chat"]["id"]
-                message_id = message["message_id"]
+                response: List[ChatMessage] = self.respond(message_text=input_message.text,
+                                                           chat_id=input_message.get_chat_id(),
+                                                           message_id=input_message.get_message_id())
 
-                # TODO: must reject things not from the package
 
-                try:
-                    response = self.respond_to_text(message_text, chat_id, message_id, kwargs)
-                except SteamshipError as e:
-                    response = self.response_for_exception(e)
-                if response is not None:
-                    self.send_response(chat_id, response)
+        except SteamshipError as e:
+            response = [
+                ChatMessage(
+                    client=self.client,
+                    chat_id=kwargs.get("chat_session_id"),
+                    text=self.response_for_exception(e),
+                )
+            ]
 
-                return InvocableResponse(string="OK")
-        except Exception as e:
-            response = self.response_for_exception(e)
-            if chat_id is not None:
-                self.send_response(chat_id, response)
-            return InvocableResponse(string="OK")
+        self.telegram_transport.send(response)
 
-    def send_response(self, chat_id: int, text: str):
-        """Send a response to the chat in Telegram"""
-        reply_params = {
-            "chat_id": chat_id,
-            "text": text,
-        }
-        requests.get(self.api_root + "/sendMessage", params=reply_params)
+    @abstractmethod
+    def respond(
+            self, message_text: str, chat_id: int, message_id: int
+    ) -> Optional[List[ChatMessage]]:
+        pass
 
     @post("webhook_info")
     def webhook_info(self) -> dict:
-        return requests.get(self.api_root + "/getWebhookInfo").json()
+        return self.telegram_transport.webhook_info()
 
     @post("info")
     def info(self) -> dict:
         """Endpoint returning information about this bot."""
-        resp = requests.get(self.api_root + "/getMe").json()
-        logging.info(f"/info: {resp}")
-        return {"telegram": resp.get("result")}
+        return self.telegram_transport.info()
 
     @post("disconnect_webhook")
     def disconnect_webhook(self) -> InvocableResponse[str]:
-        response = requests.get(f"{self.api_root}/setWebhook", params={"url": ""})
-        if not response.ok:
-            raise SteamshipError(
-                f"Could not disconnect webhook for bot. Telegram response message: {response.text}"
-            )
-        logging.info("Disconnected webhook.")
+        self.telegram_transport.instance_deinit()
         return InvocableResponse(data="OK")

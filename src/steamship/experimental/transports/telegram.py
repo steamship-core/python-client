@@ -40,12 +40,19 @@ class TelegramTransport(Transport):
 
         if not response.ok:
             raise SteamshipError(
-                f"Could not set webhook for bot. Webhook URL was {webhook_url}. Telegram response message: {response.text}"
+                f"Could not set webhook for bot. "
+                f"Webhook URL was {webhook_url}. "
+                f"Telegram response message: {response.text}"
             )
+        logging.info(f"Set Telegram webhook URL: {webhook_url}")
 
     def _instance_deinit(self, *args, **kwargs):
         """Unsubscribe from Telegram updates."""
-        requests.get(f"{self.api_root}/deleteWebhook")
+        response = requests.get(f"{self.api_root}/deleteWebhook")
+        if not response.ok:
+            raise SteamshipError(
+                f"Could not disconnect webhook for bot. Telegram response message: {response.text}"
+            )
 
     def _send(self, blocks: [ChatMessage]):
         """Send a response to the Telegram chat."""
@@ -88,6 +95,9 @@ class TelegramTransport(Transport):
         resp = requests.get(f"{self.api_root}/getMe").json()
         logging.info(f"/info: {resp}")
         return {"telegram": resp.get("result")}
+
+    def webhook_info(self) -> dict:
+        return requests.get(self.api_root + "/getWebhookInfo").json()
 
     def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> ChatMessage:
         """Parses an inbound Telegram message."""
