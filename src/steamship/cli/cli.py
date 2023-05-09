@@ -10,6 +10,7 @@ import click
 import steamship
 from steamship import Steamship, SteamshipError
 from steamship.base.configuration import Configuration
+from steamship.cli.create_instance import create_instance
 from steamship.cli.deploy import (
     PackageDeployer,
     PluginDeployer,
@@ -240,6 +241,7 @@ cli.add_command(info)
 cli.add_command(deploy, name="it")
 cli.add_command(ships)
 cli.add_command(logs)
+cli.add_command(create_instance, name="use")
 
 
 if __name__ == "__main__":

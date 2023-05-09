@@ -20,6 +20,7 @@ from steamship.data.plugin.plugin_instance import PluginInstance
 from steamship.data.plugin.prompt_generation_plugin_instance import PromptGenerationPluginInstance
 from steamship.data.workspace import Workspace
 from steamship.utils.metadata import hash_dict
+from steamship.utils.utils import create_instance_handle
 
 _logger = logging.getLogger(__name__)
 
@@ -187,7 +188,9 @@ class Steamship(Client):
             if config is None:
                 instance_handle = package_handle
             else:
-                instance_handle = f"{package_handle}-{hash_dict({**config, 'version': version})}"
+                instance_handle = create_instance_handle(
+                    invocable_handle=package_handle, version_handle=version, invocable_config=config
+                )
 
         result = PackageInstance.create(
             self,
