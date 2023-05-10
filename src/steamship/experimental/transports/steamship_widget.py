@@ -29,7 +29,9 @@ class SteamshipWidgetTransport(Transport):
         """Fetches info about this bot."""
         return {}
 
-    def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> ChatMessage:
+    def _parse_inbound(
+        self, payload: dict, context: Optional[dict] = None
+    ) -> Optional[ChatMessage]:
         """Parses an inbound Steamship widget message."""
 
         message_text = payload.get("question")
