@@ -82,7 +82,7 @@ def internal_handler(  # noqa: C901
         if call_instance_init:
             # TODO: We don't want to run this every time, but for now we are.
             logging.info("Running __instance_init__")
-        invocable.instance_init()
+            invocable.instance_init()
     except SteamshipError as se:
         logging.exception(se)
         return InvocableResponse.from_obj(se)
