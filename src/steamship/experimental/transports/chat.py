@@ -18,6 +18,24 @@ class ChatMessage(Block):
         if message_id:
             self.set_message_id(message_id)
 
+    @staticmethod
+    def from_block(block: Block, chat_id: Optional[str] = None, message_id: Optional[str] = None):
+        return ChatMessage(
+            chat_id=chat_id,
+            message_id=message_id,
+            client=block.client,
+            id=block.id,
+            file_id=block.file_id,
+            text=block.text,
+            tags=block.tags,
+            index_in_file=block.index_in_file,
+            mime_type=block.mime_type,
+            url=block.url,
+            content_url=block.content_url,
+            upload_type=block.upload_type,
+            upload_bytes=block.upload_bytes,
+        )
+
     def set_chat_id(self, chat_id: str):
         existing = self.get_chat_id()
         if existing is not None:
