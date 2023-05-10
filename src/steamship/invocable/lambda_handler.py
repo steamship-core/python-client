@@ -155,7 +155,7 @@ def handler(  # noqa: C901
     logging.info(f"Invocation context: {invocation_context}")
 
     if (
-        logging_host != "none" and not running_locally
+        not running_locally and logging_host != "none"
     ):  # Key off the string none, not 'is None', to avoid config errors where remote host isn't passed
         # Configure remote logging
         if logging_host is None:
