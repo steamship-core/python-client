@@ -37,7 +37,6 @@ def internal_handler(  # noqa: C901
     invocation_context: InvocationContext,
     call_instance_init: bool = False,
 ) -> InvocableResponse:
-    invocable_class: Type[Invocable] = invocable_cls_func()
 
     try:
         request = InvocableRequest.parse_obj(event)
@@ -62,6 +61,7 @@ def internal_handler(  # noqa: C901
     if request.invocation.invocation_path == "/__dir__":
         # Return the DIR result without (1) Constructing invocable_cls or (2) Parsing its config (in the constructor)
         try:
+            invocable_class: Type[Invocable] = invocable_cls_func()
             return InvocableResponse(json=invocable_class.__steamship_dir__(invocable_class))
         except SteamshipError as se:
             logging.exception(se)
