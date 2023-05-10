@@ -7,7 +7,7 @@ from pathlib import Path
 
 import click
 
-from steamship import SteamshipError
+from steamship.base.error import SteamshipError
 
 
 def find_api_py() -> Path:
