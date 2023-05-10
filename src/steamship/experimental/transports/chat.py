@@ -1,19 +1,8 @@
-from enum import Enum
 from typing import Optional
 
 from steamship import Block, SteamshipError, Tag
-from steamship.data.tags.tag_constants import TagValueKey
+from steamship.data.tags.tag_constants import ChatTag, DocTag, TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
-
-
-class ChatTag(str, Enum):
-    """A set of `name` constants for Tags with a `kind` of `TagKind.CHAT`."""
-
-    # The chat id in which a message happened
-    CHAT_ID = "chat-id"
-
-    # The message id of a message
-    MESSAGE_ID = "message-id"
 
 
 class ChatMessage(Block):
@@ -44,13 +33,15 @@ class ChatMessage(Block):
                 self.client,
                 file_id=self.file_id,
                 block_id=self.id,
-                kind="chat",
+                kind=DocTag.CHAT,
                 name=ChatTag.CHAT_ID,
                 value={TagValueKey.STRING_VALUE: str(chat_id)},
             )
         else:
             tag = Tag(
-                kind="chat", name=ChatTag.CHAT_ID, value={TagValueKey.STRING_VALUE: str(chat_id)}
+                kind=DocTag.CHAT,
+                name=ChatTag.CHAT_ID,
+                value={TagValueKey.STRING_VALUE: str(chat_id)},
             )
 
         self.tags.append(tag)
@@ -70,13 +61,13 @@ class ChatMessage(Block):
                 self.client,
                 file_id=self.file_id,
                 block_id=self.id,
-                kind="chat",
+                kind=DocTag.CHAT,
                 name=ChatTag.MESSAGE_ID,
                 value={TagValueKey.STRING_VALUE: str(message_id)},
             )
         else:
             tag = Tag(
-                kind="chat",
+                kind=DocTag.CHAT,
                 name=ChatTag.MESSAGE_ID,
                 value={TagValueKey.STRING_VALUE: str(message_id)},
             )
@@ -84,7 +75,11 @@ class ChatMessage(Block):
         self.tags.append(tag)
 
     def get_chat_id(self) -> str:
-        return get_tag_value_key(self.tags, "chat", ChatTag.CHAT_ID, TagValueKey.STRING_VALUE)
+        return get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.CHAT_ID
+        )
 
     def get_message_id(self) -> str:
-        return get_tag_value_key(self.tags, "chat", ChatTag.MESSAGE_ID, TagValueKey.STRING_VALUE)
+        return get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.MESSAGE_ID
+        )

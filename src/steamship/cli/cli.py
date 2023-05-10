@@ -3,7 +3,7 @@ import logging
 import signal
 import sys
 import time
-from os import path
+from os import getenv, path
 from typing import Optional
 
 import click
@@ -11,6 +11,7 @@ import click
 import steamship
 from steamship import Steamship, SteamshipError
 from steamship.base.configuration import Configuration
+from steamship.cli.create_instance import create_instance
 from steamship.cli.deploy import (
     PackageDeployer,
     PluginDeployer,
@@ -196,6 +197,56 @@ def deploy():
 
 
 @click.command()
+def info():
+    """Displays information about the current Steamship user.
+
+    This is useful to help users (in a support or hackathon context) test whether they have configured their
+    Steamship environment correctly.
+    """
+    initialize()
+    click.echo("\nSteamship Client Info\n=====================\n")
+
+    if Configuration.default_config_file_has_api_key() or getenv("STEAMSHIP_API_KEY", None):
+        # User is logged in!
+        client = None
+        try:
+            client = Steamship()
+        except BaseException:
+            click.secho("Incorrect API key or network error.\n", fg="red")
+            click.secho(
+                "Your Steamship API Key is set, but we were unable to use it to fetch your account information.\n"
+            )
+            click.secho("- If you are on your own computer, run `ship login` to login.")
+            click.secho(
+                "- If you are in Replit, add the STEAMSHIP_API_KEY secret, then close and re-open this shell.\n"
+            )
+            return
+
+        try:
+            user = User.current(client)
+            click.echo(f"User handle: {user.handle}")
+            click.echo(f"User ID:     {user.id}")
+            click.echo(f"Profile:     {client.config.profile}")
+            click.echo("\nReady to ship! 🚢🚢🚢\n")
+
+        except BaseException:
+            click.secho("Incorrect API key or network error.\n", fg="red")
+            click.secho(
+                "Your Steamship API Key is set, but we were unable to use it to fetch your account information.\n"
+            )
+            click.secho("- If you are on your own computer, run `ship login` to login.")
+            click.secho(
+                "- If you are in Replit, add the STEAMSHIP_API_KEY secret, then close and re-open this shell.\n"
+            )
+    else:
+        click.secho("You are not logged in.\n")
+        click.secho("- If you are on your own computer, run `ship login` to login.")
+        click.secho(
+            "- If you are in Replit, add the STEAMSHIP_API_KEY secret, then close and re-open this shell.\n"
+        )
+
+
+@click.command()
 @click.option(
     "--workspace",
     "-w",
@@ -262,10 +313,12 @@ def logs(
 
 cli.add_command(login)
 cli.add_command(deploy)
+cli.add_command(info)
 cli.add_command(deploy, name="it")
 cli.add_command(ships)
 cli.add_command(logs)
 cli.add_command(serve)
+cli.add_command(create_instance, name="use")
 
 
 if __name__ == "__main__":
