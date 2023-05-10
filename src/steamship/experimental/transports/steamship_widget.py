@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 
 from steamship import SteamshipError
 from steamship.experimental.transports.chat import ChatMessage
@@ -14,7 +15,7 @@ class SteamshipWidgetTransport(Transport):
         pass
 
     def _instance_deinit(self, *args, **kwargs):
-        """Unsubscribe from Telegram updates."""
+        """Unsubscribe from updates."""
         pass
 
     def _send(self, blocks: [ChatMessage]):
@@ -28,7 +29,7 @@ class SteamshipWidgetTransport(Transport):
         """Fetches info about this bot."""
         return {}
 
-    def _parse_inbound(self, payload: dict, context: dict) -> ChatMessage:
+    def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> ChatMessage:
         """Parses an inbound Steamship widget message."""
 
         message_text = payload.get("question")
