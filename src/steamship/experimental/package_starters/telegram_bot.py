@@ -44,9 +44,13 @@ class TelegramBot(SteamshipWidgetBot, ABC):
         chat_id = message.get("chat", {}).get("id")
         try:
             incoming_message = self.telegram_transport.parse_inbound(message)
-            response = self.create_response(incoming_message)
-            if response is not None:
-                self.telegram_transport.send(response)
+            if incoming_message is not None:
+                response = self.create_response(incoming_message)
+                if response is not None:
+                    self.telegram_transport.send(response)
+                else:
+                    # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
+                    pass
             else:
                 # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
                 pass
