@@ -6,6 +6,9 @@ from steamship.experimental.easy.tags import get_tag_value_key
 
 
 class ChatMessage(Block):
+
+    who: Optional[str] = "bot"
+
     def __init__(self, chat_id: Optional[str] = None, message_id: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
 
