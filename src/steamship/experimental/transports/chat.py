@@ -1,13 +1,25 @@
-from typing import Optional
+from typing import List, Optional
+
+from pydantic import Field
 
 from steamship import Block, SteamshipError, Tag
+from steamship.base.model import CamelModel
 from steamship.data.tags.tag_constants import ChatTag, DocTag, TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
 
 
-class ChatMessage(Block):
+class Document(CamelModel):
+    """Interface for interacting with a document."""
 
+    page_content: str
+    lookup_str: str = ""
+    lookup_index = 0
+    metadata: dict = Field(default_factory=dict)
+
+
+class ChatMessage(Block):
     who: Optional[str] = "bot"
+    sources: Optional[List[Document]] = Field(default_factory=list)
 
     def __init__(self, chat_id: Optional[str] = None, message_id: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
