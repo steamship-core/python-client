@@ -12,8 +12,6 @@ class Document(CamelModel):
     """Interface for interacting with a document."""
 
     page_content: str
-    lookup_str: str = ""
-    lookup_index = 0
     metadata: dict = Field(default_factory=dict)
 
 
