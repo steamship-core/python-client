@@ -8,8 +8,8 @@ from steamship.data.tags.tag_constants import ChatTag, DocTag, TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
 
 
-class Document(CamelModel):
-    """Interface for interacting with a document."""
+class Source(CamelModel):
+    """Interface to reference a source."""
 
     page_content: str
     metadata: dict = Field(default_factory=dict)
@@ -17,7 +17,7 @@ class Document(CamelModel):
 
 class ChatMessage(Block):
     who: Optional[str] = "bot"
-    sources: Optional[List[Document]] = Field(default_factory=list)
+    sources: Optional[List[Source]] = Field(default_factory=list)
 
     def __init__(self, chat_id: Optional[str] = None, message_id: Optional[str] = None, **kwargs):
         super().__init__(**kwargs)
