@@ -72,11 +72,13 @@ class Transport(ABC):
     def _send(self, blocks: List[ChatMessage]):
         raise NotImplementedError
 
-    def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> ChatMessage:
+    def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[ChatMessage]:
         return self._parse_inbound(payload, context)
 
     @abstractmethod
-    def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> ChatMessage:
+    def _parse_inbound(
+        self, payload: dict, context: Optional[dict] = None
+    ) -> Optional[ChatMessage]:
         raise NotImplementedError
 
     def info(self) -> dict:

@@ -89,7 +89,9 @@ class TelegramTransport(Transport):
         logging.info(f"/info: {resp}")
         return {"telegram": resp.get("result")}
 
-    def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> ChatMessage:
+    def _parse_inbound(
+        self, payload: dict, context: Optional[dict] = None
+    ) -> Optional[ChatMessage]:
         """Parses an inbound Telegram message."""
 
         chat = payload.get("chat")
@@ -114,10 +116,10 @@ class TelegramTransport(Transport):
                 f"Bad 'message_id' found in Telegram message: ({message_id}). Should have been an int"
             )
 
+        # Some incoming messages (like the group join message) don't have message text.
+        # Rather than throw an error, we just don't return a ChatMessage.
         message_text = payload.get("text")
-        if message_text is None:
-            raise SteamshipError(f"No 'text' found in Telegram message: {payload}")
-
-        block = ChatMessage(text=message_text, chat_id=str(chat_id), message_id=str(message_id))
-
-        return block
+        if message_text is not None:
+            return ChatMessage(text=message_text, chat_id=str(chat_id), message_id=str(message_id))
+        else:
+            return None
