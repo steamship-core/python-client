@@ -5,7 +5,10 @@ from typing import Type
 import requests
 from pydantic import Field
 
-from steamship.experimental.package_starters.web_bot import SteamshipWidgetBot
+from steamship.experimental.package_starters.web_bot import (
+    SteamshipWidgetBot,
+    response_for_exception,
+)
 from steamship.experimental.transports import TelegramTransport
 from steamship.invocable import Config, InvocableResponse, post
 
@@ -15,7 +18,6 @@ class TelegramBotConfig(Config):
 
 
 class TelegramBot(SteamshipWidgetBot, ABC):
-
     config: TelegramBotConfig
     telegram_transport: TelegramTransport
 
@@ -55,7 +57,7 @@ class TelegramBot(SteamshipWidgetBot, ABC):
                 # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
                 pass
         except Exception as e:
-            response = self.response_for_exception(e, chat_id=chat_id)
+            response = response_for_exception(e, chat_id=chat_id)
 
             if chat_id is not None:
                 self.telegram_transport.send([response])
