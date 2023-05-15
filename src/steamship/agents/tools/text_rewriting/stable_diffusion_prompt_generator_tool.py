@@ -1,5 +1,3 @@
-from typing import Optional
-
 from steamship.agents.agent_context import DebugAgentContext
 from steamship.agents.debugging import tool_repl
 from steamship.agents.tools.text_rewriting.text_rewriting_tool import TextRewritingTool
@@ -19,10 +17,7 @@ class StableDiffusionPromptGenerator(TextRewritingTool):
     Example tool to illustrate rewriting an input query to become a better prompt.
     """
 
-    def __init__(
-        self, personality: Optional[str] = None, rewrite_prompt: Optional[str] = None, **kwargs
-    ):
-
+    def __init__(self, **kwargs):
         # TODO: This feels like an awkward way to push down args, but I can't figure out another way that permits
         # BOTH developer-time level overrides and ALSO instantiation-time level overrides.
         #
@@ -45,7 +40,6 @@ class StableDiffusionPromptGenerator(TextRewritingTool):
             "rewrite_prompt",
             DEFAULT_PROMPT,
         )
-
         super().__init__(**kwargs)
 
 
