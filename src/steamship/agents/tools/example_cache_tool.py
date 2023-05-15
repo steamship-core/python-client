@@ -2,7 +2,7 @@ import uuid
 from typing import List
 
 from steamship import Block
-from steamship.agents.agents import AgentContext
+from steamship.agents.agent_context import AgentContext
 from steamship.agents.tools.workspace_tool import WorkspaceTool
 from steamship.utils.kv_store import KeyValueStore
 

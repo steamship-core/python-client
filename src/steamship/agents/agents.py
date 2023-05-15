@@ -4,6 +4,7 @@ from typing import Any, List, Optional
 from pydantic import BaseModel
 
 from steamship import Block, File, Steamship, Tag
+from steamship.agents.agent_context import AgentContext
 from steamship.invocable import InvocableResponse, PackageService, post
 
 
@@ -14,20 +15,6 @@ class Action(BaseModel):
 
 class FinishAction(Action):
     pass
-
-
-class AgentContext(BaseModel, ABC):
-    # todo: define what should be in this context
-    # some set of state-related to agent (maybe request ids, callbacks, etc.)
-    pass
-
-    @abstractmethod
-    def update_blocks(self, blocks: List[Block]):
-        pass
-
-    @abstractmethod
-    def append_log(self, message: str):
-        pass
 
 
 class Tool(BaseModel, ABC):
