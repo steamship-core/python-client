@@ -1,7 +1,8 @@
 from typing import List
 
 from steamship import Block
-from steamship.agents.agent_context import AgentContext
+from steamship.agents.agent_context import AgentContext, DebugAgentContext
+from steamship.agents.debugging import tool_repl
 from steamship.agents.tools.tool import Tool
 
 
@@ -20,3 +21,14 @@ class KnockKnockTool(Tool):
     def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         context.append_log("Starting knock-knock joke...")
         return [Block(text="Knock-Knock..")]
+
+
+def main():
+    with DebugAgentContext.temporary() as context:
+        # Note: The personality tool accepts overrides that it passes down.
+        tool = KnockKnockTool()
+        tool_repl(tool, context)
+
+
+if __name__ == "__main__":
+    main()

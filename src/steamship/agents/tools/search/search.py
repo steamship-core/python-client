@@ -1,8 +1,11 @@
 """Tool for searching the web for answers."""
 from typing import Any, List, Optional
 
+from pydantic import Field
+
 from steamship import Block, File, PluginInstance, SteamshipError
-from steamship.agents.agent_context import AgentContext
+from steamship.agents.agent_context import AgentContext, DebugAgentContext
+from steamship.agents.debugging import tool_repl
 from steamship.agents.tools.tool import Tool
 from steamship.data import TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
@@ -14,18 +17,28 @@ class SearchTool(Tool):
     Tool which uses Steamship's managed SERP API client to search Google.
     """
 
-    name = "SearchTool"
-    human_description = "Searches the web."
-    ai_description = "Used to search the web for new information."
-
     cache: bool = False
-    cache_store: Optional[KeyValueStore] = None
+    cache_store: Optional[KeyValueStore] = Field(None, exclude=True)
 
-    def __init__(self, cache: bool = True, **kwargs):
+    class Config:
+        arbitrary_types_allowed = True
+
+    def __init__(self, **kwargs):
         """Initialize the SteamshipSERP tool.
         This tool uses the serpapi-wrapper plugin that uses Google searches to provide answers.
+
+        Inputs
+        ------
+        cache: bool
+            Whether to cache search results.
         """
-        self.cache = cache
+        kwargs["name"] = kwargs.get("name", "SearchTool")
+        kwargs["human_description"] = kwargs.get("human_description", "Searches the web.")
+        kwargs["ai_description"] = kwargs.get(
+            "ai_description",
+            "Used to search the web for new information.",
+        )
+        kwargs["cache"] = kwargs.get("cache", False)
         super().__init__(**kwargs)
 
     def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
@@ -75,3 +88,14 @@ class SearchTool(Tool):
             if val is not None:
                 return val
         return None
+
+
+def main():
+    with DebugAgentContext.temporary() as context:
+        # Note: The personality tool accepts overrides that it passes down.
+        tool = SearchTool()
+        tool_repl(tool, context)
+
+
+if __name__ == "__main__":
+    main()
