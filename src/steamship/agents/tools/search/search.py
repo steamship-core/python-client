@@ -1,38 +1,57 @@
 """Tool for searching the web for answers."""
-from typing import Any, Optional
+from typing import Any, List, Optional
 
-from steamship import File, Steamship, SteamshipError
+from steamship import Block, File, PluginInstance, SteamshipError
+from steamship.agents.agent_context import AgentContext
+from steamship.agents.tools.tool import Tool
 from steamship.data import TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
 from steamship.utils.kv_store import KeyValueStore
 
 
-class SearchTool:
-    """Provides a Steamship-compatible Search Tool (with optional caching) for use in LangChain chains and agents."""
+class SearchTool(Tool):
+    """
+    Tool which uses Steamship's managed SERP API client to search Google.
+    """
 
-    client: Steamship
+    name = "SearchTool"
+    human_description = "Searches the web."
+    ai_description = "Used to search the web for new information."
+
+    cache: bool = False
     cache_store: Optional[KeyValueStore] = None
 
-    def __init__(self, client: Steamship, cache: bool = True):
+    def __init__(self, cache: bool = True, **kwargs):
         """Initialize the SteamshipSERP tool.
-        This tool uses the serpapi-wrapper plugin. This will use Google searches to provide answers.
+        This tool uses the serpapi-wrapper plugin that uses Google searches to provide answers.
         """
-        self.client = client
-        self.search_tool = self.client.use_plugin("serpapi-wrapper")
-        if cache:
+        self.cache = cache
+        super().__init__(**kwargs)
+
+    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+        """Execute a search using the Steamship plugin."""
+        search_tool = context.client.use_plugin("serpapi-wrapper")
+
+        if self.cache:
             self.cache_store = KeyValueStore(
-                client=client, store_identifier="search-tool-serpapi-wrapper"
+                client=context.client, store_identifier="search-tool-serpapi-wrapper"
             )
 
-    def search(self, query: str) -> str:
-        """Execute a search using the Steamship plugin."""
+        output = []
+        for block in tool_input:
+            if block.is_text():
+                result = self._do_search(block.text, search_tool)
+                output.append(Block(text=result))
+        return output
+
+    def _do_search(self, query: str, search_tool: PluginInstance) -> str:
         try:
             if self.cache_store is not None:
                 value = self.cache_store.get(query)
                 if value is not None:
                     return value.get(TagValueKey.STRING_VALUE, "")
 
-            task = self.search_tool.tag(doc=query)
+            task = search_tool.tag(doc=query)
             task.wait()
             answer = self._first_tag_value(
                 # TODO: TagKind.SEARCH_RESULT
