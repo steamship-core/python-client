@@ -47,9 +47,11 @@ class TelegramBot(SteamshipWidgetBot, ABC):
         try:
             incoming_message = self.telegram_transport.parse_inbound(message)
             if incoming_message is not None:
+                # todo: should we have hooks for pre-generation messaging?
                 response = self.create_response(incoming_message)
                 if response is not None:
                     self.telegram_transport.send(response)
+                    # todo: should we have hooks for post-generation messaging?
                 else:
                     # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
                     pass

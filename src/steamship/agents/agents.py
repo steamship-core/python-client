@@ -1,12 +1,11 @@
-import uuid
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
-from steamship import Block, File, Steamship, Tag, Task
-from steamship.invocable import InvocableResponse, PackageService, post
-from steamship.utils.kv_store import KeyValueStore
+from steamship import Block, Steamship, Tag, Task
+from steamship.experimental.package_starters.telegram_bot import TelegramBot, TelegramBotConfig
+from steamship.experimental.transports.chat import ChatMessage
 
 
 class Action(BaseModel):
@@ -23,14 +22,6 @@ class AgentContext(BaseModel, ABC):
     # some set of state-related to agent (maybe request ids, callbacks, etc.)
     pass
 
-    @abstractmethod
-    def update_blocks(self, blocks: List[Block]):
-        pass
-
-    @abstractmethod
-    def append_log(self, message: str):
-        pass
-
 
 class Tool(BaseModel, ABC):
     name: str
@@ -42,17 +33,8 @@ class Tool(BaseModel, ABC):
         pass
 
 
-class KnockKnockTool(Tool):
-    name = "KnockKnockTool"
-    human_description = "Starts Knock-Knock Jokes"
-    ai_description = ("Used to begin the telling of a joke.",)
-
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
-        context.append_log("starting knock-knock joke...")
-        return [Block(text="Knock-Knock")]
-
-
 class WorkspaceTool(Tool, ABC):
+    # is it better for client to come from context?
     client: Steamship
 
 
@@ -90,20 +72,6 @@ class TaskScheduler(WorkspaceTool):
 
     def _call(self, url, payload, schedule_time) -> Task:
         # does the steamship-appropriate calling function.
-        pass
-
-
-class ExampleCacheTool(WorkspaceTool):
-    name = "CacheTool"
-    human_description = "In-Memory Key-Value Store"
-    ai_description = ("Used to store and lookup values by a known key.",)
-    store: KeyValueStore
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.store = KeyValueStore(client=self.client, store_identifier=f"cache-{uuid.uuid4()}")
-
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         pass
 
 
@@ -151,37 +119,175 @@ class ReACTAgent(Agent):
         context.update_blocks(new_blocks)
 
     def run(self, agent_input: List[Block], context: AgentContext) -> List[Block]:
+        # TODO: how do we get the full set of output blocks?  Anything tagged with "agent-generated"?
+        # Other?
+
         # push agent_input somewhere?  into context?
+
         while not isinstance(action := self.next_action(context), FinishAction):
             self.execute_action(action=action, context=context)
 
 
-class ChatHistory(BaseModel):
+class Tracing(ABC):
+    # just a dummy placeholder for tracing context bits (request ID, current span, etc.)
     pass
 
 
-class ChatReACTAgent(ReACTAgent):
-    client: Steamship
-    chat_history: ChatHistory
+class TracingContext:
+    # utility that populates / retrieves tracing from context.
 
-    def __init__(self, chat_id: str, **kwargs):
-        super().__init__(**kwargs)
-        self.chat_history = File.create(client=self.client, handle=f"history-{chat_id}")
+    @staticmethod
+    def new_context(context: AgentContext, tracing: Tracing) -> AgentContext:
+        return context.with_value(context, "tracing", tracing)
+
+    @staticmethod
+    def from_context(context: AgentContext) -> Tracing:
+        return context.value("tracing")
 
 
-class ExampleService(PackageService):
+class ChatMessageHistory(BaseModel):
+    # dummy placeholder for a message history
 
-    agent: ReACTAgent
+    uuid: str
+
+    def add_user_message(self, text):
+        pass
+
+    def add_ai_message(self, text):
+        pass
+
+    def add_generated_block(self, block):
+        pass
+
+    def clear(self):
+        pass
+
+
+class ChatContext:
+    # utility that populates / retrieves chat history from context.
+
+    @staticmethod
+    def new_context(context: AgentContext, chat_file: ChatMessageHistory) -> AgentContext:
+        return context.with_value(context, "chat_file", chat_file)
+
+    @staticmethod
+    def from_context(context: AgentContext) -> ChatMessageHistory:
+        return context.value("chat_file")
+
+
+class TelegramBotWithAgentsConfig(TelegramBotConfig):
+    personality: str = Field(description="Personality for your bot")
+
+
+class TelegramBotWithAgents(TelegramBot):
+
+    config: TelegramBotWithAgentsConfig
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.agent = ReACTAgent(client=self.client)
 
-    @post("run_agent")
-    def run_agent(self, query: str) -> InvocableResponse:
-        query_block = Block.create(
-            client=self.client, text=query, tags=[Tag(kind="user-input", value={...})]
+        # Setup our "chat" tool (for personalized text-based interactions, as appropriate)
+        personality_tool = PersonalityTool(client=self.client, personality=self.config.personality)
+        # TODO: does this need to be an agent, or can/should we use the tool directly
+        # direct tool use could save on costs, latency, etc.
+        self._personality_agent = ReACTAgent(tools=[personality_tool])
+
+        # Setup our "actions" tool (for doing user prompting)
+        dalle = DalleTool(client=self.client)
+        pix2pix = PixToPixTool(client=self.client)
+        search = SerpTool(client=self.client)
+        prompt_optimizer = PromptOptimizerTool(client=self.client)
+        self._generate_agent = ReACTAgent(
+            client=self.client, tools=[dalle, pix2pix, search, prompt_optimizer]
         )
-        output_blocks = self.agent.run(agent_input=[query_block], context=AgentContext())
-        # interpret the blocks as necessary...
-        return output_blocks[0].text
+
+    def create_response(self, incoming_message: ChatMessage) -> Optional[List[ChatMessage]]:
+
+        chat_history = ChatMessageHistory(uuid=incoming_message.get_chat_id())
+        chat_history.add_user_message(incoming_message.text)
+
+        # ideally, this Tracing() bit is built elsewhere and passed in, but for now, conform to the
+        # existing `create_response` signature.
+        tracing_ctx = TracingContext.new_context(AgentContext(), Tracing())
+        chat_ctx = ChatContext.new_context(tracing_ctx, chat_file=chat_history)
+
+        # todo: allow read-only access to history here?
+        # does the agent need full conversation history for tool selection? Is that potentially problematic?
+        output_blocks = self._generate_agent.run(agent_input=[incoming_message], context=chat_ctx)
+
+        responses = []
+        for block in output_blocks:
+            if block.is_text():
+                # do not use the chat history here, as context is not needed for personality translation
+                translated_blocks = self._personality_agent.run(
+                    agent_input=[block], context=tracing_ctx
+                )
+                if len(translated_blocks) == 1:
+                    # update chat history here, to allow for ai-user convo saving
+                    chat_history.add_ai_message(translated_blocks[0].text)
+                    responses.append(
+                        ChatMessage.from_block(
+                            translated_blocks[0],
+                            chat_id=incoming_message.get_chat_id(),
+                            message_id=incoming_message.get_message_id(),
+                        )
+                    )
+            else:
+                # do we want to update chat history with multi-media representation?  i _think_ so?
+                chat_history.add_generated_block(block)
+                # todo: decide if you want personality driven captions, etc.
+                responses.append(
+                    ChatMessage.from_block(
+                        block,
+                        chat_id=incoming_message.get_chat_id(),
+                        message_id=incoming_message.get_message_id(),
+                    )
+                )
+
+        return responses
+
+
+class DalleTool(Tool):
+    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+        pass
+
+
+class SerpTool(Tool):
+    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+        pass
+
+
+class PixToPixTool(Tool):
+    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+        pass
+
+
+class PromptOptimizerTool(Tool):
+    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+        pass
+
+
+class PersonalityTool(Tool):
+    # do we even need this?
+    name = "PersonalityResponder"
+    human_description = (
+        "translates responses into a particular phrasing based on a configured personality."
+    )
+
+    client: Steamship
+
+    def __init__(self, client: Steamship, personality: str):
+        super().__init__()
+        self.ai_description = (
+            "This is a tool that translates AI generated responses into human-friendly "
+            f"conversational-style responses using the following personality: {personality}"
+        )
+        self.client = client
+        self._llm = self.client.use_plugin("gpt-4")
+        self._prompt = f"Translate the following using a personality of {self.config.personality}: "
+
+    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+        full_prompt = self._prompt + tool_input[0].text
+        task = self._llm.generate(text=full_prompt)
+        task.wait(max_timeout_s=500)
+        return task.output.blocks
