@@ -60,3 +60,5 @@ inflection~=0.5.1
 pydantic~=1.10.2
 aiohttp~=3.8.3
 msgpack~=1.0.4
+termcolor
+inquirer

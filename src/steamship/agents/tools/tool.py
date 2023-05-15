@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel
 
@@ -33,26 +33,8 @@ class Tool(BaseModel, ABC):
     human_description: str
     ai_description: str
 
-    def init(
-        self,
-        name: Optional[str] = None,
-        ai_description: Optional[str] = None,
-        human_description: Optional[str] = None,
-    ) -> List[Block]:
-        # Permit instance creators to override registration fields.
-
-        # QUESTION: Do we need these to be static? Playing with this design to enable someone to create a tool
-        # that is intended to be parameterized by the tool invoker; e.g. a prompt rewriting tool.
-
-        if name:
-            self.name = name
-        if ai_description:
-            self.ai_description = ai_description
-        if human_description:
-            self.human_description = human_description
-
     @abstractmethod
-    def run(self, input: List[Block], context: AgentContext) -> List[Block]:
+    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         """Runs the tool in the provided context.
 
         Intended semantics of the `run` operation:

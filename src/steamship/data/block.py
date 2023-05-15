@@ -174,7 +174,7 @@ class Block(CamelModel):
 
     def is_text(self) -> bool:
         """Return whether this is a text Block."""
-        return self.mime_type == MimeTypes.TXT
+        return self.mime_type == MimeTypes.TXT or (self.mime_type is None and self.text)
 
     def is_image(self):
         """Return whether this is an image Block."""
