@@ -1,12 +1,10 @@
-import uuid
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional
 
 from pydantic import BaseModel
 
-from steamship import Block, File, Steamship, Tag, Task
+from steamship import Block, File, Steamship, Tag
 from steamship.invocable import InvocableResponse, PackageService, post
-from steamship.utils.kv_store import KeyValueStore
 
 
 class Action(BaseModel):
@@ -38,71 +36,6 @@ class Tool(BaseModel, ABC):
     ai_description: str
 
     @abstractmethod
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
-        pass
-
-
-class KnockKnockTool(Tool):
-    name = "KnockKnockTool"
-    human_description = "Starts Knock-Knock Jokes"
-    ai_description = ("Used to begin the telling of a joke.",)
-
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
-        context.append_log("starting knock-knock joke...")
-        return [Block(text="Knock-Knock")]
-
-
-class WorkspaceTool(Tool, ABC):
-    client: Steamship
-
-
-class TaskScheduler(WorkspaceTool):
-    name = "TaskScheduler"
-    human_description = "Schedule async calls to a package"
-    ai_description = ("Used to schedule reminders for the user at a future point in time.",)
-
-    def __init__(self, client: Steamship, instance_handle: str, method: str):
-        super().__init__(client=client)
-        self._handle = instance_handle
-        self._method = method
-
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
-        # parse and call _schedule_task
-        task = self._schedule_task("some-time-in-future", {"arg1": "foo"})
-        return [
-            Block(
-                text="Your task has been scheduled.",
-                tags=[Tag(kind="Task ID", value={"task_id", task.task_id})],
-            )
-        ]
-
-    def _schedule_task(self, time: str, task_kwargs: dict) -> Task:
-        url = self.client._url(operation="package/instance/invoke")
-        payload = {
-            "instanceHandle": self._handle,
-            "payload": {
-                "httpVerb": "POST",
-                "invocationPath": self._method,
-                "arguments": task_kwargs,
-            },
-        }
-        return self._call(url, payload, time)
-
-    def _call(self, url, payload, schedule_time) -> Task:
-        # does the steamship-appropriate calling function.
-        pass
-
-
-class ExampleCacheTool(WorkspaceTool):
-    name = "CacheTool"
-    human_description = "In-Memory Key-Value Store"
-    ai_description = ("Used to store and lookup values by a known key.",)
-    store: KeyValueStore
-
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.store = KeyValueStore(client=self.client, store_identifier=f"cache-{uuid.uuid4()}")
-
     def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         pass
 
