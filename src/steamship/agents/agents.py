@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel
 
-from steamship import Block, File, Steamship, Tag
+from steamship import Block, File, Steamship, SteamshipError, Tag
 from steamship.agents.agent_context import AgentContext
 from steamship.invocable import InvocableResponse, PackageService, post
 
@@ -28,7 +28,16 @@ class Tool(BaseModel, ABC):
 
 
 class Agent(BaseModel, ABC):
-    tools: Optional[Tool] = []
+    handle: Optional[str] = None
+    tools: Dict[str, Tool] = {}
+
+    def add_tool(self, tool: Tool, handle: str = "default"):
+        self.tools[handle] = tool
+
+    def get_tool(self, handle: str = "default") -> Tool:
+        if handle in self.tools:
+            return self.tools[handle]
+        raise SteamshipError(message=f"Tool {handle} not found in Agent {self.handle}.")
 
     @abstractmethod
     def next_action(self, context: AgentContext) -> Action:

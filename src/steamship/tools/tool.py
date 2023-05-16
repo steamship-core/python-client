@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
-from steamship import Block
+from steamship import Block, Task
 from steamship.agents.agent_context import AgentContext
 
 
@@ -34,7 +34,9 @@ class Tool(BaseModel, ABC):
     ai_description: str
 
     @abstractmethod
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+    def run(
+        self, tool_input: List[Block], context: AgentContext
+    ) -> Union[List[Block], Task[List[Block]]]:
         """Runs the tool in the provided context.
 
         Intended semantics of the `run` operation:
@@ -75,7 +77,9 @@ class GeneratorTool(Tool):
     def accept_output_block(self, block: Block) -> bool:
         raise NotImplementedError()
 
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+    def run(
+        self, tool_input: List[Block], context: AgentContext
+    ) -> Union[List[Block], Task[List[Block]]]:
         generator = context.client.use_plugin(
             plugin_handle=self.generator_plugin_handle,
             instance_handle=self.generator_plugin_instance_handle,
