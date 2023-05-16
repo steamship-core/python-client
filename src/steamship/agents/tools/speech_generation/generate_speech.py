@@ -1,13 +1,11 @@
 """Tool for generating images."""
-from typing import List
 
-from steamship import Block
-from steamship.agents.agent_context import AgentContext, DebugAgentContext
-from steamship.agents.agents import Tool
+from steamship.agents.agent_context import DebugAgentContext
 from steamship.agents.debugging import tool_repl
+from steamship.agents.tools.tool import AudioGeneratorTool
 
 
-class GenerateSpeechTool(Tool):
+class GenerateSpeechTool(AudioGeneratorTool):
     """Tool to generate audio from text."""
 
     name: str = "GenerateSpokenAudio"
@@ -17,46 +15,7 @@ class GenerateSpeechTool(Tool):
         "an audio version of output. When using this tool, the input should be a plain text string containing the "
         "content to be spoken."
     )
-
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
-        """Generates audio for each text block provided.
-
-        Waits, synchronously, for completion.
-        TODO: We should probably make this async.
-
-        Inputs
-        ------
-        input: List[Block]
-            A list of blocks to be rewritten if text-containing.
-        context: AgentContext
-            The active AgentContext.
-
-        Output
-        ------
-        output: List[Blocks]
-            A list of blocks containing audio content.
-        """
-
-        # TODO: Make this an option in the tool
-        plugin_handle = "elevenlabs"
-
-        # Assumed at this point to be an audio generator.
-        generator = context.client.use_plugin(plugin_handle=plugin_handle, config={})
-
-        output = []
-        for block in tool_input:
-            if not block.is_text():
-                continue
-
-            prompt = block.text
-            task = generator.generate(text=prompt, append_output_to_file=True)
-            task.wait()
-            blocks = task.output.blocks
-            for output_block in blocks:
-                if output_block.is_audio():
-                    output.append(output_block)
-
-        return output
+    generator_plugin_handle: str = "elevenlabs"
 
 
 def main():

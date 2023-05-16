@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -59,3 +59,58 @@ class Tool(BaseModel, ABC):
 
         """
         raise NotImplementedError()
+
+
+class GeneratorTool(Tool):
+    """
+    A base class for tools that wrap Steamship Generator plugins. Subclass this and implement
+    the `accept_output_block` method.
+    """
+
+    generator_plugin_handle: str
+    generator_plugin_instance_handle: Optional[str] = None
+    generator_plugin_config: dict = {}
+
+    @abstractmethod
+    def accept_output_block(self, block: Block) -> bool:
+        raise NotImplementedError()
+
+    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+        generator = context.client.use_plugin(
+            plugin_handle=self.generator_plugin_handle,
+            instance_handle=self.generator_plugin_instance_handle,
+            config=self.generator_plugin_config,
+        )
+
+        output = []
+        for block in tool_input:
+            if not block.is_text():
+                continue
+
+            prompt = block.text
+            task = generator.generate(text=prompt, append_output_to_file=True)
+            task.wait()
+            blocks = task.output.blocks
+            for output_block in blocks:
+                if self.accept_output_block(output_block):
+                    output.append(output_block)
+
+        return output
+
+
+class ImageGeneratorTool(GeneratorTool):
+    """
+    A base class for tools that wrap Steamship Image Generator plugins.
+    """
+
+    def accept_output_block(self, block: Block) -> bool:
+        return block.is_image()
+
+
+class AudioGeneratorTool(GeneratorTool):
+    """
+    A base class for tools that wrap Steamship Audio Generator plugins.
+    """
+
+    def accept_output_block(self, block: Block) -> bool:
+        return block.is_audio()
