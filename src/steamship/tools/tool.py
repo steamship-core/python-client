@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
-from steamship import Block, Task
+from steamship import Block, File, SteamshipError, Task
 from steamship.agents.agent_context import AgentContext
 
 
@@ -117,4 +117,57 @@ class AudioGeneratorTool(GeneratorTool):
     """
 
     def accept_output_block(self, block: Block) -> bool:
+        return block.is_audio()
+
+
+class BlockifierTool(Tool):
+    """
+    A base class for tools that wrap Steamship Blockifier plugin which transforms bytes to a set of blocks.
+    """
+
+    blockifier_plugin_handle: str
+    blockifier_plugin_instance_handle: Optional[str] = None
+    blockifier_plugin_config: dict = {}
+
+    @abstractmethod
+    def should_blockify(self, block: Block) -> bool:
+        raise NotImplementedError()
+
+    def run(
+        self, tool_input: List[Block], context: AgentContext
+    ) -> Union[List[Block], Task[List[Block]]]:
+        blockifier = context.client.use_plugin(
+            plugin_handle=self.blockifier_plugin_handle,
+            instance_handle=self.blockifier_plugin_instance_handle,
+            config=self.blockifier_plugin_config,
+        )
+
+        for block in tool_input:
+            if not self.should_blockify(block):
+                continue
+
+            # This is a weird trick, but we don't have a better way to do this..
+            _bytes = block.raw()
+            file = File.create(context.client, content=_bytes)
+            task = file.blockify(plugin_instance=blockifier.handle)
+            # TODO: It's just going to return the FIRST, which is incorrect, but this is a prototype..
+            return task
+        raise SteamshipError(message="Attempted to blockify some blocks but found none.")
+
+
+class ImageBlockifierTool(BlockifierTool):
+    """
+    A base class for tools that wrap Steamship Image Blockifier plugins.
+    """
+
+    def should_blockify(self, block: Block) -> bool:
+        return block.is_image()
+
+
+class AudioBlockifierTool(BlockifierTool):
+    """
+    A base class for tools that wrap Steamship Audio Blockifier plugins.
+    """
+
+    def should_blockify(self, block: Block) -> bool:
         return block.is_audio()
