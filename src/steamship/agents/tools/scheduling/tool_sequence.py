@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List
 
 from steamship import Block
 from steamship.agents.agent_context import AgentContext, DebugAgentContext
@@ -14,20 +14,12 @@ class ToolSequence(Tool):
     name: str = "ToolSequence"
     human_description: str = "Runs a sequence of tools."
     ai_description: str = "Useful for running tools in a sequence."
-    tools: List[Tool] = []
+    tools: List[
+        Any
+    ] = []  # Note: Pydantic fails if this is typed as Tool and contents are heterogenous.
 
     class Config:
         arbitrary_types_allowed = True
-
-    def __init__(self, **kwargs):
-        """Creates a text-rewriting tool.
-
-        Inputs
-        ------
-        tools: List[Tool]
-            A list of tools to invoke in series.
-        """
-        super().__init__(**kwargs)
 
     def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         step_input = tool_input
@@ -47,12 +39,11 @@ def main():
     )
 
     with DebugAgentContext.temporary() as context:
-        tools = [StableDiffusionPromptGenerator(), GenerateImageTool()]
         tool = ToolSequence(
             name="DalleMagic",
             human_description="DALLE but with automated better prompting",
-            ai_description="Useful for whan you want to generate an image",
-            tools=tools,
+            ai_description="Useful for when you want to generate an image",
+            tools=[StableDiffusionPromptGenerator(), GenerateImageTool()],
         )
         tool_repl(tool, context)
 

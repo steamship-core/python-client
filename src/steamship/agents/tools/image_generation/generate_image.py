@@ -51,13 +51,9 @@ class GenerateImageTool(Tool):
             task = generator.generate(text=prompt, append_output_to_file=True)
             task.wait()
             blocks = task.output.blocks
-
-            context.append_log(f"[{self.name}] got back {len(blocks)} blocks")
-            if len(blocks) > 0:
-                context.append_log(f"[{self.name}] image size: {len(blocks[0].raw())}")
-                # TODO: This is how we were doing it.. but it feels like with this new interface
-                # perhaps we should return the actual block?
-                output.append(Block(text=f"{blocks[0].id}"))
+            for output_block in blocks:
+                if output_block.is_image():
+                    output.append(output_block)
 
         return output
 
