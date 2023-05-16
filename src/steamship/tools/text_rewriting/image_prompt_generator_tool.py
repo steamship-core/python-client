@@ -12,12 +12,12 @@ Passage:
 Image Generation Prompt:"""
 
 
-class StableDiffusionPromptGenerator(TextRewritingTool):
+class ImagePromptGenerator(TextRewritingTool):
     """
     Example tool to illustrate rewriting an input query to become a better prompt.
     """
 
-    name: str = "StableDiffusionPromptGenerator"
+    name: str = "ImagePromptGenerator"
     human_description: str = "Improves a prompt for use with image generation."
     ai_description: str = (
         "Use this tool to improve a prompt for stable diffusion and other image and video generators. "
@@ -31,7 +31,7 @@ class StableDiffusionPromptGenerator(TextRewritingTool):
 def main():
     with DebugAgentContext.temporary() as context:
         # Note: The personality tool accepts overrides that it passes down.
-        tool = StableDiffusionPromptGenerator()
+        tool = ImagePromptGenerator()
         tool_repl(tool, context)
 
 
