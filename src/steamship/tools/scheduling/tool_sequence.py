@@ -3,7 +3,7 @@ from typing import Any, List
 from steamship import Block
 from steamship.agents.agent_context import AgentContext, DebugAgentContext
 from steamship.agents.debugging import tool_repl
-from steamship.agents.tools.tool import Tool
+from steamship.tools.tool import Tool
 
 
 class ToolSequence(Tool):
@@ -33,8 +33,8 @@ class ToolSequence(Tool):
 
 
 def main():
-    from steamship.agents.tools.image_generation.generate_image import GenerateImageTool
-    from steamship.agents.tools.text_rewriting.stable_diffusion_prompt_generator_tool import (
+    from steamship.tools.image_generation.generate_image import GenerateImageTool
+    from steamship.tools.text_rewriting.stable_diffusion_prompt_generator_tool import (
         StableDiffusionPromptGenerator,
     )
 

@@ -2,7 +2,7 @@
 
 from steamship.agents.agent_context import DebugAgentContext
 from steamship.agents.debugging import tool_repl
-from steamship.agents.tools.tool import ImageGeneratorTool
+from steamship.tools.tool import ImageGeneratorTool
 
 
 class GenerateImageTool(ImageGeneratorTool):

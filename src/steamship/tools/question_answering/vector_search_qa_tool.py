@@ -4,8 +4,8 @@ from typing import List, Optional, cast
 from steamship import Block, Steamship, Tag
 from steamship.agents.agent_context import AgentContext, DebugAgentContext
 from steamship.agents.debugging import tool_repl
-from steamship.agents.tools.tool import Tool
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
+from steamship.tools.tool import Tool
 
 DEFAULT_QUESTION_ANSWERING_PROMPT = (
     "Use the following pieces of context to answer the question at the end. "

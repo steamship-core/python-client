@@ -6,9 +6,9 @@ from pydantic import Field
 from steamship import Block, File, PluginInstance, SteamshipError
 from steamship.agents.agent_context import AgentContext, DebugAgentContext
 from steamship.agents.debugging import tool_repl
-from steamship.agents.tools.tool import Tool
 from steamship.data import TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
+from steamship.tools.tool import Tool
 from steamship.utils.kv_store import KeyValueStore
 
 

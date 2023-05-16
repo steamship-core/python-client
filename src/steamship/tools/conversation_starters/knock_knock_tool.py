@@ -3,7 +3,7 @@ from typing import List
 from steamship import Block
 from steamship.agents.agent_context import AgentContext, DebugAgentContext
 from steamship.agents.debugging import tool_repl
-from steamship.agents.tools.tool import Tool
+from steamship.tools.tool import Tool
 
 
 class KnockKnockTool(Tool):

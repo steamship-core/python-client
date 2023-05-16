@@ -2,7 +2,7 @@
 
 from steamship.agents.agent_context import DebugAgentContext
 from steamship.agents.debugging import tool_repl
-from steamship.agents.tools.tool import AudioGeneratorTool
+from steamship.tools.tool import AudioGeneratorTool
 
 
 class GenerateSpeechTool(AudioGeneratorTool):

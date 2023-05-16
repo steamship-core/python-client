@@ -2,7 +2,7 @@ from typing import Optional
 
 from steamship.agents.agent_context import DebugAgentContext
 from steamship.agents.debugging import tool_repl
-from steamship.agents.tools.text_rewriting.text_rewriting_tool import TextRewritingTool
+from steamship.tools.text_rewriting.text_rewriting_tool import TextRewritingTool
 
 DEFAULT_PERSONALITY = """A jolly pirate that addresses his friends as 'Matey."""
 
