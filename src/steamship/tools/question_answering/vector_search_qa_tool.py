@@ -1,9 +1,9 @@
 """Answers questions with the assistance of a VectorSearch plugin."""
 from typing import List, Optional, cast
 
-from steamship import Block, Steamship, Tag
-from steamship.agents.agent_context import AgentContext, DebugAgentContext
-from steamship.agents.debugging import tool_repl
+from steamship import Block, Steamship
+from steamship.agents.agent_context import AgentContext
+from steamship.agents.debugging import ToolREPL
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
 from steamship.tools.tool import Tool
 
@@ -101,18 +101,5 @@ class VectorSearchQATool(Tool):
         return output
 
 
-def main():
-    with DebugAgentContext.temporary() as context:
-        tool = VectorSearchQATool()
-
-        # Let's load some information in.
-        tool.get_embedding_index(context.client).insert(
-            [Tag(text="Ted loves apple pie."), Tag(text="The secret passcode is 1234.")]
-        )
-
-        # Now let's let the user talk to the tool
-        tool_repl(tool, context)
-
-
 if __name__ == "__main__":
-    main()
+    ToolREPL(VectorSearchQATool()).run()

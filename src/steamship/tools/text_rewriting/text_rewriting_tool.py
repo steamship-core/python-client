@@ -1,8 +1,8 @@
 from typing import List
 
 from steamship import Block
-from steamship.agents.agent_context import AgentContext, DebugAgentContext
-from steamship.agents.debugging import tool_repl
+from steamship.agents.agent_context import AgentContext
+from steamship.agents.debugging import ToolREPL
 from steamship.tools.tool import Tool
 
 DEFAULT_PROMPT = """Instructions:
@@ -59,11 +59,5 @@ class TextRewritingTool(Tool):
         return output
 
 
-def main():
-    with DebugAgentContext.temporary() as context:
-        tool = TextRewritingTool()
-        tool_repl(tool, context)
-
-
 if __name__ == "__main__":
-    main()
+    ToolREPL(TextRewritingTool()).run()

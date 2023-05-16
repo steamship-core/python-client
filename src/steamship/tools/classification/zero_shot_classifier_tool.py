@@ -1,7 +1,6 @@
 from typing import List, Optional
 
-from steamship.agents.agent_context import DebugAgentContext
-from steamship.agents.debugging import tool_repl
+from steamship.agents.debugging import ToolREPL
 from steamship.tools.text_rewriting.text_rewriting_tool import TextRewritingTool
 
 DEFAULT_LABELS = ["question", "complaint", "suggestion"]
@@ -43,12 +42,5 @@ class ZeroShotClassifierTool(TextRewritingTool):
         super().__init__(**kwargs)
 
 
-def main():
-    with DebugAgentContext.temporary() as context:
-        # Note: The personality tool accepts overrides that it passes down.
-        tool = ZeroShotClassifierTool()
-        tool_repl(tool, context)
-
-
 if __name__ == "__main__":
-    main()
+    ToolREPL(ZeroShotClassifierTool()).run()

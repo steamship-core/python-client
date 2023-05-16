@@ -1,7 +1,5 @@
 """Tool for generating images."""
-
-from steamship.agents.agent_context import DebugAgentContext
-from steamship.agents.debugging import tool_repl
+from steamship.agents.debugging import ToolREPL
 from steamship.tools.tool import ImageGeneratorTool
 
 
@@ -19,11 +17,5 @@ class GenerateImageTool(ImageGeneratorTool):
     generator_plugin_config: dict = {"n": 1, "size": "256x256"}
 
 
-def main():
-    with DebugAgentContext.temporary() as context:
-        tool = GenerateImageTool()
-        tool_repl(tool, context)
-
-
 if __name__ == "__main__":
-    main()
+    ToolREPL(GenerateImageTool()).run()

@@ -1,8 +1,8 @@
 from typing import Any, List
 
 from steamship import Block
-from steamship.agents.agent_context import AgentContext, DebugAgentContext
-from steamship.agents.debugging import tool_repl
+from steamship.agents.agent_context import AgentContext
+from steamship.agents.debugging import ToolREPL
 from steamship.tools.tool import Tool
 
 
@@ -32,21 +32,14 @@ class ToolSequence(Tool):
         return step_output
 
 
-def main():
-    from steamship.tools.image_generation.generate_image import GenerateImageTool
-    from steamship.tools.text_rewriting.stable_diffusion_prompt_generator_tool import (
-        StableDiffusionPromptGenerator,
-    )
-
-    with DebugAgentContext.temporary() as context:
-        tool = ToolSequence(
-            name="DalleMagic",
-            human_description="DALLE but with automated better prompting",
-            ai_description="Useful for when you want to generate an image",
-            tools=[StableDiffusionPromptGenerator(), GenerateImageTool()],
-        )
-        tool_repl(tool, context)
-
-
 if __name__ == "__main__":
-    main()
+    from steamship.tools.image_generation.generate_image import GenerateImageTool
+    from steamship.tools.text_rewriting.image_prompt_generator_tool import ImagePromptGenerator
+
+    tool = ToolSequence(
+        name="DalleMagic",
+        human_description="DALLE but with automated better prompting",
+        ai_description="Useful for when you want to generate an image",
+        tools=[ImagePromptGenerator(), GenerateImageTool()],
+    )
+    ToolREPL(tool).run()

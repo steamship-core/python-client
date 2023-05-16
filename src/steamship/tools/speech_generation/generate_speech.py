@@ -1,7 +1,5 @@
 """Tool for generating images."""
-
-from steamship.agents.agent_context import DebugAgentContext
-from steamship.agents.debugging import tool_repl
+from steamship.agents.debugging import ToolREPL
 from steamship.tools.tool import AudioGeneratorTool
 
 
@@ -18,11 +16,5 @@ class GenerateSpeechTool(AudioGeneratorTool):
     generator_plugin_handle: str = "elevenlabs"
 
 
-def main():
-    with DebugAgentContext.temporary() as context:
-        tool = GenerateSpeechTool()
-        tool_repl(tool, context)
-
-
 if __name__ == "__main__":
-    main()
+    ToolREPL(GenerateSpeechTool()).run()

@@ -4,8 +4,8 @@ from typing import Any, List, Optional
 from pydantic import Field
 
 from steamship import Block, File, PluginInstance, SteamshipError
-from steamship.agents.agent_context import AgentContext, DebugAgentContext
-from steamship.agents.debugging import tool_repl
+from steamship.agents.agent_context import AgentContext
+from steamship.agents.debugging import ToolREPL
 from steamship.data import TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
 from steamship.tools.tool import Tool
@@ -76,12 +76,5 @@ class SearchTool(Tool):
         return None
 
 
-def main():
-    with DebugAgentContext.temporary() as context:
-        # Note: The personality tool accepts overrides that it passes down.
-        tool = SearchTool()
-        tool_repl(tool, context)
-
-
 if __name__ == "__main__":
-    main()
+    ToolREPL(SearchTool()).run()
