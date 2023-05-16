@@ -17,30 +17,15 @@ class StableDiffusionPromptGenerator(TextRewritingTool):
     Example tool to illustrate rewriting an input query to become a better prompt.
     """
 
-    def __init__(self, **kwargs):
-        # TODO: This feels like an awkward way to push down args, but I can't figure out another way that permits
-        # BOTH developer-time level overrides and ALSO instantiation-time level overrides.
-        #
-        # See the main() method below for an example of an instantiation-time override that feels like the kind of
-        # usage we may want to encourage.
-        kwargs["name"] = kwargs.get("name", "StableDiffusionPromptGenerator")
-        kwargs["human_description"] = kwargs.get(
-            "human_description", "Improves a prompt for use with image generation."
-        )
-        kwargs["ai_description"] = kwargs.get(
-            "ai_description",
-            (
-                "Use this tool to improve a prompt for stable diffusion and other image and video generators. "
-                "This tool will refine your prompt to include key words and phrases that make "
-                "stable diffusion and other art generation algorithms perform better. The input is a prompt text string "
-                "and the output is a prompt text string"
-            ),
-        )
-        kwargs["rewrite_prompt"] = kwargs.get(
-            "rewrite_prompt",
-            DEFAULT_PROMPT,
-        )
-        super().__init__(**kwargs)
+    name: str = "StableDiffusionPromptGenerator"
+    human_description: str = "Improves a prompt for use with image generation."
+    ai_description: str = (
+        "Use this tool to improve a prompt for stable diffusion and other image and video generators. "
+        "This tool will refine your prompt to include key words and phrases that make "
+        "stable diffusion and other art generation algorithms perform better. The input is a prompt text string "
+        "and the output is a prompt text string"
+    )
+    rewrite_prompt: str = DEFAULT_PROMPT
 
 
 def main():

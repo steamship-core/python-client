@@ -1,16 +1,78 @@
 """Answers questions with the assistance of a VectorSearch plugin."""
-from typing import List
+from typing import List, Optional, cast
 
-from steamship import Block
+from steamship import Block, Steamship, Tag
 from steamship.agents.agent_context import AgentContext, DebugAgentContext
-from steamship.agents.agents import Tool
 from steamship.agents.debugging import tool_repl
+from steamship.agents.tools.tool import Tool
+from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
+
+DEFAULT_QUESTION_ANSWERING_PROMPT = (
+    "Use the following pieces of context to answer the question at the end. ",
+    """If you don't know the answer, just say that you don't know, don't try to make up an answer.
+
+{source_text}
+
+Question: {question}
+
+Helpful Answer:""",
+)
+
+
+DEFAULT_SOURCE_DOCUMENT_PROMPT = ("Source Document: {text}",)
 
 
 class VectorSearchQATool(Tool):
     """Tool to answer questions with the assistance of a vector search plugin."""
 
-    embedding_index_instance_handle: str
+    name: str = "VectorSearchQATool"
+    human_description: str = "Answers questions with help from a Vector Database."
+    ai_description: str = (
+        "Used to answer questions. ",
+        "The input should be a plain text question. ",
+        "The output is a plain text answer",
+    )
+    embedding_index_handle: Optional[str] = "embedding-index"
+    embedding_index_version: Optional[str] = None
+    question_answering_prompt: Optional[str] = DEFAULT_QUESTION_ANSWERING_PROMPT
+    source_document_prompt: Optional[str] = DEFAULT_SOURCE_DOCUMENT_PROMPT
+    embedding_index_config: Optional[dict] = {
+        "embedder": {
+            "plugin_handle": "text-embedding-ada-002",
+            "fetch_if_exists": True,
+            "config": {"dimensionality": 1536},
+        }
+    }
+    load_docs_count: int = 2
+    embedding_index_instance_handle: str = "default-embedding-index"
+
+    def get_embedding_index(self, client: Steamship) -> EmbeddingIndexPluginInstance:
+        index = client.use_plugin(
+            plugin_handle=self.embedding_index_handle,
+            instance_handle=self.embedding_index_instance_handle,
+            config=self.embedding_index_config,
+            fetch_if_exists=True,
+        )
+        return cast(EmbeddingIndexPluginInstance, index)
+
+    def answer_question(self, question: str, context: AgentContext) -> List[Block]:
+        index = self.get_embedding_index(context.client)
+        task = index.search(question, k=self.load_docs_count)
+        task.wait()
+
+        source_texts = []
+
+        for item in task.output.items:
+            item_data = {"text": item.tag.text}
+            source_texts.append(self.source_document_prompt.format(item_data))
+
+        final_prompt = self.question_answering_prompt.format(
+            {"source_text": "\n".join(source_texts), "question": question}
+        )
+
+        answer_task = context.default_text_generator().generate(text=final_prompt)
+        answer_task.wait()
+        return answer_task.output.blocks
 
     def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         """Answers questions with the assistance of an Embedding Index plugin.
@@ -28,34 +90,25 @@ class VectorSearchQATool(Tool):
             A lit of blocks containing the answers.
         """
 
-        # Assumed at this point to be an image generator.
-        generator = context.client.use_plugin(
-            plugin_handle="dall-e", config={"n": 1, "size": "256x256"}
-        )
-
         output = []
-        for block in tool_input:
-            if not block.is_text():
+        for inpput_block in tool_input:
+            if not inpput_block.is_text():
                 continue
-
-            prompt = block.text
-            task = generator.generate(text=prompt, append_output_to_file=True)
-            task.wait()
-            blocks = task.output.blocks
-
-            context.append_log(f"[{self.name}] got back {len(blocks)} blocks")
-            if len(blocks) > 0:
-                context.append_log(f"[{self.name}] image size: {len(blocks[0].raw())}")
-                # TODO: This is how we were doing it.. but it feels like with this new interface
-                # perhaps we should return the actual block?
-                output.append(Block(text=f"{blocks[0].id}"))
-
+            for output_block in self.answer_question(inpput_block.text, context):
+                output.append(output_block)
         return output
 
 
 def main():
     with DebugAgentContext.temporary() as context:
         tool = VectorSearchQATool()
+
+        # Let's load some information in.
+        tool.get_embedding_index(context.client).insert(
+            [Tag(text="Ted loves apple pie."), Tag(text="The secret passcode is 1234.")]
+        ).wait()
+
+        # Now let's let the user talk to the tool
         tool_repl(tool, context)
 
 

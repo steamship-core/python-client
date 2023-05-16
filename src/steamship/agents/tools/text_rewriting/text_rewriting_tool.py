@@ -19,26 +19,10 @@ class TextRewritingTool(Tool):
     Example tool to illustrate rewriting a statement according to a particular personality.
     """
 
-    rewrite_prompt: str
-
-    def __init__(self, **kwargs):
-        """Creates a text-rewriting tool.
-
-        Inputs
-        ------
-        rewrite_prompt: str
-            A prompt, with variable {input}, that requests the passage be rewritten.
-        """
-        kwargs["name"] = kwargs.get("name", "TextRewritingTool")
-        kwargs["human_description"] = kwargs.get(
-            "human_description", "Rewrites a piece of text using the provided prompt."
-        )
-        kwargs["ai_description"] = kwargs.get(
-            "ai_description",
-            "Used to rewrite a piece of text given a prompt. Takes text as input, and provides text as output.",
-        )
-        kwargs["rewrite_prompt"] = kwargs.get("rewrite_prompt", DEFAULT_PROMPT)
-        super().__init__(**kwargs)
+    rewrite_prompt: str = DEFAULT_PROMPT
+    name: str = "TextRewritingTool"
+    human_description: str = "Rewrites a piece of text using the provided prompt."
+    ai_description: str = "Used to rewrite a piece of text given a prompt. Takes text as input, and provides text as output."
 
     def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         """Rewrites each provided text block using the stored prompt. Non-text blocks are passed through without

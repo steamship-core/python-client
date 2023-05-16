@@ -17,29 +17,15 @@ class SearchTool(Tool):
     Tool which uses Steamship's managed SERP API client to search Google.
     """
 
+    name: str = "SearchTool"
+    human_description: str = "Searches the web."
+    ai_description: str = "Used to search the web for new information."
+
     cache: bool = False
     cache_store: Optional[KeyValueStore] = Field(None, exclude=True)
 
     class Config:
         arbitrary_types_allowed = True
-
-    def __init__(self, **kwargs):
-        """Initialize the SteamshipSERP tool.
-        This tool uses the serpapi-wrapper plugin that uses Google searches to provide answers.
-
-        Inputs
-        ------
-        cache: bool
-            Whether to cache search results.
-        """
-        kwargs["name"] = kwargs.get("name", "SearchTool")
-        kwargs["human_description"] = kwargs.get("human_description", "Searches the web.")
-        kwargs["ai_description"] = kwargs.get(
-            "ai_description",
-            "Used to search the web for new information.",
-        )
-        kwargs["cache"] = kwargs.get("cache", False)
-        super().__init__(**kwargs)
 
     def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         """Execute a search using the Steamship plugin."""

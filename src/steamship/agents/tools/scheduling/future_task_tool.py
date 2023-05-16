@@ -6,20 +6,12 @@ from steamship.agents.agents import Tool
 
 
 class FutureTaskTool(Tool):
+    name: str = "TaskScheduler"
+    human_description: str = "Schedule async calls to a package."
+    ai_description: str = "Used to schedule reminders for the user at a future point in time."
     instance_handle: str
     method: str
     verb: str = "POST"
-
-    def __init__(self, **kwargs):
-        kwargs["name"] = kwargs.get("name", "TaskScheduler")
-        kwargs["human_description"] = kwargs.get(
-            "human_description", "Schedule async calls to a package."
-        )
-        kwargs["ai_description"] = kwargs.get(
-            "ai_description",
-            "Used to schedule reminders for the user at a future point in time.",
-        )
-        super().__init__(**kwargs)
 
     def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         """Schedules a call to a Steamship method in the future.

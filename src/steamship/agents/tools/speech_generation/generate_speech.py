@@ -10,21 +10,13 @@ from steamship.agents.debugging import tool_repl
 class GenerateSpeechTool(Tool):
     """Tool to generate audio from text."""
 
-    def __init__(self, **kwargs):
-        """Generates audio from text."""
-        kwargs["name"] = kwargs.get("name", "GenerateSpokenAudio")
-        kwargs["human_description"] = kwargs.get(
-            "human_description", "Generates spoken audio from text."
-        )
-        kwargs["ai_description"] = kwargs.get(
-            "ai_description",
-            (
-                "Used to generate spoken audio from text prompts. Only use if the user has asked directly for a "
-                "an audio version of output. When using this tool, the input should be a plain text string containing the "
-                "content to be spoken."
-            ),
-        )
-        super().__init__(**kwargs)
+    name: str = "GenerateSpokenAudio"
+    human_description: str = "Generates spoken audio from text."
+    ai_description: str = (
+        "Used to generate spoken audio from text prompts. Only use if the user has asked directly for a "
+        "an audio version of output. When using this tool, the input should be a plain text string containing the "
+        "content to be spoken."
+    )
 
     def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         """Generates audio for each text block provided.

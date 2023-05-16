@@ -11,6 +11,9 @@ class ToolSequence(Tool):
     Example tool to illustrate rewriting a statement according to a particular personality.
     """
 
+    name: str = "ToolSequence"
+    human_description: str = "Runs a sequence of tools."
+    ai_description: str = "Useful for running tools in a sequence."
     tools: List[Tool] = []
 
     class Config:

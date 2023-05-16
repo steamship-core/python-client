@@ -10,21 +10,13 @@ from steamship.agents.debugging import tool_repl
 class GenerateImageTool(Tool):
     """Tool to generate images from text."""
 
-    def __init__(self, **kwargs):
-        """Generates image from text."""
-        kwargs["name"] = kwargs.get("name", "GenerateImageTool")
-        kwargs["human_description"] = kwargs.get(
-            "human_description", "Generates an image from text."
-        )
-        kwargs["ai_description"] = kwargs.get(
-            "ai_description",
-            (
-                "Used to generate images from text prompts. Only use if the user has asked directly for an "
-                "image. When using this tool, the input should be a plain text string that describes, "
-                "in detail, the desired image."
-            ),
-        )
-        super().__init__(**kwargs)
+    name: str = "GenerateImageTool"
+    human_description: str = "Generates an image from text."
+    ai_description = (
+        "Used to generate images from text prompts. Only use if the user has asked directly for an "
+        "image. When using this tool, the input should be a plain text string that describes, "
+        "in detail, the desired image."
+    )
 
     def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
         """Generates an iamge for each text block provided.
