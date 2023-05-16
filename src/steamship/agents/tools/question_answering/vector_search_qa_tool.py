@@ -8,18 +8,18 @@ from steamship.agents.tools.tool import Tool
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
 
 DEFAULT_QUESTION_ANSWERING_PROMPT = (
-    "Use the following pieces of context to answer the question at the end. ",
+    "Use the following pieces of context to answer the question at the end. "
     """If you don't know the answer, just say that you don't know, don't try to make up an answer.
 
 {source_text}
 
 Question: {question}
 
-Helpful Answer:""",
+Helpful Answer:"""
 )
 
 
-DEFAULT_SOURCE_DOCUMENT_PROMPT = ("Source Document: {text}",)
+DEFAULT_SOURCE_DOCUMENT_PROMPT = "Source Document: {text}"
 
 
 class VectorSearchQATool(Tool):
@@ -38,9 +38,10 @@ class VectorSearchQATool(Tool):
     source_document_prompt: Optional[str] = DEFAULT_SOURCE_DOCUMENT_PROMPT
     embedding_index_config: Optional[dict] = {
         "embedder": {
-            "plugin_handle": "text-embedding-ada-002",
+            "plugin_handle": "openai-embedder",
+            "plugin_instance-handle": "text-embedding-ada-002",
             "fetch_if_exists": True,
-            "config": {"dimensionality": 1536},
+            "config": {"model": "text-embedding-ada-002", "dimensionality": 1536},
         }
     }
     load_docs_count: int = 2
@@ -63,11 +64,12 @@ class VectorSearchQATool(Tool):
         source_texts = []
 
         for item in task.output.items:
-            item_data = {"text": item.tag.text}
-            source_texts.append(self.source_document_prompt.format(item_data))
+            if item.tag and item.tag.text:
+                item_data = {"text": item.tag.text}
+                source_texts.append(self.source_document_prompt.format(**item_data))
 
         final_prompt = self.question_answering_prompt.format(
-            {"source_text": "\n".join(source_texts), "question": question}
+            **{"source_text": "\n".join(source_texts), "question": question}
         )
 
         answer_task = context.default_text_generator().generate(text=final_prompt)
@@ -106,7 +108,7 @@ def main():
         # Let's load some information in.
         tool.get_embedding_index(context.client).insert(
             [Tag(text="Ted loves apple pie."), Tag(text="The secret passcode is 1234.")]
-        ).wait()
+        )
 
         # Now let's let the user talk to the tool
         tool_repl(tool, context)
