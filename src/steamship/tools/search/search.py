@@ -5,11 +5,11 @@ from pydantic import Field
 
 from steamship import Block, File, PluginInstance, SteamshipError
 from steamship.agents.agent_context import AgentContext
-from steamship.agents.debugging import ToolREPL
 from steamship.data import TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
-from steamship.tools.tool import Tool
+from steamship.tools.tool import Tool, ToolOutput
 from steamship.utils.kv_store import KeyValueStore
+from steamship.utils.repl import ToolREPL
 
 
 class SearchTool(Tool):
@@ -27,7 +27,7 @@ class SearchTool(Tool):
     class Config:
         arbitrary_types_allowed = True
 
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+    def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
         """Execute a search using the Steamship plugin."""
         search_tool = context.client.use_plugin("serpapi-wrapper")
 

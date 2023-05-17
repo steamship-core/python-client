@@ -1,6 +1,6 @@
 """Tool for generating images."""
-from steamship.agents.debugging import ToolREPL
 from steamship.tools.tool import AudioGeneratorTool
+from steamship.utils.repl import ToolREPL
 
 
 class GenerateSpeechTool(AudioGeneratorTool):

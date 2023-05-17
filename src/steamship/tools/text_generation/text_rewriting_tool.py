@@ -1,9 +1,9 @@
 from typing import List
 
-from steamship import Block
+from steamship import Block, Task
 from steamship.agents.agent_context import AgentContext
-from steamship.agents.debugging import ToolREPL
-from steamship.tools.tool import Tool
+from steamship.tools.tool import Tool, ToolOutput
+from steamship.utils.repl import ToolREPL
 
 DEFAULT_PROMPT = """Instructions:
 Please rewrite the following passage to be incredibly polite, to a fault.
@@ -24,7 +24,7 @@ class TextRewritingTool(Tool):
     human_description: str = "Rewrites a piece of text using the provided prompt."
     ai_description: str = "Used to rewrite a piece of text given a prompt. Takes text as input, and provides text as output."
 
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+    def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
         """Rewrites each provided text block using the stored prompt. Non-text blocks are passed through without
         modification.
 
@@ -42,21 +42,31 @@ class TextRewritingTool(Tool):
         """
         llm = context.default_text_generator()
 
-        output = []
+        tasks = []
         for block in tool_input:
             # If the block is not text, simply pass it through.
             if not block.is_text():
-                output.append(block)
                 continue
 
             # If the block is text, rewrite it and append that output.
             prompt = self.rewrite_prompt.format(input=block.text)
             task = llm.generate(text=prompt)
+            tasks.append(task)
+
+        if len(tasks) == 1:
+            return tasks
+
+        output = []
+        for task in tasks:
             task.wait()
             for block in task.output.blocks:
                 output.append(block)
 
         return output
+
+    def post_process(self, task: Task) -> List[Block]:
+        """Called after this Tool returns a Task, to finalize the output into a set of blocks."""
+        return task.output.blocks
 
 
 if __name__ == "__main__":

@@ -2,8 +2,8 @@ from typing import Any, List
 
 from steamship import Block
 from steamship.agents.agent_context import AgentContext
-from steamship.agents.debugging import ToolREPL
-from steamship.tools.tool import Tool
+from steamship.tools.tool import Tool, ToolOutput
+from steamship.utils.repl import ToolREPL
 
 
 class ToolSequence(Tool):
@@ -21,20 +21,27 @@ class ToolSequence(Tool):
     class Config:
         arbitrary_types_allowed = True
 
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+    def register_in_context(self, context: AgentContext):
+        super().register_in_context(context)
+        for tool in self.tools:
+            tool.register_in_context(context)
+
+    def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
         step_input = tool_input
         step_output = []
         context.append_log(f"Running {len(self.tools)} tools in series.")
+        prior_tool = None
         for tool in self.tools:
             context.append_log(f"- {tool.name}")
-            step_output = tool.run(step_input, context=context)
+            step_output = context.run_tool(tool.name, step_input, calling_tool=prior_tool)
             step_input = step_output
+            prior_tool = tool
         return step_output
 
 
 if __name__ == "__main__":
     from steamship.tools.image_generation.generate_image import GenerateImageTool
-    from steamship.tools.text_rewriting.image_prompt_generator_tool import ImagePromptGenerator
+    from steamship.tools.text_generation.image_prompt_generator_tool import ImagePromptGenerator
 
     tool = ToolSequence(
         name="DalleMagic",

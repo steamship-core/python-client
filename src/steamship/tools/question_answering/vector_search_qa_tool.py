@@ -3,9 +3,9 @@ from typing import List, Optional, cast
 
 from steamship import Block, Steamship
 from steamship.agents.agent_context import AgentContext
-from steamship.agents.debugging import ToolREPL
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
-from steamship.tools.tool import Tool
+from steamship.tools.tool import Tool, ToolOutput
+from steamship.utils.repl import ToolREPL
 
 DEFAULT_QUESTION_ANSWERING_PROMPT = (
     "Use the following pieces of context to answer the question at the end. "
@@ -76,7 +76,7 @@ class VectorSearchQATool(Tool):
         answer_task.wait()
         return answer_task.output.blocks
 
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+    def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
         """Answers questions with the assistance of an Embedding Index plugin.
 
         Inputs

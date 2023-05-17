@@ -3,6 +3,7 @@ from typing import List
 from steamship import Block, Steamship, Tag, Task
 from steamship.agents.agent_context import AgentContext
 from steamship.agents.agents import Tool
+from steamship.tools.tool import ToolOutput
 
 
 class FutureTaskTool(Tool):
@@ -13,7 +14,7 @@ class FutureTaskTool(Tool):
     method: str
     verb: str = "POST"
 
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+    def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
         """Schedules a call to a Steamship method in the future.
 
         Inputs

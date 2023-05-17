@@ -1,6 +1,6 @@
 """Tool for generating images."""
-from steamship.agents.debugging import ToolREPL
 from steamship.tools.tool import ImageGeneratorTool
+from steamship.utils.repl import ToolREPL
 
 
 class GenerateImageTool(ImageGeneratorTool):

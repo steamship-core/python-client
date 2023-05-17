@@ -3,8 +3,13 @@ from typing import List, Optional, Union
 
 from pydantic import BaseModel
 
-from steamship import Block, File, SteamshipError, Task
+from steamship import Block, File, Task
 from steamship.agents.agent_context import AgentContext
+
+ToolOutput = Union[
+    List[Block],  # A list of blocks
+    List[Task[List[Block]]],  # A list of tasks that each produce a list of blocks
+]
 
 
 class Tool(BaseModel, ABC):
@@ -34,9 +39,7 @@ class Tool(BaseModel, ABC):
     ai_description: str
 
     @abstractmethod
-    def run(
-        self, tool_input: List[Block], context: AgentContext
-    ) -> Union[List[Block], Task[List[Block]]]:
+    def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
         """Runs the tool in the provided context.
 
         Intended semantics of the `run` operation:
@@ -62,6 +65,19 @@ class Tool(BaseModel, ABC):
         """
         raise NotImplementedError()
 
+    def register_in_context(self, context: AgentContext):
+        """Register this tool in the context.
+        Necessary because some tools need to register their sub-tools as well (like the SeriesTool).
+
+        Note: Potential for naming conflicts here. What we really need is potentially a hierarchical namespace.
+        Obj/Obj/Obj
+        """
+        context.add_tool(self)
+
+    def post_process(self, task: Task) -> List[Block]:
+        """Called after this Tool returns a Task, to finalize the output into a set of blocks."""
+        return task.output
+
 
 class GeneratorTool(Tool):
     """
@@ -77,29 +93,27 @@ class GeneratorTool(Tool):
     def accept_output_block(self, block: Block) -> bool:
         raise NotImplementedError()
 
-    def run(
-        self, tool_input: List[Block], context: AgentContext
-    ) -> Union[List[Block], Task[List[Block]]]:
+    def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
         generator = context.client.use_plugin(
             plugin_handle=self.generator_plugin_handle,
             instance_handle=self.generator_plugin_instance_handle,
             config=self.generator_plugin_config,
         )
 
-        output = []
+        tasks = []
         for block in tool_input:
             if not block.is_text():
                 continue
 
             prompt = block.text
             task = generator.generate(text=prompt, append_output_to_file=True)
-            task.wait()
-            blocks = task.output.blocks
-            for output_block in blocks:
-                if self.accept_output_block(output_block):
-                    output.append(output_block)
+            tasks.append(task)
 
-        return output
+        return tasks
+
+    def post_process(self, task: Task) -> List[Block]:
+        """In this case, the Generator returns a GeneratorResponse that has a .blocks method on it"""
+        return task.output.blocks
 
 
 class ImageGeneratorTool(GeneratorTool):
@@ -133,15 +147,14 @@ class BlockifierTool(Tool):
     def should_blockify(self, block: Block) -> bool:
         raise NotImplementedError()
 
-    def run(
-        self, tool_input: List[Block], context: AgentContext
-    ) -> Union[List[Block], Task[List[Block]]]:
+    def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
         blockifier = context.client.use_plugin(
             plugin_handle=self.blockifier_plugin_handle,
             instance_handle=self.blockifier_plugin_instance_handle,
             config=self.blockifier_plugin_config,
         )
 
+        tasks = []
         for block in tool_input:
             if not self.should_blockify(block):
                 continue
@@ -149,10 +162,13 @@ class BlockifierTool(Tool):
             # This is a weird trick, but we don't have a better way to do this..
             _bytes = block.raw()
             file = File.create(context.client, content=_bytes)
-            task = file.blockify(plugin_instance=blockifier.handle)
-            # TODO: It's just going to return the FIRST, which is incorrect, but this is a prototype..
-            return task
-        raise SteamshipError(message="Attempted to blockify some blocks but found none.")
+            tasks.append(file.blockify(plugin_instance=blockifier.handle))
+
+        return tasks
+
+    def post_process(self, task: Task) -> List[Block]:
+        """In this case, the Blockifier returns a BlockAndTagResponse that has a .file.blocks method on it"""
+        return task.output.file.blocks
 
 
 class ImageBlockifierTool(BlockifierTool):

@@ -1,7 +1,7 @@
 from typing import List, Optional
 
-from steamship.agents.debugging import ToolREPL
-from steamship.tools.text_rewriting.text_rewriting_tool import TextRewritingTool
+from steamship.tools.text_generation.text_rewriting_tool import TextRewritingTool
+from steamship.utils.repl import ToolREPL
 
 DEFAULT_LABELS = ["question", "complaint", "suggestion"]
 

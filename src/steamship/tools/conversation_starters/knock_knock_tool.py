@@ -2,8 +2,8 @@ from typing import List
 
 from steamship import Block
 from steamship.agents.agent_context import AgentContext
-from steamship.agents.debugging import ToolREPL
-from steamship.tools.tool import Tool
+from steamship.tools.tool import Tool, ToolOutput
+from steamship.utils.repl import ToolREPL
 
 
 class KnockKnockTool(Tool):
@@ -18,7 +18,7 @@ class KnockKnockTool(Tool):
     human_description = "Starts a Knock-Knock Joke."
     ai_description = "Used to begin telling a Knock Knock joke."
 
-    def run(self, tool_input: List[Block], context: AgentContext) -> List[Block]:
+    def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
         context.append_log("Starting knock-knock joke...")
         return [Block(text="Knock-Knock..")]
 

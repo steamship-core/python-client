@@ -1,5 +1,5 @@
-from steamship.agents.debugging import ToolREPL
-from steamship.tools.text_rewriting.text_rewriting_tool import TextRewritingTool
+from steamship.tools.text_generation.text_rewriting_tool import TextRewritingTool
+from steamship.utils.repl import ToolREPL
 
 DEFAULT_PROMPT = """Instructions:
 Please summarize the following document so that the key points are represented in a way that stand alone for reading.
