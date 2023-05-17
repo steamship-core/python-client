@@ -64,7 +64,7 @@ class TextRewritingTool(Tool):
 
         return output
 
-    def post_process(self, task: Task) -> List[Block]:
+    def post_process(self, task: Task, context: AgentContext) -> List[Block]:
         """Called after this Tool returns a Task, to finalize the output into a set of blocks."""
         return task.output.blocks
 

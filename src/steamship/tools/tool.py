@@ -75,7 +75,7 @@ class Tool(BaseModel, ABC):
         """
         context.add_tool(self)
 
-    def post_process(self, task: Task) -> List[Block]:
+    def post_process(self, task: Task, context: AgentContext) -> List[Block]:
         """Called after this Tool returns a Task, to finalize the output into a set of blocks."""
         return task.output
 
@@ -112,7 +112,7 @@ class GeneratorTool(Tool):
 
         return tasks
 
-    def post_process(self, task: Task) -> List[Block]:
+    def post_process(self, task: Task, context: AgentContext) -> List[Block]:
         """In this case, the Generator returns a GeneratorResponse that has a .blocks method on it"""
         return task.output.blocks
 
@@ -176,7 +176,7 @@ class ScrapeAndBlockifyTool(Tool):
 
         return tasks
 
-    def post_process(self, task: Task) -> List[Block]:
+    def post_process(self, task: Task, context: AgentContext) -> List[Block]:
         """In this case, the Blockifier returns a BlockAndTagResponse that has a .file.blocks method on it"""
         return task.output.file.blocks
 

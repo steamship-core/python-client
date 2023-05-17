@@ -79,6 +79,6 @@ class ToolREPL(SteamshipREPL):
             while True:
                 input_text = input(colored("Input: ", "blue"))  # noqa: F821
                 input_block = Block(text=input_text)
-                output_items = context.run_tool(self.tool.name, [input_block])
-                for block in output_items:
+                output_task = context.run_tool(self.tool.name, [input_block])
+                for block in output_task.output:
                     self.print_block(block)

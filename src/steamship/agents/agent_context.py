@@ -47,7 +47,9 @@ class AgentContext(CamelModel, ABC):
         raise SteamshipError(message=f"Tool {name} not found in Agent Context.")
 
     @abstractmethod
-    def run_tool(self, name: str, blocks: ToolOutput_, calling_tool: Optional[Tool_] = None):
+    def run_tool(
+        self, name: str, blocks: ToolOutput_, calling_tool: Optional[Tool_] = None
+    ) -> Task[List[Block]]:
         pass
 
     @abstractmethod
@@ -85,6 +87,7 @@ class DebugAgentContext(AgentContext):
         return self.client.use_plugin("gpt-4", config={"model": "gpt-3.5-turbo"})
 
     def loudly_wait_task(self, task: Task):
+        self.append_log("Awaiting Task since this is the DevelopmentContext.")
         self.append_log(f"Task State: {task.state}")
         while task.state in [TaskState.waiting, TaskState.running]:
             sleep(2)
@@ -93,29 +96,43 @@ class DebugAgentContext(AgentContext):
 
     def run_tool(
         self, name: str, tool_input: ToolOutput_, calling_tool: Optional[Tool_] = None
-    ) -> ToolOutput_:
+    ) -> Task[List[Block]]:
         """Runs the tool on the provided blocks. Since this is the debug context, awaits an incompleted task if
-        that is what was provided."""
+        that is what was provided.
+
+        It's important that run_tool accept a Task as input -- this lets run_tool work with the output of another
+        tool that has emitted a Task, whether it is running or waiting or succeeded.
+        """
         self.append_log(f"Running tool {name}")
+
+        if isinstance(tool_input, Task):
+            self.loudly_wait_task(tool_input)
+            # Quick of the way the dev environment is set up; we DON'T run the post-processing here since it was
+            # already run.
+            tool_input = tool_input.output
 
         tool = self.get_tool(name)
         tool_output = tool.run(tool_input, self)
+
+        if isinstance(tool_output, Task):
+            self.loudly_wait_task(tool_output)
+            # Quick of the way the dev environment is set up; we DON'T run the post-processing here since it was
+            # already run.
+            tool_output = tool_output.output
 
         blocks = []
         for task_or_block in tool_output:
             if isinstance(task_or_block, Task):
                 task = cast(Task[List[Block]], task_or_block)
                 self.append_log(f"Received Task {task.task_id} as tool output.")
-                self.append_log("Awaiting Task since this is the DevelopmentContext.")
                 self.loudly_wait_task(task)
                 self.append_log("Awaited Task. Converting to blocks.")
-                postprocessed_blocks = tool.post_process(task)
-
+                postprocessed_blocks = tool.post_process(task, self)
                 for block in postprocessed_blocks:
                     blocks.append(block)
             else:
                 blocks.append(task_or_block)
-        return blocks
+        return Task(state=TaskState.succeeded, output=blocks)
 
 
 class ProductionAgentContext(AgentContext):
