@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
+import requests
 from pydantic import BaseModel
 
-from steamship import Block, File, Task
+from steamship import Block, File, MimeTypes, Task
 from steamship.agents.agent_context import AgentContext
 
 ToolOutput = Union[
@@ -134,7 +135,7 @@ class AudioGeneratorTool(GeneratorTool):
         return block.is_audio()
 
 
-class BlockifierTool(Tool):
+class ScrapeAndBlockifyTool(Tool):
     """
     A base class for tools that wrap Steamship Blockifier plugin which transforms bytes to a set of blocks.
     """
@@ -147,22 +148,31 @@ class BlockifierTool(Tool):
     def should_blockify(self, block: Block) -> bool:
         raise NotImplementedError()
 
+    def get_mime_type(self):
+        return None
+
+    def _scrape(self, url: str, context: AgentContext) -> File:
+        response = requests.get(url)
+        file = File.create(context.client, content=response.content, mime_type=self.get_mime_type())
+        return file
+
     def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
+        tasks = []
+
         blockifier = context.client.use_plugin(
             plugin_handle=self.blockifier_plugin_handle,
             instance_handle=self.blockifier_plugin_instance_handle,
             config=self.blockifier_plugin_config,
         )
 
-        tasks = []
-        for block in tool_input:
-            if not self.should_blockify(block):
+        for input_block in tool_input:
+            if not input_block.is_text():
                 continue
 
-            # This is a weird trick, but we don't have a better way to do this..
-            _bytes = block.raw()
-            file = File.create(context.client, content=_bytes)
-            tasks.append(file.blockify(plugin_instance=blockifier.handle))
+            url = input_block.text
+            file = self._scrape(url, context)
+            task = file.blockify(blockifier.handle)
+            tasks.append(task)
 
         return tasks
 
@@ -171,19 +181,25 @@ class BlockifierTool(Tool):
         return task.output.file.blocks
 
 
-class ImageBlockifierTool(BlockifierTool):
+class ImageBlockifierTool(ScrapeAndBlockifyTool):
     """
     A base class for tools that wrap Steamship Image Blockifier plugins.
     """
+
+    def get_mime_type(self):
+        return MimeTypes.PNG
 
     def should_blockify(self, block: Block) -> bool:
         return block.is_image()
 
 
-class AudioBlockifierTool(BlockifierTool):
+class AudioBlockifierTool(ScrapeAndBlockifyTool):
     """
     A base class for tools that wrap Steamship Audio Blockifier plugins.
     """
+
+    def get_mime_type(self):
+        return MimeTypes.MP3
 
     def should_blockify(self, block: Block) -> bool:
         return block.is_audio()

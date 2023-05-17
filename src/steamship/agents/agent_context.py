@@ -1,6 +1,7 @@
 import contextlib
 import logging
 from abc import ABC, abstractmethod
+from time import sleep
 from typing import Any, Dict, List, Optional, Union, cast
 
 from pydantic import Field
@@ -83,6 +84,13 @@ class DebugAgentContext(AgentContext):
     def default_text_generator(self) -> PluginInstance:
         return self.client.use_plugin("gpt-4", config={"model": "gpt-3.5-turbo"})
 
+    def loudly_wait_task(self, task: Task):
+        self.append_log(f"Task State: {task.state}")
+        while task.state in [TaskState.waiting, TaskState.running]:
+            sleep(2)
+            task.refresh()
+            self.append_log(f"Task State: {task.state}")
+
     def run_tool(
         self, name: str, tool_input: ToolOutput_, calling_tool: Optional[Tool_] = None
     ) -> ToolOutput_:
@@ -90,25 +98,24 @@ class DebugAgentContext(AgentContext):
         that is what was provided."""
         self.append_log(f"Running tool {name}")
 
-        blocks = []
+        tool = self.get_tool(name)
+        tool_output = tool.run(tool_input, self)
 
-        for item in tool_input:
-            if isinstance(item, Task):
-                task = cast(Task[List[Block]], item)
-                self.append_log(f"Received Task {task.task_id} as tool input.")
+        blocks = []
+        for task_or_block in tool_output:
+            if isinstance(task_or_block, Task):
+                task = cast(Task[List[Block]], task_or_block)
+                self.append_log(f"Received Task {task.task_id} as tool output.")
                 self.append_log("Awaiting Task since this is the DevelopmentContext.")
-                task.wait()
+                self.loudly_wait_task(task)
                 self.append_log("Awaited Task. Converting to blocks.")
-                postprocessed_blocks = calling_tool.post_process(task)
+                postprocessed_blocks = tool.post_process(task)
+
                 for block in postprocessed_blocks:
                     blocks.append(block)
-                    self.append_log(f"Intermediate output: {block.text}")
             else:
-                blocks.append(item)
-
-        tool = self.get_tool(name)
-        tool_output = tool.run(blocks, self)
-        return tool_output
+                blocks.append(task_or_block)
+        return blocks
 
 
 class ProductionAgentContext(AgentContext):

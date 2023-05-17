@@ -1,9 +1,7 @@
 import logging
 import uuid
-from time import sleep
-from typing import cast
 
-from steamship import Block, Steamship, Task, TaskState
+from steamship import Block, Steamship
 from steamship.agents.agent_context import DebugAgentContext
 from steamship.agents.agents import Tool
 from steamship.data.workspace import SignedUrl
@@ -63,32 +61,6 @@ class ToolREPL(SteamshipREPL):
             url = self._make_image_public(block)
             print(url)
 
-    def await_and_print_task(self, task: Task):
-        while task.state in [TaskState.waiting, TaskState.running]:
-            print(f"Task State: {task.state}")
-            sleep(2)
-            task.refresh()
-
-        if task.state == TaskState.failed:
-            print(f"Task Failed: {task.task_id}")
-            print(f"{task.status_message}")
-        elif task.state == TaskState.succeeded:
-            print(f"Task Succeeded: {task.task_id}")
-
-            blocks = None
-            if isinstance(task.output, dict) and task.output.get("blocks"):
-                blocks = task.output.get("blocks")
-            elif hasattr(task.output, "blocks"):
-                blocks = task.output.blocks
-
-            if blocks:
-                for block in blocks:
-                    self.print_block(block)
-            else:
-                print(task.output)
-        else:
-            print(f"Unknown Task State: {task.state}")
-
     def run(self):
         try:
             from termcolor import colored  # noqa: F401
@@ -108,12 +80,5 @@ class ToolREPL(SteamshipREPL):
                 input_text = input(colored("Input: ", "blue"))  # noqa: F821
                 input_block = Block(text=input_text)
                 output_items = context.run_tool(self.tool.name, [input_block])
-                for block_or_task in output_items:
-                    if isinstance(block_or_task, Block):
-                        block = cast(Block, block_or_task)
-                        self.print_block(block)
-                    elif isinstance(block_or_task, Task):
-                        task = cast(Task, block_or_task)
-                        self.await_and_print_task(task)
-                    else:
-                        print(f"Unknown output {block_or_task}")
+                for block in output_items:
+                    self.print_block(block)
