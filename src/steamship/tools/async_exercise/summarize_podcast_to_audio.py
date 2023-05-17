@@ -10,6 +10,8 @@ from steamship.tools.text_generation.summarize_text_with_prompt_tool import (
 )
 from steamship.utils.repl import ToolREPL
 
+# TODO: Nasty bug where registering the same tool twice causes it to overwrite unless you make custom name
+
 if __name__ == "__main__":
     entire_podcast_summarizer = PipelineTool(
         name="EntirePodcastSummarizer",
@@ -24,11 +26,10 @@ if __name__ == "__main__":
                     ],
                 )
             ),
-            GenerateSpeechTool(),
+            GenerateSpeechTool(merge_blocks=True),
         ],
     )
 
-    # TODO: Nasty bug where registering the same tool twice causes it to overwrite unless you make custom name
     ToolREPL(entire_podcast_summarizer).run()
 
 

@@ -70,7 +70,10 @@ class TextRewritingTool(Tool):
         try:
             return task.output.blocks
         except BaseException:
-            return json.loads(task.output).get("blocks")
+            try:
+                return task.output.get("blocks")
+            except BaseException:
+                return json.loads(task.output).get("blocks")
 
 
 if __name__ == "__main__":

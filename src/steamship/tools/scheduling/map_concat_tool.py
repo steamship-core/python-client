@@ -1,3 +1,4 @@
+import json
 from typing import List
 
 from steamship import Block, Task
@@ -74,7 +75,7 @@ class MapConcatTool(Tool):
 
         mapper_outputs = []
         for task in mapper_tasks:
-            task.output = task.output or task.input
+            task.output = task.output or json.loads(task.input)
             mapper_outputs.append(self.mapper.post_process(task, context))
 
         ret = []

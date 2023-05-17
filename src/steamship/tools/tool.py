@@ -90,6 +90,7 @@ class GeneratorTool(Tool):
     generator_plugin_handle: str
     generator_plugin_instance_handle: Optional[str] = None
     generator_plugin_config: dict = {}
+    merge_blocks: bool = False
 
     @abstractmethod
     def accept_output_block(self, block: Block) -> bool:
@@ -103,7 +104,16 @@ class GeneratorTool(Tool):
         )
 
         tasks = []
+
+        if self.merge_blocks:
+            block = tool_input[0]
+            for extra_block in tool_input[1:]:
+                block.text = f"{block.text}\n\n{extra_block.text}"
+            tool_input = [block]
+
         for block in tool_input:
+            if isinstance(block, str):
+                print(block)
             if not block.is_text():
                 continue
 

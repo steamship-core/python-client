@@ -113,6 +113,17 @@ class DebugAgentContext(AgentContext):
             tool_input = tool_input.output
 
         tool = self.get_tool(name)
+
+        really_blocks = []
+        for block in tool_input:
+            # Note: The problem is that we don't always marshall engine responses automatically.
+            if isinstance(block, dict):
+                print("Boo. It's a dict that should have been a block")
+                really_blocks.append(Block.parse_obj(block))
+            else:
+                really_blocks.append(block)
+
+        tool_input = really_blocks
         tool_output = tool.run(tool_input, self)
 
         if isinstance(tool_output, Task):

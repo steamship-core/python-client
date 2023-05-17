@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from steamship import Block
+from steamship import Block, Task
 from steamship.agents.agent_context import AgentContext
 from steamship.tools.tool import Tool, ToolOutput
 from steamship.utils.repl import ToolREPL
@@ -39,6 +39,9 @@ class PipelineTool(Tool):
             step_input = step_output
             prior_tool = tool
         return step_output
+
+    def post_process(self, task: Task, context: AgentContext) -> List[Block]:
+        return self.tools[-1].post_process(task, context)
 
 
 if __name__ == "__main__":
