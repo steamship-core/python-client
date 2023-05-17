@@ -13,26 +13,21 @@ class FetchAudioUrlsTool:
 
 
 if __name__ == "__main__":
-    fetch_episodes = FetchAudioUrlsTool()
-    create_file_of_summaries = MapConcatTool(
-        mapper=PipelineTool(
-            tools=[
-                WhisperSpeechToTextTool(),
-                SummarizeTextWithPromptTool(),
-            ]
-        )
-    )
-    generate_speech = GenerateSpeechTool()
-
-    final_pipeline = PipelineTool(
+    entire_podcast_summarizer = PipelineTool(
         tools=[
-            fetch_episodes,
-            create_file_of_summaries,
-            generate_speech,
+            FetchAudioUrlsTool(),
+            MapConcatTool(
+                mapper=PipelineTool(
+                    tools=[
+                        WhisperSpeechToTextTool(),
+                        SummarizeTextWithPromptTool(),
+                    ]
+                )
+            ),
+            GenerateSpeechTool(),
         ]
     )
-
-    ToolREPL(final_pipeline).run()
+    ToolREPL(entire_podcast_summarizer).run()
 
 
 # https://d3ctxlq1ktw2nl.cloudfront.net/staging/2023-4-14/2ba758be-d152-f80d-4ef0-9c63789e556b.mp3
