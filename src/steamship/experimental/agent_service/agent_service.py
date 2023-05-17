@@ -31,13 +31,25 @@ EmitFunc: TypeAlias = Callable[[ToolOutputs, Metadata], None]
 
 
 class AgentContext(BaseModel):
+    # AgentContext is passed as a parameter for any `run_agent()` call on the `AgentService`
+    # as well as any `Tool.run()` call. It provides access to arbitrary metadata about the
+    # context of any agent invocation, as well as anything relevant to the `AgentService`
+    # instance etc.
+    #
+    # It also provides access to two-distinct types of "history" or "memory":
+    # (1) user <-> package interactions
+    # (2) agent and tool interactions
+    #
+    # It is meant to be persisted (via a KeyValueStore or otherwise) to allow for
+    # restarts, interruptions, etc.
+
     # NB: I've forgone the go-style contexts as structs with key-values here for now
     # i still believe there is value there, but i didn't want that to interfere with
     # readability too much when just trying to string together the concepts.
     id: str
     metadata: Metadata = {}
 
-    # User<->Agent chat history (NOT Agent<-->Tool history)
+    # User<->Package chat history (NOT Agent<-->Tool history)
     # NB: This is distinct from any sort of history related to agent execution
     # Primarily used to ferry prompts into agent executions AND
     # to allow for some sort of referential lookup of context as input to the agent
@@ -63,6 +75,7 @@ class AgentContext(BaseModel):
 
     # this, I think(?), is not serializable, and must be set in some sort of context init bit
     # of whatever is doing the work.
+    # in the future, this could be a set of callbacks, more broken out (onError, onComplete, ...)
     emit_funcs: List[EmitFunc] = []
 
 
@@ -73,6 +86,15 @@ class SyncTool(BaseTool, ABC):
 
 
 class AsyncTool(BaseTool, ABC):
+
+    # Here, run() -> Task[List[Block]] might be too limiting
+    # This could be adapted to:
+    # - run() -> Task[Any]
+    # - blockify(Any) -> List[Block]
+    #
+    # run_agent() would then invoke `tool.blockify(tool_task.output)` as an intermediate step
+    # in its control loop once tool_task was complete (saving state to context).
+
     @abstractmethod
     def run(self, inputs: List[Block], context: AgentContext) -> Task[List[Block]]:
         pass
@@ -134,7 +156,7 @@ def _is_running(task: Task) -> bool:
 
 class Planner(BaseModel, ABC):
     @abstractmethod
-    def plan(self, tools: List[BaseTool], context: AgentContext) -> Tuple[BaseTool, ToolInputs]:
+    def plan(self, tools: List[BaseTool], context: AgentContext) -> ToolBinding:
         pass
 
 
@@ -176,21 +198,24 @@ class OutputParser(ABC):
 
 class LLMPlanner(Planner):
     llm: Any  # placeholder for an LLM??
-    input_preparer: InputPreparer  # placeholder
-    output_parser: Any  # placeholder
+    input_preparer: InputPreparer
+    output_parser: OutputParser
 
     @abstractmethod
-    def plan(self, tools: List[BaseTool], context: AgentContext) -> Tuple[BaseTool, ToolInputs]:
+    def plan(self, tools: List[BaseTool], context: AgentContext) -> ToolBinding:
         # sketch...
         # prompt = PROMPT.format(input_preparer.prepare(context))
         # generation = llm.generate(prompt)
-        # return output_parser.parse(generation)  # maybe with a tool lookup from tools
+        # tool_name, inputs = output_parser.parse(generation)
+        # return (tools[tool_name], inputs)
         pass
 
 
 class AgentService(PackageService):
 
-    agent_context_identifier = "_steamship_agent_contexts"
+    agent_context_identifier = (
+        "_steamship_agent_contexts"  # probably want to include instance_handle...
+    )
     context_cache: KeyValueStore
     planner: Planner
 
@@ -266,6 +291,9 @@ class AgentService(PackageService):
         ]
         for (binding, task) in completed_bindings_and_tasks:
             task.refresh()
+
+            # might be necessary to call:
+            # output = binding.tool.blockify(task.output)
             step = AgentStep[binding, task.output.blocks]
             context.completed_steps.append(step)
         self.upsert_context(context)
@@ -286,6 +314,7 @@ class AgentService(PackageService):
         if action.is_async():
             # maybe you want to report long-running steps?
             # not sure if this is what we really want to have happen
+            # speaks to need for different callbacks.
             for func in context.emit_funcs:
                 func([Block(text=f"Status: Running {action}")], context.metadata)
             return
@@ -345,4 +374,9 @@ class MyAssistant(AgentService, TelegramBot):
         messages = [
             ChatMessage.from_block(block=b, chat_id=chat_id, message_id=message_id) for b in blocks
         ]
+
+        # Here is where we would update the ChatFile...
+        # chat_file = ChatFile.get(...)
+        # chat_file.append_system_blocks(blocks)
+
         self.telegram_transport.send(messages)
