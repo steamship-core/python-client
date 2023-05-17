@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, TypeAlias
 from pydantic.main import BaseModel
 
 from steamship import Block, Task, TaskState
+from steamship.experimental import ChatFile
 from steamship.experimental.package_starters.telegram_bot import TelegramBot
 from steamship.experimental.transports.chat import ChatMessage
 from steamship.invocable import PackageService, post
@@ -30,15 +31,32 @@ EmitFunc: TypeAlias = Callable[[ToolOutputs, Metadata], None]
 
 
 class AgentContext(BaseModel):
+    # NB: I've forgone the go-style contexts as structs with key-values here for now
+    # i still believe there is value there, but i didn't want that to interfere with
+    # readability too much when just trying to string together the concepts.
     id: str
     metadata: Metadata = {}
 
+    # User<->Agent chat history (NOT Agent<-->Tool history)
+    # NB: This is distinct from any sort of history related to agent execution
+    # Primarily used to ferry prompts into agent executions AND
+    # to allow for some sort of referential lookup of context as input to the agent
+    chat_history: ChatFile
+
+    # instead of saving the execution history via File as text, this chooses to represent
+    # state as objects. this may not be what we want. This could also be:
+    # agent_history: ChatFile (with tags on blocks to represent state of Tool execution)
+    # i need to think about that a bit more.
+    #
     # for each of these bits, we probably need to save only IDs, and rehydrate properly;
     # likely requires an override of `dict()` and `parse_obj()`
     completed_steps: AgentSteps = []
 
     # This supports parallel tool execution. But I think that should
     # be a future iteration, as it complicates things quite a bit.
+    #
+    # as above this likely could be "discovered" from `agent_history: ChatFile` and tags
+    # dynamically, and be more "Steamship-native". Perhaps in a second pass.
     in_progress: List[
         Tuple[ToolBinding, Task]
     ] = []  # todo: should this be a map from task_id -> ToolBinding?
@@ -306,6 +324,12 @@ class MyAssistant(AgentService, TelegramBot):
 
         if len(current_context.emit_funcs) == 0:
             current_context.emit_funcs.append(self._send_message_agent)
+
+        # pull up User<->Agent chat history, and append latest Human Input
+        # this is distinct from any sort of history related to agent execution
+        chat_file = ChatFile.get(...)
+        chat_file.append_user_block(text=incoming_message.text)
+        current_context.chat_history = chat_file
 
         self.run_agent(current_context)
 
