@@ -1,3 +1,6 @@
+from steamship.tools.audio_transcription.fetch_audio_urls_from_rss_tool import (
+    FetchAudioUrlsFromRssTool,
+)
 from steamship.tools.audio_transcription.whisper_speech_to_text_tool import WhisperSpeechToTextTool
 from steamship.tools.scheduling.map_concat_tool import MapConcatTool
 from steamship.tools.scheduling.pipeline_tool import PipelineTool
@@ -7,15 +10,10 @@ from steamship.tools.text_generation.summarize_text_with_prompt_tool import (
 )
 from steamship.utils.repl import ToolREPL
 
-
-class FetchAudioUrlsTool:
-    pass
-
-
 if __name__ == "__main__":
     entire_podcast_summarizer = PipelineTool(
         tools=[
-            FetchAudioUrlsTool(),
+            FetchAudioUrlsFromRssTool(),
             MapConcatTool(
                 mapper=PipelineTool(
                     tools=[
