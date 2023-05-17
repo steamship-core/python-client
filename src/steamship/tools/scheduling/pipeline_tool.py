@@ -6,7 +6,7 @@ from steamship.tools.tool import Tool, ToolOutput
 from steamship.utils.repl import ToolREPL
 
 
-class ToolSequence(Tool):
+class PipelineTool(Tool):
     """
     Example tool to illustrate rewriting a statement according to a particular personality.
     """
@@ -29,7 +29,9 @@ class ToolSequence(Tool):
     def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
         step_input = tool_input
         step_output = []
-        context.append_log(f"Running {len(self.tools)} tools in series.")
+        context.append_log(
+            f"Running {len(self.tools)} tools in series: {[tool.name for tool in self.tools]}."
+        )
         prior_tool = None
         for tool in self.tools:
             context.append_log(f"- {tool.name}")
@@ -43,7 +45,7 @@ if __name__ == "__main__":
     from steamship.tools.image_generation.generate_image import GenerateImageTool
     from steamship.tools.text_generation.image_prompt_generator_tool import ImagePromptGenerator
 
-    tool = ToolSequence(
+    tool = PipelineTool(
         name="DalleMagic",
         human_description="DALLE but with automated better prompting",
         ai_description="Useful for when you want to generate an image",

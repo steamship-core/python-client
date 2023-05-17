@@ -1,3 +1,4 @@
+import json
 from typing import List
 
 from steamship import Block, Task
@@ -66,7 +67,10 @@ class TextRewritingTool(Tool):
 
     def post_process(self, task: Task, context: AgentContext) -> List[Block]:
         """Called after this Tool returns a Task, to finalize the output into a set of blocks."""
-        return task.output.blocks
+        try:
+            return task.output.blocks
+        except BaseException:
+            return json.loads(task.output).get("blocks")
 
 
 if __name__ == "__main__":

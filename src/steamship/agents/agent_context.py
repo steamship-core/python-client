@@ -1,4 +1,5 @@
 import contextlib
+import json
 import logging
 from abc import ABC, abstractmethod
 from time import sleep
@@ -88,11 +89,11 @@ class DebugAgentContext(AgentContext):
 
     def loudly_wait_task(self, task: Task):
         self.append_log("Awaiting Task since this is the DevelopmentContext.")
-        self.append_log(f"Task State: {task.state}")
+        self.append_log(f"Task State: {task.state} / {task.task_id}")
         while task.state in [TaskState.waiting, TaskState.running]:
             sleep(2)
             task.refresh()
-            self.append_log(f"Task State: {task.state}")
+            self.append_log(f"Task State: {task.state} / {task.task_id}")
 
     def run_tool(
         self, name: str, tool_input: ToolOutput_, calling_tool: Optional[Tool_] = None
@@ -118,7 +119,13 @@ class DebugAgentContext(AgentContext):
             self.loudly_wait_task(tool_output)
             # Quick of the way the dev environment is set up; we DON'T run the post-processing here since it was
             # already run.
-            tool_output = tool_output.output
+            if tool_output.output:
+                tool_output = tool_output.output
+            else:
+                # TODO: There's a bug in the /echo task where it doesn't echo! So we have to use the input as a backup until we fix it
+                # as the MapConcat tool uses echo
+                tool_output.output = json.loads(tool_output.input).get("blocks", [])
+                tool_output = tool.post_process(tool_output, self)
 
         blocks = []
         for task_or_block in tool_output:

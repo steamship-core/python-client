@@ -51,6 +51,8 @@ class ToolREPL(SteamshipREPL):
         self.tool = tool
 
     def print_block(self, block: Block):
+        if isinstance(block, dict):
+            block = Block.parse_obj(block)
         if block.is_text():
             print(block.text)
         elif block.url:

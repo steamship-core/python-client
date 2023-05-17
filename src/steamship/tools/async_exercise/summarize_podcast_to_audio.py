@@ -12,20 +12,24 @@ from steamship.utils.repl import ToolREPL
 
 if __name__ == "__main__":
     entire_podcast_summarizer = PipelineTool(
+        name="EntirePodcastSummarizer",
         tools=[
             FetchAudioUrlsFromRssTool(),
             MapConcatTool(
                 mapper=PipelineTool(
+                    name="SinglePodcastSummarizer",
                     tools=[
                         WhisperSpeechToTextTool(),
                         SummarizeTextWithPromptTool(),
-                    ]
+                    ],
                 )
             ),
             GenerateSpeechTool(),
-        ]
+        ],
     )
+
+    # TODO: Nasty bug where registering the same tool twice causes it to overwrite unless you make custom name
     ToolREPL(entire_podcast_summarizer).run()
 
 
-# https://d3ctxlq1ktw2nl.cloudfront.net/staging/2023-4-14/2ba758be-d152-f80d-4ef0-9c63789e556b.mp3
+# https://anchor.fm/s/e1369b4c/podcast/rss

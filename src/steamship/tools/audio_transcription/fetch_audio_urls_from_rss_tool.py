@@ -32,7 +32,7 @@ class FetchAudioUrlsFromRssTool(Tool):
             if not input_block.is_text():
                 continue
             url = input_block.text
-            urls = self._get_audio_urls(url, context)
+            urls = self._get_audio_urls(url, context)[:2]
             blocks.extend([Block(text=url) for url in urls])
         return blocks
 

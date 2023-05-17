@@ -1,3 +1,4 @@
+import json
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
@@ -114,7 +115,10 @@ class GeneratorTool(Tool):
 
     def post_process(self, task: Task, context: AgentContext) -> List[Block]:
         """In this case, the Generator returns a GeneratorResponse that has a .blocks method on it"""
-        return task.output.blocks
+        try:
+            return task.output.blocks
+        except BaseException:
+            return json.loads(task.output).get("blocks")
 
 
 class ImageGeneratorTool(GeneratorTool):
@@ -178,7 +182,10 @@ class ScrapeAndBlockifyTool(Tool):
 
     def post_process(self, task: Task, context: AgentContext) -> List[Block]:
         """In this case, the Blockifier returns a BlockAndTagResponse that has a .file.blocks method on it"""
-        return task.output.file.blocks
+        try:
+            return task.output.file.blocks
+        except BaseException:
+            return json.loads(task.output).get("file", {}).get("blocks")
 
 
 class ImageBlockifierTool(ScrapeAndBlockifyTool):
