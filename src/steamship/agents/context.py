@@ -28,7 +28,7 @@ class AgentContext(BaseModel):
     chat_history: Optional[ChatHistory] = ChatHistory()
     tracing: Optional[Dict[str, Any]] = []
     scratchpad: Optional[List[str]] = []
-    new_message: str = ""
+    new_message: ChatMessage
 
     def emit(self, messages: List[ChatMessage]):
         """Function to send a message to one or more comm channels"""

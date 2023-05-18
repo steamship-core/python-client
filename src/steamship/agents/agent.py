@@ -58,7 +58,7 @@ class ReACTAgent(BaseAgent):
         # assuming most recent block is stored in context ??
 
         prompt = self.generate_prompt(
-            new_message=context.new_message,
+            new_message=context.new_message.text,
             chat_history_str="\n".join(context.chat_history.get_history(message=context.new_message, context=context)),
             scratchpad_str="\n".join(context.scratchpad))
 
@@ -75,13 +75,16 @@ class ReACTAgent(BaseAgent):
         new_blocks = tool.run([Block(text=action.tool_input, mime_type=MimeTypes.TXT)], context)
         if isinstance(new_blocks, Task):
             warnings.warn("Async tasks will not return to the agent after execution")
+            # QUESTION: Do allow an agent to call async tasks or async task chains?
+            # QUESTION: If Yes, Do we want an async task to return to the agent?
+            # QUESTION: If No, maybe we just allow a Task to send a message to the comm channel using the context object?
         else:
             context.scratchpad.append(f"Observation: {new_blocks[0].text}")
 
-    def run(self, agent_input: List[Block], context: AgentContext):
+    def run(self, agent_input: List[ChatMessage], context: AgentContext):
         context.tracing = {}  # Reset tracing (per run session)
         context.scratchpad = []
-        context.new_message = agent_input[0].text
+        context.new_message = agent_input[0].text  # QUESTION: Do we want to support multi-modal agents today?
 
         while self.should_continue(context):
             next_action = self.next_action(context)
