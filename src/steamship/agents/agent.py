@@ -78,7 +78,7 @@ class ReACTAgent(BaseAgent):
         else:
             context.scratchpad.append(f"Observation: {new_blocks[0].text}")
 
-    def run(self, agent_input: List[Block], context: AgentContext) -> List[Block]:
+    def run(self, agent_input: List[Block], context: AgentContext):
         context.tracing = {}  # Reset tracing (per run session)
         context.scratchpad = []
         context.new_message = agent_input[0].text
@@ -86,14 +86,35 @@ class ReACTAgent(BaseAgent):
         while self.should_continue(context):
             next_action = self.next_action(context)
             if isinstance(next_action, FinishAction):
-                return next_action.response
+                context.chat_history.messages.extend(next_action.response)
+                return context.emit(next_action.response)
 
             self.execute_action(action=next_action, context=context)
 
 
 if __name__ == '__main__':
     with Steamship.temporary_workspace() as client:
-        tools = [PersonalityTool(personality="angry old man"), SearchTool()]
+        tools = [
+            PersonalityTool(personality="angry old man"),
+            SearchTool(),
+            # PipelineTool(
+            # name="EntirePodcastSummarizer",
+            # ai_description="Useful to summarize podcasts"
+            # tools=[
+            #     FetchAudioUrlsFromRssTool(),
+            #     MapConcatTool(
+            #         mapper=PipelineTool(
+            #             name="SinglePodcastSummarizer",
+            #             tools=[
+            #                 WhisperSpeechToTextTool(),
+            #                 SummarizeTextWithPromptTool(),
+            #             ],
+            #         )
+            #     ),
+            #     GenerateSpeechTool(merge_blocks=True), # Generate speech will use context to send message
+            # ],
+            # )
+        ]
         tool_dict = {tool.name: tool for tool in tools}
         agent = ReACTAgent(tool_dict=tool_dict, client=client, llm=OpenAI(client))
         output = agent.run(agent_input=[Block(text="What's the weather in Berlin today?")],

@@ -30,5 +30,10 @@ class AgentContext(BaseModel):
     scratchpad: Optional[List[str]] = []
     new_message: str = ""
 
+    def emit(self, messages: List[ChatMessage]):
+        """Function to send a message to one or more comm channels"""
+        for message in messages:
+            print(message.text)
+
     class Config:
         arbitrary_types_allowed = True
