@@ -10,7 +10,7 @@ Tool_ = Any
 
 
 class ToolData(BaseModel, ABC):
-    """Represents a list of blocks, which may not yet exist."""
+    """Represents a list of blocks, which may not yet be fully materialized."""
 
     # The list of blocks, inline.
     inline_value: Optional[List[Block]] = None
@@ -26,19 +26,23 @@ class ToolData(BaseModel, ABC):
 
         This overloading of TaskState is slightly awkward, but more accurate than an is_ready bool.
         """
-        if self.inline_value:
-            return TaskState.succeeded
-        elif self.file_id:
-            return TaskState.succeeded
-        elif self.task_id:
+        # If a task_id is associated with this ToolData, then that task's status always determines the status of
+        # this ToolData
+        if self.task_id:
             task = Task.get(client, _id=self.task_id)
             return task.state
+
+        # If no task_id was associated, we're ready by default.
+        return TaskState.succeeded
 
     def value(self, client: Steamship, post_processor_tool: Tool_ = None) -> List[Block]:
         """Synchronously return the set of blocks underlying this BlockList.
 
         If that set of blocks is unavailable, an Exception will be thrown. First check `state() == succeeded` to verify
         the list is ready.
+
+        The order of precedence is inline_value, file_value, task_value. Though a future extension could enable an option
+        which combines values if multiple exist.
         """
         if self.inline_value is not None:
             # Allows the empty-list intentionally.
@@ -64,10 +68,14 @@ class ToolData(BaseModel, ABC):
                         error=e,
                     )
         else:
-            raise SteamshipError(message="Unable to fetch value from BlockList")
+            # Equivalent to the Void input.
+            return []
 
     def outstanding_task_dependencies(self, client: Steamship) -> Optional[List[Task]]:
-        """Return any tasks that this ToolData depends upon to be considered ready for access."""
+        """Return any tasks that this ToolData depends upon to be considered ready for access.
+
+        The return value can be passed directly into the wait_on_tasks argument to scheduling future tasks.
+        """
         if not self.task_id:
             return None
 
