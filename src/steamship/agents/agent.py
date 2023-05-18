@@ -86,6 +86,19 @@ class ReACTAgent(BaseAgent):
         context.scratchpad = []
         context.new_message = agent_input[0].text  # QUESTION: Do we want to support multi-modal agents today?
 
+        if reminder := context.user_store.get("remind", None):
+            return reminder
+
+        if "remind" in agent_input:
+            context.user_store["remind"] = ChatMessage(text="This is a message")
+            # InvokeLater(context=context, when=datetime.now() + timedelta(days=1))
+
+        # Food for thought below
+        # if agent_input[0].is_audio_link():
+        #     context.user_store["url"] = incoming_message.url
+        #     tool = PipelineTool([DownloadTool(), TranscribeTool(), Add(index=""), SendMessageTool(message="URL processed")])
+        #     output_task = context.run_tool(tool, [Block(text=input_text)])
+
         while self.should_continue(context):
             next_action = self.next_action(context)
             if isinstance(next_action, FinishAction):
@@ -120,6 +133,6 @@ if __name__ == '__main__':
         ]
         tool_dict = {tool.name: tool for tool in tools}
         agent = ReACTAgent(tool_dict=tool_dict, client=client, llm=OpenAI(client))
-        output = agent.run(agent_input=[Block(text="What's the weather in Berlin today?")],
+        output = agent.run(agent_input=[ChatMessage(text="What's the weather in Berlin today?")],
                            context=AgentContext(client=client))
         print(output)
