@@ -24,6 +24,6 @@ class Tool(BaseModel, ABC):
         raise NotImplementedError()
 
     # This gets called later if you return Task[Any] from run
-    def post_process(self, async_task: Task[Any]) -> List[Block]:
+    def post_process(self, async_task: Task[Any], context: AgentContext) -> List[Block]:
         # nice helpers for making lists of blocks
         pass
