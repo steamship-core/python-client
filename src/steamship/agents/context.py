@@ -1,2 +1,7 @@
+from typing import Callable
+
+from steamship.agents.action import ToolAction
+
+
 class AgentContext:
-    pass
+    invoke_tool: Callable[[ToolAction], ToolAction]

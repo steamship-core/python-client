@@ -1,6 +1,6 @@
 import base64
 import json
-from typing import Any
+from typing import Any, List
 
 from steamship_tests import PACKAGES_PATH
 from steamship_tests.utils.deployables import deploy_package
@@ -54,7 +54,51 @@ def run_action(client: Steamship, agent_service: PackageInstance, action: ToolAc
     return tool_action_out
 
 
-def test_safe_loaded_hello_world():
+def run_action_with_async_response(
+    client: Steamship, agent_service: PackageInstance, action: ToolAction
+) -> List[Block]:
+    output_action = run_action(client, agent_service, action)
+    assert output_action is not None
+    assert output_action.output is not None
+    output = output_action.output.value(client)
+
+    # This is some special casing that we should fix the need for, but that structurally doesn't impose a problem.
+    # The way the engine guarantees that package methods can be async-ified is to base64 encode their output. This is
+    # the only way to ensure that we blanket-support things like binary responses (images, audio, etc) in both sync
+    # and async mode. But that means in this prototype, we have to deal with anything that's been routed async through
+    # a package as having been base64'd
+    obj = b64_decode_str(output)
+
+    # There's another annoying case of this object SOMETIMES being another task that was stuffed in here.
+    # Basically we need to homogenize the carrier signal back. There are a few different wrappers that get added
+    # around things in different circumstances and we need to iron it out so there are no bizarre special case de-wrappings.
+    # This particular wrapper which starts with <START> and ends with <END> is for the case the tools which depend upon
+    # sequences of other tools dynamically.
+    if obj.get("taskId"):  # <START>
+        t2 = Task.get(client, _id=obj.get("taskId"))
+        t2.wait()
+
+    # <END>
+
+    # The next quick is the off-by-one error of the "postprocess" step for a final too requiring special handling.
+    # Since that special handling isn't yet created, we're handling it in the test.
+    #
+    # CLAIM: This is fine to illustrate capability. For example: since the ToolAction encodes the Tool name, as a worst
+    # case we could always just ahve a "fetch-final-value" method that took ToolAction as input and ran the postprocessing
+    # before returning an output. Or even the "singleton tool run" could be a chain of: [Tool, Finalize] in which finalize
+    # is the opportunity to postprocess
+    assert (
+        "obj" in obj
+    )  # This is the wrapping we added & the off-by-one error of not having postprocessed upon final pipeline egress
+
+    # Return the actual contents of "obj" (basically copy-pasting the final post-processing step here for convenience)
+    blocks = obj.get("obj")
+
+    # Finally, at this point we're working with python, so we need to parse the blocks
+    return [Block.parse_obj(block) for block in blocks]
+
+
+def test_that_async_and_dynamically_planned_tool_chains_work():
     client = get_steamship_client()
     demo_package_path = PACKAGES_PATH / "agent_service_prototype.py"
 
@@ -126,16 +170,9 @@ def test_safe_loaded_hello_world():
         action_in_4 = ToolAction(
             tool_name="ToolThatAlwaysResponseAsynchronouslyAndStatically", input=ToolData()
         )
-        action_out_4 = run_action(client, agent_service, action_in_4)
-        action_out_4_output = action_out_4.output.value(client)
-        assert action_out_4_output is not None
-        obj4 = b64_decode_str(action_out_4_output)  # Side effect of the way we async package calls
-        assert (
-            "obj" in obj4
-        )  # This is the wrapping we added & the off-by-one error of not having postprocessed upon final pipeline egress
-        obj4a = obj4.get("obj")
-        assert len(obj4a) == 1
-        assert obj4a[0].get("text") == "This was Asynchronous and Static"
+        blocks_out_4 = run_action_with_async_response(client, agent_service, action_in_4)
+        assert len(blocks_out_4) == 1
+        assert blocks_out_4[0].text == "This was Asynchronous and Static"
 
         # Dynamic Responses
         # -----------------
@@ -146,14 +183,8 @@ def test_safe_loaded_hello_world():
         action_in_5 = ToolAction(
             tool_name="ToolThatAlwaysResponseAsynchronouslyAndDynamically", input=ToolData()
         )
-        action_out_5 = run_action(client, agent_service, action_in_5)
-        action_out_5_output = action_out_5.output.value(client)
-        obj5 = b64_decode_str(action_out_5_output)  # Side effect of the way we async package calls
-        assert (
-            "obj" in obj5
-        )  # This is the wrapping we added & the off-by-one error of not having postprocessed upon final pipeline egress
-        obj5a = obj5.get("obj")
-        assert len(obj5a) == 0
+        blocks_out_5 = run_action_with_async_response(client, agent_service, action_in_5)
+        assert len(blocks_out_5) == 0
 
         # Two outputs
         action_in_6 = ToolAction(
@@ -165,14 +196,29 @@ def test_safe_loaded_hello_world():
                 ]
             ),
         )
-        action_out_6 = run_action(client, agent_service, action_in_6)
-        action_out_6_output = action_out_6.output.value(client)
-        assert action_out_6_output is not None
-        obj6 = b64_decode_str(action_out_6_output)  # Side effect of the way we async package calls
+        blocks_out_6 = run_action_with_async_response(client, agent_service, action_in_6)
+        assert len(blocks_out_6) == 2
+        assert blocks_out_6[0].text == "This was asynchronous and Dynamic. Input block was: 1."
+        assert blocks_out_6[1].text == "This was asynchronous and Dynamic. Input block was: 2."
+
+        # TEST BATCH 3: DYNAMIC WORK PLANS UNKNOWN AT TIME OF EXECUTION REQUEST OR EVEN EXECUTION START
+        # =============================================================================================
+        # This test demonstrates that it is possible for a tool to dynamically schedule work whose workflow was
+        # unknown at (1) the time ToolAction was requested and (2)  the time the ToolAction began executing.
+        #
+        # This isn't a suggestion for what the Reasoning Agent Loop should look like. This is one level below: just
+        # a demonstration that a "single tooL" need not be a simple, atomic action, but can easily be a very complex
+        # and pre-planned workflow that takes places over many tasks, files, and time.. ultimately delivering a reponse
+        # to the reasoning agent in the same way that a simple, atomic-scale Tool would.
+
+        action_in_7 = ToolAction(
+            tool_name="ToolThatDynamicallyPlansMoreAsyncWork", input=ToolData()
+        )
+        blocks_out_7 = run_action_with_async_response(client, agent_service, action_in_7)
+        assert len(blocks_out_7) == 1
+
+        # Here we see that the output is the result of Tool 2 having consumed and re-used the output of Tool 1
         assert (
-            "obj" in obj6
-        )  # This is the wrapping we added & the off-by-one error of not having postprocessed upon final pipeline egress
-        obj6a = obj6.get("obj")
-        assert len(obj6a) == 2
-        assert obj6a[0].get("text") == "This was asynchronous and Dynamic. Input block was: 1."
-        assert obj6a[1].get("text") == "This was asynchronous and Dynamic. Input block was: 2."
+            blocks_out_7[0].text
+            == "This was asynchronous and Dynamic. Input block was: This was Asynchronous and Static"
+        )

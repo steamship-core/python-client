@@ -57,6 +57,65 @@ class ToolThatAlwaysResponseSynchronouslyAndDynamically(Tool):
         return ret
 
 
+class ToolThatDynamicallyPlansMoreAsyncWork(Tool):
+    name = "ToolThatDynamicallyPlansMoreAsyncWork"
+    ai_description = "ToolThatDynamicallyPlansMoreAsyncWork"
+    human_description = "ToolThatDynamicallyPlansMoreAsyncWork"
+
+    def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
+        # First let's call the static async tool!
+        dyamic_plan_step_1 = ToolAction(
+            tool_name="ToolThatAlwaysResponseAsynchronouslyAndStatically", input=ToolData()
+        )
+
+        # This ToolAction represents the eventual completion of this step.
+        dyamic_plan_step_1_output = context.invoke_tool(dyamic_plan_step_1)
+        logging.info(
+            f"{self.name}: Output ToolData of Tool1 Invoke was {dyamic_plan_step_1_output.output}"
+        )
+
+        # Now let's call the dynamic async tool... providing it the input of the prior tool!
+        # We don't need to do any manipulation of input since the broader system guarantees
+        # everything is [Block] -> [Block].
+
+        # This is the key magic right here. We can just set step2.input = step1.output and it works.. even
+        # thought none of the actual processing has been done, or data created.
+
+        # Note how the ToolData object also has a carve-out for a file_id. This isn't yet pursued in the unit
+        # tests on this branch but added to illustrate the map-reduce scenario: in which the initiator of the map
+        # operation synchronously (1) creates a file. and (2) spawns TONS of tasks. then (3) writes those task IDs
+        # to the file. THEN it schedules a future ToolAction that depends on those tasks, and takes as input the ToolData
+        # defined by that file's ID. That means that next ToolAction (1) only happens when the map operations are done, and
+        # (2) is passed, automatically, as its input, a set of blocks containing the UUIDs of the tasks with the results.
+        dymamic_plan_step_2 = ToolAction(
+            tool_name="ToolThatAlwaysResponseAsynchronouslyAndDynamically",
+            input=dyamic_plan_step_1_output.output,
+        )
+
+        # Now let's invoke THAT tool.. in the future!
+        dynamic_plan_step_2_output = context.invoke_tool(dymamic_plan_step_2)
+        logging.info(
+            f"{self.name}: Output ToolData of Tool2 Invoke was {dynamic_plan_step_2_output.output}"
+        )
+
+        # And finally we'll just return the task of the FINAL result.
+
+        # It's actually much cooler: we can POST PROCESS it! But since this is going to be the terminus
+        # in the task chain, and we don't have the magic postprocessing step at the very end, I won't add more fancy
+        # stuff there.
+        task = Task(task_id=dynamic_plan_step_2_output.output.task_id)
+        logging.info(f"{self.name}: Returning Task {task.task_id}")
+        return task
+
+    def post_process(self, async_task: Task[Any], context: AgentContext) -> List[Block]:
+        """The echo function we're using Base64 encodes the task."""
+        logging.info(
+            f"Tool {self.name} post-processing task {async_task.task_id} output {async_task.output}"
+        )
+        obj = b64_decode(async_task)
+        return obj.get("obj")
+
+
 class ToolThatAlwaysResponseAsynchronouslyAndStatically(Tool):
     name = "ToolThatAlwaysResponseAsynchronouslyAndStatically"
     ai_description = "ToolThatAlwaysResponseAsynchronouslyAndStatically"
@@ -73,6 +132,9 @@ class ToolThatAlwaysResponseAsynchronouslyAndStatically(Tool):
 
     def post_process(self, async_task: Task[Any], context: AgentContext) -> List[Block]:
         """The echo function we're using Base64 encodes the task."""
+        logging.info(
+            f"Tool {self.name} post-processing task {async_task.task_id} output {async_task.output}"
+        )
         obj = b64_decode(async_task)
         return obj.get("obj")
 
@@ -97,6 +159,9 @@ class ToolThatAlwaysResponseAsynchronouslyAndDynamically(Tool):
 
     def post_process(self, async_task: Task[Any], context: AgentContext) -> List[Block]:
         """The echo function we're using Base64 encodes the task."""
+        logging.info(
+            f"Tool {self.name} post-processing task {async_task.task_id} output {async_task.output}"
+        )
         obj = b64_decode(async_task)
         return obj.get("obj")
 
@@ -120,6 +185,7 @@ class AgentService(PackageService):
         self.tool_registry.add_tool(ToolThatAlwaysResponseSynchronouslyAndDynamically())
         self.tool_registry.add_tool(ToolThatAlwaysResponseAsynchronouslyAndStatically(echo=echo))
         self.tool_registry.add_tool(ToolThatAlwaysResponseAsynchronouslyAndDynamically(echo=echo))
+        self.tool_registry.add_tool(ToolThatDynamicallyPlansMoreAsyncWork())
 
     @post("echo")
     def echo(self, obj: dict) -> dict:
@@ -168,7 +234,23 @@ class AgentService(PackageService):
 
         Input data readiness is assumed. If the input data is not ready at this stage, an exception is thrown.
         """
+
+        # Wire up agent_context with a callback that is capable of scheduling an invocation of a tool
         agent_context = AgentContext()
+
+        def invoke_tool(tool_action: ToolAction) -> ToolAction:
+            # See this is doubly async. We invoke later the enqueueing.
+            task = self.invoke_later(
+                "enqueue_tool_action", arguments={"action": tool_action.dict()}
+            )
+            output_action = ToolAction.parse_obj(tool_action.dict())
+            output_action.output = ToolData(task_id=task.task_id)
+            logging.info(
+                f"AgentContext: invoke_tool called on {tool_action.tool_name} resulting in task {output_action.output.task_id}. {output_action}"
+            )
+            return output_action
+
+        agent_context.invoke_tool = invoke_tool
 
         if isinstance(action, dict):
             action = ToolAction.parse_obj(action)
@@ -192,7 +274,7 @@ class AgentService(PackageService):
         current_tool = self.tool_registry.get_tool(action.tool_name)
         logging.info(f"Running tool {current_tool.name} on input {tool_input}")
         tool_output = current_tool.run(tool_input, agent_context)
-        logging.info(f"Got tool output {tool_output}")
+        logging.info(f"Tool {current_tool.name} produced output {tool_output}")
 
         if action.output is None:
             action.output = ToolData()
