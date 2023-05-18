@@ -2,10 +2,10 @@ from typing import List, Union, Any
 
 from steamship import Block, Task
 from steamship.agents.context import AgentContext
-from steamship.agents.tool import Tool
+from steamship.agents.tools.base import BaseTool
 
 
-class PersonalityTool(Tool):
+class PersonalityTool(BaseTool):
     # do we even need this?
     name = "PersonalityResponder"
     human_description = (

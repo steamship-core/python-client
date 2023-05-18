@@ -7,15 +7,8 @@ from steamship import Block, Task
 from steamship.agents.context import AgentContext
 
 
-class Tool(BaseModel, ABC):
-    # Working thinking: we don't yet have formalization about whether
-    # this is a class-level name, isntance-level name, or
-    # instance+context-level name.
-    # thought(doug): this should be the planner-facing name (LLM-friendly?)
+class BaseTool(BaseModel, ABC):
     name: str
-
-    # Advice, but not hard-enforced:
-    # This contains the description, inputs, and outputs.
     ai_description: str
     human_description: str  # Human readable string for logging
 

@@ -5,13 +5,13 @@ from pydantic import Field
 
 from steamship import Block, File, PluginInstance, SteamshipError, Task
 from steamship.agents.context import AgentContext
-from steamship.agents.tool import Tool
+from steamship.agents.tools.base import BaseTool
 from steamship.data import TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
 from steamship.utils.kv_store import KeyValueStore
 
 
-class SearchTool(Tool):
+class SearchTool(BaseTool):
     """
     Tool which uses Steamship's managed SERP API client to search Google.
     """
