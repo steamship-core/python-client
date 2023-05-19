@@ -9,7 +9,6 @@ from steamship import Block, Steamship, Task
 from steamship.agents.base import AgentContext, BaseTool
 from steamship.agents.service.agent_service import AgentService
 from steamship.data.workspace import SignedUrl, Workspace
-from steamship.experimental.transports.chat import ChatMessage
 from steamship.utils.signed_urls import upload_to_signed_url
 
 
@@ -141,12 +140,10 @@ class AgentREPL(SteamshipREPL):
             input_text = input(colored("Input: ", "blue"))  # noqa: F821
             message_id = uuid.uuid4().hex
 
-            message = ChatMessage.from_block(
-                block=Block(text=input_text),
-                chat_id=chat_id,
-                message_id=message_id,
-            )
-            response: Optional[List[ChatMessage]] = agent.create_response(incoming_message=message)
+            message = Block(text=input_text)
+            # message.chat_id = chat_id
+            message.message_id = message_id
+            response: Optional[List[Block]] = agent.create_response(incoming_message=message)
             self.print_blocks(response)
 
     def run(self):

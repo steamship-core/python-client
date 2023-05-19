@@ -195,11 +195,19 @@ class Block(CamelModel):
             if tag.kind == TagKind.ROLE:
                 return RoleTag(tag.name)
 
+    @chat_role.setter
+    def chat_role(self, value):
+        pass
+
     @property
     def message_id(self):
         for tag in self.tags:
             if tag.kind == TagKind.MESSAGE_ID:
                 return RoleTag(tag.name)
+
+    @message_id.setter
+    def message_id(self, value):
+        pass
 
 
 class BlockQueryResponse(Response):
