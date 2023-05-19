@@ -1,15 +1,16 @@
 import re
 import warnings
-from typing import List, Union
+from typing import List, Union, Optional
 
 from steamship import Block, Steamship, MimeTypes, Task
 from steamship.agents.base import BaseAgent, Action, FinishAction
 from steamship.agents.context import AgentContext
 from steamship.agents.llm import LLM, OpenAI
-from steamship.agents.prompts import LLM_PROMPT
+from steamship.agents.prompts import REACT_PROMPT
 from steamship.agents.tools.personality import PersonalityTool
 from steamship.agents.tools.search import SearchTool
 from steamship.experimental.transports.chat import ChatMessage
+from steamship.invocable import post
 
 
 class LLMOutputParser:
@@ -41,11 +42,11 @@ class ReACTAgent(BaseAgent):
         )  # String that represent lookup table for tools
         tool_names = ", ".join([tool for tool in self.tool_dict.keys()])
 
-        prompt = LLM_PROMPT.format(tool_names=tool_names,
-                                   tool_index=tool_index,
-                                   chat_history=chat_history_str,
-                                   new_message=new_message,
-                                   scratchpad=scratchpad_str)
+        prompt = REACT_PROMPT.format(tool_names=tool_names,
+                                     tool_index=tool_index,
+                                     chat_history=chat_history_str,
+                                     new_message=new_message,
+                                     scratchpad=scratchpad_str)
         return prompt
 
     def _extract_action(self, blocks: [Block], context: AgentContext) -> Union[Action, FinishAction]:
@@ -58,8 +59,8 @@ class ReACTAgent(BaseAgent):
         # assuming most recent block is stored in context ??
 
         prompt = self.generate_prompt(
-            new_message=context.new_message.text,
-            chat_history_str="\n".join(context.chat_history.get_history(message=context.new_message, context=context)),
+            new_message=context.chat_history.messages[-1].text,
+            chat_history_str="\n".join(context.chat_history.get_history(context=context)),
             scratchpad_str="\n".join(context.scratchpad))
 
         blocks = self.llm.complete(prompt)
@@ -81,23 +82,11 @@ class ReACTAgent(BaseAgent):
         else:
             context.scratchpad.append(f"Observation: {new_blocks[0].text}")
 
-    def run(self, agent_input: List[ChatMessage], context: AgentContext):
+    @post
+    def run(self, context: AgentContext, agent_input: Optional[List[ChatMessage]] = None):
         context.tracing = {}  # Reset tracing (per run session)
         context.scratchpad = []
         context.new_message = agent_input[0].text  # QUESTION: Do we want to support multi-modal agents today?
-
-        if reminder := context.user_store.get("remind", None):
-            return reminder
-
-        if "remind" in agent_input:
-            context.user_store["remind"] = ChatMessage(text="This is a message")
-            # InvokeLater(context=context, when=datetime.now() + timedelta(days=1))
-
-        # Food for thought below
-        # if agent_input[0].is_audio_link():
-        #     context.user_store["url"] = incoming_message.url
-        #     tool = PipelineTool([DownloadTool(), TranscribeTool(), Add(index=""), SendMessageTool(message="URL processed")])
-        #     output_task = context.run_tool(tool, [Block(text=input_text)])
 
         while self.should_continue(context):
             next_action = self.next_action(context)
