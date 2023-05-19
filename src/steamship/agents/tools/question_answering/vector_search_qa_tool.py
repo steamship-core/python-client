@@ -1,7 +1,7 @@
 """Answers questions with the assistance of a VectorSearch plugin."""
 from typing import Any, List, Optional, Union, cast
 
-from steamship import Block, Steamship, Task
+from steamship import Block, Steamship, Tag, Task
 from steamship.agents.context import AgentContext
 from steamship.agents.tool import Tool
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
@@ -102,4 +102,10 @@ class VectorSearchQATool(Tool):
 
 
 if __name__ == "__main__":
-    ToolREPL(VectorSearchQATool()).run()
+    tool = VectorSearchQATool()
+    repl = ToolREPL(tool)
+
+    with repl.temporary_workspace() as client:
+        index = tool.get_embedding_index(client)
+        index.insert([Tag(text="Ted loves apple pie."), Tag(text="The secret passcode is 1234.")])
+        repl.run_with_client(client)

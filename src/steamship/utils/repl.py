@@ -3,7 +3,7 @@ import contextlib
 import logging
 import uuid
 from abc import ABC
-from typing import List, cast
+from typing import List, Optional, cast
 
 from steamship import Block, Steamship, Task
 from steamship.agents.context import AgentContext
@@ -16,9 +16,6 @@ class SteamshipREPL(ABC):
     """Base class for building REPLs that facilitate running Steamship code in the IDE."""
 
     client: Steamship
-
-    def __init__(self):
-        self.client = Steamship()
 
     def _make_public_url(self, block):
         filepath = str(uuid.uuid4())
@@ -77,34 +74,38 @@ class SteamshipREPL(ABC):
 
 class ToolREPL(SteamshipREPL):
     tool: Tool
+    client = Steamship
 
-    def __init__(self, tool: Tool):
+    def __init__(self, tool: Tool, client: Optional[Steamship] = None):
         super().__init__()
         self.tool = tool
+        self.client = client or Steamship()
 
-    def run(self):
+    def run_with_client(self, client: Workspace):
         try:
             from termcolor import colored  # noqa: F401
         except ImportError:
-            print("Error: Please run `pip install termcolor` to run this REPL.")
-            exit(-1)
 
+            def colored(message: str, color: str):
+                print(message)
+
+        context = AgentContext()
+        context.client = client
+
+        print(f"Starting REPL for Tool {self.tool.name}...")
+        print("If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n")
+
+        while True:
+            input_text = input(colored("Input: ", "blue"))  # noqa: F821
+            input_block = Block(text=input_text)
+            output = self.tool.run([input_block], context=context)
+            if isinstance(output, Task):
+                # TODO: Iterate on task support.
+                print(f"Task: {output.task_id}")
+            else:
+                blocks = cast(List[Block], output)
+                self.print_blocks(blocks)
+
+    def run(self):
         with self.temporary_workspace() as client:
-            context = AgentContext()
-            context.client = client
-
-            print(f"Starting REPL for Tool {self.tool.name}...")
-            print(
-                "If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n"
-            )
-
-            while True:
-                input_text = input(colored("Input: ", "blue"))  # noqa: F821
-                input_block = Block(text=input_text)
-                output = self.tool.run([input_block], context=context)
-                if isinstance(output, Task):
-                    # TODO: Iterate on task support.
-                    print(f"Task: {output.task_id}")
-                else:
-                    blocks = cast(List[Block], output)
-                    self.print_blocks(blocks)
+            self.run_with_client(client)

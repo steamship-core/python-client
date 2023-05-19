@@ -1,5 +1,5 @@
 """Tool for generating images."""
-from steamship.tools.tool import AudioBlockifierTool
+from steamship.agents.tool import AudioBlockifierTool
 from steamship.utils.repl import ToolREPL
 
 
@@ -21,3 +21,4 @@ if __name__ == "__main__":
         "You can try: https://d3ctxlq1ktw2nl.cloudfront.net/staging/2023-4-14/2ba758be-d152-f80d-4ef0-9c63789e556b.mp3"
     )
     ToolREPL(WhisperSpeechToTextTool()).run()
+    # Try on: https://anchor.fm/s/e1369b4c/podcast/play/70381739/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2023-4-14%2Fda96d64d-3c27-3e84-eb63-d5bc55eaf52e.mp3
