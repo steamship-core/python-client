@@ -11,6 +11,7 @@ class ChatHistory(BaseModel):
     messages: List[str] = []  # Represents a database that can select & sort messages
 
     def get_history(self, message: ChatMessage, context):
+        # return relevant messages based on a vectorDB.
         return self.messages
 
     def add_user_message(self, message: ChatMessage):
