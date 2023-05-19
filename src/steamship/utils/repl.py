@@ -3,12 +3,13 @@ import contextlib
 import logging
 import uuid
 from abc import ABC
-from typing import List, Optional, cast
+from typing import List, Optional, Type, cast
 
 from steamship import Block, Steamship, Task
-from steamship.agents.base import AgentContext
-from steamship.agents.tool import Tool
+from steamship.agents.base import AgentContext, BaseTool
+from steamship.agents.service.agent_service import AgentService
 from steamship.data.workspace import SignedUrl, Workspace
+from steamship.experimental.transports.chat import ChatMessage
 from steamship.utils.signed_urls import upload_to_signed_url
 
 
@@ -73,10 +74,10 @@ class SteamshipREPL(ABC):
 
 
 class ToolREPL(SteamshipREPL):
-    tool: Tool
+    tool: BaseTool
     client = Steamship
 
-    def __init__(self, tool: Tool, client: Optional[Steamship] = None):
+    def __init__(self, tool: BaseTool, client: Optional[Steamship] = None):
         super().__init__()
         self.tool = tool
         self.client = client or Steamship()
@@ -105,6 +106,48 @@ class ToolREPL(SteamshipREPL):
             else:
                 blocks = cast(List[Block], output)
                 self.print_blocks(blocks)
+
+    def run(self):
+        with self.temporary_workspace() as client:
+            self.run_with_client(client)
+
+
+class AgentREPL(SteamshipREPL):
+    agent_class: Type[AgentService]
+    client = Steamship
+
+    def __init__(self, agent_class: Type[AgentService], client: Optional[Steamship] = None):
+        super().__init__()
+        self.agent_class = agent_class
+        self.client = client or Steamship()
+
+    def run_with_client(self, client: Workspace):
+        try:
+            from termcolor import colored  # noqa: F401
+        except ImportError:
+
+            def colored(message: str, color: str):
+                print(message)
+
+        chat_id = uuid.uuid4().hex
+
+        print("Starting REPL for Agent...")
+        print(f"Chat ID: {chat_id}")
+        print("If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n")
+
+        agent = self.agent_class(client=client)
+
+        while True:
+            input_text = input(colored("Input: ", "blue"))  # noqa: F821
+            message_id = uuid.uuid4().hex
+
+            message = ChatMessage.from_block(
+                block=Block(text=input_text),
+                chat_id=chat_id,
+                message_id=message_id,
+            )
+            response: Optional[List[ChatMessage]] = agent.create_response(incoming_message=message)
+            self.print_blocks(response)
 
     def run(self):
         with self.temporary_workspace() as client:
