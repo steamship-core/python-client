@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Tuple, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel
 
-from steamship import Block, Steamship, Task
+from steamship import Block, PluginInstance, Steamship, Task
 
 
 class Action:
@@ -73,6 +73,11 @@ class AgentContext:
     # in the future, this could be a set of callbacks, more broken out (onError, onComplete, ...)
     emit_funcs: List[EmitFunc] = []
 
+    def get_llm(self) -> PluginInstance:
+        # This may be something we wish to eventually provide application-level settings for.
+        # E.g. the agent has a set_default_llm method that is available and supported in the UI.
+        return self.client.use_plugin("gpt-4", config={"model": "gpt-3.5-turbo"})
+
 
 class BaseTool(ABC):
     # Working thinking: we don't yet have formalization about whether
@@ -91,7 +96,7 @@ class BaseTool(ABC):
         raise NotImplementedError()
 
     # This gets called later if you return Task[Any] from run
-    def post_process(self, async_task: Task[Any]) -> List[Block]:
+    def post_process(self, async_task: Task, context: AgentContext) -> List[Block]:
         # nice helpers for making lists of blocks
         pass
 
