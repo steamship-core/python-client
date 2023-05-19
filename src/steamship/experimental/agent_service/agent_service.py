@@ -1,91 +1,41 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeAlias
+from typing import Any, List, Optional, Tuple, Union
 
-from pydantic.main import BaseModel
-
-from steamship import Block, Task, TaskState
-from steamship.experimental import ChatFile
-from steamship.experimental.package_starters.telegram_bot import TelegramBot
+from steamship import Block, File, Steamship, Task, TaskState
+from steamship.agents.context import AgentContext, Metadata, ToolBinding, ToolOutputs
+from steamship.agents.tool import Tool
+from steamship.data import TagValueKey
 from steamship.experimental.transports.chat import ChatMessage
 from steamship.invocable import PackageService, post
 from steamship.utils.kv_store import KeyValueStore
 
-
-class BaseTool(BaseModel, ABC):
-    name: str
-    ai_description: str
-    human_description: str
+# from pydantic import fields
+# fields.ModelField.validate = lambda *args, **kwargs: (args[1], None)
 
 
-class ToolBinding(BaseModel):
-    tool: BaseTool
-    inputs: List[Block]
+# class ToolBinding(BaseModel):
+#     tool: Tool
+#     inputs: List[Block]
+#
+#
+# ToolInputs = List[Block]
+# ToolOutputs = List[Block]
+# AgentStep = Tuple[ToolBinding, ToolOutputs]
+# AgentSteps = List[AgentStep]
+# Metadata = Dict[str, Any]
+# EmitFunc = Callable[[ToolOutputs, Metadata], None]
 
 
-ToolInputs: TypeAlias = List[Block]
-ToolOutputs: TypeAlias = List[Block]
-AgentStep: TypeAlias = Tuple[ToolBinding, ToolOutputs]
-AgentSteps: TypeAlias = List[AgentStep]
-Metadata: TypeAlias = Dict[str, Any]
-EmitFunc: TypeAlias = Callable[[ToolOutputs, Metadata], None]
+class SyncTool(Tool, ABC):
+    pass
+    # @abstractmethod
+    # def run(self, inputs: List[Block], context: AgentContext):
+    #     # always returns List[Block]
+    #     pass
 
 
-class AgentContext(BaseModel):
-    # AgentContext is passed as a parameter for any `run_agent()` call on the `AgentService`
-    # as well as any `Tool.run()` call. It provides access to arbitrary metadata about the
-    # context of any agent invocation, as well as anything relevant to the `AgentService`
-    # instance etc.
-    #
-    # It also provides access to two-distinct types of "history" or "memory":
-    # (1) user <-> package interactions
-    # (2) agent and tool interactions
-    #
-    # It is meant to be persisted (via a KeyValueStore or otherwise) to allow for
-    # restarts, interruptions, etc.
-
-    # NB: I've forgone the go-style contexts as structs with key-values here for now
-    # i still believe there is value there, but i didn't want that to interfere with
-    # readability too much when just trying to string together the concepts.
-    id: str
-    metadata: Metadata = {}
-
-    # User<->Package chat history (NOT Agent<-->Tool history)
-    # NB: This is distinct from any sort of history related to agent execution
-    # Primarily used to ferry prompts into agent executions AND
-    # to allow for some sort of referential lookup of context as input to the agent
-    chat_history: ChatFile
-
-    # instead of saving the execution history via File as text, this chooses to represent
-    # state as objects. this may not be what we want. This could also be:
-    # agent_history: ChatFile (with tags on blocks to represent state of Tool execution)
-    # i need to think about that a bit more.
-    #
-    # for each of these bits, we probably need to save only IDs, and rehydrate properly;
-    # likely requires an override of `dict()` and `parse_obj()`
-    completed_steps: AgentSteps = []
-
-    # This supports parallel tool execution. But I think that should
-    # be a future iteration, as it complicates things quite a bit.
-    #
-    # as above this likely could be "discovered" from `agent_history: ChatFile` and tags
-    # dynamically, and be more "Steamship-native". Perhaps in a second pass.
-    in_progress: List[
-        Tuple[ToolBinding, Task]
-    ] = []  # todo: should this be a map from task_id -> ToolBinding?
-
-    # this, I think(?), is not serializable, and must be set in some sort of context init bit
-    # of whatever is doing the work.
-    # in the future, this could be a set of callbacks, more broken out (onError, onComplete, ...)
-    emit_funcs: List[EmitFunc] = []
-
-
-class SyncTool(BaseTool, ABC):
-    @abstractmethod
-    def run(self, inputs: List[Block], context: AgentContext) -> List[Block]:
-        pass
-
-
-class AsyncTool(BaseTool, ABC):
+class AsyncTool(Tool, ABC):
+    pass
 
     # Here, run() -> Task[List[Block]] might be too limiting
     # This could be adapted to:
@@ -94,34 +44,11 @@ class AsyncTool(BaseTool, ABC):
     #
     # run_agent() would then invoke `tool.blockify(tool_task.output)` as an intermediate step
     # in its control loop once tool_task was complete (saving state to context).
-
-    @abstractmethod
-    def run(self, inputs: List[Block], context: AgentContext) -> Task[List[Block]]:
-        pass
-
-
-class SerpTool(SyncTool, ABC):
-    pass
-
-
-class PodcastDownloaderTool(AsyncTool, ABC):
-    pass
-
-
-class SpeechToTextTool(AsyncTool, ABC):
-    pass
-
-
-class SummarizeTool(AsyncTool, ABC):
-    pass
-
-
-class ImageTool(SyncTool, ABC):
-    pass
-
-
-class ScheduleMessageTool(SyncTool, ABC):
-    pass
+    #
+    # @abstractmethod
+    # def run(self, inputs: List[Block], context: AgentContext):
+    #     # always returns a Task
+    #     pass
 
 
 class Action:
@@ -154,9 +81,13 @@ def _is_running(task: Task) -> bool:
     return task.state not in [TaskState.succeeded, TaskState.failed]
 
 
-class Planner(BaseModel, ABC):
+class Planner(ABC):
+    class Config:
+        arbitrary_types_allowed: True
+        validation: False
+
     @abstractmethod
-    def plan(self, tools: List[BaseTool], context: AgentContext) -> ToolBinding:
+    def plan(self, tools: List[Tool], context: AgentContext) -> Action:
         pass
 
 
@@ -175,6 +106,10 @@ class InputPreparer(ABC):
 
 
 class OutputParser(ABC):
+    class Config:
+        arbitrary_types_allowed: True
+        validation: False
+
     # Example image-based workflow:
     # (1) user request: generate an image of a row-house in a city street.
     # (2) llm planner: dalle("row-house in a city street")
@@ -197,18 +132,159 @@ class OutputParser(ABC):
 
 
 class LLMPlanner(Planner):
+    class Config:
+        arbitrary_types_allowed: True
+        validation: False
+
     llm: Any  # placeholder for an LLM??
-    input_preparer: InputPreparer
+    # input_preparer: InputPreparer
     output_parser: OutputParser
 
     @abstractmethod
-    def plan(self, tools: List[BaseTool], context: AgentContext) -> ToolBinding:
+    def plan(self, tools: List[Tool], context: AgentContext) -> Action:
         # sketch...
         # prompt = PROMPT.format(input_preparer.prepare(context))
         # generation = llm.generate(prompt)
         # tool_name, inputs = output_parser.parse(generation)
         # return (tools[tool_name], inputs)
         pass
+
+
+class LLMToolOutputParser(OutputParser):
+    def remove_prefix(self, text: str, prefix: str):
+        return text[text.startswith(prefix) and len(prefix) :]
+
+    # note: I do not like this construction. signature needs tweaking.
+    def parse(self, llm_generation: str) -> Tuple[str, List[Block]]:
+        global tool
+        blocks = []
+        lines = llm_generation.split("\n")
+        print(f"LLM Generation: {lines}")
+        for line in lines:
+            if "do i need to use a tool?" in line.lower() and " no" in line.lower():
+                print("found finish!")
+                tool = "__finish__"
+                continue
+
+            if "ai: " in line.lower():
+                blocks.append(Block(text=self.remove_prefix(line, "AI:").strip()))
+                continue
+
+            if "action:" in line.lower():
+                tool = self.remove_prefix(line, "Action:").strip()
+                continue
+
+            if "action input:" in line.lower():
+                # todo: convert Block(UUID) -> Block
+                action_input = self.remove_prefix(line, "Action Input:").strip()
+                blocks.append(Block(text=action_input))
+
+        print(f"Action tool: {tool}")
+        return tool, blocks
+
+
+class OpenAIReACTPlanner(LLMPlanner):
+
+    output_parser = LLMToolOutputParser()
+
+    PROMPT = """Assistant is a large language model trained by OpenAI.
+Assistant is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
+Assistant is constantly learning and improving, and its capabilities are constantly evolving. It is able to process and understand large amounts of text, and can use this knowledge to provide accurate and informative responses to a wide range of questions. Additionally, Assistant is able to generate its own text based on the input it receives, allowing it to engage in discussions and provide explanations and descriptions on a wide range of topics.
+Overall, Assistant is a powerful tool that can help with a wide range of tasks and provide valuable insights and information on a wide range of topics. Whether you need help with a specific question or just want to have a conversation about a particular topic, Assistant is here to assist.
+
+TOOLS:
+------
+Assistant has access to the following tools:
+{tool_index}
+To use a tool, you MUST use the following format:
+```
+Thought: Do I need to use a tool? Yes
+Action: the action to take, should be one of {tool_names}
+Action Input: the input to the action
+Observation: the result of the action
+```
+
+If you decide that you should use a Tool, you must generate the associated Action and Action Input.
+
+Some tools will return Observations in the format of `Block(string)`. This will represent a successful completion
+of that step and can be passed to subsequent tools, or returned to a user to answer their questions.
+
+If you have generated an image using a Tool in response to a user request and wish to return it to the user, please
+tell the user directly where to find the image. To do so, you MUST use the format:
+
+```
+Thought: Do I need to use a tool? No
+AI: Image available via: Block(<identifier>).
+```
+
+When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
+```
+Thought: Do I need to use a tool? No
+AI: [your response here]
+```
+Begin!
+
+New input: {input}
+{scratchpad}"""
+
+    def _to_string(self, blocks: List[Block]) -> str:
+        out = ""
+        for block in blocks:
+            if block.text:
+                out += f"{block.text} "
+            else:
+                out += f"Requested image created in Block({block.id})."
+        return out
+
+    def plan(self, tools: List[Tool], context: AgentContext) -> Action:
+
+        scratchpad = ""
+        for tool_binding, output in context.completed_steps:
+            # assume tool usage
+            prefix = "Thought: Do I need to use a tool? Yes"
+            action = f"Action: {tool_binding.tool.name}"
+            action_input = f"Action Input: {self._to_string(tool_binding.inputs)}"
+            observation = f"Observation: {self._to_string(output)}\n"
+            scratchpad = "\n".join([scratchpad, prefix, action, action_input, observation])
+
+        scratchpad += "Thought:"
+        tool_names = [t.name for t in tools]
+
+        tool_index_parts = [f"- {t.name}: {t.ai_description}" for t in tools]
+        tool_index = "\n".join(tool_index_parts)
+
+        # for simplicity assume initial prompt is a single text block.
+        # in reality, use some sort of formatter ?
+        prompt = self.PROMPT.format(
+            input=context.initial_prompt[0].text,
+            tool_index=tool_index,
+            tool_names=tool_names,
+            scratchpad=scratchpad,
+        )
+
+        # print(f"Prompt: {prompt}\n----\n")
+        # print(f"LLM Scratchpad: {scratchpad}\n")
+
+        gpt4 = context.client.use_plugin("gpt-4")
+        task = gpt4.generate(text=prompt, options={"stop": "Observation:"})
+        task.wait()
+        # here, we assume that the response will always be a single block of text.
+        # print(f"LLM output: {task.output.blocks} \n")
+        tool_name, inputs = self.output_parser.parse(task.output.blocks[0].text)
+
+        print(f"Tool Name: {tool_name}, Inputs: {inputs}")
+        if tool_name == "__finish__":
+            # todo: fix pydantic validation when we decide on FinishAction concept or something.
+            action = FinishAction(
+                tool_binding=ToolBinding(tool=tools[0], inputs=[]), context=context
+            )
+            action.outputs = inputs
+            return action
+
+        # print(f"selected: {tool_name}")
+        # print(f"inputs: {self._to_string(inputs)}")
+        next_tool = next(t for t in tools if t.name == tool_name)
+        return Action(tool_binding=ToolBinding(tool=next_tool, inputs=inputs), context=context)
 
 
 class AgentService(PackageService):
@@ -219,7 +295,7 @@ class AgentService(PackageService):
     context_cache: KeyValueStore
     planner: Planner
 
-    tools: List[BaseTool] = []
+    tools: List[Tool] = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -232,10 +308,12 @@ class AgentService(PackageService):
     ##################################################
 
     def upsert_context(self, context: AgentContext):
-        self.context_cache.set(context.id, context.dict())
+        # self.context_cache.set(context.id, "foo")
+        pass
 
     def new_context_with_metadata(self, md: Metadata) -> AgentContext:
-        ctx = AgentContext(metadata=md)
+        ctx = AgentContext()
+        ctx.metadata = md
         self.upsert_context(ctx)
         return ctx
 
@@ -253,10 +331,7 @@ class AgentService(PackageService):
     ###############################################
 
     def _next_action(self, context: AgentContext) -> Action:
-        tool, inputs = self.planner.plan(self.tools, context)
-        tb = ToolBinding(tool=tool, inputs=inputs)
-        action = Action(tool_binding=tb, context=context)
-        return action
+        return self.planner.plan(self.tools, context)
 
     @post("take_action")
     def take_action(self, context: AgentContext) -> Action:
@@ -275,7 +350,7 @@ class AgentService(PackageService):
         else:
             tool_binding = action.tool_binding
             output_blocks = tool_binding.tool.run(tool_binding.inputs, context)
-            step = AgentStep[tool_binding, output_blocks]
+            step = (tool_binding, output_blocks)
             context.completed_steps.append(step)
             self.upsert_context(context)
             return action
@@ -294,7 +369,7 @@ class AgentService(PackageService):
 
             # might be necessary to call:
             # output = binding.tool.blockify(task.output)
-            step = AgentStep[binding, task.output.blocks]
+            step = (binding, task.output.blocks)
             context.completed_steps.append(step)
         self.upsert_context(context)
         running_tasks = [t for _, t in last_known_pending_tasks if _is_running(t)]
@@ -307,7 +382,7 @@ class AgentService(PackageService):
 
         # at this stage in run_agent, we have no more running tasks. we have 0 or more completed steps.
         # we must now select the next step
-        action = Action
+        action = self.take_action(context)
         while not action.is_async() and not action.is_finish():
             action = self.take_action(context)
 
@@ -325,18 +400,67 @@ class AgentService(PackageService):
             self.unload_context(context_id=context.id)
 
 
-class MyAssistant(AgentService, TelegramBot):
+class SerpTool(SyncTool):
+    name = "Search"
+    human_description = "search"
+    ai_description = "Useful for when you need to answer questions about current events. Input should be a search query."
+
+    def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
+        search = context.client.use_plugin("serpapi-wrapper")
+
+        # assume single input for now...
+        task = search.tag(doc=tool_input[0].text)
+        task.wait()
+        answer = self._first_tag_value(
+            # TODO: TagKind.SEARCH_RESULT
+            task.output.file,
+            "search-result",
+            TagValueKey.STRING_VALUE,
+        )
+        return [Block(text=answer)]
+
+    @staticmethod
+    def _first_tag_value(file: File, tag_kind: str, value_key: str) -> Optional[Any]:
+        """Return the value of the first block tag found in a file for the kind and value_key specified."""
+        for block in file.blocks:
+            for block_tag in block.tags:
+                if block_tag.kind == tag_kind:
+                    return block_tag.value.get(value_key, "")
+        return None
+
+
+class ImageTool(SyncTool):
+    name = "GenerateImage"
+    human_description = "draw"
+    ai_description = (
+        "Used to generate images from text prompts. "
+        "Input should be a text prompt for an automated image generator. "
+        "Output will be a reference to an image that can be looked up by the user or a tool. It will have the format of Block(<identifier>)."
+        "A `Block(<identifier>)` output can be returned directly to answer a request, or passed into another tool."
+    )
+
+    def run(self, tool_input: List[Block], context: AgentContext):
+        sd = context.client.use_plugin("stable-diffusion-replicate", config={"n": 1})
+
+        # again, assume single text input
+        image_task = sd.generate(
+            text=tool_input[0].text,
+            options={"n": 1, "size": "512x512", "inference_steps": 50},
+            append_output_to_file=True,
+        )
+        image_task.wait()
+
+        return image_task.output.blocks
+
+
+class MyAssistant(AgentService):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.tools = [
-            SerpTool(...),
-            ScheduleMessageTool(func=self._send_message_agent),
-            ImageTool(...),
-            PodcastDownloaderTool(...),
-            SummarizeTool(...),
-            SpeechToTextTool(...),
+            SerpTool(),
+            ImageTool(),
         ]
-        self.planner = LLMPlanner(...)
+        self.planner = OpenAIReACTPlanner()
 
     def create_response(self, incoming_message: ChatMessage) -> Optional[List[ChatMessage]]:
         msg_id = incoming_message.get_message_id()
@@ -348,17 +472,20 @@ class MyAssistant(AgentService, TelegramBot):
         current_context = self.load_context(context_id=context_id)
 
         if not current_context:
-            md = Metadata(chat_id=chat_id, message_id=msg_id)
+            md = {"chat_id": chat_id, "message_id": msg_id}
             current_context = self.new_context_with_metadata(md)
+            current_context.id = context_id
 
         if len(current_context.emit_funcs) == 0:
             current_context.emit_funcs.append(self._send_message_agent)
 
+        current_context.client = self.client
+        current_context.initial_prompt = [Block(text=incoming_message.text)]
         # pull up User<->Agent chat history, and append latest Human Input
         # this is distinct from any sort of history related to agent execution
-        chat_file = ChatFile.get(...)
-        chat_file.append_user_block(text=incoming_message.text)
-        current_context.chat_history = chat_file
+        # chat_file = ChatFile.get(...)
+        # chat_file.append_user_block(text=incoming_message.text)
+        # current_context.chat_history = chat_file
 
         self.run_agent(current_context)
 
@@ -379,4 +506,17 @@ class MyAssistant(AgentService, TelegramBot):
         # chat_file = ChatFile.get(...)
         # chat_file.append_system_blocks(blocks)
 
-        self.telegram_transport.send(messages)
+        print(f"\n\nTELEGRAM SENDING MESSAGES:\n{messages}")
+        # self.telegram_transport.send(messages)
+
+
+if __name__ == "__main__":
+    with Steamship.temporary_workspace() as client:
+        ass = MyAssistant(client=client)
+
+        message = ChatMessage.from_block(
+            block=Block(text="make a drawing of a cat in a funny hat"),
+            chat_id="foo",
+            message_id="bar",
+        )
+        ass.create_response(incoming_message=message)
