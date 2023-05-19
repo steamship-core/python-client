@@ -1,13 +1,11 @@
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 from typing import Any, List, Union
 
-from pydantic import BaseModel
-
 from steamship import Block, Task
-from steamship.agents.context import AgentContext
+from steamship.agents.context import AgentContext, BaseTool
 
 
-class Tool(BaseModel, ABC):
+class Tool(BaseTool):
     # Working thinking: we don't yet have formalization about whether
     # this is a class-level name, isntance-level name, or
     # instance+context-level name.

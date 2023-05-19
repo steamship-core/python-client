@@ -35,6 +35,9 @@ MAX_GENERATION_TOKENS = "max-generation-tokens"
 
 
 class ChatFile:
+    class Config:
+        arbitrary_types_allowed: True
+
     """A Chat is a wrapper of a File ideal for ongoing interactions between a user and a virtual assistant."""
 
     generator_instance_handle: str
