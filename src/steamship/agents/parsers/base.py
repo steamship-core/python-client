@@ -1,9 +1,9 @@
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from typing import Union
 
 from pydantic import BaseModel
 
-from steamship.agents.base import AgentContext, Action, FinishAction
+from steamship.agents.base import Action, AgentContext, FinishAction
 
 
 class InputParser(BaseModel, ABC):

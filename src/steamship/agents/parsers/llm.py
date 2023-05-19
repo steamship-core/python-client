@@ -1,10 +1,8 @@
 import re
-from typing import Union, List, Dict, Optional
-
-from pydantic import validator
+from typing import Dict, Optional, Union
 
 from steamship import Block
-from steamship.agents.base import Action, FinishAction, AgentContext, BaseTool
+from steamship.agents.base import Action, AgentContext, BaseTool, FinishAction
 from steamship.agents.parsers.base import OutputParser
 from steamship.experimental.transports.chat import ChatMessage
 
@@ -17,10 +15,10 @@ class LLMToolOutputParser(OutputParser):
         super().__init__(tools_lookup_dict=tools_lookup_dict, **kwargs)
 
     def parse(self, text: str, context: AgentContext) -> Union[Action, FinishAction]:
-        if f"AI:" in text:
+        if "AI:" in text:
             return FinishAction(
-                output=[ChatMessage(text=text.split(f"AI:")[-1].strip())],
-                context=context)
+                output=[ChatMessage(text=text.split("AI:")[-1].strip())], context=context
+            )
 
         regex = r"Action: (.*?)[\n]*Action Input: (.*)"
         match = re.search(regex, text)
@@ -28,6 +26,8 @@ class LLMToolOutputParser(OutputParser):
             raise RuntimeError(f"Could not parse LLM output: `{text}`")
         action = match.group(1)
         action_input = match.group(2).strip()
-        return Action(tool=self.tools_lookup_dict[action.strip()],
-                      tool_input=[Block(text=action_input)],
-                      context=context)
+        return Action(
+            tool=self.tools_lookup_dict[action.strip()],
+            tool_input=[Block(text=action_input)],
+            context=context,
+        )
