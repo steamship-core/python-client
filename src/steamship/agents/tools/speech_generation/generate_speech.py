@@ -1,5 +1,5 @@
 """Tool for generating images."""
-from steamship.tools.tool import AudioGeneratorTool
+from steamship.agents.tool import AudioGeneratorTool
 from steamship.utils.repl import ToolREPL
 
 

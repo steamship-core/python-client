@@ -1,13 +1,13 @@
 """Tool for searching the web for answers."""
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
 from pydantic import Field
 
-from steamship import Block, File, PluginInstance, SteamshipError
-from steamship.agents.agent_context import AgentContext
+from steamship import Block, File, PluginInstance, SteamshipError, Task
+from steamship.agents.context import AgentContext
+from steamship.agents.tool import Tool
 from steamship.data import TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
-from steamship.tools.tool import Tool, ToolOutput
 from steamship.utils.kv_store import KeyValueStore
 from steamship.utils.repl import ToolREPL
 
@@ -27,7 +27,7 @@ class SearchTool(Tool):
     class Config:
         arbitrary_types_allowed = True
 
-    def run(self, tool_input: List[Block], context: AgentContext) -> ToolOutput:
+    def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
         """Execute a search using the Steamship plugin."""
         search_tool = context.client.use_plugin("serpapi-wrapper")
 

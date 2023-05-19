@@ -1,6 +1,6 @@
 from typing import Optional
 
-from steamship.tools.text_generation.text_rewriting_tool import TextRewritingTool
+from steamship.agents.tools.text_generation.text_rewrite_tool import TextRewritingTool
 from steamship.utils.repl import ToolREPL
 
 DEFAULT_PERSONALITY = """A jolly pirate that addresses his friends as 'Matey."""

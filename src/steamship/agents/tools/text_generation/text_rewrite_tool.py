@@ -38,8 +38,7 @@ class TextRewritingTool(Tool):
         output: List[Blocks]
             A list of blocks whose content has been rewritten. Synchronously produced (for now).
         """
-        # TODO: In a future PR, this may adopt the Context's default LLM and/or permit instante-time overrides.
-        llm = context.client.use_plugin("gpt-4", config={"model": "gpt-3.5-turbo"})
+        llm = context.get_llm()
 
         tasks = []
         for block in tool_input:
@@ -54,7 +53,7 @@ class TextRewritingTool(Tool):
 
         output = []
         for task in tasks:
-            task.wait()  # TODO: In a Future PR, make this async.
+            task.wait()  # TODO: Synchronous Generation is a temporary simplification we will remove.
             for block in task.output.blocks:
                 output.append(block)
 

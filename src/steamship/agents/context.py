@@ -3,7 +3,7 @@ from typing import Any, Callable, Dict, List, Tuple
 
 from pydantic.main import BaseModel
 
-from steamship import Block, Steamship, Task
+from steamship import Block, PluginInstance, Steamship, Task
 
 
 class BaseTool(BaseModel, ABC):
@@ -42,7 +42,6 @@ class AgentContext:
     id: str
     metadata: Metadata = {}
 
-    # maybe needed?
     client: Steamship
 
     # User<->Package chat history (NOT Agent<-->Tool history)
@@ -79,4 +78,7 @@ class AgentContext:
     # in the future, this could be a set of callbacks, more broken out (onError, onComplete, ...)
     emit_funcs: List[EmitFunc] = []
 
-    # def get_llm(self) -> PluginInstance:
+    def get_llm(self) -> PluginInstance:
+        # This may be something we wish to eventually provide application-level settings for.
+        # E.g. the agent has a set_default_llm method that is available and supported in the UI.
+        return self.client.use_plugin("gpt-4", config={"model": "gpt-3.5-turbo"})

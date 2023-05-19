@@ -90,7 +90,8 @@ class ToolREPL(SteamshipREPL):
             exit(-1)
 
         with self.temporary_workspace() as client:
-            context = AgentContext(client=client)
+            context = AgentContext()
+            context.client = client
 
             print(f"Starting REPL for Tool {self.tool.name}...")
             print(

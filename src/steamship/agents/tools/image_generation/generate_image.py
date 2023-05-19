@@ -1,5 +1,5 @@
 """Tool for generating images."""
-from steamship.tools.tool import ImageGeneratorTool
+from steamship.agents.tool import ImageGeneratorTool
 from steamship.utils.repl import ToolREPL
 
 
