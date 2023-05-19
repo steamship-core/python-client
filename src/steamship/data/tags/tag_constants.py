@@ -28,6 +28,8 @@ class TagKind(str, Enum):
     SEARCH_RESULT = "search-result"
     ROLE = "role"
     CHAT = "chat"
+    CHAT_HISTORY_CONTEXT = "chat-history-context"
+    MESSAGE_ID = "message-id"
 
 
 class DocTag(str, Enum):

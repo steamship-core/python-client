@@ -1,18 +1,18 @@
 import pytest
 
 from steamship import DocTag
+from steamship.agents.context.chathistory import ChatHistory
 from steamship.client import Steamship
 from steamship.data import TagKind
 from steamship.data.tags.tag_constants import RoleTag
-from steamship.experimental.chatfile import ChatFile
 
 
 @pytest.mark.usefixtures("client")
 def test_chat_create(client: Steamship):
-    chat = ChatFile.create(client, generator_instance_handle="")
+    chat = ChatHistory.get_or_create(client, generator_instance_handle="")
 
     assert chat.client is not None
-    assert isinstance(chat, ChatFile)
+    assert isinstance(chat, ChatHistory)
     assert len(chat.tags) == 2
     assert chat.tags[0].kind == TagKind.DOCUMENT
     assert chat.tags[0].name == DocTag.CHAT
@@ -20,7 +20,7 @@ def test_chat_create(client: Steamship):
 
 @pytest.mark.usefixtures("client")
 def test_chat_append_system(client: Steamship):
-    chat = ChatFile.create(client, generator_instance_handle="")
+    chat = ChatHistory.get_or_create(client, generator_instance_handle="")
 
     chat.append_system_block(text="some system text")
     chat.refresh()
@@ -35,7 +35,7 @@ def test_chat_append_system(client: Steamship):
 
 @pytest.mark.usefixtures("client")
 def test_chat_append_user(client: Steamship):
-    chat = ChatFile.create(client, generator_instance_handle="")
+    chat = ChatHistory.get_or_create(client, generator_instance_handle="")
 
     chat.append_user_block(text="some user text")
     chat.refresh()
@@ -51,7 +51,7 @@ def test_chat_append_user(client: Steamship):
 @pytest.mark.usefixtures("client")
 def test_chat_generate_response(client: Steamship):
     generator = client.use_plugin("test-generator")
-    chat = ChatFile.create(
+    chat = ChatHistory.get_or_create(
         client,
         generator_instance_handle=generator.handle,
         initial_system_prompt="This is my hand-crafted special instructional prompt",

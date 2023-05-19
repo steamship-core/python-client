@@ -12,6 +12,7 @@ from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.base.response import Response
 from steamship.data.tags.tag import Tag
+from steamship.data.tags.tag_constants import RoleTag, TagKind
 
 
 class BlockQueryRequest(Request):
@@ -187,6 +188,18 @@ class Block(CamelModel):
     def is_video(self):
         """Return whether this is a video Block."""
         return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO]
+
+    @property
+    def chat_role(self) -> Optional[RoleTag]:
+        for tag in self.tags:
+            if tag.kind == TagKind.ROLE:
+                return RoleTag(tag.name)
+
+    @property
+    def message_id(self):
+        for tag in self.tags:
+            if tag.kind == TagKind.MESSAGE_ID:
+                return RoleTag(tag.name)
 
 
 class BlockQueryResponse(Response):
