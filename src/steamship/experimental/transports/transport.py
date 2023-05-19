@@ -3,7 +3,7 @@ import time
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from steamship.experimental.transports.chat import ChatMessage
+from steamship.agents.communication.chat_message import ChatMessage
 
 
 class Transport(ABC):

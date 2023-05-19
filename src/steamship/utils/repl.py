@@ -7,9 +7,9 @@ from typing import List, Optional, Type, cast
 
 from steamship import Block, Steamship, Task
 from steamship.agents.base import AgentContext, BaseTool
+from steamship.agents.communication.chat_message import ChatMessage
 from steamship.agents.service.agent_service import AgentService
 from steamship.data.workspace import SignedUrl, Workspace
-from steamship.experimental.transports.chat import ChatMessage
 from steamship.utils.signed_urls import upload_to_signed_url
 
 

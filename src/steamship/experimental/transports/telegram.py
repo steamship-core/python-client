@@ -5,7 +5,7 @@ from typing import Optional
 import requests
 
 from steamship import SteamshipError
-from steamship.experimental.transports.chat import ChatMessage
+from steamship.agents.communication.chat_message import ChatMessage
 from steamship.experimental.transports.transport import Transport
 
 API_BASE = "https://api.telegram.org/bot"

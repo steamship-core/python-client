@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from steamship.experimental.transports.chat import ChatMessage
+from steamship.agents.communication.chat_message import ChatMessage
 from steamship.experimental.transports.steamship_widget import SteamshipWidgetTransport
 from steamship.invocable import PackageService, post
 
