@@ -1,11 +1,12 @@
 from abc import abstractmethod, ABC
-from typing import Tuple, List
+from typing import Union
 
-from steamship import Block
-from steamship.agents.base import AgentContext
+from pydantic import BaseModel
+
+from steamship.agents.base import AgentContext, Action, FinishAction
 
 
-class InputPreparer(ABC):
+class InputParser(BaseModel, ABC):
     # This takes multi-media and converts into a textual form useful for prompting
     # for further text generation.
     #
@@ -19,11 +20,7 @@ class InputPreparer(ABC):
         pass
 
 
-class OutputParser(ABC):
-    class Config:
-        arbitrary_types_allowed: True
-        validation: False
-
+class OutputParser(BaseModel, ABC):
     # Example image-based workflow:
     # (1) user request: generate an image of a row-house in a city street.
     # (2) llm planner: dalle("row-house in a city street")
@@ -41,5 +38,5 @@ class OutputParser(ABC):
     #            ActionInput: Block(UUID)"
     #  - output: ("pix-to-pix", [Block(UUID)])
     @abstractmethod
-    def parse(self, llm_generation: str) -> Tuple[str, List[Block]]:
+    def parse(self, text: str, context: AgentContext) -> Union[Action, FinishAction]:
         pass

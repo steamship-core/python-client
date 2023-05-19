@@ -4,9 +4,8 @@ from steamship import Block, File, Steamship, Task, TaskState
 from steamship.agents.base import AgentContext, Metadata, Action, FinishAction
 from steamship.agents.base import BaseTool
 from steamship.agents.planner.base import Planner
-from steamship.agents.planner.react import OpenAIReACTPlanner
+from steamship.agents.planner.react import ReACTPlanner
 from steamship.data import TagValueKey
-from steamship.experimental.tools import Tool
 from steamship.experimental.transports.chat import ChatMessage
 from steamship.invocable import PackageService, post
 from steamship.utils.kv_store import KeyValueStore
@@ -24,8 +23,6 @@ class AgentService(PackageService):
     )
     context_cache: KeyValueStore
     planner: Planner
-
-    tools: List[Tool] = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -61,7 +58,7 @@ class AgentService(PackageService):
     ###############################################
 
     def _next_action(self, context: AgentContext) -> Action:
-        return self.planner.plan(self.tools, context)
+        return self.planner.plan(context)
 
     @post("take_action")
     def take_action(self, context: AgentContext) -> Union[Action, FinishAction]:
@@ -93,7 +90,9 @@ class AgentService(PackageService):
         # if so, reschedule run_agent for later.
         last_known_pending_tasks = context.in_progress
         completed_bindings_and_tasks = [
-            Tuple[tb, t] for tb, t in last_known_pending_tasks if not _is_running(t)
+            Tuple[tb, t]
+            for tb, t in last_known_pending_tasks
+            if not _is_running(t)
         ]
         for (action, task) in completed_bindings_and_tasks:
             task.refresh()
@@ -175,11 +174,12 @@ class ImageTool(BaseTool):
 class MyAssistant(AgentService):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.tools = [
+        self.planner = ReACTPlanner(tools=[
             SerpTool(),
             ImageTool(),
-        ]
-        self.planner = OpenAIReACTPlanner()
+        ],
+        llm=None, # TODO: Init LLM here so it's not hardcoded
+        )
 
     def create_response(self, incoming_message: ChatMessage) -> Optional[List[ChatMessage]]:
         msg_id = incoming_message.get_message_id()

@@ -1,37 +1,33 @@
-from typing import Tuple, List
+import re
+from typing import Union, List, Dict, Optional
+
+from pydantic import validator
 
 from steamship import Block
+from steamship.agents.base import Action, FinishAction, AgentContext, BaseTool
 from steamship.agents.parsers.base import OutputParser
+from steamship.experimental.transports.chat import ChatMessage
 
 
 class LLMToolOutputParser(OutputParser):
-    def remove_prefix(self, text: str, prefix: str):
-        return text[text.startswith(prefix) and len(prefix):]
+    tools_lookup_dict: Optional[Dict[str, BaseTool]] = None
 
-    # note: I do not like this construction. signature needs tweaking.
-    def parse(self, llm_generation: str) -> Tuple[str, List[Block]]:
-        blocks = []
-        lines = llm_generation.split("\n")
-        print(f"LLM Generation: {lines}")
-        tool = None
-        for line in lines:
-            if "do i need to use a tool?" in line.lower() and " no" in line.lower():
-                print("found finish!")
-                tool = "__finish__"
-                continue
+    def __init__(self, **kwargs):
+        tools_lookup_dict = {tool.name: tool for tool in kwargs.pop("tools", None)}
+        super().__init__(tools_lookup_dict=tools_lookup_dict, **kwargs)
 
-            if "ai: " in line.lower():
-                blocks.append(Block(text=self.remove_prefix(line, "AI:").strip()))
-                continue
+    def parse(self, text: str, context: AgentContext) -> Union[Action, FinishAction]:
+        if f"AI:" in text:
+            return FinishAction(
+                output=[ChatMessage(text=text.split(f"AI:")[-1].strip())],
+                context=context)
 
-            if "action:" in line.lower():
-                tool = self.remove_prefix(line, "Action:").strip()
-                continue
-
-            if "action input:" in line.lower():
-                # todo: convert Block(UUID) -> Block
-                action_input = self.remove_prefix(line, "Action Input:").strip()
-                blocks.append(Block(text=action_input))
-
-        print(f"Action tool: {tool or 'no tool'}")
-        return tool, blocks
+        regex = r"Action: (.*?)[\n]*Action Input: (.*)"
+        match = re.search(regex, text)
+        if not match:
+            raise RuntimeError(f"Could not parse LLM output: `{text}`")
+        action = match.group(1)
+        action_input = match.group(2).strip()
+        return Action(tool=self.tools_lookup_dict[action.strip()],
+                      tool_input=[Block(text=action_input)],
+                      context=context)

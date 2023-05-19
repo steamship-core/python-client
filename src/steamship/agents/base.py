@@ -79,7 +79,7 @@ class AgentContext:
         return self.client.use_plugin("gpt-4", config={"model": "gpt-3.5-turbo"})
 
 
-class BaseTool(ABC):
+class BaseTool(BaseModel, ABC):
     # Working thinking: we don't yet have formalization about whether
     # this is a class-level name, isntance-level name, or
     # instance+context-level name.
