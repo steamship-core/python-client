@@ -5,7 +5,7 @@ from typing import Any, List, Optional, Union
 import requests
 
 from steamship import Block, File, MimeTypes, Task
-from steamship.agents.context import AgentContext, BaseTool
+from steamship.agents.base import AgentContext, BaseTool
 
 
 class Tool(BaseTool):

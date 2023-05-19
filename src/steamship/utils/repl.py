@@ -6,7 +6,7 @@ from abc import ABC
 from typing import List, Optional, cast
 
 from steamship import Block, Steamship, Task
-from steamship.agents.context import AgentContext
+from steamship.agents.base import AgentContext
 from steamship.agents.tool import Tool
 from steamship.data.workspace import SignedUrl, Workspace
 from steamship.utils.signed_urls import upload_to_signed_url

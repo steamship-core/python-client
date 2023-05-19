@@ -4,7 +4,7 @@ from typing import Any, List, Optional, Union
 from pydantic import Field
 
 from steamship import Block, File, PluginInstance, SteamshipError, Task
-from steamship.agents.context import AgentContext
+from steamship.agents.base import AgentContext
 from steamship.agents.tool import Tool
 from steamship.data import TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key

@@ -2,7 +2,7 @@
 from typing import Any, List, Optional, Union, cast
 
 from steamship import Block, Steamship, Tag, Task
-from steamship.agents.context import AgentContext
+from steamship.agents.base import AgentContext
 from steamship.agents.tool import Tool
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
 from steamship.utils.repl import ToolREPL

@@ -1,24 +1,18 @@
-from abc import ABC
-from typing import Any, Callable, Dict, List, Tuple
+from abc import ABC, abstractmethod
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-from pydantic.main import BaseModel
+from pydantic import BaseModel
 
 from steamship import Block, PluginInstance, Steamship, Task
 
 
-class BaseTool(BaseModel, ABC):
-    pass
-
-
-class ToolBinding(BaseModel):
-    tool: BaseTool
-    inputs: List[Block]
+class Action:
+    pass  # Circular dependency
 
 
 ToolInputs = List[Block]
 ToolOutputs = List[Block]
-AgentStep = Tuple[ToolBinding, ToolOutputs]
-AgentSteps = List[AgentStep]
+AgentSteps = List[Action]
 Metadata = Dict[str, Any]
 EmitFunc = Callable[[ToolOutputs, Metadata], None]
 
@@ -42,6 +36,7 @@ class AgentContext:
     id: str
     metadata: Metadata = {}
 
+    # maybe needed?
     client: Steamship
 
     # User<->Package chat history (NOT Agent<-->Tool history)
@@ -70,7 +65,7 @@ class AgentContext:
     # as above this likely could be "discovered" from `agent_history: ChatFile` and tags
     # dynamically, and be more "Steamship-native". Perhaps in a second pass.
     in_progress: List[
-        Tuple[ToolBinding, Task]
+        Tuple[Action, Task]
     ] = []  # todo: should this be a map from task_id -> ToolBinding?
 
     # this, I think(?), is not serializable, and must be set in some sort of context init bit
@@ -82,3 +77,43 @@ class AgentContext:
         # This may be something we wish to eventually provide application-level settings for.
         # E.g. the agent has a set_default_llm method that is available and supported in the UI.
         return self.client.use_plugin("gpt-4", config={"model": "gpt-3.5-turbo"})
+
+
+class BaseTool(ABC):
+    # Working thinking: we don't yet have formalization about whether
+    # this is a class-level name, isntance-level name, or
+    # instance+context-level name.
+    # thought(doug): this should be the planner-facing name (LLM-friendly?)
+    name: str
+
+    # Advice, but not hard-enforced:
+    # This contains the description, inputs, and outputs.
+    ai_description: str
+    human_description: str  # Human readable string for logging
+
+    @abstractmethod
+    def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
+        raise NotImplementedError()
+
+    # This gets called later if you return Task[Any] from run
+    def post_process(self, async_task: Task[Any]) -> List[Block]:
+        # nice helpers for making lists of blocks
+        pass
+
+
+class Action(BaseModel):
+    class Config:
+        arbitrary_types_allowed = True
+
+    tool: BaseTool  # Tools are retrieved via their name
+    tool_input: List[Block]  # Tools always get strings as input
+    context: AgentContext
+    tool_output: Optional[ToolOutputs] = []
+
+
+class FinishAction(BaseModel):
+    class Config:
+        arbitrary_types_allowed = True
+
+    output: Any  # Output can be anything as long as it's JSON serializable
+    context: AgentContext

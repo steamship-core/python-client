@@ -4,7 +4,7 @@ from typing import Any, List, Union
 import requests
 
 from steamship import Block, Task
-from steamship.agents.context import AgentContext
+from steamship.agents.base import AgentContext
 from steamship.agents.tool import Tool
 from steamship.utils.repl import ToolREPL
 
