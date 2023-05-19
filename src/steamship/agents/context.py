@@ -78,3 +78,5 @@ class AgentContext:
     # of whatever is doing the work.
     # in the future, this could be a set of callbacks, more broken out (onError, onComplete, ...)
     emit_funcs: List[EmitFunc] = []
+
+    # def get_llm(self) -> PluginInstance:
