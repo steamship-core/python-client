@@ -10,7 +10,7 @@ from steamship.base.client import Client
 from steamship.data import TagKind
 from steamship.data.block import Block
 from steamship.data.tags import Tag
-from steamship.data.tags.tag_constants import DocTag, RoleTag
+from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValueKey
 
 
 class ChatHistory:
@@ -29,7 +29,7 @@ class ChatHistory:
     def _get_existing_file(client: Client, context_keys: Dict[str, str]) -> Optional[File]:
         """Find an existing File object whose context Tag matches the passed context keys"""
         file_query = " and ".join(
-            [f'value("{key}") = {value}' for key, value in context_keys.items()]
+            [f'value("{key}") = "{value}"' for key, value in context_keys.items()]
         )
         file = File.query(client, file_query)
         if len(file.files) == 1:
@@ -51,7 +51,7 @@ class ChatHistory:
 
         file = ChatHistory._get_existing_file(client, context_keys)
 
-        if file is not None:
+        if file is None:
             tags = tags or []
             tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))
 
@@ -81,7 +81,11 @@ class ChatHistory:
     ) -> Block:
         """Append a new block to this with content provided by the end-user."""
         tags = tags or []
-        tags.append(Tag(kind=TagKind.ROLE, name=RoleTag.USER))
+        tags.append(
+            Tag(
+                kind=TagKind.CHAT, name=ChatTag.ROLE, value={TagValueKey.STRING_VALUE: RoleTag.USER}
+            )
+        )
         return self.file.append_block(
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )
@@ -96,7 +100,13 @@ class ChatHistory:
     ) -> Block:
         """Append a new block to this with content provided by the system, i.e., instructions to the assistant."""
         tags = tags or []
-        tags.append(Tag(kind=TagKind.ROLE, name=RoleTag.SYSTEM))
+        tags.append(
+            Tag(
+                kind=TagKind.CHAT,
+                name=ChatTag.ROLE,
+                value={TagValueKey.STRING_VALUE: RoleTag.SYSTEM},
+            )
+        )
         return self.file.append_block(
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )
@@ -111,7 +121,13 @@ class ChatHistory:
     ) -> Block:
         """Append a new block to this with content provided by the agent, i.e., results from the assistant."""
         tags = tags or []
-        tags.append(Tag(kind=TagKind.ROLE, name=RoleTag.ASSISTANT))
+        tags.append(
+            Tag(
+                kind=TagKind.CHAT,
+                name=ChatTag.ROLE,
+                value={TagValueKey.STRING_VALUE: RoleTag.ASSISTANT},
+            )
+        )
         return self.file.append_block(
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )

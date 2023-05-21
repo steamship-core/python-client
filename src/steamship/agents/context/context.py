@@ -3,8 +3,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from pydantic.main import BaseModel
 
-from steamship import Block, PluginInstance, Steamship, Task
-from steamship.agents.base import Action
+from steamship import Block, PluginInstance, Steamship, Tag, Task
 from steamship.agents.context.chathistory import ChatHistory
 
 
@@ -45,7 +44,6 @@ class AgentContext:
 
     metadata: Metadata = {}
 
-    # maybe needed?
     client: Steamship
 
     # User<->Package chat history (NOT Agent<-->Tool history)
@@ -74,8 +72,9 @@ class AgentContext:
     # as above this likely could be "discovered" from `agent_history: ChatFile` and tags
     # dynamically, and be more "Steamship-native". Perhaps in a second pass.
     in_progress: List[
-        Tuple[Action, Task]
+        Tuple[Any, Task]
     ] = []  # todo: should this be a map from task_id -> ToolBinding?
+    # TODO: Any here should be Action, but I can't make it un-circular
 
     # this, I think(?), is not serializable, and must be set in some sort of context init bit
     # of whatever is doing the work.
@@ -86,3 +85,16 @@ class AgentContext:
         # This may be something we wish to eventually provide application-level settings for.
         # E.g. the agent has a set_default_llm method that is available and supported in the UI.
         return self.client.use_plugin("gpt-4", config={"model": "gpt-3.5-turbo"})
+
+    @staticmethod
+    def get_or_create(
+        client: Steamship,
+        context_keys: Dict[str, str],
+        tags: List[Tag] = None,
+        initial_system_prompt: Optional[str] = None,
+    ) -> "AgentContext":
+        history = ChatHistory.get_or_create(client, context_keys, tags, initial_system_prompt)
+        context = AgentContext()
+        context.chat_history = history
+        context.client = client
+        return context

@@ -1,10 +1,9 @@
 from typing import List
 
 from steamship import Block
-from steamship.agents.base import FinishAction, AgentContext, Action
+from steamship.agents.base import Action, AgentContext, BaseTool, FinishAction
 from steamship.agents.parsers.llm import LLMToolOutputParser
 from steamship.agents.planner.base import LLMPlanner
-from steamship.agents.base import BaseTool
 
 
 class OpenAIReACTPlanner(LLMPlanner):
@@ -79,7 +78,7 @@ New input: {input}
         # for simplicity assume initial prompt is a single text block.
         # in reality, use some sort of formatter ?
         prompt = self.PROMPT.format(
-            input=context.initial_prompt[0].text,
+            input=context.chat_history.last_user_message.text,
             tool_index=tool_index,
             tool_names=tool_names,
             scratchpad=scratchpad,
@@ -98,10 +97,7 @@ New input: {input}
         print(f"Tool Name: {tool_name}, Inputs: {inputs}")
         if tool_name == "__finish__":
             # todo: fix pydantic validation when we decide on FinishAction concept or something.
-            action = FinishAction(
-                context=context,
-                output=inputs
-            )
+            action = FinishAction(context=context, output=inputs)
             return action
 
         # print(f"selected: {tool_name}")

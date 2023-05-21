@@ -40,7 +40,7 @@ class AgentService(PackageService):
         block_or_task = action.tool.run(action.tool_input, action.context)
         if isinstance(block_or_task, Task):
             context.in_progress.append((action, block_or_task))
-            self.upsert_context(context)
+            # self.upsert_context(context)
 
             for func in context.emit_funcs:
                 func([Block(text=f"Status: Running {action}")], context.metadata)
@@ -53,7 +53,7 @@ class AgentService(PackageService):
             output_blocks = action.tool.run(action.tool_input, context)
             action.tool_output = output_blocks
             context.completed_steps.append(action)
-            self.upsert_context(context)
+            # self.upsert_context(context)
             return action
 
     @post("_steamship/run")
@@ -68,7 +68,7 @@ class AgentService(PackageService):
             task.refresh()
             action.tool_output = task.output.blocks
             context.completed_steps.append(action)
-        self.upsert_context(context)
+        # self.upsert_context(context)
         running_tasks = [t for _, t in last_known_pending_tasks if _is_running(t)]
         if len(running_tasks) > 0:
             # todo: do we need to do anything with this pending task?
@@ -85,4 +85,4 @@ class AgentService(PackageService):
 
         for func in context.emit_funcs:
             func(action.output, context.metadata)
-        self.unload_context(context_id=context.id)
+        # self.unload_context(context_id=context.id)

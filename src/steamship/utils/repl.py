@@ -138,12 +138,21 @@ class AgentREPL(SteamshipREPL):
 
         while True:
             input_text = input(colored("Input: ", "blue"))  # noqa: F821
-            message_id = uuid.uuid4().hex
+            # message_id = uuid.uuid4().hex
 
-            message = Block(text=input_text)
-            # message.chat_id = chat_id
-            message.set_message_id(message_id)
-            response: Optional[List[Block]] = agent.create_response(incoming_message=message)
+            context = AgentContext.get_or_create(
+                client,
+                context_keys={
+                    "chat_id": chat_id
+                    # No message id here; we don't want a new context per message
+                },
+            )
+            # message = Block(text=input_text)
+            # message.set_message_id(message_id)
+            context.chat_history.append_user_message(
+                text=input_text
+            )  # Should this take a Block, instead of creating a block?
+            response: Optional[List[Block]] = agent.create_response(context)
             self.print_blocks(response)
 
     def run(self):
