@@ -4,6 +4,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 from pydantic.main import BaseModel
 
 from steamship import Block, PluginInstance, Steamship, Task
+from steamship.agents.base import Action
 from steamship.agents.context.chathistory import ChatHistory
 
 
@@ -73,7 +74,7 @@ class AgentContext:
     # as above this likely could be "discovered" from `agent_history: ChatFile` and tags
     # dynamically, and be more "Steamship-native". Perhaps in a second pass.
     in_progress: List[
-        Tuple[ToolBinding, Task]
+        Tuple[Action, Task]
     ] = []  # todo: should this be a map from task_id -> ToolBinding?
 
     # this, I think(?), is not serializable, and must be set in some sort of context init bit

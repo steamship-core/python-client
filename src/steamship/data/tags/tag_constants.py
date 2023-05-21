@@ -261,3 +261,6 @@ class ChatTag(str, Enum):
 
     # The message id of a message
     MESSAGE_ID = "message-id"
+
+    # The role of a message
+    ROLE = "role"

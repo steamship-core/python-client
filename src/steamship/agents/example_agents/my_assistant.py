@@ -12,6 +12,10 @@ from steamship.experimental.transports.chat import ChatMessage
 from steamship.utils.repl import AgentREPL
 
 
+class AgentContext:
+    pass
+
+
 class MyAssistant(AgentService):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -21,17 +25,14 @@ class MyAssistant(AgentService):
         ]
         self.planner = OpenAIReACTPlanner()
 
-    def create_response(self, incoming_message: ChatMessage) -> Optional[List[ChatMessage]]:
-        msg_id = incoming_message.get_message_id()
-        chat_id = incoming_message.get_chat_id()
-
+    def create_response(self, context: AgentContext) -> Optional[List[ChatMessage]]:
         # todo: do we need more here to allow for user-specific contexts?
         # todo: how to deal with overlapping requests (do this... and do this... and do this...)
-        context_id = f"{chat_id}-{msg_id}"
+        context_id = ""  # {chat_id}-{msg_id}"
         current_context = self.load_context(context_id=context_id)
 
         if not current_context:
-            md = {"chat_id": chat_id, "message_id": msg_id}
+            md = {}  # {"chat_id": chat_id, "message_id": msg_id}
             current_context = self.new_context_with_metadata(md)
             current_context.id = context_id
 
@@ -39,7 +40,7 @@ class MyAssistant(AgentService):
             current_context.emit_funcs.append(self._send_message_agent)
 
         current_context.client = self.client
-        current_context.initial_prompt = [Block(text=incoming_message.text)]
+        current_context.initial_prompt = [Block(text="incoming_message.text")]
         # pull up User<->Agent chat history, and append latest Human Input
         # this is distinct from any sort of history related to agent execution
         # chat_file = ChatFile.get(...)

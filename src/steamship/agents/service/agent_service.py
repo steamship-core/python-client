@@ -1,11 +1,11 @@
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 from steamship import Block, Task, TaskState
-from steamship.agents.base import Action, AgentContext, FinishAction, Metadata
+from steamship.agents.base import Action, FinishAction
+from steamship.agents.context.context import AgentContext
 from steamship.agents.planner.base import Planner
 from steamship.agents.tool import Tool
 from steamship.invocable import PackageService, post
-from steamship.utils.kv_store import KeyValueStore
 
 
 def _is_running(task: Task) -> bool:
@@ -17,39 +17,12 @@ class AgentService(PackageService):
     agent_context_identifier = (
         "_steamship_agent_contexts"  # probably want to include instance_handle...
     )
-    context_cache: KeyValueStore
     planner: Planner
 
     tools: List[Tool] = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.context_cache = KeyValueStore(
-            client=self.client, store_identifier=self.agent_context_identifier
-        )
-
-    ##################################################
-    # Context-related actions for load/persist/delete
-    ##################################################
-
-    def upsert_context(self, context: AgentContext):
-        # self.context_cache.set(context.id, "foo")
-        pass
-
-    def new_context_with_metadata(self, md: Metadata) -> AgentContext:
-        ctx = AgentContext()
-        ctx.metadata = md
-        self.upsert_context(ctx)
-        return ctx
-
-    def load_context(self, context_id: str) -> Optional[AgentContext]:
-        maybe_context = self.context_cache.get(context_id)
-        if not maybe_context:
-            return None
-        return AgentContext.parse_obj(maybe_context)
-
-    def unload_context(self, context_id: str):
-        self.context_cache.delete(context_id)
 
     ###############################################
     # Tool selection / execution magic
@@ -85,14 +58,13 @@ class AgentService(PackageService):
 
     @post("_steamship/run")
     def run_agent(self, context: AgentContext):
-
         # first thing we must do is determine if we are still waiting on any pending executions
         # if so, reschedule run_agent for later.
         last_known_pending_tasks = context.in_progress
         completed_bindings_and_tasks = [
             Tuple[tb, t] for tb, t in last_known_pending_tasks if not _is_running(t)
         ]
-        for (action, task) in completed_bindings_and_tasks:
+        for action, task in completed_bindings_and_tasks:
             task.refresh()
             action.tool_output = task.output.blocks
             context.completed_steps.append(action)

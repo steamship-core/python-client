@@ -142,7 +142,7 @@ class AgentREPL(SteamshipREPL):
 
             message = Block(text=input_text)
             # message.chat_id = chat_id
-            message.message_id = message_id
+            message.set_message_id(message_id)
             response: Optional[List[Block]] = agent.create_response(incoming_message=message)
             self.print_blocks(response)
 
