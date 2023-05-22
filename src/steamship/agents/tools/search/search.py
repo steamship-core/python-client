@@ -45,7 +45,9 @@ class SearchTool(Tool):
 
     def _do_search(self, query: str, search_tool: PluginInstance) -> str:
         try:
-            if self.cache_store is not None:
+            if (
+                self.cache
+            ):  # Not self.cache_store is not None, because it's set to a Field by default
                 value = self.cache_store.get(query)
                 if value is not None:
                     return value.get(TagValueKey.STRING_VALUE, "")
@@ -59,7 +61,9 @@ class SearchTool(Tool):
                 TagValueKey.STRING_VALUE,
             )
 
-            if self.cache_store is not None:
+            if (
+                self.cache
+            ):  # Not self.cache_store is not None, because it's set to a Field by default
                 self.cache_store.set(key=query, value={TagValueKey.STRING_VALUE: answer})
 
             return answer
