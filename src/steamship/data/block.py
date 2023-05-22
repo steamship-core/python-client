@@ -12,6 +12,7 @@ from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.base.response import Response
 from steamship.data.tags.tag import Tag
+from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValueKey
 
 
 class BlockQueryRequest(Request):
@@ -23,6 +24,16 @@ class BlockUploadType(str, Enum):
     BLOCKS = "blocks"  # Blocks are sent to create a file
     URL = "url"  # content will be fetched from a URL
     NONE = "none"  # No upload; plain text only
+
+
+def get_tag_value_key(
+    tags: Optional[List[Tag]], key: str, kind: Optional[str] = None, name: Optional[str] = None
+) -> Optional[any]:
+    """Iterates through a list of tags and returns the first that contains the provided Kind/Name/ValueKey."""
+    for tag in tags or []:
+        if (kind is None or tag.kind == kind) and (name is None or tag.name == name):
+            return (tag.value or {}).get(key)
+    return None
 
 
 class Block(CamelModel):
@@ -187,6 +198,59 @@ class Block(CamelModel):
     def is_video(self):
         """Return whether this is a video Block."""
         return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO]
+
+    @property
+    def chat_role(self) -> Optional[RoleTag]:
+        return get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.ROLE
+        )
+
+    def set_chat_role(self, role: RoleTag):
+        return self._one_time_set_tag(
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.MESSAGE_ID, string_value=role.value
+        )
+
+    @property
+    def message_id(self) -> str:
+        return get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.MESSAGE_ID
+        )
+
+    def set_message_id(self, message_id: str):
+        return self._one_time_set_tag(
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.MESSAGE_ID, string_value=message_id
+        )
+
+    def _one_time_set_tag(self, tag_kind: str, tag_name: str, string_value: str):
+        existing = get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=tag_kind, name=tag_name
+        )
+
+        if existing is not None:
+            if existing == string_value:
+                return  # No action necessary
+            else:
+                raise SteamshipError(
+                    message=f"Block {self.id} already has an existing {tag_kind}/{tag_name} with value {existing}. Unable to set to {string_value}"
+                )
+
+        if self.client and self.id:
+            tag = Tag.create(
+                self.client,
+                file_id=self.file_id,
+                block_id=self.id,
+                kind=tag_kind,
+                name=tag_name,
+                value={TagValueKey.STRING_VALUE: string_value},
+            )
+        else:
+            tag = Tag(
+                kind=tag_kind,
+                name=tag_name,
+                value={TagValueKey.STRING_VALUE: string_value},
+            )
+
+        self.tags.append(tag)
 
 
 class BlockQueryResponse(Response):
