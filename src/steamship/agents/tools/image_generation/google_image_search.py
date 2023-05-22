@@ -11,7 +11,7 @@ class GoogleImageSearchTool(ImageGeneratorTool):
     ai_description = (
         "Used to retrieve an image of a well known object, person, place, or idea. Only use if the user has asked directly for an image. "
         "Input: a plain text string that describes an object, person, place, or idea. "
-        "Output: an image of that thing.",
+        "Output: an image of that thing."
     )
     generator_plugin_handle: str = "google-image-search"
     generator_plugin_config: dict = {}
