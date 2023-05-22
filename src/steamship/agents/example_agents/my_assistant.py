@@ -2,7 +2,8 @@ from typing import List, Optional
 
 from steamship import Block
 from steamship.agents.base import Metadata
-from steamship.agents.planner.react import OpenAIReACTPlanner
+from steamship.agents.llm.openai import OpenAI
+from steamship.agents.planner.react import ReACTPlanner
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.tools.image_generation.generate_image import GenerateImageTool
 from steamship.agents.tools.search.search import SearchTool
@@ -15,11 +16,13 @@ from steamship.utils.repl import AgentREPL
 class MyAssistant(AgentService):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.tools = [
-            SearchTool(),
-            GenerateImageTool(),
-        ]
-        self.planner = OpenAIReACTPlanner()
+        self.planner = ReACTPlanner(
+            tools=[
+                SearchTool(),
+                GenerateImageTool(),
+            ],
+            llm=OpenAI(self.client),
+        )
 
     def create_response(self, incoming_message: ChatMessage) -> Optional[List[ChatMessage]]:
         msg_id = incoming_message.get_message_id()

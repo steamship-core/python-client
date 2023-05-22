@@ -117,3 +117,9 @@ class FinishAction(BaseModel):
 
     output: Any  # Output can be anything as long as it's JSON serializable
     context: AgentContext
+
+
+class LLM(BaseModel, ABC):
+    @abstractmethod
+    def complete(self, prompt: str, stop: str) -> List[Block]:
+        pass
