@@ -2,11 +2,11 @@ from typing import List, Optional
 
 from steamship import Block
 from steamship.agents.base import Metadata
-from steamship.agents.llm.openai import OpenAI
 from steamship.agents.context.context import AgentContext
+from steamship.agents.llm.openai import OpenAI
 from steamship.agents.planner.react import ReACTPlanner
 from steamship.agents.service.agent_service import AgentService
-from steamship.agents.tools.image_generation.generate_image import GenerateImageTool
+from steamship.agents.tools.image_generation.dalle import DalleTool
 from steamship.agents.tools.search.search import SearchTool
 from steamship.experimental.transports.chat import ChatMessage
 
@@ -20,7 +20,7 @@ class MyAssistant(AgentService):
         self.planner = ReACTPlanner(
             tools=[
                 SearchTool(),
-                GenerateImageTool(),
+                DalleTool(),
             ],
             llm=OpenAI(self.client),
         )
