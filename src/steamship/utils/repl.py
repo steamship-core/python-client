@@ -120,7 +120,7 @@ class AgentREPL(SteamshipREPL):
         self.agent_class = agent_class
         self.client = client or Steamship()
 
-    def run_with_client(self, client: Workspace):
+    def run_with_client(self, client: Steamship):
         try:
             from termcolor import colored  # noqa: F401
         except ImportError:
@@ -138,7 +138,7 @@ class AgentREPL(SteamshipREPL):
 
         while True:
             input_text = input(colored("Input: ", "blue"))  # noqa: F821
-            # message_id = uuid.uuid4().hex
+            message_id = uuid.uuid4().hex
 
             context = AgentContext.get_or_create(
                 client,
@@ -147,11 +147,10 @@ class AgentREPL(SteamshipREPL):
                     # No message id here; we don't want a new context per message
                 },
             )
-            # message = Block(text=input_text)
-            # message.set_message_id(message_id)
-            context.chat_history.append_user_message(
+            message = context.chat_history.append_user_message(
                 text=input_text
             )  # Should this take a Block, instead of creating a block?
+            message.set_message_id(message_id)
             response: Optional[List[Block]] = agent.create_response(context)
             self.print_blocks(response)
 
