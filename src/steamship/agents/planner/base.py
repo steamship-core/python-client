@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Union
+from typing import List, Union
 
 from pydantic import BaseModel
 
-from steamship.agents.base import Action, AgentContext, BaseTool, FinishAction
+from steamship.agents.base import LLM, Action, AgentContext, BaseTool, FinishAction
 from steamship.agents.parsers.base import OutputParser
 
 
@@ -16,7 +16,7 @@ class Planner(BaseModel, ABC):
 
 
 class LLMPlanner(Planner):
-    llm: Any
+    llm: LLM
     # input_preparer: InputPreparer
     output_parser: OutputParser
 

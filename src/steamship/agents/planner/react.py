@@ -1,7 +1,7 @@
-from typing import Any, List
+from typing import List
 
 from steamship import Block
-from steamship.agents.base import Action, AgentContext, BaseTool
+from steamship.agents.base import LLM, Action, AgentContext, BaseTool
 from steamship.agents.parsers.llm import LLMToolOutputParser
 from steamship.agents.planner.base import LLMPlanner
 
@@ -49,30 +49,21 @@ Begin!
 New input: {input}
 {scratchpad}"""
 
-    def __init__(self, tools: List[BaseTool], llm: Any):
+    def __init__(self, tools: List[BaseTool], llm: LLM):
         super().__init__(output_parser=LLMToolOutputParser(tools=tools), llm=llm, tools=tools)
 
     def _to_string(self, blocks: List[Block]) -> str:
-        out = ""
+        out = []
         for block in blocks:
             if block.text:
-                out += f"{block.text} "
+                out.append(f"{block.text} ")
             else:
-                out += f"Requested image created in Block({block.id})."
-        return out
+                out.append(f"Requested image created in Block({block.id}).")
+        return " ".join(out)
 
     def plan(self, context: AgentContext) -> Action:
 
-        scratchpad = ""
-        for action in context.completed_steps:
-            # assume tool usage
-            prefix = "Thought: Do I need to use a tool? Yes"
-            _action = f"Action: {action.tool.name}"
-            action_input = f"Action Input: {self._to_string(action.tool_input)}"
-            observation = f"Observation: {self._to_string(action.tool_output)}\n"
-            scratchpad = "\n".join([scratchpad, prefix, _action, action_input, observation])
-
-        scratchpad += "Thought:"
+        scratchpad = self._construct_scratchpad(context)
         tool_names = [t.name for t in self.tools]
 
         tool_index_parts = [f"- {t.name}: {t.ai_description}" for t in self.tools]
@@ -87,12 +78,18 @@ New input: {input}
             scratchpad=scratchpad,
         )
 
-        # print(f"Prompt: {prompt}\n----\n")
-        # print(f"LLM Scratchpad: {scratchpad}\n")
+        completions = self.llm.complete(prompt=prompt, stop="Observation:")
+        return self.output_parser.parse(completions[0].text, context)
 
-        gpt4 = context.client.use_plugin("gpt-4")
-        task = gpt4.generate(text=prompt, options={"stop": "Observation:"})
-        task.wait()
-        # here, we assume that the response will always be a single block of text.
-        # print(f"LLM output: {task.output.blocks} \n")
-        return self.output_parser.parse(task.output.blocks[0].text, context)
+    def _construct_scratchpad(self, context):
+        steps = []
+        for action in context.completed_steps:
+            steps.append(
+                "Thought: Do I need to use a tool? Yes\n"
+                f"Action: {action.tool.name}\n"
+                f"Action Input: {self._to_string(action.tool_input)}\n"
+                f"Observation: {self._to_string(action.tool_output)}\n"
+            )
+        scratchpad = "\n".join(steps)
+        scratchpad += "Thought:"
+        return scratchpad

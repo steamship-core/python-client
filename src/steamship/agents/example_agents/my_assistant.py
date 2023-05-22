@@ -2,6 +2,7 @@ from typing import List, Optional
 
 from steamship import Block
 from steamship.agents.base import Metadata
+from steamship.agents.llm.openai import OpenAI
 from steamship.agents.context.context import AgentContext
 from steamship.agents.planner.react import ReACTPlanner
 from steamship.agents.service.agent_service import AgentService
@@ -16,11 +17,13 @@ from steamship.utils.repl import AgentREPL
 class MyAssistant(AgentService):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.tools = [
-            SearchTool(),
-            GenerateImageTool(),
-        ]
-        self.planner = ReACTPlanner(tools=self.tools, llm="This is not yet used")
+        self.planner = ReACTPlanner(
+            tools=[
+                SearchTool(),
+                GenerateImageTool(),
+            ],
+            llm=OpenAI(self.client),
+        )
 
     def create_response(self, context: AgentContext) -> Optional[List[ChatMessage]]:
         # todo: do we need more here to allow for user-specific contexts?
