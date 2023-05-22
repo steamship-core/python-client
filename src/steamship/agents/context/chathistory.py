@@ -1,9 +1,6 @@
 from __future__ import annotations
 
-import logging
 from typing import Dict, List, Optional, Union
-
-import tiktoken
 
 from steamship import File, MimeTypes, SteamshipError
 from steamship.base.client import Client
@@ -14,9 +11,6 @@ from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValue
 
 
 class ChatHistory:
-    class Config:
-        arbitrary_types_allowed: True
-
     """A ChatHistory is a wrapper of a File ideal for ongoing interactions between a user and a virtual assistant."""
 
     file: File
@@ -46,7 +40,6 @@ class ChatHistory:
         client: Client,
         context_keys: Dict[str, str],
         tags: List[Tag] = None,
-        initial_system_prompt: Optional[str] = None,
     ) -> ChatHistory:
 
         file = ChatHistory._get_existing_file(client, context_keys)
@@ -56,14 +49,6 @@ class ChatHistory:
             tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))
 
             blocks = []
-            if initial_system_prompt is not None:
-                blocks.append(
-                    Block(
-                        text=initial_system_prompt,
-                        tags=[Tag(kind=TagKind.ROLE, name=RoleTag.SYSTEM)],
-                    )
-                )
-
             file = File.create(
                 client=client,
                 blocks=blocks,
@@ -174,52 +159,3 @@ class ChatHistory:
     @property
     def client(self) -> Client:
         return self.file.client
-
-
-def token_length(block: Block, tiktoken_encoder: str = "p50k_base") -> int:
-    """Calculate num tokens with tiktoken package."""
-    # create a GPT-3 encoder instance
-    enc = tiktoken.get_encoding(tiktoken_encoder)
-    # encode the text using the GPT-3 encoder
-    tokenized_text = enc.encode(block.text)
-    # calculate the number of tokens in the encoded text
-    return len(tokenized_text)
-
-
-# TODO: abstract this into one of N possible strategies
-def filter_blocks_for_prompt_length(max_tokens: int, blocks: List[Block]) -> List[int]:
-
-    retained_blocks = []
-    total_length = 0
-
-    # Keep all system blocks
-    for block in blocks:
-        if block.chat_role == RoleTag.SYSTEM:
-            retained_blocks.append(block)
-            total_length += token_length(block)
-
-    # If system blocks are too long, throw error
-    if total_length > max_tokens:
-        raise SteamshipError(
-            f"Plugin attempted to filter input to fit into {max_tokens} tokens, but the total size of system blocks was {total_length}"
-        )
-
-    # Now work backwards and keep as many blocks as we can
-    num_system_blocks = len(retained_blocks)
-    for block in reversed(blocks):
-        if block.chat_role != RoleTag.SYSTEM and total_length < max_tokens:
-            block_length = token_length(block)
-            if block_length + total_length < max_tokens:
-                retained_blocks.append(block)
-                total_length += block_length
-                logging.info(f"Adding block {block.index_in_file} of token length {block_length}")
-
-    # If we didn't add any non-system blocks, throw error
-    if len(retained_blocks) == num_system_blocks:
-        raise SteamshipError(
-            f"Plugin attempted to filter input to fit into {max_tokens} tokens, but no non-System blocks remained."
-        )
-
-    block_indices = [block.index_in_file for block in blocks if block in retained_blocks]
-    logging.info(f"Filtered input.  Total tokens {total_length} Block indices: {block_indices}")
-    return block_indices

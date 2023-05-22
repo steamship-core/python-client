@@ -91,9 +91,8 @@ class AgentContext:
         client: Steamship,
         context_keys: Dict[str, str],
         tags: List[Tag] = None,
-        initial_system_prompt: Optional[str] = None,
     ) -> "AgentContext":
-        history = ChatHistory.get_or_create(client, context_keys, tags, initial_system_prompt)
+        history = ChatHistory.get_or_create(client, context_keys, tags)
         context = AgentContext()
         context.chat_history = history
         context.client = client
