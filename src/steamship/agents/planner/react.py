@@ -81,7 +81,7 @@ New input: {input}
         # for simplicity assume initial prompt is a single text block.
         # in reality, use some sort of formatter ?
         prompt = self.PROMPT.format(
-            input=context.initial_prompt[0].text,
+            input=context.chat_history.last_user_message.text,
             tool_index=tool_index,
             tool_names=tool_names,
             scratchpad=scratchpad,
