@@ -1,10 +1,9 @@
-from typing import List, Tuple, Union
+from typing import Tuple, Union
 
 from steamship import Block, Task, TaskState
 from steamship.agents.base import Action, FinishAction
 from steamship.agents.context.context import AgentContext
 from steamship.agents.planner.base import Planner
-from steamship.agents.tool import Tool
 from steamship.invocable import PackageService, post
 
 
@@ -19,8 +18,6 @@ class AgentService(PackageService):
     )
     planner: Planner
 
-    tools: List[Tool] = []
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -29,7 +26,7 @@ class AgentService(PackageService):
     ###############################################
 
     def _next_action(self, context: AgentContext) -> Action:
-        return self.planner.plan(self.tools, context)
+        return self.planner.plan(context)
 
     @post("take_action")
     def take_action(self, context: AgentContext) -> Union[Action, FinishAction]:

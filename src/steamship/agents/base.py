@@ -18,7 +18,7 @@ Metadata = Dict[str, Any]
 EmitFunc = Callable[[ToolOutputs, Metadata], None]
 
 
-class BaseTool(ABC):
+class BaseTool(BaseModel, ABC):
     # Working thinking: we don't yet have formalization about whether
     # this is a class-level name, isntance-level name, or
     # instance+context-level name.

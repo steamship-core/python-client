@@ -1,13 +1,13 @@
-from typing import List
+from typing import Any, List
 
 from steamship import Block
-from steamship.agents.base import Action, AgentContext, BaseTool, FinishAction
+from steamship.agents.base import Action, AgentContext, BaseTool
 from steamship.agents.parsers.llm import LLMToolOutputParser
 from steamship.agents.planner.base import LLMPlanner
 
 
-class OpenAIReACTPlanner(LLMPlanner):
-    output_parser = LLMToolOutputParser()
+class ReACTPlanner(LLMPlanner):
+    output_parser: LLMToolOutputParser
 
     PROMPT = """Assistant is a large language model trained by OpenAI.
 Assistant is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
@@ -49,6 +49,9 @@ Begin!
 New input: {input}
 {scratchpad}"""
 
+    def __init__(self, tools: List[BaseTool], llm: Any):
+        super().__init__(output_parser=LLMToolOutputParser(tools=tools), llm=llm, tools=tools)
+
     def _to_string(self, blocks: List[Block]) -> str:
         out = ""
         for block in blocks:
@@ -58,7 +61,7 @@ New input: {input}
                 out += f"Requested image created in Block({block.id})."
         return out
 
-    def plan(self, tools: List[BaseTool], context: AgentContext) -> Action:
+    def plan(self, context: AgentContext) -> Action:
 
         scratchpad = ""
         for action in context.completed_steps:
@@ -70,9 +73,9 @@ New input: {input}
             scratchpad = "\n".join([scratchpad, prefix, _action, action_input, observation])
 
         scratchpad += "Thought:"
-        tool_names = [t.name for t in tools]
+        tool_names = [t.name for t in self.tools]
 
-        tool_index_parts = [f"- {t.name}: {t.ai_description}" for t in tools]
+        tool_index_parts = [f"- {t.name}: {t.ai_description}" for t in self.tools]
         tool_index = "\n".join(tool_index_parts)
 
         # for simplicity assume initial prompt is a single text block.
@@ -92,15 +95,4 @@ New input: {input}
         task.wait()
         # here, we assume that the response will always be a single block of text.
         # print(f"LLM output: {task.output.blocks} \n")
-        tool_name, inputs = self.output_parser.parse(task.output.blocks[0].text)
-
-        print(f"Tool Name: {tool_name}, Inputs: {inputs}")
-        if tool_name == "__finish__":
-            # todo: fix pydantic validation when we decide on FinishAction concept or something.
-            action = FinishAction(context=context, output=inputs)
-            return action
-
-        # print(f"selected: {tool_name}")
-        # print(f"inputs: {self._to_string(inputs)}")
-        next_tool = next(t for t in tools if t.name == tool_name)
-        return Action(tool=next_tool, tool_input=inputs, context=context)
+        return self.output_parser.parse(task.output.blocks[0].text, context)
