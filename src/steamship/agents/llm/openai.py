@@ -3,7 +3,7 @@ from typing import List
 from steamship import Block, PluginInstance, Steamship
 from steamship.agents.base import LLM
 
-PLUGIN_HANDLE = "gpt4"
+PLUGIN_HANDLE = "gpt-4"
 
 
 class OpenAI(LLM):
