@@ -4,7 +4,7 @@ from steamship import Block
 from steamship.agents.base import Metadata
 from steamship.agents.planner.react import OpenAIReACTPlanner
 from steamship.agents.service.agent_service import AgentService
-from steamship.agents.tools.image_generation.generate_image import GenerateImageTool
+from steamship.agents.tools.image_generation.dalle import DalleTool
 from steamship.agents.tools.search.search import SearchTool
 from steamship.experimental.transports.chat import ChatMessage
 
@@ -17,7 +17,7 @@ class MyAssistant(AgentService):
         super().__init__(**kwargs)
         self.tools = [
             SearchTool(),
-            GenerateImageTool(),
+            DalleTool(),
         ]
         self.planner = OpenAIReACTPlanner()
 

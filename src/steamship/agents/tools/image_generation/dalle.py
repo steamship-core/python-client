@@ -3,10 +3,10 @@ from steamship.agents.tool import ImageGeneratorTool
 from steamship.utils.repl import ToolREPL
 
 
-class GenerateImageTool(ImageGeneratorTool):
+class DalleTool(ImageGeneratorTool):
     """Tool to generate images from text."""
 
-    name: str = "GenerateImageTool"
+    name: str = "DalleTool"
     human_description: str = "Generates an image from text."
     ai_description = (
         "Used to generate images from text prompts. Only use if the user has asked directly for an "
@@ -18,4 +18,4 @@ class GenerateImageTool(ImageGeneratorTool):
 
 
 if __name__ == "__main__":
-    ToolREPL(GenerateImageTool()).run()
+    ToolREPL(DalleTool()).run()
