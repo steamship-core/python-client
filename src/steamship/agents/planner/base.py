@@ -1,32 +1,27 @@
 from abc import ABC, abstractmethod
 from typing import Any, List, Union
 
+from pydantic import BaseModel
+
 from steamship.agents.base import Action, AgentContext, BaseTool, FinishAction
 from steamship.agents.parsers.base import OutputParser
-from steamship.agents.tool import Tool
 
 
-class Planner(ABC):
-    class Config:
-        arbitrary_types_allowed: True
-        validation: False
+class Planner(BaseModel, ABC):
+    tools: List[BaseTool]
 
     @abstractmethod
-    def plan(self, tools: List[BaseTool], context: AgentContext) -> Union[Action, FinishAction]:
+    def plan(self, context: AgentContext) -> Union[Action, FinishAction]:
         pass
 
 
 class LLMPlanner(Planner):
-    class Config:
-        arbitrary_types_allowed: True
-        validation: False
-
-    llm: Any  # placeholder for an LLM??
+    llm: Any
     # input_preparer: InputPreparer
     output_parser: OutputParser
 
     @abstractmethod
-    def plan(self, tools: List[Tool], context: AgentContext) -> Action:
+    def plan(self, context: AgentContext) -> Action:
         # sketch...
         # prompt = PROMPT.format(input_preparer.prepare(context))
         # generation = llm.generate(prompt)
