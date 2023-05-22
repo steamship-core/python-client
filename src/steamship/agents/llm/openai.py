@@ -8,9 +8,9 @@ class OpenAI(LLM):
     generator: PluginInstance
     client: Steamship
 
-    def __init__(self, client, *args, **kwargs):
+    def __init__(self, client, model_name: str, *args, **kwargs):
         client = client
-        generator = client.use_plugin("gpt-4")
+        generator = client.use_plugin(model_name)
         super().__init__(client=client, generator=generator, *args, **kwargs)
 
     def complete(self, prompt: str, stop: str) -> List[Block]:

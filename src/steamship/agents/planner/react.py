@@ -85,10 +85,10 @@ New input: {input}
         steps = []
         for action in context.completed_steps:
             steps.append(
-                "Thought: Do I need to use a tool? Yes"
-                f"Action: {action.tool.name}"
-                f"Action Input: {self._to_string(action.tool_input)}"
-                f"Observation: {self._to_string(action.tool_output)}"
+                "Thought: Do I need to use a tool? Yes\n"
+                f"Action: {action.tool.name}\n"
+                f"Action Input: {self._to_string(action.tool_input)}\n"
+                f"Observation: {self._to_string(action.tool_output)}\n"
             )
         scratchpad = "\n".join(steps)
         scratchpad += "Thought:"
