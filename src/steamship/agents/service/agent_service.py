@@ -1,3 +1,4 @@
+from abc import ABC
 from typing import Tuple, Union
 
 from steamship import Block, Task, TaskState
@@ -12,7 +13,7 @@ def _is_running(task: Task) -> bool:
     return task.state not in [TaskState.succeeded, TaskState.failed]
 
 
-class AgentService(PackageService):
+class AgentService(PackageService, ABC):
     agent_context_identifier = (
         "_steamship_agent_contexts"  # probably want to include instance_handle...
     )

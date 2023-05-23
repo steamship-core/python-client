@@ -47,7 +47,7 @@ class ChatHistory:
         if file is None:
             tags = tags or []
             tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))
-
+            tags.append(Tag(kind=TagKind.CHAT, name=ChatTag.CONTEXT_KEYS, value=context_keys))
             blocks = []
             file = File.create(
                 client=client,
