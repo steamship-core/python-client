@@ -51,6 +51,12 @@ class GenerateRequest(Request):
     # create a new file.
     output_file_id: Optional[str] = None
 
+    # May specify that the output blocks' bytes content should be made public-readable.
+    # Useful for generating images / audio / etc that will be shared.
+    # Defaults to False (private) content.
+    # Requires append_output_to_file to be True.
+    make_output_public: Optional[bool] = None
+
     # Arbitrary runtime options which may be passed to a generator
     options: Optional[dict]
 

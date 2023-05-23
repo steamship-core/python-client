@@ -49,6 +49,8 @@ class Block(CamelModel):
     tags: Optional[List[Tag]] = []
     index_in_file: Optional[int] = Field(alias="index")
     mime_type: Optional[MimeTypes]
+    public_data: bool = False
+
     url: Optional[
         str
     ] = None  # Only for creation of blocks; used to fetch content from a public URL.
@@ -94,6 +96,7 @@ class Block(CamelModel):
         content: Union[str, bytes] = None,
         url: Optional[str] = None,
         mime_type: Optional[MimeTypes] = None,
+        public_data: bool = False,
     ) -> Block:
         """
         Create a new Block within a File specified by file_id.
@@ -122,6 +125,7 @@ class Block(CamelModel):
             "url": url,
             "mimeType": mime_type,
             "uploadType": upload_type,
+            "publicData": public_data,
         }
 
         file_data = (

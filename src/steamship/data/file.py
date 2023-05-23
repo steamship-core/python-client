@@ -55,6 +55,7 @@ class File(CamelModel):
     blocks: List[Block] = []
     tags: List[Tag] = []
     filename: str = None
+    public_data: bool = False
 
     class CreateResponse(Response):
         data_: Any = None
@@ -115,6 +116,7 @@ class File(CamelModel):
         handle: str = None,
         blocks: List[Block] = None,
         tags: List[Tag] = None,
+        public_data: bool = False,
     ) -> Any:
 
         if content is None and blocks is None:
@@ -145,6 +147,7 @@ class File(CamelModel):
             "tags": [
                 tag.dict(by_alias=True, exclude_unset=True, exclude_none=True) for tag in tags or []
             ],
+            "publicData": public_data,
         }
 
         file_data = (
