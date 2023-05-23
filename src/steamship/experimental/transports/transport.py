@@ -3,10 +3,16 @@ import time
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
+from steamship import Block, Steamship
+from steamship.agents.base import AgentContext
+from steamship.agents.tools.audio_transcription.whisper_speech_to_text_tool import (
+    WhisperSpeechToTextTool,
+)
 from steamship.experimental.transports.chat import ChatMessage
 
 
 class Transport(ABC):
+    client = Steamship
     """Experimental base class to encapsulate a communication channel
 
     Intended use is:
@@ -32,6 +38,9 @@ class Transport(ABC):
     - It doesn't yet try to model inbound messages or chat_ids. That's an encapsulation leak left for future exploration.
 
     """
+
+    def __init__(self, client):
+        self.client = client
 
     def instance_init(self, *args, **kwargs):
         logging.info(f"Transport initializing: {self.__class__.__name__}")
@@ -73,7 +82,16 @@ class Transport(ABC):
         raise NotImplementedError
 
     def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[ChatMessage]:
-        return self._parse_inbound(payload, context)
+        message = self._parse_inbound(payload, context)
+
+        if message.url and not message.text:
+            context = AgentContext()
+            context.client = self.client
+            transcriptions = WhisperSpeechToTextTool().run(
+                [Block(text=message.url)], context=context
+            )
+            message.text = transcriptions[0].text
+        return message
 
     @abstractmethod
     def _parse_inbound(

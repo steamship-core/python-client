@@ -29,7 +29,9 @@ class TelegramBot(SteamshipWidgetBot, ABC):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.api_root = f"https://api.telegram.org/bot{self.config.bot_token}"
-        self.telegram_transport = TelegramTransport(self.config.bot_token)
+        self.telegram_transport = TelegramTransport(
+            bot_token=self.config.bot_token, client=self.client
+        )  # dangerous!
 
     def instance_init(self):
         """This instance init method is called automatically when an instance of this package is created. It registers the URL of the instance as the Telegram webhook for messages."""
