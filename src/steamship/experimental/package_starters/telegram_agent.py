@@ -1,11 +1,12 @@
 import logging
 from abc import ABC
-from typing import Type
+from typing import List, Type
 
 import requests
 from pydantic import Field
 
-from steamship.agents.context.context import AgentContext
+from steamship import Block
+from steamship.agents.context.context import AgentContext, EmitFunc, Metadata
 from steamship.experimental.package_starters.web_agent import SteamshipWidgetAgentService
 from steamship.experimental.package_starters.web_bot import response_for_exception
 from steamship.experimental.transports import TelegramTransport
@@ -36,6 +37,14 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
         webhook_url = self.context.invocable_url + "respond"
         self.telegram_transport.instance_init(webhook_url=webhook_url)
 
+    def build_emit_func(self, chat_id: str) -> EmitFunc:
+        def new_emit_func(blocks: List[Block], metadata: Metadata):
+            for block in blocks:
+                block.set_chat_id(chat_id)
+            return self.telegram_transport.send(blocks, metadata)
+
+        return new_emit_func
+
     @post("respond", public=True)
     def respond(self, **kwargs) -> InvocableResponse[str]:
         """Endpoint implementing the Telegram WebHook contract. This is a PUBLIC endpoint since Telegram cannot pass a Bearer token."""
@@ -49,11 +58,11 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
                 context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
                 context.chat_history.append_user_message(text=incoming_message.text)
                 if len(context.emit_funcs) == 0:
-                    context.emit_funcs.append(self.telegram_transport.send)
+                    context.emit_funcs.append(self.build_emit_func(chat_id=chat_id))
 
                 response = self.run_agent(context)
                 if response is not None:
-                    self.telegram_transport.send(response)
+                    self.telegram_transport.send(response, metadata={})
                 else:
                     # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
                     pass
@@ -64,7 +73,7 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
             response = response_for_exception(e, chat_id=chat_id)
 
             if chat_id is not None:
-                self.telegram_transport.send([response])
+                self.telegram_transport.send([response], metadata={})
         # Even if we do nothing, make sure we return ok
         return InvocableResponse(string="OK")
 
