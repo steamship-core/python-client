@@ -264,3 +264,6 @@ class ChatTag(str, Enum):
 
     # The role of a message
     ROLE = "role"
+
+    # The keys to look up a context
+    CONTEXT_KEYS = "context-keys"
