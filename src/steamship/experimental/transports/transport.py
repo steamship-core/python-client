@@ -5,8 +5,8 @@ from typing import List, Optional
 
 from steamship import Block, Steamship
 from steamship.agents.base import AgentContext
-from steamship.agents.tools.audio_transcription.whisper_speech_to_text_tool import (
-    WhisperSpeechToTextTool,
+from steamship.agents.tools.audio_transcription.assembly_speech_to_text_tool import (
+    AssemblySpeechToTextTool,
 )
 from steamship.experimental.transports.chat import ChatMessage
 
@@ -87,9 +87,12 @@ class Transport(ABC):
         if message.url and not message.text:
             context = AgentContext()
             context.client = self.client
-            transcriptions = WhisperSpeechToTextTool().run(
-                [Block(text=message.url)], context=context
-            )
+            transcriptions = AssemblySpeechToTextTool(
+                blockifier_plugin_config={
+                    "enable_audio_intelligence": False,
+                    "speaker_detection": False,
+                }
+            ).run([Block(text=message.url)], context=context)
             message.text = transcriptions[0].text
         return message
 
