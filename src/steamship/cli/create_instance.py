@@ -4,6 +4,7 @@ from os import path
 from typing import Any, Callable, Dict, Optional
 
 import click
+from pydantic import ValidationError
 
 from steamship import Steamship, SteamshipError
 from steamship.cli.ship_spinner import ship_spinner
@@ -59,12 +60,20 @@ def create_instance(
         return _create_instance(workspace, instance, config)
 
 
-def _create_instance(
+def _create_instance(  # noqa: C901
     workspace: Optional[str] = None, instance: Optional[str] = None, config: Optional[str] = None
 ):
     manifest = None
     if path.exists("steamship.json"):
-        manifest = Manifest.load_manifest()
+        try:
+            manifest = Manifest.load_manifest()
+        except ValidationError as e:
+            click.secho("")
+            click.secho("This package had an invalid steamship.json file.", fg="red")
+            click.secho("")
+            click.secho(f"{e}", fg="red")
+            click.secho("")
+            click.get_current_context().abort()
     else:
         click.secho("No manifest found for instance creation.", fg="red")
         click.secho("Please try again from a directory with a package or plugin manifest.")
@@ -106,9 +115,17 @@ def _create_instance(
 
     try:
         _call_create_instance_fn(client, manifest, instance, invocable_config, create_instance_fn)
-
     except SteamshipError as e:
-        click.secho(f"\nFailed to create instance: {e.message}", fg="red")
+        if "Configuration for this PackageInstance is invalid." in e.message:
+            click.secho(
+                "\nThe configuration for this Package instance was invalid. "
+                "This usually means there are required fields to create one.",
+                fg="red",
+            )
+            click.secho("Create one interactively on the web at:\n", fg="red")
+            click.secho(f"   https://steamship.com/packages/{manifest.handle}/_create\n")
+        else:
+            click.secho(f"\nFailed to create instance: {e.message}", fg="red")
         click.get_current_context().abort()
 
 
@@ -144,11 +161,13 @@ def _call_create_instance_fn(
         )
         if instance:
             click.secho("\nSuccess!", fg="green")
+            click.secho("")
             if manifest.type == DeployableType.PACKAGE:
                 click.echo(
-                    f"Web URL : https://steamship.com/workspaces/{workspace_handle}/packages/{instance.handle}"
+                    f"Web URL: https://steamship.com/workspaces/{workspace_handle}/packages/{instance.handle}"
                 )
                 click.echo(f"API URL: {instance.invocation_url}")
+                click.secho("")
             return
         else:
             raise SteamshipError("instance creation unexpectedly returned empty instance.")
