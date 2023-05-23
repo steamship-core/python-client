@@ -22,7 +22,7 @@ class SteamshipWidgetBot(PackageService, ABC):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.steamship_widget_transport = SteamshipWidgetTransport()
+        self.steamship_widget_transport = SteamshipWidgetTransport(client=self.client)
 
     @abstractmethod
     def create_response(self, incoming_message: ChatMessage) -> Optional[List[ChatMessage]]:
