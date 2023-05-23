@@ -1,4 +1,5 @@
-from typing import Tuple, Union
+from abc import ABC, abstractmethod
+from typing import List, Optional, Tuple, Union
 
 from steamship import Block, Task, TaskState
 from steamship.agents.base import Action, FinishAction
@@ -12,7 +13,7 @@ def _is_running(task: Task) -> bool:
     return task.state not in [TaskState.succeeded, TaskState.failed]
 
 
-class AgentService(PackageService):
+class AgentService(PackageService, ABC):
     agent_context_identifier = (
         "_steamship_agent_contexts"  # probably want to include instance_handle...
     )
@@ -83,3 +84,7 @@ class AgentService(PackageService):
         for func in context.emit_funcs:
             func(action.output, context.metadata)
         # self.unload_context(context_id=context.id)
+
+    @abstractmethod
+    def create_response(self, context: AgentContext) -> Optional[List[Block]]:
+        raise NotImplementedError

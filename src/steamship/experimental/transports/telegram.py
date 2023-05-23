@@ -4,8 +4,7 @@ from typing import Optional
 
 import requests
 
-from steamship import SteamshipError
-from steamship.experimental.transports.chat import ChatMessage
+from steamship import Block, SteamshipError
 from steamship.experimental.transports.transport import Transport
 
 API_BASE = "https://api.telegram.org/bot"
@@ -47,10 +46,10 @@ class TelegramTransport(Transport):
         """Unsubscribe from Telegram updates."""
         requests.get(f"{self.api_root}/deleteWebhook")
 
-    def _send(self, blocks: [ChatMessage]):
+    def _send(self, blocks: [Block]):
         """Send a response to the Telegram chat."""
         for block in blocks:
-            chat_id = block.get_chat_id()
+            chat_id = block.chat_id
             if block.is_text() or block.text:
                 params = {"chat_id": int(chat_id), "text": block.text}
                 requests.get(f"{self.api_root}/sendMessage", params=params)
@@ -89,9 +88,7 @@ class TelegramTransport(Transport):
         logging.info(f"/info: {resp}")
         return {"telegram": resp.get("result")}
 
-    def _parse_inbound(
-        self, payload: dict, context: Optional[dict] = None
-    ) -> Optional[ChatMessage]:
+    def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
         """Parses an inbound Telegram message."""
 
         chat = payload.get("chat")
@@ -117,9 +114,12 @@ class TelegramTransport(Transport):
             )
 
         # Some incoming messages (like the group join message) don't have message text.
-        # Rather than throw an error, we just don't return a ChatMessage.
+        # Rather than throw an error, we just don't return a Block.
         message_text = payload.get("text")
         if message_text is not None:
-            return ChatMessage(text=message_text, chat_id=str(chat_id), message_id=str(message_id))
+            result = Block(text=message_text)
+            result.set_chat_id(str(chat_id))
+            result.set_message_id(str(message_id))
+            return result
         else:
             return None

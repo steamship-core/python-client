@@ -3,7 +3,7 @@ import time
 from abc import ABC, abstractmethod
 from typing import List, Optional
 
-from steamship.experimental.transports.chat import ChatMessage
+from steamship import Block
 
 
 class Transport(ABC):
@@ -55,7 +55,7 @@ class Transport(ABC):
         end = time.time()
         logging.info(f"Transport deinitialized in {end - start} seconds: {self.__class__.__name__}")
 
-    def send(self, blocks: List[ChatMessage]):
+    def send(self, blocks: List[Block]):
         if blocks is None or len(blocks) == 0:
             logging.info(f"Skipping send of 0 blocks: {self.__class__.__name__}")
             return
@@ -69,16 +69,14 @@ class Transport(ABC):
         )
 
     @abstractmethod
-    def _send(self, blocks: List[ChatMessage]):
+    def _send(self, blocks: List[Block]):
         raise NotImplementedError
 
-    def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[ChatMessage]:
+    def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
         return self._parse_inbound(payload, context)
 
     @abstractmethod
-    def _parse_inbound(
-        self, payload: dict, context: Optional[dict] = None
-    ) -> Optional[ChatMessage]:
+    def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
         raise NotImplementedError
 
     def info(self) -> dict:
