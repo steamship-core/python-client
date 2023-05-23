@@ -7,13 +7,10 @@ from typing import List, Optional, Type, cast
 
 from steamship import Block, Steamship, Task
 from steamship.agents.base import AgentContext, BaseTool
+from steamship.agents.logging import AgentLogging
 from steamship.agents.service.agent_service import AgentService
 from steamship.data.workspace import SignedUrl, Workspace
-from steamship.invocable.dev_logging_handler import (
-    DevelopmentLoggingHandler,
-    LoggingKeys,
-    MessageTypes,
-)
+from steamship.invocable.dev_logging_handler import DevelopmentLoggingHandler
 from steamship.utils.signed_urls import upload_to_signed_url
 
 
@@ -60,18 +57,29 @@ class SteamshipREPL(ABC):
 
     def print_blocks(self, blocks: List[Block]):
         """Print a list of blocks to console."""
+        output = None
+
         for block in blocks:
             if isinstance(block, dict):
                 block = Block.parse_obj(block)
             if block.is_text():
-                print(block.text)
+                output = block.text
             elif block.url:
-                print(block.url)
+                output = block.url
             elif block.content_url:
-                print(block.content_url)
+                output = block.content_url
             else:
                 url = self._make_public_url(block)
-                print(url)
+                output = url
+
+        if output:
+            logging.info(
+                f"{output}",
+                extra={
+                    AgentLogging.IS_MESSAGE: True,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+                },
+            )
 
     @contextlib.contextmanager
     def temporary_workspace(self) -> Steamship:
@@ -165,18 +173,17 @@ class AgentREPL(SteamshipREPL):
             )  # Should this take a Block, instead of creating a block?
 
             logging.info(
-                f"Message {input_text}", extra={LoggingKeys.MESSAGE_TYPE: MessageTypes.USER_INPUT}
+                f"{input_text}",
+                extra={
+                    AgentLogging.IS_MESSAGE: True,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.USER,
+                },
             )
 
             message.set_message_id(message_id)
             response: Optional[List[Block]] = agent.create_response(context)
 
             self.print_blocks(response)
-
-            logging.info(
-                f"Response {len(response)} Blocks",
-                extra={LoggingKeys.MESSAGE_TYPE: MessageTypes.USER_OUTPUT},
-            )
 
     def run(self):
         with self.temporary_workspace() as client:
