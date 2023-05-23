@@ -55,14 +55,14 @@ class Transport(ABC):
         end = time.time()
         logging.info(f"Transport deinitialized in {end - start} seconds: {self.__class__.__name__}")
 
-    def send(self, blocks: List[Block]):
+    def send(self, blocks: List[Block], metadata: Dict[str, Any]):
         if blocks is None or len(blocks) == 0:
             logging.info(f"Skipping send of 0 blocks: {self.__class__.__name__}")
             return
 
         logging.info(f"Sending {len(blocks)} blocks: {self.__class__.__name__}")
         start = time.time()
-        self._send(blocks)
+        self._send(blocks, metadata)
         end = time.time()
         logging.info(
             f"Sending {len(blocks)} blocks in {end - start} seconds: {self.__class__.__name__}"
