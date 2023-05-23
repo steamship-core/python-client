@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple, Union
+from abc import ABC
+from typing import Tuple, Union
 
 from steamship import Block, Task, TaskState
 from steamship.agents.base import Action, FinishAction
@@ -84,7 +84,3 @@ class AgentService(PackageService, ABC):
         for func in context.emit_funcs:
             func(action.output, context.metadata)
         # self.unload_context(context_id=context.id)
-
-    @abstractmethod
-    def create_response(self, context: AgentContext) -> Optional[List[Block]]:
-        raise NotImplementedError

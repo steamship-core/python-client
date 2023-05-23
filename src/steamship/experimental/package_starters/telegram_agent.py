@@ -51,7 +51,7 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
                 if len(context.emit_funcs) == 0:
                     context.emit_funcs.append(self.telegram_transport.send)
 
-                response = self.create_response(context)
+                response = self.run_agent(context)
                 if response is not None:
                     self.telegram_transport.send(response)
                 else:

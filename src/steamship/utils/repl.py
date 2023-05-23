@@ -151,7 +151,7 @@ class AgentREPL(SteamshipREPL):
                 text=input_text
             )  # Should this take a Block, instead of creating a block?
             message.set_message_id(message_id)
-            response: Optional[List[Block]] = agent.create_response(context)
+            response: Optional[List[Block]] = agent.run_agent(context)
             self.print_blocks(response)
 
     def run(self):
