@@ -15,7 +15,7 @@ def test_chat_create(client: Steamship):
 
     assert chat.client is not None
     assert isinstance(chat, ChatHistory)
-    assert len(chat.tags) == 1
+    assert len(chat.tags) == 2
     assert chat.tags[0].kind == TagKind.DOCUMENT
     assert chat.tags[0].name == DocTag.CHAT
 
