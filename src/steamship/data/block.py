@@ -204,6 +204,16 @@ class Block(CamelModel):
         return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO]
 
     @property
+    def raw_data_url(self) -> Optional[str]:
+        """Return a URL at which the data content of this Block can be accessed.  If public_data is True,
+        this content can be accessed without an API key.
+        """
+        if self.client is not None:
+            return f"{self.client.config.api_base}block/{self.id}/raw"
+        else:
+            return None
+
+    @property
     def chat_role(self) -> Optional[RoleTag]:
         return get_tag_value_key(
             self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.ROLE

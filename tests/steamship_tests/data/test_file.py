@@ -358,10 +358,8 @@ def test_file_public_data(client: Steamship):
     file = File.create(client, content=bytes("This is a test", "utf-8"), public_data=True)
     assert file.public_data
 
-    file_public_url = f"{client.config.api_base}file/{file.id}/raw"
-
     # Intentionally no API key
-    response = requests.get(file_public_url)
+    response = requests.get(file.raw_data_url)
 
     assert response.text == "This is a test"
     assert response.headers["content-type"] == MimeTypes.TXT
@@ -372,15 +370,13 @@ def test_append_block_private_data(client: Steamship):
     file = File.create(client, content=bytes("This is a test", "utf-8"))
     assert not file.public_data
 
-    file_public_url = f"{client.config.api_base}file/{file.id}/raw"
-
     # Intentionally no API key
-    failed_response = requests.get(file_public_url)
+    failed_response = requests.get(file.raw_data_url)
     assert not failed_response.ok
 
     # Should still be able to get with API key
     response = requests.get(
-        file_public_url,
+        file.raw_data_url,
         headers={"Authorization": f"Bearer {client.config.api_key.get_secret_value()}"},
     )
 

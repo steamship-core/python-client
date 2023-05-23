@@ -212,6 +212,16 @@ class File(CamelModel):
             raw_response=True,
         )
 
+    @property
+    def raw_data_url(self) -> Optional[str]:
+        """Return a URL at which the data content of this File can be accessed.  If public_data is True,
+        this content can be accessed without an API key.
+        """
+        if self.client is not None:
+            return f"{self.client.config.api_base}file/{self.id}/raw"
+        else:
+            return None
+
     def blockify(self, plugin_instance: str = None, wait_on_tasks: List[Task] = None) -> Task:
         from steamship.data.operations.blockifier import BlockifyRequest
         from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput

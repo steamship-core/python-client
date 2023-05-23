@@ -189,10 +189,8 @@ def test_generate_block_public_data(client: Steamship):
     assert blocks is not None
     assert blocks[0].public_data
 
-    block_public_url = f"{client.config.api_base}block/{blocks[0].id}/raw"
-
     # Intentionally no API key
-    response = requests.get(block_public_url)
+    response = requests.get(blocks[0].raw_data_url)
 
     assert response.text == "PRETEND THIS IS THE DATA OF AN IMAGE"
     assert response.headers["content-type"] == MimeTypes.PNG
@@ -208,15 +206,13 @@ def test_generate_block_private_data(client: Steamship):
     assert blocks is not None
     assert not blocks[0].public_data
 
-    block_public_url = f"{client.config.api_base}block/{blocks[0].id}/raw"
-
     # Intentionally no API key
-    failed_response = requests.get(block_public_url)
+    failed_response = requests.get(blocks[0].raw_data_url)
     assert not failed_response.ok
 
     # Should still be able to get with API key
     response = requests.get(
-        block_public_url,
+        blocks[0].raw_data_url,
         headers={"Authorization": f"Bearer {client.config.api_key.get_secret_value()}"},
     )
 
