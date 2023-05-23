@@ -8,7 +8,6 @@ from steamship.agents.planner.react import ReACTPlanner
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.tools.image_generation.dalle import DalleTool
 from steamship.agents.tools.search.search import SearchTool
-from steamship.experimental.transports.chat import ChatMessage
 
 # AgentService is a PackageService.
 from steamship.utils.repl import AgentREPL
@@ -25,7 +24,7 @@ class MyAssistant(AgentService):
             llm=OpenAI(self.client),
         )
 
-    def create_response(self, context: AgentContext) -> Optional[List[ChatMessage]]:
+    def create_response(self, context: AgentContext) -> Optional[List[Block]]:
         # todo: do we need more here to allow for user-specific contexts?
         # todo: how to deal with overlapping requests (do this... and do this... and do this...)
 
@@ -49,15 +48,15 @@ class MyAssistant(AgentService):
         # in?
         chat_id = meta.get("chat_id")
         message_id = meta.get("message_id")
-        messages = [
-            ChatMessage.from_block(block=b, chat_id=chat_id, message_id=message_id) for b in blocks
-        ]
+        for block in blocks:
+            block.set_message_id(message_id)
+            block.set_chat_id(chat_id)
 
         # Here is where we would update the ChatFile...
         # chat_file = ChatFile.get(...)
         # chat_file.append_system_blocks(blocks)
 
-        print(f"\n\nTELEGRAM SENDING MESSAGES:\n{messages}")
+        print(f"\n\nTELEGRAM SENDING MESSAGES:\n{blocks}")
         # self.telegram_transport.send(messages)
 
 
