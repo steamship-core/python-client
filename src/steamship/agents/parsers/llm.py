@@ -4,7 +4,6 @@ from typing import Dict, Optional, Union
 from steamship import Block
 from steamship.agents.base import Action, AgentContext, BaseTool, FinishAction
 from steamship.agents.parsers.base import OutputParser
-from steamship.experimental.transports.chat import ChatMessage
 
 
 class LLMToolOutputParser(OutputParser):
@@ -16,9 +15,7 @@ class LLMToolOutputParser(OutputParser):
 
     def parse(self, text: str, context: AgentContext) -> Union[Action, FinishAction]:
         if "AI:" in text:
-            return FinishAction(
-                output=[ChatMessage(text=text.split("AI:")[-1].strip())], context=context
-            )
+            return FinishAction(output=[Block(text=text.split("AI:")[-1].strip())], context=context)
 
         regex = r"Action: (.*?)[\n]*Action Input: (.*)"
         match = re.search(regex, text)

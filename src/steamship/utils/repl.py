@@ -3,7 +3,7 @@ import contextlib
 import logging
 import uuid
 from abc import ABC
-from typing import List, Optional, Type, cast
+from typing import Any, Dict, List, Optional, Type, cast
 
 from steamship import Block, Steamship, Task
 from steamship.agents.base import AgentContext, BaseTool
@@ -45,7 +45,7 @@ class SteamshipREPL(ABC):
         upload_to_signed_url(signed_url, block.raw())
         return read_signed_url
 
-    def print_blocks(self, blocks: List[Block]):
+    def print_blocks(self, blocks: List[Block], metadata: Dict[str, Any]):
         """Print a list of blocks to console."""
         for block in blocks:
             if isinstance(block, dict):
@@ -104,7 +104,7 @@ class ToolREPL(SteamshipREPL):
                 print(f"Task: {output.task_id}")
             else:
                 blocks = cast(List[Block], output)
-                self.print_blocks(blocks)
+                self.print_blocks(blocks, {})
 
     def run(self):
         with self.temporary_workspace() as client:
@@ -114,11 +114,18 @@ class ToolREPL(SteamshipREPL):
 class AgentREPL(SteamshipREPL):
     agent_class: Type[AgentService]
     client = Steamship
+    config = None
 
-    def __init__(self, agent_class: Type[AgentService], client: Optional[Steamship] = None):
+    def __init__(
+        self,
+        agent_class: Type[AgentService],
+        agent_package_config: Optional[Dict[str, Any]],
+        client: Optional[Steamship] = None,
+    ):
         super().__init__()
         self.agent_class = agent_class
         self.client = client or Steamship()
+        self.config = agent_package_config
 
     def run_with_client(self, client: Steamship):
         try:
@@ -134,7 +141,7 @@ class AgentREPL(SteamshipREPL):
         print(f"Chat ID: {chat_id}")
         print("If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n")
 
-        agent = self.agent_class(client=client)
+        agent = self.agent_class(client=client, config=self.config)
 
         while True:
             input_text = input(colored("Input: ", "blue"))  # noqa: F821
@@ -151,8 +158,11 @@ class AgentREPL(SteamshipREPL):
                 text=input_text
             )  # Should this take a Block, instead of creating a block?
             message.set_message_id(message_id)
-            response: Optional[List[Block]] = agent.create_response(context)
-            self.print_blocks(response)
+            if len(context.emit_funcs) == 0:
+                context.emit_funcs.append(self.print_blocks)
+            response: Optional[List[Block]] = agent.run_agent(context)
+            if response is not None:
+                self.print_blocks(response, {})
 
     def run(self):
         with self.temporary_workspace() as client:
