@@ -93,9 +93,9 @@ def _create_instance(
         click.secho(e.message, fg="red")
         click.get_current_context().abort()
 
-    instance_fn = client.use
+    create_instance_fn = client.use
     if manifest.type == DeployableType.PLUGIN:
-        instance_fn = client.use_plugin
+        create_instance_fn = client.use_plugin
 
     if instance is None:
         instance = create_instance_handle(
@@ -105,22 +105,25 @@ def _create_instance(
         )
 
     try:
-        _call_fn(client, manifest, instance, invocable_config, instance_fn)
+        _call_create_instance_fn(client, manifest, instance, invocable_config, create_instance_fn)
 
     except SteamshipError as e:
         click.secho(f"\nFailed to create instance: {e.message}", fg="red")
         click.get_current_context().abort()
 
 
-def _call_fn(
+def _call_create_instance_fn(
     client: Steamship,
     manifest: Manifest,
     instance: str,
     config: Optional[Dict[str, Any]],
-    instance_fn: Callable,
+    create_instance_fn: Callable,
 ):
+    """"""
+    workspace_handle = client.get_workspace().handle
+
     click.echo("Using values:\n- Workspace: ", nl=False)
-    click.secho(f"{client.get_workspace().handle}", fg="green")
+    click.secho(f"{workspace_handle}", fg="green")
     click.echo(f"- {manifest.type.title()}: ", nl=False)
     click.secho(f"{manifest.handle}", fg="green")
     click.echo("- Version: ", nl=False)
@@ -132,7 +135,7 @@ def _call_fn(
 
     click.echo("Creating new (or fetching existing) instance: ", nl=False)
     with ship_spinner():
-        instance = instance_fn(
+        instance = create_instance_fn(
             manifest.handle,
             instance_handle=instance,
             version=manifest.version,
@@ -142,7 +145,10 @@ def _call_fn(
         if instance:
             click.secho("\nSuccess!", fg="green")
             if manifest.type == DeployableType.PACKAGE:
-                click.echo(f"Instance URL: {instance.invocation_url}")
+                click.echo(
+                    f"Web URL : https://steamship.com/workspaces/{workspace_handle}/packages/{instance.handle}"
+                )
+                click.echo(f"API URL: {instance.invocation_url}")
             return
         else:
             raise SteamshipError("instance creation unexpectedly returned empty instance.")
