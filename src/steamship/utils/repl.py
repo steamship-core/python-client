@@ -9,6 +9,11 @@ from steamship import Block, Steamship, Task
 from steamship.agents.base import AgentContext, BaseTool
 from steamship.agents.service.agent_service import AgentService
 from steamship.data.workspace import SignedUrl, Workspace
+from steamship.invocable.dev_logging_handler import (
+    DevelopmentLoggingHandler,
+    LoggingKeys,
+    MessageTypes,
+)
 from steamship.utils.signed_urls import upload_to_signed_url
 
 
@@ -16,6 +21,14 @@ class SteamshipREPL(ABC):
     """Base class for building REPLs that facilitate running Steamship code in the IDE."""
 
     client: Steamship
+    dev_logging_handler: DevelopmentLoggingHandler
+
+    def __init__(self, log_level=None):
+        logger = logging.getLogger()
+        logger.handlers.clear()
+        logger.setLevel(log_level or logging.DEBUG)
+        dev_logging_handler = DevelopmentLoggingHandler()
+        logger.addHandler(dev_logging_handler)
 
     def _make_public_url(self, block):
         filepath = str(uuid.uuid4())
@@ -150,9 +163,20 @@ class AgentREPL(SteamshipREPL):
             message = context.chat_history.append_user_message(
                 text=input_text
             )  # Should this take a Block, instead of creating a block?
+
+            logging.info(
+                f"Message {input_text}", extra={LoggingKeys.MESSAGE_TYPE: MessageTypes.USER_INPUT}
+            )
+
             message.set_message_id(message_id)
             response: Optional[List[Block]] = agent.create_response(context)
+
             self.print_blocks(response)
+
+            logging.info(
+                f"Response {len(response)} Blocks",
+                extra={LoggingKeys.MESSAGE_TYPE: MessageTypes.USER_OUTPUT},
+            )
 
     def run(self):
         with self.temporary_workspace() as client:

@@ -1,3 +1,4 @@
+import logging
 from typing import Tuple, Union
 
 from steamship import Block, Task, TaskState
@@ -5,6 +6,7 @@ from steamship.agents.base import Action, FinishAction
 from steamship.agents.context.context import AgentContext
 from steamship.agents.planner.base import Planner
 from steamship.invocable import PackageService, post
+from steamship.invocable.dev_logging_handler import LoggingKeys, MessageTypes
 
 
 def _is_running(task: Task) -> bool:
@@ -47,8 +49,23 @@ class AgentService(PackageService):
                 wait_on_tasks=[block_or_task],
             )
         else:
+            logging.info(
+                f"Tool Input: {action.tool_input}",
+                extra={
+                    LoggingKeys.MESSAGE_TYPE: MessageTypes.TOOL_INPUT,
+                    LoggingKeys.COMPONENT_NAME: action.tool.name,
+                },
+            )
             output_blocks = action.tool.run(action.tool_input, context)
             action.tool_output = output_blocks
+            logging.info(
+                f"Tool Output: {action.tool_output}",
+                extra={
+                    LoggingKeys.MESSAGE_TYPE: MessageTypes.TOOL_OUTPUT,
+                    LoggingKeys.COMPONENT_NAME: action.tool.name,
+                },
+            )
+
             context.completed_steps.append(action)
             # self.upsert_context(context)
             return action
@@ -57,6 +74,14 @@ class AgentService(PackageService):
     def run_agent(self, context: AgentContext):
         # first thing we must do is determine if we are still waiting on any pending executions
         # if so, reschedule run_agent for later.
+        logging.info(
+            "Agent Run Loop",
+            extra={
+                LoggingKeys.MESSAGE_TYPE: MessageTypes.AGENT_INPUT,
+                LoggingKeys.COMPONENT_NAME: self.__class__.__name__,
+            },
+        )
+
         last_known_pending_tasks = context.in_progress
         completed_bindings_and_tasks = [
             Tuple[tb, t] for tb, t in last_known_pending_tasks if not _is_running(t)
@@ -65,6 +90,15 @@ class AgentService(PackageService):
             task.refresh()
             action.tool_output = task.output.blocks
             context.completed_steps.append(action)
+
+        logging.info(
+            "Agent Run Loop",
+            extra={
+                LoggingKeys.MESSAGE_TYPE: MessageTypes.AGENT_OUTPUT,
+                LoggingKeys.COMPONENT_NAME: self.__class__.__name__,
+            },
+        )
+
         # self.upsert_context(context)
         running_tasks = [t for _, t in last_known_pending_tasks if _is_running(t)]
         if len(running_tasks) > 0:
