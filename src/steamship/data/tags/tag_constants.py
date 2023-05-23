@@ -28,7 +28,7 @@ class TagKind(str, Enum):
     SEARCH_RESULT = "search-result"
     ROLE = "role"
     CHAT = "chat"
-    CHAT_HISTORY_CONTEXT = "chat-history-context"
+    CHAT_HISTORY_CONTEXT = "chat-history-memory"
     MESSAGE_ID = "message-id"
 
 
@@ -264,3 +264,6 @@ class ChatTag(str, Enum):
 
     # The role of a message
     ROLE = "role"
+
+    # The keys to look up a context
+    CONTEXT_KEYS = "context-keys"

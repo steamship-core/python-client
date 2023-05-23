@@ -2,33 +2,8 @@ import json
 from abc import abstractmethod
 from typing import Any, List, Optional, Union
 
-import requests
-
 from steamship import Block, File, MimeTypes, Task
-from steamship.agents.base import BaseTool
-from steamship.agents.context.context import AgentContext
-
-
-class Tool(BaseTool):
-    # Working thinking: we don't yet have formalization about whether
-    # this is a class-level name, isntance-level name, or
-    # instance+context-level name.
-    # thought(doug): this should be the planner-facing name (LLM-friendly?)
-    name: str
-
-    # Advice, but not hard-enforced:
-    # This contains the description, inputs, and outputs.
-    ai_description: str
-    human_description: str  # Human readable string for logging
-
-    @abstractmethod
-    def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
-        raise NotImplementedError()
-
-    # This gets called later if you return Task[Any] from run
-    def post_process(self, async_task: Task, context: AgentContext) -> List[Block]:
-        # nice helpers for making lists of blocks
-        pass
+from steamship.agents.schema import AgentContext, Tool
 
 
 class GeneratorTool(Tool):
@@ -130,7 +105,7 @@ class ScrapeAndBlockifyTool(Tool):
     def get_mime_type(self):
         return None
 
-    def _scrape(self, url: str, context: AgentContext) -> File:
+    def _scrape(self, url: str, context: AgentContext, requests=None) -> File:
         response = requests.get(url)
         file = File.create(context.client, content=response.content, mime_type=self.get_mime_type())
         return file

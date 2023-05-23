@@ -20,7 +20,7 @@ class SummarizeTextWithPromptTool(TextRewritingTool):
 
     name: str = "SummarizeTextWithPromptTool"
     human_description: str = "Summarizes text using an LLM prompt."
-    ai_description: str = (
+    agent_description: str = (
         "Use this tool to summarize text. "
         "The input is the text needing summarization. "
         "The output is a summary of the text."

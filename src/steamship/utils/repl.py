@@ -6,7 +6,7 @@ from abc import ABC
 from typing import List, Optional, Type, cast
 
 from steamship import Block, Steamship, Task
-from steamship.agents.base import AgentContext, BaseTool
+from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.service.agent_service import AgentService
 from steamship.data.workspace import SignedUrl, Workspace
 from steamship.utils.signed_urls import upload_to_signed_url
@@ -73,15 +73,15 @@ class SteamshipREPL(ABC):
 
 
 class ToolREPL(SteamshipREPL):
-    tool: BaseTool
+    tool: Tool
     client = Steamship
 
-    def __init__(self, tool: BaseTool, client: Optional[Steamship] = None):
+    def __init__(self, tool: Tool, client: Optional[Steamship] = None):
         super().__init__()
         self.tool = tool
         self.client = client or Steamship()
 
-    def run_with_client(self, client: Workspace):
+    def run_with_client(self, client: Workspace, context: Optional[AgentContext] = None):
         try:
             from termcolor import colored  # noqa: F401
         except ImportError:
@@ -89,7 +89,8 @@ class ToolREPL(SteamshipREPL):
             def colored(message: str, color: str):
                 print(message)
 
-        context = AgentContext()
+        if context is None:
+            context = AgentContext()
         context.client = client
 
         print(f"Starting REPL for Tool {self.tool.name}...")
@@ -115,9 +116,12 @@ class AgentREPL(SteamshipREPL):
     agent_class: Type[AgentService]
     client = Steamship
 
-    def __init__(self, agent_class: Type[AgentService], client: Optional[Steamship] = None):
+    def __init__(
+        self, agent_class: Type[AgentService], method: str, client: Optional[Steamship] = None
+    ):
         super().__init__()
         self.agent_class = agent_class
+        self.method = method
         self.client = client or Steamship()
 
     def run_with_client(self, client: Steamship):
@@ -125,34 +129,18 @@ class AgentREPL(SteamshipREPL):
             from termcolor import colored  # noqa: F401
         except ImportError:
 
-            def colored(message: str, color: str):
-                print(message)
-
-        chat_id = uuid.uuid4().hex
+            def colored(text: str, color: str):
+                print(text)
 
         print("Starting REPL for Agent...")
-        print(f"Chat ID: {chat_id}")
         print("If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n")
 
-        agent = self.agent_class(client=client)
+        agent_service = self.agent_class(client=client)
 
         while True:
-            input_text = input(colored("Input: ", "blue"))  # noqa: F821
-            message_id = uuid.uuid4().hex
-
-            context = AgentContext.get_or_create(
-                client,
-                context_keys={
-                    "chat_id": chat_id
-                    # No message id here; we don't want a new context per message
-                },
-            )
-            message = context.chat_history.append_user_message(
-                text=input_text
-            )  # Should this take a Block, instead of creating a block?
-            message.set_message_id(message_id)
-            response: Optional[List[Block]] = agent.create_response(context)
-            self.print_blocks(response)
+            input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
+            fn = getattr(agent_service, self.method)
+            print(colored(text=f"{fn(input_text)}", color="green", force_color=True))
 
     def run(self):
         with self.temporary_workspace() as client:

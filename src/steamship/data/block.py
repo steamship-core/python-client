@@ -252,6 +252,12 @@ class Block(CamelModel):
 
         self.tags.append(tag)
 
+    def as_llm_input(self) -> str:
+        if self.is_text():
+            return self.text
+        else:
+            return f"Block({self.id})"
+
 
 class BlockQueryResponse(Response):
     blocks: List[Block]

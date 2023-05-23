@@ -1,12 +1,18 @@
-from typing import List
+from typing import List, Optional
 
 from steamship import Block, PluginInstance, Steamship
-from steamship.agents.base import LLM
+from steamship.agents.schema import LLM
 
 PLUGIN_HANDLE = "gpt-4"
 
 
 class OpenAI(LLM):
+    """LLM that uses Steamship's OpenAI plugin to generate completions.
+
+    NOTE: By default, this LLM uses the `gpt-3.5-turbo` model. Valid model
+    choices are `gpt-3.5-turbo` and `gpt-4`.
+    """
+
     generator: PluginInstance
     client: Steamship
 
@@ -21,7 +27,10 @@ class OpenAI(LLM):
         generator = client.use_plugin(PLUGIN_HANDLE, config={"model": model_name})
         super().__init__(client=client, generator=generator, *args, **kwargs)
 
-    def complete(self, prompt: str, stop: str) -> List[Block]:
-        action_task = self.generator.generate(text=prompt, options={"stop": stop})
+    def complete(self, prompt: str, stop: Optional[str] = None) -> List[Block]:
+        options = {}
+        if stop:
+            options["stop"] = stop
+        action_task = self.generator.generate(text=prompt, options=options)
         action_task.wait()
         return action_task.output.blocks
