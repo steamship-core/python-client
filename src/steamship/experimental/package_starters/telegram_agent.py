@@ -48,6 +48,9 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
             if incoming_message is not None:
                 context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
                 context.chat_history.append_user_message(text=incoming_message.text)
+                if len(context.emit_funcs) == 0:
+                    context.emit_funcs.append(self.telegram_transport.send)
+
                 response = self.create_response(context)
                 if response is not None:
                     self.telegram_transport.send(response)
