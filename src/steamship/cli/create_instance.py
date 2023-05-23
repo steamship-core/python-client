@@ -119,7 +119,7 @@ def _create_instance(  # noqa: C901
         if "Configuration for this PackageInstance is invalid." in e.message:
             click.secho(
                 "\nThe configuration for this Package instance was invalid. "
-                "This usually means there are required fields to create one.",
+                "This usually means it contains some required configuration fields.",
                 fg="red",
             )
             click.secho("Create one interactively on the web at:\n", fg="red")
