@@ -1,7 +1,7 @@
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from steamship import Block
 
@@ -69,7 +69,7 @@ class Transport(ABC):
         )
 
     @abstractmethod
-    def _send(self, blocks: List[Block]):
+    def _send(self, blocks: List[Block], metadata: Dict[str, Any]):
         raise NotImplementedError
 
     def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:

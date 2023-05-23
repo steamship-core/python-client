@@ -1,5 +1,5 @@
 import uuid
-from typing import Optional
+from typing import Any, Dict, Optional
 
 from steamship import Block, SteamshipError
 from steamship.experimental.transports.transport import Transport
@@ -17,7 +17,7 @@ class SteamshipWidgetTransport(Transport):
         """Unsubscribe from updates."""
         pass
 
-    def _send(self, blocks: [Block]):
+    def _send(self, blocks: [Block], metadata: Dict[str, Any]):
         """Send a response to the client.
 
         TODO: Since this isn't a push, but rather an API return, we need to figure out how to model this.
