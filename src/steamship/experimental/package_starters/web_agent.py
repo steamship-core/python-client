@@ -2,7 +2,7 @@ from abc import ABC
 from typing import List, Optional
 
 from steamship import Block
-from steamship.agents.context.context import AgentContext
+from steamship.agents.schema import AgentContext
 from steamship.agents.service.agent_service import AgentService
 from steamship.experimental.transports.steamship_widget import SteamshipWidgetTransport
 from steamship.invocable import post
@@ -26,7 +26,7 @@ class SteamshipWidgetAgentService(AgentService, ABC):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.steamship_widget_transport = SteamshipWidgetTransport()
+        self.steamship_widget_transport = SteamshipWidgetTransport(client=self.client)
 
     @post("answer", public=True)
     def answer(self, **payload) -> List[Block]:

@@ -6,7 +6,7 @@ import requests
 from pydantic import Field
 
 from steamship import Block
-from steamship.agents.context.context import AgentContext, EmitFunc, Metadata
+from steamship.agents.schema import AgentContext, EmitFunc, Metadata
 from steamship.experimental.package_starters.web_agent import SteamshipWidgetAgentService
 from steamship.experimental.package_starters.web_bot import response_for_exception
 from steamship.experimental.transports import TelegramTransport
@@ -29,7 +29,9 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.api_root = f"https://api.telegram.org/bot{self.config.bot_token}"
-        self.telegram_transport = TelegramTransport(self.config.bot_token)
+        self.telegram_transport = TelegramTransport(
+            bot_token=self.config.bot_token, client=self.client
+        )
 
     def instance_init(self):
         """This instance init method is called automatically when an instance of this package is created. It registers the URL of the instance as the Telegram webhook for messages."""

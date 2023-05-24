@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 from steamship import Block, Steamship
-from steamship.agents.base import AgentContext
+from steamship.agents.schema import AgentContext
 from steamship.agents.tools.audio_transcription.assembly_speech_to_text_tool import (
     AssemblySpeechToTextTool,
 )
