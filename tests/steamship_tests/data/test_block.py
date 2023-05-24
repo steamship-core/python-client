@@ -1,4 +1,5 @@
 import pytest
+import requests
 from steamship_tests import TEST_ASSETS_PATH
 
 from steamship import MimeTypes
@@ -175,3 +176,40 @@ def test_append_is_present(client: Steamship):
     assert len(my_file.blocks) == 0
     my_file.append_block(text="first")
     assert len(my_file.blocks) == 1
+
+
+@pytest.mark.usefixtures("client")
+def test_append_block_public_data(client: Steamship):
+    file = File.create(client, blocks=[])
+
+    appended_block = Block.create(
+        client, file_id=file.id, content=bytes("This is a test", "utf-8"), public_data=True
+    )
+    assert appended_block.public_data
+
+    # Intentionally no API key
+    response = requests.get(appended_block.raw_data_url)
+
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
+
+
+@pytest.mark.usefixtures("client")
+def test_append_block_private_data(client: Steamship):
+    file = File.create(client, blocks=[])
+
+    appended_block = Block.create(client, file_id=file.id, content=bytes("This is a test", "utf-8"))
+    assert not appended_block.public_data
+
+    # Intentionally no API key
+    failed_response = requests.get(appended_block.raw_data_url)
+    assert not failed_response.ok
+
+    # Should still be able to get with API key
+    response = requests.get(
+        appended_block.raw_data_url,
+        headers={"Authorization": f"Bearer {client.config.api_key.get_secret_value()}"},
+    )
+
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
