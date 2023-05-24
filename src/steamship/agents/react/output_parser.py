@@ -26,7 +26,10 @@ class ReACTOutputParser(OutputParser):
         regex = r"Action: (.*?)[\n]*Action Input: (.*)"
         match = re.search(regex, text)
         if not match:
-            raise RuntimeError(f"Could not parse LLM output: `{text}`")
+            # TODO: should this be the case?  If we are off-base should we just return what we have?
+            return FinishAction(
+                output=ReACTOutputParser._blocks_from_text(context.client, text), context=context
+            )
         action = match.group(1)
         action_input = match.group(2).strip()
         tool = self.tools_lookup_dict[action.strip()]
@@ -53,7 +56,7 @@ class ReACTOutputParser(OutputParser):
                 )
                 if len(pre_block_text) > 0:
                     result_blocks.append(Block(text=pre_block_text))
-                result_blocks.append(Block.get(client, _id=match.group(1)))
+                # result_blocks.append(Block.get(client, _id=match.group(1)))
                 remaining_text = ReACTOutputParser._remove_block_suffix(
                     remaining_text[match.end() :]
                 )
@@ -78,3 +81,9 @@ class ReACTOutputParser(OutputParser):
         if removed.startswith(")") or removed.endswith("]"):
             removed = removed[1:]
         return removed
+
+
+if __name__ == "__main__":
+    with Steamship.temporary_workspace() as client:
+        text = "Hey there, why do you want a cartoon of a dog playing bingo? Is it because you're not good at the game and think the dog might have better luck? 😜 Block(C45A80DD-88F6-460D-8051-3769B60ABF0B)"
+        print(ReACTOutputParser._blocks_from_text(client, text))
