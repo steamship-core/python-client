@@ -35,7 +35,9 @@ class MyAssistant(AgentService):
 
         def sync_emit(blocks: List[Block], meta: Metadata):
             nonlocal output
-            block_text = "\n".join([b.text for b in blocks if b.is_text()])
+            block_text = "\n".join(
+                [b.text if b.is_text() else f"({b.mime_type}: {b.id})" for b in blocks]
+            )
             output += block_text
 
         context.emit_funcs.append(sync_emit)
@@ -44,4 +46,4 @@ class MyAssistant(AgentService):
 
 
 if __name__ == "__main__":
-    AgentREPL(MyAssistant, "prompt").run()
+    AgentREPL(MyAssistant, "prompt", agent_package_config={}).run()
