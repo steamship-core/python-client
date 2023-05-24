@@ -28,7 +28,7 @@ class ZeroShotClassifierTool(TextRewritingTool):
 
     name = "ZeroShotClassifierTool"
     human_description = "Classifies a user message."
-    ai_description = "Used to classify a user message. The input is a string, and the output is a string with the classification label."
+    agent_description = "Used to classify a user message. The input is a string, and the output is a string with the classification label."
     labels: List[str] = DEFAULT_LABELS
     rewrite_prompt: str = DEFAULT_PROMPT
 

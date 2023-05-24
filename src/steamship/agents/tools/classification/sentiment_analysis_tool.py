@@ -26,7 +26,7 @@ class SentimentAnalysisTool(TextRewritingTool):
 
     name = "SentimentAnalysisTool"
     human_description = "Returns the sentiment of a user message."
-    ai_description = "Used to record the sentiment of a user message. The input is a string, and the output is a string with the sentiment."
+    agent_description = "Used to record the sentiment of a user message. The input is a string, and the output is a string with the sentiment."
     labels: List[str] = DEFAULT_LABELS
     rewrite_prompt: str = DEFAULT_PROMPT
 

@@ -4,15 +4,14 @@ from typing import Any, List, Union
 import requests
 
 from steamship import Block, Task
-from steamship.agents.base import AgentContext
-from steamship.agents.tool import Tool
+from steamship.agents.schema import AgentContext, Tool
 from steamship.utils.repl import ToolREPL
 
 
 class FetchAudioUrlsFromRssTool(Tool):
     name: str = "FetchAudioUrlsFromRssTool"
     human_description: str = "Fetches the episode URLs from a Podcast RSS feed."
-    ai_description: str = (
+    agent_description: str = (
         "Used to fetch the podcast episode URLs from a podcast RSS feed. "
         "The input is the URL of the RSS feed. "
         "The output is the URLs of the episode audio."

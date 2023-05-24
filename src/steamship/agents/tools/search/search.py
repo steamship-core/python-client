@@ -4,8 +4,7 @@ from typing import Any, List, Optional, Union
 from pydantic import Field
 
 from steamship import Block, File, PluginInstance, SteamshipError, Task
-from steamship.agents.base import AgentContext
-from steamship.agents.tool import Tool
+from steamship.agents.schema import AgentContext, Tool
 from steamship.data import TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
 from steamship.utils.kv_store import KeyValueStore
@@ -19,7 +18,7 @@ class SearchTool(Tool):
 
     name: str = "SearchTool"
     human_description: str = "Searches the web."
-    ai_description: str = "Used to search the web for new information."
+    agent_description: str = "Used to search the web for new information."
 
     cache: bool = False
     cache_store: Optional[KeyValueStore] = Field(None, exclude=True)

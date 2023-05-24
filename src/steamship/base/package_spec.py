@@ -1,5 +1,6 @@
 """Objects for recording and reporting upon the introspected interface of a Steamship Package."""
 import inspect
+from copy import deepcopy
 from enum import Enum
 from typing import Dict, List, Optional, Union, get_args, get_origin
 
@@ -77,8 +78,8 @@ class MethodSpec(CamelModel):
             path = f"/{path}"
         return path
 
-    def __init__(
-        self,
+    @staticmethod
+    def from_class(
         cls: object,
         name: str,
         path: str = None,
@@ -107,7 +108,17 @@ class MethodSpec(CamelModel):
                 continue
             args.append(ArgSpec(p, sig.parameters[p]))
 
-        super().__init__(path=path, verb=verb, returns=returns, doc=doc, args=args, config=config)
+        return MethodSpec(path=path, verb=verb, returns=returns, doc=doc, args=args, config=config)
+
+    def clone(self) -> "MethodSpec":
+        return MethodSpec(
+            path=deepcopy(self.path),
+            verb=deepcopy(self.verb),
+            returns=deepcopy(self.returns),
+            doc=deepcopy(self.doc),
+            args=deepcopy(self.args),
+            config=deepcopy(self.config),
+        )
 
     def pprint(self, name_width: Optional[int] = None, prefix: str = "  ") -> str:
         """Returns a pretty printable representation of this method."""
@@ -120,6 +131,10 @@ class MethodSpec(CamelModel):
                 arg_doc_string = arg.print(name_width, prefix)
                 ret += f"\n{arg_doc_string}"
         return ret
+
+    def is_same_route_as(self, other: "MethodSpec") -> bool:
+        """Two methods are the same route if they share a path and verb."""
+        return self.path == other.path and self.verb == other.verb
 
 
 class PackageSpec(CamelModel):
@@ -152,3 +167,19 @@ class PackageSpec(CamelModel):
                 method_doc_string = method.pprint(name_width, prefix)
                 ret += f"\n{method_doc_string}"
         return ret
+
+    def import_parent_methods(self, parent: Optional["PackageSpec"] = None):
+        if not parent:
+            return
+        for method in parent.methods:
+            self.methods.append(method.clone())
+
+    def add_method(self, new_method: MethodSpec):
+        """Add a method to the MethodSpec, overwriting the existing if it exists."""
+        for i, existing_method in enumerate(self.methods):
+            if existing_method.is_same_route_as(new_method):
+                # Replace
+                self.methods[i] = new_method
+                return
+        # Append
+        self.methods.append(new_method)

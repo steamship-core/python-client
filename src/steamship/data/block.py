@@ -49,6 +49,8 @@ class Block(CamelModel):
     tags: Optional[List[Tag]] = []
     index_in_file: Optional[int] = Field(alias="index")
     mime_type: Optional[MimeTypes]
+    public_data: bool = False
+
     url: Optional[
         str
     ] = None  # Only for creation of blocks; used to fetch content from a public URL.
@@ -94,6 +96,7 @@ class Block(CamelModel):
         content: Union[str, bytes] = None,
         url: Optional[str] = None,
         mime_type: Optional[MimeTypes] = None,
+        public_data: bool = False,
     ) -> Block:
         """
         Create a new Block within a File specified by file_id.
@@ -122,6 +125,7 @@ class Block(CamelModel):
             "url": url,
             "mimeType": mime_type,
             "uploadType": upload_type,
+            "publicData": public_data,
         }
 
         file_data = (
@@ -200,6 +204,16 @@ class Block(CamelModel):
         return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO]
 
     @property
+    def raw_data_url(self) -> Optional[str]:
+        """Return a URL at which the data content of this Block can be accessed.  If public_data is True,
+        this content can be accessed without an API key.
+        """
+        if self.client is not None:
+            return f"{self.client.config.api_base}block/{self.id}/raw"
+        else:
+            return None
+
+    @property
     def chat_role(self) -> Optional[RoleTag]:
         return get_tag_value_key(
             self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.ROLE
@@ -262,6 +276,12 @@ class Block(CamelModel):
             )
 
         self.tags.append(tag)
+
+    def as_llm_input(self) -> str:
+        if self.is_text():
+            return self.text
+        else:
+            return f"Block({self.id})"
 
 
 class BlockQueryResponse(Response):

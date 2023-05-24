@@ -23,7 +23,7 @@ class TextTranslationTool(TextRewritingTool):
 
     name: str = "TextTranslationTool"
     human_description: str = "Translates a text into a new language."
-    ai_description: str = "(set dynamically)"
+    agent_description: str = "(set dynamically)"
     language: str = DEFAULT_LANGUAGE
     rewrite_prompt: str = DEFAULT_PROMPT
 

@@ -1,8 +1,9 @@
 from typing import Any, List, Union
 
-from steamship import Block, Task
-from steamship.agents.base import AgentContext
-from steamship.agents.tool import Tool
+from steamship import Block, Steamship, Task
+from steamship.agents.llms import OpenAI
+from steamship.agents.schema import AgentContext, Tool
+from steamship.agents.utils import get_llm, with_llm
 from steamship.utils.repl import ToolREPL
 
 DEFAULT_PROMPT = """Instructions:
@@ -20,7 +21,7 @@ class TextRewritingTool(Tool):
     rewrite_prompt: str = DEFAULT_PROMPT
     name: str = "TextRewritingTool"
     human_description: str = "Rewrites a piece of text using the provided prompt."
-    ai_description: str = "Used to rewrite a piece of text given a prompt. Takes text as input, and provides text as output."
+    agent_description: str = "Used to rewrite a piece of text given a prompt. Takes text as input, and provides text as output."
 
     def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
         """Rewrites each provided text block using the stored prompt. Non-text blocks are passed through without
@@ -30,7 +31,7 @@ class TextRewritingTool(Tool):
         ------
         input: List[Block]
             A list of blocks to be rewritten if they contain text. Each block will be considered a separate input.
-        context: AgentContext
+        memory: AgentContext
             The active AgentContext.
 
         Output
@@ -38,9 +39,9 @@ class TextRewritingTool(Tool):
         output: List[Blocks]
             A list of blocks whose content has been rewritten. Synchronously produced (for now).
         """
-        llm = context.get_llm()
+        llm = get_llm(context)
 
-        tasks = []
+        blocks = []
         for block in tool_input:
             # If the block is not text, simply pass it through.
             if not block.is_text():
@@ -48,17 +49,14 @@ class TextRewritingTool(Tool):
 
             # If the block is text, rewrite it and append that output.
             prompt = self.rewrite_prompt.format(input=block.text)
-            task = llm.generate(text=prompt)
-            tasks.append(task)
+            output_blocks = llm.complete(prompt=prompt)
+            blocks.extend(output_blocks)
 
-        output = []
-        for task in tasks:
-            task.wait()  # TODO: Synchronous Generation is a temporary simplification we will remove.
-            for block in task.output.blocks:
-                output.append(block)
-
-        return output
+        return blocks
 
 
 if __name__ == "__main__":
-    ToolREPL(TextRewritingTool()).run()
+    with Steamship.temporary_workspace() as client:
+        ToolREPL(TextRewritingTool()).run_with_client(
+            client=client, context=with_llm(llm=OpenAI(client=client))
+        )
