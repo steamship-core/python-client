@@ -78,7 +78,7 @@ def test_package_spec_optional_params(
     rd = invocable_handler("GET", "/__dir__", {}).get("data")
 
     assert len(rd.get("methods")) == 2
-    method = rd.get("methods")[0]
+    method = rd.get("methods")[1]
     values = method.get("args")[0].get("values")
     assert values is not None
     assert len(values) == 2

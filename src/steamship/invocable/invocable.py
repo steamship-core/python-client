@@ -145,10 +145,14 @@ class Invocable(ABC):
 
         start_time = time.time()
 
-        # The subclass always overrides whatever the superclass set here.
-        cls._package_spec = PackageSpec(name=cls.__name__, doc=cls.__doc__, methods=[])
-
         # The subclass takes care to extend what the superclass may have set here by copying it.
+        _package_spec = PackageSpec(name=cls.__name__, doc=cls.__doc__, methods=[])
+        if hasattr(cls, "_package_spec"):
+            _package_spec.import_parent_methods(cls._package_spec)
+
+        # The subclass always overrides whatever the superclass set here, having cloned its data.
+        cls._package_spec = _package_spec
+
         if cls._method_mappings:
             # Make a deep copy so that subclasses don't accidentally modify superclass & sibling instances
             cls._method_mappings = deepcopy(cls._method_mappings)
@@ -170,7 +174,7 @@ class Invocable(ABC):
                     method_spec = cls._register_mapping(
                         name=attribute.__name__, verb=verb, path=path, config=config
                     )
-                    cls._package_spec.methods.append(method_spec)
+                    cls._package_spec.add_method(method_spec)
 
         # Add the HTTP GET /__dir__ method which returns a serialization of the PackageSpec.
         # Wired up to both GET and POST for convenience (since POST is the default from the Python client, but
@@ -179,7 +183,7 @@ class Invocable(ABC):
         cls._register_mapping(name="__steamship_dir__", verb=Verb.POST, path="/__dir__")
 
         # Connect the __instance_init__ route to the wrapper method; append it to the method list so it's visible to the engine
-        cls._package_spec.methods.append(
+        cls._package_spec.add_method(
             cls._register_mapping(
                 name="invocable_instance_init", verb=Verb.POST, path="/__instance_init__", config={}
             )
@@ -225,7 +229,7 @@ class Invocable(ABC):
         config: Dict[str, Union[int, float, bool, str]] = None,
     ) -> MethodSpec:
         """Registering a mapping permits the method to be invoked via HTTP."""
-        method_spec = MethodSpec(cls, name, path=path, verb=verb, config=config)
+        method_spec = MethodSpec.from_class(cls, name, path=path, verb=verb, config=config)
         # It's important to use method_spec.path below since that's the CLEANED path.
         cls._method_mappings[verb][method_spec.path] = name
         logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
