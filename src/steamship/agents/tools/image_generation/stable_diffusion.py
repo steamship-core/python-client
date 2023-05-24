@@ -1,5 +1,5 @@
 """Tool for generating images."""
-from steamship.agents.tool import ImageGeneratorTool
+from steamship.agents.tools import ImageGeneratorTool
 from steamship.utils.repl import ToolREPL
 
 
@@ -8,7 +8,7 @@ class StableDiffusionTool(ImageGeneratorTool):
 
     name: str = "StableDiffusionTool"
     human_description: str = "Generates an image from text."
-    ai_description = (
+    agent_description = (
         "Used to generate images from text prompts. Only use if the user has asked directly for an image. "
         "When using this tool, the input should be a plain text string that describes, "
         "in detail, the desired image."

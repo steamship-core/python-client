@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 
 import requests
 
-from steamship import Block, SteamshipError
+from steamship import Block, Steamship, SteamshipError
 from steamship.experimental.transports.transport import Transport
 
 API_BASE = "https://api.telegram.org/bot"
@@ -14,9 +14,12 @@ class TelegramTransport(Transport):
     """Experimental base class to encapsulate a Telegram communication channel."""
 
     api_root: str
+    bot_token: str
 
-    def __init__(self, bot_token: str):
+    def __init__(self, bot_token: str, client: Steamship):
+        super().__init__(client=client)
         self.api_root = f"{API_BASE}{bot_token}"
+        self.bot_token = bot_token
 
     def _instance_init(self, *args, **kwargs):
         if "webhook_url" not in kwargs:
@@ -88,6 +91,21 @@ class TelegramTransport(Transport):
         logging.info(f"/info: {resp}")
         return {"telegram": resp.get("result")}
 
+    def _get_file(self, file_id: str) -> Dict[str, Any]:
+        return requests.get(f"{self.api_root}/getFile", params={"file_id": file_id}).json()[
+            "result"
+        ]
+
+    def _get_file_url(self, file_id: str) -> str:
+        return f"https://api.telegram.org/file/bot{self.bot_token}/{self._get_file(file_id)['file_path']}"
+
+    def _download_file(self, file_id: str):
+        result = requests.get(self._get_file_url(file_id))
+        if result.status_code != 200:
+            raise Exception("Download file", result)
+
+        return result.content
+
     def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
         """Parses an inbound Telegram message."""
 
@@ -111,6 +129,16 @@ class TelegramTransport(Transport):
         if not isinstance(message_id, int):
             raise SteamshipError(
                 f"Bad 'message_id' found in Telegram message: ({message_id}). Should have been an int"
+            )
+
+        if "voice" in payload:
+            file_id = payload.get("voice").get("file_id")
+            voice_file_url = self._get_file_url(file_id)
+            return Block(
+                text=payload.get("text"),
+                url=voice_file_url,
+                chat_id=str(chat_id),
+                message_id=str(message_id),
             )
 
         # Some incoming messages (like the group join message) don't have message text.

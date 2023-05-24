@@ -3,7 +3,10 @@
 This tests a fix (in the same PR) to a behavior in which each new Subclass of Invocable would register its route
 table afresh, overwriting whatever routes were registered by an ancestor.
 """
+import pytest
 
+from steamship import Steamship
+from steamship.experimental.package_starters.telegram_agent import TelegramAgentService
 from steamship.invocable import Invocable, InvocableRequest, Invocation, post
 from steamship.utils.url import Verb
 
@@ -54,6 +57,10 @@ class L3Invocable2(L2Invocable2):
         return "l32_baz"
 
 
+class MyAgentService(TelegramAgentService):
+    pass
+
+
 def invoke(o: Invocable, path: str):
     req = InvocableRequest(invocation=Invocation(http_verb="POST", invocation_path=path))
     return o(req)
@@ -69,6 +76,11 @@ def test_l1_routes():
     assert invoke(l1, "bar") == "l1_bar"
     assert invoke(l1, "baz") == "l1_baz"
 
+    routes = [m["path"] for m in l1.__steamship_dir__()["methods"]]
+    assert "/foo" in routes
+    assert "/bar" in routes
+    assert "/baz" in routes
+
 
 def test_l2_routes():
     """Tests that we can inspect the L1 routes"""
@@ -79,6 +91,12 @@ def test_l2_routes():
     assert invoke(l2, "foo") == "l1_foo"
     assert invoke(l2, "bar") == "l2_bar"
     assert invoke(l2, "baz") == "l2_baz"
+
+    routes = [m["path"] for m in l2.__steamship_dir__()["methods"]]
+    assert len(routes) == 4  # the fourth is __instance__init
+    assert "/foo" in routes
+    assert "/bar" in routes
+    assert "/baz" in routes
 
 
 def test_l3_routes():
@@ -91,6 +109,12 @@ def test_l3_routes():
     assert invoke(l3, "bar") == "l2_bar"
     assert invoke(l3, "baz") == "l3_baz"
 
+    routes = [m["path"] for m in l3.__steamship_dir__()["methods"]]
+    assert len(routes) == 4  # the fourth is __instance__init
+    assert "/foo" in routes
+    assert "/bar" in routes
+    assert "/baz" in routes
+
 
 def test_l22_routes():
     """Tests that we can inspect the L1 routes"""
@@ -102,13 +126,37 @@ def test_l22_routes():
     assert invoke(l22, "bar") == "l22_bar"
     assert invoke(l22, "baz") == "l22_baz"
 
+    routes = [m["path"] for m in l22.__steamship_dir__()["methods"]]
+    assert len(routes) == 4  # the fourth is __instance__init
+    assert "/foo" in routes
+    assert "/bar" in routes
+    assert "/baz" in routes
+
 
 def test_l32_routes():
     """Tests that we can inspect the L1 routes"""
     l32 = L3Invocable2()
+
+    routes = [m["path"] for m in l32.__steamship_dir__()["methods"]]
+    assert len(routes) == 4  # the fourth is __instance__init
+    assert "/foo" in routes
+    assert "/bar" in routes
+    assert "/baz" in routes
+
     assert l32._method_mappings[Verb.POST]["/foo"] == "foo"
     assert l32._method_mappings[Verb.POST]["/bar"] == "bar2"
     assert l32._method_mappings[Verb.POST]["/baz"] == "baz3"
     assert invoke(l32, "foo") == "l1_foo"
     assert invoke(l32, "bar") == "l22_bar"
     assert invoke(l32, "baz") == "l32_baz"
+
+
+@pytest.mark.usefixtures("client")
+def test_telegram_agent(client: Steamship):
+    a = MyAgentService(client=client, config={"botToken": "foo"})
+    assert a._method_mappings[Verb.POST]["/answer"] == "answer"
+    routes = [m["path"] for m in a.__steamship_dir__()["methods"]]
+    assert "/answer" in routes
+    assert "/respond" in routes
+    assert "/webhook_info" in routes
+    assert "/info" in routes

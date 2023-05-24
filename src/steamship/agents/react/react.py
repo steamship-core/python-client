@@ -1,13 +1,11 @@
 from typing import List
 
-from steamship import Block
-from steamship.agents.base import LLM, Action, AgentContext, BaseTool
-from steamship.agents.parsers.llm import LLMToolOutputParser
-from steamship.agents.planner.base import LLMPlanner
+from steamship.agents.react.output_parser import ReACTOutputParser
+from steamship.agents.schema import LLM, Action, AgentContext, LLMAgent, Tool
 
 
-class ReACTPlanner(LLMPlanner):
-    output_parser: LLMToolOutputParser
+class ReACTAgent(LLMAgent):
+    """Selects actions for AgentService based on a ReACT style LLM Prompt and a configured set of Tools."""
 
     PROMPT = """Assistant is a large language model trained by OpenAI.
 Assistant is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.
@@ -49,24 +47,14 @@ Begin!
 New input: {input}
 {scratchpad}"""
 
-    def __init__(self, tools: List[BaseTool], llm: LLM):
-        super().__init__(output_parser=LLMToolOutputParser(tools=tools), llm=llm, tools=tools)
+    def __init__(self, tools: List[Tool], llm: LLM):
+        super().__init__(output_parser=ReACTOutputParser(tools=tools), llm=llm, tools=tools)
 
-    def _to_string(self, blocks: List[Block]) -> str:
-        out = []
-        for block in blocks:
-            if block.text:
-                out.append(f"{block.text} ")
-            else:
-                out.append(f"Requested image created in Block({block.id}).")
-        return " ".join(out)
-
-    def plan(self, context: AgentContext) -> Action:
-
+    def next_action(self, context: AgentContext) -> Action:
         scratchpad = self._construct_scratchpad(context)
         tool_names = [t.name for t in self.tools]
 
-        tool_index_parts = [f"- {t.name}: {t.ai_description}" for t in self.tools]
+        tool_index_parts = [f"- {t.name}: {t.agent_description}" for t in self.tools]
         tool_index = "\n".join(tool_index_parts)
 
         # for simplicity assume initial prompt is a single text block.
@@ -87,8 +75,8 @@ New input: {input}
             steps.append(
                 "Thought: Do I need to use a tool? Yes\n"
                 f"Action: {action.tool.name}\n"
-                f"Action Input: {self._to_string(action.tool_input)}\n"
-                f"Observation: {self._to_string(action.tool_output)}\n"
+                f'Action Input: {" ".join([b.as_llm_input() for b in action.input])}\n'
+                f'Observation: {" ".join([b.as_llm_input() for b in action.output])}\n'
             )
         scratchpad = "\n".join(steps)
         scratchpad += "Thought:"
