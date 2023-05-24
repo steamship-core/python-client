@@ -36,8 +36,9 @@ class AgentService(PackageService):
         action = agent.next_action(context=context)
         while not isinstance(action, FinishAction):
             # TODO: Arrive at a solid design for the details of this structured log object
+            inputs = ",".join([f'"{b.as_llm_input()}"' for b in action.input])
             logging.info(
-                f"Running Tool {action.tool.name}",
+                f"Running Tool {action.tool.name} ({inputs})",
                 extra={
                     AgentLogging.TOOL_NAME: action.tool.name,
                     AgentLogging.IS_MESSAGE: True,
