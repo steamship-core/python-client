@@ -3,10 +3,15 @@ import time
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
-from steamship import Block
+from steamship import Block, Steamship
+from steamship.agents.base import AgentContext
+from steamship.agents.tools.audio_transcription.assembly_speech_to_text_tool import (
+    AssemblySpeechToTextTool,
+)
 
 
 class Transport(ABC):
+    client = Steamship
     """Experimental base class to encapsulate a communication channel
 
     Intended use is:
@@ -32,6 +37,9 @@ class Transport(ABC):
     - It doesn't yet try to model inbound messages or chat_ids. That's an encapsulation leak left for future exploration.
 
     """
+
+    def __init__(self, client):
+        self.client = client
 
     def instance_init(self, *args, **kwargs):
         logging.info(f"Transport initializing: {self.__class__.__name__}")
@@ -73,7 +81,19 @@ class Transport(ABC):
         raise NotImplementedError
 
     def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
-        return self._parse_inbound(payload, context)
+        message = self._parse_inbound(payload, context)
+
+        if message.url and not message.text:
+            context = AgentContext()
+            context.client = self.client
+            transcriptions = AssemblySpeechToTextTool(
+                blockifier_plugin_config={
+                    "enable_audio_intelligence": False,
+                    "speaker_detection": False,
+                }
+            ).run([Block(text=message.url)], context=context)
+            message.text = transcriptions[0].text
+        return message
 
     @abstractmethod
     def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
