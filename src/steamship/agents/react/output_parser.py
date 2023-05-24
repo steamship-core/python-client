@@ -42,17 +42,39 @@ class ReACTOutputParser(OutputParser):
     def _blocks_from_text(client: Steamship, text: str) -> List[Block]:
         last_response = text.split("AI:")[-1].strip()
 
-        block_id_regex = r"(?:\[Block)?\(?([A-F0-9]{8}\-[A-F0-9]{4}\-[A-F0-9]{4}\-[A-F0-9]{4}\-[A-F0-9]{12})\)?\]?"
+        block_id_regex = r"(?:(?:\[|\()?Block)?\(?([A-F0-9]{8}\-[A-F0-9]{4}\-[A-F0-9]{4}\-[A-F0-9]{4}\-[A-F0-9]{12})\)?(?:(\]|\)))?"
         remaining_text = last_response
         result_blocks: List[Block] = []
         while remaining_text is not None and len(remaining_text) > 0:
             match = re.search(block_id_regex, remaining_text)
             if match:
-                result_blocks.append(Block(text=remaining_text[0 : match.start()]))
+                pre_block_text = ReACTOutputParser._remove_block_prefix(
+                    candidate=remaining_text[0 : match.start()]
+                )
+                if len(pre_block_text) > 0:
+                    result_blocks.append(Block(text=pre_block_text))
                 result_blocks.append(Block.get(client, _id=match.group(1)))
-                remaining_text = remaining_text[match.end() :]
+                remaining_text = ReACTOutputParser._remove_block_suffix(
+                    remaining_text[match.end() :]
+                )
             else:
                 result_blocks.append(Block(text=remaining_text))
                 remaining_text = ""
 
         return result_blocks
+
+    @staticmethod
+    def _remove_block_prefix(candidate: str) -> str:
+        removed = candidate
+        if removed.endswith("(Block") or removed.endswith("[Block"):
+            removed = removed[len("Block") + 1 :]
+        elif removed.endswith("Block"):
+            removed = removed[len("Block") :]
+        return removed
+
+    @staticmethod
+    def _remove_block_suffix(candidate: str) -> str:
+        removed = candidate
+        if removed.startswith(")") or removed.endswith("]"):
+            removed = removed[1:]
+        return removed
