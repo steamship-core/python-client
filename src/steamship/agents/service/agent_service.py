@@ -29,6 +29,16 @@ class AgentService(PackageService):
                 "Please use synchronous Tasks (Tools that return List[Block] for now."
             )
         else:
+            outputs = ",".join([f"{b.as_llm_input()}" for b in action.output])
+            logging.info(
+                f"Tool {action.tool.name} Completed ({outputs})",
+                extra={
+                    AgentLogging.TOOL_NAME: action.tool.name,
+                    AgentLogging.IS_MESSAGE: True,
+                    AgentLogging.MESSAGE_TYPE: AgentLogging.ACTION,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+                },
+            )
             action.output = blocks_or_task
             context.completed_steps.append(action)
 
@@ -36,7 +46,7 @@ class AgentService(PackageService):
         action = agent.next_action(context=context)
         while not isinstance(action, FinishAction):
             # TODO: Arrive at a solid design for the details of this structured log object
-            inputs = ",".join([f'"{b.as_llm_input()}"' for b in action.input])
+            inputs = ",".join([f"{b.as_llm_input()}" for b in action.input])
             logging.info(
                 f"Running Tool {action.tool.name} ({inputs})",
                 extra={
