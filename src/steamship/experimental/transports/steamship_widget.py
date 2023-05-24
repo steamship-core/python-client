@@ -1,8 +1,7 @@
 import uuid
-from typing import Optional
+from typing import Any, Dict, Optional
 
-from steamship import SteamshipError
-from steamship.experimental.transports.chat import ChatMessage
+from steamship import Block, SteamshipError
 from steamship.experimental.transports.transport import Transport
 
 API_BASE = "https://api.telegram.org/bot"
@@ -18,10 +17,10 @@ class SteamshipWidgetTransport(Transport):
         """Unsubscribe from updates."""
         pass
 
-    def _send(self, blocks: [ChatMessage]):
+    def _send(self, blocks: [Block], metadata: Dict[str, Any]):
         """Send a response to the client.
 
-        TODO: Since this isn't a push, but rather an API return, we need to figureout how to model this.
+        TODO: Since this isn't a push, but rather an API return, we need to figure out how to model this.
         """
         pass
 
@@ -29,9 +28,7 @@ class SteamshipWidgetTransport(Transport):
         """Fetches info about this bot."""
         return {}
 
-    def _parse_inbound(
-        self, payload: dict, context: Optional[dict] = None
-    ) -> Optional[ChatMessage]:
+    def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
         """Parses an inbound Steamship widget message."""
 
         message_text = payload.get("question")
@@ -42,6 +39,7 @@ class SteamshipWidgetTransport(Transport):
 
         message_id = str(uuid.uuid4())
 
-        block = ChatMessage(text=message_text, chat_id=str(chat_id), message_id=str(message_id))
-
-        return block
+        result = Block(text=message_text)
+        result.set_chat_id(str(chat_id))
+        result.set_message_id(str(message_id))
+        return result

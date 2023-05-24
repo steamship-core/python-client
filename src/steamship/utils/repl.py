@@ -3,7 +3,7 @@ import contextlib
 import logging
 import uuid
 from abc import ABC
-from typing import List, Optional, Type, cast
+from typing import Any, Dict, List, Optional, Type, cast
 
 from steamship import Block, Steamship, Task
 from steamship.agents.schema import AgentContext, Tool
@@ -45,7 +45,7 @@ class SteamshipREPL(ABC):
         upload_to_signed_url(signed_url, block.raw())
         return read_signed_url
 
-    def print_blocks(self, blocks: List[Block]):
+    def print_blocks(self, blocks: List[Block], metadata: Dict[str, Any]):
         """Print a list of blocks to console."""
         for block in blocks:
             if isinstance(block, dict):
@@ -105,7 +105,7 @@ class ToolREPL(SteamshipREPL):
                 print(f"Task: {output.task_id}")
             else:
                 blocks = cast(List[Block], output)
-                self.print_blocks(blocks)
+                self.print_blocks(blocks, {})
 
     def run(self):
         with self.temporary_workspace() as client:
@@ -115,6 +115,7 @@ class ToolREPL(SteamshipREPL):
 class AgentREPL(SteamshipREPL):
     agent_class: Type[AgentService]
     client = Steamship
+    config = None
 
     def __init__(
         self, agent_class: Type[AgentService], method: str, client: Optional[Steamship] = None

@@ -3,7 +3,6 @@ from typing import Dict, Optional
 
 from steamship import Block
 from steamship.agents.schema import Action, AgentContext, FinishAction, OutputParser, Tool
-from steamship.experimental.transports.chat import ChatMessage
 
 
 class ReACTOutputParser(OutputParser):
@@ -20,9 +19,7 @@ class ReACTOutputParser(OutputParser):
             raise RuntimeError(f"Could not parse LLM output: `{text}`")
 
         if "AI:" in text:
-            return FinishAction(
-                output=[ChatMessage(text=text.split("AI:")[-1].strip())], context=context
-            )
+            return FinishAction(output=[Block(text=text.split("AI:")[-1].strip())], context=context)
 
         regex = r"Action: (.*?)[\n]*Action Input: (.*)"
         match = re.search(regex, text)
