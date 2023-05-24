@@ -128,6 +128,7 @@ class PluginInstance(CamelModel):
         # url: Optional[str] = None, [Not yet implemented]
         append_output_to_file: bool = False,
         output_file_id: Optional[str] = None,
+        make_output_public: Optional[bool] = None,
         options: Optional[dict] = None,
     ) -> Task[GenerateResponse]:
         """See GenerateRequest for description of parameter options"""
@@ -143,6 +144,7 @@ class PluginInstance(CamelModel):
             # url=url,
             append_output_to_file=append_output_to_file,
             output_file_id=output_file_id,
+            make_output_public=make_output_public,
             options=options,
         )
         return self.client.post("plugin/instance/generate", req, expect=GenerateResponse)

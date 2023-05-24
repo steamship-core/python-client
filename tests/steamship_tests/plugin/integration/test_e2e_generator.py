@@ -1,9 +1,11 @@
+import pytest
+import requests
 from assets.plugins.generators.test_generator_returns_bytes import TEST_BYTES_STRING
 from steamship_tests import PLUGINS_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import Block, File, MimeTypes, PluginInstance
+from steamship import Block, File, MimeTypes, PluginInstance, Steamship
 
 
 def test_e2e_generator():
@@ -173,3 +175,46 @@ def test_e2e_generate_returning_bytes():
         assert persisted_block.file_id is not None
         persisted_block_content = persisted_block.raw()
         assert persisted_block_content == TEST_BYTES_STRING.encode("utf-8")
+
+
+@pytest.mark.usefixtures("client")
+def test_generate_block_public_data(client: Steamship):
+    client = get_steamship_client()
+    plugin_instance = PluginInstance.create(client, plugin_handle="test-image-generator")
+    generate_task = plugin_instance.generate(
+        text="This won't be used", append_output_to_file=True, make_output_public=True
+    )
+
+    blocks = generate_task.wait().blocks
+    assert blocks is not None
+    assert blocks[0].public_data
+
+    # Intentionally no API key
+    response = requests.get(blocks[0].raw_data_url)
+
+    assert response.text == "PRETEND THIS IS THE DATA OF AN IMAGE"
+    assert response.headers["content-type"] == MimeTypes.PNG
+
+
+@pytest.mark.usefixtures("client")
+def test_generate_block_private_data(client: Steamship):
+    client = get_steamship_client()
+    plugin_instance = PluginInstance.create(client, plugin_handle="test-image-generator")
+    generate_task = plugin_instance.generate(text="This won't be used", append_output_to_file=True)
+
+    blocks = generate_task.wait().blocks
+    assert blocks is not None
+    assert not blocks[0].public_data
+
+    # Intentionally no API key
+    failed_response = requests.get(blocks[0].raw_data_url)
+    assert not failed_response.ok
+
+    # Should still be able to get with API key
+    response = requests.get(
+        blocks[0].raw_data_url,
+        headers={"Authorization": f"Bearer {client.config.api_key.get_secret_value()}"},
+    )
+
+    assert response.text == "PRETEND THIS IS THE DATA OF AN IMAGE"
+    assert response.headers["content-type"] == MimeTypes.PNG

@@ -118,12 +118,17 @@ class AgentREPL(SteamshipREPL):
     config = None
 
     def __init__(
-        self, agent_class: Type[AgentService], method: str, client: Optional[Steamship] = None
+        self,
+        agent_class: Type[AgentService],
+        method: str,
+        agent_package_config: Optional[Dict[str, Any]],
+        client: Optional[Steamship] = None,
     ):
         super().__init__()
         self.agent_class = agent_class
         self.method = method
         self.client = client or Steamship()
+        self.config = agent_package_config
 
     def run_with_client(self, client: Steamship):
         try:
@@ -136,7 +141,7 @@ class AgentREPL(SteamshipREPL):
         print("Starting REPL for Agent...")
         print("If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n")
 
-        agent_service = self.agent_class(client=client)
+        agent_service = self.agent_class(client=client, config=self.config)
 
         while True:
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
