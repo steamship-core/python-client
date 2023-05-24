@@ -29,7 +29,7 @@ class AgentService(PackageService):
                 "Please use synchronous Tasks (Tools that return List[Block] for now."
             )
         else:
-            outputs = ",".join([f"{b.as_llm_input()}" for b in action.output])
+            outputs = ",".join([f"{b.as_llm_input()}" for b in blocks_or_task])
             logging.info(
                 f"Tool {action.tool.name} Completed ({outputs})",
                 extra={
