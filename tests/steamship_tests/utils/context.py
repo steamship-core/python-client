@@ -1,7 +1,7 @@
 import pytest
 
 from steamship import Steamship
-from steamship.agents.context.context import AgentContext
+from steamship.agents.schema import AgentContext
 
 
 @pytest.mark.usefixtures("client")
