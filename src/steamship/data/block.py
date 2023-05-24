@@ -221,6 +221,17 @@ class Block(CamelModel):
             tag_kind=DocTag.CHAT, tag_name=ChatTag.MESSAGE_ID, string_value=message_id
         )
 
+    @property
+    def chat_id(self) -> str:
+        return get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.CHAT_ID
+        )
+
+    def set_chat_id(self, chat_id: str):
+        return self._one_time_set_tag(
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.CHAT_ID, string_value=chat_id
+        )
+
     def _one_time_set_tag(self, tag_kind: str, tag_name: str, string_value: str):
         existing = get_tag_value_key(
             self.tags, TagValueKey.STRING_VALUE, kind=tag_kind, name=tag_name
@@ -251,6 +262,12 @@ class Block(CamelModel):
             )
 
         self.tags.append(tag)
+
+    def as_llm_input(self) -> str:
+        if self.is_text():
+            return self.text
+        else:
+            return f"Block({self.id})"
 
 
 class BlockQueryResponse(Response):

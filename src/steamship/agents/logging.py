@@ -29,7 +29,7 @@ class AgentLogging:
     THOUGHT = "thought"
     OBSERVATION = "observation"
     ACTION = "action"
-    MESSAGE = "emssage"
+    MESSAGE = "message"
 
     MESSAGE_AUTHOR = "message_author"
     USER = "user"

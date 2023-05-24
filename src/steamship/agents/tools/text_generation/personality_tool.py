@@ -24,7 +24,7 @@ class PersonalityTool(TextRewritingTool):
 
     name: str = "PersonalityTool"
     human_description: str = "Rewrites a response with the given personality."
-    ai_description: str = "Used to provide a response with a particular personality. Takes a message as input, and provides a message as output."
+    agent_description: str = "Used to provide a response with a particular personality. Takes a message as input, and provides a message as output."
     personality: str = DEFAULT_PERSONALITY
     rewrite_prompt: str = DEFAULT_PROMPT
 

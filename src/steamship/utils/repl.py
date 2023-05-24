@@ -3,11 +3,11 @@ import contextlib
 import logging
 import uuid
 from abc import ABC
-from typing import List, Optional, Type, cast
+from typing import Any, Dict, List, Optional, Type, cast
 
 from steamship import Block, Steamship, Task
-from steamship.agents.base import AgentContext, BaseTool
 from steamship.agents.logging import AgentLogging
+from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.service.agent_service import AgentService
 from steamship.data.workspace import SignedUrl, Workspace
 from steamship.invocable.dev_logging_handler import DevelopmentLoggingHandler
@@ -55,7 +55,7 @@ class SteamshipREPL(ABC):
         upload_to_signed_url(signed_url, block.raw())
         return read_signed_url
 
-    def print_blocks(self, blocks: List[Block]):
+    def print_blocks(self, blocks: List[Block], metadata: Dict[str, Any]):
         """Print a list of blocks to console."""
         output = None
 
@@ -94,15 +94,15 @@ class SteamshipREPL(ABC):
 
 
 class ToolREPL(SteamshipREPL):
-    tool: BaseTool
+    tool: Tool
     client = Steamship
 
-    def __init__(self, tool: BaseTool, client: Optional[Steamship] = None):
+    def __init__(self, tool: Tool, client: Optional[Steamship] = None):
         super().__init__()
         self.tool = tool
         self.client = client or Steamship()
 
-    def run_with_client(self, client: Workspace):
+    def run_with_client(self, client: Workspace, context: Optional[AgentContext] = None):
         try:
             from termcolor import colored  # noqa: F401
         except ImportError:
@@ -110,7 +110,8 @@ class ToolREPL(SteamshipREPL):
             def colored(message: str, color: str):
                 print(message)
 
-        context = AgentContext()
+        if context is None:
+            context = AgentContext()
         context.client = client
 
         print(f"Starting REPL for Tool {self.tool.name}...")
@@ -125,7 +126,7 @@ class ToolREPL(SteamshipREPL):
                 print(f"Task: {output.task_id}")
             else:
                 blocks = cast(List[Block], output)
-                self.print_blocks(blocks)
+                self.print_blocks(blocks, {})
 
     def run(self):
         with self.temporary_workspace() as client:
@@ -135,10 +136,14 @@ class ToolREPL(SteamshipREPL):
 class AgentREPL(SteamshipREPL):
     agent_class: Type[AgentService]
     client = Steamship
+    config = None
 
-    def __init__(self, agent_class: Type[AgentService], client: Optional[Steamship] = None):
+    def __init__(
+        self, agent_class: Type[AgentService], method: str, client: Optional[Steamship] = None
+    ):
         super().__init__()
         self.agent_class = agent_class
+        self.method = method
         self.client = client or Steamship()
 
     def run_with_client(self, client: Steamship):
@@ -146,44 +151,19 @@ class AgentREPL(SteamshipREPL):
             from termcolor import colored  # noqa: F401
         except ImportError:
 
-            def colored(message: str, color: str):
-                print(message)
-
-        chat_id = uuid.uuid4().hex
+            def colored(text: str, color: str):
+                print(text)
 
         print("Starting REPL for Agent...")
-        print(f"Chat ID: {chat_id}")
         print("If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n")
 
-        agent = self.agent_class(client=client)
+        agent_service = self.agent_class(client=client)
 
         while True:
-            input_text = input(colored("Input: ", "blue"))  # noqa: F821
-            message_id = uuid.uuid4().hex
-
-            context = AgentContext.get_or_create(
-                client,
-                context_keys={
-                    "chat_id": chat_id
-                    # No message id here; we don't want a new context per message
-                },
-            )
-            message = context.chat_history.append_user_message(
-                text=input_text
-            )  # Should this take a Block, instead of creating a block?
-
-            logging.info(
-                f"{input_text}",
-                extra={
-                    AgentLogging.IS_MESSAGE: True,
-                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.USER,
-                },
-            )
-
-            message.set_message_id(message_id)
-            response: Optional[List[Block]] = agent.create_response(context)
-
-            self.print_blocks(response)
+            input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
+            responder = getattr(agent_service, self.method)
+            response = responder(input_text)
+            print(colored(text=f"{response}", color="green", force_color=True))
 
     def run(self):
         with self.temporary_workspace() as client:

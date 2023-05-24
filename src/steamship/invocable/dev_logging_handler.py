@@ -17,6 +17,7 @@ LOGGING_FORMAT = {
     AgentLogging.IS_MESSAGE: f"%({AgentLogging.IS_MESSAGE})s",  # b doesn't work. Unsure how to make a bool
     AgentLogging.AGENT_NAME: f"%({AgentLogging.AGENT_NAME})s",
     AgentLogging.MESSAGE_AUTHOR: f"%({AgentLogging.MESSAGE_AUTHOR})s",
+    AgentLogging.MESSAGE_TYPE: f"%({AgentLogging.MESSAGE_TYPE})s",
     AgentLogging.TOOL_NAME: f"%({AgentLogging.TOOL_NAME})s",
 }
 
@@ -42,7 +43,9 @@ class DevelopmentLoggingHandler(StreamHandler):
     def _emit_message(self, message_dict: dict):
         author = message_dict.get(AgentLogging.MESSAGE_AUTHOR, "Unknown")
         message = message_dict.get("message", None)
-        print(f"[{author} Message] {message}")
+        message_type = message_dict.get(AgentLogging.MESSAGE_TYPE, AgentLogging.MESSAGE)
+
+        print(f"[{author} {message_type}] {message}")
 
     def emit(self, record):
         """Emit the record, printing it to console out.
@@ -59,7 +62,8 @@ class DevelopmentLoggingHandler(StreamHandler):
         """
         message_dict = cast(dict, self.format(record))
 
-        is_message = message_dict.get(AgentLogging.IS_MESSAGE, None)
+        # It will be returned as a string representation of a bool
+        is_message = message_dict.get(AgentLogging.IS_MESSAGE, None) == "True"
 
         if record.levelno >= self.log_level and not is_message:
             return self._emit_regular(message_dict)

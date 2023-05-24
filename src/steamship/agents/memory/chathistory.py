@@ -21,7 +21,7 @@ class ChatHistory:
 
     @staticmethod
     def _get_existing_file(client: Client, context_keys: Dict[str, str]) -> Optional[File]:
-        """Find an existing File object whose context Tag matches the passed context keys"""
+        """Find an existing File object whose memory Tag matches the passed memory keys"""
         file_query = " and ".join(
             [f'value("{key}") = "{value}"' for key, value in context_keys.items()]
         )
@@ -32,7 +32,7 @@ class ChatHistory:
             return None
         else:
             raise SteamshipError(
-                "Multiple ChatHistory objects have been created in this workspace with these context keys."
+                "Multiple ChatHistory objects have been created in this workspace with these memory keys."
             )
 
     @staticmethod
@@ -47,6 +47,7 @@ class ChatHistory:
         if file is None:
             tags = tags or []
             tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))
+            tags.append(Tag(kind=TagKind.CHAT, name=ChatTag.CONTEXT_KEYS, value=context_keys))
 
             blocks = []
             file = File.create(

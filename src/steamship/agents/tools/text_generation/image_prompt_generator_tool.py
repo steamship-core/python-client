@@ -18,7 +18,7 @@ class ImagePromptGenerator(TextRewritingTool):
 
     name: str = "ImagePromptGenerator"
     human_description: str = "Improves a prompt for use with image generation."
-    ai_description: str = (
+    agent_description: str = (
         "Use this tool to improve a prompt for stable diffusion and other image and video generators. "
         "This tool will refine your prompt to include key words and phrases that make "
         "stable diffusion and other art generation algorithms perform better. The input is a prompt text string "

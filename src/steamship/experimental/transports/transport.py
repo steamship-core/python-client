@@ -1,12 +1,17 @@
 import logging
 import time
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
-from steamship.experimental.transports.chat import ChatMessage
+from steamship import Block, Steamship
+from steamship.agents.schema import AgentContext
+from steamship.agents.tools.audio_transcription.assembly_speech_to_text_tool import (
+    AssemblySpeechToTextTool,
+)
 
 
 class Transport(ABC):
+    client = Steamship
     """Experimental base class to encapsulate a communication channel
 
     Intended use is:
@@ -33,6 +38,9 @@ class Transport(ABC):
 
     """
 
+    def __init__(self, client):
+        self.client = client
+
     def instance_init(self, *args, **kwargs):
         logging.info(f"Transport initializing: {self.__class__.__name__}")
         start = time.time()
@@ -55,30 +63,40 @@ class Transport(ABC):
         end = time.time()
         logging.info(f"Transport deinitialized in {end - start} seconds: {self.__class__.__name__}")
 
-    def send(self, blocks: List[ChatMessage]):
+    def send(self, blocks: List[Block], metadata: Dict[str, Any]):
         if blocks is None or len(blocks) == 0:
             logging.info(f"Skipping send of 0 blocks: {self.__class__.__name__}")
             return
 
         logging.info(f"Sending {len(blocks)} blocks: {self.__class__.__name__}")
         start = time.time()
-        self._send(blocks)
+        self._send(blocks, metadata)
         end = time.time()
         logging.info(
             f"Sending {len(blocks)} blocks in {end - start} seconds: {self.__class__.__name__}"
         )
 
     @abstractmethod
-    def _send(self, blocks: List[ChatMessage]):
+    def _send(self, blocks: List[Block], metadata: Dict[str, Any]):
         raise NotImplementedError
 
-    def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[ChatMessage]:
-        return self._parse_inbound(payload, context)
+    def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
+        message = self._parse_inbound(payload, context)
+
+        if message.url and not message.text:
+            context = AgentContext()
+            context.client = self.client
+            transcriptions = AssemblySpeechToTextTool(
+                blockifier_plugin_config={
+                    "enable_audio_intelligence": False,
+                    "speaker_detection": False,
+                }
+            ).run([Block(text=message.url)], context=context)
+            message.text = transcriptions[0].text
+        return message
 
     @abstractmethod
-    def _parse_inbound(
-        self, payload: dict, context: Optional[dict] = None
-    ) -> Optional[ChatMessage]:
+    def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
         raise NotImplementedError
 
     def info(self) -> dict:
