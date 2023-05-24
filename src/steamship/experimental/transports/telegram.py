@@ -1,11 +1,10 @@
 import logging
 import tempfile
-from typing import Optional
+from typing import Any, Dict, Optional
 
 import requests
 
-from steamship import SteamshipError
-from steamship.experimental.transports.chat import ChatMessage
+from steamship import Block, Steamship, SteamshipError
 from steamship.experimental.transports.transport import Transport
 
 API_BASE = "https://api.telegram.org/bot"
@@ -15,9 +14,12 @@ class TelegramTransport(Transport):
     """Experimental base class to encapsulate a Telegram communication channel."""
 
     api_root: str
+    bot_token: str
 
-    def __init__(self, bot_token: str):
+    def __init__(self, bot_token: str, client: Steamship):
+        super().__init__(client=client)
         self.api_root = f"{API_BASE}{bot_token}"
+        self.bot_token = bot_token
 
     def _instance_init(self, *args, **kwargs):
         if "webhook_url" not in kwargs:
@@ -47,10 +49,10 @@ class TelegramTransport(Transport):
         """Unsubscribe from Telegram updates."""
         requests.get(f"{self.api_root}/deleteWebhook")
 
-    def _send(self, blocks: [ChatMessage]):
+    def _send(self, blocks: [Block], metadata: Dict[str, Any]):
         """Send a response to the Telegram chat."""
         for block in blocks:
-            chat_id = block.get_chat_id()
+            chat_id = block.chat_id
             if block.is_text() or block.text:
                 params = {"chat_id": int(chat_id), "text": block.text}
                 requests.get(f"{self.api_root}/sendMessage", params=params)
@@ -89,9 +91,22 @@ class TelegramTransport(Transport):
         logging.info(f"/info: {resp}")
         return {"telegram": resp.get("result")}
 
-    def _parse_inbound(
-        self, payload: dict, context: Optional[dict] = None
-    ) -> Optional[ChatMessage]:
+    def _get_file(self, file_id: str) -> Dict[str, Any]:
+        return requests.get(f"{self.api_root}/getFile", params={"file_id": file_id}).json()[
+            "result"
+        ]
+
+    def _get_file_url(self, file_id: str) -> str:
+        return f"https://api.telegram.org/file/bot{self.bot_token}/{self._get_file(file_id)['file_path']}"
+
+    def _download_file(self, file_id: str):
+        result = requests.get(self._get_file_url(file_id))
+        if result.status_code != 200:
+            raise Exception("Download file", result)
+
+        return result.content
+
+    def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
         """Parses an inbound Telegram message."""
 
         chat = payload.get("chat")
@@ -116,10 +131,23 @@ class TelegramTransport(Transport):
                 f"Bad 'message_id' found in Telegram message: ({message_id}). Should have been an int"
             )
 
+        if "voice" in payload:
+            file_id = payload.get("voice").get("file_id")
+            voice_file_url = self._get_file_url(file_id)
+            return Block(
+                text=payload.get("text"),
+                url=voice_file_url,
+                chat_id=str(chat_id),
+                message_id=str(message_id),
+            )
+
         # Some incoming messages (like the group join message) don't have message text.
-        # Rather than throw an error, we just don't return a ChatMessage.
+        # Rather than throw an error, we just don't return a Block.
         message_text = payload.get("text")
         if message_text is not None:
-            return ChatMessage(text=message_text, chat_id=str(chat_id), message_id=str(message_id))
+            result = Block(text=message_text)
+            result.set_chat_id(str(chat_id))
+            result.set_message_id(str(message_id))
+            return result
         else:
             return None
