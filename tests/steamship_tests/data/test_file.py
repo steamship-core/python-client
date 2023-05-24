@@ -351,3 +351,34 @@ def test_append_with_tag(client: Steamship):
     assert file.blocks[1].text == "second"
     assert len(file.blocks[1].tags) == 1
     assert file.blocks[1].tags[0].kind == TagKind.DOCUMENT
+
+
+@pytest.mark.usefixtures("client")
+def test_file_public_data(client: Steamship):
+    file = File.create(client, content=bytes("This is a test", "utf-8"), public_data=True)
+    assert file.public_data
+
+    # Intentionally no API key
+    response = requests.get(file.raw_data_url)
+
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
+
+
+@pytest.mark.usefixtures("client")
+def test_append_block_private_data(client: Steamship):
+    file = File.create(client, content=bytes("This is a test", "utf-8"))
+    assert not file.public_data
+
+    # Intentionally no API key
+    failed_response = requests.get(file.raw_data_url)
+    assert not failed_response.ok
+
+    # Should still be able to get with API key
+    response = requests.get(
+        file.raw_data_url,
+        headers={"Authorization": f"Bearer {client.config.api_key.get_secret_value()}"},
+    )
+
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
