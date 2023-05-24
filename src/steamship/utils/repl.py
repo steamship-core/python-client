@@ -6,9 +6,11 @@ from abc import ABC
 from typing import Any, Dict, List, Optional, Type, cast
 
 from steamship import Block, Steamship, Task
+from steamship.agents.logging import AgentLogging
 from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.service.agent_service import AgentService
 from steamship.data.workspace import SignedUrl, Workspace
+from steamship.invocable.dev_logging_handler import DevelopmentLoggingHandler
 from steamship.utils.signed_urls import upload_to_signed_url
 
 
@@ -16,6 +18,14 @@ class SteamshipREPL(ABC):
     """Base class for building REPLs that facilitate running Steamship code in the IDE."""
 
     client: Steamship
+    dev_logging_handler: DevelopmentLoggingHandler
+
+    def __init__(self, log_level=None):
+        logger = logging.getLogger()
+        logger.handlers.clear()
+        logger.setLevel(log_level or logging.DEBUG)
+        dev_logging_handler = DevelopmentLoggingHandler()
+        logger.addHandler(dev_logging_handler)
 
     def _make_public_url(self, block):
         filepath = str(uuid.uuid4())
@@ -47,18 +57,29 @@ class SteamshipREPL(ABC):
 
     def print_blocks(self, blocks: List[Block], metadata: Dict[str, Any]):
         """Print a list of blocks to console."""
+        output = None
+
         for block in blocks:
             if isinstance(block, dict):
                 block = Block.parse_obj(block)
             if block.is_text():
-                print(block.text)
+                output = block.text
             elif block.url:
-                print(block.url)
+                output = block.url
             elif block.content_url:
-                print(block.content_url)
+                output = block.content_url
             else:
                 url = self._make_public_url(block)
-                print(url)
+                output = url
+
+        if output:
+            logging.info(
+                f"{output}",
+                extra={
+                    AgentLogging.IS_MESSAGE: True,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+                },
+            )
 
     @contextlib.contextmanager
     def temporary_workspace(self) -> Steamship:
@@ -145,8 +166,9 @@ class AgentREPL(SteamshipREPL):
 
         while True:
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
-            fn = getattr(agent_service, self.method)
-            print(colored(text=f"{fn(input_text)}", color="green", force_color=True))
+            responder = getattr(agent_service, self.method)
+            response = responder(input_text)
+            print(colored(text=f"{response}", color="green", force_color=True))
 
     def run(self):
         with self.temporary_workspace() as client:
