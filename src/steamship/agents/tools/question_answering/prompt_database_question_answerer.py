@@ -15,7 +15,7 @@ DEFAULT_FACTS = [
 ]
 
 DEFAULT_QUESTION_ANSWERING_PROMPT = (
-    "Use the following pieces of context to answer the question at the end. "
+    "Use the following pieces of memory to answer the question at the end. "
     """If you don't know the answer, just say that you don't know, don't try to make up an answer.
 
 {source_text}
@@ -45,7 +45,7 @@ class PromptDatabaseQATool(TextRewritingTool):
 
     name = "PromptDatabaseQATool"
     human_description = "Answers questions about the number of subway stations in US cities."
-    ai_description = "Used to answer questions about the number of subway stations in US cities. The input is the question about subway stations. The output is the answer as a sentence."
+    agent_description = "Used to answer questions about the number of subway stations in US cities. The input is the question about subway stations. The output is the answer as a sentence."
     question_answering_prompt: Optional[str] = DEFAULT_QUESTION_ANSWERING_PROMPT
     facts: List[str] = DEFAULT_FACTS
 

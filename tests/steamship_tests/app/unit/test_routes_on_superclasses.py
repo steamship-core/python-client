@@ -3,6 +3,9 @@
 This tests a fix (in the same PR) to a behavior in which each new Subclass of Invocable would register its route
 table afresh, overwriting whatever routes were registered by an ancestor.
 """
+import pytest
+
+from steamship import Steamship
 from steamship.experimental.package_starters.telegram_agent import TelegramAgentService
 from steamship.invocable import Invocable, InvocableRequest, Invocation, post
 from steamship.utils.url import Verb
@@ -148,8 +151,9 @@ def test_l32_routes():
     assert invoke(l32, "baz") == "l32_baz"
 
 
-def test_telegram_agent():
-    a = MyAgentService(config={"botToken": "foo"})
+@pytest.mark.usefixtures("client")
+def test_telegram_agent(client: Steamship):
+    a = MyAgentService(client=client, config={"botToken": "foo"})
     assert a._method_mappings[Verb.POST]["/answer"] == "answer"
     routes = [m["path"] for m in a.__steamship_dir__()["methods"]]
     assert "/answer" in routes

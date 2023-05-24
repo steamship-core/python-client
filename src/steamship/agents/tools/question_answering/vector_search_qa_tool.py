@@ -2,13 +2,14 @@
 from typing import Any, List, Optional, Union, cast
 
 from steamship import Block, Steamship, Tag, Task
-from steamship.agents.base import AgentContext
-from steamship.agents.tool import Tool
+from steamship.agents.llms import OpenAI
+from steamship.agents.schema import AgentContext, Tool
+from steamship.agents.utils import get_llm, with_llm
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
 from steamship.utils.repl import ToolREPL
 
 DEFAULT_QUESTION_ANSWERING_PROMPT = (
-    "Use the following pieces of context to answer the question at the end. "
+    "Use the following pieces of memory to answer the question at the end. "
     """If you don't know the answer, just say that you don't know, don't try to make up an answer.
 
 {source_text}
@@ -27,7 +28,7 @@ class VectorSearchQATool(Tool):
 
     name: str = "VectorSearchQATool"
     human_description: str = "Answers questions with help from a Vector Database."
-    ai_description: str = (
+    agent_description: str = (
         "Used to answer questions. ",
         "The input should be a plain text question. ",
         "The output is a plain text answer",
@@ -72,9 +73,7 @@ class VectorSearchQATool(Tool):
             **{"source_text": "\n".join(source_texts), "question": question}
         )
 
-        answer_task = context.get_llm().generate(text=final_prompt)
-        answer_task.wait()
-        return answer_task.output.blocks
+        return get_llm(context).complete(prompt=final_prompt)
 
     def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
         """Answers questions with the assistance of an Embedding Index plugin.
@@ -83,7 +82,7 @@ class VectorSearchQATool(Tool):
         ------
         input: List[Block]
             A list of blocks to be rewritten if text-containing.
-        context: AgentContext
+        memory: AgentContext
             The active AgentContext.
 
         Output
@@ -108,4 +107,6 @@ if __name__ == "__main__":
     with repl.temporary_workspace() as client:
         index = tool.get_embedding_index(client)
         index.insert([Tag(text="Ted loves apple pie."), Tag(text="The secret passcode is 1234.")])
-        repl.run_with_client(client)
+        repl.run_with_client(
+            client, context=with_llm(context=AgentContext(), llm=OpenAI(client=client))
+        )

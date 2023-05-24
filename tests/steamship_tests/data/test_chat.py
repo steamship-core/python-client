@@ -3,7 +3,7 @@ import uuid
 import pytest
 
 from steamship import DocTag
-from steamship.agents.context.chathistory import ChatHistory
+from steamship.agents.memory import ChatHistory
 from steamship.client import Steamship
 from steamship.data import TagKind
 from steamship.data.tags.tag_constants import ChatTag, RoleTag, TagValueKey
