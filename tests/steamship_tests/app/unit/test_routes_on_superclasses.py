@@ -6,6 +6,8 @@ table afresh, overwriting whatever routes were registered by an ancestor.
 import pytest
 
 from steamship import Steamship
+from steamship.agents.llms import OpenAI
+from steamship.agents.react import ReACTAgent
 from steamship.experimental.package_starters.telegram_agent import TelegramAgentService
 from steamship.invocable import Invocable, InvocableRequest, Invocation, post
 from steamship.utils.url import Verb
@@ -153,7 +155,11 @@ def test_l32_routes():
 
 @pytest.mark.usefixtures("client")
 def test_telegram_agent(client: Steamship):
-    a = MyAgentService(client=client, config={"botToken": "foo"})
+    a = MyAgentService(
+        client=client,
+        config={"botToken": "foo"},
+        incoming_message_agent=ReACTAgent(tools=[], llm=OpenAI(client=client)),
+    )
     assert a._method_mappings[Verb.POST]["/answer"] == "answer"
     routes = [m["path"] for m in a.__steamship_dir__()["methods"]]
     assert "/answer" in routes
