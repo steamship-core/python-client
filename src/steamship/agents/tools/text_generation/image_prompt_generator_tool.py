@@ -11,7 +11,7 @@ Passage:
 Image Generation Prompt:"""
 
 
-class ImagePromptGenerator(TextRewritingTool):
+class ImagePromptGeneratorTool(TextRewritingTool):
     """
     Example tool to illustrate rewriting an input query to become a better prompt.
     """
@@ -28,4 +28,4 @@ class ImagePromptGenerator(TextRewritingTool):
 
 
 if __name__ == "__main__":
-    ToolREPL(ImagePromptGenerator()).run()
+    ToolREPL(ImagePromptGeneratorTool()).run()

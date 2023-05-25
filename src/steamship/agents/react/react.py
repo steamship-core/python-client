@@ -24,24 +24,31 @@ Action Input: the input to the action
 Observation: the result of the action
 ```
 
+
 If you decide that you should use a Tool, you must generate the associated Action and Action Input.
 
-Some tools will return Observations in the format of `Block(string)`. This will represent a successful completion
+Some tools will return Observations in the format of `Block(<identifier>)`. This will represent a successful completion
 of that step and can be passed to subsequent tools, or returned to a user to answer their questions.
 
-If you have generated an image using a Tool in response to a user request and wish to return it to the user, please
-tell the user directly where to find the image. To do so, you MUST use the format:
+When you have a final response to say to the Human, or if you do not need to use a tool, you MUST use the format:
 
 ```
 Thought: Do I need to use a tool? No
-AI: Image available via: Block(<identifier>).
+AI: [your final response here]
 ```
 
-When you have a response to say to the Human, or if you do not need to use a tool, you MUST use the format:
+If a Tool generated an Observation that includes `Block(<identifier>)` and you wish to return it to the user, ALWAYS
+end your response with the `Block(<identifier>)` observation. To do so, you MUST use the format:
+
 ```
 Thought: Do I need to use a tool? No
-AI: [your response here]
+AI: [your response with a suffix of: "Block(<identifier>)"].
 ```
+
+Make sure to use all observations to come up with your final response.
+You MUST include `Block(<identifier>)` segments in responses that generate images or audio.
+DO NOT include `Block(<identifier>)` segments in responses that do not have generated images or audio.
+
 Begin!
 
 New input: {input}
