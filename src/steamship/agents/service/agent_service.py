@@ -34,9 +34,7 @@ class AgentService(PackageService):
                 f"Tool {action.tool.name} Completed ({outputs})",
                 extra={
                     AgentLogging.TOOL_NAME: action.tool.name,
-                    AgentLogging.IS_MESSAGE: True,
-                    AgentLogging.MESSAGE_TYPE: AgentLogging.ACTION,
-                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+                    AgentLogging.OBSERVATION: True,
                 },
             )
             action.output = blocks_or_task

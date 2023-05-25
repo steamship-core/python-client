@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Dict, List, Optional
 
@@ -26,6 +27,7 @@ class ReACTOutputParser(OutputParser):
         regex = r"Action: (.*?)[\n]*Action Input: (.*)"
         match = re.search(regex, text)
         if not match:
+            logging.warning(f"Bad agent response ({text}). Returning results directly to the user.")
             # TODO: should this be the case?  If we are off-base should we just return what we have?
             return FinishAction(
                 output=ReACTOutputParser._blocks_from_text(context.client, text), context=context
@@ -56,7 +58,7 @@ class ReACTOutputParser(OutputParser):
                 )
                 if len(pre_block_text) > 0:
                     result_blocks.append(Block(text=pre_block_text))
-                # result_blocks.append(Block.get(client, _id=match.group(1)))
+                result_blocks.append(Block.get(client, _id=match.group(1)))
                 remaining_text = ReACTOutputParser._remove_block_suffix(
                     remaining_text[match.end() :]
                 )
