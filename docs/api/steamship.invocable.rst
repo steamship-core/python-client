@@ -12,6 +12,14 @@ steamship.invocable.config module
    :undoc-members:
    :show-inheritance:
 
+steamship.invocable.dev\_logging\_handler module
+------------------------------------------------
+
+.. automodule:: steamship.invocable.dev_logging_handler
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.invocable.entrypoint module
 -------------------------------------
 
@@ -24,6 +32,14 @@ steamship.invocable.invocable module
 ------------------------------------
 
 .. automodule:: steamship.invocable.invocable
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+steamship.invocable.invocable\_localhost module
+-----------------------------------------------
+
+.. automodule:: steamship.invocable.invocable_localhost
    :members:
    :undoc-members:
    :show-inheritance:

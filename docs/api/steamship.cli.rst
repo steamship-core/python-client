@@ -1,6 +1,14 @@
 steamship.cli package
 =====================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   steamship.cli.local_server
+
 Submodules
 ----------
 
@@ -8,6 +16,14 @@ steamship.cli.cli module
 ------------------------
 
 .. automodule:: steamship.cli.cli
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+steamship.cli.create\_instance module
+-------------------------------------
+
+.. automodule:: steamship.cli.create_instance
    :members:
    :undoc-members:
    :show-inheritance:
@@ -48,6 +64,14 @@ steamship.cli.ship\_spinner module
 ----------------------------------
 
 .. automodule:: steamship.cli.ship_spinner
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+steamship.cli.utils module
+--------------------------
+
+.. automodule:: steamship.cli.utils
    :members:
    :undoc-members:
    :show-inheritance:

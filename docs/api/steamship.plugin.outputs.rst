@@ -28,6 +28,14 @@ steamship.plugin.outputs.model\_checkpoint module
    :undoc-members:
    :show-inheritance:
 
+steamship.plugin.outputs.plugin\_output module
+----------------------------------------------
+
+.. automodule:: steamship.plugin.outputs.plugin_output
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.plugin.outputs.raw\_block\_and\_tag\_plugin\_output module
 --------------------------------------------------------------------
 
