@@ -31,11 +31,12 @@ class AgentService(PackageService):
         else:
             outputs = ",".join([f"{b.as_llm_input()}" for b in blocks_or_task])
             logging.info(
-                f"Tool {action.tool.name} Completed ({outputs})",
+                f"Tool {action.tool.name}: ({outputs})",
                 extra={
                     AgentLogging.TOOL_NAME: action.tool.name,
                     AgentLogging.IS_MESSAGE: True,
                     AgentLogging.MESSAGE_TYPE: AgentLogging.OBSERVATION,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
                 },
             )
             action.output = blocks_or_task

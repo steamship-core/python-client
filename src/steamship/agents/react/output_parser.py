@@ -34,9 +34,11 @@ class ReACTOutputParser(OutputParser):
             )
         action = match.group(1)
         action_input = match.group(2).strip()
-        tool = self.tools_lookup_dict[action.strip()]
+        tool = self.tools_lookup_dict.get(action.strip(), None)
         if tool is None:
-            raise RuntimeError(f"Could not find tool from action: `{action}`")
+            raise RuntimeError(
+                f"Could not find tool from action: `{action}`. Known tools: {self.tools_lookup_dict.keys()}"
+            )
         return Action(
             tool=tool,
             input=[Block(text=action_input)],
@@ -83,9 +85,3 @@ class ReACTOutputParser(OutputParser):
         if removed.startswith(")") or removed.endswith("]"):
             removed = removed[1:]
         return removed
-
-
-if __name__ == "__main__":
-    with Steamship.temporary_workspace() as client:
-        text = "Hey there, why do you want a cartoon of a dog playing bingo? Is it because you're not good at the game and think the dog might have better luck? 😜 Block(C45A80DD-88F6-460D-8051-3769B60ABF0B)"
-        print(ReACTOutputParser._blocks_from_text(client, text))
