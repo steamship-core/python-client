@@ -1,7 +1,7 @@
 import re
-from typing import Dict, Optional
+from typing import Dict, List, Optional
 
-from steamship import Block
+from steamship import Block, Steamship
 from steamship.agents.schema import Action, AgentContext, FinishAction, OutputParser, Tool
 
 
@@ -19,7 +19,9 @@ class ReACTOutputParser(OutputParser):
             raise RuntimeError(f"Could not parse LLM output: `{text}`")
 
         if "AI:" in text:
-            return FinishAction(output=[Block(text=text.split("AI:")[-1].strip())], context=context)
+            return FinishAction(
+                output=ReACTOutputParser._blocks_from_text(context.client, text), context=context
+            )
 
         regex = r"Action: (.*?)[\n]*Action Input: (.*)"
         match = re.search(regex, text)
@@ -35,3 +37,22 @@ class ReACTOutputParser(OutputParser):
             input=[Block(text=action_input)],
             context=context,
         )
+
+    @staticmethod
+    def _blocks_from_text(client: Steamship, text: str) -> List[Block]:
+        last_response = text.split("AI:")[-1].strip()
+
+        block_id_regex = r"(?:\[Block)?\(?([A-F0-9]{8}\-[A-F0-9]{4}\-[A-F0-9]{4}\-[A-F0-9]{4}\-[A-F0-9]{12})\)?\]?"
+        remaining_text = last_response
+        result_blocks: List[Block] = []
+        while remaining_text is not None and len(remaining_text) > 0:
+            match = re.search(block_id_regex, remaining_text)
+            if match:
+                result_blocks.append(Block(text=remaining_text[0 : match.start()]))
+                result_blocks.append(Block.get(client, _id=match.group(1)))
+                remaining_text = remaining_text[match.end() :]
+            else:
+                result_blocks.append(Block(text=remaining_text))
+                remaining_text = ""
+
+        return result_blocks
