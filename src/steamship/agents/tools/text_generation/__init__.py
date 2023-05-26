@@ -1,9 +1,9 @@
-from .csv_row_generator_tool import CsvRowGeneratorTool
 from .image_prompt_generator_tool import ImagePromptGeneratorTool
 from .personality_tool import PersonalityTool
 from .summarize_text_with_prompt_tool import SummarizeTextWithPromptTool
 from .text_rewrite_tool import TextRewritingTool
 from .text_translation_tool import TextTranslationTool
+from .tsv_row_generator_tool import TsvRowGeneratorTool
 
 __all__ = [
     "ImagePromptGeneratorTool",
@@ -11,5 +11,5 @@ __all__ = [
     "SummarizeTextWithPromptTool",
     "TextRewritingTool",
     "TextTranslationTool",
-    "CsvRowGeneratorTool",
+    "TsvRowGeneratorTool",
 ]

@@ -30,7 +30,7 @@ DEFAULT_EXAMPLE_ROWS = [
 ]
 
 
-class CsvRowGeneratorTool(Tool):
+class TsvRowGeneratorTool(Tool):
     """
     Example tool to illustrate generating a new "row" in a provided tab-separated TSV file -- i.e. several properties of a single item.
 
@@ -45,8 +45,8 @@ class CsvRowGeneratorTool(Tool):
     header_fields: List[str] = DEFAULT_HEADER_FIELDS
     example_rows: List[List[str]] = DEFAULT_EXAMPLE_ROWS
 
-    name: str = "CsvRowTool"
-    human_description: str = "Generates a new row of a CSV file."
+    name: str = "TsvRowTool"
+    human_description: str = "Generates a new row of a TSV file."
     agent_description: str = "(set at initialization time)"
 
     def __init__(self, *args, **kwargs):
@@ -91,6 +91,6 @@ class CsvRowGeneratorTool(Tool):
 
 if __name__ == "__main__":
     with Steamship.temporary_workspace() as client:
-        ToolREPL(CsvRowGeneratorTool()).run_with_client(
+        ToolREPL(TsvRowGeneratorTool()).run_with_client(
             client=client, context=with_llm(llm=OpenAI(client=client))
         )
