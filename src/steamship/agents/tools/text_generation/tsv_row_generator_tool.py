@@ -15,7 +15,7 @@ EXISTING TABLE:
 {example_rows}
 
 NEW ROW:
-
+{new_row_prefix_fields}
 """
 
 DEFAULT_TABLE_DESCRIPTION = "employees of a company"
@@ -28,6 +28,7 @@ DEFAULT_EXAMPLE_ROWS = [
     ["Roberta", 35, "Female"],
     ["Sofia", 30, "Female"],
 ]
+DEFAULT_NEW_ROW_PREFIX_FIELDS = []
 
 
 class TsvRowGeneratorTool(Tool):
@@ -44,6 +45,7 @@ class TsvRowGeneratorTool(Tool):
     table_description: str = DEFAULT_TABLE_DESCRIPTION
     header_fields: List[str] = DEFAULT_HEADER_FIELDS
     example_rows: List[List[str]] = DEFAULT_EXAMPLE_ROWS
+    new_row_prefix_fields: List[str] = DEFAULT_NEW_ROW_PREFIX_FIELDS
 
     name: str = "TsvRowTool"
     human_description: str = "Generates a new row of a TSV file."
@@ -77,11 +79,13 @@ class TsvRowGeneratorTool(Tool):
         random.shuffle(self.example_rows)
         tsv_rows = ["\t".join([str(field) for field in row]) for row in self.example_rows]
         tsv_block = "\n".join(tsv_rows)
+        new_row_prefix = "\n".join(self.new_row_prefix_fields)
 
         prompt = self.rewrite_prompt.format(
             table_description=self.table_description,
             header_fields="\t".join(self.header_fields),
             example_rows=tsv_block,
+            new_row_prefix_fields=new_row_prefix,
         )
 
         llm = get_llm(context)
