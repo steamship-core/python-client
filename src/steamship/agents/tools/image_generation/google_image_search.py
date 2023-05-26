@@ -4,7 +4,7 @@ from steamship.utils.repl import ToolREPL
 
 
 class GoogleImageSearchTool(ImageGeneratorTool):
-    """Tool to generate images from text."""
+    """Tool to generate images from text by using Google Image Search."""
 
     name: str = "GoogleImageSearchTool"
     human_description: str = "Fetches an image from Google Image Search."

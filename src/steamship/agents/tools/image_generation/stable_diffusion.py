@@ -4,7 +4,7 @@ from steamship.utils.repl import ToolREPL
 
 
 class StableDiffusionTool(ImageGeneratorTool):
-    """Tool to generate images from text."""
+    """Tool to generate images from text using StableDiffusion."""
 
     name: str = "StableDiffusionTool"
     human_description: str = "Generates an image from text."
