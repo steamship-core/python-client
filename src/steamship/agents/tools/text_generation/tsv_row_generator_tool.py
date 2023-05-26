@@ -84,7 +84,6 @@ class TsvRowGeneratorTool(Tool):
             example_rows=tsv_block,
         )
 
-        print(prompt)
         llm = get_llm(context)
         return llm.complete(prompt, stop="\n")
 
