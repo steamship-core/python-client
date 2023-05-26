@@ -79,7 +79,9 @@ class TsvRowGeneratorTool(Tool):
         random.shuffle(self.example_rows)
         tsv_rows = ["\t".join([str(field) for field in row]) for row in self.example_rows]
         tsv_block = "\n".join(tsv_rows)
-        new_row_prefix = "\n".join(self.new_row_prefix_fields)
+        new_row_prefix = "\t".join(self.new_row_prefix_fields)
+        if len(new_row_prefix) > 0:
+            new_row_prefix = f"{new_row_prefix}\t"
 
         prompt = self.rewrite_prompt.format(
             table_description=self.table_description,
