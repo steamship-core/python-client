@@ -9,6 +9,7 @@ from steamship.utils.repl import ToolREPL
 
 DEFAULT_PROMPT = """INSTRUCTIONS:
 Generate a new row for the TSV table describing {table_description}.
+Always return a value for every field in the table.
 
 EXISTING TABLE:
 {header_fields}
