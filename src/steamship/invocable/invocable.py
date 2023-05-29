@@ -220,24 +220,6 @@ class Invocable(ABC):
         cls._package_spec.add_method(method_spec)
         return method_spec
 
-    # def _register_instance_mapping(
-    #     self,
-    #     name: str,
-    #     verb: Optional[Verb] = None,
-    #     path: str = "",
-    #     config: Dict[str, Union[int, float, bool, str]] = None,
-    # ) -> MethodSpec:
-    #     """Register a mapping that permits a method to be invoked via HTTP.
-    #
-    #     This is the instance-level version of the registry.
-    #     """
-    #     method_spec = MethodSpec.from_class(cls, name, path=path, verb=verb, config=config)
-    #     # It's important to use method_spec.path below since that's the CLEANED path.
-    #     cls._method_mappings[verb][method_spec.path] = name
-    #     logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
-    #     return method_spec
-    # ):
-
     def _get_method_spec(self, verb: Verb, path: str) -> Optional[MethodSpec]:
         """Return the MethodSpec matching an HTTP route and path."""
         logging.info(f"REQUEST [{verb}] {path}")
