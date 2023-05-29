@@ -1,8 +1,11 @@
 """Objects for recording and reporting upon the introspected interface of a Steamship Package."""
 import inspect
+import logging
 from copy import deepcopy
 from enum import Enum
-from typing import Dict, List, Optional, Union, get_args, get_origin
+from typing import Any, Callable, Dict, List, Optional, Union, get_args, get_origin
+
+from pydantic import Field
 
 import steamship
 from steamship import SteamshipError
@@ -69,6 +72,18 @@ class MethodSpec(CamelModel):
     #       But if Pydantic sees that, it attempts to force all values to be str, which is wrong.
     config: Optional[Dict] = None
 
+    # Bindings
+    # ------------------------
+    # We support two different kinds of bindings since most of our routes are bound by class decorators before
+    # the instance object is available. The `func_name_binding` stores a method name to be resolved against some
+    # invocable object at apply-time. The `func_binding` stores an actual callable
+
+    # A bound function name to call, provided an object
+    func_name_binding: Optional[str] = Field(None, exclude=True, repr=False)
+
+    # A bound function to call; permits something other than the PackageService itself to be called.
+    func_binding: Optional[Callable[..., Any]] = Field(None, exclude=True, repr=False)
+
     @staticmethod
     def clean_path(path: str = "") -> str:
         """Ensure that the path always starts with /, and at minimum must be at least /."""
@@ -85,6 +100,8 @@ class MethodSpec(CamelModel):
         path: str = None,
         verb: Verb = Verb.POST,
         config: Dict[str, Union[str, bool, int, float]] = None,
+        func_name_binding: Optional[str] = None,
+        func_binding: Optional[Callable[..., Any]] = None,
     ):
         # Set the path
         if path is None and name is not None:
@@ -108,7 +125,16 @@ class MethodSpec(CamelModel):
                 continue
             args.append(ArgSpec(p, sig.parameters[p]))
 
-        return MethodSpec(path=path, verb=verb, returns=returns, doc=doc, args=args, config=config)
+        return MethodSpec(
+            path=path,
+            verb=verb,
+            returns=returns,
+            doc=doc,
+            args=args,
+            config=config,
+            func_name_binding=func_name_binding,
+            func_binding=func_binding,
+        )
 
     def clone(self) -> "MethodSpec":
         return MethodSpec(
@@ -118,6 +144,8 @@ class MethodSpec(CamelModel):
             doc=deepcopy(self.doc),
             args=deepcopy(self.args),
             config=deepcopy(self.config),
+            func_name_binding=self.func_name_binding,
+            func_binding=self.func_binding,
         )
 
     def pprint(self, name_width: Optional[int] = None, prefix: str = "  ") -> str:
@@ -136,6 +164,24 @@ class MethodSpec(CamelModel):
         """Two methods are the same route if they share a path and verb."""
         return self.path == other.path and self.verb == other.verb
 
+    def get_bound_function(self, service_instance: Optional[Any]) -> Optional[Callable[..., Any]]:
+        """Get the bound method described by this spec.
+
+        The `func_binding`, if exists, gets precedence. Else the `func_name_binding` is resolved against
+        the provided service_instance."""
+        if self.func_binding:
+            return self.func_binding
+
+        if (
+            self.func_name_binding
+            and service_instance
+            and hasattr(service_instance, self.func_name_binding)
+            and callable(getattr(service_instance, self.func_name_binding))
+        ):
+            return getattr(service_instance, self.func_name_binding)
+
+        return None
+
 
 class PackageSpec(CamelModel):
     """A package, representing a remotely instantiable service."""
@@ -151,6 +197,9 @@ class PackageSpec(CamelModel):
 
     # The list of methods the package exposes remotely
     methods: Optional[List[MethodSpec]] = None
+
+    # Quick O(1) lookup into VERB+NAME
+    method_mappings: Dict[str, Dict[str, MethodSpec]] = Field(None, exclude=True, repr=False)
 
     def pprint(self, prefix: str = "  ") -> str:
         """Returns a pretty printable representation of this package."""
@@ -172,14 +221,48 @@ class PackageSpec(CamelModel):
         if not parent:
             return
         for method in parent.methods:
-            self.methods.append(method.clone())
+            self.add_method(method.clone())
 
     def add_method(self, new_method: MethodSpec):
         """Add a method to the MethodSpec, overwriting the existing if it exists."""
+        # Register the O(1) lookup
+        if not self.method_mappings:
+            self.method_mappings = {}
+
+        if new_method.verb not in self.method_mappings:
+            self.method_mappings[new_method.verb] = {}
+
+        self.method_mappings[new_method.verb][new_method.path] = new_method
+
+        # Replace or add to the list
         for i, existing_method in enumerate(self.methods):
             if existing_method.is_same_route_as(new_method):
                 # Replace
                 self.methods[i] = new_method
                 return
-        # Append
+
+        # Append to the list of methods
         self.methods.append(new_method)
+
+    def get_method(self, http_verb: str, http_path: str) -> Optional[MethodSpec]:
+        """Matches the provided HTTP Verb and Path to registered methods.
+
+        This is intended to be the single place where a provided (VERB, PATH) is mapped to a MethodSpec, such
+        that if we eventually support path variables (/posts/:id/raw), it can be done within this function.
+        """
+        verb = Verb(http_verb.strip().upper())
+        path = MethodSpec.clean_path(http_path)
+
+        if not self.method_mappings:
+            logging.error("match_route: method_mappings is None.")
+            return None
+
+        if verb not in self.method_mappings:
+            logging.error(f"match_route: Verb '{verb}' not found in method_mappings.")
+            return None
+
+        if path not in self.method_mappings[verb]:
+            logging.error(f"match_route: Path '{path}' not found in method_mappings[{verb}].")
+            return None
+
+        return self.method_mappings[verb][path]

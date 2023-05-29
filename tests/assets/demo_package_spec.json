@@ -4,6 +4,22 @@
   "doc": null,
   "methods": [
     {
+      "args": [],
+      "config": null,
+      "doc": "Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation.",
+      "path": "/__dir__",
+      "returns": "<class 'dict'>",
+      "verb": "GET"
+    },
+    {
+      "args": [],
+      "config": null,
+      "doc": "Return this Invocable's PackageSpec for remote inspection -- e.g. documentation or OpenAPI generation.",
+      "path": "/__dir__",
+      "returns": "<class 'dict'>",
+      "verb": "POST"
+    },
+    {
        "args": [],
        "config": { },
        "doc": null,
