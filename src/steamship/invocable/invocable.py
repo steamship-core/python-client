@@ -220,24 +220,6 @@ class Invocable(ABC):
         cls._package_spec.add_method(method_spec)
         return method_spec
 
-    def _get_method_spec(self, verb: Verb, path: str) -> Optional[MethodSpec]:
-        """Return the MethodSpec matching an HTTP route and path."""
-        logging.info(f"REQUEST [{verb}] {path}")
-
-        method_mappings = self.__class__._method_mappings
-
-        if verb not in method_mappings:
-            logging.error(f"_get_method_spec_for: Verb '{verb}' not found in method_mappings.")
-            return None
-
-        if path not in method_mappings[verb]:
-            logging.error(
-                f"_get_method_spec_for: Path '{path}' not found in method_mappings[{verb}]."
-            )
-            return None
-
-        return method_mappings[verb][path]
-
     def __call__(self, request: InvocableRequest, context: Any = None) -> InvocableResponse:
         """Invokes a method call if it is registered."""
         if request.invocation is None:
