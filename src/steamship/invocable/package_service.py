@@ -53,7 +53,7 @@ class PackageService(Invocable):
     def instance_init(self):
         """The instance init method will be called ONCE by the engine when a new instance of a package or plugin has been created. By default, this calls instance_init on mixins, in order."""
         for mixin in self.mixins:
-            mixin.instance_init()
+            mixin.instance_init(self.config)
 
     def invoke_later(
         self,
