@@ -39,7 +39,10 @@ class SearchTool(Tool):
         for block in tool_input:
             if block.is_text():
                 result = self._do_search(block.text, search_tool)
-                output.append(Block(text=result))
+                if isinstance(result, str):
+                    output.append(Block(text=result))
+                else:
+                    output.append(Block(text=f"{result}"))
         return output
 
     def _do_search(self, query: str, search_tool: PluginInstance) -> str:

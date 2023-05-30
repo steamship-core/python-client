@@ -84,14 +84,6 @@ steamship.base.tasks module
    :undoc-members:
    :show-inheritance:
 
-steamship.base.utils module
----------------------------
-
-.. automodule:: steamship.base.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 Module contents
 ---------------
 

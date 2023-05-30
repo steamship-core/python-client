@@ -18,7 +18,7 @@ class KnockKnockTool(Tool):
     agent_description = "Used to begin telling a Knock Knock joke."
 
     def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
-        return [Block(text="Knock-Knock..")]
+        return [Block(text="Knock-Knock...")]
 
 
 if __name__ == "__main__":

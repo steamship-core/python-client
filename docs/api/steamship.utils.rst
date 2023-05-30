@@ -12,6 +12,14 @@ steamship.utils.binary\_utils module
    :undoc-members:
    :show-inheritance:
 
+steamship.utils.context\_length module
+--------------------------------------
+
+.. automodule:: steamship.utils.context_length
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.utils.huggingface\_helper module
 ------------------------------------------
 
@@ -32,6 +40,14 @@ steamship.utils.metadata module
 -------------------------------
 
 .. automodule:: steamship.utils.metadata
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+steamship.utils.repl module
+---------------------------
+
+.. automodule:: steamship.utils.repl
    :members:
    :undoc-members:
    :show-inheritance:

@@ -9,6 +9,7 @@ Each `Steamship package <https://www.steamship.com/packages>`_ runs in the cloud
 
 Steamship in 30 seconds
 -----------------------
+- :ref:`Build Agents<Building Agents>` which run in the cloud.
 - :ref:`Use Plugins<Using Plugins>` for common operations like generating text with GPT, converting a CSV to text, or generating an image from text. Steamship manages asynchronicity and retries.
 - :ref:`Store data in Files, Blocks, and Tags <Data Model>`. This allows you to :ref:`query <Queries>` or :ref:`search <Embedding Search Index>` it later.
 - :ref:`Deploy as a Package<Developing Packages>`, creating a scalable API for your front end.
@@ -89,6 +90,7 @@ Contents
    :maxdepth: 4
 
    Configuration <configuration/index>
+   Agents <agents/index>
    Packages <packages/index>
    Plugins <plugins/index>
    Data <data/index>

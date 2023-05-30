@@ -9,9 +9,9 @@ EmitFunc = Callable[[List[Block], Metadata], None]
 
 
 class AgentContext:
-    """AgentContext contains all relevant information about a particular execution of an Agent. It used by the
+    """AgentContext contains all relevant information about a particular execution of an Agent. It is used by the
     AgentService to manage execution history as well as store/retrieve information and metadata that will be used
-    in the process of an agetn execution.
+    in the process of an agent execution.
     """
 
     # A steamship-assigned ID for this memory object
@@ -45,8 +45,6 @@ class AgentContext:
         context_keys: Dict[str, str],
         tags: List[Tag] = None,
     ):
-        # TODO: This is problematic, as agent context stores agent history too!
-        # For now, start with no completed steps
         history = ChatHistory.get_or_create(client, context_keys, tags)
         context = AgentContext()
         context.chat_history = history
