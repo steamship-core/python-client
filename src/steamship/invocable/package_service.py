@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import logging
+from functools import partial
 from typing import Any, Dict, List, Optional
 
 from steamship import SteamshipError, Task
+from steamship.base.package_spec import MethodSpec
 from steamship.invocable import Invocable
 
 # Note!
@@ -12,6 +14,7 @@ from steamship.invocable import Invocable
 # This the files in this package are for Package Implementors.
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
+from steamship.invocable.package_mixin import PackageMixin
 from steamship.utils.url import Verb
 
 
@@ -24,6 +27,33 @@ class PackageService(Invocable):
     Package *implementations* are effectively stateless, though they will have stateful
 
     """
+
+    mixins: List[PackageMixin] = []
+
+    def add_mixin(self, mixin: PackageMixin):
+        for attribute in list(mixin.__class__.__dict__.values()):
+            decorator = getattr(attribute, "decorator", None)
+            if decorator:
+                if getattr(decorator, "__is_endpoint__", False):
+                    path = getattr(attribute, "__path__", None)
+                    verb = getattr(attribute, "__verb__", None)
+                    config = getattr(attribute, "__endpoint_config__", {})
+                    func_binding = partial(attribute, self=mixin)
+                    method_spec = MethodSpec.from_class(
+                        mixin.__class__,
+                        attribute.__name__,
+                        path=path,
+                        verb=verb,
+                        config=config,
+                        func_binding=func_binding,
+                    )
+                    self._package_spec.add_method(method_spec)
+        self.mixins.append(mixin)
+
+    def instance_init(self):
+        """The instance init method will be called ONCE by the engine when a new instance of a package or plugin has been created. By default, this calls instance_init on mixins, in order."""
+        for mixin in self.mixins:
+            mixin.instance_init()
 
     def invoke_later(
         self,
