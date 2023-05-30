@@ -4,14 +4,13 @@ import logging
 import pathlib
 import time
 from abc import ABC
-from collections import defaultdict
-from copy import deepcopy
 from functools import wraps
 from http import HTTPStatus
 from typing import Any, Dict, Optional, Type, Union
 
 import toml
 
+from steamship import SteamshipError
 from steamship.base.package_spec import MethodSpec, PackageSpec
 from steamship.client.steamship import Steamship
 from steamship.invocable import Config
@@ -96,7 +95,6 @@ class Invocable(ABC):
       3. Provides useful methods connecting functions to the router.
     """
 
-    _method_mappings = defaultdict(dict)
     _package_spec: PackageSpec
     config: Config
     context: InvocationContext
@@ -107,6 +105,11 @@ class Invocable(ABC):
         config: Dict[str, Any] = None,
         context: InvocationContext = None,
     ):
+        # Create an instance-level clone of the PackageSpec so that any route registrations to not impact other
+        # instance that may exist.
+        if self.__class__._package_spec:
+            self._package_spec = self.__class__._package_spec.clone()
+
         self.context = context
 
         try:
@@ -153,12 +156,6 @@ class Invocable(ABC):
         # The subclass always overrides whatever the superclass set here, having cloned its data.
         cls._package_spec = _package_spec
 
-        if cls._method_mappings:
-            # Make a deep copy so that subclasses don't accidentally modify superclass & sibling instances
-            cls._method_mappings = deepcopy(cls._method_mappings)
-        else:
-            cls._method_mappings = defaultdict(dict)
-
         base_fn_list = [
             may_be_decorated
             for base_cls in cls.__bases__
@@ -171,22 +168,16 @@ class Invocable(ABC):
                     path = getattr(attribute, "__path__", None)
                     verb = getattr(attribute, "__verb__", None)
                     config = getattr(attribute, "__endpoint_config__", {})
-                    method_spec = cls._register_mapping(
+                    cls._register_mapping(
                         name=attribute.__name__, verb=verb, path=path, config=config
                     )
-                    cls._package_spec.add_method(method_spec)
 
         # Add the HTTP GET /__dir__ method which returns a serialization of the PackageSpec.
-        # Wired up to both GET and POST for convenience (since POST is the default from the Python client, but
-        # GET is the default if using from a browser).
+        # Wired up to both GET and POST for convenience (POST is Steamship default; GET is browser friendly)
         cls._register_mapping(name="__steamship_dir__", verb=Verb.GET, path="/__dir__")
         cls._register_mapping(name="__steamship_dir__", verb=Verb.POST, path="/__dir__")
-
-        # Connect the __instance_init__ route to the wrapper method; append it to the method list so it's visible to the engine
-        cls._package_spec.add_method(
-            cls._register_mapping(
-                name="invocable_instance_init", verb=Verb.POST, path="/__instance_init__", config={}
-            )
+        cls._register_mapping(
+            name="invocable_instance_init", verb=Verb.POST, path="/__instance_init__", config={}
         )
         end_time = time.time()
         logging.info(f"Registered package functions in {end_time - start_time} seconds.")
@@ -198,6 +189,16 @@ class Invocable(ABC):
     def invocable_instance_init(self) -> InvocableResponse:
         self.instance_init()
         return InvocableResponse(data=True)
+
+    def add_api_route(self, method_spec: MethodSpec, permit_overwrite_of_existing: bool = False):
+        """Add an API route to this Invocable instance."""
+        if self._package_spec is None:
+            raise SteamshipError(
+                message=f"Unable to add API route {method_spec}. Reason: _package_spec on Invocable was None."
+            )
+        self._package_spec.add_method(
+            method_spec, permit_overwrite_of_existing=permit_overwrite_of_existing
+        )
 
     def instance_init(self):
         """The instance init method will be called ONCE by the engine when a new instance of a package or plugin has been created. By default, this does nothing."""
@@ -228,52 +229,35 @@ class Invocable(ABC):
         path: str = "",
         config: Dict[str, Union[int, float, bool, str]] = None,
     ) -> MethodSpec:
-        """Registering a mapping permits the method to be invoked via HTTP."""
-        method_spec = MethodSpec.from_class(cls, name, path=path, verb=verb, config=config)
-        # It's important to use method_spec.path below since that's the CLEANED path.
-        cls._method_mappings[verb][method_spec.path] = name
-        logging.info(f"[{cls.__name__}] {verb} {path} => {name}")
+        """Register a mapping that permits a method to be invoked via HTTP."""
+        method_spec = MethodSpec.from_class(
+            cls, name, path=path, verb=verb, config=config, func_binding=name
+        )
+        cls._package_spec.add_method(method_spec, permit_overwrite_of_existing=True)
         return method_spec
 
     def __call__(self, request: InvocableRequest, context: Any = None) -> InvocableResponse:
         """Invokes a method call if it is registered."""
-        if not hasattr(self.__class__, "_method_mappings"):
-            logging.error("__call__: No mappings available on invocable.")
-            return InvocableResponse.error(
-                code=HTTPStatus.NOT_FOUND, message="No mappings available for invocable."
-            )
-
         if request.invocation is None:
             logging.error("__call__: No invocation on request.")
             return InvocableResponse.error(
                 code=HTTPStatus.NOT_FOUND, message="No invocation was found."
             )
 
-        verb = Verb(request.invocation.http_verb.strip().upper())
+        verb = request.invocation.http_verb
         path = request.invocation.invocation_path
+        logging.info(f"REQUEST [{verb}] {path}")
 
-        path = MethodSpec.clean_path(path)
-
-        logging.info(f"[{verb}] {path}")
-
-        method_mappings = self.__class__._method_mappings
-
-        if verb not in method_mappings:
-            logging.error(f"__call__: Verb '{verb}' not found in method_mappings.")
-            return InvocableResponse.error(
-                code=HTTPStatus.NOT_FOUND,
-                message=f"No methods for verb {verb} available.",
-            )
-
-        if path not in method_mappings[verb]:
-            logging.error(f"__call__: Path '{path}' not found in method_mappings[{verb}].")
+        method_spec = self._package_spec.get_method(verb, path)
+        if method_spec is None:
             return InvocableResponse.error(
                 code=HTTPStatus.NOT_FOUND,
                 message=f"No handler for {verb} {path} available.",
             )
 
-        method = method_mappings[verb][path]
-        if not (hasattr(self, method) and callable(getattr(self, method))):
+        bound_function = method_spec.get_bound_function(self)
+
+        if not bound_function:
             logging.error(
                 f"__call__: Method not found or not callable for '{path}' in method_mappings[{verb}]."
             )
@@ -284,9 +268,9 @@ class Invocable(ABC):
 
         arguments = request.invocation.arguments
         if arguments is None:
-            return getattr(self, method)()
+            return bound_function()
         else:
-            return getattr(self, method)(**arguments)
+            return bound_function(**arguments)
 
     @classmethod
     def get_config_parameters(cls) -> Dict[str, ConfigParameter]:

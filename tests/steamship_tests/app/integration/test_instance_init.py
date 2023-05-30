@@ -24,13 +24,13 @@ def test_instance_init_is_called_on_package():
 def test_plugin_init_dir():
     plugin = TestGeneratorWithInit()
     dir = plugin.__steamship_dir__()
-    assert len(dir.get("methods", [])) == 2
+    assert len(dir.get("methods", [])) == 4
 
 
 def test_package_init_dir():
     package = PackageWithInstanceInit()
     dir = package.__steamship_dir__()
-    assert len(dir.get("methods", [])) == 2
+    assert len(dir.get("methods", [])) == 4
 
 
 def test_instance_init_is_called_on_plugin():
