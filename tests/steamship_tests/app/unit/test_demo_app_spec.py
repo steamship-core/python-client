@@ -14,7 +14,7 @@ def test_package_spec(invocable_handler: Callable[[str, str, Optional[dict]], di
 
     assert rd.get("doc") is None
     assert rd.get("methods") is not None
-    assert len(rd.get("methods")) == 21
+    assert len(rd.get("methods")) == 23
 
     saw_public = False
 
@@ -32,7 +32,7 @@ def test_package_spec(invocable_handler: Callable[[str, str, Optional[dict]], di
             assert method.get("config") is not None
             assert method.get("config").get("public") is True
         else:
-            assert method.get("config") == {}
+            assert (method.get("config") == {}) or (method.get("config") is None)
 
     assert saw_public
 
@@ -42,7 +42,7 @@ def test_package_spec_fancy_types(invocable_handler: Callable[[str, str, Optiona
     """Test that the handler returns the proper directory information"""
     rd = invocable_handler("GET", "/__dir__", {}).get("data")
 
-    assert len(rd.get("methods")) == 3
+    assert len(rd.get("methods")) == 5
     for method in rd.get("methods"):
         if method.get("path") == "/enum_route":
             values = method.get("args")[0].get("values")
@@ -67,7 +67,7 @@ def test_package_spec_missing_configuration(
 
     assert rd.get("doc") is None
     assert rd.get("methods") is not None
-    assert len(rd.get("methods")) == 5
+    assert len(rd.get("methods")) == 7
 
 
 @pytest.mark.parametrize("invocable_handler", [OptionalParams], indirect=True)
@@ -77,8 +77,16 @@ def test_package_spec_optional_params(
     """Test that the handler returns the proper directory information"""
     rd = invocable_handler("GET", "/__dir__", {}).get("data")
 
-    assert len(rd.get("methods")) == 2
-    method = rd.get("methods")[1]
+    assert len(rd.get("methods")) == 4
+    method = None
+    for a_method in rd.get("methods"):
+        if a_method.get("path") not in ["/__dir__", "/__instance_init__"]:
+            method = a_method
+            break
+
+    assert method is not None
+    assert len(method.get("args")) > 0
+
     values = method.get("args")[0].get("values")
     assert values is not None
     assert len(values) == 2
