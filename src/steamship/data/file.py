@@ -333,6 +333,16 @@ class File(CamelModel):
         self.blocks.append(block)
         return block
 
+    def set_public_data(self, public_data: bool):
+        """Set the public_data flag on this File. If this object already exists server-side, update the flag."""
+        self.public_data = public_data
+        if self.client is not None and self.id is not None:
+            req = {
+                "id": self.id,
+                "publicData": self.public_data,
+            }
+            return self.client.post("file/update", payload=req, expect=File)
+
 
 class FileQueryResponse(Response):
     files: List[File]

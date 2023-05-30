@@ -187,6 +187,16 @@ class Block(CamelModel):
                 raw_response=True,
             )
 
+    def set_public_data(self, public_data: bool):
+        """Set the public_data flag on this Block. If this object already exists server-side, update the flag."""
+        self.public_data = public_data
+        if self.client is not None and self.id is not None:
+            req = {
+                "id": self.id,
+                "publicData": self.public_data,
+            }
+            return self.client.post("block/update", payload=req, expect=Block)
+
     def is_text(self) -> bool:
         """Return whether this is a text Block."""
         return self.mime_type == MimeTypes.TXT or (self.mime_type is None and self.text)
