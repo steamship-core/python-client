@@ -71,9 +71,9 @@ def invoke(o: Invocable, path: str):
 def test_l1_routes():
     """Tests that we can inspect the L1 routes"""
     l1 = L1Invocable()
-    assert l1._package_spec.method_mappings[Verb.POST]["/foo"].func_name_binding == "foo"
-    assert l1._package_spec.method_mappings[Verb.POST]["/bar"].func_name_binding == "bar"
-    assert l1._package_spec.method_mappings[Verb.POST]["/baz"].func_name_binding == "baz"
+    assert l1._package_spec.method_mappings[Verb.POST]["/foo"].func_binding == "foo"
+    assert l1._package_spec.method_mappings[Verb.POST]["/bar"].func_binding == "bar"
+    assert l1._package_spec.method_mappings[Verb.POST]["/baz"].func_binding == "baz"
     assert invoke(l1, "foo") == "l1_foo"
     assert invoke(l1, "bar") == "l1_bar"
     assert invoke(l1, "baz") == "l1_baz"
@@ -88,9 +88,9 @@ def test_l1_routes():
 def test_l2_routes():
     """Tests that we can inspect the L1 routes"""
     l2 = L2Invocable()
-    assert l2._package_spec.method_mappings[Verb.POST]["/foo"].func_name_binding == "foo"
-    assert l2._package_spec.method_mappings[Verb.POST]["/bar"].func_name_binding == "bar"
-    assert l2._package_spec.method_mappings[Verb.POST]["/baz"].func_name_binding == "baz"
+    assert l2._package_spec.method_mappings[Verb.POST]["/foo"].func_binding == "foo"
+    assert l2._package_spec.method_mappings[Verb.POST]["/bar"].func_binding == "bar"
+    assert l2._package_spec.method_mappings[Verb.POST]["/baz"].func_binding == "baz"
     assert invoke(l2, "foo") == "l1_foo"
     assert invoke(l2, "bar") == "l2_bar"
     assert invoke(l2, "baz") == "l2_baz"
@@ -105,9 +105,9 @@ def test_l2_routes():
 def test_l3_routes():
     """Tests that we can inspect the L1 routes"""
     l3 = L3Invocable()
-    assert l3._package_spec.method_mappings[Verb.POST]["/foo"].func_name_binding == "foo"
-    assert l3._package_spec.method_mappings[Verb.POST]["/bar"].func_name_binding == "bar"
-    assert l3._package_spec.method_mappings[Verb.POST]["/baz"].func_name_binding == "baz"
+    assert l3._package_spec.method_mappings[Verb.POST]["/foo"].func_binding == "foo"
+    assert l3._package_spec.method_mappings[Verb.POST]["/bar"].func_binding == "bar"
+    assert l3._package_spec.method_mappings[Verb.POST]["/baz"].func_binding == "baz"
     assert invoke(l3, "foo") == "l1_foo"
     assert invoke(l3, "bar") == "l2_bar"
     assert invoke(l3, "baz") == "l3_baz"
@@ -122,9 +122,9 @@ def test_l3_routes():
 def test_l22_routes():
     """Tests that we can inspect the L1 routes"""
     l22 = L2Invocable2()
-    assert l22._package_spec.method_mappings[Verb.POST]["/foo"].func_name_binding == "foo"
-    assert l22._package_spec.method_mappings[Verb.POST]["/bar"].func_name_binding == "bar2"
-    assert l22._package_spec.method_mappings[Verb.POST]["/baz"].func_name_binding == "baz2"
+    assert l22._package_spec.method_mappings[Verb.POST]["/foo"].func_binding == "foo"
+    assert l22._package_spec.method_mappings[Verb.POST]["/bar"].func_binding == "bar2"
+    assert l22._package_spec.method_mappings[Verb.POST]["/baz"].func_binding == "baz2"
     assert invoke(l22, "foo") == "l1_foo"
     assert invoke(l22, "bar") == "l22_bar"
     assert invoke(l22, "baz") == "l22_baz"
@@ -146,9 +146,9 @@ def test_l32_routes():
     assert "/bar" in routes
     assert "/baz" in routes
 
-    assert l32._package_spec.method_mappings[Verb.POST]["/foo"].func_name_binding == "foo"
-    assert l32._package_spec.method_mappings[Verb.POST]["/bar"].func_name_binding == "bar2"
-    assert l32._package_spec.method_mappings[Verb.POST]["/baz"].func_name_binding == "baz3"
+    assert l32._package_spec.method_mappings[Verb.POST]["/foo"].func_binding == "foo"
+    assert l32._package_spec.method_mappings[Verb.POST]["/bar"].func_binding == "bar2"
+    assert l32._package_spec.method_mappings[Verb.POST]["/baz"].func_binding == "baz3"
     assert invoke(l32, "foo") == "l1_foo"
     assert invoke(l32, "bar") == "l22_bar"
     assert invoke(l32, "baz") == "l32_baz"
@@ -161,7 +161,7 @@ def test_telegram_agent(client: Steamship):
         config={"botToken": "foo"},
         incoming_message_agent=ReACTAgent(tools=[], llm=OpenAI(client=client)),
     )
-    assert a._package_spec.method_mappings[Verb.POST]["/answer"].func_name_binding == "answer"
+    assert a._package_spec.method_mappings[Verb.POST]["/answer"].func_binding == "answer"
     routes = [m["path"] for m in a.__steamship_dir__()["methods"]]
     assert "/answer" in routes
     assert "/respond" in routes

@@ -215,7 +215,7 @@ class Invocable(ABC):
     ) -> MethodSpec:
         """Register a mapping that permits a method to be invoked via HTTP."""
         method_spec = MethodSpec.from_class(
-            cls, name, path=path, verb=verb, config=config, func_name_binding=name
+            cls, name, path=path, verb=verb, config=config, func_binding=name
         )
         cls._package_spec.add_method(method_spec)
         return method_spec
