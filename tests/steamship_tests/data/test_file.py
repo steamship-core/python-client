@@ -366,7 +366,7 @@ def test_file_public_data(client: Steamship):
 
 
 @pytest.mark.usefixtures("client")
-def test_append_block_private_data(client: Steamship):
+def test_file_private_data(client: Steamship):
     file = File.create(client, content=bytes("This is a test", "utf-8"))
     assert not file.public_data
 
@@ -382,3 +382,28 @@ def test_append_block_private_data(client: Steamship):
 
     assert response.text == "This is a test"
     assert response.headers["content-type"] == MimeTypes.TXT
+
+
+@pytest.mark.usefixtures("client")
+def test_set_public_data(client: Steamship):
+    file = File.create(client, content=bytes("This is a test", "utf-8"))
+
+    assert not file.public_data
+
+    # With public data false, call should fail
+    # Intentionally no API key
+    failed_response = requests.get(file.raw_data_url)
+    assert not failed_response.ok
+
+    # With public data true, call should succeed
+    file.set_public_data(True)
+    # Intentionally no API key
+    response = requests.get(file.raw_data_url)
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
+
+    # Setting back to false, should fail again
+    file.set_public_data(False)
+    # Intentionally no API key
+    failed_response = requests.get(file.raw_data_url)
+    assert not failed_response.ok
