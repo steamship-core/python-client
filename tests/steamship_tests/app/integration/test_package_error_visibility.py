@@ -1,7 +1,7 @@
 import pytest
 from assets.packages.demo_package import TestPackage
 
-ERROR_NO_METHOD = "No handler for POST /method_doesnt_exist available."
+ERROR_NO_METHOD = "No handler for POST method_doesnt_exist available."
 ERROR_STEAMSHIP_ERROR = "[ERROR - POST raise_steamship_error] raise_steamship_error"
 ERROR_PYTHON_ERROR = "[ERROR - POST raise_python_error] raise_python_error"
 
