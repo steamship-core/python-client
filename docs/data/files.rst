@@ -42,3 +42,12 @@ The quickest way to create data is to create Files with ``Block`` content direct
       blocks=[Block(text="Some example text")]
    )
 
+.. _Public Files:
+
+Making File Data Public
+------------------------
+
+If you want the raw data bytes of a ``File`` to be publicly accessible, you can set the parameter ``public_data = True`` when calling ``File.create()``.
+This is useful if you wish to share a generated image or audio file, or must make the content viewable in a place that cannot
+retain your Steamship API key.  You can also change the value of the ``public_data`` flag on an existing ``File`` by calling
+``File.set_public_data``.

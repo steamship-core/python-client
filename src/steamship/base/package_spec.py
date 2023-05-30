@@ -72,17 +72,10 @@ class MethodSpec(CamelModel):
     #       But if Pydantic sees that, it attempts to force all values to be str, which is wrong.
     config: Optional[Dict] = None
 
-    # Bindings
-    # ------------------------
-    # We support two different kinds of bindings since most of our routes are bound by class decorators before
-    # the instance object is available. The `func_name_binding` stores a method name to be resolved against some
-    # invocable object at apply-time. The `func_binding` stores an actual callable
-
-    # A bound function name to call, provided an object
-    func_name_binding: Optional[str] = Field(None, exclude=True, repr=False)
-
-    # A bound function to call; permits something other than the PackageService itself to be called.
-    func_binding: Optional[Callable[..., Any]] = Field(None, exclude=True, repr=False)
+    # A bound function to call.
+    # If String: the name of a method to call upon a runtime-provided Invocable.
+    # If Callable: a function -- on any object -- to call.
+    func_binding: Optional[Union[str, Callable[..., Any]]] = Field(None, exclude=True, repr=False)
 
     @staticmethod
     def clean_path(path: str = "") -> str:
@@ -91,7 +84,24 @@ class MethodSpec(CamelModel):
             path = "/"
         elif path[0] != "/":
             path = f"/{path}"
+
+        if path.startswith("//"):
+            path = path[1:]
+
         return path
+
+    def __init__(self, **kwargs):
+        """Create a new instance, making sure the path is properly formatted."""
+        if "path" not in kwargs:
+            if "name" in kwargs:
+                kwargs["path"] = f"{kwargs['name']}"
+            else:
+                kwargs["path"] = "/"
+
+        # Make sure we sanitize the path to avoid, eg, double //
+        kwargs["path"] = MethodSpec.clean_path(kwargs["path"])
+
+        super().__init__(**kwargs)
 
     @staticmethod
     def from_class(
@@ -100,14 +110,8 @@ class MethodSpec(CamelModel):
         path: str = None,
         verb: Verb = Verb.POST,
         config: Dict[str, Union[str, bool, int, float]] = None,
-        func_name_binding: Optional[str] = None,
-        func_binding: Optional[Callable[..., Any]] = None,
+        func_binding: Optional[Union[str, Callable[..., Any]]] = None,
     ):
-        # Set the path
-        if path is None and name is not None:
-            path = f"/{name}"
-        path = MethodSpec.clean_path(path)
-
         # Get the function on the class so that we can inspect it
         func = getattr(cls, name)
         sig = inspect.signature(func)
@@ -132,7 +136,6 @@ class MethodSpec(CamelModel):
             doc=doc,
             args=args,
             config=config,
-            func_name_binding=func_name_binding,
             func_binding=func_binding,
         )
 
@@ -144,7 +147,6 @@ class MethodSpec(CamelModel):
             doc=deepcopy(self.doc),
             args=deepcopy(self.args),
             config=deepcopy(self.config),
-            func_name_binding=self.func_name_binding,
             func_binding=self.func_binding,
         )
 
@@ -167,19 +169,46 @@ class MethodSpec(CamelModel):
     def get_bound_function(self, service_instance: Optional[Any]) -> Optional[Callable[..., Any]]:
         """Get the bound method described by this spec.
 
-        The `func_binding`, if exists, gets precedence. Else the `func_name_binding` is resolved against
-        the provided service_instance."""
-        if self.func_binding:
+        The `func_binding`, if a string, resolves to a function on the provided Invocable. Else is just a function."""
+
+        if not self.func_binding:
+            logging.error(
+                f"MethodSpec attempted to get bound function but func_binding was None. {self}"
+            )
+            return None
+
+        if isinstance(self.func_binding, str):
+            # It's a string; we should resolve against the invocable.
+            if not service_instance:
+                logging.error(
+                    f"MethodSpec attempted to get bound function named {self.func_binding}. "
+                    f"But provided service_instance was None. {self}"
+                )
+                return None
+
+            if not hasattr(service_instance, self.func_binding):
+                logging.error(
+                    f"MethodSpec attempted to get bound function named {self.func_binding}. "
+                    f"But provided service_instance did not have that attribute. {self}"
+                )
+                return None
+
+            if not callable(getattr(service_instance, self.func_binding)):
+                logging.error(
+                    f"MethodSpec attempted to get bound function named {self.func_binding}. "
+                    f"But that attribute on provided service_instance was not callable. {self}"
+                )
+                return None
+
+            return getattr(service_instance, self.func_binding)
+
+        elif callable(self.func_binding):
             return self.func_binding
 
-        if (
-            self.func_name_binding
-            and service_instance
-            and hasattr(service_instance, self.func_name_binding)
-            and callable(getattr(service_instance, self.func_name_binding))
-        ):
-            return getattr(service_instance, self.func_name_binding)
-
+        logging.error(
+            f"MethodSpec attempted to get bound function. "
+            f"But the func_binding was of type {type(self.func_binding)} and could not be handled. {self}"
+        )
         return None
 
 
@@ -195,8 +224,25 @@ class PackageSpec(CamelModel):
     # The SDK version this package is deployed with
     sdk_version: str = steamship.__version__
 
-    # The list of methods the package exposes remotely
-    methods: Optional[List[MethodSpec]] = None
+    # Quick O(1) lookup into VERB+NAME
+    method_mappings: Dict[str, Dict[str, MethodSpec]] = Field(None, exclude=True, repr=False)
+
+    # TODO: If we upgrade to Pydantic 2xx, we can use @computed_field to include this in dict()
+    @property
+    def all_methods(self) -> List[MethodSpec]:
+        """Return a list of all methods mapped in this Package."""
+        if not self.method_mappings:
+            return []
+
+        ret = []
+        for verb in self.method_mappings:
+            for name in self.method_mappings[verb]:
+                ret.append(self.method_mappings[verb][name])
+
+        # Sort by name and verb to ease testing
+        ret = sorted(ret, key=lambda m: (m.path, m.verb))
+
+        return ret
 
     # Quick O(1) lookup into VERB+NAME
     method_mappings: Dict[str, Dict[str, MethodSpec]] = Field(None, exclude=True, repr=False)
@@ -210,9 +256,11 @@ class PackageSpec(CamelModel):
         else:
             ret += "\n"
 
-        if self.methods:
-            name_width = max([len(method.path) or 0 for method in self.methods])
-            for method in self.methods:
+        methods = self.all_methods
+
+        if methods:
+            name_width = max([len(method.path) or 0 for method in methods])
+            for method in methods:
                 method_doc_string = method.pprint(name_width, prefix)
                 ret += f"\n{method_doc_string}"
         return ret
@@ -220,29 +268,28 @@ class PackageSpec(CamelModel):
     def import_parent_methods(self, parent: Optional["PackageSpec"] = None):
         if not parent:
             return
-        for method in parent.methods:
-            self.add_method(method.clone())
+        for method in parent.all_methods:
+            self.add_method(method.clone(), permit_overwrite_of_existing=True)
 
-    def add_method(self, new_method: MethodSpec):
+    def add_method(self, new_method: MethodSpec, permit_overwrite_of_existing: bool = False):
         """Add a method to the MethodSpec, overwriting the existing if it exists."""
-        # Register the O(1) lookup
         if not self.method_mappings:
             self.method_mappings = {}
 
         if new_method.verb not in self.method_mappings:
             self.method_mappings[new_method.verb] = {}
 
+        if (
+            new_method.path in self.method_mappings[new_method.verb]
+            and not permit_overwrite_of_existing
+        ):
+            raise SteamshipError(
+                message="Attempted to double-register route without explicitly permitting double-registry. "
+                "Please include the kwarg permit_overwrite_of_existing=True to confirm your intent. "
+                f"Route: {new_method}"
+            )
+
         self.method_mappings[new_method.verb][new_method.path] = new_method
-
-        # Replace or add to the list
-        for i, existing_method in enumerate(self.methods):
-            if existing_method.is_same_route_as(new_method):
-                # Replace
-                self.methods[i] = new_method
-                return
-
-        # Append to the list of methods
-        self.methods.append(new_method)
 
     def get_method(self, http_verb: str, http_path: str) -> Optional[MethodSpec]:
         """Matches the provided HTTP Verb and Path to registered methods.
@@ -254,15 +301,36 @@ class PackageSpec(CamelModel):
         path = MethodSpec.clean_path(http_path)
 
         if not self.method_mappings:
-            logging.error("match_route: method_mappings is None.")
+            logging.error("PackageSpec.get_method: method_mappings is None.")
             return None
 
         if verb not in self.method_mappings:
-            logging.error(f"match_route: Verb '{verb}' not found in method_mappings.")
+            logging.error(f"PackageSpec.match_route: Verb '{verb}' not found in method_mappings.")
             return None
 
         if path not in self.method_mappings[verb]:
-            logging.error(f"match_route: Path '{path}' not found in method_mappings[{verb}].")
+            logging.error(
+                f"PackageSpec.match_route: Path '{path}' not found in method_mappings[{verb}]."
+            )
             return None
 
         return self.method_mappings[verb][path]
+
+    def dict(self, **kwargs) -> dict:
+        """Return the dict representation of this object.
+
+        Manually adds the `methods` computed field. Note that if we upgrade to Pydantic 2xx we can automatically
+        include this via decorators.
+        """
+        ret = super().dict(**kwargs)
+        ret["methods"] = [m.dict(**kwargs) for m in self.all_methods]
+        return ret
+
+    def clone(self) -> "PackageSpec":
+        """Return a copy-by-value clone of this PackageSpec."""
+        ret = PackageSpec(
+            name=deepcopy(self.name), doc=deepcopy(self.doc), sdk_version=deepcopy(self.sdk_version)
+        )
+        for method in self.all_methods:
+            ret.add_method(method.clone())
+        return ret
