@@ -60,6 +60,9 @@ There are several ways to specify input to a ``Generator``:
    # Pass all the Blocks in the File
    generator_task = generator.generate(block_query='kind "some-relevant-tag-kind"')
 
+
+**Public output** If you wish to make the output of the generation public (for example an image or audio file), you can pass ``make_output_public = True`` to the call to ``generate``.
+
 Output
 ------
 

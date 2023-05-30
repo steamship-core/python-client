@@ -257,6 +257,7 @@ class File(CamelModel):
         append_output_to_file: bool = True,
         options: Optional[dict] = None,
         wait_on_tasks: List[Task] = None,
+        make_output_public: bool = False,
     ) -> Task[GenerateResponse]:
         """Generate new content from this file. Assumes this file as context for input and output.  May specify start and end blocks."""
         from steamship.data.operations.generator import GenerateRequest, GenerateResponse
@@ -275,6 +276,7 @@ class File(CamelModel):
             append_output_to_file=append_output_to_file,
             output_file_id=output_file_id,
             options=options,
+            make_output_public=make_output_public,
         )
         return self.client.post(
             "plugin/instance/generate", req, expect=GenerateResponse, wait_on_tasks=wait_on_tasks
@@ -314,6 +316,7 @@ class File(CamelModel):
         content: Union[str, bytes] = None,
         url: Optional[str] = None,
         mime_type: Optional[MimeTypes] = None,
+        public_data: bool = False,
     ) -> Block:
         """Append a new block to this File.  This is a convenience wrapper around
         Block.create(). You should provide only one of text, content, or url.
@@ -329,6 +332,7 @@ class File(CamelModel):
             content=content,
             url=url,
             mime_type=mime_type,
+            public_data=public_data,
         )
         self.blocks.append(block)
         return block
