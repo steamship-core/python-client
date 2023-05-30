@@ -8,6 +8,7 @@ import pytest
 from steamship import Steamship
 from steamship.agents.llms import OpenAI
 from steamship.agents.react import ReACTAgent
+from steamship.base.package_spec import MethodSpec
 from steamship.experimental.package_starters.telegram_agent import TelegramAgentService
 from steamship.invocable import Invocable, InvocableRequest, Invocation, post
 from steamship.utils.url import Verb
@@ -57,6 +58,23 @@ class L3Invocable2(L2Invocable2):
     @post("baz")
     def baz3(self) -> str:
         return "l32_baz"
+
+
+class L4Invocable(L2Invocable):
+    """Test registering a lambda route"""
+
+    def __init__(self, *args, update: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        if update:
+
+            def inline_func():
+                return "Lambda"
+
+            method_spec = MethodSpec(
+                name="/baz", verb=Verb.POST, func_binding=inline_func, returns="str"
+            )
+            self.add_api_route(method_spec)
 
 
 class MyAgentService(TelegramAgentService):
@@ -152,6 +170,29 @@ def test_l32_routes():
     assert invoke(l32, "foo") == "l1_foo"
     assert invoke(l32, "bar") == "l22_bar"
     assert invoke(l32, "baz") == "l32_baz"
+
+
+def test_l4_routes():
+    """Tests that we can inspect the L1 routes"""
+    l4 = L4Invocable(update=True)
+
+    routes = [m["path"] for m in l4.__steamship_dir__()["methods"]]
+    assert len(routes) == 6  # __instance__init + 2x __dir__
+    assert "/foo" in routes
+    assert "/bar" in routes
+    assert "/baz" in routes
+
+    assert l4._package_spec.method_mappings[Verb.POST]["/foo"].func_binding == "foo"
+    assert l4._package_spec.method_mappings[Verb.POST]["/bar"].func_binding == "bar"
+    assert callable(l4._package_spec.method_mappings[Verb.POST]["/baz"].func_binding)
+    assert invoke(l4, "foo") == "l1_foo"
+    assert invoke(l4, "bar") == "l2_bar"
+    assert invoke(l4, "baz") == "Lambda"
+
+    # Make sure that we didn't overwrite anything else
+    l42 = L4Invocable(update=False)
+    assert invoke(l4, "baz") == "Lambda"
+    assert invoke(l42, "baz") == "l2_baz"
 
 
 @pytest.mark.usefixtures("client")

@@ -84,7 +84,24 @@ class MethodSpec(CamelModel):
             path = "/"
         elif path[0] != "/":
             path = f"/{path}"
+
+        if path.startswith("//"):
+            path = path[1:]
+
         return path
+
+    def __init__(self, **kwargs):
+        """Create a new instance, making sure the path is properly formatted."""
+        if "path" not in kwargs:
+            if "name" in kwargs:
+                kwargs["path"] = f"{kwargs['name']}"
+            else:
+                kwargs["path"] = "/"
+
+        # Make sure we sanitize the path to avoid, eg, double //
+        kwargs["path"] = MethodSpec.clean_path(kwargs["path"])
+
+        super().__init__(**kwargs)
 
     @staticmethod
     def from_class(
@@ -95,11 +112,6 @@ class MethodSpec(CamelModel):
         config: Dict[str, Union[str, bool, int, float]] = None,
         func_binding: Optional[Union[str, Callable[..., Any]]] = None,
     ):
-        # Set the path
-        if path is None and name is not None:
-            path = f"/{name}"
-        path = MethodSpec.clean_path(path)
-
         # Get the function on the class so that we can inspect it
         func = getattr(cls, name)
         sig = inspect.signature(func)
@@ -215,6 +227,7 @@ class PackageSpec(CamelModel):
     # Quick O(1) lookup into VERB+NAME
     method_mappings: Dict[str, Dict[str, MethodSpec]] = Field(None, exclude=True, repr=False)
 
+    # TODO: If we upgrade to Pydantic 2xx, we can use @computed_field to include this in dict()
     @property
     def all_methods(self) -> List[MethodSpec]:
         """Return a list of all methods mapped in this Package."""
@@ -285,3 +298,22 @@ class PackageSpec(CamelModel):
             return None
 
         return self.method_mappings[verb][path]
+
+    def dict(self, **kwargs) -> dict:
+        """Return the dict representation of this object.
+
+        Manually adds the `methods` computed field. Note that if we upgrade to Pydantic 2xx we can automatically
+        include this via decorators.
+        """
+        ret = super().dict(**kwargs)
+        ret["methods"] = [m.dict(**kwargs) for m in self.all_methods]
+        return ret
+
+    def clone(self) -> "PackageSpec":
+        """Return a copy-by-value clone of this PackageSpec."""
+        ret = PackageSpec(
+            name=deepcopy(self.name), doc=deepcopy(self.doc), sdk_version=deepcopy(self.sdk_version)
+        )
+        for method in self.all_methods:
+            ret.add_method(method.clone())
+        return ret

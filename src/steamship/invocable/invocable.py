@@ -10,6 +10,7 @@ from typing import Any, Dict, Optional, Type, Union
 
 import toml
 
+from steamship import SteamshipError
 from steamship.base.package_spec import MethodSpec, PackageSpec
 from steamship.client.steamship import Steamship
 from steamship.invocable import Config
@@ -104,6 +105,11 @@ class Invocable(ABC):
         config: Dict[str, Any] = None,
         context: InvocationContext = None,
     ):
+        # Create an instance-level clone of the PackageSpec so that any route registrations to not impact other
+        # instance that may exist.
+        if self.__class__._package_spec:
+            self._package_spec = self.__class__._package_spec.clone()
+
         self.context = context
 
         try:
@@ -183,6 +189,14 @@ class Invocable(ABC):
     def invocable_instance_init(self) -> InvocableResponse:
         self.instance_init()
         return InvocableResponse(data=True)
+
+    def add_api_route(self, method_spec: MethodSpec):
+        """Add an API route to this Invocable instance."""
+        if self._package_spec is None:
+            raise SteamshipError(
+                message=f"Unable to add API route {method_spec}. Reason: _package_spec on Invocable was None."
+            )
+        self._package_spec.add_method(method_spec)
 
     def instance_init(self):
         """The instance init method will be called ONCE by the engine when a new instance of a package or plugin has been created. By default, this does nothing."""
