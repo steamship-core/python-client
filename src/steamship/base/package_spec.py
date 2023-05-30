@@ -238,6 +238,10 @@ class PackageSpec(CamelModel):
         for verb in self.method_mappings:
             for name in self.method_mappings[verb]:
                 ret.append(self.method_mappings[verb][name])
+
+        # Sort by name and verb to ease testing
+        ret = sorted(ret, key=lambda m: (m.path, m.verb))
+
         return ret
 
     def pprint(self, prefix: str = "  ") -> str:
@@ -262,15 +266,25 @@ class PackageSpec(CamelModel):
         if not parent:
             return
         for method in parent.all_methods:
-            self.add_method(method.clone())
+            self.add_method(method.clone(), permit_overwrite_of_existing=True)
 
-    def add_method(self, new_method: MethodSpec):
+    def add_method(self, new_method: MethodSpec, permit_overwrite_of_existing: bool = False):
         """Add a method to the MethodSpec, overwriting the existing if it exists."""
         if not self.method_mappings:
             self.method_mappings = {}
 
         if new_method.verb not in self.method_mappings:
             self.method_mappings[new_method.verb] = {}
+
+        if (
+            new_method.path in self.method_mappings[new_method.verb]
+            and not permit_overwrite_of_existing
+        ):
+            raise SteamshipError(
+                message="Attempted to double-register route without explicitly permitting double-registry. "
+                "Please include the kwarg permit_overwrite_of_existing=True to confirm your intent. "
+                f"Route: {new_method}"
+            )
 
         self.method_mappings[new_method.verb][new_method.path] = new_method
 

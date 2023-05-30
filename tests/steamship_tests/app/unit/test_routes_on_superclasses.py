@@ -5,7 +5,7 @@ table afresh, overwriting whatever routes were registered by an ancestor.
 """
 import pytest
 
-from steamship import Steamship
+from steamship import Steamship, SteamshipError
 from steamship.agents.llms import OpenAI
 from steamship.agents.react import ReACTAgent
 from steamship.base.package_spec import MethodSpec
@@ -63,7 +63,9 @@ class L3Invocable2(L2Invocable2):
 class L4Invocable(L2Invocable):
     """Test registering a lambda route"""
 
-    def __init__(self, *args, update: bool = False, **kwargs):
+    def __init__(
+        self, *args, update: bool = False, permit_overwrite_of_existing: bool = False, **kwargs
+    ):
         super().__init__(*args, **kwargs)
 
         if update:
@@ -74,7 +76,9 @@ class L4Invocable(L2Invocable):
             method_spec = MethodSpec(
                 name="/baz", verb=Verb.POST, func_binding=inline_func, returns="str"
             )
-            self.add_api_route(method_spec)
+            self.add_api_route(
+                method_spec, permit_overwrite_of_existing=permit_overwrite_of_existing
+            )
 
 
 class MyAgentService(TelegramAgentService):
@@ -174,7 +178,7 @@ def test_l32_routes():
 
 def test_l4_routes():
     """Tests that we can inspect the L1 routes"""
-    l4 = L4Invocable(update=True)
+    l4 = L4Invocable(update=True, permit_overwrite_of_existing=True)
 
     routes = [m["path"] for m in l4.__steamship_dir__()["methods"]]
     assert len(routes) == 6  # __instance__init + 2x __dir__
@@ -190,9 +194,13 @@ def test_l4_routes():
     assert invoke(l4, "baz") == "Lambda"
 
     # Make sure that we didn't overwrite anything else
-    l42 = L4Invocable(update=False)
+    l42 = L4Invocable(update=False, permit_overwrite_of_existing=True)
     assert invoke(l4, "baz") == "Lambda"
     assert invoke(l42, "baz") == "l2_baz"
+
+    # Without permitting overwrite, this throws an exception
+    with pytest.raises(SteamshipError):
+        L4Invocable(update=True, permit_overwrite_of_existing=False)
 
 
 @pytest.mark.usefixtures("client")

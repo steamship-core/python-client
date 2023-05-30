@@ -190,13 +190,15 @@ class Invocable(ABC):
         self.instance_init()
         return InvocableResponse(data=True)
 
-    def add_api_route(self, method_spec: MethodSpec):
+    def add_api_route(self, method_spec: MethodSpec, permit_overwrite_of_existing: bool = False):
         """Add an API route to this Invocable instance."""
         if self._package_spec is None:
             raise SteamshipError(
                 message=f"Unable to add API route {method_spec}. Reason: _package_spec on Invocable was None."
             )
-        self._package_spec.add_method(method_spec)
+        self._package_spec.add_method(
+            method_spec, permit_overwrite_of_existing=permit_overwrite_of_existing
+        )
 
     def instance_init(self):
         """The instance init method will be called ONCE by the engine when a new instance of a package or plugin has been created. By default, this does nothing."""
@@ -231,7 +233,7 @@ class Invocable(ABC):
         method_spec = MethodSpec.from_class(
             cls, name, path=path, verb=verb, config=config, func_binding=name
         )
-        cls._package_spec.add_method(method_spec)
+        cls._package_spec.add_method(method_spec, permit_overwrite_of_existing=True)
         return method_spec
 
     def __call__(self, request: InvocableRequest, context: Any = None) -> InvocableResponse:
