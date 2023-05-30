@@ -244,9 +244,6 @@ class PackageSpec(CamelModel):
 
         return ret
 
-    # Quick O(1) lookup into VERB+NAME
-    method_mappings: Dict[str, Dict[str, MethodSpec]] = Field(None, exclude=True, repr=False)
-
     def pprint(self, prefix: str = "  ") -> str:
         """Returns a pretty printable representation of this package."""
         underline = "=" * len(self.name)
