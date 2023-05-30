@@ -2,6 +2,8 @@ import json
 from abc import abstractmethod
 from typing import Any, List, Optional, Union
 
+import requests
+
 from steamship import Block, File, MimeTypes, Task
 from steamship.agents.schema import AgentContext, Tool
 
@@ -105,7 +107,7 @@ class ScrapeAndBlockifyTool(Tool):
     def get_mime_type(self):
         return None
 
-    def _scrape(self, url: str, context: AgentContext, requests=None) -> File:
+    def _scrape(self, url: str, context: AgentContext) -> File:
         response = requests.get(url)
         file = File.create(context.client, content=response.content, mime_type=self.get_mime_type())
         return file
