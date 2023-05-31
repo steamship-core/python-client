@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 import requests
 
 from steamship import Block, Steamship, SteamshipError
+from steamship.agents.schema import Metadata
 from steamship.experimental.transports.transport import Transport
 
 API_BASE = "https://api.telegram.org/bot"
@@ -49,7 +50,7 @@ class TelegramTransport(Transport):
         """Unsubscribe from Telegram updates."""
         requests.get(f"{self.api_root}/deleteWebhook")
 
-    def _send(self, blocks: [Block], metadata: Dict[str, Any]):
+    def _send(self, blocks: [Block], metadata: Metadata):
         """Send a response to the Telegram chat."""
         for block in blocks:
             chat_id = block.chat_id
