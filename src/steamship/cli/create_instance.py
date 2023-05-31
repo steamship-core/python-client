@@ -1,5 +1,6 @@
 import json
 import logging
+import os
 from os import path
 from typing import Any, Callable, Dict, Optional
 
@@ -61,7 +62,9 @@ def create_instance(
 
 
 def _create_instance(  # noqa: C901
-    workspace: Optional[str] = None, instance: Optional[str] = None, config: Optional[str] = None
+    workspace: Optional[str] = None,
+    instance_handle: Optional[str] = None,
+    config: Optional[str] = None,
 ):
     manifest = None
     if path.exists("steamship.json"):
@@ -83,7 +86,14 @@ def _create_instance(  # noqa: C901
         click.secho("Steamship manifest failed to load.", fg="red")
         click.get_current_context().abort()
 
-    invocable_config = config_dict(config)
+    invocable_config = config_str_to_dict(config)
+
+    for param, param_config in manifest.configTemplate.items():
+        if param not in invocable_config and param_config.default is None:
+            if param_value := os.environ.get(param.upper()):
+                invocable_config[param] = param_value
+            else:
+                invocable_config[param] = input(f"Value for {param} ({param_config.description}):")
 
     if workspace is None or len(workspace) == 0:
         ws_hash = hash_dict(
@@ -106,15 +116,17 @@ def _create_instance(  # noqa: C901
     if manifest.type == DeployableType.PLUGIN:
         create_instance_fn = client.use_plugin
 
-    if instance is None:
-        instance = create_instance_handle(
+    if instance_handle is None:
+        instance_handle = create_instance_handle(
             invocable_handle=manifest.handle,
             version_handle=manifest.version,
             invocable_config=invocable_config,
         )
 
     try:
-        _call_create_instance_fn(client, manifest, instance, invocable_config, create_instance_fn)
+        _call_create_instance_fn(
+            client, manifest, instance_handle, invocable_config, create_instance_fn
+        )
     except SteamshipError as e:
         if "Configuration for this PackageInstance is invalid." in e.message:
             click.secho(
@@ -173,7 +185,10 @@ def _call_create_instance_fn(
             raise SteamshipError("instance creation unexpectedly returned empty instance.")
 
 
-def config_dict(config: Optional[str]) -> Dict[str, Any]:
+def config_str_to_dict(config: Optional[str]) -> Dict[str, Any]:
+    """Convert config string into dict.
+
+    The input string can be a JSON-string or the name of a file."""
     return_dict = {}
     if config:
         try:
