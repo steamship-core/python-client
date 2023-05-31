@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import io
+import mimetypes
+import os
+import sys
 from enum import Enum
 from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
@@ -14,7 +17,8 @@ from steamship.base.response import ListResponse, Response
 from steamship.base.tasks import Task
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
-from steamship.data.tags import Tag
+from steamship.data.tags import Tag, TagKind
+from steamship.data.tags.tag_constants import ProvenanceTag
 from steamship.utils.binary_utils import flexi_create
 
 if TYPE_CHECKING:
@@ -346,6 +350,53 @@ class File(CamelModel):
                 "publicData": self.public_data,
             }
             return self.client.post("file/update", payload=req, expect=File)
+
+    @staticmethod
+    def from_local(
+        client: Client,
+        file_path: str,
+        mime_type: MimeTypes = None,
+        handle: str = None,
+        tags: List[Tag] = None,
+        public_data: bool = False,
+    ) -> Any:
+        """Loads a local file into a Steamship File.
+
+        NOTE: the `file_path` should be relative to where the call to `from_local` is happening.
+
+        Loaded files will automatically be tagged with a provenance tag.
+
+        Args:
+            client: Steamship client for the workspace
+            file_path: Location of the file to upload **relative** to the current directory of the client
+            mime_type: Optional specification of a particular mime type. If not provided, a guess will be made.
+            handle: Intended handle (for lookups, etc.) for Steamship File
+            tags: Metadata to add to the Steamship File
+            public_data: Whether to make the Steamship File publicly-accessible
+        """
+        full_path = os.path.join(sys.path[0], file_path)
+
+        if not mime_type:
+            mime, _ = mimetypes.guess_type(file_path, strict=False)
+            if MimeTypes.has_value(mime):
+                mime_type = MimeTypes(mime)
+
+        _tags = [
+            Tag(kind=TagKind.PROVENANCE, name=ProvenanceTag.FILE, value={"file_path": file_path})
+        ]
+
+        if tags:
+            _tags.extend(tags)
+
+        with open(full_path, "rb") as file:
+            return File.create(
+                client=client,
+                content=file.read(),
+                mime_type=mime_type,
+                handle=handle,
+                tags=_tags,
+                public_data=public_data,
+            )
 
 
 class FileQueryResponse(Response):
