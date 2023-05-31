@@ -92,8 +92,8 @@ def _create_instance(  # noqa: C901
     new_param_values = False
     for param, param_config in manifest.configTemplate.items():
         if param not in invocable_config and param_config.default is None:
-            if param_value := os.environ.get(param.upper()):
-                invocable_config[param] = param_value
+            if param.upper() in os.environ:
+                invocable_config[param] = os.environ[param.upper()]
             else:
                 invocable_config[param] = click.prompt(
                     f"Value for {param} ({param_config.description})"
