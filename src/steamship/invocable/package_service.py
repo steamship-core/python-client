@@ -5,7 +5,7 @@ from functools import partial
 from typing import Any, Dict, List, Optional
 
 from steamship import SteamshipError, Task
-from steamship.base.package_spec import MethodSpec
+from steamship.base.package_spec import MethodSpec, RouteConflictError
 from steamship.invocable import Invocable
 
 # Note!
@@ -31,7 +31,12 @@ class PackageService(Invocable):
     mixins: List[PackageMixin] = []
 
     def add_mixin(self, mixin: PackageMixin):
-        for attribute in list(mixin.__class__.__dict__.values()):
+        base_fn_list = [
+            may_be_decorated
+            for base_cls in mixin.__class__.__bases__
+            for may_be_decorated in base_cls.__dict__.values()
+        ]
+        for attribute in base_fn_list + list(mixin.__class__.__dict__.values()):
             decorator = getattr(attribute, "decorator", None)
             if decorator:
                 if getattr(decorator, "__is_endpoint__", False):
@@ -47,7 +52,14 @@ class PackageService(Invocable):
                         config=config,
                         func_binding=func_binding,
                     )
-                    self._package_spec.add_method(method_spec)
+                    try:
+                        self._package_spec.add_method(method_spec)
+                    except RouteConflictError as conflict_error:
+                        message = f"When attempting to add mixin {mixin.__class__.__name__}, route {verb} {path} conflicted with already added route {verb} {path} on class {conflict_error.existing_method_spec.cls.__name__}"
+                        raise RouteConflictError(
+                            message=message,
+                            existing_method_spec=conflict_error.existing_method_spec,
+                        )
         self.mixins.append(mixin)
 
     def instance_init(self):

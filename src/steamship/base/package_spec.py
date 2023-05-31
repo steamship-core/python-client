@@ -13,6 +13,15 @@ from steamship.base.configuration import CamelModel
 from steamship.utils.url import Verb
 
 
+class RouteConflictError(SteamshipError):
+
+    existing_method_spec: "MethodSpec"
+
+    def __init__(self, message: str, existing_method_spec: "MethodSpec"):
+        super().__init__(message=message)
+        self.existing_method_spec = existing_method_spec
+
+
 class ArgSpec(CamelModel):
     """An argument passed to a method."""
 
@@ -77,6 +86,9 @@ class MethodSpec(CamelModel):
     # If Callable: a function -- on any object -- to call.
     func_binding: Optional[Union[str, Callable[..., Any]]] = Field(None, exclude=True, repr=False)
 
+    # The class the bound function is associated with. Used for mixin bookkeeping.
+    cls: object
+
     @staticmethod
     def clean_path(path: str = "") -> str:
         """Ensure that the path always starts with /, and at minimum must be at least /."""
@@ -137,6 +149,7 @@ class MethodSpec(CamelModel):
             args=args,
             config=config,
             func_binding=func_binding,
+            cls=cls,
         )
 
     def clone(self) -> "MethodSpec":
@@ -148,6 +161,7 @@ class MethodSpec(CamelModel):
             args=deepcopy(self.args),
             config=deepcopy(self.config),
             func_binding=self.func_binding,
+            cls=self.cls,
         )
 
     def pprint(self, name_width: Optional[int] = None, prefix: str = "  ") -> str:
@@ -280,10 +294,11 @@ class PackageSpec(CamelModel):
             new_method.path in self.method_mappings[new_method.verb]
             and not permit_overwrite_of_existing
         ):
-            raise SteamshipError(
+            raise RouteConflictError(
                 message="Attempted to double-register route without explicitly permitting double-registry. "
                 "Please include the kwarg permit_overwrite_of_existing=True to confirm your intent. "
-                f"Route: {new_method}"
+                f"Route: {new_method}",
+                existing_method_spec=self.method_mappings[new_method.verb][new_method.path],
             )
 
         self.method_mappings[new_method.verb][new_method.path] = new_method

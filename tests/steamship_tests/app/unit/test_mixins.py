@@ -19,7 +19,7 @@ def test_package_with_mixin_routes():
         is not None
     )
     assert (
-        package._package_spec.method_mappings[Verb.POST]["/test_package_route"].func_name_binding
+        package._package_spec.method_mappings[Verb.POST]["/test_package_route"].func_binding
         == "test_package_route"
     )
     assert invoke(package, "test_mixin_route") == "mixin yo"
@@ -41,5 +41,14 @@ def test_instance_init():
 
 def test_two_conflicting_mixins_raises_error():
     package = PackageWithMixin()
-    with pytest.raises(SteamshipError):
-        package.add_mixin(TestMixin("ahoy"))
+
+    class TestMixin2(TestMixin):
+        pass
+
+    with pytest.raises(SteamshipError) as e:
+        package.add_mixin(TestMixin2("ahoy"))
+
+    assert (
+        "When attempting to add mixin TestMixin2, route POST test_mixin_route conflicted with already added route POST test_mixin_route on class TestMixin'"
+        in str(e)
+    )
