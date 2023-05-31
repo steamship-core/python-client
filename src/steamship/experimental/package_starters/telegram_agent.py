@@ -66,7 +66,7 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
 
                 response = self.run_agent(self.incoming_message_agent, context)
                 if response is not None:
-                    self.telegram_transport.send(response)
+                    self.telegram_transport.send(response, metadata={})
                 else:
                     # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
                     pass
@@ -77,7 +77,7 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
             response = response_for_exception(e, chat_id=chat_id)
 
             if chat_id is not None:
-                self.telegram_transport.send([response])
+                self.telegram_transport.send([response], metadata={})
         # Even if we do nothing, make sure we return ok
         return InvocableResponse(string="OK")
 

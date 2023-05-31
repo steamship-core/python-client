@@ -2,7 +2,6 @@ import uuid
 from typing import Any, Dict, Optional
 
 from steamship import Block, SteamshipError
-from steamship.agents.schema import Metadata
 from steamship.experimental.transports.transport import Transport
 
 API_BASE = "https://api.telegram.org/bot"
@@ -18,7 +17,7 @@ class SteamshipWidgetTransport(Transport):
         """Unsubscribe from updates."""
         pass
 
-    def _send(self, blocks: [Block], metadata: Metadata):
+    def _send(self, blocks: [Block], metadata: Dict[str, Any]):
         """Send a response to the client.
 
         TODO: Since this isn't a push, but rather an API return, we need to figure out how to model this.
