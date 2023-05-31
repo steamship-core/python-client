@@ -55,7 +55,7 @@ class PackageService(Invocable):
                     try:
                         self._package_spec.add_method(method_spec)
                     except RouteConflictError as conflict_error:
-                        message = f"When attempting to add mixin {mixin.__class__.__name__}, route {verb} {path} conflicted with already added route {verb} {path} on class {conflict_error.existing_method_spec.cls.__name__}"
+                        message = f"When attempting to add mixin {mixin.__class__.__name__}, route {verb} {path} conflicted with already added route {verb} {path} on class {conflict_error.existing_method_spec.class_name}"
                         raise RouteConflictError(
                             message=message,
                             existing_method_spec=conflict_error.existing_method_spec,

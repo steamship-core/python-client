@@ -86,8 +86,8 @@ class MethodSpec(CamelModel):
     # If Callable: a function -- on any object -- to call.
     func_binding: Optional[Union[str, Callable[..., Any]]] = Field(None, exclude=True, repr=False)
 
-    # The class the bound function is associated with. Used for mixin bookkeeping.
-    cls: object
+    # The class name of the bound function is associated with. Used for mixin bookkeeping.
+    class_name: Optional[str] = None
 
     @staticmethod
     def clean_path(path: str = "") -> str:
@@ -149,7 +149,7 @@ class MethodSpec(CamelModel):
             args=args,
             config=config,
             func_binding=func_binding,
-            cls=cls,
+            class_name=cls.__name__,
         )
 
     def clone(self) -> "MethodSpec":
@@ -161,7 +161,7 @@ class MethodSpec(CamelModel):
             args=deepcopy(self.args),
             config=deepcopy(self.config),
             func_binding=self.func_binding,
-            cls=self.cls,
+            class_name=self.class_name,
         )
 
     def pprint(self, name_width: Optional[int] = None, prefix: str = "  ") -> str:
