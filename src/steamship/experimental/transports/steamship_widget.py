@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Dict, Optional
+from typing import Optional
 
 from steamship import Block, SteamshipError
 from steamship.experimental.transports.transport import Transport
