@@ -1,7 +1,9 @@
 import json
 import logging
 import os
+from json import JSONDecodeError
 from os import path
+from pathlib import Path
 from typing import Any, Callable, Dict, Optional
 
 import click
@@ -86,14 +88,26 @@ def _create_instance(  # noqa: C901
         click.secho("Steamship manifest failed to load.", fg="red")
         click.get_current_context().abort()
 
-    invocable_config = config_str_to_dict(config)
-
+    invocable_config, is_file = config_str_to_dict(config)
+    new_param_values = False
     for param, param_config in manifest.configTemplate.items():
         if param not in invocable_config and param_config.default is None:
             if param_value := os.environ.get(param.upper()):
                 invocable_config[param] = param_value
             else:
-                invocable_config[param] = input(f"Value for {param} ({param_config.description}):")
+                invocable_config[param] = click.prompt(
+                    f"Value for {param} ({param_config.description})"
+                )
+            new_param_values = True
+
+    if is_file and new_param_values:
+        if click.confirm(
+            f"Do you want to store this config in your config file ({config})?", default=True
+        ):
+            json.dump(invocable_config, Path(config).open("w"))
+            click.secho(
+                f"Successfully wrote configuration {json.dumps(config)} to {config}.", fg="green"
+            )
 
     if workspace is None or len(workspace) == 0:
         ws_hash = hash_dict(
@@ -185,32 +199,41 @@ def _call_create_instance_fn(
             raise SteamshipError("instance creation unexpectedly returned empty instance.")
 
 
-def config_str_to_dict(config: Optional[str]) -> Dict[str, Any]:
+def cannot_parse_config(config: str, exception: Optional[Exception] = None):
+    exception_str = f": {exception}" if exception else ""
+    click.secho(
+        f"Could not parse configuration {config} as a file or JSON string{exception_str}",
+        fg="red",
+    )
+    click.get_current_context().abort()
+
+
+def config_str_to_dict(config: Optional[str] = None) -> (Dict[str, Any], bool):
     """Convert config string into dict.
 
     The input string can be a JSON-string or the name of a file."""
-    return_dict = {}
-    if config:
+
+    if not config:
+        return {}, False
+    try:
+        json_config = json.loads(config)
+        if not isinstance(json_config, dict):
+            cannot_parse_config(config)
+        return json_config, False
+    except JSONDecodeError:
         try:
-            json_config = json.loads(config)
-            if isinstance(json_config, dict):
-                return_dict = json_config
-            else:
-                click.secho("Could not parse configuration.", fg="red")
-                click.get_current_context().abort()
-        except Exception:
-            try:
-                with open(config) as f:
-                    file_json = json.load(f)
-                    if isinstance(file_json, dict):
-                        return_dict = file_json
-                    else:
-                        click.secho("Could not parse configuration.", fg="red")
-                        click.get_current_context().abort()
-            except Exception as e:
-                click.secho(
-                    f"Unknown configuration. Could not parse it as a file or JSON string: {e}",
-                    fg="red",
-                )
-                click.get_current_context().abort()
-    return return_dict
+            config_path = Path(config)
+            if not config_path.exists():
+                if click.confirm(
+                    f"Configuration file {config_path} does not exist. Do you want to create it",
+                    default=True,
+                ):
+                    config_path.parent.mkdir(parents=True, exist_ok=True)
+                    json.dump({}, config_path.open("w"))
+            file_json = json.load(config_path.open())
+            if not isinstance(file_json, dict):
+                cannot_parse_config(config)
+            return file_json, True
+
+        except Exception as e:
+            cannot_parse_config(config, e)
