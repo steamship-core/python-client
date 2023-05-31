@@ -97,7 +97,7 @@ class ChatHistory:
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )
 
-    def append_agent_message(
+    def append_assistant_message(
         self,
         text: str = None,
         tags: List[Tag] = None,
