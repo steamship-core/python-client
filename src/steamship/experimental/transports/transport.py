@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 from steamship import Block, Steamship
-from steamship.agents.schema import AgentContext
+from steamship.agents.schema import AgentContext, Metadata
 from steamship.agents.tools.audio_transcription.assembly_speech_to_text_tool import (
     AssemblySpeechToTextTool,
 )
@@ -63,7 +63,8 @@ class Transport(ABC):
         end = time.time()
         logging.info(f"Transport deinitialized in {end - start} seconds: {self.__class__.__name__}")
 
-    def send(self, blocks: List[Block], metadata: Dict[str, Any]):
+    def send(self, blocks: List[Block], metadata: Optional[Metadata] = None):
+        metadata = metadata or {}
         if blocks is None or len(blocks) == 0:
             logging.info(f"Skipping send of 0 blocks: {self.__class__.__name__}")
             return
@@ -77,7 +78,7 @@ class Transport(ABC):
         )
 
     @abstractmethod
-    def _send(self, blocks: List[Block], metadata: Dict[str, Any]):
+    def _send(self, blocks: List[Block], metadata: Metadata):
         raise NotImplementedError
 
     def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
