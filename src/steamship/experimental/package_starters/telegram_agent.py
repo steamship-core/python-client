@@ -20,7 +20,6 @@ class TelegramBotConfig(Config):
 class TelegramAgentService(SteamshipWidgetAgentService, ABC):
     config: TelegramBotConfig
     telegram_transport: TelegramTransport
-    incoming_message_agent: Agent
 
     @classmethod
     def config_cls(cls) -> Type[Config]:
@@ -28,7 +27,7 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
         return TelegramBotConfig
 
     def __init__(self, incoming_message_agent: Agent, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(incoming_message_agent=incoming_message_agent, **kwargs)
         self.api_root = f"https://api.telegram.org/bot{self.config.bot_token}"
         self.telegram_transport = TelegramTransport(
             bot_token=self.config.bot_token, client=self.client
@@ -66,7 +65,7 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
 
                 response = self.run_agent(self.incoming_message_agent, context)
                 if response is not None:
-                    self.telegram_transport.send(response, metadata={})
+                    self.telegram_transport.send(response)
                 else:
                     # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
                     pass
@@ -77,7 +76,7 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
             response = response_for_exception(e, chat_id=chat_id)
 
             if chat_id is not None:
-                self.telegram_transport.send([response], metadata={})
+                self.telegram_transport.send([response])
         # Even if we do nothing, make sure we return ok
         return InvocableResponse(string="OK")
 

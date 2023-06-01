@@ -170,23 +170,7 @@ def handler(  # noqa: C901
                 message="Plugin/App handler did receive a remote logging config, but it did not include a loggingPort.",
             ).dict(by_alias=True)
 
-        custom_format = {
-            "level": "%(levelname)s",
-            "host": "%(hostname)s",
-            "where": "%(module)s.%(filename)s.%(funcName)s:%(lineno)s",
-            "type": "%(levelname)s",
-            "stack_trace": "%(exc_text)s",
-            "component": "package-plugin-lambda",
-            "userId": invocation_context.user_id,
-            "workspaceId": invocation_context.workspace_id,
-            "tenantId": invocation_context.tenant_id,
-            "invocableHandle": invocation_context.invocable_handle,
-            "invocableVersionHandle": invocation_context.invocable_version_handle,
-            "invocableInstanceHandle": invocation_context.invocable_instance_handle,
-            "invocableType": invocation_context.invocable_type,
-            "invocableOwnerId": invocation_context.invocable_owner_id,
-            "path": event.get("invocation", {}).get("invocationPath"),
-        }
+        custom_format = create_custom_format(invocation_context=invocation_context, event=event)
 
         logging_handler = fluenthandler.FluentHandler(
             "steamship.deployed_lambda",
@@ -259,6 +243,38 @@ def handler(  # noqa: C901
         logging_handler.close()
 
     return result
+
+
+def create_custom_format(
+    invocation_context: InvocationContext, event: Dict
+) -> Callable[[logging.LogRecord], Dict]:
+    def custom_format(record: logging.LogRecord) -> Dict:
+        result = {
+            "level": str(record.levelname),
+            "where": f"{record.module}.{record.filename}.{record.funcName}:{record.lineno}",
+            "type": str(record.levelname),
+            "stack_trace": record.exc_text,
+            "component": "package-plugin-lambda",
+            "userId": invocation_context.user_id,
+            "workspaceId": invocation_context.workspace_id,
+            "tenantId": invocation_context.tenant_id,
+            "invocableHandle": invocation_context.invocable_handle,
+            "invocableVersionHandle": invocation_context.invocable_version_handle,
+            "invocableInstanceHandle": invocation_context.invocable_instance_handle,
+            "invocableType": invocation_context.invocable_type,
+            "invocableOwnerId": invocation_context.invocable_owner_id,
+            "path": event.get("invocation", {}).get("invocationPath"),
+        }
+        # if isinstance(record.args, dict):
+        for key, value in record.__dict__.items():
+            if key not in result:
+                result[key] = str(value)
+        return result
+
+    # Giving the callable a callable attribute is very odd, but required
+    # for the FluentRecordFormatter to work
+    custom_format.usesTime = lambda: True
+    return custom_format
 
 
 def create_handler(invocable_cls: Type[Invocable]):
