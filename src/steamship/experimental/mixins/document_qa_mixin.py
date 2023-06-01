@@ -180,6 +180,7 @@ class VectorSearchLoader:
 
     @post("/blockify_pdf")
     def blockify_pdf(self, file_id: str, source: str):
+        """Enqueue an async Blockify task for `file_id`."""
         file = File.get(self.client, _id=file_id)
 
         self._update_file_status(file, "Parsing")
@@ -199,6 +200,20 @@ class VectorSearchLoader:
 
     @post("/learn_url")
     def learn_url(self, url: HttpUrl) -> Task:
+        """Learns the document at the provided URL.
+
+        Sending the required `url` parameter to this endpoint will result in Steamship asynchronously downloading,
+        converting, chunking, embedding, and then indexing the file in a vector database. Which vector database
+        is a parameter provided at initialization time of the VectorSearchLoader mixin.
+
+        After the document is imported and indexed, its contents are available to the VectorSearchQATool as source
+        material that can be used to answer questions.
+
+        URL types currently supported:
+
+        - YouTube URLs
+        - PDF URLs (note: Text PDFs only)
+        """
         if "youtube.com" in url:
             return self._import_youtube_url(url)
         elif "youtu.be" in url:
@@ -212,4 +227,5 @@ class VectorSearchLoader:
 
     @get("/list_learned_urls", public=True)
     def list_learned_urls(self) -> List[Dict[str, Any]]:
+        """Return a list of the URLs that have been learned for question-answering."""
         return self._list_learned_urls()
