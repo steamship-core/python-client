@@ -20,7 +20,6 @@ class TelegramBotConfig(Config):
 class TelegramAgentService(SteamshipWidgetAgentService, ABC):
     config: TelegramBotConfig
     telegram_transport: TelegramTransport
-    incoming_message_agent: Agent
 
     @classmethod
     def config_cls(cls) -> Type[Config]:
@@ -28,7 +27,7 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
         return TelegramBotConfig
 
     def __init__(self, incoming_message_agent: Agent, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(incoming_message_agent=incoming_message_agent, **kwargs)
         self.api_root = f"https://api.telegram.org/bot{self.config.bot_token}"
         self.telegram_transport = TelegramTransport(
             bot_token=self.config.bot_token, client=self.client

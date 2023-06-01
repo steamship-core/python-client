@@ -2,7 +2,7 @@ from abc import ABC
 from typing import List, Optional
 
 from steamship import Block
-from steamship.agents.schema import AgentContext
+from steamship.agents.schema import Agent, AgentContext, Metadata
 from steamship.agents.service.agent_service import AgentService
 from steamship.experimental.transports.steamship_widget import SteamshipWidgetTransport
 from steamship.invocable import post
@@ -23,10 +23,13 @@ def response_for_exception(e: Optional[Exception], chat_id: Optional[str] = None
 
 class SteamshipWidgetAgentService(AgentService, ABC):
     steamship_widget_transport: SteamshipWidgetTransport
+    incoming_message_agent: Agent
+    message_output: List[Block]
 
-    def __init__(self, **kwargs):
+    def __init__(self, incoming_message_agent: Agent, **kwargs):
         super().__init__(**kwargs)
         self.steamship_widget_transport = SteamshipWidgetTransport(client=self.client)
+        self.incoming_message_agent = incoming_message_agent
 
     @post("answer", public=True)
     def answer(self, **payload) -> List[Block]:
@@ -36,10 +39,15 @@ class SteamshipWidgetAgentService(AgentService, ABC):
             self.client, context_keys={"chat_id": incoming_message.chat_id}
         )
         context.chat_history.append_user_message(text=incoming_message.text)
+        if len(context.emit_funcs) == 0:
+            context.emit_funcs.append(self.save_for_emit)
         try:
-            response = self.create_response(context)
+            self.run_agent(self.incoming_message_agent, context)
         except Exception as e:
-            response = response_for_exception(e, chat_id=incoming_message.chat_id)
+            self.message_output = [response_for_exception(e, chat_id=incoming_message.chat_id)]
 
         # We don't call self.steamship_widget_transport.send because the result is the return value
-        return response
+        return self.message_output
+
+    def save_for_emit(self, blocks: List[Block], metadata: Metadata):
+        self.message_output = blocks
