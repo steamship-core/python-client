@@ -132,12 +132,12 @@ class TelegramTransport(Transport):
                 f"Bad 'message_id' found in Telegram message: ({message_id}). Should have been an int"
             )
 
-        if "voice" in payload:
-            file_id = payload.get("voice").get("file_id")
-            voice_file_url = self._get_file_url(file_id)
+        if video_or_voice := (payload.get("voice") or payload.get("video_note")):
+            file_id = video_or_voice.get("file_id")
+            file_url = self._get_file_url(file_id)
             return Block(
                 text=payload.get("text"),
-                url=voice_file_url,
+                url=file_url,
                 chat_id=str(chat_id),
                 message_id=str(message_id),
             )
