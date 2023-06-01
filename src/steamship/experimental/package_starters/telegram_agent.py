@@ -20,7 +20,6 @@ class TelegramBotConfig(Config):
 class TelegramAgentService(SteamshipWidgetAgentService, ABC):
     config: TelegramBotConfig
     telegram_transport: TelegramTransport
-    incoming_message_agent: Agent
 
     @classmethod
     def config_cls(cls) -> Type[Config]:

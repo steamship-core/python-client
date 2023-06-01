@@ -2,7 +2,7 @@ from abc import ABC
 from typing import List, Optional
 
 from steamship import Block
-from steamship.agents.schema import AgentContext
+from steamship.agents.schema import Agent, AgentContext
 from steamship.agents.service.agent_service import AgentService
 from steamship.experimental.transports.steamship_widget import SteamshipWidgetTransport
 from steamship.invocable import post
@@ -23,10 +23,12 @@ def response_for_exception(e: Optional[Exception], chat_id: Optional[str] = None
 
 class SteamshipWidgetAgentService(AgentService, ABC):
     steamship_widget_transport: SteamshipWidgetTransport
+    incoming_message_agent: Agent
 
-    def __init__(self, **kwargs):
+    def __init__(self, incoming_message_agent: Agent, **kwargs):
         super().__init__(**kwargs)
         self.steamship_widget_transport = SteamshipWidgetTransport(client=self.client)
+        self.incoming_message_agent = incoming_message_agent
 
     @post("answer", public=True)
     def answer(self, **payload) -> List[Block]:
@@ -37,7 +39,7 @@ class SteamshipWidgetAgentService(AgentService, ABC):
         )
         context.chat_history.append_user_message(text=incoming_message.text)
         try:
-            response = self.create_response(context)
+            response = self.run_agent(self.incoming_message_agent, context)
         except Exception as e:
             response = response_for_exception(e, chat_id=incoming_message.chat_id)
 
