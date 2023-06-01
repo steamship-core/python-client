@@ -8,9 +8,11 @@ from steamship.agents.schema import AgentContext, Metadata
 from steamship.agents.tools.audio_transcription.assembly_speech_to_text_tool import (
     AssemblySpeechToTextTool,
 )
+from steamship.invocable import post
+from steamship.invocable.package_mixin import PackageMixin
 
 
-class Transport(ABC):
+class Transport(PackageMixin, ABC):
     client = Steamship
     """Experimental base class to encapsulate a communication channel
 
@@ -41,27 +43,18 @@ class Transport(ABC):
     def __init__(self, client):
         self.client = client
 
-    def instance_init(self, *args, **kwargs):
-        logging.info(f"Transport initializing: {self.__class__.__name__}")
-        start = time.time()
-        self._instance_init(*args, **kwargs)
-        end = time.time()
-        logging.info(f"Transport initialized in {end - start} seconds: {self.__class__.__name__}")
-
-    @abstractmethod
-    def _instance_init(self, *args, **kwargs):
-        raise NotImplementedError
-
     @abstractmethod
     def _instance_deinit(self, *args, **kwargs):
         raise NotImplementedError
 
-    def instance_deinit(self, *args, **kwargs):
+    @post("instance_deinit")
+    def instance_deinit(self, *args, **kwargs) -> str:
         logging.info(f"Transport deinitializing: {self.__class__.__name__}")
         start = time.time()
         self._instance_deinit(*args, **kwargs)
         end = time.time()
         logging.info(f"Transport deinitialized in {end - start} seconds: {self.__class__.__name__}")
+        return "OK"
 
     def send(self, blocks: List[Block], metadata: Optional[Metadata] = None):
         metadata = metadata or {}
@@ -100,6 +93,7 @@ class Transport(ABC):
     def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
         raise NotImplementedError
 
+    @post("info")
     def info(self) -> dict:
         logging.info(f"Getting transport info: {self.__class__.__name__}")
         start = time.time()
@@ -111,3 +105,17 @@ class Transport(ABC):
     @abstractmethod
     def _info(self) -> dict:
         raise NotImplementedError
+
+    def response_for_exception(
+        self, e: Optional[Exception], chat_id: Optional[str] = None
+    ) -> Block:
+        return_text = f"An error happened while creating a response: {e}"
+        if e is None:
+            return_text = "An unknown error happened. Please reach out to support@steamship.com or on our discord at https://steamship.com/discord"
+
+        if "usage limit" in f"{e}":
+            return_text = "You have reached the introductory limit of Steamship. Visit https://steamship.com/account/plan to sign up for a plan."
+
+        result = Block(text=return_text)
+        result.set_chat_id(chat_id)
+        return result

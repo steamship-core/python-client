@@ -1,36 +1,50 @@
 import logging
 import tempfile
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import requests
+from pydantic import Field
 
 from steamship import Block, Steamship, SteamshipError
-from steamship.agents.schema import Metadata
-from steamship.experimental.transports.transport import Transport
+from steamship.agents.mixins.transports.steamship_widget import SteamshipWidgetTransport
+from steamship.agents.schema import Agent, AgentContext, EmitFunc, Metadata
+from steamship.agents.service.agent_service import AgentService
+from steamship.invocable import Config, InvocableResponse, InvocationContext, post
 
 API_BASE = "https://api.telegram.org/bot"
 
 
-class TelegramTransport(Transport):
+class TelegramTransportConfig(Config):
+    bot_token: str = Field(description="The secret token for your Telegram bot")
+
+
+class TelegramTransport(SteamshipWidgetTransport):
     """Experimental base class to encapsulate a Telegram communication channel."""
 
     api_root: str
     bot_token: str
+    agent: Agent
+    agent_service: AgentService
 
-    def __init__(self, bot_token: str, client: Steamship):
-        super().__init__(client=client)
-        self.api_root = f"{API_BASE}{bot_token}"
-        self.bot_token = bot_token
+    def __init__(
+        self,
+        client: Steamship,
+        config: TelegramTransportConfig,
+        agent_service: AgentService,
+        agent: Agent,
+    ):
+        super().__init__(client=client, agent_service=agent_service, agent=agent)
+        self.api_root = f"{API_BASE}{config.bot_token}"
+        self.bot_token = config.bot_token
+        self.agent = agent
+        self.agent_service = agent_service
 
-    def _instance_init(self, *args, **kwargs):
-        if "webhook_url" not in kwargs:
-            raise SteamshipError(
-                message="Please provide the `webhook_url` method in the TelegramTransport instance_init kwargs"
-            )
+    def instance_init(self, config: Config, invocation_context: InvocationContext):
+        webhook_url = invocation_context.invocable_url + "respond"
 
-        webhook_url = kwargs["webhook_url"]
-        logging.info(f"Setting Telegram webhook URL: {webhook_url}")
-        logging.info(f"Post is to {self.api_root}/setWebhook")
+        logging.info(
+            f"Setting Telegram webhook URL: {webhook_url}. Post is to {self.api_root}/setWebhook"
+        )
 
         response = requests.get(
             f"{self.api_root}/setWebhook",
@@ -45,6 +59,10 @@ class TelegramTransport(Transport):
             raise SteamshipError(
                 f"Could not set webhook for bot. Webhook URL was {webhook_url}. Telegram response message: {response.text}"
             )
+
+    @post("webhook_info")
+    def webhook_info(self) -> dict:
+        return requests.get(self.api_root + "/getWebhookInfo").json()
 
     def _instance_deinit(self, *args, **kwargs):
         """Unsubscribe from Telegram updates."""
@@ -85,12 +103,6 @@ class TelegramTransport(Transport):
                 logging.error(
                     f"Telegram transport unable to send a block of MimeType {block.mime_type}"
                 )
-
-    def _info(self) -> dict:
-        """Fetches info about this bot."""
-        resp = requests.get(f"{self.api_root}/getMe").json()
-        logging.info(f"/info: {resp}")
-        return {"telegram": resp.get("result")}
 
     def _get_file(self, file_id: str) -> Dict[str, Any]:
         return requests.get(f"{self.api_root}/getFile", params={"file_id": file_id}).json()[
@@ -153,3 +165,43 @@ class TelegramTransport(Transport):
             return result
         else:
             return None
+
+    def build_emit_func(self, chat_id: str) -> EmitFunc:
+        def new_emit_func(blocks: List[Block], metadata: Metadata):
+            for block in blocks:
+                block.set_chat_id(chat_id)
+            return self.send(blocks, metadata)
+
+        return new_emit_func
+
+    @post("respond", public=True)
+    def respond(self, **kwargs) -> InvocableResponse[str]:
+        """Endpoint implementing the Telegram WebHook contract. This is a PUBLIC endpoint since Telegram cannot pass a Bearer token."""
+
+        # TODO: must reject things not from the package
+        message = kwargs.get("message", {})
+        chat_id = message.get("chat", {}).get("id")
+        try:
+            incoming_message = self.parse_inbound(message)
+            if incoming_message is not None:
+                context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
+                context.chat_history.append_user_message(text=incoming_message.text)
+                if len(context.emit_funcs) == 0:
+                    context.emit_funcs.append(self.build_emit_func(chat_id=chat_id))
+
+                response = self.agent_service.run_agent(self.agent, context)
+                if response is not None:
+                    self.send(response)
+                else:
+                    # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
+                    pass
+            else:
+                # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
+                pass
+        except Exception as e:
+            response = self.response_for_exception(e, chat_id=chat_id)
+
+            if chat_id is not None:
+                self.send([response])
+        # Even if we do nothing, make sure we return ok
+        return InvocableResponse(string="OK")
