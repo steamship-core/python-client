@@ -16,7 +16,9 @@ class OpenAI(LLM):
     generator: PluginInstance
     client: Steamship
 
-    def __init__(self, client, model_name: str = "gpt-3.5-turbo", *args, **kwargs):
+    def __init__(
+        self, client, model_name: str = "gpt-3.5-turbo", temperature: float = 0.4, *args, **kwargs
+    ):
         """Create a new instance.
 
         Valid model names are:
@@ -24,7 +26,9 @@ class OpenAI(LLM):
          - gpt-3.5-turbo
         """
         client = client
-        generator = client.use_plugin(PLUGIN_HANDLE, config={"model": model_name})
+        generator = client.use_plugin(
+            PLUGIN_HANDLE, config={"model": model_name, "temperature": temperature}
+        )
         super().__init__(client=client, generator=generator, *args, **kwargs)
 
     def complete(self, prompt: str, stop: Optional[str] = None) -> List[Block]:
