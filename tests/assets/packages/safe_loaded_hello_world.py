@@ -6,7 +6,7 @@ from steamship.invocable import Invocable, InvocableResponse, get, post
 class HelloWorld(Invocable):
     @post("greet")
     def greet(self, name: str = "Person") -> InvocableResponse:
-        logging.info("Invoked greet; internal to helloworld")
+        logging.info("Invoked greet; internal to helloworld", extra={"foo": "bar"})
         return InvocableResponse(string=f"Hello, {name}")
 
     @get("workspace")
