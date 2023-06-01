@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import io
 import mimetypes
-import os
-import sys
 from enum import Enum
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
@@ -374,7 +373,7 @@ class File(CamelModel):
             tags: Metadata to add to the Steamship File
             public_data: Whether to make the Steamship File publicly-accessible
         """
-        full_path = os.path.join(sys.path[0], file_path)
+        full_path = Path(file_path).resolve()
 
         if not mime_type:
             mime, _ = mimetypes.guess_type(file_path, strict=False)
@@ -388,7 +387,7 @@ class File(CamelModel):
         if tags:
             _tags.extend(tags)
 
-        with open(full_path, "rb") as file:
+        with full_path.open("rb") as file:
             return File.create(
                 client=client,
                 content=file.read(),
