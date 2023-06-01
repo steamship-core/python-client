@@ -45,7 +45,7 @@ class SteamshipWidgetAgentService(AgentService, ABC):
         try:
             self.run_agent(self.incoming_message_agent, context)
         except Exception as e:
-            self.message_output = response_for_exception(e, chat_id=incoming_message.chat_id)
+            self.message_output = [response_for_exception(e, chat_id=incoming_message.chat_id)]
 
         # We don't call self.steamship_widget_transport.send because the result is the return value
         return self.message_output
