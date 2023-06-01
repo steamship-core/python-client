@@ -135,12 +135,13 @@ class TelegramTransport(Transport):
         if video_or_voice := (payload.get("voice") or payload.get("video_note")):
             file_id = video_or_voice.get("file_id")
             file_url = self._get_file_url(file_id)
-            return Block(
+            block = Block(
                 text=payload.get("text"),
                 url=file_url,
-                chat_id=str(chat_id),
-                message_id=str(message_id),
             )
+            block.set_chat_id(str(chat_id))
+            block.set_message_id(str(message_id))
+            return block
 
         # Some incoming messages (like the group join message) don't have message text.
         # Rather than throw an error, we just don't return a Block.
