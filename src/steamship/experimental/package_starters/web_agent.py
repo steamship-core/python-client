@@ -1,5 +1,4 @@
 from abc import ABC
-from functools import partial
 from typing import List, Optional
 
 from steamship import Block
@@ -41,7 +40,7 @@ class SteamshipWidgetAgentService(AgentService, ABC):
         )
         context.chat_history.append_user_message(text=incoming_message.text)
         if len(context.emit_funcs) == 0:
-            context.emit_funcs.append(partial(self.save_for_emit, self=self))
+            context.emit_funcs.append(self.save_for_emit)
         try:
             self.run_agent(self.incoming_message_agent, context)
         except Exception as e:
