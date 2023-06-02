@@ -6,7 +6,7 @@ import requests
 from pydantic import Field
 
 from steamship import Block, Steamship, SteamshipError
-from steamship.agents.mixins.transports.steamship_widget import SteamshipWidgetTransport
+from steamship.agents.mixins.transports.transport import Transport
 from steamship.agents.schema import Agent, AgentContext, EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
 from steamship.invocable import Config, InvocableResponse, InvocationContext, post
@@ -17,7 +17,7 @@ class TelegramTransportConfig(Config):
     api_base: str = Field("https://api.telegram.org/bot", description="The root API for Telegram")
 
 
-class TelegramTransport(SteamshipWidgetTransport):
+class TelegramTransport(Transport):
     """Experimental base class to encapsulate a Telegram communication channel."""
 
     api_root: str
@@ -32,7 +32,7 @@ class TelegramTransport(SteamshipWidgetTransport):
         agent_service: AgentService,
         agent: Agent,
     ):
-        super().__init__(client=client, agent_service=agent_service, agent=agent)
+        super().__init__(client=client)
         self.api_root = f"{config.api_base}{config.bot_token}"
         self.bot_token = config.bot_token
         self.agent = agent
@@ -63,7 +63,8 @@ class TelegramTransport(SteamshipWidgetTransport):
     def webhook_info(self) -> dict:
         return requests.get(self.api_root + "/getWebhookInfo").json()
 
-    def _instance_deinit(self, *args, **kwargs):
+    @post("disconnect_webhook")
+    def disconnect_webhook(self, *args, **kwargs):
         """Unsubscribe from Telegram updates."""
         requests.get(f"{self.api_root}/deleteWebhook")
 
@@ -185,8 +186,7 @@ class TelegramTransport(SteamshipWidgetTransport):
             if incoming_message is not None:
                 context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
                 context.chat_history.append_user_message(text=incoming_message.text)
-                if len(context.emit_funcs) == 0:
-                    context.emit_funcs.append(self.build_emit_func(chat_id=chat_id))
+                context.emit_funcs = [self.build_emit_func(chat_id=chat_id)]
 
                 response = self.agent_service.run_agent(self.agent, context)
                 if response is not None:

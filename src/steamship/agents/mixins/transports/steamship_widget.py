@@ -34,8 +34,8 @@ class SteamshipWidgetTransport(Transport):
         """
         pass
 
-    def _info(self) -> dict:
-        """Fetches info about this bot."""
+    @post("info")
+    def info(self) -> dict:
         return {}
 
     def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
@@ -62,8 +62,7 @@ class SteamshipWidgetTransport(Transport):
             self.client, context_keys={"chat_id": incoming_message.chat_id}
         )
         context.chat_history.append_user_message(text=incoming_message.text)
-        if len(context.emit_funcs) == 0:
-            context.emit_funcs.append(self.save_for_emit)
+        context.emit_funcs = [self.save_for_emit]
         try:
             self.agent_service.run_agent(self.agent, context)
         except Exception as e:

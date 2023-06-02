@@ -1,15 +1,10 @@
-from typing import Any, Dict, Type
+from typing import Any, Dict
 
 from steamship import Block, Steamship
 from steamship.agents.mixins.transports.steamship_widget import SteamshipWidgetTransport
-from steamship.agents.mixins.transports.telegram import TelegramTransport, TelegramTransportConfig
 from steamship.agents.schema import Action, Agent, AgentContext, FinishAction
 from steamship.agents.service.agent_service import AgentService
-from steamship.invocable import Config, InvocationContext
-
-
-class TestTelegramAgentConfig(TelegramTransportConfig):
-    pass
+from steamship.invocable import InvocationContext
 
 
 class TestAgent(Agent):
@@ -23,7 +18,6 @@ class TestAgent(Agent):
 
 class TestTelegramAgent(AgentService):
 
-    config: TestTelegramAgentConfig
     agent: Agent
 
     def __init__(
@@ -31,18 +25,6 @@ class TestTelegramAgent(AgentService):
     ):
         super().__init__(client=client, config=config, context=context)
         self.agent = TestAgent()
-
-        # Including the web widget transport on the telegram test
-        # agent to make sure it doesn't interfere
         self.add_mixin(
             SteamshipWidgetTransport(client=client, agent_service=self, agent=self.agent)
         )
-        self.add_mixin(
-            TelegramTransport(
-                client=client, config=self.config, agent_service=self, agent=self.agent
-            )
-        )
-
-    @classmethod
-    def config_cls(cls) -> Type[Config]:
-        return TestTelegramAgentConfig

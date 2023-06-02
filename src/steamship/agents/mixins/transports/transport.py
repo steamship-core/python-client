@@ -8,53 +8,32 @@ from steamship.agents.schema import AgentContext, Metadata
 from steamship.agents.tools.audio_transcription.assembly_speech_to_text_tool import (
     AssemblySpeechToTextTool,
 )
-from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
 
 
 class Transport(PackageMixin, ABC):
     client = Steamship
-    """Experimental base class to encapsulate a communication channel
+    """ Base class to encapsulate a communication channel mixin
 
     Intended use is:
 
         class MyBot(PackageService):
-            transport: Transport
 
-            def __init__(self):
-                self.transport = TelegramTransport(bot_token=self.config.telegram_bot_token)
-
-            def instance_init(self):
-                webhook_url = self.context.invocable_url + 'respond'
-                self.transport.instance_init(webhook_url=webhook_url)
-
-            def respond(self):
-                self.transport.send(blocks=[Block(text="Got it!")], chat_id="abc")
-
-    Note that this experimental sketch is just a first draft. Among its quirks:
-
-    - The idea of re-using Blocks as the medium of message format, which aligns chatting with the rest of our code.
-      - For example, to send back an image, one would do so via a block.
-
-    - It doesn't yet try to model inbound messages or chat_ids. That's an encapsulation leak left for future exploration.
+               def __init__(
+                    self, client: Steamship, config: Dict[str, Any] = None, context: InvocationContext = None
+                ):
+                    super().__init__(client=client, config=config, context=context)
+                    self.agent = TestAgent()
+                self.add_mixin(
+                    TelegramTransport(
+                        client=client, config=self.config, agent_service=self, agent=self.agent
+                    )
+                )
 
     """
 
     def __init__(self, client):
         self.client = client
-
-    @abstractmethod
-    def _instance_deinit(self, *args, **kwargs):
-        raise NotImplementedError
-
-    @post("instance_deinit")
-    def instance_deinit(self, *args, **kwargs) -> str:
-        logging.info(f"Transport deinitializing: {self.__class__.__name__}")
-        start = time.time()
-        self._instance_deinit(*args, **kwargs)
-        end = time.time()
-        logging.info(f"Transport deinitialized in {end - start} seconds: {self.__class__.__name__}")
-        return "OK"
 
     def send(self, blocks: List[Block], metadata: Optional[Metadata] = None):
         metadata = metadata or {}
@@ -91,19 +70,6 @@ class Transport(PackageMixin, ABC):
 
     @abstractmethod
     def _parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
-        raise NotImplementedError
-
-    @post("info")
-    def info(self) -> dict:
-        logging.info(f"Getting transport info: {self.__class__.__name__}")
-        start = time.time()
-        info = self._info()
-        end = time.time()
-        logging.info(f"Transport info fetched in {end - start} seconds: {self.__class__.__name__}")
-        return info
-
-    @abstractmethod
-    def _info(self) -> dict:
         raise NotImplementedError
 
     def response_for_exception(
