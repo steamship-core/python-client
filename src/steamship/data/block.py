@@ -13,6 +13,7 @@ from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.base.response import Response
 from steamship.data.tags.tag import Tag
 from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValueKey
+from steamship.utils.utils import format_uri
 
 
 class BlockQueryRequest(Request):
@@ -219,7 +220,7 @@ class Block(CamelModel):
         this content can be accessed without an API key.
         """
         if self.client is not None:
-            return f"{self.client.config.api_base}block/{self.id}/raw"
+            return f"{format_uri(self.client.config.api_base)}block/{self.id}/raw"
         else:
             return None
 
