@@ -3,6 +3,7 @@ from typing import Optional
 from steamship import File, MimeTypes, Steamship, SteamshipError, Task
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
+from steamship.utils.file_tags import update_file_status
 
 
 class BlockifierMixin(PackageMixin):
@@ -32,6 +33,7 @@ class BlockifierMixin(PackageMixin):
         """
 
         file = File.get(self.client, _id=file_id)
+        update_file_status(file, "Blockifying")
 
         _mime_type = mime_type or file.mime_type
         if not _mime_type:
