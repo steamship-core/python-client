@@ -40,6 +40,7 @@ class SteamshipWidgetAgentService(AgentService, ABC):
             self.client, context_keys={"chat_id": incoming_message.chat_id}
         )
         context.chat_history.append_user_message(text=incoming_message.text)
+        logging.info(f"Existing emit functions: {len(context.emit_funcs)}")
         context.emit_funcs = [self.save_for_emit]
         try:
             self.run_agent(self.incoming_message_agent, context)
