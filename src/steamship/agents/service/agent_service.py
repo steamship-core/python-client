@@ -70,5 +70,12 @@ class AgentService(PackageService):
             )
 
         context.completed_steps.append(action)
+        output_text_length = 0
+        if action.output is not None:
+            output_text_length = sum([len(block.text or "") for block in action.output])
+        logging.info(
+            f"Completed agent run. Result: {len(action.output or [])} blocks. {output_text_length} total text length. Emitting on {len(context.emit_funcs)} functions."
+        )
         for func in context.emit_funcs:
+            logging.info(f"Emitting via function: {func.__name__}")
             func(action.output, context.metadata)
