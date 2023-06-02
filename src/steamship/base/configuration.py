@@ -61,7 +61,7 @@ class Configuration(CamelModel):
         )
         config_dict.update(self._get_config_dict_from_environment())
         kwargs.update({k: v for k, v in config_dict.items() if kwargs.get(k) is None})
-        kwargs = {to_camel(k): v for k, v in kwargs}
+        kwargs = {to_camel(k): v for k, v in kwargs.items()}
 
         kwargs["apiBase"] = format_uri(kwargs.get("apiBase"))
         kwargs["appBase"] = format_uri(kwargs.get("appBase"))
