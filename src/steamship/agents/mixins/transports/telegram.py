@@ -11,11 +11,10 @@ from steamship.agents.schema import Agent, AgentContext, EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
 from steamship.invocable import Config, InvocableResponse, InvocationContext, post
 
-API_BASE = "https://api.telegram.org/bot"
-
 
 class TelegramTransportConfig(Config):
     bot_token: str = Field(description="The secret token for your Telegram bot")
+    api_base: str = Field("https://api.telegram.org/bot", description="The root API for Telegram")
 
 
 class TelegramTransport(SteamshipWidgetTransport):
@@ -34,7 +33,7 @@ class TelegramTransport(SteamshipWidgetTransport):
         agent: Agent,
     ):
         super().__init__(client=client, agent_service=agent_service, agent=agent)
-        self.api_root = f"{API_BASE}{config.bot_token}"
+        self.api_root = f"{config.api_base}{config.bot_token}"
         self.bot_token = config.bot_token
         self.agent = agent
         self.agent_service = agent_service
