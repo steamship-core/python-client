@@ -20,6 +20,7 @@ class FileImporterMixin(PackageMixin):
         """Return the async importer plugin, if necessary."""
         if "youtube.com" in url or "youtu.be" in url:
             return "youtube-file-importer"
+
         return None
 
     def _import_with_async_importer(
@@ -73,3 +74,8 @@ class FileImporterMixin(PackageMixin):
         """Import the URL to a Steamship File. Actual import will be scheduled Async."""
         file, task = self.import_url_to_file_and_task(url)
         return file
+
+    @post("/import_text")
+    def import_text(self, text: str, mime_type: Optional[str]) -> File:
+        """Import the text to a Steamship File."""
+        return File.create(self.client, content=text, mime_type=mime_type)
