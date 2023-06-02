@@ -18,7 +18,7 @@ def test_telegram(client: Steamship):
     telegram_agent_path = PACKAGES_PATH / "transports" / "test_telegram_agent.py"
 
     with deploy_package(client, mock_telegram_package_path) as (_, _, mock_telegram_instance):
-        instance_config = {"bot_token": "", "api_base": mock_telegram_instance.invocation_url}
+        instance_config = {"bot_token": "/", "api_base": mock_telegram_instance.invocation_url}
         with deploy_package(
             client,
             telegram_agent_path,
