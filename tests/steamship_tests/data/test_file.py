@@ -412,7 +412,7 @@ def test_set_public_data(client: Steamship):
 @pytest.mark.usefixtures("client")
 def test_from_local(client: Steamship):
     file = File.from_local(
-        client=client, file_path="steamship_tests/data/test_img.png", public_data=True
+        client=client, file_path="tests/steamship_tests/data/test_img.png", public_data=True
     )
 
     assert len(file.tags) == 1  # should have provenance tag
@@ -424,7 +424,7 @@ def test_from_local(client: Steamship):
 @pytest.mark.usefixtures("client")
 def test_from_local_tags(client: Steamship):
     file = File.from_local(
-        client=client, file_path="steamship_tests/data/test_img.png", tags=[Tag(kind="fake")]
+        client=client, file_path="tests/steamship_tests/data/test_img.png", tags=[Tag(kind="fake")]
     )
 
     assert len(file.tags) == 2  # should have provenance tag and fake tag
@@ -435,7 +435,7 @@ def test_from_local_tags(client: Steamship):
 @pytest.mark.usefixtures("client")
 def test_from_local_content(client: Steamship):
     file = File.from_local(
-        client=client, file_path="steamship_tests/data/test_file.py", public_data=True
+        client=client, file_path="tests/steamship_tests/data/test_file.py", public_data=True
     )
 
     assert len(file.tags) == 1  # should have provenance tag
