@@ -46,9 +46,9 @@ class Configuration(CamelModel):
     profile: Optional[str] = None
 
     def __init__(
-            self,
-            config_file: Optional[Path] = None,
-            **kwargs,
+        self,
+        config_file: Optional[Path] = None,
+        **kwargs,
     ):
         # First set the profile
         kwargs["profile"] = profile = kwargs.get("profile") or os.getenv("STEAMSHIP_PROFILE")
@@ -81,7 +81,7 @@ class Configuration(CamelModel):
 
     @staticmethod
     def _load_from_file(
-            file: Path, profile: str = None, raise_on_exception: bool = False
+        file: Path, profile: str = None, raise_on_exception: bool = False
     ) -> Optional[dict]:
         try:
             with file.open() as f:

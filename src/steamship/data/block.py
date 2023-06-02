@@ -27,7 +27,7 @@ class BlockUploadType(str, Enum):
 
 
 def get_tag_value_key(
-        tags: Optional[List[Tag]], key: str, kind: Optional[str] = None, name: Optional[str] = None
+    tags: Optional[List[Tag]], key: str, kind: Optional[str] = None, name: Optional[str] = None
 ) -> Optional[any]:
     """Iterates through a list of tags and returns the first that contains the provided Kind/Name/ValueKey."""
     for tag in tags or []:
@@ -78,8 +78,8 @@ class Block(CamelModel):
 
     @staticmethod
     def get(
-            client: Client,
-            _id: str = None,
+        client: Client,
+        _id: str = None,
     ) -> Block:
         return client.post(
             "block/get",
@@ -89,14 +89,14 @@ class Block(CamelModel):
 
     @staticmethod
     def create(
-            client: Client,
-            file_id: str,
-            text: str = None,
-            tags: List[Tag] = None,
-            content: Union[str, bytes] = None,
-            url: Optional[str] = None,
-            mime_type: Optional[MimeTypes] = None,
-            public_data: bool = False,
+        client: Client,
+        file_id: str,
+        text: str = None,
+        tags: List[Tag] = None,
+        content: Union[str, bytes] = None,
+        url: Optional[str] = None,
+        mime_type: Optional[MimeTypes] = None,
+        public_data: bool = False,
     ) -> Block:
         """
         Create a new Block within a File specified by file_id.
@@ -150,8 +150,8 @@ class Block(CamelModel):
 
     @staticmethod
     def query(
-            client: Client,
-            tag_filter_query: str,
+        client: Client,
+        tag_filter_query: str,
     ) -> BlockQueryResponse:
         req = BlockQueryRequest(tag_filter_query=tag_filter_query)
         res = client.post(
