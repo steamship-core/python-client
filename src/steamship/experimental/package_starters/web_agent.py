@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 from typing import List, Optional
 
@@ -50,4 +51,5 @@ class SteamshipWidgetAgentService(AgentService, ABC):
         return self.message_output
 
     def save_for_emit(self, blocks: List[Block], metadata: Metadata):
+        logging.info(f"Emitting by saving to self of type {type(self)}")
         self.message_output = blocks
