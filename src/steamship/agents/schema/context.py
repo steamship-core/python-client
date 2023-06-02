@@ -50,4 +50,5 @@ class AgentContext:
         context.chat_history = history
         context.client = client
         context.completed_steps = []
+        context.emit_funcs = []
         return context
