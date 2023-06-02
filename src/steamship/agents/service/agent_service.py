@@ -77,4 +77,5 @@ class AgentService(PackageService):
             f"Completed agent run. Result: {len(action.output or [])} blocks. {output_text_length} total text length. Emitting on {len(context.emit_funcs)} functions."
         )
         for func in context.emit_funcs:
+            logging.info(f"Emitting via function: {func.__name__}")
             func(action.output, context.metadata)
