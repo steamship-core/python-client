@@ -91,12 +91,17 @@ def _create_instance(  # noqa: C901
     invocable_config, is_file = config_str_to_dict(config)
     new_param_values = False
     for param, param_config in manifest.configTemplate.items():
-        if param not in invocable_config and param_config.default is None:
+        if param not in invocable_config and (
+            param_config.default is None or param_config.default == ""
+        ):
             if param.upper() in os.environ:
                 invocable_config[param] = os.environ[param.upper()]
             else:
                 invocable_config[param] = click.prompt(
-                    f"Value for {param} ({param_config.description})"
+                    f"Value for {param} ({param_config.description})" + "\nPress Enter for DEFAULT"
+                    if param_config.default == ""
+                    else "",
+                    default="",
                 )
             new_param_values = True
 
