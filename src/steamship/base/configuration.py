@@ -8,7 +8,7 @@ from typing import Optional
 import inflection
 from pydantic import HttpUrl, SecretStr
 
-from steamship.base.model import CamelModel
+from steamship.base.model import CamelModel, to_camel
 from steamship.cli.login import login
 from steamship.utils.utils import format_uri
 
@@ -46,9 +46,9 @@ class Configuration(CamelModel):
     profile: Optional[str] = None
 
     def __init__(
-        self,
-        config_file: Optional[Path] = None,
-        **kwargs,
+            self,
+            config_file: Optional[Path] = None,
+            **kwargs,
     ):
         # First set the profile
         kwargs["profile"] = profile = kwargs.get("profile") or os.getenv("STEAMSHIP_PROFILE")
@@ -61,26 +61,27 @@ class Configuration(CamelModel):
         )
         config_dict.update(self._get_config_dict_from_environment())
         kwargs.update({k: v for k, v in config_dict.items() if kwargs.get(k) is None})
+        kwargs = {to_camel(k): v for k, v in kwargs}
 
-        kwargs["api_base"] = format_uri(kwargs.get("api_base"))
-        kwargs["app_base"] = format_uri(kwargs.get("app_base"))
-        kwargs["web_base"] = format_uri(kwargs.get("web_base"))
+        kwargs["apiBase"] = format_uri(kwargs.get("apiBase"))
+        kwargs["appBase"] = format_uri(kwargs.get("appBase"))
+        kwargs["webBase"] = format_uri(kwargs.get("webBase"))
 
-        if not kwargs.get("api_key") and not kwargs.get("apiKey"):
+        if not kwargs.get("apiKey"):
             api_key = login(
-                kwargs.get("api_base") or DEFAULT_API_BASE,
-                kwargs.get("web_base") or DEFAULT_WEB_BASE,
+                kwargs.get("apiBase") or DEFAULT_API_BASE,
+                kwargs.get("webBase") or DEFAULT_WEB_BASE,
             )
             Configuration._save_api_key_to_file(
                 api_key, profile, config_file or DEFAULT_CONFIG_FILE
             )
-            kwargs["api_key"] = api_key
+            kwargs["apiKey"] = api_key
 
         super().__init__(**kwargs)
 
     @staticmethod
     def _load_from_file(
-        file: Path, profile: str = None, raise_on_exception: bool = False
+            file: Path, profile: str = None, raise_on_exception: bool = False
     ) -> Optional[dict]:
         try:
             with file.open() as f:
