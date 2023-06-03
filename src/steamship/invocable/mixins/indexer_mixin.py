@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, cast
 
 from steamship import Block, DocTag, File, Steamship, Tag, Task
 from steamship.data import TagValueKey
@@ -7,23 +7,39 @@ from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
 from steamship.utils.file_tags import update_file_status
 
+DEFAULT_EMBEDDING_INDEX_CONFIG = {
+    "embedder": {
+        "plugin_handle": "openai-embedder",
+        "plugin_instance-handle": "text-embedding-ada-002",
+        "fetch_if_exists": True,
+        "config": {"model": "text-embedding-ada-002", "dimensionality": 1536},
+    }
+}
 
-class FlileIndexerMixin(PackageMixin):
+DEFAULT_EMBEDDING_INDEX_HANDLE = "default-embedding-index"
+
+
+class IndexerMixin(PackageMixin):
     """Provides endpoints for easy Indexing of blockified files."""
 
     client: Steamship
     context_window_size: int
     context_window_overlap: int
-    embedding_index_handle: str
-    embedding_index: Optional[EmbeddingIndexPluginInstance]
+    embedding_index_instance_handle: str
+    embedding_index_config: dict
 
     def __init__(
-        self, client: Steamship, embedding_index_handle: str, context_window_size: int = 100
+        self,
+        client: Steamship,
+        embedding_index_instance_handle: str = "default-embedding-index",
+        embedder_config: dict = None,
+        context_window_size: int = 100,
     ):
         self.client = client
         self.context_window_size = context_window_size
-        self.embedding_index_handle = embedding_index_handle
-        self.embedding_index = None
+        self.embedding_index_instance_handle = embedding_index_instance_handle
+        self.embedding_indexes = {}
+        self.embedding_index_config = embedder_config or DEFAULT_EMBEDDING_INDEX_CONFIG
 
     def _get_page(self, block: Block) -> Optional[str]:
         """Return the page_id from the block if it exists."""
@@ -35,37 +51,44 @@ class FlileIndexerMixin(PackageMixin):
                     page_id = page_num
         return page_id
 
-    def _get_index(self, block: Block) -> EmbeddingIndexPluginInstance:
+    def _get_index(self, index_handle: Optional[str] = None) -> EmbeddingIndexPluginInstance:
         """Return the page_id from the block if it exists."""
-        if self.embedding_index:
-            return self.embedding_index
+        handle = index_handle or DEFAULT_EMBEDDING_INDEX_HANDLE
+        if handle in self.embedding_indexes:
+            return self.embedding_indexes[handle]
 
-        # TODO: Load
+        self.embedding_indexes[handle] = cast(
+            EmbeddingIndexPluginInstance,
+            self.client.use_plugin(
+                plugin_handle="embedding-index",
+                instance_handle=handle,
+                config=self.embedding_index_config,
+                fetch_if_exists=True,
+            ),
+        )
+        return self.embedding_indexes[handle]
 
-    def index_block(self, block: Block):
-        page_id = self._get_page(block)
-
+    def index_text(
+        self, text: str, metadata: Optional[dict] = None, index_handle: Optional[str] = None
+    ):
         tags = []
-        for i in range(0, len(block.text), self.context_window_size):
+        for i in range(0, len(text), self.context_window_size):
             # Calculate the extent of the window plus the overlap at the edges
             min_range = max(0, i - self.context_window_overlap)
             max_range = i + self.context_window_size + self.context_window_overlap
+            chunk = text[min_range:max_range]
+            tags.append(Tag(text=chunk, metadata=metadata))
+        self._get_index(index_handle).insert(tags)
 
-            # Get the text covering that chunk.
-            chunk = block.text[min_range:max_range]
-
-            tag = Tag(
-                text=chunk,
-                metadata={
-                    "source": "",
-                    "file_id": block.file_id,
-                    "block_id": block.id,
-                    "page": page_id,
-                },
-            )
-            tags.append(tags)
-
-        self._get_index().insert(tags)
+    def index_block(self, block: Block, index_handle: Optional[str] = None):
+        page_id = self._get_page(block)
+        metadata = {
+            "source": "",
+            "file_id": block.file_id,
+            "block_id": block.id,
+            "page": page_id,
+        }
+        return self.index_text(block.text, metadata=metadata)
 
     @post("/index_file")
     def index_file(
