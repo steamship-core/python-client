@@ -1,11 +1,12 @@
+import pytest
 from steamship_tests import PACKAGES_PATH
 from steamship_tests.utils.deployables import deploy_package
-from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import PackageInstance
+from steamship import PackageInstance, Steamship
 
 
-def test_configurable_instance_invoke():
+@pytest.mark.usefixtures("client")
+def test_configurable_instance_invoke(client: Steamship):
     greeting1 = "Hola"
     config_template = {
         "greeting": {"type": "string"},
@@ -18,7 +19,6 @@ def test_configurable_instance_invoke():
         "snake_case_config": "hisss",
         "camelCaseConfig": "spit!",
     }
-    client = get_steamship_client()
     hello_world_path = PACKAGES_PATH / "configurable_hello_world.py"
 
     with deploy_package(

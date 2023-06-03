@@ -86,7 +86,8 @@ class IndexerMixin(PackageMixin):
     ):
         page_id = self._get_page(block)
         _metadata = {}
-        _metadata.update(metadata)
+        if metadata:
+            _metadata.update(metadata)
         _metadata.update(
             {
                 "source": "",
@@ -124,7 +125,7 @@ class IndexerMixin(PackageMixin):
         file = File.get(self.client, _id=file_id)
         update_file_status(self.client, file, "Indexing")
 
-        for block in file.blocks:
+        for block in file.blocks or []:
             self._index_block(block, metadata=metadata, index_handle=index_handle)
 
         update_file_status(self.client, file, "Indexed")
