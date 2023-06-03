@@ -3,6 +3,7 @@ from steamship_tests.utils.deployables import deploy_package
 from steamship_tests.utils.fixtures import get_steamship_client
 
 from steamship import File, MimeTypes, Task, TaskState
+from steamship.data.plugin.index_plugin_instance import SearchResults
 
 
 def test_importer_mixin_and_package_invocation():
@@ -82,4 +83,28 @@ Hi there this is a paragraph.
         assert pdf_blocks[0].text == "This is the ﬁrst page\n"
         assert pdf_blocks[1].text == "This is the second page"
 
-        pdf_blocks.delete()
+        # Test indexer with text
+        instance.invoke("index_text", text="Bananas")
+        instance.invoke("index_text", text="Trains")
+        instance.invoke("index_text", text="Democracy")
+
+        instance.invoke("index_text", text="Bananas", index_handle="index2")
+        instance.invoke("index_text", text="Trains", index_handle="index2")
+
+        result = instance.invoke("search_index", query="politics")
+        result = SearchResults.parse_obj(result)
+        winner = result.items[0]
+        assert winner.tag.text == "Democracy"
+
+        result = instance.invoke("search_index", query="politics", index_handle="index2")
+        result = SearchResults.parse_obj(result)
+        winner = result.items[0]
+        assert winner.tag.text == "Trains"
+
+        # Test indexer with file
+        instance.invoke("index_file", file_id=pdf_file.id)
+
+        result = instance.invoke("search_index", query="second page")
+        result = SearchResults.parse_obj(result)
+        winner = result.items[0]
+        assert winner.tag.text == "This is the second page"

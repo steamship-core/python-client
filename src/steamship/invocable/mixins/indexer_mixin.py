@@ -1,8 +1,8 @@
 from typing import Optional, cast
 
-from steamship import Block, DocTag, File, Steamship, Tag, Task
+from steamship import Block, DocTag, File, Steamship, Tag
 from steamship.data import TagValueKey
-from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
+from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance, SearchResults
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
 from steamship.utils.file_tags import update_file_status
@@ -25,19 +25,18 @@ class IndexerMixin(PackageMixin):
     client: Steamship
     context_window_size: int
     context_window_overlap: int
-    embedding_index_instance_handle: str
     embedding_index_config: dict
 
     def __init__(
         self,
         client: Steamship,
-        embedding_index_instance_handle: str = "default-embedding-index",
         embedder_config: dict = None,
-        context_window_size: int = 100,
+        context_window_size: int = 200,
+        context_window_overlap: int = 50,
     ):
         self.client = client
         self.context_window_size = context_window_size
-        self.embedding_index_instance_handle = embedding_index_instance_handle
+        self.context_window_overlap = context_window_overlap
         self.embedding_indexes = {}
         self.embedding_index_config = embedder_config or DEFAULT_EMBEDDING_INDEX_CONFIG
 
@@ -68,9 +67,10 @@ class IndexerMixin(PackageMixin):
         )
         return self.embedding_indexes[handle]
 
+    @post("/index_text")
     def index_text(
         self, text: str, metadata: Optional[dict] = None, index_handle: Optional[str] = None
-    ):
+    ) -> bool:
         tags = []
         for i in range(0, len(text), self.context_window_size):
             # Calculate the extent of the window plus the overlap at the edges
@@ -79,33 +79,62 @@ class IndexerMixin(PackageMixin):
             chunk = text[min_range:max_range]
             tags.append(Tag(text=chunk, metadata=metadata))
         self._get_index(index_handle).insert(tags)
+        return True
 
-    def index_block(self, block: Block, index_handle: Optional[str] = None):
+    def _index_block(
+        self, block: Block, metadata: Optional[dict] = None, index_handle: Optional[str] = None
+    ):
         page_id = self._get_page(block)
-        metadata = {
-            "source": "",
-            "file_id": block.file_id,
-            "block_id": block.id,
-            "page": page_id,
-        }
-        return self.index_text(block.text, metadata=metadata)
+        _metadata = {}
+        _metadata.update(metadata)
+        _metadata.update(
+            {
+                "source": "",
+                "file_id": block.file_id,
+                "block_id": block.id,
+                "page": page_id,
+            }
+        )
+
+        return self.index_text(block.text, metadata=_metadata, index_handle=index_handle)
+
+    @post("/index_block")
+    def index_block(
+        self, block_id: str, metadata: Optional[dict] = None, index_handle: Optional[str] = None
+    ):
+        block = Block.get(self.client, _id=block_id)
+        page_id = self._get_page(block)
+        _metadata = {}
+        _metadata.update(metadata)
+        _metadata.update(
+            {
+                "source": "",
+                "file_id": block.file_id,
+                "block_id": block.id,
+                "page": page_id,
+            }
+        )
+
+        return self.index_text(block.text, metadata=_metadata, index_handle=index_handle)
 
     @post("/index_file")
     def index_file(
-        self,
-        file_id: str,
-    ) -> Task:
+        self, file_id: str, metadata: Optional[dict] = None, index_handle: Optional[str] = None
+    ) -> bool:
         file = File.get(self.client, _id=file_id)
-        update_file_status(file, "Indexing")
-
-        # For PDFs, we iterate over the blocks (block = page) and then split each chunk of texts into the context
-        # window units.
-
-        documents = []
+        update_file_status(self.client, file, "Indexing")
 
         for block in file.blocks:
-            self.index_block(block)
+            self._index_block(block, metadata=metadata, index_handle=index_handle)
 
-        # self._get_index().add_documents(documents)
-        # self._update_file_status(file, "Indexed")
-        # return True
+        update_file_status(self.client, file, "Indexed")
+        return True
+
+    @post("/search_index")
+    def search_index(
+        self, query: str, index_handle: Optional[str] = None, k: int = 5
+    ) -> SearchResults:
+        index = self._get_index(index_handle)
+        task = index.search(query, k)
+        task.wait()
+        return task.output

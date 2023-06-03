@@ -33,7 +33,7 @@ class BlockifierMixin(PackageMixin):
         """
 
         file = File.get(self.client, _id=file_id)
-        update_file_status(file, "Blockifying")
+        update_file_status(self.client, file, "Blockifying")
 
         _mime_type = mime_type or file.mime_type
         if not _mime_type:
