@@ -81,5 +81,3 @@ Hi there this is a paragraph.
         assert len(pdf_blocks) == 2
         assert pdf_blocks[0].text == "This is the ﬁrst page\n"
         assert pdf_blocks[1].text == "This is the second page"
-
-        pdf_blocks.delete()
