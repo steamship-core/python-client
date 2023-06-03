@@ -21,7 +21,6 @@ class FileImporterMixin(PackageMixin):
         """Return the async importer plugin, if necessary."""
         if "youtube.com" in url or "youtu.be" in url:
             return "youtube-file-importer"
-
         return None
 
     def _import_with_async_importer(
