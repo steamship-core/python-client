@@ -207,7 +207,12 @@ class Block(CamelModel):
 
     def is_audio(self):
         """Return whether this is an audio Block."""
-        return self.mime_type in [MimeTypes.MP3, MimeTypes.MP4_AUDIO, MimeTypes.WEBM_AUDIO]
+        return self.mime_type in [
+            MimeTypes.MP3,
+            MimeTypes.MP4_AUDIO,
+            MimeTypes.WEBM_AUDIO,
+            MimeTypes.WAV,
+        ]
 
     def is_video(self):
         """Return whether this is a video Block."""

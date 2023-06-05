@@ -42,7 +42,7 @@ class TestAgent(Agent):
             output_block = Block.create(
                 self.client,
                 content="some video bytes",
-                mime_type=MimeTypes.WAV,
+                mime_type=MimeTypes.MP4_VIDEO,
                 file_id=output_file.id,
             )
         else:

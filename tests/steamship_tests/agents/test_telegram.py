@@ -68,20 +68,20 @@ def test_telegram(client: Steamship):
 
             # Test the agent sending "audio"
             telegram_instance.invoke("respond", **generate_telegram_message("audio"))
-            files = File.query(client, f'kind "{MockTelegram.PHOTO_MESSAGE_TAG}"').files
+            files = File.query(client, f'kind "{MockTelegram.AUDIO_MESSAGE_TAG}"').files
             assert len(files) == 1
             assert files[0].tags[0].value == {
                 MockTelegram.CHAT_ID_KEY: 1,
                 MockTelegram.AUDIO_KEY: "some audio bytes",
             }
 
-            # Test the agent sending a "photo"
-            telegram_instance.invoke("respond", **generate_telegram_message("image"))
-            files = File.query(client, f'kind "{MockTelegram.PHOTO_MESSAGE_TAG}"').files
+            # Test the agent sending a "video"
+            telegram_instance.invoke("respond", **generate_telegram_message("video"))
+            files = File.query(client, f'kind "{MockTelegram.VIDEO_MESSAGE_TAG}"').files
             assert len(files) == 1
             assert files[0].tags[0].value == {
                 MockTelegram.CHAT_ID_KEY: 1,
-                MockTelegram.PHOTO_KEY: "some image bytes",
+                MockTelegram.VIDEO_KEY: "some video bytes",
             }
 
 
