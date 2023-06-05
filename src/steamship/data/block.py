@@ -24,7 +24,6 @@ class BlockUploadType(str, Enum):
     BLOCKS = "blocks"  # Blocks are sent to create a file
     URL = "url"  # content will be fetched from a URL
     NONE = "none"  # No upload; plain text only.
-    EMPTY = "empty"  # No upload; defer file content creation to a later /import
 
 
 def get_tag_value_key(
@@ -117,7 +116,7 @@ class Block(CamelModel):
         elif url is not None:
             upload_type = BlockUploadType.URL
         else:
-            upload_type = BlockUploadType.EMPTY
+            upload_type = BlockUploadType.NONE
 
         req = {
             "fileId": file_id,
