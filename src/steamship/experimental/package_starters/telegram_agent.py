@@ -20,7 +20,6 @@ class TelegramBotConfig(Config):
 class TelegramAgentService(SteamshipWidgetAgentService, ABC):
     config: TelegramBotConfig
     telegram_transport: TelegramTransport
-    incoming_message_agent: Agent
 
     @classmethod
     def config_cls(cls) -> Type[Config]:
@@ -28,7 +27,7 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
         return TelegramBotConfig
 
     def __init__(self, incoming_message_agent: Agent, **kwargs):
-        super().__init__(**kwargs)
+        super().__init__(incoming_message_agent=incoming_message_agent, **kwargs)
         self.api_root = f"https://api.telegram.org/bot{self.config.bot_token}"
         self.telegram_transport = TelegramTransport(
             bot_token=self.config.bot_token, client=self.client
@@ -61,8 +60,8 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
             if incoming_message is not None:
                 context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
                 context.chat_history.append_user_message(text=incoming_message.text)
-                if len(context.emit_funcs) == 0:
-                    context.emit_funcs.append(self.build_emit_func(chat_id=chat_id))
+                logging.info(f"Existing emit functions: {len(context.emit_funcs)}")
+                context.emit_funcs = [self.build_emit_func(chat_id=chat_id)]
 
                 response = self.run_agent(self.incoming_message_agent, context)
                 if response is not None:
