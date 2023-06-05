@@ -9,38 +9,15 @@ from steamship.agents.memory.chathistory import ChatHistory
 from steamship.data.tags.tag_constants import RoleTag
 
 
-class ConversationMemory(BaseModel, ABC):
+class MemoryWindowStrategy(BaseModel, ABC):
     @abstractmethod
     def messages(self, chat_history: ChatHistory) -> List[Block]:
         pass
 
-    def messages_as_string(
-        self, chat_history: ChatHistory, user_prefix: str = "User", assistant_prefix: str = "AI"
-    ) -> str:
-        messages = self.messages(chat_history)
-        print(f"messages: {messages}")
-        as_strings = []
-        for block in messages:
-            role = block.chat_role
-            if role == RoleTag.USER:
-                as_strings.append(f"{user_prefix}: {block.text}")
-            elif role == RoleTag.ASSISTANT:
-                as_strings.append(f"{assistant_prefix}: {block.text}")
-            elif role == RoleTag.SYSTEM:
-                as_strings.append(f"System: {block.text}")
-            elif role == RoleTag.AGENT:
-                as_strings.append(f"Agent: {block.text}")
-        return "\n".join(as_strings)
 
-
-class NoMemory(ConversationMemory):
+class NoMemory(MemoryWindowStrategy):
     def messages(self, chat_history: ChatHistory) -> List[Block]:
         return []
-
-    def messages_as_string(
-        self, chat_history: ChatHistory, user_prefix: str = "User", assistant_prefix: str = "AI"
-    ) -> str:
-        return ""
 
 
 def is_user_message(block: Block) -> bool:
@@ -53,7 +30,7 @@ def is_assistant_message(block: Block) -> bool:
     return role == RoleTag.ASSISTANT
 
 
-class MessageWindowMemory(ConversationMemory):
+class MessageWindowMemory(MemoryWindowStrategy):
     k: int
     # k: Field(default=4, ge=1, description="Number of message pairs to return from history. A message pair is a
     # single set of messages exchanged between a user and an assistant."
@@ -83,7 +60,7 @@ def tokens(block: Block) -> int:
     return len(tokenized_text)
 
 
-class TokenWindowMemory(ConversationMemory):
+class TokenWindowMemory(MemoryWindowStrategy):
     max_tokens: int
     # Field(default=2000, ge=1, description="Number of tokens to return from history.")
 

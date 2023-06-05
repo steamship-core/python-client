@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Union
 
 from steamship import File, MimeTypes, SteamshipError
+from steamship.agents.schema.conversation_memory import MemoryWindowStrategy
 from steamship.base.client import Client
 from steamship.data import TagKind
 from steamship.data.block import Block
@@ -160,3 +161,24 @@ class ChatHistory:
     @property
     def client(self) -> Client:
         return self.file.client
+
+    def messages_as_string(
+        self,
+        memory_window_strategy: MemoryWindowStrategy,
+        user_prefix: str = "User",
+        assistant_prefix: str = "AI",
+    ) -> str:
+        messages = memory_window_strategy.messages(self)
+        print(f"messages: {messages}")
+        as_strings = []
+        for block in messages:
+            role = block.chat_role
+            if role == RoleTag.USER:
+                as_strings.append(f"{user_prefix}: {block.text}")
+            elif role == RoleTag.ASSISTANT:
+                as_strings.append(f"{assistant_prefix}: {block.text}")
+            elif role == RoleTag.SYSTEM:
+                as_strings.append(f"System: {block.text}")
+            elif role == RoleTag.AGENT:
+                as_strings.append(f"Agent: {block.text}")
+        return "\n".join(as_strings)

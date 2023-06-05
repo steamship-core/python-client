@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from steamship.agents.schema.action import Action
 from steamship.agents.schema.context import AgentContext
-from steamship.agents.schema.conversation_memory import ConversationMemory, NoMemory
+from steamship.agents.schema.conversation_memory import MemoryWindowStrategy, NoMemory
 from steamship.agents.schema.llm import LLM
 from steamship.agents.schema.output_parser import OutputParser
 from steamship.agents.schema.tool import Tool
@@ -21,7 +21,7 @@ class Agent(BaseModel, ABC):
     tools: List[Tool]
     """Tools that can be used by the Agent in selecting the next Action."""
 
-    conversation_memory: ConversationMemory = NoMemory()
+    memory_window_strategy: MemoryWindowStrategy = NoMemory()
     """Conversation memory to use when running agent."""
 
     @abstractmethod
