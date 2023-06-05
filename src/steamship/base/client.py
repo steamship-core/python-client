@@ -633,6 +633,7 @@ class Client(CamelModel, ABC):
         instance_handle: Optional[str] = None,
         invocable_version_handle: Optional[str] = None,
         path: Optional[str] = None,
+        field_values: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """Return generated logs for a client.
 
@@ -645,6 +646,7 @@ class Client(CamelModel, ABC):
         :param instance_handle: Enables optional filtering based on the handle of package instance or plugin instance. Example: `my-instance`
         :param invocable_version_handle: Enables optional filtering based on the version handle of package or plugin. Example: `0.0.2`
         :param path: Enables optional filtering based on request path. Example: `/generate`.
+        :param field_values: Enables optional filtering based on user-provided field values.
         :return: Returns a dictionary containing the offset and number of log entries as well as a list of `entries` that match the specificed filters.
         """
         args = {"from": offset, "size": number}
@@ -656,5 +658,7 @@ class Client(CamelModel, ABC):
             args["invocableVersionHandle"] = invocable_version_handle
         if path:
             args["invocablePath"] = path
+        if field_values:
+            args["fieldValues"] = field_values
 
         return self.post("logs/list", args)
