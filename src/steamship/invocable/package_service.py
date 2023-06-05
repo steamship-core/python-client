@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
 from steamship import SteamshipError, Task
 from steamship.base.package_spec import MethodSpec, RouteConflictError
@@ -28,6 +28,7 @@ class PackageService(Invocable):
 
     """
 
+    USED_MIXIN_CLASSES: List[Type[PackageMixin]] = []
     mixins: List[PackageMixin]
 
     def __init__(self, *args, **kwargs):

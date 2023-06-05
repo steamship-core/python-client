@@ -13,15 +13,16 @@ def invoke(o: Invocable, path: str):
 
 def test_package_with_mixin_routes():
     """Tests that we can inspect the package and mixin routes"""
-    package = PackageWithMixin()
+    package_class = PackageWithMixin
     assert (
-        package._package_spec.method_mappings[Verb.POST]["/test_mixin_route"].func_binding
+        package_class._package_spec.method_mappings[Verb.POST]["/test_mixin_route"].func_binding
         is not None
     )
     assert (
-        package._package_spec.method_mappings[Verb.POST]["/test_package_route"].func_binding
+        package_class._package_spec.method_mappings[Verb.POST]["/test_package_route"].func_binding
         == "test_package_route"
     )
+    package = PackageWithMixin()
     assert invoke(package, "test_mixin_route") == "mixin yo"
     assert invoke(package, "test_package_route") == "package"
 
