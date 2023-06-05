@@ -26,7 +26,8 @@ class FileUploadType(str, Enum):
     FILE = "file"  # A file uploaded as bytes or a string
     FILE_IMPORTER = "fileImporter"  # A fileImporter will be used to create the file
     BLOCKS = "blocks"  # Blocks are sent to create a file
-    NONE = "none" # Create an empty file
+    NONE = "none"  # Create an empty file
+
 
 class FileClearResponse(Response):
     id: str
@@ -183,6 +184,23 @@ class File(CamelModel):
         }
 
         return client.post("file/create", payload=req, expect=File, as_background_task=True)
+
+    def import_with_plugin(
+        self,
+        plugin_instance: str,
+        url: str = None,
+        mime_type: str = None,
+    ) -> Task[File]:
+        """Run an import operation on an (empty) file object that has already been created."""
+        req = {
+            "type": FileUploadType.FILE_IMPORTER,
+            "id": self.id,
+            "url": url,
+            "mimeType": mime_type,
+            "pluginInstance": plugin_instance,
+        }
+
+        return self.client.post("file/import", payload=req, expect=File, as_background_task=True)
 
     def refresh(self) -> File:
         refreshed = File.get(self.client, self.id)
