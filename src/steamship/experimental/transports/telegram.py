@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 import requests
 
 from steamship import Block, Steamship, SteamshipError
+from steamship.agents.schema import Metadata
 from steamship.experimental.transports.transport import Transport
 
 API_BASE = "https://api.telegram.org/bot"
@@ -49,7 +50,7 @@ class TelegramTransport(Transport):
         """Unsubscribe from Telegram updates."""
         requests.get(f"{self.api_root}/deleteWebhook")
 
-    def _send(self, blocks: [Block], metadata: Dict[str, Any]):
+    def _send(self, blocks: [Block], metadata: Metadata):
         """Send a response to the Telegram chat."""
         for block in blocks:
             chat_id = block.chat_id
@@ -131,15 +132,16 @@ class TelegramTransport(Transport):
                 f"Bad 'message_id' found in Telegram message: ({message_id}). Should have been an int"
             )
 
-        if "voice" in payload:
-            file_id = payload.get("voice").get("file_id")
-            voice_file_url = self._get_file_url(file_id)
-            return Block(
+        if video_or_voice := (payload.get("voice") or payload.get("video_note")):
+            file_id = video_or_voice.get("file_id")
+            file_url = self._get_file_url(file_id)
+            block = Block(
                 text=payload.get("text"),
-                url=voice_file_url,
-                chat_id=str(chat_id),
-                message_id=str(message_id),
+                url=file_url,
             )
+            block.set_chat_id(str(chat_id))
+            block.set_message_id(str(message_id))
+            return block
 
         # Some incoming messages (like the group join message) don't have message text.
         # Rather than throw an error, we just don't return a Block.
