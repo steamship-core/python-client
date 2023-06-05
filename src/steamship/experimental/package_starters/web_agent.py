@@ -1,3 +1,4 @@
+import logging
 from abc import ABC
 from typing import List, Optional
 
@@ -39,8 +40,8 @@ class SteamshipWidgetAgentService(AgentService, ABC):
             self.client, context_keys={"chat_id": incoming_message.chat_id}
         )
         context.chat_history.append_user_message(text=incoming_message.text)
-        if len(context.emit_funcs) == 0:
-            context.emit_funcs.append(self.save_for_emit)
+        logging.info(f"Existing emit functions: {len(context.emit_funcs)}")
+        context.emit_funcs = [self.save_for_emit]
         try:
             self.run_agent(self.incoming_message_agent, context)
         except Exception as e:
@@ -50,4 +51,5 @@ class SteamshipWidgetAgentService(AgentService, ABC):
         return self.message_output
 
     def save_for_emit(self, blocks: List[Block], metadata: Metadata):
+        logging.info(f"Emitting by saving to self of type {type(self)}")
         self.message_output = blocks
