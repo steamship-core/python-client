@@ -20,6 +20,7 @@ class BlockifierMixin(PackageMixin):
         file_id: str,
         mime_type: Optional[MimeTypes] = None,
         blockifier_handle: Optional[str] = None,
+        after_task_id: Optional[str] = None,
     ) -> Task:
         """Blockify the file `file_id` using a curated set of defaults for the provided `mime_type`.
 
@@ -57,4 +58,9 @@ class BlockifierMixin(PackageMixin):
                 message=f"Unable to blockify file {file.id}. MIME Type {_mime_type} unsupported"
             )
 
-        return file.blockify(plugin_instance.handle)
+        # Postpone the operation if required.
+        wait_on_tasks = []
+        if after_task_id:
+            wait_on_tasks.append(Task(client=self.client, task_id=after_task_id))
+
+        return file.blockify(plugin_instance.handle, wait_on_tasks=wait_on_tasks)

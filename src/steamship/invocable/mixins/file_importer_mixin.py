@@ -38,7 +38,7 @@ class FileImporterMixin(PackageMixin):
             )
 
         file_importer = self.client.use_plugin(importer_handle)
-        task = file.import_with_plugin(
+        task = File.import_with_plugin(
             plugin_instance=file_importer.handle, url=url, mime_type=mime_type
         )
         update_file_status(self.client, file, "Importing")
