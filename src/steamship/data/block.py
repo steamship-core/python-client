@@ -212,11 +212,12 @@ class Block(CamelModel):
             MimeTypes.MP4_AUDIO,
             MimeTypes.WEBM_AUDIO,
             MimeTypes.WAV,
+            MimeTypes.OGG_AUDIO,
         ]
 
     def is_video(self):
         """Return whether this is a video Block."""
-        return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO]
+        return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO, MimeTypes.OGG_VIDEO]
 
     @property
     def raw_data_url(self) -> Optional[str]:

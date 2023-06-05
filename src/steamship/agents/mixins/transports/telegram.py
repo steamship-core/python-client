@@ -39,7 +39,7 @@ class TelegramTransport(Transport):
         self.agent_service = agent_service
 
     def instance_init(self, config: Config, invocation_context: InvocationContext):
-        webhook_url = invocation_context.invocable_url + "respond"
+        webhook_url = invocation_context.invocable_url + "telegram_respond"
 
         logging.info(
             f"Setting Telegram webhook URL: {webhook_url}. Post is to {self.api_root}/setWebhook"
@@ -59,12 +59,12 @@ class TelegramTransport(Transport):
                 f"Could not set webhook for bot. Webhook URL was {webhook_url}. Telegram response message: {response.text}"
             )
 
-    @post("webhook_info")
-    def webhook_info(self) -> dict:
+    @post("telegram_webhook_info")
+    def telegram_webhook_info(self) -> dict:
         return requests.get(self.api_root + "/getWebhookInfo").json()
 
-    @post("disconnect_webhook")
-    def disconnect_webhook(self, *args, **kwargs):
+    @post("telegram_disconnect_webhook")
+    def telegram_disconnect_webhook(self, *args, **kwargs):
         """Unsubscribe from Telegram updates."""
         requests.get(f"{self.api_root}/deleteWebhook")
 
@@ -174,8 +174,8 @@ class TelegramTransport(Transport):
 
         return new_emit_func
 
-    @post("respond", public=True)
-    def respond(self, **kwargs) -> InvocableResponse[str]:
+    @post("telegram_respond", public=True)
+    def telegram_respond(self, **kwargs) -> InvocableResponse[str]:
         """Endpoint implementing the Telegram WebHook contract. This is a PUBLIC endpoint since Telegram cannot pass a Bearer token."""
 
         # TODO: must reject things not from the package

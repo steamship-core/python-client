@@ -35,10 +35,10 @@ def test_telegram(client: Steamship):
             # Test that agent called instance_init and registered webhook
             files = File.query(client, f'kind "{MockTelegram.WEBHOOK_TAG}"').files
             assert len(files) == 1
-            assert files[0].tags[0].name == telegram_instance.invocation_url + "respond"
+            assert files[0].tags[0].name == telegram_instance.invocation_url + "telegram_respond"
 
             # test sending messages
-            telegram_instance.invoke("respond", **generate_telegram_message("a test"))
+            telegram_instance.invoke("telegram_respond", **generate_telegram_message("a test"))
             files = File.query(client, f'kind "{MockTelegram.TEXT_MESSAGE_TAG}"').files
             assert len(files) == 1
             assert files[0].tags[0].name == "Response to: a test".replace(
@@ -47,7 +47,9 @@ def test_telegram(client: Steamship):
             assert files[0].tags[0].value == {MockTelegram.CHAT_ID_KEY: 1}
 
             # test sending another message; this has been a problem before
-            telegram_instance.invoke("respond", **generate_telegram_message("another test"))
+            telegram_instance.invoke(
+                "telegram_respond", **generate_telegram_message("another test")
+            )
             files = File.query(client, f'kind "{MockTelegram.TEXT_MESSAGE_TAG}"').files
             assert len(files) == 2
             for file in files:
@@ -58,7 +60,7 @@ def test_telegram(client: Steamship):
                 assert file.tags[0].value == {MockTelegram.CHAT_ID_KEY: 1}
 
             # Test the agent sending a "photo"
-            telegram_instance.invoke("respond", **generate_telegram_message("image"))
+            telegram_instance.invoke("telegram_respond", **generate_telegram_message("image"))
             files = File.query(client, f'kind "{MockTelegram.PHOTO_MESSAGE_TAG}"').files
             assert len(files) == 1
             assert files[0].tags[0].value == {
@@ -67,7 +69,7 @@ def test_telegram(client: Steamship):
             }
 
             # Test the agent sending "audio"
-            telegram_instance.invoke("respond", **generate_telegram_message("audio"))
+            telegram_instance.invoke("telegram_respond", **generate_telegram_message("audio"))
             files = File.query(client, f'kind "{MockTelegram.AUDIO_MESSAGE_TAG}"').files
             assert len(files) == 1
             assert files[0].tags[0].value == {
@@ -76,7 +78,7 @@ def test_telegram(client: Steamship):
             }
 
             # Test the agent sending a "video"
-            telegram_instance.invoke("respond", **generate_telegram_message("video"))
+            telegram_instance.invoke("telegram_respond", **generate_telegram_message("video"))
             files = File.query(client, f'kind "{MockTelegram.VIDEO_MESSAGE_TAG}"').files
             assert len(files) == 1
             assert files[0].tags[0].value == {
