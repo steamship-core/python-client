@@ -6,6 +6,7 @@ from steamship import File, MimeTypes, Steamship, SteamshipError, Task
 from steamship.agents import logging
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
+from steamship.utils.file_tags import update_file_status
 
 
 class FileImporterMixin(PackageMixin):
@@ -40,6 +41,8 @@ class FileImporterMixin(PackageMixin):
         task = file.import_with_plugin(
             plugin_instance=file_importer.handle, url=url, mime_type=mime_type
         )
+        update_file_status(self.client, file, "Importing")
+
         return file, task
 
     def _scrape_and_import_url(
