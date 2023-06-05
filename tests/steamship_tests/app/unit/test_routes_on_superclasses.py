@@ -3,14 +3,25 @@
 This tests a fix (in the same PR) to a behavior in which each new Subclass of Invocable would register its route
 table afresh, overwriting whatever routes were registered by an ancestor.
 """
+from typing import Any, Dict, Type
+
 import pytest
 
 from steamship import Steamship, SteamshipError
 from steamship.agents.llms import OpenAI
+from steamship.agents.mixins.transports.telegram import TelegramTransport, TelegramTransportConfig
 from steamship.agents.react import ReACTAgent
+from steamship.agents.schema import Agent
+from steamship.agents.service.agent_service import AgentService
 from steamship.base.package_spec import MethodSpec
-from steamship.experimental.package_starters.telegram_agent import TelegramAgentService
-from steamship.invocable import Invocable, InvocableRequest, Invocation, post
+from steamship.invocable import (
+    Config,
+    Invocable,
+    InvocableRequest,
+    Invocation,
+    InvocationContext,
+    post,
+)
 from steamship.utils.url import Verb
 
 
@@ -79,10 +90,6 @@ class L4Invocable(L2Invocable):
             self.add_api_route(
                 method_spec, permit_overwrite_of_existing=permit_overwrite_of_existing
             )
-
-
-class MyAgentService(TelegramAgentService):
-    pass
 
 
 def invoke(o: Invocable, path: str):
@@ -203,16 +210,38 @@ def test_l4_routes():
         L4Invocable(update=True, permit_overwrite_of_existing=False)
 
 
+class MyAgentService(AgentService):
+    @classmethod
+    def config_cls(cls) -> Type[Config]:
+        return TelegramTransportConfig
+
+    config: TelegramTransportConfig
+    agent: Agent
+
+    def __init__(
+        self,
+        client: Steamship,
+        config: Dict[str, Any],
+        context: InvocationContext,
+        incoming_message_agent: Agent,
+    ):
+        super().__init__(client=client, config=config, context=context)
+        self.agent = incoming_message_agent
+        self.add_mixin(
+            TelegramTransport(
+                client=client, config=self.config, agent_service=self, agent=self.agent
+            )
+        )
+
+
 @pytest.mark.usefixtures("client")
 def test_telegram_agent(client: Steamship):
     a = MyAgentService(
         client=client,
         config={"botToken": "foo"},
+        context=None,
         incoming_message_agent=ReACTAgent(tools=[], llm=OpenAI(client=client)),
     )
-    assert a._package_spec.method_mappings[Verb.POST]["/answer"].func_binding == "answer"
     routes = [m["path"] for m in a.__steamship_dir__()["methods"]]
-    assert "/answer" in routes
     assert "/respond" in routes
     assert "/webhook_info" in routes
-    assert "/info" in routes
