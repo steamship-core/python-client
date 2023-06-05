@@ -60,8 +60,8 @@ class TelegramAgentService(SteamshipWidgetAgentService, ABC):
             if incoming_message is not None:
                 context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
                 context.chat_history.append_user_message(text=incoming_message.text)
-                if len(context.emit_funcs) == 0:
-                    context.emit_funcs.append(self.build_emit_func(chat_id=chat_id))
+                logging.info(f"Existing emit functions: {len(context.emit_funcs)}")
+                context.emit_funcs = [self.build_emit_func(chat_id=chat_id)]
 
                 response = self.run_agent(self.incoming_message_agent, context)
                 if response is not None:
