@@ -1,6 +1,6 @@
 from typing import Any, Dict, Type
 
-from steamship import Block, Steamship
+from steamship import Block, File, MimeTypes, Steamship
 from steamship.agents.mixins.transports.steamship_widget import SteamshipWidgetTransport
 from steamship.agents.mixins.transports.telegram import TelegramTransport, TelegramTransportConfig
 from steamship.agents.schema import Action, Agent, AgentContext, FinishAction
@@ -13,12 +13,41 @@ class TestTelegramAgentConfig(TelegramTransportConfig):
 
 
 class TestAgent(Agent):
-    def __init__(self):
-        super(TestAgent, self).__init__(tools=[])
+    client: Steamship
+
+    def __init__(self, client: Steamship):
+        super(TestAgent, self).__init__(client=client, tools=[])
+        self.client = client
 
     def next_action(self, context: AgentContext) -> Action:
         input_text = context.chat_history.last_user_message.text
-        return FinishAction(output=[Block(text=f"Response to: {input_text}")], context=context)
+        if input_text == "image":
+            output_file = File.create(self.client, blocks=[])
+            output_block = Block.create(
+                self.client,
+                content="some image bytes",
+                mime_type=MimeTypes.PNG,
+                file_id=output_file.id,
+            )
+        elif input_text == "audio":
+            output_file = File.create(self.client, blocks=[])
+            output_block = Block.create(
+                self.client,
+                content="some audio bytes",
+                mime_type=MimeTypes.WAV,
+                file_id=output_file.id,
+            )
+        elif input_text == "video":
+            output_file = File.create(self.client, blocks=[])
+            output_block = Block.create(
+                self.client,
+                content="some video bytes",
+                mime_type=MimeTypes.WAV,
+                file_id=output_file.id,
+            )
+        else:
+            output_block = Block(text=f"Response to: {input_text}")
+        return FinishAction(output=[output_block], context=context)
 
 
 class TestTelegramAgent(AgentService):
@@ -30,7 +59,7 @@ class TestTelegramAgent(AgentService):
         self, client: Steamship, config: Dict[str, Any] = None, context: InvocationContext = None
     ):
         super().__init__(client=client, config=config, context=context)
-        self.agent = TestAgent()
+        self.agent = TestAgent(client)
 
         # Including the web widget transport on the telegram test
         # agent to make sure it doesn't interfere

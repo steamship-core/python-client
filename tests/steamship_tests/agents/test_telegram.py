@@ -57,6 +57,33 @@ def test_telegram(client: Steamship):
                 ]  # bug somewhere - results being url encoded
                 assert file.tags[0].value == {MockTelegram.CHAT_ID_KEY: 1}
 
+            # Test the agent sending a "photo"
+            telegram_instance.invoke("respond", **generate_telegram_message("image"))
+            files = File.query(client, f'kind "{MockTelegram.PHOTO_MESSAGE_TAG}"').files
+            assert len(files) == 1
+            assert files[0].tags[0].value == {
+                MockTelegram.CHAT_ID_KEY: 1,
+                MockTelegram.PHOTO_KEY: "some image bytes",
+            }
+
+            # Test the agent sending "audio"
+            telegram_instance.invoke("respond", **generate_telegram_message("audio"))
+            files = File.query(client, f'kind "{MockTelegram.PHOTO_MESSAGE_TAG}"').files
+            assert len(files) == 1
+            assert files[0].tags[0].value == {
+                MockTelegram.CHAT_ID_KEY: 1,
+                MockTelegram.AUDIO_KEY: "some audio bytes",
+            }
+
+            # Test the agent sending a "photo"
+            telegram_instance.invoke("respond", **generate_telegram_message("image"))
+            files = File.query(client, f'kind "{MockTelegram.PHOTO_MESSAGE_TAG}"').files
+            assert len(files) == 1
+            assert files[0].tags[0].value == {
+                MockTelegram.CHAT_ID_KEY: 1,
+                MockTelegram.PHOTO_KEY: "some image bytes",
+            }
+
 
 def generate_telegram_message(text: str) -> Dict:
     return {
