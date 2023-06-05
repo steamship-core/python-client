@@ -236,7 +236,7 @@ class Block(CamelModel):
 
     def set_chat_role(self, role: RoleTag):
         return self._one_time_set_tag(
-            tag_kind=DocTag.CHAT, tag_name=ChatTag.MESSAGE_ID, string_value=role.value
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.ROLE, string_value=role.value
         )
 
     @property
