@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Union
 
+from pydantic import BaseModel
+
 from steamship import File, MimeTypes, SteamshipError
-from steamship.agents.schema.conversation_memory import MemoryWindowStrategy
 from steamship.base.client import Client
 from steamship.data import TagKind
 from steamship.data.block import Block
@@ -164,7 +166,7 @@ class ChatHistory:
 
     def messages_as_string(
         self,
-        memory_window_strategy: MemoryWindowStrategy,
+        memory_window_strategy: MemoryStrategy,
         user_prefix: str = "User",
         assistant_prefix: str = "AI",
     ) -> str:
@@ -182,3 +184,9 @@ class ChatHistory:
             elif role == RoleTag.AGENT:
                 as_strings.append(f"Agent: {block.text}")
         return "\n".join(as_strings)
+
+
+class MemoryStrategy(BaseModel, ABC):
+    @abstractmethod
+    def messages(self, chat_history: ChatHistory) -> List[Block]:
+        pass

@@ -1,21 +1,13 @@
-from abc import ABC, abstractmethod
 from typing import List
 
 import tiktoken
-from pydantic.main import BaseModel
 
 from steamship import Block
-from steamship.agents.memory.chathistory import ChatHistory
+from steamship.agents.memory.chathistory import ChatHistory, MemoryStrategy
 from steamship.data.tags.tag_constants import RoleTag
 
 
-class MemoryWindowStrategy(BaseModel, ABC):
-    @abstractmethod
-    def messages(self, chat_history: ChatHistory) -> List[Block]:
-        pass
-
-
-class NoMemory(MemoryWindowStrategy):
+class NoMemory(MemoryStrategy):
     def messages(self, chat_history: ChatHistory) -> List[Block]:
         return []
 
@@ -30,7 +22,7 @@ def is_assistant_message(block: Block) -> bool:
     return role == RoleTag.ASSISTANT
 
 
-class MessageWindowMemory(MemoryWindowStrategy):
+class MessageWindowMemoryStrategy(MemoryStrategy):
     k: int
     # k: Field(default=4, ge=1, description="Number of message pairs to return from history. A message pair is a
     # single set of messages exchanged between a user and an assistant."
@@ -60,7 +52,7 @@ def tokens(block: Block) -> int:
     return len(tokenized_text)
 
 
-class TokenWindowMemory(MemoryWindowStrategy):
+class TokenWindowMemoryStrategy(MemoryStrategy):
     max_tokens: int
     # Field(default=2000, ge=1, description="Number of tokens to return from history.")
 
