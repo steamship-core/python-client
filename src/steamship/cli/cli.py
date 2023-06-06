@@ -292,6 +292,13 @@ def info():
     type=str,
     help="Path invoked by a client operation. Used to filter logs returned to a specific invocation path.",
 )
+@click.option(
+    "--with-fields",
+    "-f",
+    "field_values",
+    type=str,
+    help="Dictionary of log field values (format: key1=value1,key2=value2,...). Used to filter logs returned.",
+)
 def logs(
     workspace: str,
     offset: int,
@@ -300,6 +307,7 @@ def logs(
     instance: Optional[str] = None,
     version: Optional[str] = None,
     request_path: Optional[str] = None,
+    field_values: Optional[str] = None,
 ):
     initialize(suppress_message=True)
     client = None
@@ -308,7 +316,23 @@ def logs(
     except SteamshipError as e:
         raise click.UsageError(message=e.message)
 
-    click.echo(json.dumps(client.logs(offset, number, package, instance, version, request_path)))
+    value_dict = {}
+    if field_values:
+        try:
+            for item in field_values.split(","):
+                key, value = item.split("=")
+                value_dict[key] = value
+        except ValueError:
+            raise click.UsageError(
+                message="Invalid dictionary format for fields. Please provide a dictionary in the "
+                "format: key1=value1,key2=value2,..."
+            )
+
+    click.echo(
+        json.dumps(
+            client.logs(offset, number, package, instance, version, request_path, value_dict)
+        )
+    )
 
 
 cli.add_command(login)
