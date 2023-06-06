@@ -31,6 +31,11 @@ class FileImporterMixin(PackageMixin):
         tags: Optional[List[Tag]] = None,
     ) -> Tuple[File, Optional[Task]]:
         """Import a URL via an async FileImporter, returning a synchronous File but async import Task."""
+
+        if ("youtube" in url or "youtu.be" in url) and mime_type is None:
+            # Mark it as audio so that the s2t will work later.
+            mime_type = MimeTypes.MP3
+
         file = File.create(self.client, tags=tags, mime_type=mime_type)
 
         if importer_handle is None:
