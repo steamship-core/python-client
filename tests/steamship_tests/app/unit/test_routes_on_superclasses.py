@@ -243,5 +243,5 @@ def test_telegram_agent(client: Steamship):
         incoming_message_agent=ReACTAgent(tools=[], llm=OpenAI(client=client)),
     )
     routes = [m["path"] for m in a.__steamship_dir__()["methods"]]
-    assert "/respond" in routes
-    assert "/webhook_info" in routes
+    assert "/telegram_respond" in routes
+    assert "/telegram_webhook_info" in routes
