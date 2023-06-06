@@ -61,6 +61,15 @@ def test_instance_invoke():
         )
         assert resp.text == "Hello, Ted!"
 
+        # res = instance.invoke("greet", verb=Verb.GET, name="Ted with spaces")
+        # assert res == "Hello, Ted!"
+        # url = instance.full_url_for("greet?name=Ted")
+        # resp = requests.get(
+        #     url, headers={"authorization": f"Bearer {client.config.api_key.get_secret_value()}"}
+        # )
+        # assert resp.text == "Hello, Ted with spaces!"
+        # Actually returns: 'Hello, Ted+with+spaces!'
+
         res = instance.invoke("greet", verb=Verb.POST)
         assert res == "Hello, Person!"
         url = instance.full_url_for("greet")

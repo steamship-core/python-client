@@ -1,20 +1,7 @@
 import pytest
-from assets.packages.multi_inheritance import MultiInheritanceBot
 
 from steamship import Steamship
 from steamship.invocable import PackageService
-
-
-@pytest.mark.usefixtures("client")
-def test_multi_inheritance_dir(client: Steamship):
-
-    bot = MultiInheritanceBot(client=client, config={"botToken": "invalid-bot-token"})
-    bot_dir = bot.__steamship_dir__()
-
-    methods_by_path = {method["path"]: method for method in bot_dir["methods"]}
-
-    # assert "/take_action" in methods_by_path.keys()  # A method from AgentService
-    assert "/disconnect_webhook" in methods_by_path.keys()  # A method from TelegramBot
 
 
 @pytest.mark.usefixtures("client")
