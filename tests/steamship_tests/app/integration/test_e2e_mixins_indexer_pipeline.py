@@ -35,7 +35,7 @@ def test_indexer_pipeline_mixin(client: Steamship):
         youtube_url = "https://www.youtube.com/watch?v=ShPjYHw_K-Uf"
 
         index_task2 = instance.invoke("index_url", url=youtube_url, index_handle="i2")
-        index_task2 = Task.parse_obj(index_task)
+        index_task2 = Task.parse_obj(index_task2)
         index_task2.client = client
 
         assert index_task2.task_id

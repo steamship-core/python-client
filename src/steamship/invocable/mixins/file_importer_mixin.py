@@ -1,8 +1,8 @@
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import requests
 
-from steamship import File, MimeTypes, Steamship, SteamshipError, Task
+from steamship import DocTag, File, MimeTypes, Steamship, SteamshipError, Tag, Task
 from steamship.agents import logging
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
@@ -28,9 +28,10 @@ class FileImporterMixin(PackageMixin):
         url: str,
         importer_handle: str,
         mime_type: Optional[str] = None,
+        tags: Optional[List[Tag]] = None,
     ) -> Tuple[File, Optional[Task]]:
         """Import a URL via an async FileImporter, returning a synchronous File but async import Task."""
-        file = File.create(self.client)
+        file = File.create(self.client, tags=tags, mime_type=mime_type)
 
         if importer_handle is None:
             raise SteamshipError(
@@ -38,7 +39,7 @@ class FileImporterMixin(PackageMixin):
             )
 
         file_importer = self.client.use_plugin(importer_handle)
-        task = File.import_with_plugin(
+        task = file.import_with_plugin(
             plugin_instance=file_importer.handle, url=url, mime_type=mime_type
         )
         update_file_status(self.client, file, "Importing")
@@ -46,7 +47,10 @@ class FileImporterMixin(PackageMixin):
         return file, task
 
     def _scrape_and_import_url(
-        self, url: str, mime_type: Optional[str] = None
+        self,
+        url: str,
+        mime_type: Optional[str] = None,
+        tags: Optional[List[Tag]] = None,
     ) -> Tuple[File, Optional[Task]]:
         """Scrape and then import the URL to a File, returning a synchronous File and no import Task."""
         if mime_type is None and ".pdf" in url:
@@ -60,16 +64,29 @@ class FileImporterMixin(PackageMixin):
             logging.error(msg)
             raise SteamshipError(message=msg)
 
-        file = File.create(self.client, content=_bytes, mime_type=mime_type)
+        file = File.create(self.client, content=_bytes, mime_type=mime_type, tags=tags)
         return file, None
 
     def import_url_to_file_and_task(self, url: str) -> Tuple[File, Optional[Task]]:
         """Import the provided URL, returning the file and optional task, if async work is required."""
         async_importer_for_url = self._async_importer_for_url(url)
+
+        source_tag = Tag(kind=DocTag.SOURCE, name=url)
+
+        # Hacky way to get ta title
+        title = url.split("/")[-1]
+        title = title.split("?")[0]
+        title = title.split("#")[0]
+
+        title_tag = Tag(kind=DocTag.TITLE, name=title)
+        tags = [source_tag, title_tag]
+
         if async_importer_for_url:
-            return self._import_with_async_importer(url, async_importer_for_url, mime_type=None)
+            return self._import_with_async_importer(
+                url, async_importer_for_url, tags=tags, mime_type=None
+            )
         else:
-            return self._scrape_and_import_url(url)
+            return self._scrape_and_import_url(url, tags=tags)
 
     @post("/import_url")
     def import_url(self, url: str) -> File:
