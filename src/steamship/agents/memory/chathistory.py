@@ -23,7 +23,7 @@ class ChatHistory:
     @staticmethod
     def _get_existing_file(client: Client, context_keys: Dict[str, str]) -> Optional[File]:
         """Find an existing File object whose memory Tag matches the passed memory keys"""
-        file_query = " and ".join(
+        file_query = f'kind "{TagKind.CHAT}" and name "{ChatTag.CONTEXT_KEYS}" and ' + " and ".join(
             [f'value("{key}") = "{value}"' for key, value in context_keys.items()]
         )
         file = File.query(client, file_query)
