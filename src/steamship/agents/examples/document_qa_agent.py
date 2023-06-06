@@ -14,7 +14,7 @@ from steamship.utils.repl import AgentREPL
 
 
 class DocumentQAService(AgentService):
-    """DocumentQAService is an example AgentService that exposes:
+    """DocumentQAService is an example AgentService that exposes:  # noqa: RST201
 
     - A few authenticated endpoints for learning PDF and YouTube documents:
 
