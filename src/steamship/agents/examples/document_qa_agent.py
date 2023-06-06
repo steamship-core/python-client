@@ -41,7 +41,7 @@ class DocumentQAService(AgentService):
         #    3) Store the text in a vector index
         #
         # That vector index is then available to the question answering tool, below.
-        self.add_mixin(IndexerPipelineMixin(self.client))
+        self.add_mixin(IndexerPipelineMixin(self.client, self))
 
         # A ReACTAgent is an agent that is able to:
         #    1) Converse with you, casually... but also

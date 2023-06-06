@@ -1,6 +1,7 @@
 import pytest
 
 from steamship import File, Steamship
+from steamship.invocable import PackageService
 from steamship.invocable.mixins.indexer_pipeline_mixin import IndexerPipelineMixin
 
 
@@ -8,7 +9,8 @@ from steamship.invocable.mixins.indexer_pipeline_mixin import IndexerPipelineMix
 def test_set_file_status(client: Steamship):
     """Tests that we can inspect the package and mixin routes"""
     file = File.create(client, content="hi")
-    pipeline = IndexerPipelineMixin(client, None)
+    invocable = PackageService()
+    pipeline = IndexerPipelineMixin(client, invocable)
     pipeline.set_file_status(file_id=file.id, status="FOO")
     file = file.refresh()
 
