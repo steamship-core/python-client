@@ -137,5 +137,4 @@ class IndexerMixin(PackageMixin):
     ) -> SearchResults:
         index = self._get_index(index_handle)
         task = index.search(query, k)
-        task.wait()
-        return task.output
+        return task.wait()

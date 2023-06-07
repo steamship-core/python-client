@@ -13,7 +13,7 @@ from steamship.invocable.mixins.indexer_pipeline_mixin import IndexerPipelineMix
 from steamship.utils.repl import AgentREPL
 
 
-class DocumentQAService(AgentService):
+class ExampleDocumentQAService(AgentService):
     """DocumentQAService is an example AgentService that exposes:  # noqa: RST201
 
     - A few authenticated endpoints for learning PDF and YouTube documents:
@@ -94,4 +94,4 @@ if __name__ == "__main__":
     # AgentREPL provides a mechanism for local execution of an AgentService method.
     # This is used for simplified debugging as agents and tools are developed and
     # added.
-    AgentREPL(DocumentQAService, "prompt", agent_package_config={}).run()
+    AgentREPL(ExampleDocumentQAService, "prompt", agent_package_config={}).run()
