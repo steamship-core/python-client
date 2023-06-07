@@ -6,7 +6,7 @@ from steamship.agents.schema import AgentContext
 from steamship.agents.tools import VideoGeneratorTool
 from steamship.utils.repl import ToolREPL
 
-DEFAULT_SOURCE_URL = "https://steamship.com/images/agents/man-in-suit-midjournhey.jpg"
+DEFAULT_SOURCE_URL = "https://www.steamship.com/images/agents/man-in-suit-midjourney.png"
 
 
 class DIDVideoGeneratorTool(VideoGeneratorTool):
