@@ -8,13 +8,21 @@ from steamship.utils.repl import ToolREPL
 
 
 class DIDVideoGeneratorOptions(BaseModel):
+    DEFAULT_PROVIDER = {"type": "microsoft", "voice_id": "en-GB-AbbiNeural"}
+
     source_url: str
     """The URL of the source image to be animated."""
 
     stitch: str
 
-    provider: Optional[str]
-    """The URL of the D-ID driver video. If not provided a driver video will be selected automatically."""
+    provider: Optional[dict]
+    """Optional audio provider for generating the voice.
+
+    Options:
+
+    {"type": "microsoft", "voice_id": "en-GB-AbbiNeural"}
+    {"type": "amazon", "voice_id": "Amy"}
+    """
 
     driver_url: Optional[str]
     """The URL of the D-ID driver video. If not provided a driver video will be selected automatically."""
@@ -36,21 +44,22 @@ class DIDVideoGeneratorOptions(BaseModel):
     ]
     """
 
-    transition_frames: str
+    transition_frames: Optional[int] = 20
+    """How many frames to use for expression transition."""
 
 
 class DIDVideoGeneratorTool(ImageGeneratorTool):
     """Tool to generate talking avatars from text using D-ID."""
 
     name: str = "DIDVideoGeneratorTool"
-    human_description: str = "Generates an a video of a talking avatar from text."
+    human_description: str = "Generates an a video of you speaking a response to a user."
     agent_description = (
-        "Used to generate a video of a talking avatar from text. Only use if the user has asked directly for an image. "
-        "When using this tool, the input should be a plain text string that describes, "
-        "in detail, the desired image."
+        "Used to generate a video of you from text. Use if the user has asked for a video response.  "
+        "The input is the text that you want to say. "
+        "The output is the video of you saying it."
     )
-    generator_plugin_handle: str = "stable-diffusion"
-    generator_plugin_config: dict = {"n": 1}
+    generator_plugin_handle: str = "did-video-generator"
+    generator_plugin_config: dict = {}
 
 
 if __name__ == "__main__":
