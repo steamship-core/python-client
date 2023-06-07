@@ -1,11 +1,11 @@
 """Answers questions with the assistance of a VectorSearch plugin."""
-from typing import Any, List, Optional, Union, cast
+from typing import Any, List, Optional, Union
 
-from steamship import Block, Steamship, Tag, Task
+from steamship import Block, Tag, Task
 from steamship.agents.llms import OpenAI
-from steamship.agents.schema import AgentContext, Tool
+from steamship.agents.schema import AgentContext
+from steamship.agents.tools.question_answering.vector_search_tool import VectorSearchTool
 from steamship.agents.utils import get_llm, with_llm
-from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
 from steamship.utils.repl import ToolREPL
 
 DEFAULT_QUESTION_ANSWERING_PROMPT = (
@@ -23,7 +23,7 @@ Helpful Answer:"""
 DEFAULT_SOURCE_DOCUMENT_PROMPT = "Source Document: {text}"
 
 
-class VectorSearchQATool(Tool):
+class VectorSearchQATool(VectorSearchTool):
     """Tool to answer questions with the assistance of a vector search plugin."""
 
     name: str = "VectorSearchQATool"
@@ -33,29 +33,9 @@ class VectorSearchQATool(Tool):
         "The input should be a plain text question. ",
         "The output is a plain text answer",
     )
-    embedding_index_handle: Optional[str] = "embedding-index"
-    embedding_index_version: Optional[str] = None
     question_answering_prompt: Optional[str] = DEFAULT_QUESTION_ANSWERING_PROMPT
     source_document_prompt: Optional[str] = DEFAULT_SOURCE_DOCUMENT_PROMPT
-    embedding_index_config: Optional[dict] = {
-        "embedder": {
-            "plugin_handle": "openai-embedder",
-            "plugin_instance-handle": "text-embedding-ada-002",
-            "fetch_if_exists": True,
-            "config": {"model": "text-embedding-ada-002", "dimensionality": 1536},
-        }
-    }
     load_docs_count: int = 2
-    embedding_index_instance_handle: str = "default-embedding-index"
-
-    def get_embedding_index(self, client: Steamship) -> EmbeddingIndexPluginInstance:
-        index = client.use_plugin(
-            plugin_handle=self.embedding_index_handle,
-            instance_handle=self.embedding_index_instance_handle,
-            config=self.embedding_index_config,
-            fetch_if_exists=True,
-        )
-        return cast(EmbeddingIndexPluginInstance, index)
 
     def answer_question(self, question: str, context: AgentContext) -> List[Block]:
         index = self.get_embedding_index(context.client)
@@ -80,9 +60,9 @@ class VectorSearchQATool(Tool):
 
         Inputs
         ------
-        input: List[Block]
+        tool_input: List[Block]
             A list of blocks to be rewritten if text-containing.
-        memory: AgentContext
+        context: AgentContext
             The active AgentContext.
 
         Output

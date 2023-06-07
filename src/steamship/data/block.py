@@ -207,11 +207,17 @@ class Block(CamelModel):
 
     def is_audio(self):
         """Return whether this is an audio Block."""
-        return self.mime_type in [MimeTypes.MP3, MimeTypes.MP4_AUDIO, MimeTypes.WEBM_AUDIO]
+        return self.mime_type in [
+            MimeTypes.MP3,
+            MimeTypes.MP4_AUDIO,
+            MimeTypes.WEBM_AUDIO,
+            MimeTypes.WAV,
+            MimeTypes.OGG_AUDIO,
+        ]
 
     def is_video(self):
         """Return whether this is a video Block."""
-        return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO]
+        return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO, MimeTypes.OGG_VIDEO]
 
     @property
     def raw_data_url(self) -> Optional[str]:
@@ -231,7 +237,7 @@ class Block(CamelModel):
 
     def set_chat_role(self, role: RoleTag):
         return self._one_time_set_tag(
-            tag_kind=DocTag.CHAT, tag_name=ChatTag.MESSAGE_ID, string_value=role.value
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.ROLE, string_value=role.value
         )
 
     @property
