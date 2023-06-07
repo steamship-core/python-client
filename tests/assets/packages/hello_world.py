@@ -1,8 +1,8 @@
-from steamship.invocable import Invocable, InvocableResponse, get, post
+from steamship.invocable import InvocableResponse, PackageService, get, post
 from steamship.invocable.lambda_handler import create_safe_handler
 
 
-class HelloWorld(Invocable):
+class HelloWorld(PackageService):
     @post("greet")
     def greet(self, name: str = "Person") -> InvocableResponse:
         return InvocableResponse(string=f"Hello, {name}")

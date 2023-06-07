@@ -3,7 +3,7 @@ from typing import List
 
 from pydantic import BaseModel
 
-from steamship.agents.memory.chathistory import MemoryStrategy
+from steamship.agents.memory.chathistory import MessageSelector
 from steamship.agents.schema.action import Action
 from steamship.agents.schema.context import AgentContext
 from steamship.agents.schema.llm import LLM
@@ -22,7 +22,7 @@ class Agent(BaseModel, ABC):
     tools: List[Tool]
     """Tools that can be used by the Agent in selecting the next Action."""
 
-    memory_strategy: MemoryStrategy = NoMemory()
+    memory_strategy: MessageSelector = NoMemory()
     """Conversation memory to use when running agent."""
 
     @abstractmethod

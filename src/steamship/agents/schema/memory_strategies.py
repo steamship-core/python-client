@@ -3,12 +3,12 @@ from typing import List
 import tiktoken
 
 from steamship import Block
-from steamship.agents.memory.chathistory import ChatHistory, MemoryStrategy
+from steamship.agents.memory.chathistory import ChatHistory, MessageSelector
 from steamship.data.tags.tag_constants import RoleTag
 
 
-class NoMemory(MemoryStrategy):
-    def messages(self, chat_history: ChatHistory) -> List[Block]:
+class NoMemory(MessageSelector):
+    def get_messages(self, chat_history: ChatHistory) -> List[Block]:
         return []
 
 
@@ -22,12 +22,12 @@ def is_assistant_message(block: Block) -> bool:
     return role == RoleTag.ASSISTANT
 
 
-class MessageWindowMemoryStrategy(MemoryStrategy):
+class MessageWindowMessageSelector(MessageSelector):
     k: int
     # k: Field(default=4, ge=1, description="Number of message pairs to return from history. A message pair is a
     # single set of messages exchanged between a user and an assistant."
 
-    def messages(self, chat_history: ChatHistory) -> List[Block]:
+    def get_messages(self, chat_history: ChatHistory) -> List[Block]:
         all_messages = chat_history.messages
         all_messages.pop()  # don't add the current prompt to the memory
         print(f"message len: {len(all_messages)}")
@@ -52,11 +52,11 @@ def tokens(block: Block) -> int:
     return len(tokenized_text)
 
 
-class TokenWindowMemoryStrategy(MemoryStrategy):
+class TokenWindowMessageSelector(MessageSelector):
     max_tokens: int
     # Field(default=2000, ge=1, description="Number of tokens to return from history.")
 
-    def messages(self, chat_history: ChatHistory) -> List[Block]:
+    def get_messages(self, chat_history: ChatHistory) -> List[Block]:
         messages = []
         current_tokens = 0
 

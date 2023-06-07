@@ -166,12 +166,11 @@ class ChatHistory:
 
     def messages_as_string(
         self,
-        memory_window_strategy: MemoryStrategy,
+        memory_window_strategy: MessageSelector,
         user_prefix: str = "User",
         assistant_prefix: str = "AI",
     ) -> str:
-        messages = memory_window_strategy.messages(self)
-        print(f"messages: {messages}")
+        messages = memory_window_strategy.get_messages(self)
         as_strings = []
         for block in messages:
             role = block.chat_role
@@ -186,7 +185,7 @@ class ChatHistory:
         return "\n".join(as_strings)
 
 
-class MemoryStrategy(BaseModel, ABC):
+class MessageSelector(BaseModel, ABC):
     @abstractmethod
-    def messages(self, chat_history: ChatHistory) -> List[Block]:
+    def get_messages(self, chat_history: ChatHistory) -> List[Block]:
         pass
