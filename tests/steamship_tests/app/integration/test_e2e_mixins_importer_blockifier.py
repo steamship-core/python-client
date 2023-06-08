@@ -1,13 +1,13 @@
+import pytest
 from steamship_tests import PACKAGES_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_package
-from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import File, MimeTypes, Task, TaskState
+from steamship import File, MimeTypes, Steamship, Task, TaskState
+from steamship.data.plugin.index_plugin_instance import SearchResults
 
 
-def test_importer_mixin_and_package_invocation():
-
-    client = get_steamship_client()
+@pytest.mark.usefixtures("client")
+def test_importer_mixin_and_package_invocation(client: Steamship):
     demo_package_path = PACKAGES_PATH / "package_with_mixin_importer.py"
 
     with deploy_package(client, demo_package_path) as (_, _, instance):
@@ -81,3 +81,33 @@ Hi there this is a paragraph.
         assert len(pdf_blocks) == 2
         assert pdf_blocks[0].text == "This is the ﬁrst page\n"
         assert pdf_blocks[1].text == "This is the second page"
+
+        # Test indexer with text
+        instance.invoke("index_text", text="Bananas")
+        instance.invoke("index_text", text="Trains")
+        instance.invoke("index_text", text="Democracy")
+
+        instance.invoke("index_text", text="Bananas", index_handle="index2")
+        instance.invoke("index_text", text="Trains", index_handle="index2")
+
+        result = instance.invoke("search_index", query="politics")
+        result = SearchResults.parse_obj(result)
+        winner = result.items[0]
+        assert winner.tag.text == "Democracy"
+
+        result = instance.invoke("search_index", query="politics", index_handle="index2")
+        result = SearchResults.parse_obj(result)
+        winner = result.items[0]
+        assert winner.tag.text == "Trains"
+
+        # Test indexer with file
+        instance.invoke("index_file", file_id=pdf_file.id, index_handle="i2")
+
+        result = instance.invoke("search_index", query="second page", index_handle="i2")
+        result = SearchResults.parse_obj(result)
+        assert len(result.items) == 2
+        winner = result.items[0]
+        assert winner.tag.text == "This is the second page"
+
+        other = result.items[1]
+        assert other.tag.text == "This is the ﬁrst page\n"

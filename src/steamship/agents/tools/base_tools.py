@@ -82,6 +82,15 @@ class ImageGeneratorTool(GeneratorTool):
         return block.is_image()
 
 
+class VideoGeneratorTool(GeneratorTool):
+    """
+    A base class for tools that wrap Steamship Video Generator plugins.
+    """
+
+    def accept_output_block(self, block: Block) -> bool:
+        return block.is_video()
+
+
 class AudioGeneratorTool(GeneratorTool):
     """
     A base class for tools that wrap Steamship Audio Generator plugins.

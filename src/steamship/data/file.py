@@ -29,6 +29,7 @@ class FileUploadType(str, Enum):
     FILE = "file"  # A file uploaded as bytes or a string
     FILE_IMPORTER = "fileImporter"  # A fileImporter will be used to create the file
     BLOCKS = "blocks"  # Blocks are sent to create a file
+    NONE = "none"  # Create an empty file
 
 
 class FileClearResponse(Response):
@@ -122,40 +123,43 @@ class File(CamelModel):
         public_data: bool = False,
     ) -> Any:
 
+        req = {
+            "handle": handle,
+            "mimeType": mime_type,
+            "publicData": public_data,
+        }
+
         if content is None and blocks is None:
-            if tags is None:
-                raise SteamshipError(message="Either filename, content, or tags must be provided.")
-            else:
-                content = ""
-        if content is not None and blocks is not None:
+            # Both none: empty file; to be imported later.
+            upload_type = FileUploadType.NONE
+        elif content is not None and blocks is not None:
+            # Both not none: unclear what to do; raise an exception
             raise SteamshipError(
                 message="Please provide only `blocks` or `content` to `File.create`."
             )
-
-        if blocks is not None:
+        elif blocks is not None:
+            # Blocks
             upload_type = FileUploadType.BLOCKS
+            req["blocks"] = [
+                block.dict(by_alias=True, exclude_unset=True, exclude_none=True)
+                for block in blocks or []
+            ]
+
         elif content is not None:
             upload_type = FileUploadType.FILE
         else:
             raise Exception("Unable to determine upload type.")
 
-        req = {
-            "handle": handle,
-            "type": upload_type,
-            "mimeType": mime_type,
-            "blocks": [
-                block.dict(by_alias=True, exclude_unset=True, exclude_none=True)
-                for block in blocks or []
-            ],
-            "tags": [
+        req["type"] = upload_type
+
+        if tags:
+            req["tags"] = [
                 tag.dict(by_alias=True, exclude_unset=True, exclude_none=True) for tag in tags or []
-            ],
-            "publicData": public_data,
-        }
+            ]
 
         file_data = (
             ("file-part", content, "multipart/form-data")
-            if upload_type != FileUploadType.BLOCKS
+            if upload_type == FileUploadType.FILE
             else None
         )
 
@@ -183,6 +187,23 @@ class File(CamelModel):
         }
 
         return client.post("file/create", payload=req, expect=File, as_background_task=True)
+
+    def import_with_plugin(
+        self,
+        plugin_instance: str,
+        url: str = None,
+        mime_type: str = None,
+    ) -> Task[File]:
+        """Run an import operation on an (empty) file object that has already been created."""
+        req = {
+            "type": FileUploadType.FILE_IMPORTER,
+            "id": self.id,
+            "url": url,
+            "mimeType": mime_type,
+            "pluginInstance": plugin_instance,
+        }
+
+        return self.client.post("file/import", payload=req, expect=File, as_background_task=True)
 
     def refresh(self) -> File:
         refreshed = File.get(self.client, self.id)
