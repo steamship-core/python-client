@@ -109,11 +109,11 @@ class AgentREPL(SteamshipREPL):
     config = None
 
     def __init__(
-            self,
-            agent_class: Type[AgentService],
-            method: str,
-            agent_package_config: Optional[Dict[str, Any]],
-            client: Optional[Steamship] = None,
+        self,
+        agent_class: Type[AgentService],
+        method: str,
+        agent_package_config: Optional[Dict[str, Any]],
+        client: Optional[Steamship] = None,
     ):
         super().__init__()
         self.agent_class = agent_class
