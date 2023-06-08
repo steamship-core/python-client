@@ -39,6 +39,19 @@ def test_instance_init():
     assert package.mixins[0].instance_init_called
 
 
+def test_mixin_default_array_isnt_class_level_shared():
+    """Tests that two different instances of a package aren't accidentally sharing a dict"""
+    package = PackageWithMixin()
+    package.invocable_instance_init()
+
+    assert len(package.mixins) == 1
+
+    package2 = PackageWithMixin()
+    package2.invocable_instance_init()
+
+    assert len(package2.mixins) == 1
+
+
 def test_two_conflicting_mixins_raises_error():
     package = PackageWithMixin()
 

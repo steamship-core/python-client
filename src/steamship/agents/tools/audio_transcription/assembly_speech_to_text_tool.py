@@ -9,9 +9,10 @@ class AssemblySpeechToTextTool(AudioBlockifierTool):
     name: str = "AssemblySpeechToTextTool"
     human_description: str = "Generates text from spoken audio."
     agent_description: str = (
-        "Used to generate text from spoken audio. Only use if the user has asked directly for a "
-        "an text version of an audio file. When using this tool, the input should be the audio file. "
-        "The output is the text"
+        "Used to generate text from spoken audio. "
+        "Only use if the user has asked directly for a text version of an audio file. "
+        "When using this tool, the input should be the audio file. "
+        "The output is the text."
     )
     blockifier_plugin_handle: str = "s2t-blockifier-assembly"
 
