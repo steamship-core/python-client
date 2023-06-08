@@ -30,6 +30,10 @@ class MimeTypes(str, Enum):
     WEBM_AUDIO = "audio/webm"
     FILE_JSON = "fileJson"
 
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_
+
 
 class ContentEncodings:
     BASE64 = "base64"

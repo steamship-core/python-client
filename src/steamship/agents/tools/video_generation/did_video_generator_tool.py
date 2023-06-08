@@ -1,5 +1,8 @@
 """Tool for generating images."""
+from enum import Enum
 from typing import Any, List, Optional, Union
+
+from pydantic import BaseModel, Field
 
 from steamship import Block, Task
 from steamship.agents.schema import AgentContext
@@ -11,6 +14,17 @@ DEFAULT_SOURCE_URL = "https://www.steamship.com/images/agents/man-in-suit-midjou
 
 class DIDVideoGeneratorTool(VideoGeneratorTool):
     """Tool to generate talking avatars from text using D-ID."""
+
+    class Expression(BaseModel):
+        class Expressions(str, Enum):
+            NEUTRAL = "neutral"
+            HAPPY = "happy"
+            SURPRISE = "surprise"
+            SERIOUS = "serious"
+
+        start_frame: int = Field(ge=0)
+        expression: Expressions
+        intensity: float = Field(1.0, le=1, ge=0)
 
     name: str = "DIDVideoGeneratorTool"
     human_description: str = "Generates an a video of you speaking a response to a user."
@@ -33,25 +47,13 @@ class DIDVideoGeneratorTool(VideoGeneratorTool):
     voice_id: Optional[str] = "en-US-GuyNeural"
     """The voice ID. E.g. `en-US-AshleyNeural` for Microsoft or `Amy` for Amazon."""
 
+    voice_style: Optional[str] = "Default"
+
     driver_url: Optional[str] = None
     """The URL of the D-ID driver video. If not provided a driver video will be selected automatically."""
 
-    expressions: Optional[List[dict]] = None
-    """A list of expressions (and their intensity) to apply.
-
-    Valid expressions are: neutral | happy | surprise | serious
-    Intensity is a float from 0 to 1.0
-
-    Use the following form
-
-    [
-        {
-            "start_frame": 0,
-            "expression": "surprise",
-            "intensity": 1.0
-        },
-    ]
-    """
+    expressions: Optional[List[Expression]] = None
+    """A list of expressions to apply."""
 
     transition_frames: Optional[int] = 20
     """How many frames to use for expression transition."""
@@ -88,7 +90,7 @@ class DIDVideoGeneratorTool(VideoGeneratorTool):
                     "provider": {
                         "type": self.voice_provider,
                         "voice_id": self.voice_id,
-                        "voice_config": {"style": "Default"},
+                        "voice_config": {"style": self.voice_style},
                         "expressions": self.expressions,
                     },
                     "transition_frames": self.transition_frames,
@@ -115,4 +117,4 @@ class DIDVideoGeneratorTool(VideoGeneratorTool):
 
 
 if __name__ == "__main__":
-    ToolREPL(DIDVideoGeneratorTool()).run()
+    ToolREPL(DIDVideoGeneratorTool(expressions=[{"start_frame": 0, "expression": "happy"}])).run()
