@@ -22,7 +22,7 @@ class Agent(BaseModel, ABC):
     tools: List[Tool]
     """Tools that can be used by the Agent in selecting the next Action."""
 
-    memory_strategy: MessageSelector = NoMemory()
+    message_selector: MessageSelector = NoMemory()
     """Conversation memory to use when running agent."""
 
     @abstractmethod

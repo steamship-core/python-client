@@ -30,17 +30,14 @@ class MessageWindowMessageSelector(MessageSelector):
     def get_messages(self, chat_history: ChatHistory) -> List[Block]:
         all_messages = chat_history.messages
         all_messages.pop()  # don't add the current prompt to the memory
-        print(f"message len: {len(all_messages)}")
         if len(all_messages) <= (self.k * 2):
             return all_messages
 
         msgs = []
         limit = self.k * 2
         scope = all_messages[len(all_messages) - limit :]
-        print(f"scope: {scope}")
         for block in scope:
             if is_user_message(block) or is_assistant_message(block):
-                print("appending message")
                 msgs.append(block)
 
         return msgs

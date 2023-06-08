@@ -77,11 +77,9 @@ New input: {input}
             tool_names=tool_names,
             scratchpad=scratchpad,
             chat_history=context.chat_history.messages_as_string(
-                memory_window_strategy=self.memory_strategy
+                message_selector=self.message_selector
             ),
         )
-
-        print(f"prompt: {prompt}")
 
         completions = self.llm.complete(prompt=prompt, stop="Observation:")
         return self.output_parser.parse(completions[0].text, context)

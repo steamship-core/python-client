@@ -166,11 +166,11 @@ class ChatHistory:
 
     def messages_as_string(
         self,
-        memory_window_strategy: MessageSelector,
+        message_selector: MessageSelector,
         user_prefix: str = "User",
         assistant_prefix: str = "AI",
     ) -> str:
-        messages = memory_window_strategy.get_messages(self)
+        messages = message_selector.get_messages(self)
         as_strings = []
         for block in messages:
             role = block.chat_role
