@@ -37,7 +37,7 @@ class DIDVideoGeneratorTool(VideoGeneratorTool):
     """The URL of the D-ID driver video. If not provided a driver video will be selected automatically."""
 
     expressions: Optional[List[dict]] = None
-    """A list of expressions to apply.
+    """A list of expressions (and their intensity) to apply.
 
     Valid expressions are: neutral | happy | surprise | serious
     Intensity is a float from 0 to 1.0
@@ -74,8 +74,6 @@ class DIDVideoGeneratorTool(VideoGeneratorTool):
             tool_input = [block]
 
         for block in tool_input:
-            if isinstance(block, str):
-                print(block)
             if not block.is_text():
                 continue
 
