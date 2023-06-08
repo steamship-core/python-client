@@ -5,6 +5,7 @@ from .base_tools import (
     ImageBlockifierTool,
     ImageGeneratorTool,
     ScrapeAndBlockifyTool,
+    VideoGeneratorTool,
 )
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "ImageGeneratorTool",
     "GeneratorTool",
     "ScrapeAndBlockifyTool",
+    "VideoGeneratorTool",
 ]
