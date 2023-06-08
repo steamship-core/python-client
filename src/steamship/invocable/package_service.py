@@ -28,7 +28,11 @@ class PackageService(Invocable):
 
     """
 
-    mixins: List[PackageMixin] = []
+    mixins: List[PackageMixin]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.mixins = []
 
     def add_mixin(self, mixin: PackageMixin, permit_overwrite_of_existing_methods: bool = False):
         base_fn_list = [
