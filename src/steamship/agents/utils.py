@@ -11,7 +11,6 @@ def with_llm(llm: LLM, context: Optional[AgentContext] = None) -> AgentContext:
     if context is None:
         # TODO: should we have a default context somehow?
         context = AgentContext()
-        context.completed_steps = []
     context.metadata[_LLM_KEY] = llm
     return context
 
