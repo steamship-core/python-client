@@ -76,8 +76,8 @@ New input: {input}
             tool_index=tool_index,
             tool_names=tool_names,
             scratchpad=scratchpad,
-            chat_history=context.chat_history.messages_as_string(
-                message_selector=self.message_selector
+            chat_history=self.messages_to_prompt_history(
+                messages=context.chat_history.select_messages(self.message_selector)
             ),
         )
 

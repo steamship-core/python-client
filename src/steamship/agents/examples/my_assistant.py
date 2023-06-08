@@ -6,7 +6,7 @@ from steamship.agents.llms.openai import OpenAI
 from steamship.agents.react import ReACTAgent
 from steamship.agents.schema import AgentContext
 from steamship.agents.schema.context import Metadata
-from steamship.agents.schema.conversation_memory import MessageWindowMemory
+from steamship.agents.schema.message_selectors import MessageWindowMessageSelector
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.tools.image_generation import DalleTool
 from steamship.agents.tools.search import SearchTool
@@ -28,7 +28,7 @@ class MyAssistant(AgentService):
                 DalleTool(),
             ],
             llm=OpenAI(self.client, temperature=0),
-            conversation_memory=MessageWindowMemory(k=2),
+            conversation_memory=MessageWindowMessageSelector(k=2),
         )
 
     @post("prompt")
