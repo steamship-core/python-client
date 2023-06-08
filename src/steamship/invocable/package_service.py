@@ -30,7 +30,7 @@ class PackageService(Invocable):
 
     mixins: List[PackageMixin] = []
 
-    def add_mixin(self, mixin: PackageMixin):
+    def add_mixin(self, mixin: PackageMixin, permit_overwrite_of_existing_methods: bool = False):
         base_fn_list = [
             may_be_decorated
             for base_cls in mixin.__class__.__bases__
@@ -53,7 +53,10 @@ class PackageService(Invocable):
                         func_binding=func_binding,
                     )
                     try:
-                        self._package_spec.add_method(method_spec)
+                        self._package_spec.add_method(
+                            method_spec,
+                            permit_overwrite_of_existing=permit_overwrite_of_existing_methods,
+                        )
                     except RouteConflictError as conflict_error:
                         message = f"When attempting to add mixin {mixin.__class__.__name__}, route {verb} {path} conflicted with already added route {verb} {path} on class {conflict_error.existing_method_spec.class_name}"
                         raise RouteConflictError(
