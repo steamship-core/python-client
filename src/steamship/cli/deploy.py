@@ -1,7 +1,4 @@
-import importlib.machinery as machinery
 import os
-import sys
-import traceback
 import zipfile
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -12,6 +9,7 @@ from semver import VersionInfo
 from steamship import Package, PackageVersion, PluginVersion, Steamship, SteamshipError
 from steamship.cli.manifest_init_wizard import validate_handle, validate_version_handle
 from steamship.cli.ship_spinner import ship_spinner
+from steamship.cli.utils import find_api_py, get_api_module
 from steamship.data import Plugin
 from steamship.data.manifest import Manifest
 from steamship.data.user import User
@@ -32,27 +30,8 @@ DEFAULT_BUILD_IGNORE = [
 
 
 def update_config_template(manifest: Manifest):
-
-    path = Path("src/api.py")
-    if not path.exists():
-        path = Path("api.py")
-        if not path.exists():
-            raise SteamshipError("Could not find api.py either in root directory or in src.")
-
-    api_module = None
-    try:
-        sys.path.append(str(path.parent.absolute()))
-
-        # load the API module to allow config inspection / generation
-        api_module = machinery.SourceFileLoader("api", str(path)).load_module()
-    except Exception:
-        click.secho(
-            "An error occurred while loading your api.py to check configuration parameters. Full stack trace below.",
-            fg="red",
-        )
-        traceback.print_exc()
-        click.get_current_context().abort()
-
+    path = find_api_py()
+    api_module = get_api_module(path)
     invocable_type = get_class_from_module(api_module)
 
     config_parameters = invocable_type.config_cls().get_config_parameters()

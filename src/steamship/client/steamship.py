@@ -20,6 +20,7 @@ from steamship.data.plugin.plugin_instance import PluginInstance
 from steamship.data.plugin.prompt_generation_plugin_instance import PromptGenerationPluginInstance
 from steamship.data.workspace import Workspace
 from steamship.utils.metadata import hash_dict
+from steamship.utils.utils import create_instance_handle
 
 _logger = logging.getLogger(__name__)
 
@@ -131,6 +132,7 @@ class Steamship(Client):
         version: Optional[str] = None,
         fetch_if_exists: bool = True,
         workspace_handle: Optional[str] = None,
+        wait_for_init: bool = True,
         **kwargs,
     ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
@@ -164,6 +166,7 @@ class Steamship(Client):
             config=config,
             version=version,
             fetch_if_exists=fetch_if_exists,
+            wait_for_init=wait_for_init,
         )
 
     def _instance_use(
@@ -173,6 +176,7 @@ class Steamship(Client):
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
         fetch_if_exists: bool = True,
+        wait_for_init: bool = True,
     ) -> PackageInstance:
         """Creates/loads an instance of package `package_handle`.
 
@@ -184,9 +188,11 @@ class Steamship(Client):
             if config is None:
                 instance_handle = package_handle
             else:
-                instance_handle = f"{package_handle}-{hash_dict(config)}"
+                instance_handle = create_instance_handle(
+                    invocable_handle=package_handle, version_handle=version, invocable_config=config
+                )
 
-        return PackageInstance.create(
+        result = PackageInstance.create(
             self,
             package_handle=package_handle,
             package_version_handle=version,
@@ -194,6 +200,9 @@ class Steamship(Client):
             config=config,
             fetch_if_exists=fetch_if_exists,
         )
+        if wait_for_init:
+            result.wait_for_init()
+        return result
 
     @staticmethod
     def use_plugin(
@@ -203,6 +212,7 @@ class Steamship(Client):
         version: Optional[str] = None,
         fetch_if_exists: bool = True,
         workspace_handle: Optional[str] = None,
+        wait_for_init: bool = True,
         **kwargs,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
@@ -233,6 +243,7 @@ class Steamship(Client):
             config=config,
             version=version,
             fetch_if_exists=fetch_if_exists,
+            wait_for_init=wait_for_init,
         )
 
     def use_skill(
@@ -275,6 +286,7 @@ class Steamship(Client):
         config: Optional[Dict[str, Any]] = None,
         version: Optional[str] = None,
         fetch_if_exists: Optional[bool] = True,
+        wait_for_init: bool = True,
     ) -> PluginInstance:
         """Creates/loads an instance of plugin `plugin_handle`.
 
@@ -286,10 +298,10 @@ class Steamship(Client):
             if config is None:
                 instance_handle = plugin_handle
             else:
-                instance_handle = f"{plugin_handle}-{hash_dict(config)}"
+                instance_handle = f"{plugin_handle}-{hash_dict({**config, 'version': version})}"
 
         if plugin_handle in Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES:
-            return Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES[plugin_handle].create(
+            result = Steamship._PLUGIN_INSTANCE_SUBCLASS_OVERRIDES[plugin_handle].create(
                 self,
                 plugin_handle=plugin_handle,
                 plugin_version_handle=version,
@@ -297,15 +309,18 @@ class Steamship(Client):
                 config=config,
                 fetch_if_exists=fetch_if_exists,
             )
-
-        return PluginInstance.create(
-            self,
-            plugin_handle=plugin_handle,
-            plugin_version_handle=version,
-            handle=instance_handle,
-            config=config,
-            fetch_if_exists=fetch_if_exists,
-        )
+        else:
+            result = PluginInstance.create(
+                self,
+                plugin_handle=plugin_handle,
+                plugin_version_handle=version,
+                handle=instance_handle,
+                config=config,
+                fetch_if_exists=fetch_if_exists,
+            )
+        if wait_for_init:
+            result.wait_for_init()
+        return result
 
     def get_workspace(self) -> Workspace:
         # We should probably add a hard-coded way to get this. The client in a Steamship Plugin/App comes

@@ -20,6 +20,14 @@ steamship.base.configuration module
    :undoc-members:
    :show-inheritance:
 
+steamship.base.environments module
+----------------------------------
+
+.. automodule:: steamship.base.environments
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.base.error module
 ---------------------------
 
@@ -72,14 +80,6 @@ steamship.base.tasks module
 ---------------------------
 
 .. automodule:: steamship.base.tasks
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-steamship.base.utils module
----------------------------
-
-.. automodule:: steamship.base.utils
    :members:
    :undoc-members:
    :show-inheritance:

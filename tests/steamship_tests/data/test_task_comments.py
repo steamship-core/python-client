@@ -1,7 +1,9 @@
+import pytest
 from steamship_tests.utils.fixtures import get_steamship_client
 from steamship_tests.utils.random import random_index, random_name
 
-from steamship import Tag
+from steamship import SteamshipError, Tag
+from steamship.base.request import SortOrder
 from steamship.base.tasks import TaskComment
 from steamship.data.embeddings import EmbeddedItem
 
@@ -53,7 +55,7 @@ def test_basic_task_comment():
         res.add_comment(external_id="Foo1", external_type="Bar1", metadata=[1, 2, 3])
         res.add_comment(external_id="Foo2", external_type="Bar2", metadata=[1, 2, 3, 4])
 
-        comments = TaskComment.list(client=steamship, task_id=res.task_id)
+        comments = TaskComment.list(client=steamship, task_id=res.task_id, sort_order=SortOrder.ASC)
         assert len(comments.comments) == 2
         comment = comments.comments[0]
         assert comment.external_id == "Foo1"
@@ -81,6 +83,33 @@ def test_basic_task_comment():
         comments.comments[0].delete()
         comments = TaskComment.list(client=steamship, task_id=res.task_id)
         assert len(comments.comments) == 0
+
+
+def test_task_comment_list_paging():
+    steamship = get_steamship_client()
+    with random_index(steamship, _TEST_EMBEDDER) as index:
+        item1 = Tag(text="Pizza", name="pizza", kind="food", value={"value": [1, 2, 3]})
+        index.insert(item1)
+
+        res = index.search(item1.text, k=1)
+        res.wait()
+
+        res.add_comment(external_id="Foo1", external_type="Bar1", metadata=[1, 2, 3])
+        res.add_comment(external_id="Foo2", external_type="Bar2", metadata=[1, 2, 3, 4])
+        res.add_comment(external_id="Foo3", external_type="Bar3", metadata=[1, 2, 3, 4])
+
+        resp = TaskComment.list(client=steamship, task_id=res.task_id, page_size=2)
+        assert len(resp.comments) == 2
+        assert resp.next_page_token is not None
+
+        resp = TaskComment.list(
+            client=steamship, task_id=res.task_id, page_size=2, page_token=resp.next_page_token
+        )
+        assert len(resp.comments) == 1
+        assert resp.next_page_token is None
+
+        with pytest.raises(SteamshipError):
+            TaskComment.list(steamship, page_size=-1)
 
 
 def test_task_comment_feedback_reporting():

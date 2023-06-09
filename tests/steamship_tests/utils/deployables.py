@@ -82,6 +82,7 @@ def deploy_plugin(
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
     safe_load_handler: bool = False,
+    wait_for_init: bool = True,
 ):
     plugin = Plugin.create(
         client,
@@ -118,6 +119,9 @@ def deploy_plugin(
 
     _check_user(client, plugin_instance)
 
+    if wait_for_init:
+        plugin_instance.wait_for_init()
+
     yield plugin, plugin_version, plugin_instance
 
     _delete_deployable(plugin_instance, plugin_version, plugin)
@@ -130,6 +134,7 @@ def deploy_package(
     version_config_template: Dict[str, Any] = None,
     instance_config: Dict[str, Any] = None,
     safe_load_handler: bool = False,
+    wait_for_init: bool = True,
 ):
     package = Package.create(client)
 
@@ -155,6 +160,9 @@ def deploy_package(
     assert package_instance.package_version_id == version.id
 
     _check_user(client, package_instance)
+
+    if wait_for_init:
+        package_instance.wait_for_init()
 
     yield package, version, package_instance
 

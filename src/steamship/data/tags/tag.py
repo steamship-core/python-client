@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from pydantic import Field
+from pydantic.main import BaseModel
 
 from steamship import SteamshipError
 from steamship.base.client import Client
@@ -66,6 +67,12 @@ class Tag(CamelModel):
 
     class ListResponse(Response):
         tags: List[Tag] = None
+
+    @classmethod
+    def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
+        # TODO (enias): This needs to be solved at the engine side
+        obj = obj["tag"] if "tag" in obj else obj
+        return super().parse_obj(obj)
 
     @staticmethod
     def create(

@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import typing
 from abc import ABC
+from datetime import datetime, timedelta
 from inspect import isclass
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar, Union
 
@@ -252,6 +253,7 @@ class Client(CamelModel, ABC):
         package_instance_id: str = None,
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
+        task_delay_ms: Optional[int] = None,
     ):
         headers = {"Authorization": f"Bearer {self.config.api_key.get_secret_value()}"}
 
@@ -268,23 +270,40 @@ class Client(CamelModel, ABC):
             if package_instance_id:
                 headers["X-Package-Instance-Id"] = package_instance_id
 
-        if wait_on_tasks:
+        if task_delay_ms and task_delay_ms < 0:
+            raise SteamshipError(
+                message=f"Unable to wait a negative duration of time (task_delay_ms={task_delay_ms})"
+            )
+
+        if wait_on_tasks or (task_delay_ms and task_delay_ms > 0):
             # Will result in the engine persisting the inbound HTTP request as a Task for deferred
             # execution. Additionally, the task will be scheduled to first wait on the other tasks
             # provided in the list of IDs. Accepts a list of EITHER Task objects OR task_id strings.
             as_background_task = True
-            task_ids = []
-            for task_or_id in wait_on_tasks:
-                if isinstance(task_or_id, str):
-                    task_ids.append(task_or_id)
-                elif isinstance(task_or_id, Task):
-                    task_ids.append(task_or_id.task_id)
-                else:
-                    raise SteamshipError(
-                        message=f"`wait_on_tasks` should only contain Task or str objects. Got a {type(task_or_id)}."
-                    )
+            if wait_on_tasks:
+                task_ids = []
+                for task_or_id in wait_on_tasks:
+                    if isinstance(task_or_id, str):
+                        task_ids.append(task_or_id)
+                    elif isinstance(task_or_id, Task):
+                        task_ids.append(task_or_id.task_id)
+                    else:
+                        raise SteamshipError(
+                            message=f"`wait_on_tasks` should only contain Task or str objects. Got a {type(task_or_id)}."
+                        )
+                headers["X-Task-Dependency"] = ",".join(task_ids)
 
-            headers["X-Task-Dependency"] = ",".join(task_ids)
+            if task_delay_ms and task_delay_ms > 0:
+                # Note: we're calling utcnow so that a few lines below we can add +00:00 without worrying about TZ
+                current_date_utc = datetime.utcnow()
+                future_date = current_date_utc + timedelta(milliseconds=task_delay_ms)
+
+                # The engine won't parse it if it includes microseconds.
+                future_date = future_date.replace(microsecond=0)
+
+                # Python doesn't add the +00:00 UTC string, which violates the standard; the Engine will refuse.
+                future_date_str = f"{future_date.isoformat()}+00:00"
+                headers["X-Task-Run-After"] = future_date_str
 
         if as_background_task:
             # Will result in the engine persisting the inbound HTTP request as a Task for deferred
@@ -399,6 +418,7 @@ class Client(CamelModel, ABC):
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
         timeout_s: Optional[float] = None,
+        task_delay_ms: Optional[int] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -430,6 +450,7 @@ class Client(CamelModel, ABC):
             package_instance_id=package_instance_id,
             as_background_task=as_background_task,
             wait_on_tasks=wait_on_tasks,
+            task_delay_ms=task_delay_ms,
         )
 
         data = self._prepare_data(payload=payload)
@@ -545,6 +566,7 @@ class Client(CamelModel, ABC):
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
         timeout_s: Optional[float] = None,
+        task_delay_ms: Optional[int] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -563,6 +585,7 @@ class Client(CamelModel, ABC):
             as_background_task=as_background_task,
             wait_on_tasks=wait_on_tasks,
             timeout_s=timeout_s,
+            task_delay_ms=task_delay_ms,
         )
 
     def get(
@@ -580,6 +603,7 @@ class Client(CamelModel, ABC):
         as_background_task: bool = False,
         wait_on_tasks: List[Union[str, Task]] = None,
         timeout_s: Optional[float] = None,
+        task_delay_ms: Optional[int] = None,
     ) -> Union[
         Any, Task
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
@@ -598,6 +622,7 @@ class Client(CamelModel, ABC):
             as_background_task=as_background_task,
             wait_on_tasks=wait_on_tasks,
             timeout_s=timeout_s,
+            task_delay_ms=task_delay_ms,
         )
 
     def logs(
@@ -608,6 +633,7 @@ class Client(CamelModel, ABC):
         instance_handle: Optional[str] = None,
         invocable_version_handle: Optional[str] = None,
         path: Optional[str] = None,
+        field_values: Optional[Dict[str, str]] = None,
     ) -> Dict[str, Any]:
         """Return generated logs for a client.
 
@@ -620,6 +646,7 @@ class Client(CamelModel, ABC):
         :param instance_handle: Enables optional filtering based on the handle of package instance or plugin instance. Example: `my-instance`
         :param invocable_version_handle: Enables optional filtering based on the version handle of package or plugin. Example: `0.0.2`
         :param path: Enables optional filtering based on request path. Example: `/generate`.
+        :param field_values: Enables optional filtering based on user-provided field values.
         :return: Returns a dictionary containing the offset and number of log entries as well as a list of `entries` that match the specificed filters.
         """
         args = {"from": offset, "size": number}
@@ -631,5 +658,7 @@ class Client(CamelModel, ABC):
             args["invocableVersionHandle"] = invocable_version_handle
         if path:
             args["invocablePath"] = path
+        if field_values:
+            args["fieldValues"] = field_values
 
         return self.post("logs/list", args)

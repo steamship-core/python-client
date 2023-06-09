@@ -12,6 +12,7 @@ from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.base.response import Response
 from steamship.data.tags.tag import Tag
+from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValueKey
 
 
 class BlockQueryRequest(Request):
@@ -22,7 +23,17 @@ class BlockUploadType(str, Enum):
     FILE = "file"  # A file uploaded as bytes or a string
     BLOCKS = "blocks"  # Blocks are sent to create a file
     URL = "url"  # content will be fetched from a URL
-    NONE = "none"  # No upload; plain text only
+    NONE = "none"  # No upload; plain text only.
+
+
+def get_tag_value_key(
+    tags: Optional[List[Tag]], key: str, kind: Optional[str] = None, name: Optional[str] = None
+) -> Optional[any]:
+    """Iterates through a list of tags and returns the first that contains the provided Kind/Name/ValueKey."""
+    for tag in tags or []:
+        if (kind is None or tag.kind == kind) and (name is None or tag.name == name):
+            return (tag.value or {}).get(key)
+    return None
 
 
 class Block(CamelModel):
@@ -38,6 +49,8 @@ class Block(CamelModel):
     tags: Optional[List[Tag]] = []
     index_in_file: Optional[int] = Field(alias="index")
     mime_type: Optional[MimeTypes]
+    public_data: bool = False
+
     url: Optional[
         str
     ] = None  # Only for creation of blocks; used to fetch content from a public URL.
@@ -47,6 +60,9 @@ class Block(CamelModel):
     upload_type: Optional[
         BlockUploadType
     ] = None  # for returning Blocks as the result of a generate request
+    upload_bytes: Optional[
+        bytes
+    ] = None  # ONLY for returning Blocks as the result of a generate request. Will not be set when receiving blocks from the server. See raw()
 
     class ListRequest(Request):
         file_id: str = None
@@ -80,6 +96,7 @@ class Block(CamelModel):
         content: Union[str, bytes] = None,
         url: Optional[str] = None,
         mime_type: Optional[MimeTypes] = None,
+        public_data: bool = False,
     ) -> Block:
         """
         Create a new Block within a File specified by file_id.
@@ -108,6 +125,7 @@ class Block(CamelModel):
             "url": url,
             "mimeType": mime_type,
             "uploadType": upload_type,
+            "publicData": public_data,
         }
 
         file_data = (
@@ -169,9 +187,117 @@ class Block(CamelModel):
                 raw_response=True,
             )
 
-    def is_text(self):
+    def set_public_data(self, public_data: bool):
+        """Set the public_data flag on this Block. If this object already exists server-side, update the flag."""
+        self.public_data = public_data
+        if self.client is not None and self.id is not None:
+            req = {
+                "id": self.id,
+                "publicData": self.public_data,
+            }
+            return self.client.post("block/update", payload=req, expect=Block)
+
+    def is_text(self) -> bool:
         """Return whether this is a text Block."""
-        return self.mime_type == MimeTypes.TXT
+        return self.mime_type == MimeTypes.TXT or (self.mime_type is None and self.text)
+
+    def is_image(self):
+        """Return whether this is an image Block."""
+        return self.mime_type in [MimeTypes.PNG, MimeTypes.JPG, MimeTypes.GIF, MimeTypes.TIFF]
+
+    def is_audio(self):
+        """Return whether this is an audio Block."""
+        return self.mime_type in [
+            MimeTypes.MP3,
+            MimeTypes.MP4_AUDIO,
+            MimeTypes.WEBM_AUDIO,
+            MimeTypes.WAV,
+            MimeTypes.OGG_AUDIO,
+        ]
+
+    def is_video(self):
+        """Return whether this is a video Block."""
+        return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO, MimeTypes.OGG_VIDEO]
+
+    @property
+    def raw_data_url(self) -> Optional[str]:
+        """Return a URL at which the data content of this Block can be accessed.  If public_data is True,
+        this content can be accessed without an API key.
+        """
+        if self.client is not None:
+            return f"{self.client.config.api_base}block/{self.id}/raw"
+        else:
+            return None
+
+    @property
+    def chat_role(self) -> Optional[RoleTag]:
+        return get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.ROLE
+        )
+
+    def set_chat_role(self, role: RoleTag):
+        return self._one_time_set_tag(
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.ROLE, string_value=role.value
+        )
+
+    @property
+    def message_id(self) -> str:
+        return get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.MESSAGE_ID
+        )
+
+    def set_message_id(self, message_id: str):
+        return self._one_time_set_tag(
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.MESSAGE_ID, string_value=message_id
+        )
+
+    @property
+    def chat_id(self) -> str:
+        return get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.CHAT_ID
+        )
+
+    def set_chat_id(self, chat_id: str):
+        return self._one_time_set_tag(
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.CHAT_ID, string_value=chat_id
+        )
+
+    def _one_time_set_tag(self, tag_kind: str, tag_name: str, string_value: str):
+        existing = get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=tag_kind, name=tag_name
+        )
+
+        if existing is not None:
+            if existing == string_value:
+                return  # No action necessary
+            else:
+                raise SteamshipError(
+                    message=f"Block {self.id} already has an existing {tag_kind}/{tag_name} with value {existing}. Unable to set to {string_value}"
+                )
+
+        if self.client and self.id:
+            tag = Tag.create(
+                self.client,
+                file_id=self.file_id,
+                block_id=self.id,
+                kind=tag_kind,
+                name=tag_name,
+                value={TagValueKey.STRING_VALUE: string_value},
+            )
+        else:
+            tag = Tag(
+                kind=tag_kind,
+                name=tag_name,
+                value={TagValueKey.STRING_VALUE: string_value},
+            )
+
+        self.tags.append(tag)
+
+    def as_llm_input(self) -> str:
+        if self.is_text():
+            return self.text
+        else:
+            return f"Block({self.id})"
 
 
 class BlockQueryResponse(Response):

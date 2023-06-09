@@ -35,6 +35,7 @@ def internal_handler(  # noqa: C901
     event: Dict,
     client: Steamship,
     invocation_context: InvocationContext,
+    call_instance_init: bool = False,
 ) -> InvocableResponse:
 
     try:
@@ -60,8 +61,8 @@ def internal_handler(  # noqa: C901
     if request.invocation.invocation_path == "/__dir__":
         # Return the DIR result without (1) Constructing invocable_cls or (2) Parsing its config (in the constructor)
         try:
-            cls = invocable_cls_func()
-            return InvocableResponse(json=cls.__steamship_dir__(cls))
+            invocable_class: Type[Invocable] = invocable_cls_func()
+            return InvocableResponse(json=invocable_class.__steamship_dir__(invocable_class))
         except SteamshipError as se:
             logging.exception(se)
             return InvocableResponse.from_obj(se)
@@ -78,6 +79,10 @@ def internal_handler(  # noqa: C901
         invocable = invocable_cls_func()(
             client=client, config=request.invocation.config, context=invocation_context
         )
+        if call_instance_init:
+            # TODO: We don't want to run this every time, but for now we are.
+            logging.info("Running __instance_init__")
+            invocable.instance_init()
     except SteamshipError as se:
         logging.exception(se)
         return InvocableResponse.from_obj(se)
@@ -113,20 +118,23 @@ def internal_handler(  # noqa: C901
         )
 
 
-def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C901
-    logging_config = event.get("loggingConfig")
+def handler(  # noqa: C901
+    bound_internal_handler, event: Dict, _: Dict = None, running_locally: bool = False
+) -> dict:
+    if not running_locally:
+        logging_config = event.get("loggingConfig")
 
-    if logging_config is None:
-        return InvocableResponse.error(
-            code=HTTPStatus.INTERNAL_SERVER_ERROR,
-            message="Plugin/App handler did not receive a remote logging config.",
-        ).dict(by_alias=True)
+        if logging_config is None:
+            return InvocableResponse.error(
+                code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                message="Plugin/App handler did not receive a remote logging config.",
+            ).dict(by_alias=True)
 
-    logging_host = logging_config.get("loggingHost")
-    logging_port = logging_config.get("loggingPort")
+        logging_host = logging_config.get("loggingHost")
+        logging_port = logging_config.get("loggingPort")
 
-    logging.basicConfig(level=logging.INFO)
-    logging_handler = None
+        logging.basicConfig(level=logging.INFO)
+        logging_handler = None
 
     invocation_context_dict = event.get("invocationContext")
     if invocation_context_dict is None:
@@ -136,12 +144,18 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
         ).dict(by_alias=True)
 
     invocation_context = InvocationContext.parse_obj(invocation_context_dict)
+
+    # At the point in the code, the root log level seems to default to WARNING unless set to INFO, even with
+    # the BasicConfig setting to INFO above.
+    logging.root.setLevel(logging.INFO)
+
     # These log statements intentionally go to the logging handler pre-remote attachment, to debug logging configuration issues
-    logging.info(f"Logging host: {logging_host} Logging port: {logging_port}")
+    if not running_locally:
+        logging.info(f"Logging host: {logging_host} Logging port: {logging_port}")
     logging.info(f"Invocation context: {invocation_context}")
 
     if (
-        logging_host != "none"
+        not running_locally and logging_host != "none"
     ):  # Key off the string none, not 'is None', to avoid config errors where remote host isn't passed
         # Configure remote logging
         if logging_host is None:
@@ -156,27 +170,7 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
                 message="Plugin/App handler did receive a remote logging config, but it did not include a loggingPort.",
             ).dict(by_alias=True)
 
-        custom_format = {
-            "level": "%(levelname)s",
-            "host": "%(hostname)s",
-            "where": "%(module)s.%(filename)s.%(funcName)s:%(lineno)s",
-            "type": "%(levelname)s",
-            "stack_trace": "%(exc_text)s",
-            "component": "package-plugin-lambda",
-            "userId": invocation_context.user_id,
-            "workspaceId": invocation_context.workspace_id,
-            "tenantId": invocation_context.tenant_id,
-            "invocableHandle": invocation_context.invocable_handle,
-            "invocableVersionHandle": invocation_context.invocable_version_handle,
-            "invocableInstanceHandle": invocation_context.invocable_instance_handle,
-            "invocableType": invocation_context.invocable_type,
-            "invocableOwnerId": invocation_context.invocable_owner_id,
-            "path": event.get("invocation", {}).get("invocationPath"),
-        }
-
-        # At the point in the code, the root log level seems to default to WARNING unless set to INFO, even with
-        # the BasicConfig setting to INFO above.
-        logging.root.setLevel(logging.INFO)
+        custom_format = create_custom_format(invocation_context=invocation_context, event=event)
 
         logging_handler = fluenthandler.FluentHandler(
             "steamship.deployed_lambda",
@@ -210,8 +204,9 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
             message="Plugin/App handler was unable to create Steamship client.",
             exception=ex,
         ).dict(by_alias=True)
-    logging.info(f"Localstack hostname: {environ.get('LOCALSTACK_HOSTNAME')}.")
-    response = internal_handler(event, client, invocation_context)
+    if not running_locally:
+        logging.info(f"Localstack hostname: {environ.get('LOCALSTACK_HOSTNAME')}.")
+    response = bound_internal_handler(event, client, invocation_context)
 
     result = response.dict(by_alias=True, exclude={"client"})
     # When created with data > 4MB, data is uploaded to a bucket.
@@ -244,10 +239,42 @@ def handler(internal_handler, event: Dict, _: Dict = None) -> dict:  # noqa: C90
         result["dataBucket"] = SignedUrl.Bucket.PLUGIN_DATA.value
         result["dataFilepath"] = filepath
 
-    if logging_handler is not None:
+    if not running_locally and logging_handler is not None:
         logging_handler.close()
 
     return result
+
+
+def create_custom_format(
+    invocation_context: InvocationContext, event: Dict
+) -> Callable[[logging.LogRecord], Dict]:
+    def custom_format(record: logging.LogRecord) -> Dict:
+        result = {
+            "level": str(record.levelname),
+            "where": f"{record.module}.{record.filename}.{record.funcName}:{record.lineno}",
+            "type": str(record.levelname),
+            "stack_trace": record.exc_text,
+            "component": "package-plugin-lambda",
+            "userId": invocation_context.user_id,
+            "workspaceId": invocation_context.workspace_id,
+            "tenantId": invocation_context.tenant_id,
+            "invocableHandle": invocation_context.invocable_handle,
+            "invocableVersionHandle": invocation_context.invocable_version_handle,
+            "invocableInstanceHandle": invocation_context.invocable_instance_handle,
+            "invocableType": invocation_context.invocable_type,
+            "invocableOwnerId": invocation_context.invocable_owner_id,
+            "path": event.get("invocation", {}).get("invocationPath"),
+        }
+        # if isinstance(record.args, dict):
+        for key, value in record.__dict__.items():
+            if key not in result:
+                result[key] = str(value)
+        return result
+
+    # Giving the callable a callable attribute is very odd, but required
+    # for the FluentRecordFormatter to work
+    custom_format.usesTime = lambda: True
+    return custom_format
 
 
 def create_handler(invocable_cls: Type[Invocable]):

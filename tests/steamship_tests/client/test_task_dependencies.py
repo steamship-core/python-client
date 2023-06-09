@@ -67,7 +67,14 @@ def test_task_dependencies_parallel_failure():
 
     task1 = schedule_task(client)
     task2 = schedule_task(client, please_fail=True)
-    task3 = schedule_task(client, dependencies=[task1, task2])
+
+    because_of_engine_timing_task2_already_failed = False
+
+    try:
+        task3 = schedule_task(client, dependencies=[task1, task2])
+    except SteamshipError as e:
+        assert "At least one dependent already failed" in e.message  # noqa: PT017
+        because_of_engine_timing_task2_already_failed = True
 
     task1.wait()
     assert task1.state == TaskState.succeeded
@@ -75,5 +82,6 @@ def test_task_dependencies_parallel_failure():
     with pytest.raises(SteamshipError):
         task2.wait()  # It failed!
 
-    with pytest.raises(SteamshipError):
-        task3.wait()  # It failed too -- because of the rollup!
+    if not because_of_engine_timing_task2_already_failed:
+        with pytest.raises(SteamshipError):
+            task3.wait()  # It failed too -- because of the rollup!

@@ -4,10 +4,8 @@ Package Project Structure
 Your main implementation lives in the  ``src/api.py`` file of your project.
 This file will have been created for you by the template you selected when starting your project.
 
-- If you are developing a package, you will find a class that derives from the ``Invocable`` base class
+- If you are developing a package, you will find a class that derives from the ``PackageService`` base class
 - If you are developing a plugin, you will find a class that derives from a base class specific to the plugin type.
-
-In both cases, this ``src/api.py`` template concludes by setting a ``handler`` variable that is required by the Steamship bootloader for cloud operation.
 
 From the implementation perspective, think of a package as a Flask app.
 It looks and feels like a regular Python class,
@@ -52,3 +50,5 @@ A few rules about writing package methods:
 - All methods must return a ``Response`` object
 
 For more examples of writing package endpoints, see the `example app <https://github.com/steamship-core/python-client/blob/main/tests/assets/apps/demo_app.py>`_ from our unit testing suite.
+
+You can also :ref:`define configuration parameters<Accepting Configuration>` for your package.

@@ -8,7 +8,9 @@ from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 
 from steamship import MimeTypes, SteamshipError
+from steamship.base.request import SortOrder
 from steamship.client import Steamship
+from steamship.data import TagKind
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
@@ -212,6 +214,51 @@ def test_file_list(client: Steamship):
     c.delete()
 
 
+def test_file_list_paging(client: Steamship):
+    a = File.create(
+        client=client,
+        tags=[Tag(kind="FileTag", value={"name": "A"})],
+    )
+    b = File.create(
+        client=client,
+        tags=[Tag(kind="FileTag", value={"name": "B"})],
+    )
+    c = File.create(
+        client=client,
+        tags=[Tag(kind="FileTag", value={"name": "C"})],
+    )
+
+    page_size = 1
+    resp = File.list(client=client, page_size=page_size)
+    assert len(resp.files) == page_size
+    assert resp.next_page_token is not None
+    assert c == resp.files[0]  # default is DESC (createdAt)
+
+    resp = File.list(client=client, page_size=page_size, page_token=resp.next_page_token)
+    assert len(resp.files) == page_size
+    assert resp.next_page_token is not None
+    assert b == resp.files[0]
+
+    resp = File.list(client=client, page_size=page_size, page_token=resp.next_page_token)
+    assert len(resp.files) == page_size
+    assert resp.next_page_token is None
+    assert a == resp.files[0]
+
+    files = File.list(client=client, page_size=page_size, sort_order=SortOrder.ASC).files
+    assert len(files) == 1
+    assert files[0] == a
+
+    with pytest.raises(SteamshipError):
+        File.list(client=client, page_size=-1)
+
+    resp = File.list(client=client, page_token="not-found-foo")  # noqa: S106
+    assert len(resp.files) == 3
+
+    a.delete()
+    b.delete()
+    c.delete()
+
+
 def test_file_refresh(client: Steamship):
     blockifier_path = PLUGINS_PATH / "blockifiers" / "blockifier.py"
     with deploy_plugin(client, blockifier_path, "blockifier") as (
@@ -284,3 +331,115 @@ def test_file_create_from_resp(client: Steamship):
         )
 
     assert "data does not match expected" in str(err)
+
+
+@pytest.mark.usefixtures("client")
+def test_append_with_tag(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first")])
+    assert len(file.blocks) == 1
+    assert file.blocks[0].index_in_file == 0
+
+    appended_block = file.append_block(text="second", tags=[Tag(kind=TagKind.DOCUMENT)])
+    assert appended_block.index_in_file == 1
+    assert len(file.blocks) == 2
+
+    file.refresh()
+    assert len(file.blocks) == 2
+    assert file.blocks[0].index_in_file == 0
+    assert file.blocks[0].text == "first"
+    assert file.blocks[1].index_in_file == 1
+    assert file.blocks[1].text == "second"
+    assert len(file.blocks[1].tags) == 1
+    assert file.blocks[1].tags[0].kind == TagKind.DOCUMENT
+
+
+@pytest.mark.usefixtures("client")
+def test_file_public_data(client: Steamship):
+    file = File.create(client, content=bytes("This is a test", "utf-8"), public_data=True)
+    assert file.public_data
+
+    # Intentionally no API key
+    response = requests.get(file.raw_data_url)
+
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
+
+
+@pytest.mark.usefixtures("client")
+def test_file_private_data(client: Steamship):
+    file = File.create(client, content=bytes("This is a test", "utf-8"))
+    assert not file.public_data
+
+    # Intentionally no API key
+    failed_response = requests.get(file.raw_data_url)
+    assert not failed_response.ok
+
+    # Should still be able to get with API key
+    response = requests.get(
+        file.raw_data_url,
+        headers={"Authorization": f"Bearer {client.config.api_key.get_secret_value()}"},
+    )
+
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
+
+
+@pytest.mark.usefixtures("client")
+def test_set_public_data(client: Steamship):
+    file = File.create(client, content=bytes("This is a test", "utf-8"))
+
+    assert not file.public_data
+
+    # With public data false, call should fail
+    # Intentionally no API key
+    failed_response = requests.get(file.raw_data_url)
+    assert not failed_response.ok
+
+    # With public data true, call should succeed
+    file.set_public_data(True)
+    # Intentionally no API key
+    response = requests.get(file.raw_data_url)
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
+
+    # Setting back to false, should fail again
+    file.set_public_data(False)
+    # Intentionally no API key
+    failed_response = requests.get(file.raw_data_url)
+    assert not failed_response.ok
+
+
+@pytest.mark.usefixtures("client")
+def test_from_local(client: Steamship):
+    file = File.from_local(
+        client=client, file_path="tests/steamship_tests/data/test_img.png", public_data=True
+    )
+
+    assert len(file.tags) == 1  # should have provenance tag
+    response = requests.get(file.raw_data_url)
+    assert response.ok
+    assert response.headers["content-type"] == MimeTypes.PNG
+
+
+@pytest.mark.usefixtures("client")
+def test_from_local_tags(client: Steamship):
+    file = File.from_local(
+        client=client, file_path="tests/steamship_tests/data/test_img.png", tags=[Tag(kind="fake")]
+    )
+
+    assert len(file.tags) == 2  # should have provenance tag and fake tag
+    response = requests.get(file.raw_data_url)
+    assert not response.ok
+
+
+@pytest.mark.usefixtures("client")
+def test_from_local_content(client: Steamship):
+    file = File.from_local(
+        client=client, file_path="tests/steamship_tests/data/test_file.py", public_data=True
+    )
+
+    assert len(file.tags) == 1  # should have provenance tag
+    response = requests.get(file.raw_data_url)
+    assert response.ok
+    assert response.headers["content-type"] == MimeTypes.TXT
+    assert "test_from_local_content" in response.text

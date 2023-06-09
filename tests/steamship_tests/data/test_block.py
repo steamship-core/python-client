@@ -1,8 +1,10 @@
 import pytest
+import requests
 from steamship_tests import TEST_ASSETS_PATH
 
 from steamship import MimeTypes
 from steamship.client import Steamship
+from steamship.data import TagKind
 from steamship.data.block import Block
 from steamship.data.file import File
 from steamship.data.tags.tag import Tag
@@ -126,6 +128,28 @@ def test_append_block_content_image(client: Steamship):
 
 
 @pytest.mark.usefixtures("client")
+def test_append_with_tag(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first", tags=[Tag(kind=TagKind.DOCUMENT)])])
+    assert len(file.blocks) == 1
+    assert file.blocks[0].index_in_file == 0
+
+    appended_block = Block.create(
+        client, file_id=file.id, text="second", tags=[Tag(kind=TagKind.DOCUMENT)]
+    )
+    assert appended_block.index_in_file == 1
+
+    file.refresh()
+    assert len(file.blocks) == 2
+    assert file.blocks[0].index_in_file == 0
+    assert file.blocks[0].text == "first"
+    assert file.blocks[1].index_in_file == 1
+    assert file.blocks[1].text == "second"
+
+    assert len(file.blocks[1].tags) == 1
+    assert file.blocks[1].tags[0].kind == TagKind.DOCUMENT
+
+
+@pytest.mark.usefixtures("client")
 def test_create_with_tags(client: Steamship):
     file = File.create(client, content="empty")
     new_block = Block.create(
@@ -135,3 +159,83 @@ def test_create_with_tags(client: Steamship):
         tags=[Tag(kind="bar", name="foo"), Tag(kind="baz", name="foo")],
     )
     assert len(new_block.tags) == 2
+
+
+@pytest.mark.usefixtures("client")
+def test_append_is_present(client: Steamship):
+    file = File.create(client, blocks=[Block(text="first")])
+    assert len(file.blocks) == 1
+
+    file.append_block(text="second")
+    assert len(file.blocks) == 2
+
+    file.refresh()
+    assert len(file.blocks) == 2
+
+    my_file = File.create(client, handle="my_file", content="")
+    assert len(my_file.blocks) == 0
+    my_file.append_block(text="first")
+    assert len(my_file.blocks) == 1
+
+
+@pytest.mark.usefixtures("client")
+def test_append_block_public_data(client: Steamship):
+    file = File.create(client, blocks=[])
+
+    appended_block = Block.create(
+        client, file_id=file.id, content=bytes("This is a test", "utf-8"), public_data=True
+    )
+    assert appended_block.public_data
+
+    # Intentionally no API key
+    response = requests.get(appended_block.raw_data_url)
+
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
+
+
+@pytest.mark.usefixtures("client")
+def test_append_block_private_data(client: Steamship):
+    file = File.create(client, blocks=[])
+
+    appended_block = Block.create(client, file_id=file.id, content=bytes("This is a test", "utf-8"))
+    assert not appended_block.public_data
+
+    # Intentionally no API key
+    failed_response = requests.get(appended_block.raw_data_url)
+    assert not failed_response.ok
+
+    # Should still be able to get with API key
+    response = requests.get(
+        appended_block.raw_data_url,
+        headers={"Authorization": f"Bearer {client.config.api_key.get_secret_value()}"},
+    )
+
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
+
+
+@pytest.mark.usefixtures("client")
+def test_set_public_data(client: Steamship):
+    file = File.create(client, blocks=[])
+    block = Block.create(client, file_id=file.id, content=bytes("This is a test", "utf-8"))
+
+    assert not block.public_data
+
+    # With public data false, call should fail
+    # Intentionally no API key
+    failed_response = requests.get(block.raw_data_url)
+    assert not failed_response.ok
+
+    # With public data true, call should succeed
+    block.set_public_data(True)
+    # Intentionally no API key
+    response = requests.get(block.raw_data_url)
+    assert response.text == "This is a test"
+    assert response.headers["content-type"] == MimeTypes.TXT
+
+    # Setting back to false, should fail again
+    block.set_public_data(False)
+    # Intentionally no API key
+    failed_response = requests.get(block.raw_data_url)
+    assert not failed_response.ok

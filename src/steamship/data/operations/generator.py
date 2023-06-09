@@ -21,12 +21,13 @@ class GenerateRequest(Request):
     # Must specify plugin instance to use
     plugin_instance: str = None
 
-    # May specify blocks by their file_id. If so, may specify start and end index
+    # May specify blocks by their file_id. If so, may specify either (start and/or end index) or list of block indices.
     input_file_id: str = None
     input_file_start_block_index: int = None
     input_file_end_block_index: Optional[
         int
     ] = None  # EXCLUSIVE end index, like most programming languages
+    input_file_block_index_list: Optional[List[int]]
 
     # May specify raw text
     text: Optional[str] = None
@@ -49,6 +50,12 @@ class GenerateRequest(Request):
     # the input or not.  If appendOutputToFile is true but the outputFileId is not set,
     # create a new file.
     output_file_id: Optional[str] = None
+
+    # May specify that the output blocks' bytes content should be made public-readable.
+    # Useful for generating images / audio / etc that will be shared.
+    # Defaults to False (private) content.
+    # Requires append_output_to_file to be True.
+    make_output_public: Optional[bool] = None
 
     # Arbitrary runtime options which may be passed to a generator
     options: Optional[dict]

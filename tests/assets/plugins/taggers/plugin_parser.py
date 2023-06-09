@@ -7,6 +7,7 @@ from steamship.invocable import InvocableResponse
 from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.inputs.block_and_tag_plugin_input import BlockAndTagPluginInput
 from steamship.plugin.outputs.block_and_tag_plugin_output import BlockAndTagPluginOutput
+from steamship.plugin.outputs.plugin_output import UsageReport
 from steamship.plugin.tagger import Tagger
 
 # If this isn't present, Localstack won't show logs
@@ -44,7 +45,13 @@ class TestParserPlugin(Tagger):
         file = request.data.file
         for block in file.blocks:
             tag_sentences(block)
+        characters = sum([len(block.text) for block in file.blocks])
+
         if request.data is not None:
-            ret = InvocableResponse(data=BlockAndTagPluginOutput(file=file))
+            ret = InvocableResponse(
+                data=BlockAndTagPluginOutput(
+                    file=file, usage=[UsageReport.run_characters(characters)]
+                )
+            )
             logging.info(f"Ret: {ret}")
             return ret

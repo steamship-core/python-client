@@ -27,6 +27,9 @@ class TagKind(str, Enum):
     SUMMARY = "summary"
     SEARCH_RESULT = "search-result"
     ROLE = "role"
+    CHAT = "chat"
+    CHAT_HISTORY_CONTEXT = "chat-history-context"
+    MESSAGE_ID = "message-id"
 
 
 class DocTag(str, Enum):
@@ -43,6 +46,7 @@ class DocTag(str, Enum):
     H5 = "h5"
     LINE = "line"
     TITLE = "title"
+    SOURCE = "source"
     SUBTITLE = "subtitle"
     FOOTER = "footer"
     PARAGRAPH = "paragraph"
@@ -68,6 +72,7 @@ class DocTag(str, Enum):
     MAIN = "main"
     CHAPTER = "chapter"
     TEXT = "text"
+    CHAT = "chat"
 
     @staticmethod
     def from_html_tag(tagname: Optional[str]) -> Optional["DocTag"]:  # noqa: C901
@@ -244,3 +249,22 @@ class RoleTag(str, Enum):
 
     # This block's content was created by the generative AI assistant
     ASSISTANT = "assistant"
+
+    # This block's content was created by a non-human agent participating in the chat
+    AGENT = "agent"
+
+
+class ChatTag(str, Enum):
+    """A set of `name` constants for Tags with a `kind` of `TagKind.CHAT`."""
+
+    # The chat id in which a message happened
+    CHAT_ID = "chat-id"
+
+    # The message id of a message
+    MESSAGE_ID = "message-id"
+
+    # The role of a message
+    ROLE = "role"
+
+    # The keys to look up a context
+    CONTEXT_KEYS = "context-keys"

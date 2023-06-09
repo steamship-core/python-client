@@ -1,8 +1,9 @@
 import json
 import logging
+import signal
 import sys
 import time
-from os import path
+from os import getenv, path
 from typing import Optional
 
 import click
@@ -10,17 +11,21 @@ import click
 import steamship
 from steamship import Steamship, SteamshipError
 from steamship.base.configuration import Configuration
+from steamship.cli.create_instance import create_instance
 from steamship.cli.deploy import (
     PackageDeployer,
     PluginDeployer,
     bundle_deployable,
     update_config_template,
 )
+from steamship.cli.local_server.server import SteamshipHTTPServer
 from steamship.cli.manifest_init_wizard import manifest_init_wizard
 from steamship.cli.requirements_init_wizard import requirements_init_wizard
 from steamship.cli.ship_spinner import ship_spinner
+from steamship.cli.utils import find_api_py, get_api_module
 from steamship.data.manifest import DeployableType, Manifest
 from steamship.data.user import User
+from steamship.invocable.lambda_handler import get_class_from_module
 
 
 @click.group()
@@ -31,7 +36,7 @@ def cli():
 def initialize(suppress_message: bool = False):
     logging.root.setLevel(logging.FATAL)
     if not suppress_message:
-        click.echo(f"Steamship PYTHON cli version {steamship.__version__}")
+        click.echo(f"Steamship Python CLI version {steamship.__version__}")
 
 
 @click.command()
@@ -62,6 +67,78 @@ def ships():
     click.secho("Here are some ships:", fg="cyan")
     with ship_spinner():
         time.sleep(5)
+    click.secho()
+
+
+@click.command()
+@click.option(
+    "--port",
+    "-p",
+    type=int,
+    default=8080,
+    help="Port to host the server on.",
+)
+@click.option(
+    "--invocable_handle",
+    "-i",
+    type=str,
+    default=None,
+    help="Handle of the package or plugin being hosted.",
+)
+@click.option(
+    "--invocable_version_handle",
+    "-v",
+    type=str,
+    default=None,
+    help="Handle of the package or plugin version being hosted.",
+)
+@click.option(
+    "--invocable_instance_handle",
+    "-h",
+    type=str,
+    default=None,
+    help="Handle of the package or plugin instance being hosted.",
+)
+@click.option(
+    "--api_key",
+    "-k",
+    type=str,
+    default=None,
+    help="API Key to hard-code for hosting.",
+)
+def serve(
+    port: int = 8080,
+    invocable_handle: Optional[str] = None,
+    invocable_version_handle: Optional[str] = None,
+    invocable_instance_handle: Optional[str] = None,
+    api_key: Optional[str] = None,
+):
+    """Serve the local invocable"""
+    initialize()
+    path = find_api_py()
+    api_module = get_api_module(path)
+    invocable_class = get_class_from_module(api_module)
+    click.secho(f"Found Invocable: {invocable_class.__name__}")
+
+    server = SteamshipHTTPServer(
+        invocable_class,
+        port=port,
+        invocable_handle=invocable_handle,
+        invocable_version_handle=invocable_version_handle,
+        invocable_instance_handle=invocable_instance_handle,
+        default_api_key=api_key,
+    )
+
+    def on_exit(signum, frame):
+        click.secho("Shutting down server.")
+        server.stop()
+        click.secho("Shut down.")
+        exit(1)
+
+    signal.signal(signal.SIGINT, on_exit)
+
+    click.secho(f"Starting development server on port {server.port}")
+    server.start()
     click.secho()
 
 
@@ -120,6 +197,56 @@ def deploy():
 
 
 @click.command()
+def info():
+    """Displays information about the current Steamship user.
+
+    This is useful to help users (in a support or hackathon context) test whether they have configured their
+    Steamship environment correctly.
+    """
+    initialize()
+    click.echo("\nSteamship Client Info\n=====================\n")
+
+    if Configuration.default_config_file_has_api_key() or getenv("STEAMSHIP_API_KEY", None):
+        # User is logged in!
+        client = None
+        try:
+            client = Steamship()
+        except BaseException:
+            click.secho("Incorrect API key or network error.\n", fg="red")
+            click.secho(
+                "Your Steamship API Key is set, but we were unable to use it to fetch your account information.\n"
+            )
+            click.secho("- If you are on your own computer, run `ship login` to login.")
+            click.secho(
+                "- If you are in Replit, add the STEAMSHIP_API_KEY secret, then close and re-open this shell.\n"
+            )
+            return
+
+        try:
+            user = User.current(client)
+            click.echo(f"User handle: {user.handle}")
+            click.echo(f"User ID:     {user.id}")
+            click.echo(f"Profile:     {client.config.profile}")
+            click.echo("\nReady to ship! 🚢🚢🚢\n")
+
+        except BaseException:
+            click.secho("Incorrect API key or network error.\n", fg="red")
+            click.secho(
+                "Your Steamship API Key is set, but we were unable to use it to fetch your account information.\n"
+            )
+            click.secho("- If you are on your own computer, run `ship login` to login.")
+            click.secho(
+                "- If you are in Replit, add the STEAMSHIP_API_KEY secret, then close and re-open this shell.\n"
+            )
+    else:
+        click.secho("You are not logged in.\n")
+        click.secho("- If you are on your own computer, run `ship login` to login.")
+        click.secho(
+            "- If you are in Replit, add the STEAMSHIP_API_KEY secret, then close and re-open this shell.\n"
+        )
+
+
+@click.command()
 @click.option(
     "--workspace",
     "-w",
@@ -165,6 +292,13 @@ def deploy():
     type=str,
     help="Path invoked by a client operation. Used to filter logs returned to a specific invocation path.",
 )
+@click.option(
+    "--with-fields",
+    "-f",
+    "field_values",
+    type=str,
+    help="Dictionary of log field values (format: key1=value1,key2=value2,...). Used to filter logs returned.",
+)
 def logs(
     workspace: str,
     offset: int,
@@ -173,7 +307,10 @@ def logs(
     instance: Optional[str] = None,
     version: Optional[str] = None,
     request_path: Optional[str] = None,
+    field_values: Optional[str] = None,
 ):
+    """Retrieve logs within a workspace."""
+
     initialize(suppress_message=True)
     client = None
     try:
@@ -181,15 +318,34 @@ def logs(
     except SteamshipError as e:
         raise click.UsageError(message=e.message)
 
-    click.echo(json.dumps(client.logs(offset, number, package, instance, version, request_path)))
+    value_dict = {}
+    if field_values:
+        try:
+            for item in field_values.split(","):
+                key, value = item.split("=")
+                value_dict[key] = value
+        except ValueError:
+            raise click.UsageError(
+                message="Invalid dictionary format for fields. Please provide a dictionary in the "
+                "format: key1=value1,key2=value2,..."
+            )
+
+    click.echo(
+        json.dumps(
+            client.logs(offset, number, package, instance, version, request_path, value_dict)
+        )
+    )
 
 
 cli.add_command(login)
 cli.add_command(deploy)
+cli.add_command(info)
 cli.add_command(deploy, name="it")
 cli.add_command(ships)
 cli.add_command(logs)
+cli.add_command(serve)
+cli.add_command(create_instance, name="use")
 
 
 if __name__ == "__main__":
-    deploy([])
+    serve([])
