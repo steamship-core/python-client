@@ -13,8 +13,8 @@ from steamship.agents.schema.tool import Tool
 class Agent(BaseModel, ABC):
     """Agent is responsible for choosing the next action to take for an AgentService.
 
-    It uses a passed in memory to decide on an action that will be executed by the AgentService. To decide
-    on the next action, it may use Tools.
+    It uses the provided context, and a set of Tools, to decide on an action that will
+    be executed by the AgentService.
     """
 
     tools: List[Tool]

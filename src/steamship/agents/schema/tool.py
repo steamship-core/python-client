@@ -23,16 +23,16 @@ class Tool(BaseModel):
 
     name: str
     """The short name for the tool.
-
     This will be used by Agents to refer to this tool during action selection."""
 
     agent_description: str
-    """Description for use in an agent in order to enable Action selection. It should
-    include a short summary of what the Tool does, what the inputs to the Tool should be,
+    """Description for use in an agent in order to enable Action selection.
+    It should include a short summary of what the Tool does, what the inputs to the Tool should be,
     and what the outputs of the tool are."""
 
     human_description: str
-    """Human-friendly description. Used for logging, tool indices, etc."""
+    """Human-friendly description.
+    Used for logging, tool indices, etc."""
 
     @abstractmethod
     def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:

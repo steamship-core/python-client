@@ -7,7 +7,7 @@ from steamship.agents.schema.context import AgentContext
 
 
 class OutputParser(BaseModel, ABC):
-    """Uses to convert text into Actions.
+    """Used to convert text into Actions.
 
     Primarily used by LLM-based agents that generate textual descriptions of
     selected actions and their inputs. OutputParsers can be used to convert

@@ -23,7 +23,7 @@ class BlockUploadType(str, Enum):
     FILE = "file"  # A file uploaded as bytes or a string
     BLOCKS = "blocks"  # Blocks are sent to create a file
     URL = "url"  # content will be fetched from a URL
-    NONE = "none"  # No upload; plain text only
+    NONE = "none"  # No upload; plain text only.
 
 
 def get_tag_value_key(
@@ -187,6 +187,16 @@ class Block(CamelModel):
                 raw_response=True,
             )
 
+    def set_public_data(self, public_data: bool):
+        """Set the public_data flag on this Block. If this object already exists server-side, update the flag."""
+        self.public_data = public_data
+        if self.client is not None and self.id is not None:
+            req = {
+                "id": self.id,
+                "publicData": self.public_data,
+            }
+            return self.client.post("block/update", payload=req, expect=Block)
+
     def is_text(self) -> bool:
         """Return whether this is a text Block."""
         return self.mime_type == MimeTypes.TXT or (self.mime_type is None and self.text)
@@ -197,11 +207,17 @@ class Block(CamelModel):
 
     def is_audio(self):
         """Return whether this is an audio Block."""
-        return self.mime_type in [MimeTypes.MP3, MimeTypes.MP4_AUDIO, MimeTypes.WEBM_AUDIO]
+        return self.mime_type in [
+            MimeTypes.MP3,
+            MimeTypes.MP4_AUDIO,
+            MimeTypes.WEBM_AUDIO,
+            MimeTypes.WAV,
+            MimeTypes.OGG_AUDIO,
+        ]
 
     def is_video(self):
         """Return whether this is a video Block."""
-        return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO]
+        return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO, MimeTypes.OGG_VIDEO]
 
     @property
     def raw_data_url(self) -> Optional[str]:
@@ -221,7 +237,7 @@ class Block(CamelModel):
 
     def set_chat_role(self, role: RoleTag):
         return self._one_time_set_tag(
-            tag_kind=DocTag.CHAT, tag_name=ChatTag.MESSAGE_ID, string_value=role.value
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.ROLE, string_value=role.value
         )
 
     @property

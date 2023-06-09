@@ -2,6 +2,8 @@ import json
 from abc import abstractmethod
 from typing import Any, List, Optional, Union
 
+import requests
+
 from steamship import Block, File, MimeTypes, Task
 from steamship.agents.schema import AgentContext, Tool
 
@@ -80,6 +82,15 @@ class ImageGeneratorTool(GeneratorTool):
         return block.is_image()
 
 
+class VideoGeneratorTool(GeneratorTool):
+    """
+    A base class for tools that wrap Steamship Video Generator plugins.
+    """
+
+    def accept_output_block(self, block: Block) -> bool:
+        return block.is_video()
+
+
 class AudioGeneratorTool(GeneratorTool):
     """
     A base class for tools that wrap Steamship Audio Generator plugins.
@@ -105,7 +116,7 @@ class ScrapeAndBlockifyTool(Tool):
     def get_mime_type(self):
         return None
 
-    def _scrape(self, url: str, context: AgentContext, requests=None) -> File:
+    def _scrape(self, url: str, context: AgentContext) -> File:
         response = requests.get(url)
         file = File.create(context.client, content=response.content, mime_type=self.get_mime_type())
         return file

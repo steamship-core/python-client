@@ -22,11 +22,17 @@ class MimeTypes(str, Enum):
     STEAMSHIP_BLOCK_JSON = "application/vnd.steamship-block.json.v1"
     WAV = "audio/wav"
     MP3 = "audio/mp3"
+    OGG_AUDIO = "audio/ogg"
+    OGG_VIDEO = "video/ogg"
     MP4_VIDEO = "video/mp4"
     MP4_AUDIO = "audio/mp4"
     WEBM_VIDEO = "video/webm"
     WEBM_AUDIO = "audio/webm"
     FILE_JSON = "fileJson"
+
+    @classmethod
+    def has_value(cls, value):
+        return value in cls._value2member_map_
 
 
 class ContentEncodings:

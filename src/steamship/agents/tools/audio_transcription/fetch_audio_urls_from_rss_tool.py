@@ -9,6 +9,8 @@ from steamship.utils.repl import ToolREPL
 
 
 class FetchAudioUrlsFromRssTool(Tool):
+    """Given an RSS feed, this tool will extract episode URLs."""
+
     name: str = "FetchAudioUrlsFromRssTool"
     human_description: str = "Fetches the episode URLs from a Podcast RSS feed."
     agent_description: str = (

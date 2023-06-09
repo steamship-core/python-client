@@ -29,6 +29,16 @@ class AgentService(PackageService):
                 "Please use synchronous Tasks (Tools that return List[Block] for now."
             )
         else:
+            outputs = ",".join([f"{b.as_llm_input()}" for b in blocks_or_task])
+            logging.info(
+                f"Tool {action.tool.name}: ({outputs})",
+                extra={
+                    AgentLogging.TOOL_NAME: action.tool.name,
+                    AgentLogging.IS_MESSAGE: True,
+                    AgentLogging.MESSAGE_TYPE: AgentLogging.OBSERVATION,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+                },
+            )
             action.output = blocks_or_task
             context.completed_steps.append(action)
 
@@ -36,8 +46,9 @@ class AgentService(PackageService):
         action = agent.next_action(context=context)
         while not isinstance(action, FinishAction):
             # TODO: Arrive at a solid design for the details of this structured log object
+            inputs = ",".join([f"{b.as_llm_input()}" for b in action.input])
             logging.info(
-                f"Running Tool {action.tool.name}",
+                f"Running Tool {action.tool.name} ({inputs})",
                 extra={
                     AgentLogging.TOOL_NAME: action.tool.name,
                     AgentLogging.IS_MESSAGE: True,
@@ -59,5 +70,12 @@ class AgentService(PackageService):
             )
 
         context.completed_steps.append(action)
+        output_text_length = 0
+        if action.output is not None:
+            output_text_length = sum([len(block.text or "") for block in action.output])
+        logging.info(
+            f"Completed agent run. Result: {len(action.output or [])} blocks. {output_text_length} total text length. Emitting on {len(context.emit_funcs)} functions."
+        )
         for func in context.emit_funcs:
+            logging.info(f"Emitting via function: {func.__name__}")
             func(action.output, context.metadata)
