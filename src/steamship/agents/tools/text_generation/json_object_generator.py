@@ -139,7 +139,7 @@ class JsonObjectGeneratorTool(Tool):
         )
 
         # Perform the generation
-        llm = get_llm(context)
+        llm = get_llm(context, default=OpenAI(client=context.client))
         res = llm.complete(prompt, stop="}")
 
         # Make sure we only generated one block; anything else violates the assumptions of this code.
