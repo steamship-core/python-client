@@ -1,7 +1,6 @@
 import abc
 import contextlib
 import logging
-import uuid
 from abc import ABC
 from typing import Any, Dict, List, Optional, Type, cast
 
@@ -9,9 +8,8 @@ from steamship import Block, Steamship, Task
 from steamship.agents.logging import AgentLogging
 from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.service.agent_service import AgentService
-from steamship.data.workspace import SignedUrl, Workspace
+from steamship.data.workspace import Workspace
 from steamship.invocable.dev_logging_handler import DevelopmentLoggingHandler
-from steamship.utils.signed_urls import upload_to_signed_url
 
 
 class SteamshipREPL(ABC):
@@ -27,34 +25,6 @@ class SteamshipREPL(ABC):
         dev_logging_handler = DevelopmentLoggingHandler()
         logger.addHandler(dev_logging_handler)
 
-    def _make_public_url(self, block):
-        filepath = str(uuid.uuid4())
-        signed_url = (
-            self.client.get_workspace()
-            .create_signed_url(
-                SignedUrl.Request(
-                    bucket=SignedUrl.Bucket.PLUGIN_DATA,
-                    filepath=filepath,
-                    operation=SignedUrl.Operation.WRITE,
-                )
-            )
-            .signed_url
-        )
-        logging.info(f"Got signed url for uploading block content: {signed_url}")
-        read_signed_url = (
-            self.client.get_workspace()
-            .create_signed_url(
-                SignedUrl.Request(
-                    bucket=SignedUrl.Bucket.PLUGIN_DATA,
-                    filepath=filepath,
-                    operation=SignedUrl.Operation.READ,
-                )
-            )
-            .signed_url
-        )
-        upload_to_signed_url(signed_url, block.raw())
-        return read_signed_url
-
     def print_blocks(self, blocks: List[Block], metadata: Dict[str, Any]):
         """Print a list of blocks to console."""
         output = None
@@ -69,8 +39,8 @@ class SteamshipREPL(ABC):
             elif block.content_url:
                 output = block.content_url
             else:
-                url = self._make_public_url(block)
-                output = url
+                block.set_public_data(True)
+                output = block.raw_data_url
 
         if output:
             logging.info(

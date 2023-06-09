@@ -23,7 +23,7 @@ class BlockUploadType(str, Enum):
     FILE = "file"  # A file uploaded as bytes or a string
     BLOCKS = "blocks"  # Blocks are sent to create a file
     URL = "url"  # content will be fetched from a URL
-    NONE = "none"  # No upload; plain text only
+    NONE = "none"  # No upload; plain text only.
 
 
 def get_tag_value_key(

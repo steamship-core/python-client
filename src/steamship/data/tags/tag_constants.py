@@ -46,6 +46,7 @@ class DocTag(str, Enum):
     H5 = "h5"
     LINE = "line"
     TITLE = "title"
+    SOURCE = "source"
     SUBTITLE = "subtitle"
     FOOTER = "footer"
     PARAGRAPH = "paragraph"

@@ -3,6 +3,7 @@ from typing import Optional
 from steamship import File, MimeTypes, Steamship, SteamshipError, Task
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
+from steamship.utils.file_tags import update_file_status
 
 
 class BlockifierMixin(PackageMixin):
@@ -19,6 +20,7 @@ class BlockifierMixin(PackageMixin):
         file_id: str,
         mime_type: Optional[MimeTypes] = None,
         blockifier_handle: Optional[str] = None,
+        after_task_id: Optional[str] = None,
     ) -> Task:
         """Blockify the file `file_id` using a curated set of defaults for the provided `mime_type`.
 
@@ -32,6 +34,7 @@ class BlockifierMixin(PackageMixin):
         """
 
         file = File.get(self.client, _id=file_id)
+        update_file_status(self.client, file, "Blockifying")
 
         _mime_type = mime_type or file.mime_type
         if not _mime_type:
@@ -55,4 +58,9 @@ class BlockifierMixin(PackageMixin):
                 message=f"Unable to blockify file {file.id}. MIME Type {_mime_type} unsupported"
             )
 
-        return file.blockify(plugin_instance.handle)
+        # Postpone the operation if required.
+        wait_on_tasks = []
+        if after_task_id:
+            wait_on_tasks.append(Task(client=self.client, task_id=after_task_id))
+
+        return file.blockify(plugin_instance.handle, wait_on_tasks=wait_on_tasks)
