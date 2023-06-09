@@ -15,6 +15,6 @@ def with_llm(llm: LLM, context: Optional[AgentContext] = None) -> AgentContext:
     return context
 
 
-def get_llm(context: AgentContext) -> Optional[LLM]:
+def get_llm(context: AgentContext, default: Optional[LLM] = None) -> Optional[LLM]:
     """Retrieves the LLM from the provided AgentContext (if it exists)."""
-    return context.metadata.get(_LLM_KEY, None)
+    return context.metadata.get(_LLM_KEY, default)
