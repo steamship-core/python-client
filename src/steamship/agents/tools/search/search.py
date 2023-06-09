@@ -3,8 +3,10 @@ from typing import Any, List, Optional, Union
 
 from pydantic import Field
 
-from steamship import Block, File, PluginInstance, SteamshipError, Task
+from steamship import Block, File, PluginInstance, Steamship, SteamshipError, Task
+from steamship.agents.llms import OpenAI
 from steamship.agents.schema import AgentContext, Tool
+from steamship.agents.utils import with_llm
 from steamship.data import TagValueKey
 from steamship.experimental.easy.tags import get_tag_value_key
 from steamship.utils.kv_store import KeyValueStore
@@ -83,4 +85,6 @@ class SearchTool(Tool):
 
 
 if __name__ == "__main__":
-    ToolREPL(SearchTool()).run()
+    tool = SearchTool()
+    with Steamship.temporary_workspace() as client:
+        ToolREPL(tool).run_with_client(client=client, context=with_llm(llm=OpenAI(client=client)))

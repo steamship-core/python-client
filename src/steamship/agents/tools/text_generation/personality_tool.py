@@ -1,6 +1,9 @@
 from typing import Optional
 
+from steamship import Steamship
+from steamship.agents.llms import OpenAI
 from steamship.agents.tools.text_generation.text_rewrite_tool import TextRewritingTool
+from steamship.agents.utils import with_llm
 from steamship.utils.repl import ToolREPL
 
 DEFAULT_PERSONALITY = """A jolly pirate that addresses his friends as 'Matey."""
@@ -43,4 +46,5 @@ if __name__ == "__main__":
         name="BootleggerVibe",
         personality="A 1920s bootlegger, who is always trying to let you in on a little secret.",
     )
-    ToolREPL(tool).run()
+    with Steamship.temporary_workspace() as client:
+        ToolREPL(tool).run_with_client(client=client, context=with_llm(llm=OpenAI(client=client)))

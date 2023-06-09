@@ -1,5 +1,8 @@
 """Tool for generating images."""
+from steamship import Steamship
+from steamship.agents.llms import OpenAI
 from steamship.agents.tools import AudioGeneratorTool
+from steamship.agents.utils import with_llm
 from steamship.utils.repl import ToolREPL
 
 
@@ -17,4 +20,6 @@ class GenerateSpeechTool(AudioGeneratorTool):
 
 
 if __name__ == "__main__":
-    ToolREPL(GenerateSpeechTool()).run()
+    tool = GenerateSpeechTool()
+    with Steamship.temporary_workspace() as client:
+        ToolREPL(tool).run_with_client(client=client, context=with_llm(llm=OpenAI(client=client)))
