@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import uuid
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Union, cast
 
-from steamship import File, MimeTypes, SteamshipError
+from steamship import File, MimeTypes, Steamship, SteamshipError, Task
 from steamship.agents.schema.message_selectors import MessageSelector
 from steamship.base.client import Client
 from steamship.data import TagKind
 from steamship.data.block import Block
-from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
+from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance, SearchResults
 from steamship.data.tags import Tag
 from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValueKey
 
@@ -20,15 +20,18 @@ class ChatHistory:
     file: File
     embedding_index: EmbeddingIndexPluginInstance
 
-    def __init__(self, file: File):
+    def __init__(self, file: File, embedding_index: EmbeddingIndexPluginInstance):
         """This init method is intended only for private use within the class. See `Chat.create()`"""
         self.file = file
+        self.embedding_index = embedding_index
 
     @staticmethod
     def _get_existing_file(client: Client, context_keys: Dict[str, str]) -> Optional[File]:
         """Find an existing File object whose memory Tag matches the passed memory keys"""
-        file_query = f'kind "{TagKind.CHAT}" and name "{ChatTag.CONTEXT_KEYS}" and ' + " and ".join(
-            [f'value("{key}") = "{value}"' for key, value in context_keys.items()]
+        file_query = (
+            f'kind "{TagKind.CHAT}" and name "{ChatTag.CONTEXT_KEYS}"'
+            + (" and " if len(context_keys) > 0 else "")
+            + " and ".join([f'value("{key}") = "{value}"' for key, value in context_keys.items()])
         )
         file = File.query(client, file_query)
         if len(file.files) == 1:
@@ -48,8 +51,27 @@ class ChatHistory:
         raise SteamshipError(f"Could not find index handle on file with id {file.id}")
 
     @staticmethod
+    def _get_embedding_index(client: Steamship, index_handle: str) -> EmbeddingIndexPluginInstance:
+        return cast(
+            EmbeddingIndexPluginInstance,
+            client.use_plugin(
+                plugin_handle="embedding-index",
+                instance_handle=index_handle,
+                config={
+                    "embedder": {
+                        "plugin_handle": "openai-embedder",
+                        "plugin_instance-handle": "text-embedding-ada-002",
+                        "fetch_if_exists": True,
+                        "config": {"model": "text-embedding-ada-002", "dimensionality": 1536},
+                    }
+                },
+                fetch_if_exists=True,
+            ),
+        )
+
+    @staticmethod
     def get_or_create(
-        client: Client,
+        client: Steamship,
         context_keys: Dict[str, str],
         tags: List[Tag] = None,
     ) -> ChatHistory:
@@ -75,13 +97,54 @@ class ChatHistory:
                 blocks=blocks,
                 tags=tags,
             )
-            embedding_index = EmbeddingIndexPluginInstance.create(handle=index_handle)
         else:
             index_handle = ChatHistory._get_index_handle_from_file(file)
-            embedding_index = EmbeddingIndexPluginInstance.get(client, index_handle)
 
-        print(embedding_index)
-        return ChatHistory(file)
+        embedding_index = ChatHistory._get_embedding_index(client, index_handle)
+
+        return ChatHistory(file, embedding_index)
+
+    def _chunk_text(self, text: str) -> List[Tag]:
+        if text is not None and text != "":
+            # Simplest possible chunking strategy; every 300 characters.
+            result = []
+            for i in range(int(len(text) / 300) + 1):
+                start = i * 300
+                end = min((i + 1) * 300, len(text))
+                result.append(
+                    Tag(
+                        kind=TagKind.CHAT,
+                        name=ChatTag.CHUNK,
+                        start_idx=start,
+                        end_idx=end,
+                        text=text[start:end],
+                    )
+                )
+            return result
+        else:
+            return []
+
+    def append_message_with_role(
+        self,
+        text: str = None,
+        role: RoleTag = RoleTag.USER,
+        tags: List[Tag] = None,
+        content: Union[str, bytes] = None,
+        url: Optional[str] = None,
+        mime_type: Optional[MimeTypes] = None,
+    ) -> Block:
+        """Append a new block to this with content provided by the end-user."""
+        tags = tags or []
+        tags.append(
+            Tag(kind=TagKind.CHAT, name=ChatTag.ROLE, value={TagValueKey.STRING_VALUE: role})
+        )
+        block = self.file.append_block(
+            text=text, tags=tags, content=content, url=url, mime_type=mime_type
+        )
+        chunk_tags = self._chunk_text(text)
+        block.tags.extend(chunk_tags)
+        self.embedding_index.insert(chunk_tags)
+        return block
 
     def append_user_message(
         self,
@@ -92,15 +155,7 @@ class ChatHistory:
         mime_type: Optional[MimeTypes] = None,
     ) -> Block:
         """Append a new block to this with content provided by the end-user."""
-        tags = tags or []
-        tags.append(
-            Tag(
-                kind=TagKind.CHAT, name=ChatTag.ROLE, value={TagValueKey.STRING_VALUE: RoleTag.USER}
-            )
-        )
-        return self.file.append_block(
-            text=text, tags=tags, content=content, url=url, mime_type=mime_type
-        )
+        return self.append_message_with_role(text, RoleTag.USER, tags, content, url, mime_type)
 
     def append_system_message(
         self,
@@ -111,17 +166,7 @@ class ChatHistory:
         mime_type: Optional[MimeTypes] = None,
     ) -> Block:
         """Append a new block to this with content provided by the system, i.e., instructions to the assistant."""
-        tags = tags or []
-        tags.append(
-            Tag(
-                kind=TagKind.CHAT,
-                name=ChatTag.ROLE,
-                value={TagValueKey.STRING_VALUE: RoleTag.SYSTEM},
-            )
-        )
-        return self.file.append_block(
-            text=text, tags=tags, content=content, url=url, mime_type=mime_type
-        )
+        return self.append_message_with_role(text, RoleTag.SYSTEM, tags, content, url, mime_type)
 
     def append_assistant_message(
         self,
@@ -132,17 +177,7 @@ class ChatHistory:
         mime_type: Optional[MimeTypes] = None,
     ) -> Block:
         """Append a new block to this with content provided by the agent, i.e., results from the assistant."""
-        tags = tags or []
-        tags.append(
-            Tag(
-                kind=TagKind.CHAT,
-                name=ChatTag.ROLE,
-                value={TagValueKey.STRING_VALUE: RoleTag.ASSISTANT},
-            )
-        )
-        return self.file.append_block(
-            text=text, tags=tags, content=content, url=url, mime_type=mime_type
-        )
+        return self.append_message_with_role(text, RoleTag.ASSISTANT, tags, content, url, mime_type)
 
     @property
     def last_user_message(self) -> Optional[Block]:
@@ -189,3 +224,6 @@ class ChatHistory:
 
     def select_messages(self, selector: MessageSelector) -> List[Block]:
         return selector.get_messages(self.messages)
+
+    def search(self, text: str, k=None) -> Task[SearchResults]:
+        return self.embedding_index.search(text, k)

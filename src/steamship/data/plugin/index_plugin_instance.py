@@ -126,7 +126,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
                     + f"This tag had a value of type: {type(tag.value)}"
                 )
 
-            # To make this change Python-only, some fields are stached in `hit.metadata`.
+            # To make this change Python-only, some fields are stashed in `hit.metadata`.
             # This has the temporary consequence of these keys not being safe. This will be resolved when we spread
             # this refactor to the engine.
             metadata["_file_id"] = tag.file_id
@@ -144,7 +144,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
             for tag in tags
         ]
 
-        # We always reindex in this new style; to not do so is to expose details (when embedding occurrs) we'd rather
+        # We always reindex in this new style; to not do so is to expose details (when embedding occurs) we'd rather
         # not have users exercise control over.
         self.index.insert_many(embedded_items, reindex=True, allow_long_records=allow_long_records)
 

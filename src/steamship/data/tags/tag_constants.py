@@ -271,3 +271,6 @@ class ChatTag(str, Enum):
 
     # The handle of an embedding index
     INDEX_HANDLE = "index-handle"
+
+    # A chunk of text for indexing
+    CHUNK = "chunk"
