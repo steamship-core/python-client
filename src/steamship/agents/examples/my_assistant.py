@@ -1,11 +1,12 @@
 import uuid
-from typing import List
+from typing import List, Optional
 
 from steamship import Block
 from steamship.agents.llms.openai import OpenAI
 from steamship.agents.react import ReACTAgent
 from steamship.agents.schema import AgentContext
 from steamship.agents.schema.context import Metadata
+from steamship.agents.schema.message_selectors import MessageWindowMessageSelector
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.tools.image_generation import DalleTool
 from steamship.agents.tools.search import SearchTool
@@ -26,18 +27,20 @@ class MyAssistant(AgentService):
                 SearchTool(),
                 DalleTool(),
             ],
-            llm=OpenAI(self.client),
+            llm=OpenAI(self.client, temperature=0),
+            conversation_memory=MessageWindowMessageSelector(k=2),
         )
 
     @post("prompt")
-    def prompt(self, prompt: str) -> str:
+    def prompt(self, prompt: str, context_id: Optional[uuid.UUID] = None) -> str:
         """Run an agent with the provided text as the input."""
 
         # AgentContexts serve to allow the AgentService to run agents
         # with appropriate information about the desired tasking.
-        # Here, we create a new context on each prompt, and append the
-        # prompt to the message history stored in the context.
-        context_id = uuid.uuid4()
+        # Here, we use the passed in context (or a new context) for the prompt,
+        # and append the prompt to the message history stored in the context.
+        if not context_id:
+            context_id = uuid.uuid4()
         context = AgentContext.get_or_create(self.client, {"id": f"{context_id}"})
         context.chat_history.append_user_message(prompt)
 
@@ -59,6 +62,8 @@ class MyAssistant(AgentService):
 
         context.emit_funcs.append(sync_emit)
         self.run_agent(self._agent, context)
+        # TODO: is this right?
+        context.chat_history.append_assistant_message(output)
         return output
 
 
@@ -66,4 +71,4 @@ if __name__ == "__main__":
     # AgentREPL provides a mechanism for local execution of an AgentService method.
     # This is used for simplified debugging as agents and tools are developed and
     # added.
-    AgentREPL(MyAssistant, "prompt", agent_package_config={}).run()
+    AgentREPL(MyAssistant, "prompt", agent_package_config={}).run(context_id=uuid.uuid4())

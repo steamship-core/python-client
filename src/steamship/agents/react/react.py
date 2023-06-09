@@ -51,11 +51,16 @@ DO NOT include `Block(<identifier>)` segments in responses that do not have gene
 
 Begin!
 
+Previous conversation history:
+{chat_history}
+
 New input: {input}
 {scratchpad}"""
 
-    def __init__(self, tools: List[Tool], llm: LLM):
-        super().__init__(output_parser=ReACTOutputParser(tools=tools), llm=llm, tools=tools)
+    def __init__(self, tools: List[Tool], llm: LLM, **kwargs):
+        super().__init__(
+            output_parser=ReACTOutputParser(tools=tools), llm=llm, tools=tools, **kwargs
+        )
 
     def next_action(self, context: AgentContext) -> Action:
         scratchpad = self._construct_scratchpad(context)
@@ -71,6 +76,9 @@ New input: {input}
             tool_index=tool_index,
             tool_names=tool_names,
             scratchpad=scratchpad,
+            chat_history=self.messages_to_prompt_history(
+                messages=context.chat_history.select_messages(self.message_selector)
+            ),
         )
 
         completions = self.llm.complete(prompt=prompt, stop="Observation:")

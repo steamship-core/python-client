@@ -121,7 +121,7 @@ class AgentREPL(SteamshipREPL):
         self.client = client or Steamship()
         self.config = agent_package_config
 
-    def run_with_client(self, client: Steamship):
+    def run_with_client(self, client: Steamship, **kwargs):
         try:
             from termcolor import colored  # noqa: F401
         except ImportError:
@@ -137,9 +137,9 @@ class AgentREPL(SteamshipREPL):
         while True:
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
             responder = getattr(agent_service, self.method)
-            response = responder(input_text)
+            response = responder(input_text, **kwargs)
             print(colored(text=f"{response}", color="green", force_color=True))
 
-    def run(self):
+    def run(self, **kwargs):
         with self.temporary_workspace() as client:
-            self.run_with_client(client)
+            self.run_with_client(client, **kwargs)
