@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Dict, List, Optional, Union
 
 from steamship import File, MimeTypes, SteamshipError
+from steamship.agents.schema.message_selectors import MessageSelector
 from steamship.base.client import Client
 from steamship.data import TagKind
 from steamship.data.block import Block
@@ -97,7 +98,7 @@ class ChatHistory:
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )
 
-    def append_agent_message(
+    def append_assistant_message(
         self,
         text: str = None,
         tags: List[Tag] = None,
@@ -160,3 +161,6 @@ class ChatHistory:
     @property
     def client(self) -> Client:
         return self.file.client
+
+    def select_messages(self, selector: MessageSelector) -> List[Block]:
+        return selector.get_messages(self.messages)

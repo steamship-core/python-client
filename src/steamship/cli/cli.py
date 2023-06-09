@@ -184,9 +184,9 @@ def deploy():
 
     _ = deployer.create_version(client, manifest, deployable.id)
 
-    thing_url = f"{client.config.web_base}{deployable_type}s/{manifest.handle}"
+    thing_url = f"{client.config.web_base}{deployable_type.value}s/{manifest.handle}"
     click.echo(
-        f"Deployment was successful. View and share your new {deployable_type} here:\n\n{thing_url}\n"
+        f"Deployment was successful. View and share your new {deployable_type.value} here:\n\n{thing_url}\n"
     )
 
     # Common error conditions:
