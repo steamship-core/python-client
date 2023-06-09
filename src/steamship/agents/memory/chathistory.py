@@ -1,19 +1,23 @@
 from __future__ import annotations
 
+import uuid
 from typing import Dict, List, Optional, Union
 
 from steamship import File, MimeTypes, SteamshipError
 from steamship.base.client import Client
 from steamship.data import TagKind
 from steamship.data.block import Block
+from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance
 from steamship.data.tags import Tag
 from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValueKey
 
 
 class ChatHistory:
-    """A ChatHistory is a wrapper of a File ideal for ongoing interactions between a user and a virtual assistant."""
+    """A ChatHistory is a wrapper of a File ideal for ongoing interactions between a user and a virtual assistant.
+    It also includes vector-backed storage for similarity-based retrieval."""
 
     file: File
+    embedding_index: EmbeddingIndexPluginInstance
 
     def __init__(self, file: File):
         """This init method is intended only for private use within the class. See `Chat.create()`"""
@@ -36,6 +40,13 @@ class ChatHistory:
             )
 
     @staticmethod
+    def _get_index_handle_from_file(file: File) -> str:
+        for tag in file.tags:
+            if tag.kind == TagKind.CHAT and tag.name == ChatTag.INDEX_HANDLE:
+                return tag.value[TagValueKey.STRING_VALUE]
+        raise SteamshipError(f"Could not find index handle on file with id {file.id}")
+
+    @staticmethod
     def get_or_create(
         client: Client,
         context_keys: Dict[str, str],
@@ -46,8 +57,16 @@ class ChatHistory:
 
         if file is None:
             tags = tags or []
+            index_handle = str(uuid.uuid4())
             tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))
             tags.append(Tag(kind=TagKind.CHAT, name=ChatTag.CONTEXT_KEYS, value=context_keys))
+            tags.append(
+                Tag(
+                    kind=TagKind.CHAT,
+                    name=ChatTag.INDEX_HANDLE,
+                    value={TagValueKey.STRING_VALUE: index_handle},
+                )
+            )
 
             blocks = []
             file = File.create(
@@ -55,6 +74,12 @@ class ChatHistory:
                 blocks=blocks,
                 tags=tags,
             )
+            embedding_index = EmbeddingIndexPluginInstance.create(handle=index_handle)
+        else:
+            index_handle = ChatHistory._get_index_handle_from_file(file)
+            embedding_index = EmbeddingIndexPluginInstance.get(client, index_handle)
+
+        print(embedding_index)
         return ChatHistory(file)
 
     def append_user_message(

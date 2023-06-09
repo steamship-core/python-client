@@ -268,3 +268,6 @@ class ChatTag(str, Enum):
 
     # The keys to look up a context
     CONTEXT_KEYS = "context-keys"
+
+    # The handle of an embedding index
+    INDEX_HANDLE = "index-handle"
