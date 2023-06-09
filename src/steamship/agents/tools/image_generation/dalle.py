@@ -1,5 +1,8 @@
 """Tool for generating images."""
+from steamship import Steamship
+from steamship.agents.llms import OpenAI
 from steamship.agents.tools import ImageGeneratorTool
+from steamship.agents.utils import with_llm
 from steamship.utils.repl import ToolREPL
 
 
@@ -18,4 +21,6 @@ class DalleTool(ImageGeneratorTool):
 
 
 if __name__ == "__main__":
-    ToolREPL(DalleTool()).run()
+    tool = DalleTool()
+    with Steamship.temporary_workspace() as client:
+        ToolREPL(tool).run_with_client(client=client, context=with_llm(llm=OpenAI(client=client)))

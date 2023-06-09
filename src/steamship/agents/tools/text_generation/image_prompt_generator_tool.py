@@ -1,4 +1,7 @@
+from steamship import Steamship
+from steamship.agents.llms import OpenAI
 from steamship.agents.tools.text_generation.text_rewrite_tool import TextRewritingTool
+from steamship.agents.utils import with_llm
 from steamship.utils.repl import ToolREPL
 
 DEFAULT_PROMPT = """Instructions:
@@ -28,4 +31,6 @@ class ImagePromptGeneratorTool(TextRewritingTool):
 
 
 if __name__ == "__main__":
-    ToolREPL(ImagePromptGeneratorTool()).run()
+    tool = ImagePromptGeneratorTool()
+    with Steamship.temporary_workspace() as client:
+        ToolREPL(tool).run_with_client(client=client, context=with_llm(llm=OpenAI(client=client)))
