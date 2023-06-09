@@ -3,8 +3,10 @@ from typing import Any, List, Union
 
 import requests
 
-from steamship import Block, Task
+from steamship import Block, Steamship, Task
+from steamship.agents.llms import OpenAI
 from steamship.agents.schema import AgentContext, Tool
+from steamship.agents.utils import with_llm
 from steamship.utils.repl import ToolREPL
 
 
@@ -39,6 +41,10 @@ class FetchAudioUrlsFromRssTool(Tool):
 
 
 if __name__ == "__main__":
-    ToolREPL(FetchAudioUrlsFromRssTool()).run()
+    tool = FetchAudioUrlsFromRssTool()
+
+    with Steamship.temporary_workspace() as client:
+        ToolREPL(tool).run_with_client(client=client, context=with_llm(llm=OpenAI(client=client)))
+
 
 # Try with https://anchor.fm/s/e1369b4c/podcast/rss

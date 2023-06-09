@@ -4,9 +4,11 @@ from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel, Field
 
-from steamship import Block, Task
+from steamship import Block, Steamship, Task
+from steamship.agents.llms import OpenAI
 from steamship.agents.schema import AgentContext
 from steamship.agents.tools import VideoGeneratorTool
+from steamship.agents.utils import with_llm
 from steamship.utils.repl import ToolREPL
 
 DEFAULT_SOURCE_URL = "https://www.steamship.com/images/agents/man-in-suit-midjourney.png"
@@ -117,4 +119,6 @@ class DIDVideoGeneratorTool(VideoGeneratorTool):
 
 
 if __name__ == "__main__":
-    ToolREPL(DIDVideoGeneratorTool(expressions=[{"start_frame": 0, "expression": "happy"}])).run()
+    tool = DIDVideoGeneratorTool(expressions=[{"start_frame": 0, "expression": "happy"}])
+    with Steamship.temporary_workspace() as client:
+        ToolREPL(tool).run_with_client(client=client, context=with_llm(llm=OpenAI(client=client)))

@@ -95,7 +95,7 @@ Hi there this is a paragraph.
         winner = result.items[0]
         assert winner.tag.text == "Democracy"
 
-        result = instance.invoke("search_index", query="politics", index_handle="index2")
+        result = instance.invoke("search_index", query="passengers", index_handle="index2")
         result = SearchResults.parse_obj(result)
         winner = result.items[0]
         assert winner.tag.text == "Trains"

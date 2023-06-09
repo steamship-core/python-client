@@ -1,7 +1,9 @@
 from typing import Any, List, Union
 
-from steamship import Block, Task
+from steamship import Block, Steamship, Task
+from steamship.agents.llms import OpenAI
 from steamship.agents.schema import AgentContext, Tool
+from steamship.agents.utils import with_llm
 from steamship.utils.repl import ToolREPL
 
 
@@ -22,4 +24,6 @@ class KnockKnockTool(Tool):
 
 
 if __name__ == "__main__":
-    ToolREPL(KnockKnockTool()).run()
+    tool = KnockKnockTool()
+    with Steamship.temporary_workspace() as client:
+        ToolREPL(tool).run_with_client(client=client, context=with_llm(llm=OpenAI(client=client)))

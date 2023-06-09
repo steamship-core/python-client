@@ -39,7 +39,7 @@ class TextRewritingTool(Tool):
         output: List[Blocks]
             A list of blocks whose content has been rewritten. Synchronously produced (for now).
         """
-        llm = get_llm(context)
+        llm = get_llm(context, default=OpenAI(client=context.client))
 
         blocks = []
         for block in tool_input:

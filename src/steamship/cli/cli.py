@@ -309,6 +309,8 @@ def logs(
     request_path: Optional[str] = None,
     field_values: Optional[str] = None,
 ):
+    """Retrieve logs within a workspace."""
+
     initialize(suppress_message=True)
     client = None
     try:

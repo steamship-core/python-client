@@ -1,5 +1,8 @@
 """Tool for generating images."""
+from steamship import Steamship
+from steamship.agents.llms import OpenAI
 from steamship.agents.tools import AudioBlockifierTool
+from steamship.agents.utils import with_llm
 from steamship.utils.repl import ToolREPL
 
 
@@ -18,5 +21,8 @@ class AssemblySpeechToTextTool(AudioBlockifierTool):
 
 
 if __name__ == "__main__":
-    ToolREPL(AssemblySpeechToTextTool()).run()
+    tool = AssemblySpeechToTextTool()
     # Try on: https://anchor.fm/s/e1369b4c/podcast/play/70381739/https%3A%2F%2Fd3ctxlq1ktw2nl.cloudfront.net%2Fstaging%2F2023-4-14%2Fda96d64d-3c27-3e84-eb63-d5bc55eaf52e.mp3
+
+    with Steamship.temporary_workspace() as client:
+        ToolREPL(tool).run_with_client(client=client, context=with_llm(llm=OpenAI(client=client)))
