@@ -33,18 +33,19 @@ class MessageWindowMessageSelector(MessageSelector):
     k: int
 
     def get_messages(self, messages: List[Block]) -> List[Block]:
-        messages.pop()  # don't add the current prompt to the memory
-        if len(messages) <= (self.k * 2):
-            return messages
+        msgs = messages[:]
+        msgs.pop()  # don't add the current prompt to the memory
+        if len(msgs) <= (self.k * 2):
+            return msgs
 
-        msgs = []
+        selected_msgs = []
         limit = self.k * 2
-        scope = messages[len(messages) - limit :]
+        scope = msgs[len(messages) - limit :]
         for block in scope:
             if is_user_message(block) or is_assistant_message(block):
-                msgs.append(block)
+                selected_msgs.append(block)
 
-        return msgs
+        return selected_msgs
 
 
 def tokens(block: Block) -> int:
@@ -60,8 +61,9 @@ class TokenWindowMessageSelector(MessageSelector):
         selected_messages = []
         current_tokens = 0
 
-        messages.pop()  # don't add the current prompt to the memory
-        for block in reversed(messages):
+        msgs = messages[:]
+        msgs.pop()  # don't add the current prompt to the memory
+        for block in reversed(msgs):
             if block.chat_role != RoleTag.SYSTEM and current_tokens < self.max_tokens:
                 block_tokens = tokens(block)
                 if block_tokens + current_tokens < self.max_tokens:
