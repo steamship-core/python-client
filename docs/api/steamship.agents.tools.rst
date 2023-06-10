@@ -15,6 +15,7 @@ Subpackages
    steamship.agents.tools.search
    steamship.agents.tools.speech_generation
    steamship.agents.tools.text_generation
+   steamship.agents.tools.video_generation
 
 Submodules
 ----------

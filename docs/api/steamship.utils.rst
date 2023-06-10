@@ -20,6 +20,14 @@ steamship.utils.context\_length module
    :undoc-members:
    :show-inheritance:
 
+steamship.utils.file\_tags module
+---------------------------------
+
+.. automodule:: steamship.utils.file_tags
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.utils.huggingface\_helper module
 ------------------------------------------
 
