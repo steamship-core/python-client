@@ -157,11 +157,10 @@ def make_handler(  # noqa: C901
                 "OPTIONS request,\nPath: %s\nHeaders:\n%s\n", str(self.path), str(self.headers)
             )
             try:
+                self.send_response(200)
                 self._send_cors_headers()
                 self.end_headers()
-                res_bytes = bytes("OK", "utf-8")
-                self.wfile.write(res_bytes)
-                self.send_response(200)
+                self._send_response(bytes("OK", "utf-8"), MimeTypes.TXT)
             except Exception as e:
                 print("Exception handling options", e)
                 self._send_response(bytes(f"{e}", "utf-8"), MimeTypes.TXT)
