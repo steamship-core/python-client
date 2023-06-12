@@ -106,12 +106,19 @@ def ships():
     default=None,
     help="API Key to hard-code for hosting.",
 )
+@click.option(
+    "--ngrok",
+    "-n",
+    is_flag=True,
+    help="Whether to create a public ngrok URL.",
+)
 def serve(
     port: int = 8080,
     invocable_handle: Optional[str] = None,
     invocable_version_handle: Optional[str] = None,
     invocable_instance_handle: Optional[str] = None,
     api_key: Optional[str] = None,
+    ngrok: Optional[bool] = False,
 ):
     """Serve the local invocable"""
     initialize()
@@ -128,6 +135,20 @@ def serve(
         invocable_instance_handle=invocable_instance_handle,
         default_api_key=api_key,
     )
+
+    if ngrok:
+        try:
+            from pyngrok import ngrok
+        except BaseException:
+            click.secho("Shut down.")
+            click.secho("⚠️ Unable to create public URL with ngrok. Please either:")
+            click.secho("   1) Install pyngrok (`pip install pyngrok`) and re-run, or")
+            click.secho("   2) Run without the --ngrok flag")
+            exit(1)
+
+        http_tunnel = ngrok.connect(port, bind_tls=True)
+        public_url = http_tunnel.public_url
+        print(f" 🌎 Public URL: {public_url}")
 
     def on_exit(signum, frame):
         click.secho("Shutting down server.")
@@ -184,9 +205,9 @@ def deploy():
 
     _ = deployer.create_version(client, manifest, deployable.id)
 
-    thing_url = f"{client.config.web_base}{deployable_type}s/{manifest.handle}"
+    thing_url = f"{client.config.web_base}{deployable_type.value}s/{manifest.handle}"
     click.echo(
-        f"Deployment was successful. View and share your new {deployable_type} here:\n\n{thing_url}\n"
+        f"Deployment was successful. View and share your new {deployable_type.value} here:\n\n{thing_url}\n"
     )
 
     # Common error conditions:
