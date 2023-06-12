@@ -58,6 +58,7 @@ def make_handler(  # noqa: C901
         def _send_response(self, _bytes: bytes, mime_type: MimeTypes):
             self.send_response(200)
             self.send_header("Content-type", mime_type)
+            self._send_cors_headers()
             self.end_headers()
             self.wfile.write(_bytes)
 
@@ -104,6 +105,20 @@ def make_handler(  # noqa: C901
                 invocable_url=url,
             )
 
+        def _send_cors_headers(self):
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, POST")
+            self.send_header("Access-Control-Allow-Headers", "X-Requested-With")
+            self.send_header("Access-Control-Allow-Headers", "X-Package-Id")
+            self.send_header("Access-Control-Allow-Headers", "X-Package-Owner-Handle")
+            self.send_header("Access-Control-Allow-Headers", "X-Package-Instance-Id")
+            self.send_header("Access-Control-Allow-Headers", "X-Task-Background")
+            self.send_header("Access-Control-Allow-Headers", "X-Task-Delay-Ms")
+            self.send_header("Access-Control-Allow-Headers", "X-Task-Dependency")
+            self.send_header("Access-Control-Allow-Headers", "X-Workspace-Id")
+            self.send_header("Access-Control-Allow-Headers", "X-Workspace-Handle")
+            self.send_header("Access-Control-Allow-Headers", "Content-Type")
+
         def _do_request(self, payload: dict, http_verb: str):
             try:
                 client = self._get_client()
@@ -135,6 +150,19 @@ def make_handler(  # noqa: C901
                 payload = parse_qs(urlparse(self.path).query)
                 return self._do_request(payload, "GET")
             except Exception as e:
+                self._send_response(bytes(f"{e}", "utf-8"), MimeTypes.TXT)
+
+        def do_OPTIONS(self):  # noqa: N802
+            logging.info(
+                "OPTIONS request,\nPath: %s\nHeaders:\n%s\n", str(self.path), str(self.headers)
+            )
+            try:
+                self.send_response(200)
+                self._send_cors_headers()
+                self.end_headers()
+                self._send_response(bytes("OK", "utf-8"), MimeTypes.TXT)
+            except Exception as e:
+                print("Exception handling options", e)
                 self._send_response(bytes(f"{e}", "utf-8"), MimeTypes.TXT)
 
         def do_POST(self):  # noqa: N802
