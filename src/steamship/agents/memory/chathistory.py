@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Union, cast
 
 from steamship import File, MimeTypes, Steamship, SteamshipError, Task
 from steamship.agents.schema.message_selectors import MessageSelector
+from steamship.agents.schema.text_splitters import FixedSizeTextSplitter, TextSplitter
 from steamship.base.client import Client
 from steamship.data import TagKind
 from steamship.data.block import Block
@@ -19,11 +20,21 @@ class ChatHistory:
 
     file: File
     embedding_index: EmbeddingIndexPluginInstance
+    text_splitter: TextSplitter
 
-    def __init__(self, file: File, embedding_index: EmbeddingIndexPluginInstance):
+    def __init__(
+        self,
+        file: File,
+        embedding_index: EmbeddingIndexPluginInstance,
+        text_splitter: TextSplitter = None,
+    ):
         """This init method is intended only for private use within the class. See `Chat.create()`"""
         self.file = file
         self.embedding_index = embedding_index
+        if text_splitter is not None:
+            self.text_splitter = text_splitter
+        else:
+            self.text_splitter = FixedSizeTextSplitter(chunk_size=300)
 
     @staticmethod
     def _get_existing_file(client: Client, context_keys: Dict[str, str]) -> Optional[File]:
@@ -104,26 +115,6 @@ class ChatHistory:
 
         return ChatHistory(file, embedding_index)
 
-    def _chunk_text(self, text: str) -> List[Tag]:
-        if text is not None and text != "":
-            # Simplest possible chunking strategy; every 300 characters.
-            result = []
-            for i in range(int(len(text) / 300) + 1):
-                start = i * 300
-                end = min((i + 1) * 300, len(text))
-                result.append(
-                    Tag(
-                        kind=TagKind.CHAT,
-                        name=ChatTag.CHUNK,
-                        start_idx=start,
-                        end_idx=end,
-                        text=text[start:end],
-                    )
-                )
-            return result
-        else:
-            return []
-
     def append_message_with_role(
         self,
         text: str = None,
@@ -141,7 +132,9 @@ class ChatHistory:
         block = self.file.append_block(
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )
-        chunk_tags = self._chunk_text(text)
+        chunk_tags = self.text_splitter.chunk_text_to_tags(
+            text, kind=TagKind.CHAT, name=ChatTag.CHUNK
+        )
         block.tags.extend(chunk_tags)
         self.embedding_index.insert(chunk_tags)
         return block
