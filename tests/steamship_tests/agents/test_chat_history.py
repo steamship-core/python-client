@@ -1,13 +1,8 @@
 import pytest
 
 from steamship import Steamship
-from steamship.agents.memory.chathistory import ChatHistory
-from steamship.agents.schema import (
-    AgentContext,  # This fixes circular dependency; TODO find a better way
-)
+from steamship.agents.schema.chathistory import ChatHistory
 from steamship.data.tags.tag_constants import ChatTag
-
-_ = AgentContext  # to fix the circular dependency
 
 
 @pytest.mark.usefixtures("client")
