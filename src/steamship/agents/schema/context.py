@@ -1,7 +1,7 @@
 from typing import Any, Callable, Dict, List
 
 from steamship import Block, Steamship, Tag
-from steamship.agents.memory import ChatHistory
+from steamship.agents.schema import ChatHistory
 from steamship.agents.schema.action import Action
 
 Metadata = Dict[str, Any]

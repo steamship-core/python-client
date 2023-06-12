@@ -25,7 +25,7 @@ class ChatHistory:
     def __init__(
         self,
         file: File,
-        embedding_index: EmbeddingIndexPluginInstance,
+        embedding_index: Optional[EmbeddingIndexPluginInstance],
         text_splitter: TextSplitter = None,
     ):
         """This init method is intended only for private use within the class. See `Chat.create()`"""
@@ -85,6 +85,7 @@ class ChatHistory:
         client: Steamship,
         context_keys: Dict[str, str],
         tags: List[Tag] = None,
+        searchable: bool = True,
     ) -> ChatHistory:
 
         file = ChatHistory._get_existing_file(client, context_keys)
@@ -111,7 +112,10 @@ class ChatHistory:
         else:
             index_handle = ChatHistory._get_index_handle_from_file(file)
 
-        embedding_index = ChatHistory._get_embedding_index(client, index_handle)
+        if searchable:
+            embedding_index = ChatHistory._get_embedding_index(client, index_handle)
+        else:
+            embedding_index = None
 
         return ChatHistory(file, embedding_index)
 
@@ -132,11 +136,12 @@ class ChatHistory:
         block = self.file.append_block(
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )
-        chunk_tags = self.text_splitter.chunk_text_to_tags(
-            text, kind=TagKind.CHAT, name=ChatTag.CHUNK
-        )
-        block.tags.extend(chunk_tags)
-        self.embedding_index.insert(chunk_tags)
+        if self.embedding_index is not None:
+            chunk_tags = self.text_splitter.chunk_text_to_tags(
+                text, kind=TagKind.CHAT, name=ChatTag.CHUNK
+            )
+            block.tags.extend(chunk_tags)
+            self.embedding_index.insert(chunk_tags)
         return block
 
     def append_user_message(
@@ -219,4 +224,6 @@ class ChatHistory:
         return selector.get_messages(self.messages)
 
     def search(self, text: str, k=None) -> Task[SearchResults]:
+        if self.embedding_index is None:
+            raise SteamshipError("This ChatHistory has no embedding index and is not searchable.")
         return self.embedding_index.search(text, k)
