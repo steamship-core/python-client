@@ -55,6 +55,8 @@ class TestTelegramAgent(AgentService):
     config: TestTelegramAgentConfig
     agent: Agent
 
+    USED_MIXIN_CLASSES = [TelegramTransport, SteamshipWidgetTransport]
+
     def __init__(
         self, client: Steamship, config: Dict[str, Any] = None, context: InvocationContext = None
     ):
