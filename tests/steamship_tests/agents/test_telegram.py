@@ -39,10 +39,11 @@ def test_telegram(client: Steamship):
             assert files[0].tags[0].name == telegram_instance.invocation_url + "telegram_respond"
 
             # test sending messages (without auth)
-            requests.post(
+            response = requests.post(
                 url=telegram_instance.invocation_url + "/telegram_respond",
                 json=generate_telegram_message("a test"),
             )
+            assert response.ok
             files = File.query(client, f'kind "{MockTelegram.TEXT_MESSAGE_TAG}"').files
             assert len(files) == 1
             assert files[0].tags[0].name == "Response to: a test".replace(
