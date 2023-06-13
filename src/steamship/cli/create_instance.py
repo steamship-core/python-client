@@ -98,9 +98,8 @@ def _create_instance(  # noqa: C901
                 invocable_config[param] = os.environ[param.upper()]
             else:
                 invocable_config[param] = click.prompt(
-                    f"Value for {param} ({param_config.description})" + "\nPress Enter for DEFAULT"
-                    if param_config.default == ""
-                    else "",
+                    f"Value for {param} ({param_config.description})"
+                    + ("\nPress Enter for DEFAULT" if param_config.default == "" else ""),
                     default="",
                 )
             new_param_values = True
