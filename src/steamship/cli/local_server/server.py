@@ -54,11 +54,11 @@ class SteamshipHTTPServer:
             make_handler(
                 self.invocable,
                 self.port,
+                base_url=self.base_url,
                 default_api_key=self.default_api_key,
                 invocable_handle=self.invocable_handle,
                 invocable_version_handle=self.invocable_version_handle,
                 invocable_instance_handle=self.invocable_instance_handle,
-                make_handler=self.base_url,
             ),
         )
         self.server.serve_forever()
