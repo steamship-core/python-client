@@ -1,6 +1,7 @@
 from typing import Dict
 
 import pytest
+import requests
 from assets.packages.transports.mock_telegram_package import MockTelegram
 from steamship_tests import PACKAGES_PATH
 from steamship_tests.utils.deployables import deploy_package
@@ -25,6 +26,20 @@ def test_telegram(client: Steamship):
         # the bot token to not be empty and the two appended to each other to just equal the
         # invocation url.
         instance_config = {"bot_token": "/", "api_base": mock_telegram_instance.invocation_url[:-1]}
+
+        # Should be able to invoke setWebhook publicly
+        response = requests.get(
+            url=mock_telegram_instance.invocation_url + "/setWebhook",
+            params={"url": "test", "allowed_updates": "", "drop_pending_updates": True},
+        )
+        assert response.ok
+        # Test that the call to setWebhook wrote a file
+        files = File.query(client, f'kind "{MockTelegram.WEBHOOK_TAG}"').files
+        assert len(files) == 1
+        assert files[0].tags[0].name == "test"
+
+        files[0].delete()
+
         with deploy_package(
             client,
             telegram_agent_path,
@@ -37,8 +52,12 @@ def test_telegram(client: Steamship):
             assert len(files) == 1
             assert files[0].tags[0].name == telegram_instance.invocation_url + "telegram_respond"
 
-            # test sending messages
-            telegram_instance.invoke("telegram_respond", **generate_telegram_message("a test"))
+            # test sending messages (without auth)
+            response = requests.post(
+                url=telegram_instance.invocation_url + "/telegram_respond",
+                json=generate_telegram_message("a test"),
+            )
+            assert response.ok
             files = File.query(client, f'kind "{MockTelegram.TEXT_MESSAGE_TAG}"').files
             assert len(files) == 1
             assert files[0].tags[0].name == "Response to: a test".replace(

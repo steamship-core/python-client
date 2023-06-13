@@ -10,7 +10,7 @@ import click
 
 import steamship
 from steamship import Steamship, SteamshipError
-from steamship.base.configuration import Configuration
+from steamship.base.configuration import DEFAULT_WEB_BASE, Configuration
 from steamship.cli.create_instance import create_instance
 from steamship.cli.deploy import (
     PackageDeployer,
@@ -112,6 +112,12 @@ def ships():
     is_flag=True,
     help="Whether to create a public ngrok URL.",
 )
+@click.option(
+    "--ui",
+    "-u",
+    is_flag=True,
+    help="Whether to connect to graphical interface.",
+)
 def serve(
     port: int = 8080,
     invocable_handle: Optional[str] = None,
@@ -119,6 +125,7 @@ def serve(
     invocable_instance_handle: Optional[str] = None,
     api_key: Optional[str] = None,
     ngrok: Optional[bool] = False,
+    ui: Optional[bool] = True,
 ):
     """Serve the local invocable"""
     initialize()
@@ -136,7 +143,7 @@ def serve(
         default_api_key=api_key,
     )
 
-    if ngrok:
+    if ngrok or ui:
         try:
             from pyngrok import ngrok
         except BaseException:
@@ -148,7 +155,21 @@ def serve(
 
         http_tunnel = ngrok.connect(port, bind_tls=True)
         public_url = http_tunnel.public_url
-        print(f" 🌎 Public URL: {public_url}")
+        click.secho(f" 🌎 Public URL: {public_url}")
+
+    if ui:
+        web_base = DEFAULT_WEB_BASE
+        try:
+            config = Configuration()
+            web_base = config.web_base
+        except BaseException:
+            click.secho(
+                "Warning: unable to read Steamship configuration from disk. Have you logged in with `ship login`?"
+            )
+
+        click.secho("")
+        click.secho("To view the graphical UI, visit: ")
+        click.secho(f"    {web_base}/debug?endpoint={public_url}/answer")
 
     def on_exit(signum, frame):
         click.secho("Shutting down server.")

@@ -1,9 +1,6 @@
 import contextlib
 import io
-import logging
 import os
-import subprocess  # noqa: S404
-import tempfile
 import zipfile
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -15,18 +12,6 @@ from steamship.data.plugin import HostingType, Plugin
 from steamship.data.plugin.plugin_instance import PluginInstance
 from steamship.data.plugin.plugin_version import PluginVersion
 from steamship.data.user import User
-
-
-def install_dependencies(folder: str, requirements_path: Path):
-    subprocess.run(  # noqa: S607,S603
-        ["pip", "install", "--target", folder, "-r", str(requirements_path.resolve())],
-        stdout=subprocess.PIPE,
-    )
-    # Write an empty requirements.txt to the test deployment.
-    # Note that this is INTENTIONALLY different than the behavior of a deployable
-    # deployed with the CLI, so that you can use the steamship version that you're currently editing
-    with open(Path(folder) / "requirements.txt", "w") as requirements_file:
-        requirements_file.write("")
 
 
 def zip_deployable(file_path: Path) -> bytes:
@@ -48,18 +33,7 @@ def zip_deployable(file_path: Path) -> bytes:
                 for file in files:
                     pypi_file = Path(root) / file
                     zip_file.write(pypi_file, pypi_file.relative_to(package_path.parent))
-
-        # Copy in package paths from pip
-        with tempfile.TemporaryDirectory() as package_dir:
-            logging.info(f"Created tempdir for pip installs: {package_dir}")
-            install_dependencies(
-                folder=package_dir, requirements_path=ROOT_PATH / "requirements.txt"
-            )
-            # Now write that whole folder
-            for root, _, files in os.walk(package_dir):
-                for file in files:
-                    pypi_file = Path(root) / file
-                    zip_file.write(pypi_file, pypi_file.relative_to(package_dir))
+        zip_file.write(ROOT_PATH / "requirements.txt", "requirements.txt")
 
         # Now we'll copy in the whole assets directory so that our test files can access things there..
         for root, _, files in os.walk(TEST_ASSETS_PATH):
