@@ -1,6 +1,7 @@
 from typing import Dict
 
 import pytest
+import requests
 from assets.packages.transports.mock_telegram_package import MockTelegram
 from steamship_tests import PACKAGES_PATH
 from steamship_tests.utils.deployables import deploy_package
@@ -37,8 +38,11 @@ def test_telegram(client: Steamship):
             assert len(files) == 1
             assert files[0].tags[0].name == telegram_instance.invocation_url + "telegram_respond"
 
-            # test sending messages
-            telegram_instance.invoke("telegram_respond", **generate_telegram_message("a test"))
+            # test sending messages (without auth)
+            requests.post(
+                url=telegram_instance.invocation_url + "/telegram_respond",
+                json=generate_telegram_message("a test"),
+            )
             files = File.query(client, f'kind "{MockTelegram.TEXT_MESSAGE_TAG}"').files
             assert len(files) == 1
             assert files[0].tags[0].name == "Response to: a test".replace(
