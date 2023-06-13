@@ -132,16 +132,9 @@ def serve(
     path = find_api_py()
     api_module = get_api_module(path)
     invocable_class = get_class_from_module(api_module)
+    base_url = "http://localhost"
     click.secho(f"Found Invocable: {invocable_class.__name__}")
-
-    server = SteamshipHTTPServer(
-        invocable_class,
-        port=port,
-        invocable_handle=invocable_handle,
-        invocable_version_handle=invocable_version_handle,
-        invocable_instance_handle=invocable_instance_handle,
-        default_api_key=api_key,
-    )
+    public_url = None
 
     if ngrok or ui:
         try:
@@ -155,6 +148,19 @@ def serve(
 
         http_tunnel = ngrok.connect(port, bind_tls=True)
         public_url = http_tunnel.public_url
+        base_url = public_url
+
+    server = SteamshipHTTPServer(
+        invocable_class,
+        base_url=base_url,
+        port=port,
+        invocable_handle=invocable_handle,
+        invocable_version_handle=invocable_version_handle,
+        invocable_instance_handle=invocable_instance_handle,
+        default_api_key=api_key,
+    )
+
+    if public_url:
         click.secho(f" 🌎 Public URL: {public_url}")
 
     if ui:

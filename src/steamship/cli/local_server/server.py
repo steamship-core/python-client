@@ -23,6 +23,7 @@ class SteamshipHTTPServer:
     invocable: Type[Invocable]
     port: int
     server: TCPServer
+    base_url: str
     default_api_key: Optional[str] = (None,)
     invocable_handle: str = (None,)
     invocable_version_handle: str = (None,)
@@ -31,6 +32,7 @@ class SteamshipHTTPServer:
     def __init__(
         self,
         invocable: Type[Invocable],
+        base_url: str = "http://localhost",
         port: int = 8080,
         default_api_key: Optional[str] = None,
         invocable_handle: str = None,
@@ -38,6 +40,7 @@ class SteamshipHTTPServer:
         invocable_instance_handle: str = None,
     ):
         self.invocable = invocable
+        self.base_url = base_url
         self.port = port
         self.default_api_key = default_api_key
         self.invocable_handle = invocable_handle
@@ -55,6 +58,7 @@ class SteamshipHTTPServer:
                 invocable_handle=self.invocable_handle,
                 invocable_version_handle=self.invocable_version_handle,
                 invocable_instance_handle=self.invocable_instance_handle,
+                make_handler=self.base_url,
             ),
         )
         self.server.serve_forever()
