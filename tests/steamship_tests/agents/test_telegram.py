@@ -26,6 +26,20 @@ def test_telegram(client: Steamship):
         # the bot token to not be empty and the two appended to each other to just equal the
         # invocation url.
         instance_config = {"bot_token": "/", "api_base": mock_telegram_instance.invocation_url[:-1]}
+
+        # Should be able to invoke setWebhook publicly
+        response = requests.get(
+            url=mock_telegram_instance.invocation_url + "/setWebhook",
+            params={"url": "test", "allowed_updates": "", "drop_pending_updates": True},
+        )
+        assert response.ok
+        # Test that the call to setWebhook wrote a file
+        files = File.query(client, f'kind "{MockTelegram.WEBHOOK_TAG}"').files
+        assert len(files) == 1
+        assert files[0].tags[0].name == "test"
+
+        files[0].delete()
+
         with deploy_package(
             client,
             telegram_agent_path,

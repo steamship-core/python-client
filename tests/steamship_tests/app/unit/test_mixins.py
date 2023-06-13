@@ -20,7 +20,7 @@ def test_package_with_mixin_routes():
     assert mixin_route.func_binding is not None
     assert len(mixin_route.args) == 1
     assert mixin_route.args[0].name == "text"
-    assert mixin_route.config.get("public", False)
+    assert mixin_route.config.get("public", False) is True
 
     assert (
         package_class._package_spec.method_mappings[Verb.POST]["/test_package_route"].func_binding
