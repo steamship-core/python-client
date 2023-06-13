@@ -194,7 +194,7 @@ def _call_create_instance_fn(
             click.secho("")
             if manifest.type == DeployableType.PACKAGE:
                 click.echo(
-                    f"Web URL: https://steamship.com/workspaces/{workspace_handle}/packages/{instance.handle}"
+                    f"Web URL: https://steamship.com/dashboard/agents/workspaces/{workspace_handle}/packages/{instance.handle}"
                 )
                 click.echo(f"API URL: {instance.invocation_url}")
                 click.secho("")
