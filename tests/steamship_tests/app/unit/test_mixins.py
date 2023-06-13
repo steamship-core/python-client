@@ -6,24 +6,28 @@ from steamship.invocable import Invocable, InvocableRequest, Invocation
 from steamship.utils.url import Verb
 
 
-def invoke(o: Invocable, path: str):
-    req = InvocableRequest(invocation=Invocation(http_verb="POST", invocation_path=path))
+def invoke(o: Invocable, path: str, **kwargs):
+    req = InvocableRequest(
+        invocation=Invocation(http_verb="POST", invocation_path=path, arguments=kwargs)
+    )
     return o(req).data
 
 
 def test_package_with_mixin_routes():
     """Tests that we can inspect the package and mixin routes"""
     package_class = PackageWithMixin
-    assert (
-        package_class._package_spec.method_mappings[Verb.POST]["/test_mixin_route"].func_binding
-        is not None
-    )
+    mixin_route = package_class._package_spec.method_mappings[Verb.POST]["/test_mixin_route"]
+    assert mixin_route.func_binding is not None
+    assert len(mixin_route.args) == 1
+    assert mixin_route.args[0].name == "text"
+    assert mixin_route.config.get("public", False)
+
     assert (
         package_class._package_spec.method_mappings[Verb.POST]["/test_package_route"].func_binding
         == "test_package_route"
     )
     package = PackageWithMixin()
-    assert invoke(package, "test_mixin_route") == "mixin yo"
+    assert invoke(package, "test_mixin_route", text="test") == "mixin yo"
     assert invoke(package, "test_package_route") == "package"
 
     routes = [m["path"] for m in package.__steamship_dir__()["methods"]]
