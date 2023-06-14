@@ -83,7 +83,7 @@ New input: {input}
                 messages=context.chat_history.select_messages(self.message_selector)
             ),
             search_history=self.search_to_search_history(
-                context.chat_history.search(context.chat_history.last_user_message.text).wait()
+                context.chat_history.search(context.chat_history.last_user_message.text, k=3).wait()
             ),
         )
 
