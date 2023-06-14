@@ -1,7 +1,6 @@
 from typing import Any, Callable, Dict, List
 
 from steamship import Block, Steamship, Tag
-from steamship.agents.schema import ChatHistory
 from steamship.agents.schema.action import Action
 
 Metadata = Dict[str, Any]
@@ -25,7 +24,7 @@ class AgentContext:
     client: Steamship
     """Provides workspace-specific utilities for the agents and tools."""
 
-    chat_history: ChatHistory
+    chat_history: "ChatHistory"  # noqa: F821
     """Record of user-package messages. It records user submitted queries/prompts and the final
     agent-driven answer sent in response to those queries/prompts. It does NOT record any chat
     history related to agent execution and action selection."""
@@ -50,6 +49,8 @@ class AgentContext:
         context_keys: Dict[str, str],
         tags: List[Tag] = None,
     ):
+        from steamship.agents.schema.chathistory import ChatHistory
+
         history = ChatHistory.get_or_create(client, context_keys, tags)
         context = AgentContext()
         context.chat_history = history
