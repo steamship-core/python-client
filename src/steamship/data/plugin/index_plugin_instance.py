@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional, Union, cast
 
 from pydantic import Field
 
+from steamship.base.client import Client
 from steamship.base.error import SteamshipError
 from steamship.base.model import CamelModel
 from steamship.base.tasks import Task
@@ -29,7 +30,7 @@ class SearchResult(CamelModel):
     score: Optional[float] = None
 
     @staticmethod
-    def from_query_result(query_result: QueryResult) -> "SearchResult":
+    def from_query_result(query_result: QueryResult, client: Client) -> "SearchResult":
         hit = query_result.value
         value = hit.metadata or {}
 
@@ -52,6 +53,7 @@ class SearchResult(CamelModel):
         del value["_tag_id"]
 
         tag = Tag(
+            client=client,
             id=hit.id,
             kind=hit.external_type,
             name=hit.external_id,
@@ -73,8 +75,10 @@ class SearchResults(CamelModel):
     items: List[SearchResult] = None
 
     @staticmethod
-    def from_query_results(query_results: QueryResults) -> "SearchResults":
-        items = [SearchResult.from_query_result(qr) for qr in query_results.items or []]
+    def from_query_results(query_results: QueryResults, client: Client) -> "SearchResults":
+        items = [
+            SearchResult.from_query_result(qr, client=client) for qr in query_results.items or []
+        ]
         return SearchResults(items=items)
 
 
@@ -163,7 +167,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
         wrapped_result.wait()
 
         # We're going to do a switcheroo on the output type of Task here.
-        search_results = SearchResults.from_query_results(wrapped_result.output)
+        search_results = SearchResults.from_query_results(wrapped_result.output, client=self.client)
         wrapped_result.output = search_results
 
         # Return the index's search result, but projected into the data structure of Tags

@@ -10,6 +10,7 @@ from steamship.agents.schema.llm import LLM
 from steamship.agents.schema.message_selectors import MessageSelector, NoMessages
 from steamship.agents.schema.output_parser import OutputParser
 from steamship.agents.schema.tool import Tool
+from steamship.data.plugin.index_plugin_instance import SearchResults
 from steamship.data.tags.tag_constants import RoleTag
 
 
@@ -44,7 +45,8 @@ class LLMAgent(Agent):
     def next_action(self, context: AgentContext) -> Action:
         pass
 
-    def messages_to_prompt_history(self, messages: List[Block]) -> str:
+    @staticmethod
+    def messages_to_prompt_history(messages: List[Block]) -> str:
         as_strings = []
         for block in messages:
             role = block.chat_role
@@ -57,3 +59,11 @@ class LLMAgent(Agent):
             elif role == RoleTag.AGENT:
                 as_strings.append(f"Agent: {block.text}")
         return "\n".join(as_strings)
+
+    @staticmethod
+    def search_to_search_history(search_results: SearchResults) -> str:
+        blocks = []
+        for result in search_results.items:
+            tag = result.tag
+            blocks.append(Block.get(tag.client, tag.block_id))
+        return LLMAgent.messages_to_prompt_history(blocks)
