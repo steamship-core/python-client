@@ -48,10 +48,11 @@ class AgentContext:
         client: Steamship,
         context_keys: Dict[str, str],
         tags: List[Tag] = None,
+        searchable: bool = True,
     ):
         from steamship.agents.schema.chathistory import ChatHistory
 
-        history = ChatHistory.get_or_create(client, context_keys, tags)
+        history = ChatHistory.get_or_create(client, context_keys, tags, searchable=searchable)
         context = AgentContext()
         context.chat_history = history
         context.client = client
