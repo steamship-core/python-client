@@ -83,7 +83,9 @@ New input: {input}
                 messages=context.chat_history.select_messages(self.message_selector)
             ),
             relevant_history=self.messages_to_prompt_history(
-                context.chat_history.search(context.chat_history.last_user_message.text, k=3).wait()
+                context.chat_history.search(context.chat_history.last_user_message.text, k=3)
+                .wait()
+                .to_ranked_blocks()
             ),
         )
 
