@@ -27,11 +27,15 @@ def test_search_method_formatting(client: Steamship):
     assert chunk_tag.end_idx == 24
 
     chat_history.append_user_message("I like bananas")
-    formatted_result = agent.search_to_search_history(chat_history.search("cake", k=1).wait())
+    formatted_result = agent.messages_to_prompt_history(
+        chat_history.search("cake", k=1).wait().to_ranked_blocks()
+    )
 
     assert formatted_result == "User: I like bananas"
 
     chat_history.append_assistant_message("I prefer pie")
-    formatted_result = agent.search_to_search_history(chat_history.search("cake", k=2).wait())
+    formatted_result = agent.messages_to_prompt_history(
+        chat_history.search("cake", k=2).wait().to_ranked_blocks()
+    )
 
     assert formatted_result == "Assistant: I prefer pie\nUser: I like bananas"
