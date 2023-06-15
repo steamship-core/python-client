@@ -68,51 +68,9 @@ def _create_instance(  # noqa: C901
     instance_handle: Optional[str] = None,
     config: Optional[str] = None,
 ):
-    manifest = None
-    if path.exists("steamship.json"):
-        try:
-            manifest = Manifest.load_manifest()
-        except ValidationError as e:
-            click.secho("")
-            click.secho("This package had an invalid steamship.json file.", fg="red")
-            click.secho("")
-            click.secho(f"{e}", fg="red")
-            click.secho("")
-            click.get_current_context().abort()
-    else:
-        click.secho("No manifest found for instance creation.", fg="red")
-        click.secho("Please try again from a directory with a package or plugin manifest.")
-        click.get_current_context().abort()
-
-    if manifest is None:
-        click.secho("Steamship manifest failed to load.", fg="red")
-        click.get_current_context().abort()
-
+    manifest = load_manifest()
     invocable_config, is_file = config_str_to_dict(config)
-    new_param_values = False
-    for param, param_config in manifest.configTemplate.items():
-        if param not in invocable_config and (
-            param_config.default is None or param_config.default == ""
-        ):
-            if param.upper() in os.environ:
-                invocable_config[param] = os.environ[param.upper()]
-            else:
-                invocable_config[param] = click.prompt(
-                    f"Value for {param} ({param_config.description})" + "\nPress Enter for DEFAULT"
-                    if param_config.default == ""
-                    else "",
-                    default="",
-                )
-            new_param_values = True
-
-    if is_file and new_param_values:
-        if click.confirm(
-            f"Do you want to store this config in your config file ({config})?", default=True
-        ):
-            json.dump(invocable_config, Path(config).open("w"))
-            click.secho(
-                f"Successfully wrote configuration {json.dumps(config)} to {config}.", fg="green"
-            )
+    set_unset_params(config, invocable_config, is_file, manifest)
 
     if workspace is None or len(workspace) == 0:
         ws_hash = hash_dict(
@@ -158,6 +116,54 @@ def _create_instance(  # noqa: C901
         else:
             click.secho(f"\nFailed to create instance: {e.message}", fg="red")
         click.get_current_context().abort()
+
+
+def load_manifest():
+    manifest = None
+    if path.exists("steamship.json"):
+        try:
+            manifest = Manifest.load_manifest()
+        except ValidationError as e:
+            click.secho("")
+            click.secho("This package had an invalid steamship.json file.", fg="red")
+            click.secho("")
+            click.secho(f"{e}", fg="red")
+            click.secho("")
+            click.get_current_context().abort()
+    else:
+        click.secho("No manifest found for instance creation.", fg="red")
+        click.secho("Please try again from a directory with a package or plugin manifest.")
+        click.get_current_context().abort()
+    if manifest is None:
+        click.secho("Steamship manifest failed to load.", fg="red")
+        click.get_current_context().abort()
+    return manifest
+
+
+def set_unset_params(config, invocable_config, is_file, manifest):
+    new_param_values = False
+    for param, param_config in manifest.configTemplate.items():
+        if param not in invocable_config and (
+            param_config.default is None or param_config.default == ""
+        ):
+            if param.upper() in os.environ:
+                invocable_config[param] = os.environ[param.upper()]
+            else:
+                invocable_config[param] = click.prompt(
+                    f"Value for {param} ({param_config.description})" + "\nPress Enter for DEFAULT"
+                    if param_config.default == ""
+                    else "",
+                    default="",
+                )
+            new_param_values = True
+    if is_file and new_param_values:
+        if click.confirm(
+            f"Do you want to store this config in your config file ({config})?", default=True
+        ):
+            json.dump(invocable_config, Path(config).open("w"))
+            click.secho(
+                f"Successfully wrote configuration {json.dumps(config)} to {config}.", fg="green"
+            )
 
 
 def _call_create_instance_fn(
