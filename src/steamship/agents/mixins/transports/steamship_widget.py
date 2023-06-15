@@ -63,7 +63,9 @@ class SteamshipWidgetTransport(Transport):
         context = AgentContext.get_or_create(
             self.client, context_keys={"chat_id": incoming_message.chat_id}
         )
-        context.chat_history.append_user_message(text=incoming_message.text)
+        context.chat_history.append_user_message(
+            text=incoming_message.text, tags=incoming_message.tags
+        )
         context.emit_funcs = [self.save_for_emit]
 
         # Add an LLM to the context, using the Agent's if it exists.
