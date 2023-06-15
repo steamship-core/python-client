@@ -187,7 +187,9 @@ class TelegramTransport(Transport):
             incoming_message = self.parse_inbound(message)
             if incoming_message is not None:
                 context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
-                context.chat_history.append_user_message(text=incoming_message.text)
+                context.chat_history.append_user_message(
+                    text=incoming_message.text, tags=incoming_message.tags
+                )
                 context.emit_funcs = [self.build_emit_func(chat_id=chat_id)]
 
                 # Add an LLM to the context, using the Agent's if it exists.
