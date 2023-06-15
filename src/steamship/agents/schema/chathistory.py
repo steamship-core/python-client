@@ -138,24 +138,10 @@ class ChatHistory:
         )
         if self.embedding_index is not None:
             chunk_tags = self.text_splitter.chunk_text_to_tags(
-                text, kind=TagKind.CHAT, name=ChatTag.CHUNK
+                block, kind=TagKind.CHAT, name=ChatTag.CHUNK
             )
-            saved_tags = []
-            for tag in chunk_tags:
-                new_tag = Tag.create(
-                    self.client,
-                    block.file_id,
-                    block.id,
-                    kind=tag.kind,
-                    name=tag.name,
-                    start_idx=tag.start_idx,
-                    end_idx=tag.end_idx,
-                    value=tag.value,
-                )
-                new_tag.text = tag.text
-                saved_tags.append(new_tag)
-            block.tags.extend(saved_tags)
-            self.embedding_index.insert(saved_tags)
+            block.tags.extend(chunk_tags)
+            self.embedding_index.insert(chunk_tags)
         return block
 
     def append_user_message(

@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional, Union, cast
 
 from pydantic import Field
 
+from steamship import Block
 from steamship.base.client import Client
 from steamship.base.error import SteamshipError
 from steamship.base.model import CamelModel
@@ -80,6 +81,13 @@ class SearchResults(CamelModel):
             SearchResult.from_query_result(qr, client=client) for qr in query_results.items or []
         ]
         return SearchResults(items=items)
+
+    def to_ranked_blocks(self) -> List[Block]:
+        blocks = []
+        for result in self.items:
+            tag = result.tag
+            blocks.append(Block.get(tag.client, tag.block_id))
+        return blocks
 
 
 class EmbeddingIndexPluginInstance(PluginInstance):
