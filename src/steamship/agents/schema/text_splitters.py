@@ -19,6 +19,8 @@ class TextSplitter(ABC):
             for text_split in text_splits:
                 tag = Tag.create(
                     client=block.client,
+                    file_id=block.file_id,
+                    block_id=block.id,
                     kind=kind,
                     name=name,
                     start_idx=start_index,
