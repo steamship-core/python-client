@@ -64,7 +64,7 @@ It is also possible to add extra structured fields to your generated log entries
    )
 
 When a deployed instance is running, all logs at the ``INFO`` level and above will be generated, processed by Steamship,
-and made available for retrieval with a few minutes.
+and made available for retrieval within a few minutes.
 
 Logs Retrieval with ``ship`` CLI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
