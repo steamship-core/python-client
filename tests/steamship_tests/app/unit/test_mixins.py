@@ -70,3 +70,12 @@ def test_two_conflicting_mixins_raises_error():
         "When attempting to add mixin TestMixin2, route POST test_mixin_route conflicted with already added route POST test_mixin_route on class TestMixin'"
         in str(e)
     )
+
+
+def test_mixins_declared_in_superclass():
+    class PackageWithMixinSubclass(PackageWithMixin):
+        pass
+
+    package = PackageWithMixinSubclass()
+    assert invoke(package, "test_mixin_route", text="test") == "mixin yo"
+    assert len(PackageWithMixinSubclass._package_spec.used_mixins) == 1

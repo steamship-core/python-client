@@ -178,6 +178,7 @@ class Invocable(ABC):
         _package_spec = PackageSpec(name=cls.__name__, doc=cls.__doc__, methods=[])
         if hasattr(cls, "_package_spec"):
             _package_spec.import_parent_methods(cls._package_spec)
+            _package_spec.used_mixins = cls._package_spec.used_mixins or []
 
         # The subclass always overrides whatever the superclass set here, having cloned its data.
         cls._package_spec = _package_spec

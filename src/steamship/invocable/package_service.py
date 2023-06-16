@@ -39,17 +39,12 @@ class PackageService(Invocable):
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
 
-        # The subclass takes care to extend what the superclass may have set here by copying it.
-        _package_spec = PackageSpec(name=cls.__name__, doc=cls.__doc__, methods=[])
-        if hasattr(cls, "_package_spec"):
-            _package_spec.import_parent_methods(cls._package_spec)
-
-        # The subclass always overrides whatever the superclass set here, having cloned its data.
-        cls._package_spec = _package_spec
-
         # Now must add routes for mixins
         for used_mixin_class in cls.USED_MIXIN_CLASSES:
-            cls.scan_mixin(cls._package_spec, used_mixin_class)
+            mixin_qualified_name = used_mixin_class.__module__ + "." + used_mixin_class.__qualname__
+            if mixin_qualified_name not in cls._package_spec.used_mixins:
+                cls.scan_mixin(cls._package_spec, used_mixin_class)
+                cls._package_spec.used_mixins.append(mixin_qualified_name)
 
     @classmethod
     def scan_mixin(
