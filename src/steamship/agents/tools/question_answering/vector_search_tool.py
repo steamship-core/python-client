@@ -15,7 +15,7 @@ class VectorSearchTool(Tool, ABC):
     embedding_index_config: Optional[dict] = {
         "embedder": {
             "plugin_handle": "openai-embedder",
-            "plugin_instance-handle": "text-embedding-ada-002",
+            "plugin_instance_handle": "text-embedding-ada-002",
             "fetch_if_exists": True,
             "config": {"model": "text-embedding-ada-002", "dimensionality": 1536},
         }

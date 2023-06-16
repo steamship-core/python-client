@@ -13,12 +13,16 @@ class TestMixin(PackageMixin):
     def instance_init(self, config: Config, context: InvocationContext):
         self.instance_init_called = True
 
-    @post("test_mixin_route")
-    def test_mixin_route(self) -> InvocableResponse:
+    @post("test_mixin_route", public=True)
+    def test_mixin_route(self, text: str) -> InvocableResponse:
+        _ = text
         return InvocableResponse(data=f"mixin {self.suffix}")
 
 
 class PackageWithMixin(PackageService):
+
+    USED_MIXIN_CLASSES = [TestMixin]
+
     def __init__(self, **kwargs):
         super(PackageWithMixin, self).__init__(**kwargs)
         self.add_mixin(

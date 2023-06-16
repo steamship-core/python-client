@@ -10,7 +10,7 @@ from steamship.utils.file_tags import update_file_status
 DEFAULT_EMBEDDING_INDEX_CONFIG = {
     "embedder": {
         "plugin_handle": "openai-embedder",
-        "plugin_instance-handle": "text-embedding-ada-002",
+        "plugin_instance_handle": "text-embedding-ada-002",
         "fetch_if_exists": True,
         "config": {"model": "text-embedding-ada-002", "dimensionality": 1536},
     }
