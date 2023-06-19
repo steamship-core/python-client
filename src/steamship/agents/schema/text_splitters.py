@@ -12,7 +12,7 @@ class TextSplitter(ABC):
 
     def chunk_text_to_tags(self, block: Block, kind: str, name: str = None) -> List[Tag]:
         """Split the incoming text into strings, and then wrap those strings in Tags"""
-        if block.text is not None and block.text != "":
+        if block.is_text() and block.text is not None and block.text != "":
             text_splits = self.split_text(block.text)
             start_index = 0
             result = []
