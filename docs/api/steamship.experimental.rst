@@ -9,7 +9,6 @@ Subpackages
 
    steamship.experimental.easy
    steamship.experimental.package_starters
-   steamship.experimental.transports
 
 Module contents
 ---------------

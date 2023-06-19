@@ -12,6 +12,14 @@ steamship.agents.tools.text\_generation.image\_prompt\_generator\_tool module
    :undoc-members:
    :show-inheritance:
 
+steamship.agents.tools.text\_generation.json\_object\_generator module
+----------------------------------------------------------------------
+
+.. automodule:: steamship.agents.tools.text_generation.json_object_generator
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.agents.tools.text\_generation.personality\_tool module
 ----------------------------------------------------------------
 
