@@ -44,7 +44,8 @@ class LLMAgent(Agent):
     def next_action(self, context: AgentContext) -> Action:
         pass
 
-    def messages_to_prompt_history(self, messages: List[Block]) -> str:
+    @staticmethod
+    def messages_to_prompt_history(messages: List[Block]) -> str:
         as_strings = []
         for block in messages:
             role = block.chat_role
