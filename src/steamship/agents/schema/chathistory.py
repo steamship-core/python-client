@@ -138,7 +138,7 @@ class ChatHistory:
         )
         if self.embedding_index is not None:
             chunk_tags = self.text_splitter.chunk_text_to_tags(
-                text, kind=TagKind.CHAT, name=ChatTag.CHUNK
+                block, kind=TagKind.CHAT, name=ChatTag.CHUNK
             )
             block.tags.extend(chunk_tags)
             self.embedding_index.insert(chunk_tags)
