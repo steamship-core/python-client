@@ -5,16 +5,12 @@ on:
     types: [published]
 
 jobs:
-  build:
+  publish-release-summary-to-discord:
     runs-on: ubuntu-latest
+    name: Github Releases To Discord
     steps:
-      - name: Discord notification
-        uses: LeGitHubDeTai/github-to-discord@main
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          DISCORD_USERNAME: Steamship Release Bot
-          DISCORD_AVATAR: https://www.steamship.com/images/brand/steamship-logo-light-symbol.png
-          MESSAGE_TITLE: New python-client release
-          MESSAGE_DESCRIPTION: New Release of the python-client
-          MESSAGE_URL: https://github.com/steamship-core/python-client/releases
-          MESSAGE_COLOR: 5814783
+      - name: Sending message
+        uses: nhevia/discord-styled-releases@main
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
