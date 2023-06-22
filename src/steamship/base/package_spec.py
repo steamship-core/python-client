@@ -14,7 +14,6 @@ from steamship.utils.url import Verb
 
 
 class RouteConflictError(SteamshipError):
-
     existing_method_spec: "MethodSpec"
 
     def __init__(self, message: str, existing_method_spec: "MethodSpec"):
@@ -183,7 +182,8 @@ class MethodSpec(CamelModel):
     def get_bound_function(self, service_instance: Optional[Any]) -> Optional[Callable[..., Any]]:
         """Get the bound method described by this spec.
 
-        The `func_binding`, if a string, resolves to a function on the provided Invocable. Else is just a function."""
+        The `func_binding`, if a string, resolves to a function on the provided Invocable. Else is just a function.
+        """
 
         if not self.func_binding:
             logging.error(
@@ -237,6 +237,9 @@ class PackageSpec(CamelModel):
 
     # The SDK version this package is deployed with
     sdk_version: str = steamship.__version__
+
+    # Which mixins this package leverages
+    used_mixins: Optional[List[str]] = None
 
     # Quick O(1) lookup into VERB+NAME
     method_mappings: Dict[str, Dict[str, MethodSpec]] = Field(None, exclude=True, repr=False)
