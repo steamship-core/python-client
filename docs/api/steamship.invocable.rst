@@ -1,6 +1,14 @@
 steamship.invocable package
 ===========================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   steamship.invocable.mixins
+
 Submodules
 ----------
 
@@ -64,6 +72,14 @@ steamship.invocable.lambda\_handler module
 ------------------------------------------
 
 .. automodule:: steamship.invocable.lambda_handler
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+steamship.invocable.package\_mixin module
+-----------------------------------------
+
+.. automodule:: steamship.invocable.package_mixin
    :members:
    :undoc-members:
    :show-inheritance:
