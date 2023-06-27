@@ -150,5 +150,15 @@ class Plugin(CamelModel):
             expect=Plugin,
         )
 
+    def delete(self) -> Plugin:
+        """Delete this plugin. If this plugin is public and another user has created an instance of it,
+        this method will throw an error and the plugin will not be deleted. Deleting the plugin will delete any
+        versions and instances of it that you have created."""
+        return self.client.post(
+            "plugin/delete",
+            IdentifierRequest(id=self.id),
+            expect=Plugin,
+        )
+
 
 ListPluginsResponse.update_forward_refs()

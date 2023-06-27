@@ -12,7 +12,7 @@ from pydantic import BaseModel, Field
 
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import CreateRequest, GetRequest, UpdateRequest
+from steamship.base.request import CreateRequest, GetRequest, IdentifierRequest, UpdateRequest
 from steamship.data.manifest import Manifest
 
 
@@ -69,5 +69,15 @@ class Package(CamelModel):
             PackageUpdateRequest(
                 id=self.id, description=self.description, profile=self.profile, readme=self.readme
             ),
+            expect=Package,
+        )
+
+    def delete(self) -> Package:
+        """Delete this package. If this package is public and another user has created an instance of it,
+        this method will throw an error and the package will not be deleted. Deleting the package will delete any
+        versions and instances of it that you have created."""
+        return self.client.post(
+            "package/delete",
+            IdentifierRequest(id=self.id),
             expect=Package,
         )

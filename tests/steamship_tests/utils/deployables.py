@@ -150,6 +150,8 @@ def _check_user(client, instance):
 
 def _delete_deployable(instance, version, deployable):
     instance.delete()
+    version.delete()
+    deployable.delete()
 
 
 def _wait_for_version(version: [PackageVersion, PluginVersion]):
