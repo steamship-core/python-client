@@ -27,6 +27,7 @@ class SteamshipHTTPServer:
     invocable_handle: str = (None,)
     invocable_version_handle: str = (None,)
     invocable_instance_handle: str = (None,)
+    add_port_to_invocable_url: bool = True
 
     def __init__(
         self,
@@ -38,6 +39,7 @@ class SteamshipHTTPServer:
         invocable_version_handle: str = None,
         invocable_instance_handle: str = None,
         config: dict = None,
+        add_port_to_invocable_url: bool = True,  # The invocable url represents the external URL, which may be NGROK
     ):
         self.invocable = invocable
         self.port = port
@@ -47,6 +49,7 @@ class SteamshipHTTPServer:
         self.invocable_version_handle = invocable_version_handle
         self.invocable_instance_handle = invocable_instance_handle
         self.config = config
+        self.add_port_to_invocable_url = add_port_to_invocable_url
 
     def start(self):
         """Start the server."""
@@ -61,6 +64,7 @@ class SteamshipHTTPServer:
                 invocable_version_handle=self.invocable_version_handle,
                 invocable_instance_handle=self.invocable_instance_handle,
                 config=self.config,
+                add_port_to_invocable_url=self.add_port_to_invocable_url,
             ),
         )
         self.server.serve_forever()
