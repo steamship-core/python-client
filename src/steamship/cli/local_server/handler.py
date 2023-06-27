@@ -92,9 +92,13 @@ def make_handler(  # noqa: C901
                 user_for_key[client.config.api_key] = user
 
             if add_port_to_invocable_url:
-                url = f"{base_url}:{port}/"
+                url = f"{base_url}:{port}"
             else:
-                url = f"{base_url}/"
+                url = f"{base_url}"
+
+            # Append a trailing slash if not already there.
+            if not url.endswith("/"):
+                url = url + "/"
 
             return InvocationContext(
                 user_id=user.id,
