@@ -150,9 +150,9 @@ def set_unset_params(config, invocable_config, is_file, manifest):
                 invocable_config[param] = os.environ[param.upper()]
             else:
                 invocable_config[param] = click.prompt(
-                    f"Value for {param} ({param_config.description})" + "\nPress Enter for DEFAULT"
+                    f"Value for {param} ({param_config.description})" + ("\nPress Enter for DEFAULT"
                     if param_config.default == ""
-                    else "",
+                    else ""),
                     default="",
                 )
             new_param_values = True
