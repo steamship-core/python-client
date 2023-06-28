@@ -69,10 +69,14 @@ Plugin FAQ
 Can I access my plugin over HTTP?
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Yes. Every plugin instance exposes an accessible HTTP API endpoint.
+Yes. While the preferred access pattern for plugins is via our SDK, Steamship does expose an HTTP API endpoint for plugin instance invocation.
 
-To call the HTTP endpoint, use the **Base URL** of ``https://api.steamship.com/`` and the
-following conventions:
+The HTTP endpoint for plugin instance invocation is: ``https://api.steamship.com/api/v1/plugin/instance/{plugin-method}``.
+
+Replace ``{plugin-method}`` with the name of the method you wish to invoke on your instance. For instance, for :ref:`Generators`, use ``generate`` and
+for :ref:`Taggers`, use ``tag``.
+
+Your HTTP call MUST use the following conventions:
 
 - Set the ``Content-Type`` header to ``application/json``
 - Set the ``Authorization`` header to ``Bearer {api-key}``, replacing ``{api-key}`` with your API Key
@@ -80,7 +84,6 @@ following conventions:
    - ``X-Workspace-Id`` (to the workspace UUID for your workspace)
    - ``X-Workspace-Handle`` (to the workspace handle for your workspace)
 - Default to ``HTTP POST`` if you're not sure which verb to use. The plugin documentation should specify.
-- Use the following path: ``/api/v1/plugin/instance/{plugin-method}``, replacing ``{plugin-method}`` with the method name you wish to invoke (ex: ``generate``)
 - Add the arguments as a JSON-encoded POST Body
    - This MUST include a ``pluginInstance`` field set to the instance handle of your plugin.
 
@@ -122,7 +125,7 @@ The HTTP call to a plugin will return JSON that includes a ``taskId``. For examp
         }
 
 
-To retrieve the output, you can poll the Task via HTTP, using the Task status endpoint:
+To retrieve the output, you can poll the Task via HTTP, using the Task status endpoint (``https://api.steamship.com/api/v1/task/status``):
 
    .. code-block::
 
