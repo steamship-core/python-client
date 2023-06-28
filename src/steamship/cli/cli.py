@@ -151,6 +151,7 @@ def serve(
     manifest = load_manifest()
     invocable_config, is_file = config_str_to_dict(config)
     set_unset_params(config, invocable_config, is_file, manifest)
+    add_port_to_invocable_url = True
 
     if ngrok or ui:
         try:
@@ -166,6 +167,7 @@ def serve(
         public_url = http_tunnel.public_url
         click.secho(f" 🌎 Public URL: {public_url}")
         base_url = public_url
+        add_port_to_invocable_url = False  # NGROK's URL will redirect to the local port already
 
     server = SteamshipHTTPServer(
         invocable_class,
@@ -176,6 +178,7 @@ def serve(
         invocable_instance_handle=invocable_instance_handle,
         default_api_key=api_key,
         config=invocable_config,
+        add_port_to_invocable_url=add_port_to_invocable_url,
     )
     if ui:
         web_base = DEFAULT_WEB_BASE
