@@ -1,5 +1,8 @@
 from steamship.invocable import InvocableResponse, PackageService, get, post
 
+# This is reflected in the docs as Package Project Structure.  If you have to change it
+# for SDK changes, make sure to update the docs as well.
+
 
 class MyPackage(PackageService):
     @get("say_hello")
