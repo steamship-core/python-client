@@ -16,14 +16,14 @@ Consider the following package:
 
 .. code-block:: python
 
-   class MyPackage(App):
-       @get("say_hello")
-       def _method_name_need_not_match(self, name: str = None) -> Response:
-           return Response(string=f"Hello, {name}")
+    class MyPackage(PackageService):
+        @get("say_hello")
+        def _method_name_need_not_match(self, name: str = None) -> InvocableResponse:
+            return InvocableResponse(string=f"Hello, {name}")
 
-       @post("do_something")
-       def do_something(self, number: int = None) -> Response:
-           return Response(json={"number": number})
+        @post("do_something")
+        def do_something(self, number: int = None) -> InvocableResponse:
+            return InvocableResponse(json={"number": number})
 
 Once deployed to Steamship, every new instance of this package would be associated with two HTTP endpoints:
 
