@@ -12,7 +12,7 @@ def test_indexer_pipeline_mixin(client: Steamship):
 
     with deploy_package(client, demo_package_path) as (_, _, instance):
         # Test indexing a pdf file
-        pdf_url = "https://www.with.org/tao_te_ching_en.pdf"
+        pdf_url = "https://file-examples.com/storage/fe396452246495b989f22f7/2017/10/file-sample_150kB.pdf"
 
         index_task = instance.invoke("index_url", url=pdf_url)
         index_task = Task.parse_obj(index_task)
@@ -23,7 +23,7 @@ def test_indexer_pipeline_mixin(client: Steamship):
 
         index_task.wait()
 
-        result = instance.invoke("search_index", query="What is Tao?", k=1)
+        result = instance.invoke("search_index", query="auctor condimentum", k=1)
         result = SearchResults.parse_obj(result)
         assert len(result.items) == 1
         winner = result.items[0]
