@@ -1,3 +1,4 @@
+import logging
 from typing import Type
 
 from steamship.invocable import Config, Invocable, InvocableResponse, create_handler, post
@@ -27,6 +28,7 @@ class HelloWorld(Invocable):
     @post("greet")
     def greet(self, name: str = "Person") -> InvocableResponse:
         greeting = self.config.greeting
+        logging.info(f"The greeting in config is {greeting}")
         return InvocableResponse(string=f"{greeting}, {name}")
 
     @post("snake")
