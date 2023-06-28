@@ -253,6 +253,9 @@ class RoleTag(str, Enum):
     # This block's content was created by a non-human agent participating in the chat
     AGENT = "agent"
 
+    # This block was created by a Tool, as selected by an OpenAI Function call
+    FUNCTION = "function"
+
 
 class ChatTag(str, Enum):
     """A set of `name` constants for Tags with a `kind` of `TagKind.CHAT`."""

@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from steamship import Block
 from steamship.agents.schema.action import Action
 from steamship.agents.schema.context import AgentContext
-from steamship.agents.schema.llm import LLM
+from steamship.agents.schema.llm import LLM, ConversationalLLM
 from steamship.agents.schema.message_selectors import MessageSelector, NoMessages
 from steamship.agents.schema.output_parser import OutputParser
 from steamship.agents.schema.tool import Tool
@@ -57,4 +57,20 @@ class LLMAgent(Agent):
                 as_strings.append(f"System: {block.text}")
             elif role == RoleTag.AGENT:
                 as_strings.append(f"Agent: {block.text}")
+            elif role == RoleTag.FUNCTION:
+                as_strings.append(f"Function: {block.text}")
         return "\n".join(as_strings)
+
+
+# TODO(dougreid): does this need to be a separate thing? or should we just use LLM agent, but with a ConversationalLLM.
+class ConversationalLLMAgent(Agent):
+    """ConversationalLLMAgents choose next actions for an AgentService based on chat-based interactions with an LLM."""
+
+    llm: ConversationalLLM
+
+    output_parser: OutputParser
+    """Utility responsible for converting LLM output into Actions"""
+
+    @abstractmethod
+    def next_action(self, context: AgentContext) -> Action:
+        pass
