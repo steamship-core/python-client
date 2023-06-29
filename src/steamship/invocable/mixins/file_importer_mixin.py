@@ -1,9 +1,9 @@
+import logging
 from typing import List, Optional, Tuple
 
 import requests
 
 from steamship import DocTag, File, MimeTypes, Steamship, SteamshipError, Tag, Task
-from steamship.agents import logging
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
 from steamship.utils.file_tags import update_file_status
