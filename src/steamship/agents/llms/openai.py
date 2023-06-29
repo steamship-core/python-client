@@ -3,7 +3,7 @@ from typing import List, Optional
 from steamship import Block, File, PluginInstance, Steamship
 from steamship.agents.schema import LLM, ConversationalLLM, Tool
 
-PLUGIN_HANDLE = "doug-gpt-four"
+PLUGIN_HANDLE = "gpt-4"
 
 
 class OpenAI(LLM):
