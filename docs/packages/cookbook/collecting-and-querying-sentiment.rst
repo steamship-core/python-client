@@ -44,7 +44,7 @@ Two endpoints allow fetching all of the positive and negative tagged documents.
             # Upload the content of the file into Steamship.
             # Put the content directly into a Block, since we assume it is plaintext.
             file = File.create(self.client,
-                               blocks=[Block.CreateRequest(text=content)])
+                               blocks=[Block(text=content)])
 
             # Tag the file with the sentiment analysis plugin
             # Using a plugin is an asynchronous call within Steamship. The
@@ -74,13 +74,6 @@ Two endpoints allow fetching all of the positive and negative tagged documents.
                 f"kind \"{TagKind.SENTIMENT}\" and name \"{SentimentTag.NEGATIVE}\"").files
 
             return [file.blocks[0].text for file in negative_files]
-
-
-    # This line connects our Package implementation class to the surrounding
-    # Steamship handler code.
-    handler = create_handler(SimpleSentimentPackage)
-
-
 
 
 
