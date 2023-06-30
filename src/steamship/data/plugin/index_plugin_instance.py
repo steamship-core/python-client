@@ -2,6 +2,8 @@ from typing import Any, Dict, List, Optional, Union, cast
 
 from pydantic import Field
 
+from steamship import Block
+from steamship.base.client import Client
 from steamship.base.error import SteamshipError
 from steamship.base.model import CamelModel
 from steamship.base.tasks import Task
@@ -29,7 +31,7 @@ class SearchResult(CamelModel):
     score: Optional[float] = None
 
     @staticmethod
-    def from_query_result(query_result: QueryResult) -> "SearchResult":
+    def from_query_result(query_result: QueryResult, client: Client) -> "SearchResult":
         hit = query_result.value
         value = hit.metadata or {}
 
@@ -52,6 +54,7 @@ class SearchResult(CamelModel):
         del value["_tag_id"]
 
         tag = Tag(
+            client=client,
             id=hit.id,
             kind=hit.external_type,
             name=hit.external_id,
@@ -73,9 +76,18 @@ class SearchResults(CamelModel):
     items: List[SearchResult] = None
 
     @staticmethod
-    def from_query_results(query_results: QueryResults) -> "SearchResults":
-        items = [SearchResult.from_query_result(qr) for qr in query_results.items or []]
+    def from_query_results(query_results: QueryResults, client: Client) -> "SearchResults":
+        items = [
+            SearchResult.from_query_result(qr, client=client) for qr in query_results.items or []
+        ]
         return SearchResults(items=items)
+
+    def to_ranked_blocks(self) -> List[Block]:
+        blocks = []
+        for result in self.items:
+            tag = result.tag
+            blocks.append(Block.get(tag.client, tag.block_id))
+        return blocks
 
 
 class EmbeddingIndexPluginInstance(PluginInstance):
@@ -126,7 +138,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
                     + f"This tag had a value of type: {type(tag.value)}"
                 )
 
-            # To make this change Python-only, some fields are stached in `hit.metadata`.
+            # To make this change Python-only, some fields are stashed in `hit.metadata`.
             # This has the temporary consequence of these keys not being safe. This will be resolved when we spread
             # this refactor to the engine.
             metadata["_file_id"] = tag.file_id
@@ -144,7 +156,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
             for tag in tags
         ]
 
-        # We always reindex in this new style; to not do so is to expose details (when embedding occurrs) we'd rather
+        # We always reindex in this new style; to not do so is to expose details (when embedding occurs) we'd rather
         # not have users exercise control over.
         self.index.insert_many(embedded_items, reindex=True, allow_long_records=allow_long_records)
 
@@ -163,7 +175,7 @@ class EmbeddingIndexPluginInstance(PluginInstance):
         wrapped_result.wait()
 
         # We're going to do a switcheroo on the output type of Task here.
-        search_results = SearchResults.from_query_results(wrapped_result.output)
+        search_results = SearchResults.from_query_results(wrapped_result.output, client=self.client)
         wrapped_result.output = search_results
 
         # Return the index's search result, but projected into the data structure of Tags

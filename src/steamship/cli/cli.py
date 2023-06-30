@@ -10,8 +10,13 @@ import click
 
 import steamship
 from steamship import Steamship, SteamshipError
-from steamship.base.configuration import Configuration
-from steamship.cli.create_instance import create_instance
+from steamship.base.configuration import DEFAULT_WEB_BASE, Configuration
+from steamship.cli.create_instance import (
+    config_str_to_dict,
+    create_instance,
+    load_manifest,
+    set_unset_params,
+)
 from steamship.cli.deploy import (
     PackageDeployer,
     PluginDeployer,
@@ -106,28 +111,88 @@ def ships():
     default=None,
     help="API Key to hard-code for hosting.",
 )
+@click.option(
+    "--ngrok",
+    "-n",
+    is_flag=True,
+    help="Whether to create a public ngrok URL.",
+)
+@click.option(
+    "--ui",
+    "-u",
+    is_flag=True,
+    help="Whether to connect to graphical interface.",
+)
+@click.option(
+    "--config",
+    "-c",
+    type=str,
+    required=False,
+    help="Instance configuration. May be inline JSON or a path to a file. If not specified, "
+    "an empty configuration dictionary will be passed to the instance.",
+)
 def serve(
     port: int = 8080,
     invocable_handle: Optional[str] = None,
     invocable_version_handle: Optional[str] = None,
     invocable_instance_handle: Optional[str] = None,
     api_key: Optional[str] = None,
+    ngrok: Optional[bool] = False,
+    ui: Optional[bool] = True,
+    config: Optional[str] = None,
 ):
     """Serve the local invocable"""
     initialize()
     path = find_api_py()
     api_module = get_api_module(path)
     invocable_class = get_class_from_module(api_module)
+    base_url = "http://localhost"
     click.secho(f"Found Invocable: {invocable_class.__name__}")
+    manifest = load_manifest()
+    invocable_config, is_file = config_str_to_dict(config)
+    set_unset_params(config, invocable_config, is_file, manifest)
+    add_port_to_invocable_url = True
+
+    if ngrok or ui:
+        try:
+            from pyngrok import ngrok
+        except BaseException:
+            click.secho("Shut down.")
+            click.secho("⚠️ Unable to create public URL with ngrok. Please either:")
+            click.secho("   1) Install pyngrok (`pip install pyngrok`) and re-run, or")
+            click.secho("   2) Run without the --ngrok flag")
+            exit(1)
+
+        http_tunnel = ngrok.connect(port, bind_tls=True)
+        public_url = http_tunnel.public_url
+        click.secho(f" 🌎 Public URL: {public_url}")
+        base_url = public_url
+        add_port_to_invocable_url = False  # NGROK's URL will redirect to the local port already
 
     server = SteamshipHTTPServer(
         invocable_class,
+        base_url=base_url,
         port=port,
         invocable_handle=invocable_handle,
         invocable_version_handle=invocable_version_handle,
         invocable_instance_handle=invocable_instance_handle,
         default_api_key=api_key,
+        config=invocable_config,
+        add_port_to_invocable_url=add_port_to_invocable_url,
     )
+    if ui:
+        web_base = DEFAULT_WEB_BASE
+        try:
+            config = Configuration()
+            web_base = config.web_base
+        except BaseException:
+            click.secho(
+                "Warning: unable to read Steamship configuration from disk. Have you logged in with `ship login`?"
+            )
+
+        click.secho("")
+        click.secho("To view the graphical UI, visit: ")
+        click.secho(f"    {web_base}/debug?endpoint={public_url}/answer")
 
     def on_exit(signum, frame):
         click.secho("Shutting down server.")

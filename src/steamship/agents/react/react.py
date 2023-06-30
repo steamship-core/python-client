@@ -54,6 +54,9 @@ Begin!
 Previous conversation history:
 {chat_history}
 
+Other relevant previous conversation:
+{relevant_history}
+
 New input: {input}
 {scratchpad}"""
 
@@ -78,6 +81,11 @@ New input: {input}
             scratchpad=scratchpad,
             chat_history=self.messages_to_prompt_history(
                 messages=context.chat_history.select_messages(self.message_selector)
+            ),
+            relevant_history=self.messages_to_prompt_history(
+                context.chat_history.search(context.chat_history.last_user_message.text, k=3)
+                .wait()
+                .to_ranked_blocks()
             ),
         )
 

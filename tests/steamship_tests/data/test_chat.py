@@ -3,7 +3,7 @@ import uuid
 import pytest
 
 from steamship import DocTag
-from steamship.agents.memory import ChatHistory
+from steamship.agents.schema import ChatHistory
 from steamship.client import Steamship
 from steamship.data import TagKind
 from steamship.data.tags.tag_constants import ChatTag, RoleTag, TagValueKey
@@ -15,7 +15,7 @@ def test_chat_create(client: Steamship):
 
     assert chat.client is not None
     assert isinstance(chat, ChatHistory)
-    assert len(chat.tags) == 2
+    assert len(chat.tags) == 3
     assert chat.tags[0].kind == TagKind.DOCUMENT
     assert chat.tags[0].name == DocTag.CHAT
 
@@ -30,7 +30,7 @@ def test_chat_append_system(client: Steamship):
     assert len(chat.messages) == 1
     assert chat.messages[0].text == "some system text"
 
-    assert len(chat.messages[0].tags) == 1
+    assert len(chat.messages[0].tags) == 2
     assert chat.messages[0].tags[0].kind == TagKind.CHAT
     assert chat.messages[0].tags[0].name == ChatTag.ROLE
     assert chat.messages[0].tags[0].value == {TagValueKey.STRING_VALUE: RoleTag.SYSTEM}
@@ -46,7 +46,7 @@ def test_chat_append_user(client: Steamship):
     assert len(chat.messages) == 1
     assert chat.messages[0].text == "some user text"
 
-    assert len(chat.messages[0].tags) == 1
+    assert len(chat.messages[0].tags) == 2
     assert chat.messages[0].tags[0].kind == TagKind.CHAT
     assert chat.messages[0].tags[0].name == ChatTag.ROLE
     assert chat.messages[0].tags[0].value == {TagValueKey.STRING_VALUE: RoleTag.USER}

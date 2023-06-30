@@ -6,9 +6,10 @@ import time
 from abc import ABC
 from functools import wraps
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 import toml
+from pydantic import BaseModel
 
 from steamship import SteamshipError
 from steamship.base.package_spec import MethodSpec, PackageSpec
@@ -85,6 +86,53 @@ def post(path: str, **kwargs):
     return endpoint(verb=Verb.POST, path=path, **kwargs)
 
 
+class RouteMethod(BaseModel):
+    attribute: Any
+    verb: Optional[Verb]
+    path: str
+    config: Dict[str, Any]
+
+
+def find_route_methods(on_class: Type) -> List[RouteMethod]:
+    base_route_methods = [
+        route_method
+        for base_cls in on_class.__bases__
+        for route_method in find_route_methods(base_cls)
+    ]
+
+    this_class_route_methods: List[RouteMethod] = []
+    for attribute in list(on_class.__dict__.values()):
+        decorator = getattr(attribute, "decorator", None)
+        if decorator:
+            if getattr(decorator, "__is_endpoint__", False):
+                path = getattr(attribute, "__path__", None)
+                verb = getattr(attribute, "__verb__", None)
+                config = getattr(attribute, "__endpoint_config__", {})
+                this_class_route_methods.append(
+                    RouteMethod(attribute=attribute, verb=verb, path=path, config=config)
+                )
+
+    return merge_routes_respecting_override(base_route_methods, this_class_route_methods)
+
+
+def merge_routes_respecting_override(
+    base_routes: List[RouteMethod], this_class_routes: List[RouteMethod]
+) -> List[RouteMethod]:
+    """Merge routes from base classes into the routes from this class. If this class already has verb/path combo,
+    ignore the one from the superclass, since it has now been overridden."""
+    for route_method in base_routes:
+        if not route_list_contains(route_method, this_class_routes):
+            this_class_routes.append(route_method)
+    return this_class_routes
+
+
+def route_list_contains(route_method: RouteMethod, routes: List[RouteMethod]):
+    for other in routes:
+        if other.path == route_method.path and other.verb == route_method.verb:
+            return True
+    return False
+
+
 class Invocable(ABC):
     """A Steamship microservice.
 
@@ -152,25 +200,18 @@ class Invocable(ABC):
         _package_spec = PackageSpec(name=cls.__name__, doc=cls.__doc__, methods=[])
         if hasattr(cls, "_package_spec"):
             _package_spec.import_parent_methods(cls._package_spec)
+            _package_spec.used_mixins = cls._package_spec.used_mixins or []
 
         # The subclass always overrides whatever the superclass set here, having cloned its data.
         cls._package_spec = _package_spec
 
-        base_fn_list = [
-            may_be_decorated
-            for base_cls in cls.__bases__
-            for may_be_decorated in base_cls.__dict__.values()
-        ]
-        for attribute in base_fn_list + list(cls.__dict__.values()):
-            decorator = getattr(attribute, "decorator", None)
-            if decorator:
-                if getattr(decorator, "__is_endpoint__", False):
-                    path = getattr(attribute, "__path__", None)
-                    verb = getattr(attribute, "__verb__", None)
-                    config = getattr(attribute, "__endpoint_config__", {})
-                    cls._register_mapping(
-                        name=attribute.__name__, verb=verb, path=path, config=config
-                    )
+        for route_method in find_route_methods(cls):
+            cls._register_mapping(
+                name=route_method.attribute.__name__,
+                verb=route_method.verb,
+                path=route_method.path,
+                config=route_method.config,
+            )
 
         # Add the HTTP GET /__dir__ method which returns a serialization of the PackageSpec.
         # Wired up to both GET and POST for convenience (POST is Steamship default; GET is browser friendly)

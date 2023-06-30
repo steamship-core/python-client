@@ -9,7 +9,7 @@ Subpackages
 
    steamship.agents.examples
    steamship.agents.llms
-   steamship.agents.memory
+   steamship.agents.mixins
    steamship.agents.react
    steamship.agents.schema
    steamship.agents.service

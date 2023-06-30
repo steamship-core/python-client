@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Type
 
 from steamship import SteamshipError, Task
-from steamship.base.package_spec import MethodSpec, RouteConflictError
+from steamship.base.package_spec import MethodSpec, PackageSpec, RouteConflictError
 from steamship.invocable import Invocable
 
 # Note!
@@ -14,6 +14,7 @@ from steamship.invocable import Invocable
 # This the files in this package are for Package Implementors.
 # If you are using the Steamship Client, you probably are looking for either steamship.client or steamship.data
 #
+from steamship.invocable.invocable import find_route_methods
 from steamship.invocable.package_mixin import PackageMixin
 from steamship.utils.url import Verb
 
@@ -28,45 +29,75 @@ class PackageService(Invocable):
 
     """
 
+    USED_MIXIN_CLASSES: List[Type[PackageMixin]] = []
     mixins: List[PackageMixin]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.mixins = []
 
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+
+        # Now must add routes for mixins
+        for used_mixin_class in cls.USED_MIXIN_CLASSES:
+            mixin_qualified_name = used_mixin_class.__module__ + "." + used_mixin_class.__qualname__
+            if mixin_qualified_name not in cls._package_spec.used_mixins:
+                cls.scan_mixin(cls._package_spec, used_mixin_class)
+                cls._package_spec.used_mixins.append(mixin_qualified_name)
+
+    @classmethod
+    def scan_mixin(
+        cls,
+        package_spec: PackageSpec,
+        mixin_class: Type[PackageMixin],
+        mixin_instance: Optional[PackageMixin] = None,
+        permit_overwrite_of_existing_methods: bool = False,
+    ):
+        for route_method in find_route_methods(mixin_class):
+            if mixin_instance is not None:
+                func_binding = partial(route_method.attribute, self=mixin_instance)
+            else:
+                func_binding = (
+                    route_method.attribute
+                )  # This binding is not truly valid. It must be overwritten during add_mixin
+            method_spec = MethodSpec.from_class(
+                mixin_class,
+                route_method.attribute.__name__,
+                path=route_method.path,
+                verb=route_method.verb,
+                config=route_method.config,
+                func_binding=func_binding,
+            )
+            try:
+                allow_override_for_this_route = permit_overwrite_of_existing_methods
+                existing_route = package_spec.method_mappings.get(route_method.verb, {}).get(
+                    "/" + route_method.path
+                )
+                if (
+                    existing_route is not None
+                    and existing_route.class_name == mixin_class.__name__
+                    and mixin_instance is not None
+                ):
+                    allow_override_for_this_route = True
+                package_spec.add_method(
+                    method_spec,
+                    permit_overwrite_of_existing=allow_override_for_this_route,
+                )
+            except RouteConflictError as conflict_error:
+                message = f"When attempting to add mixin {mixin_class.__name__}, route {route_method.verb} {route_method.path} conflicted with already added route {route_method.verb} {route_method.path} on class {conflict_error.existing_method_spec.class_name}"
+                raise RouteConflictError(
+                    message=message,
+                    existing_method_spec=conflict_error.existing_method_spec,
+                )
+
     def add_mixin(self, mixin: PackageMixin, permit_overwrite_of_existing_methods: bool = False):
-        base_fn_list = [
-            may_be_decorated
-            for base_cls in mixin.__class__.__bases__
-            for may_be_decorated in base_cls.__dict__.values()
-        ]
-        for attribute in base_fn_list + list(mixin.__class__.__dict__.values()):
-            decorator = getattr(attribute, "decorator", None)
-            if decorator:
-                if getattr(decorator, "__is_endpoint__", False):
-                    path = getattr(attribute, "__path__", None)
-                    verb = getattr(attribute, "__verb__", None)
-                    config = getattr(attribute, "__endpoint_config__", {})
-                    func_binding = partial(attribute, self=mixin)
-                    method_spec = MethodSpec.from_class(
-                        mixin.__class__,
-                        attribute.__name__,
-                        path=path,
-                        verb=verb,
-                        config=config,
-                        func_binding=func_binding,
-                    )
-                    try:
-                        self._package_spec.add_method(
-                            method_spec,
-                            permit_overwrite_of_existing=permit_overwrite_of_existing_methods,
-                        )
-                    except RouteConflictError as conflict_error:
-                        message = f"When attempting to add mixin {mixin.__class__.__name__}, route {verb} {path} conflicted with already added route {verb} {path} on class {conflict_error.existing_method_spec.class_name}"
-                        raise RouteConflictError(
-                            message=message,
-                            existing_method_spec=conflict_error.existing_method_spec,
-                        )
+        PackageService.scan_mixin(
+            self._package_spec,
+            mixin.__class__,
+            mixin,
+            permit_overwrite_of_existing_methods=permit_overwrite_of_existing_methods,
+        )
         self.mixins.append(mixin)
 
     def instance_init(self):
