@@ -2,7 +2,14 @@ import pytest
 from assets.packages.package_with_mixins import PackageWithMixin, TestMixin
 
 from steamship import SteamshipError
-from steamship.invocable import Invocable, InvocableRequest, Invocation
+from steamship.invocable import (
+    Invocable,
+    InvocableRequest,
+    InvocableResponse,
+    Invocation,
+    PackageService,
+    post,
+)
 from steamship.utils.url import Verb
 
 
@@ -79,3 +86,27 @@ def test_mixins_declared_in_superclass():
     package = PackageWithMixinSubclass()
     assert invoke(package, "test_mixin_route", text="test") == "mixin yo"
     assert len(PackageWithMixinSubclass._package_spec.used_mixins) == 1
+
+
+def test_mixin_subclasses_can_override_routes():
+    class TestMixinSubclass(TestMixin):
+        @post("test_mixin_route", public=True)
+        def test_mixin_route(self, text: str) -> InvocableResponse:
+            _ = text
+            return InvocableResponse(data=f"OVERRIDE mixin {self.suffix}")
+
+    class PackageWithSubclassedMixin(PackageService):
+        USED_MIXIN_CLASSES = [TestMixinSubclass]
+
+        def __init__(self, **kwargs):
+            super().__init__(**kwargs)
+            self.add_mixin(TestMixinSubclass("yo"))
+
+    mixin_route = PackageWithSubclassedMixin._package_spec.method_mappings[Verb.POST][
+        "/test_mixin_route"
+    ]
+    assert mixin_route is not None
+
+    package = PackageWithSubclassedMixin()
+
+    assert invoke(package, "test_mixin_route", text="test") == "OVERRIDE mixin yo"

@@ -20,10 +20,26 @@ steamship.agents.schema.agent module
    :undoc-members:
    :show-inheritance:
 
+steamship.agents.schema.chathistory module
+------------------------------------------
+
+.. automodule:: steamship.agents.schema.chathistory
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.agents.schema.context module
 --------------------------------------
 
 .. automodule:: steamship.agents.schema.context
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+steamship.agents.schema.functions module
+----------------------------------------
+
+.. automodule:: steamship.agents.schema.functions
    :members:
    :undoc-members:
    :show-inheritance:
@@ -36,10 +52,26 @@ steamship.agents.schema.llm module
    :undoc-members:
    :show-inheritance:
 
+steamship.agents.schema.message\_selectors module
+-------------------------------------------------
+
+.. automodule:: steamship.agents.schema.message_selectors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.agents.schema.output\_parser module
 ---------------------------------------------
 
 .. automodule:: steamship.agents.schema.output_parser
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+steamship.agents.schema.text\_splitters module
+----------------------------------------------
+
+.. automodule:: steamship.agents.schema.text_splitters
    :members:
    :undoc-members:
    :show-inheritance:
