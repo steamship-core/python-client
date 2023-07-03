@@ -9,7 +9,6 @@ Subpackages
 
    steamship.agents
    steamship.base
-   steamship.bots
    steamship.cli
    steamship.client
    steamship.data
