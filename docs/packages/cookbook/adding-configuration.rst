@@ -70,8 +70,9 @@ Next, we tell the Steamship handler how to find our config class:
 
     class ConfigurableFavoritesPackage(PackageService):
         ...
-        def config_cls(self) -> Type[Config]:
-            return self.FavoritesConfig
+        @classmethod
+        def config_cls(cls) -> Type[Config]:
+            return cls.FavoritesConfig
 
 Now when implementing a method, we can use the config fields via ``self.config.<field_name>``!
 
@@ -100,7 +101,7 @@ When you put it all together, it looks like this:
     from typing import Dict, Any, Type
 
     from steamship import Steamship
-    from steamship.invocable import PackageService, Config, post, create_handler
+    from steamship.invocable import PackageService, Config, post
 
 
     class ConfigurableFavoritesPackage(PackageService):
@@ -112,7 +113,7 @@ When you put it all together, it looks like this:
             lucky_number: float
             favorite_true_false_value: bool
 
-        def __init__(self, client: Steamship, config: Dict[str, Any] = None):
+        def __init__(self, client: Steamship, config: Dict[str, Any] = None, context: InvocationContext = None):
             # The superclass init method turns the config param (a Dict)
             # into the self.config object (here, a FavoritesConfig)
             super().__init__(client, config)
@@ -123,9 +124,9 @@ When you put it all together, it looks like this:
         # See Developer Reference -> Accepting Configuration
         # for more details. This package uses a few configuration fields
         # to record the package user's favorite things.
-        def config_cls(self) -> Type[Config]:
-            """Return our config object"""
-            return self.FavoritesConfig
+        @classmethod
+        def config_cls(cls) -> Type[Config]:
+            return cls.FavoritesConfig
 
         # This method defines the package user's endpoint for adding content
         # The @post annotation automatically makes the method available as
@@ -143,8 +144,3 @@ When you put it all together, it looks like this:
             Your favorite true/false value is {self.config.favorite_true_false_value}.
             Wow, mine too!
             """
-
-
-    # This line connects our Package implementation class to the surrounding
-    # Steamship handler code.
-    handler = create_handler(ConfigurableFavoritesPackage)
