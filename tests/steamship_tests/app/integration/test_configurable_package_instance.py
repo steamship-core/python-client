@@ -80,3 +80,14 @@ def test_configurable_instance_invoke(client: Steamship):
         instance4 = client.use(package.handle, config=instance_config4)
         assert instance4.invoke("greet") == f"{greeting4}, Person"
         assert instance4.id != instance3.id
+
+        # Test instance with configuration in Chinese characters
+        greeting5 = "你好"
+        instance_config5 = {
+            "greeting": greeting5,
+            "snake_case_config": "hisss",
+            "camelCaseConfig": "spit!",
+        }
+        instance5 = client.use(package.handle, config=instance_config5)
+        assert instance5.invoke("greet") == f"{greeting5}, Person"
+        assert instance5.id != ""  # instance4.id
