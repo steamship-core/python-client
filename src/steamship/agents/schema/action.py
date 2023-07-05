@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from steamship import Block, Tag, Task
 from steamship.agents.schema.tool import AgentContext, Tool
 from steamship.data import TagKind
+from steamship.data.tags.tag_constants import RoleTag
 
 
 class Action(BaseModel):
@@ -24,7 +25,7 @@ class Action(BaseModel):
 
     def to_chat_messages(self) -> List[Block]:
         tags = [
-            Tag(kind=TagKind.ROLE, name="function"),
+            Tag(kind=TagKind.ROLE, name=RoleTag.FUNCTION),
             Tag(kind="name", name=self.tool.name),
         ]
         blocks = []

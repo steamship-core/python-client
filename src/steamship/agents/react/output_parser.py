@@ -12,7 +12,7 @@ class ReACTOutputParser(OutputParser):
     tools_lookup_dict: Optional[Dict[str, Tool]] = None
 
     def __init__(self, **kwargs):
-        tools_lookup_dict = {tool.name: tool for tool in kwargs.pop("tools", None)}
+        tools_lookup_dict = {tool.name: tool for tool in kwargs.pop("tools", [])}
         super().__init__(tools_lookup_dict=tools_lookup_dict, **kwargs)
 
     def parse(self, text: str, context: AgentContext) -> Action:

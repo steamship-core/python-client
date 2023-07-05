@@ -19,12 +19,12 @@ class LLM(BaseModel, ABC):
 
 
 # TODO(dougreid): should LLM and ConversationalLLM share a common parent?
-class ConversationalLLM(BaseModel, ABC):
-    """ConversationalLLM wraps large language model-based backends that use a chat completion style interation.
+class ChatLLM(BaseModel, ABC):
+    """ChatLLM wraps large language model-based backends that use a chat completion style interation.
 
-    They may be used with LLMAgents in Action selection, or for direct prompt completion."""
+    They may be used with Agents in Action selection, or for direct prompt completion."""
 
     @abstractmethod
-    def converse(self, messages: List[Block], tools: Optional[List[Tool]]) -> List[Block]:
-        """Sends the set of messages to the LLM, returning the next part of the conversation"""
+    def chat(self, messages: List[Block], tools: Optional[List[Tool]]) -> List[Block]:
+        """Sends the set of chat messages to the LLM, returning the next part of the conversation"""
         pass

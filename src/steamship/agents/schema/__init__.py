@@ -1,8 +1,8 @@
 from .action import Action, FinishAction
-from .agent import Agent, ConversationalLLMAgent, LLMAgent
+from .agent import Agent, ChatAgent, LLMAgent
 from .chathistory import ChatHistory
 from .context import AgentContext, EmitFunc, Metadata
-from .llm import LLM, ConversationalLLM
+from .llm import LLM, ChatLLM
 from .output_parser import OutputParser
 from .tool import Tool
 
@@ -10,8 +10,8 @@ __all__ = [
     "Action",
     "Agent",
     "AgentContext",
-    "ConversationalLLM",
-    "ConversationalLLMAgent",
+    "ChatLLM",
+    "ChatAgent",
     "EmitFunc",
     "FinishAction",
     "Metadata",

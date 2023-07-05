@@ -43,6 +43,9 @@ class AgentService(PackageService):
             context.completed_steps.append(action)
 
     def run_agent(self, agent: Agent, context: AgentContext):
+        # first, clear any prior agent steps from set of completed steps
+        # this will allow the agent to select tools/dispatch actions based on a new context
+        context.completed_steps = []
         action = agent.next_action(context=context)
         while not isinstance(action, FinishAction):
             # TODO: Arrive at a solid design for the details of this structured log object

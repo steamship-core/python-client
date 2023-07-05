@@ -13,7 +13,7 @@ class FunctionsBasedOutputParser(OutputParser):
     tools_lookup_dict: Optional[Dict[str, Tool]] = None
 
     def __init__(self, **kwargs):
-        tools_lookup_dict = {tool.name: tool for tool in kwargs.pop("tools", None)}
+        tools_lookup_dict = {tool.name: tool for tool in kwargs.pop("tools", [])}
         super().__init__(tools_lookup_dict=tools_lookup_dict, **kwargs)
 
     def _extract_action_from_function_call(self, text: str, context: AgentContext) -> Action:
@@ -31,8 +31,8 @@ class FunctionsBasedOutputParser(OutputParser):
         args = json.loads(arguments)
         # TODO(dougreid): validation and error handling?
 
-        if args.get("text", None):
-            input_blocks.append(Block(text=args.get("text"), mime_type=MimeTypes.TXT))
+        if text := args.get("text"):
+            input_blocks.append(Block(text=text, mime_type=MimeTypes.TXT))
         else:
             uuid = args.get("uuid")
             input_blocks.append(Block.get(context.client, id=uuid))

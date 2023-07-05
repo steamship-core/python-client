@@ -62,7 +62,6 @@ class MyFunctionsBasedAssistant(AgentService):
 
         context.emit_funcs.append(sync_emit)
         self.run_agent(self._agent, context)
-        # TODO: is this right?
         context.chat_history.append_assistant_message(output)
         return output
 
