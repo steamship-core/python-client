@@ -16,7 +16,7 @@ This library is for:
 
 **Are you trying to host a LangChain agent you've written?  Check out our LangChain compatibility library here:**
 
-🦜️🔗🚢  [Steamship-Langchain](https://github.com/steamship-core/steamship-langchain)
+🚢 🦜️🔗 [Steamship-Langchain](https://github.com/steamship-core/steamship-langchain)
 
 ## Installing
 
