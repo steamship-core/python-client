@@ -5,10 +5,9 @@ from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel, Field
 
-from steamship.base import Task
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import Request
+from steamship.base.request import IdentifierRequest, Request
 from steamship.base.response import Response
 from steamship.data.plugin import HostingMemory, HostingTimeout
 
@@ -66,7 +65,7 @@ class PluginVersion(CamelModel):
         is_public: bool = None,
         is_default: bool = None,
         config_template: Dict[str, Any] = None,
-    ) -> Task[PluginVersion]:
+    ) -> PluginVersion:
 
         if filename is None and filebytes is None:
             raise Exception("Either filename or filebytes must be provided.")
@@ -106,4 +105,14 @@ class PluginVersion(CamelModel):
             f"plugin/version/{'public' if public else 'private'}",
             ListPluginVersionsRequest(handle=handle, plugin_id=plugin_id),
             expect=ListPluginVersionsResponse,
+        )
+
+    def delete(self) -> PluginVersion:
+        """Delete this plugin version. If this plugin is public and another user has created an instance of this version,
+        this method will throw an error and the PluginVersion will not be deleted. Deleting the PluginVersion will delete any
+        instances of it that you have created."""
+        return self.client.post(
+            "plugin/version/delete",
+            IdentifierRequest(id=self.id),
+            expect=PluginVersion,
         )
