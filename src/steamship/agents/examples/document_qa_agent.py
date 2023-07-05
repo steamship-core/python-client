@@ -9,6 +9,9 @@ from steamship.agents.schema.context import Metadata
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.tools.question_answering import VectorSearchQATool
 from steamship.invocable import post
+from steamship.invocable.mixins.blockifier_mixin import BlockifierMixin
+from steamship.invocable.mixins.file_importer_mixin import FileImporterMixin
+from steamship.invocable.mixins.indexer_mixin import IndexerMixin
 from steamship.invocable.mixins.indexer_pipeline_mixin import IndexerPipelineMixin
 from steamship.utils.repl import AgentREPL
 
@@ -29,6 +32,8 @@ class ExampleDocumentQAService(AgentService):
     This agent provides a starter project for special purpose QA agents that can answer questions about documents
     you provide.
     """
+
+    USED_MIXIN_CLASSES = [IndexerPipelineMixin, FileImporterMixin, BlockifierMixin, IndexerMixin]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

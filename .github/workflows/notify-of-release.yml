@@ -1,0 +1,16 @@
+name: Publish release summary to discord
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-release-summary-to-discord:
+    runs-on: ubuntu-latest
+    name: Github Releases To Discord
+    steps:
+      - name: Sending message
+        uses: nhevia/discord-styled-releases@main
+        with:
+          webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+          webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
