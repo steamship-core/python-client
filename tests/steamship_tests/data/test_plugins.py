@@ -109,6 +109,26 @@ def test_plugin_update():
     assert got_plugin.description == new_description
 
 
+def test_plugin_delete():
+    steamship = get_steamship_client()
+
+    plugin = Plugin.create(
+        client=steamship,
+        description="This is just for test",
+        type_=PluginType.tagger,
+        transport=PluginAdapterType.steamship_docker,
+        is_public=False,
+    )
+
+    assert plugin is not None
+
+    plugin.delete()
+
+    # Validate plugin is gone
+    with pytest.raises(SteamshipError):
+        _ = Plugin.get(steamship, handle=plugin.handle)
+
+
 def test_plugin_instance_quick_create():
     steamship = get_steamship_client()
 

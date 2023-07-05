@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import Request
+from steamship.base.request import IdentifierRequest, Request
 
 
 class CreatePackageVersionRequest(Request):
@@ -67,3 +67,13 @@ class PackageVersion(CamelModel):
         )
         task.wait()
         return task.output
+
+    def delete(self) -> PackageVersion:
+        """Delete this package version. If this package is public and another user has created an instance of this version,
+        this method will throw an error and the PackageVersion will not be deleted. Deleting the PackageVersion will delete any
+        instances of it that you have created."""
+        return self.client.post(
+            "package/version/delete",
+            IdentifierRequest(id=self.id),
+            expect=PackageVersion,
+        )
