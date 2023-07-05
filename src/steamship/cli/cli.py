@@ -124,6 +124,14 @@ def ships():
     help="Whether to connect to graphical interface.",
 )
 @click.option(
+    "--workspace",
+    "-w",
+    required=False,
+    type=str,
+    help="Workspace handle. The new instance will be created in this workspace. If not specified, "
+    "the default workspace will be used.",
+)
+@click.option(
     "--config",
     "-c",
     type=str,
@@ -140,6 +148,7 @@ def serve(
     ngrok: Optional[bool] = False,
     ui: Optional[bool] = True,
     config: Optional[str] = None,
+    workspace: Optional[str] = None,
 ):
     """Serve the local invocable"""
     initialize()
@@ -179,6 +188,7 @@ def serve(
         default_api_key=api_key,
         config=invocable_config,
         add_port_to_invocable_url=add_port_to_invocable_url,
+        workspace=workspace,
     )
     if ui:
         web_base = DEFAULT_WEB_BASE
@@ -402,6 +412,43 @@ def logs(
     )
 
 
+@click.command(name="prod")
+@click.option(
+    "--workspace",
+    "-w",
+    required=False,
+    type=str,
+    help="Workspace handle. The new instance will be created in this workspace. If not specified, "
+    "the default workspace will be used.",
+)
+@click.option(
+    "--instance",
+    "-i",
+    type=str,
+    required=False,
+    help="Instance handle. Used to name the instance (if it needs to be created). If not specified, "
+    "a generated instance name will be used.",
+)
+@click.option(
+    "--config",
+    "-c",
+    type=str,
+    required=False,
+    help="Instance configuration. May be inline JSON or a path to a file. If not specified, "
+    "an empty configuration dictionary will be passed to the instance.",
+)
+@click.pass_context
+def deploy_and_create(
+    ctx,
+    workspace: Optional[str] = None,
+    instance: Optional[str] = None,
+    config: Optional[str] = None,
+):
+    """Deploy the package or plugin to production."""
+    ctx.invoke(deploy)
+    ctx.invoke(create_instance, workspace=workspace, instance=instance, config=config)
+
+
 cli.add_command(login)
 cli.add_command(deploy)
 cli.add_command(info)
@@ -410,7 +457,8 @@ cli.add_command(ships)
 cli.add_command(logs)
 cli.add_command(serve)
 cli.add_command(create_instance, name="use")
-
+cli.add_command(deploy_and_create, name="prod")
+cli.add_command(serve, name="local")
 
 if __name__ == "__main__":
     serve([])
