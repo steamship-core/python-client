@@ -2,10 +2,10 @@
 
 # Steamship Python SDK
 
-[Steamship](https://steamship.com) is the fastest way to build, ship, and use full-lifecycle AI. 🚢 
+🚢 [Steamship](https://steamship.com) is the fastest way to Build, Scale, and Monitor AI Agents.
 
 This library is for:
-- Building and deploying `Packages` and `Plugins` on Steamship
+- Building and deploying `Agents`, `Packages`, and `Plugins` on Steamship
 - Making client calls to a Steamship `Package` from a Python environment
 
 **Are you trying to build a Bot or Agent? Please check out our starter project and guidebook here:**
@@ -14,9 +14,9 @@ This library is for:
 
 [Agent Guidebook](https://www.steamship.com/learn/agent-guidebook)
 
-**Are you trying to host a Langchain agent you've written?  Check out our langchain compatibility library here:**
+**Are you trying to host a LangChain agent you've written?  Check out our LangChain compatibility library here:**
 
-[Steamship-Langchain](https://github.com/steamship-core/steamship-langchain)
+🦜️🔗🚢  [Steamship-Langchain](https://github.com/steamship-core/steamship-langchain)
 
 ## Installing
 
