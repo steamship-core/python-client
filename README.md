@@ -26,5 +26,10 @@ Install via pip:
 pip install steamship
 ```
 
+## Documentation
 
+[Full Documentation](https://docs.steamship.com/)
 
+## Support and Discussion
+
+Join our [Discord](https://steamship.com/discord)
