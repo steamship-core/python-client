@@ -36,7 +36,7 @@ class LoggingDisabled:
     "the default workspace will be used.",
 )
 @click.option(
-    "--instance",
+    "--instance_handle",
     "-i",
     type=str,
     required=False,
@@ -52,7 +52,9 @@ class LoggingDisabled:
     "an empty configuration dictionary will be passed to the instance.",
 )
 def create_instance(
-    workspace: Optional[str] = None, instance: Optional[str] = None, config: Optional[str] = None
+    workspace: Optional[str] = None,
+    instance_handle: Optional[str] = None,
+    config: Optional[str] = None,
 ):
     """Create an instance of your package/plugin for use.
 
@@ -60,7 +62,7 @@ def create_instance(
     """
 
     with LoggingDisabled():  # keep CLI output as concise as possible
-        return _create_instance(workspace, instance, config)
+        return _create_instance(workspace=workspace, instance_handle=instance_handle, config=config)
 
 
 def _create_instance(  # noqa: C901

@@ -41,7 +41,6 @@ class SteamshipHTTPServer:
         invocable: Type[Invocable],
         base_url: str = "http://localhost",
         port: int = 8080,
-        default_api_key: Optional[str] = None,
         invocable_handle: str = None,
         invocable_version_handle: str = None,
         invocable_instance_handle: str = None,
@@ -52,7 +51,6 @@ class SteamshipHTTPServer:
         self.invocable = invocable
         self.port = port
         self.base_url = base_url
-        self.default_api_key = default_api_key
         self.invocable_handle = invocable_handle
         self.invocable_version_handle = invocable_version_handle
         self.invocable_instance_handle = invocable_instance_handle
@@ -67,7 +65,6 @@ class SteamshipHTTPServer:
             self.invocable,
             self.port,
             base_url=self.base_url,
-            default_api_key=self.default_api_key,
             invocable_handle=self.invocable_handle,
             invocable_version_handle=self.invocable_version_handle,
             invocable_instance_handle=self.invocable_instance_handle,
@@ -83,7 +80,7 @@ class SteamshipHTTPServer:
             http_verb="POST", invocation_path="__dir__", arguments={}, config=self.config
         )
         event = InvocableRequest(
-            client_config=Steamship(api_key=self.default_api_key, workspace=self.workspace).config,
+            client_config=Steamship(workspace=self.workspace).config,
             invocation=invocation,
             logging_config=LoggingConfig(logging_host=None, logging_port=None),
             invocation_context=context,
