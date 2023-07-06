@@ -41,6 +41,7 @@ class AgentService(PackageService):
             )
             action.output = blocks_or_task
             context.completed_steps.append(action)
+            context.persist_to_file(client=self.client)
 
     def run_agent(self, agent: Agent, context: AgentContext):
         action = agent.next_action(context=context)
