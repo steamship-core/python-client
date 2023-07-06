@@ -227,3 +227,6 @@ class ChatHistory:
         if self.embedding_index is None:
             raise SteamshipError("This ChatHistory has no embedding index and is not searchable.")
         return self.embedding_index.search(text, k)
+
+    def is_searchable(self) -> bool:
+        return self.embedding_index is not None
