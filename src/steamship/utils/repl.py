@@ -2,7 +2,7 @@ import abc
 import contextlib
 import logging
 from abc import ABC
-from typing import Any, Dict, List, Optional, Type, cast
+from typing import Any, Dict, List, Optional, Type, Union, cast
 
 from steamship import Block, Steamship, Task
 from steamship.agents.logging import AgentLogging
@@ -10,6 +10,13 @@ from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.service.agent_service import AgentService
 from steamship.data.workspace import Workspace
 from steamship.invocable.dev_logging_handler import DevelopmentLoggingHandler
+
+try:
+    from termcolor import colored  # noqa: F401
+except ImportError:
+
+    def colored(text: str, **kwargs):
+        print(text)
 
 
 class SteamshipREPL(ABC):
@@ -25,31 +32,65 @@ class SteamshipREPL(ABC):
         dev_logging_handler = DevelopmentLoggingHandler()
         logger.addHandler(dev_logging_handler)
 
-    def print_blocks(self, blocks: List[Block], metadata: Dict[str, Any]):
-        """Print a list of blocks to console."""
-        output = None
+    def print_string(self, output: str, metadata: Optional[Dict[str, Any]] = None):
+        """Print a string to console. All REPL output should ideally route through this method."""
+        logging.info(
+            f"{output}",
+            extra={
+                AgentLogging.IS_MESSAGE: True,
+                AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+            },
+        )
 
-        for block in blocks:
-            if isinstance(block, dict):
-                block = Block.parse_obj(block)
-            if block.is_text():
-                output = block.text
-            elif block.url:
-                output = block.url
-            elif block.content_url:
-                output = block.content_url
-            else:
-                block.set_public_data(True)
-                output = block.raw_data_url
+    def print_object(
+        self, obj: Union[Task, Block, str, dict], metadata: Optional[Dict[str, Any]] = None
+    ):
+        """Print an object, returned by the agent or tool, to the console.
 
+        Various epochs of the Agent SDK development have included Agents returning, to the repl: Blocks, strings, and
+        Tasks. Since this is something that users can write (e.g. not controlled by the SDK) the REPL needs to handle
+        all three cases in displaying output.
+        """
+
+        # A string gets printed wholesale.
+        if isinstance(obj, str):
+            self.print_string(obj, metadata)
+            return
+
+        # A task gets its ID printed.
+        # TODO: It would be nice for this to be a link to the web UI.
+        if isinstance(obj, Task):
+            self.print_string(f"Task: {obj.task_id}", metadata)
+            return
+
+        # A dict is assumed to be a Block.
+        if isinstance(obj, dict):
+            obj = Block.parse_obj(obj)
+
+        # A block gets handled based on what it contains.
+        block = cast(Block, obj)
+        if block.is_text():
+            output = block.text
+        elif block.url:
+            output = block.url
+        elif block.content_url:
+            output = block.content_url
+        else:
+            block.set_public_data(True)
+            output = block.raw_data_url
         if output:
-            logging.info(
-                f"{output}",
-                extra={
-                    AgentLogging.IS_MESSAGE: True,
-                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
-                },
-            )
+            self.print_string(output, metadata)
+
+    def print_object_or_objects(
+        self, output: Union[List, Any], metadata: Optional[Dict[str, Any]] = None
+    ):
+        """Print Agent or Tool output, whether a list or a single object."""
+        if isinstance(output, List):
+            objects = cast(List, output)
+            for obj in objects:
+                self.print_object(obj, metadata)
+        else:
+            self.print_object(output, metadata)
 
     @contextlib.contextmanager
     def temporary_workspace(self) -> Steamship:
@@ -73,13 +114,6 @@ class ToolREPL(SteamshipREPL):
         self.client = client or Steamship()
 
     def run_with_client(self, client: Workspace, context: Optional[AgentContext] = None):
-        try:
-            from termcolor import colored  # noqa: F401
-        except ImportError:
-
-            def colored(message: str, color: str):
-                print(message)
-
         if context is None:
             context = AgentContext()
         context.client = client
@@ -91,12 +125,7 @@ class ToolREPL(SteamshipREPL):
             input_text = input(colored("Input: ", "blue"))  # noqa: F821
             input_block = Block(text=input_text)
             output = self.tool.run([input_block], context=context)
-            if isinstance(output, Task):
-                # TODO: Iterate on task support.
-                print(f"Task: {output.task_id}")
-            else:
-                blocks = cast(List[Block], output)
-                self.print_blocks(blocks, {})
+            self.print_object_or_objects(output)
 
     def run(self):
         with self.temporary_workspace() as client:
@@ -137,8 +166,8 @@ class AgentREPL(SteamshipREPL):
         while True:
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
             responder = getattr(agent_service, self.method)
-            response = responder(input_text, **kwargs)
-            print(colored(text=f"{response}", color="green", force_color=True))
+            output = responder(input_text, **kwargs)
+            self.print_object_or_objects(output)
 
     def run(self, **kwargs):
         with self.temporary_workspace() as client:
