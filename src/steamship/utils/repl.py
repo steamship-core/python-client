@@ -1,16 +1,13 @@
 import abc
 import contextlib
 import logging
-import uuid
 from abc import ABC
 from typing import Any, Dict, List, Optional, Type, Union, cast
 
-from steamship import Block, Steamship, SteamshipError, Task
-from steamship.agents.llms import OpenAI
+from steamship import Block, Steamship, Task
 from steamship.agents.logging import AgentLogging
-from steamship.agents.schema import Agent, AgentContext, Metadata, Tool
+from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.service.agent_service import AgentService
-from steamship.agents.utils import with_llm
 from steamship.data.workspace import Workspace
 from steamship.invocable.dev_logging_handler import DevelopmentLoggingHandler
 
@@ -20,11 +17,6 @@ except ImportError:
 
     def colored(text: str, **kwargs):
         print(text)
-
-
-# Use either "gpt-3.5-turbo-0613" or "gpt-4-0613" here.
-# Other versions of GPT tend not to work well with the ReAct prompt.
-MODEL_NAME = "gpt-4-0613"
 
 
 class SteamshipREPL(ABC):
@@ -161,54 +153,6 @@ class AgentREPL(SteamshipREPL):
         self.config = agent_package_config
         self.agent_instance = None
 
-    def prompt(self, prompt: str, **kwargs) -> List[Block]:
-        """Run an agent with the provided text as the input."""
-
-        # AgentContexts serve to allow the AgentService to run agents
-        # with appropriate information about the desired tasking.
-        # Here, we create a new context on each prompt, and append the
-        # prompt to the message history stored in the context.
-        context_id = uuid.uuid4()
-        context = AgentContext.get_or_create(self.client, {"id": f"{context_id}"})
-        context.chat_history.append_user_message(prompt)
-
-        # Add a default LLM
-        context = with_llm(context=context, llm=OpenAI(client=self.client, model_name=MODEL_NAME))
-
-        # AgentServices provide an emit function hook to access the output of running
-        # agents and tools. The emit functions fire at after the supplied agent emits
-        # a "FinishAction".
-        #
-        # Here, we show one way of accessing the output in a synchronous fashion. An
-        # alternative way would be to access the final Action in the `context.completed_steps`
-        # after the call to `run_agent()`.
-        output = []
-
-        def sync_emit(blocks: List[Block], meta: Metadata):
-            nonlocal output
-            output.extend(blocks)
-
-        context.emit_funcs.append(sync_emit)
-
-        if not self.agent_instance:
-            raise SteamshipError(message="No agent_instance was found in the REPL.")
-
-        # Get the agent
-        agent_obj: Agent = None
-        if hasattr(self.agent_instance, "agent"):
-            agent_obj = self.agent_instance.agent
-        elif hasattr(self.agent_instance, "_agent"):
-            agent_obj = self.agent_instance._agent
-
-        if not agent_obj:
-            raise SteamshipError(
-                message="No Agent object found in the Agent Service. "
-                "Please name it either self.agent or self._agent."
-            )
-
-        self.agent_instance.run_agent(agent_obj, context)
-        return output
-
     def run_with_client(self, client: Steamship, **kwargs):
         try:
             from termcolor import colored  # noqa: F401
@@ -223,12 +167,7 @@ class AgentREPL(SteamshipREPL):
         self.agent_instance = self.agent_class(client=client, config=self.config)
 
         # Determine the responder, which may have been custom-supplied on the agent.
-        if self.method:
-            responder = getattr(self.agent_instance, self.method)
-        else:
-            # No responder method was provided upon REPL bootup, so use the default
-            # built-in to the REPL
-            responder = self.prompt
+        responder = getattr(self.agent_instance, self.method or "prompt")
 
         while True:
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
