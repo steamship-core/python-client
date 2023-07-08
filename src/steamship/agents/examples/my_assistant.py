@@ -8,10 +8,6 @@ from steamship.agents.tools.image_generation import DalleTool
 from steamship.agents.tools.search import SearchTool
 from steamship.utils.repl import AgentREPL
 
-# Use either "gpt-3.5-turbo-0613" or "gpt-4-0613" here.
-# Other versions of GPT tend not to work well with the ReAct prompt.
-MODEL_NAME = "gpt-4-0613"
-
 
 class MyAssistant(AgentService):
     """MyAssistant is an example AgentService that exposes a single test endpoint
@@ -26,7 +22,7 @@ class MyAssistant(AgentService):
                 SearchTool(),
                 DalleTool(),
             ],
-            llm=OpenAI(self.client, temperature=0, model_name=MODEL_NAME),
+            llm=OpenAI(self.client, temperature=0, model_name="gpt-4-0613"),
             conversation_memory=MessageWindowMessageSelector(k=2),
         )
 

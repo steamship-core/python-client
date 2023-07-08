@@ -7,10 +7,6 @@ from steamship.agents.tools.question_answering.vector_search_learner_tool import
 )
 from steamship.utils.repl import AgentREPL
 
-# Use either "gpt-3.5-turbo-0613" or "gpt-4-0613" here.
-# Other versions of GPT tend not to work well with the ReAct prompt.
-MODEL_NAME = "gpt-4-0613"
-
 
 class FactLearner(AgentService):
     """FactLearner is an example AgentService contains an Agent which:
@@ -25,7 +21,7 @@ class FactLearner(AgentService):
                 VectorSearchLearnerTool(),
                 VectorSearchQATool(),
             ],
-            llm=OpenAI(self.client, model_name=MODEL_NAME),
+            llm=OpenAI(self.client, model_name="gpt-4-0613"),
         )
 
 
