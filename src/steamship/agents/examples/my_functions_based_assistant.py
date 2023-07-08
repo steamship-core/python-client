@@ -31,6 +31,4 @@ if __name__ == "__main__":
     # AgentREPL provides a mechanism for local execution of an AgentService method.
     # This is used for simplified debugging as agents and tools are developed and
     # added.
-    AgentREPL(MyFunctionsBasedAssistant, "prompt", agent_package_config={}).run(
-        context_id=uuid.uuid4()
-    )
+    AgentREPL(MyFunctionsBasedAssistant, agent_package_config={}).run(context_id=uuid.uuid4())
