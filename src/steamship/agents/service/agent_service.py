@@ -132,5 +132,15 @@ class AgentService(PackageService):
 
         self.run_agent(agent, context)
 
+        # Now append the output blocks to the chat history
+        # TODO: It seems like we've been going from block -> not block -> block here. Opportunity to optimize.
+        for output_block in output_blocks:
+            context.chat_history.append_assistant_message(
+                text=output_block.text,
+                tags=output_block.tags,
+                url=output_block.raw_data_url or output_block.url or output_block.content_url,
+                mime_type=output_block.mime_type,
+            )
+
         # Return the response as a set of multi-modal blocks.
         return output_blocks
