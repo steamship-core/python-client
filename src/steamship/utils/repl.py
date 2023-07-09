@@ -4,6 +4,8 @@ import logging
 from abc import ABC
 from typing import Any, Dict, List, Optional, Type, Union, cast
 
+import requests
+
 from steamship import Block, Steamship, Task
 from steamship.agents.logging import AgentLogging
 from steamship.agents.schema import AgentContext, Tool
@@ -173,6 +175,53 @@ class AgentREPL(SteamshipREPL):
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
             output = responder(input_text)
             self.print_object_or_objects(output)
+
+    def run(self, **kwargs):
+        with self.temporary_workspace() as client:
+            self.run_with_client(client, **kwargs)
+
+
+class HttpREPL(SteamshipREPL):
+    """REPL that uses an HTTP endpoint. Best for the `ship serve` command."""
+
+    prompt_url: Optional[AgentService]
+    client = Steamship
+    config = None
+
+    def __init__(
+        self,
+        prompt_url: str,
+        client: Optional[Steamship] = None,
+    ):
+        super().__init__()
+        self.prompt_url = prompt_url
+        self.client = client or Steamship()
+
+    def run_with_client(self, client: Steamship, **kwargs):
+        try:
+            from termcolor import colored  # noqa: F401
+        except ImportError:
+
+            def colored(text: str, color: str):
+                print(text)
+
+        print("Starting REPL for Agent...")
+        print("If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n")
+
+        while True:
+            input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
+            resp = requests.post(
+                self.prompt_url,
+                json={"prompt": input_text},
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {self.client.config.api_key}",
+                },
+            )
+            result = resp.json()
+            print(result)
+
+            self.print_object_or_objects(result)
 
     def run(self, **kwargs):
         with self.temporary_workspace() as client:
