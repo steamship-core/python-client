@@ -1,13 +1,14 @@
-import logging
+import json
 import re
 from typing import Dict, List, Optional
 
-from steamship import Block, Steamship
+from steamship import Block, MimeTypes, Steamship
 from steamship.agents.schema import Action, AgentContext, FinishAction, OutputParser, Tool
+from steamship.data.tags.tag_constants import RoleTag
 
 
-class ReACTOutputParser(OutputParser):
-    """Parse LLM output expecting structure matching ReACTAgent default prompt."""
+# TODO(dougreid): extract shared bits from this and the ReACT output parser into a utility?
+class FunctionsBasedOutputParser(OutputParser):
 
     tools_lookup_dict: Optional[Dict[str, Tool]] = None
 
@@ -15,35 +16,28 @@ class ReACTOutputParser(OutputParser):
         tools_lookup_dict = {tool.name: tool for tool in kwargs.pop("tools", [])}
         super().__init__(tools_lookup_dict=tools_lookup_dict, **kwargs)
 
-    def parse(self, text: str, context: AgentContext) -> Action:
-        if text.endswith("No"):
-            raise RuntimeError(f"Could not parse LLM output: `{text}`")
-
-        if "AI:" in text:
-            return FinishAction(
-                output=ReACTOutputParser._blocks_from_text(context.client, text), context=context
-            )
-
-        regex = r"Action: (.*?)[\n]*Action Input: (.*)"
-        match = re.search(regex, text)
-        if not match:
-            logging.warning(f"Bad agent response ({text}). Returning results directly to the user.")
-            # TODO: should this be the case?  If we are off-base should we just return what we have?
-            return FinishAction(
-                output=ReACTOutputParser._blocks_from_text(context.client, text), context=context
-            )
-        action = match.group(1)
-        action_input = match.group(2).strip()
-        tool = self.tools_lookup_dict.get(action.strip(), None)
+    def _extract_action_from_function_call(self, text: str, context: AgentContext) -> Action:
+        wrapper = json.loads(text)
+        fc = wrapper.get("function_call")
+        name = fc.get("name", "")
+        tool = self.tools_lookup_dict.get(name, None)
         if tool is None:
             raise RuntimeError(
-                f"Could not find tool from action: `{action}`. Known tools: {self.tools_lookup_dict.keys()}"
+                f"Could not find tool from function call: `{name}`. Known tools: {self.tools_lookup_dict.keys()}"
             )
-        return Action(
-            tool=tool,
-            input=[Block(text=action_input)],
-            context=context,
-        )
+
+        input_blocks = []
+        arguments = fc.get("arguments", "")
+        args = json.loads(arguments)
+        # TODO(dougreid): validation and error handling?
+
+        if text := args.get("text"):
+            input_blocks.append(Block(text=text, mime_type=MimeTypes.TXT))
+        else:
+            uuid = args.get("uuid")
+            input_blocks.append(Block.get(context.client, id=uuid))
+
+        return Action(tool=tool, input=input_blocks, context=context)
 
     @staticmethod
     def _blocks_from_text(client: Steamship, text: str) -> List[Block]:
@@ -55,13 +49,13 @@ class ReACTOutputParser(OutputParser):
         while remaining_text is not None and len(remaining_text) > 0:
             match = re.search(block_id_regex, remaining_text)
             if match:
-                pre_block_text = ReACTOutputParser._remove_block_prefix(
+                pre_block_text = FunctionsBasedOutputParser._remove_block_prefix(
                     candidate=remaining_text[0 : match.start()]
                 )
                 if len(pre_block_text) > 0:
                     result_blocks.append(Block(text=pre_block_text))
                 result_blocks.append(Block.get(client, _id=match.group(1)))
-                remaining_text = ReACTOutputParser._remove_block_suffix(
+                remaining_text = FunctionsBasedOutputParser._remove_block_suffix(
                     remaining_text[match.end() :]
                 )
             else:
@@ -85,3 +79,11 @@ class ReACTOutputParser(OutputParser):
         if removed.startswith(")") or removed.endswith("]"):
             removed = removed[1:]
         return removed
+
+    def parse(self, text: str, context: AgentContext) -> Action:
+        if "function_call" in text:
+            return self._extract_action_from_function_call(text, context)
+
+        finish_block = Block(text=text)
+        finish_block.set_chat_role(RoleTag.ASSISTANT)
+        return FinishAction(output=[finish_block], context=context)

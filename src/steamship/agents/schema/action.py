@@ -2,8 +2,10 @@ from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel
 
-from steamship import Block, Task
+from steamship import Block, Tag, Task
 from steamship.agents.schema.tool import AgentContext, Tool
+from steamship.data import TagKind
+from steamship.data.tags.tag_constants import RoleTag
 
 
 class Action(BaseModel):
@@ -20,6 +22,26 @@ class Action(BaseModel):
 
     output: Optional[List[Block]] = []
     """Any direct output produced by the Tool."""
+
+    def to_chat_messages(self) -> List[Block]:
+        tags = [
+            Tag(kind=TagKind.ROLE, name=RoleTag.FUNCTION),
+            Tag(kind="name", name=self.tool.name),
+        ]
+        blocks = []
+        for block in self.output:
+            # TODO(dougreid): should we revisit as_llm_input?  we might need only the UUID...
+            blocks.append(
+                Block(
+                    text=block.as_llm_input(exclude_block_wrapper=True),
+                    tags=tags,
+                    mime_type=block.mime_type,
+                )
+            )
+
+        # TODO(dougreid): revisit when have multiple output functions.
+        # Current thinking: LLM will be OK with multiple function blocks in a row. NEEDS validation.
+        return blocks
 
 
 class AgentTool(Tool):

@@ -12,7 +12,7 @@ class DalleTool(ImageGeneratorTool):
     name: str = "DalleTool"
     human_description: str = "Generates an image from text."
     agent_description = (
-        "Used to generate images from text prompts. Only use if the user has asked directly for an "
+        "Used to generate still images from text prompts. Only use if the user has asked directly for an "
         "image. When using this tool, the input should be a plain text string that describes, "
         "in detail, the desired image."
     )
