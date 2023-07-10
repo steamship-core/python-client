@@ -84,6 +84,7 @@ class FunctionsBasedOutputParser(OutputParser):
         if "function_call" in text:
             return self._extract_action_from_function_call(text, context)
 
-        finish_block = Block(text=text)
-        finish_block.set_chat_role(RoleTag.ASSISTANT)
-        return FinishAction(output=[finish_block], context=context)
+        finish_blocks = FunctionsBasedOutputParser._blocks_from_text(context.client, text)
+        for finish_block in finish_blocks:
+            finish_block.set_chat_role(RoleTag.ASSISTANT)
+        return FinishAction(output=finish_blocks, context=context)
