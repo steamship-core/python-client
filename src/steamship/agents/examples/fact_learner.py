@@ -2,8 +2,8 @@ import uuid
 from typing import List
 
 from steamship import Block
-from steamship.agents.llms.openai import OpenAI
-from steamship.agents.react import ReACTAgent
+from steamship.agents.functional import FunctionsBasedAgent
+from steamship.agents.llms.openai import ChatOpenAI, OpenAI
 from steamship.agents.schema import AgentContext
 from steamship.agents.schema.context import Metadata
 from steamship.agents.service.agent_service import AgentService
@@ -24,12 +24,12 @@ class FactLearner(AgentService):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._agent = ReACTAgent(
+        self._agent = FunctionsBasedAgent(
             tools=[
                 VectorSearchLearnerTool(),
                 VectorSearchQATool(),
             ],
-            llm=OpenAI(self.client),
+            llm=ChatOpenAI(self.client),
         )
 
     @post("prompt")
