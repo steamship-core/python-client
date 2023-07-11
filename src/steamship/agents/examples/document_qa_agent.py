@@ -49,7 +49,9 @@ class ExampleDocumentQAService(AgentService):
         self.add_mixin(IndexerPipelineMixin(self.client, self))
 
         self._agent = FunctionsBasedAgent(
-            tools=[VectorSearchQATool()],
+            tools=[
+                VectorSearchQATool(),  # Tool to answer questions based on a vector store.
+            ],
             llm=ChatOpenAI(self.client),
         )
 

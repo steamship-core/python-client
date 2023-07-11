@@ -189,7 +189,7 @@ class DeployableDeployer(ABC):
 
         default_new = "1.0.0"
         try:
-            default_new = str(VersionInfo.parse(manifest.version).bump_prerelease())
+            default_new = str(VersionInfo.parse(manifest.version).next_version("prerelease"))
         except ValueError:
             pass
         old_archive_path = get_archive_path(manifest)
