@@ -42,7 +42,6 @@ Many tools are available pre-packaged within the SDK:
 - :class:`steamship.agents.tools.image_generation.stable_diffusion.StableDiffusionTool`
 - ... and more in the ``steamship.agents.tools`` package.
 
-
 AgentService
 ------------
 
@@ -50,12 +49,5 @@ AgentService
 
 The AgentService class provides a convenient way to deploy an Agent as a Steamship :ref:`Package<Packages>`.
 
-At a minimum, all  :class:`steamship.agents.service.agent_service.AgentService` implementations implement a ``prompt(self, prompt: str, **kwargs) -> List[Block]`` method that accepts an inbound ``str`` in the form of a user message and produces a list of multimodal ``Block`` objects which represent the response.
-
-TelegramAgentService
---------------------
-
-:class:`steamship.experimental.package_starters.telegram_agent.TelegramAgentService`
-The TelegramAgentService class connects your Agent with the Telegram Webhook API, allowing it to serve messages to Telegram users.
-
-
+All  :class:`steamship.agents.service.agent_service.AgentService` instances contain a ``prompt(self, prompt: str, **kwargs) -> List[Block]`` method from thier base class.
+This method is the core ``chat`` loop: it accepts an inbound ``str`` in the form of a user message, and it produces a list of multimodal ``Block`` objects that contain the response.
