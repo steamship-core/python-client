@@ -1,5 +1,6 @@
 import json
 import re
+import string
 from typing import Dict, List, Optional
 
 from steamship import Block, MimeTypes, Steamship
@@ -7,7 +8,10 @@ from steamship.agents.schema import Action, AgentContext, FinishAction, OutputPa
 from steamship.data.tags.tag_constants import RoleTag
 
 
-# TODO(dougreid): extract shared bits from this and the ReACT output parser into a utility?
+def is_punctuation(text: str):
+    return text in string.punctuation
+
+
 class FunctionsBasedOutputParser(OutputParser):
 
     tools_lookup_dict: Optional[Dict[str, Tool]] = None
@@ -35,7 +39,7 @@ class FunctionsBasedOutputParser(OutputParser):
             input_blocks.append(Block(text=text, mime_type=MimeTypes.TXT))
         else:
             uuid = args.get("uuid")
-            input_blocks.append(Block.get(context.client, id=uuid))
+            input_blocks.append(Block.get(context.client, _id=uuid))
 
         return Action(tool=tool, input=input_blocks, context=context)
 
@@ -46,7 +50,12 @@ class FunctionsBasedOutputParser(OutputParser):
         block_id_regex = r"(?:(?:\[|\()?Block)?\(?([A-F0-9]{8}\-[A-F0-9]{4}\-[A-F0-9]{4}\-[A-F0-9]{4}\-[A-F0-9]{12})\)?(?:(\]|\)))?"
         remaining_text = last_response
         result_blocks: List[Block] = []
-        while remaining_text is not None and len(remaining_text) > 0:
+        while remaining_text is not None and len(remaining_text.strip()) > 0:
+
+            if is_punctuation(remaining_text.strip()):
+                remaining_text = ""
+                continue
+
             match = re.search(block_id_regex, remaining_text)
             if match:
                 pre_block_text = FunctionsBasedOutputParser._remove_block_prefix(
