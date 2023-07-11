@@ -71,8 +71,13 @@ class PackageService(Invocable):
             )
             try:
                 allow_override_for_this_route = permit_overwrite_of_existing_methods
+                comparison_path = (
+                    route_method.path
+                    if route_method.path.startswith("/")
+                    else "/" + route_method.path
+                )
                 existing_route = package_spec.method_mappings.get(route_method.verb, {}).get(
-                    "/" + route_method.path
+                    comparison_path
                 )
                 if (
                     existing_route is not None
