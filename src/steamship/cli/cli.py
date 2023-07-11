@@ -259,18 +259,25 @@ def serve_local(
     help="Handle of the package or plugin instance being hosted.",
 )
 @click.option(
-    "--ngrok",
+    "--no_ngrok",
     "-n",
     is_flag=True,
-    default=True,
-    help="Whether to create a public ngrok URL.",
+    default=False,
+    help="Don't attempt to create an ngrok URL.",
 )
 @click.option(
-    "--ui",
+    "--no_ui",
     "-u",
     is_flag=True,
-    default=True,
-    help="Whether to connect to graphical interface.",
+    default=False,
+    help="Don't attempt to attach to a web UI.",
+)
+@click.option(
+    "--no_repl",
+    "-r",
+    is_flag=True,
+    default=False,
+    help="Don't start a console REPL.",
 )
 @click.option(
     "--config",
@@ -297,8 +304,9 @@ def serve(
     environment: str,
     port: int = 8080,
     instance_handle: Optional[str] = None,
-    ngrok: Optional[bool] = False,
-    ui: Optional[bool] = True,
+    no_ngrok: Optional[bool] = False,
+    no_repl: Optional[bool] = False,
+    no_ui: Optional[bool] = False,
     config: Optional[str] = None,
     workspace: Optional[str] = None,
 ):
@@ -307,8 +315,9 @@ def serve(
         serve_local(
             port=port,
             instance_handle=instance_handle,
-            ngrok=ngrok,
-            ui=ui,
+            no_ngrok=no_ngrok,
+            no_repl=no_repl,
+            no_ui=no_ui,
             config=config,
             workspace=workspace,
         )
