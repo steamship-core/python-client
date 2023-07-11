@@ -2,8 +2,8 @@ import uuid
 from typing import List
 
 from steamship import Block
-from steamship.agents.llms.openai import OpenAI
-from steamship.agents.react import ReACTAgent
+from steamship.agents.functional import FunctionsBasedAgent
+from steamship.agents.llms.openai import ChatOpenAI
 from steamship.agents.schema import AgentContext
 from steamship.agents.schema.context import Metadata
 from steamship.agents.service.agent_service import AgentService
@@ -21,10 +21,10 @@ class ExampleDocumentQAService(AgentService):
 
     - A few authenticated endpoints for learning PDF and YouTube documents:
 
-         /learn_url
+         /index_url
         { url }
 
-        /learn_text
+        /index_text
         { text }
 
     - An unauthenticated endpoint for answering questions about what it has learned
@@ -48,18 +48,9 @@ class ExampleDocumentQAService(AgentService):
         # That vector index is then available to the question answering tool, below.
         self.add_mixin(IndexerPipelineMixin(self.client, self))
 
-        # A ReACTAgent is an agent that is able to:
-        #    1) Converse with you, casually... but also
-        #    2) Use tools that have been provided to it, such as QA tools or Image Generation tools
-        #
-        # This particular ReACTAgent has been provided with a single tool which will be used whenever
-        # the user answers a question. But you can extend this with more tools if you wish. For example,
-        # you could add tools to generate images, or search Google, or register an account.
-        self._agent = ReACTAgent(
-            tools=[
-                VectorSearchQATool(),  # Tool to answer questions based on a vector store.
-            ],
-            llm=OpenAI(self.client),
+        self._agent = FunctionsBasedAgent(
+            tools=[VectorSearchQATool()],
+            llm=ChatOpenAI(self.client),
         )
 
     @post("prompt")
