@@ -27,14 +27,14 @@ def test_install_two_packages_at_once(client: Steamship):
     )
 
     # Pillow version should be able to run the method that imports pillow locally
-    assert pillow_instance.invoke("try_pillow", verb=Verb.GET) == "ok"
+    assert pillow_instance.invoke("try_pillow", verb=Verb.GET) == "PIL"
 
     # Pillow version should NOT be able to run the method that imports pandas locally
     with pytest.raises(SteamshipError):
         _ = pillow_instance.invoke("try_pandas", verb=Verb.GET)
 
     # Pandas version should be able to run the method that imports pandas locally
-    assert pandas_instance.invoke("try_pandas", verb=Verb.GET) == "ok"
+    assert pandas_instance.invoke("try_pandas", verb=Verb.GET) == "pandas"
 
     # Pandas version should NOT be able to run the method that imports pillow locally
     with pytest.raises(SteamshipError):

@@ -7,8 +7,12 @@ class RequirementIsolationPackage(PackageService):
 
     @get("try_pillow")
     def try_pillow(self) -> str:
-        return "ok"
+        import PIL
+
+        return PIL.__name__
 
     @get("try_pandas")
     def try_pandas(self) -> str:
-        return "ok"
+        import pandas
+
+        return pandas.__name__
