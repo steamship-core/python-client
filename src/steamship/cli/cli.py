@@ -76,6 +76,126 @@ def ships():
     click.secho()
 
 
+def _display_server_endpoints(local_api_url=None, ngrok_api_url=None):
+    web_base = DEFAULT_WEB_BASE
+    web_url = None
+
+    if local_api_url or ngrok_api_url:
+        web_url = f"{web_base}/debug?endpoint={ngrok_api_url or local_api_url}/answer"
+
+    print("Running your project..\n")
+
+    if ngrok_api_url:
+        print(f"🌎 Public API: {ngrok_api_url}")
+
+    else:
+        print(
+            "⚠️ Public API: Unable to start ngrok. Try `pip install pyngrok` or use a different --port "
+        )
+
+    if local_api_url:
+        print(f"🌎 Local API: {local_api_url}")
+    else:
+        print("⚠️ Local API:  Unable to start local server.")
+
+    if web_url:
+        print(f"🌎 Web UI:  {web_url}")
+    else:
+        print("⚠️ Web UI:  Unable to start web interface.")
+
+
+def _run_ngrok(local_port: int) -> str:
+    """Create an NGROK URL directed at `local_port`."""
+    try:
+        from pyngrok import ngrok
+    except BaseException:
+        click.secho("⚠️ Public API: Unable to start ngrok. Please either:")
+        click.secho("   - Install pyngrok via `pip install pyngrok`")
+        click.secho("   - Use the --no_ngrok flag")
+        click.secho("   NGROK is only necessary if you wish to debug Telegram or Slack locally.")
+        exit(1)
+    try:
+        http_tunnel = ngrok.connect(local_port, bind_tls=True)
+    except BaseException:
+        click.secho(f"⚠️ Public API: Unable to bind ngrok to port {local_port}")
+        click.secho("   - Try running with a different port via the  --port flag.")
+        exit(1)
+
+    ngrok_api_url = http_tunnel.public_url
+    return ngrok_api_url
+
+
+def _run_local_server(
+    local_port: int,
+    instance_handle: Optional[str] = None,
+    config: Optional[str] = None,
+    workspace: Optional[str] = None,
+    base_url: Optional[
+        str
+    ] = None,  # If provided, will override the default calculation, eg for ngrok
+) -> str:
+    """Start the local API Server."""
+    path = find_api_py()
+    api_module = get_api_module(path)
+    invocable_class = get_class_from_module(api_module)
+
+    # Use the provided base url (e.g. from NGROK) or default to localhost
+    _base_url = base_url or "http://localhost"
+
+    if not invocable_class:
+        click.secho("⚠️ Local API: Unable to find Steamship service. Please:")
+        click.secho(
+            "   - Check to see that you have an api.py file containing an AgentService or PackageService "
+        )
+        exit(1)
+
+    manifest = load_manifest()
+
+    if not manifest:
+        click.secho("⚠️ Local API: Unable to find your steamship.json file")
+        exit(1)
+
+    invocable_config, is_file = config_str_to_dict(config)
+    set_unset_params(config, invocable_config, is_file, manifest)
+
+    server = SteamshipHTTPServer(
+        invocable_class,
+        base_url=_base_url,
+        port=local_port,
+        invocable_handle=manifest.handle,
+        invocable_version_handle=manifest.version,
+        invocable_instance_handle=instance_handle,
+        config=invocable_config,
+        workspace=workspace,
+    )
+    server.start()
+
+    def on_exit(signum, frame):
+        click.secho("Shutting down server.")
+        server.stop()
+        click.secho("Shut down.")
+        exit(1)
+
+    signal.signal(signal.SIGINT, on_exit)
+
+    local_api_url = f"http://localhost:{server.port}"
+    return local_api_url
+
+
+def _run_web_interface(base_url: str) -> str:
+    web_base = DEFAULT_WEB_BASE
+    try:
+        config = Configuration()
+        web_base = config.web_base
+    except BaseException:
+        click.secho("⚠️ Web UI:  Unable to find Steamship Configuration. Please:")
+        click.secho(
+            "   - Run `ship login` to make sure you have Steamship credentials in your environment."
+        )
+
+    return f"{web_base}/debug?endpoint={base_url}/prompt"
+
+
 def serve_local(
     port: int = 8080,
     instance_handle: Optional[str] = None,
@@ -87,84 +207,38 @@ def serve_local(
 ):
     """Serve the invocable on localhost. Useful for debugging locally."""
     initialize()
-    path = find_api_py()
-    api_module = get_api_module(path)
-    invocable_class = get_class_from_module(api_module)
-    base_url = "http://localhost"
-    click.secho(f"Found Invocable: {invocable_class.__name__}")
-    manifest = load_manifest()
-    invocable_config, is_file = config_str_to_dict(config)
-    set_unset_params(config, invocable_config, is_file, manifest)
-    add_port_to_invocable_url = True
 
-    # Always use the UI
-    ui = True
+    click.secho("Running your project..\n")
 
-    # Default to using ngrok
-    ngrok = not no_ngrok
+    # Start the NGROK connection
+    ngrok_api_url = None
+    if not no_ngrok:
+        ngrok_api_url = _run_ngrok(port)
+        click.secho(f"🌎 Public API: {ngrok_api_url}")
 
-    repl = not no_repl = True
-
-    if ngrok or ui:
-        try:
-            from pyngrok import ngrok
-        except BaseException:
-            click.secho("Shut down.")
-            click.secho("⚠️ Unable to create public URL with ngrok. Please either:")
-            click.secho("   1) Install pyngrok (`pip install pyngrok`) and re-run, or")
-            click.secho("   2) Run with the --no_ngrok flag to disable ngrok")
-            exit(1)
-
-        http_tunnel = ngrok.connect(port, bind_tls=True)
-        public_url = http_tunnel.public_url
-        click.secho(f" 🌎 Public URL: {public_url}")
-        base_url = public_url
-        add_port_to_invocable_url = False  # NGROK's URL will redirect to the local port already
-
-    server = SteamshipHTTPServer(
-        invocable_class,
-        base_url=base_url,
-        port=port,
-        invocable_handle=manifest.handle,
-        invocable_version_handle=manifest.version,
-        invocable_instance_handle=instance_handle,
-        config=invocable_config,
-        add_port_to_invocable_url=add_port_to_invocable_url,
+    # Start the local API Server. This has to happen after NGROK because the port & url need to be plummed.
+    local_api_url = _run_local_server(
+        local_port=port,
+        instance_handle=instance_handle,
+        config=config,
         workspace=workspace,
+        base_url=ngrok_api_url,
     )
-    if ui:
-        web_base = DEFAULT_WEB_BASE
-        try:
-            config = Configuration()
-            web_base = config.web_base
-        except BaseException:
-            click.secho(
-                "Warning: unable to read Steamship configuration from disk. Have you logged in with `ship login`?"
-            )
 
-        click.secho("")
-        click.secho("To view the graphical UI, visit: ")
-        click.secho(f"    {web_base}/debug?endpoint={public_url}/answer")
+    if local_api_url:
+        click.secho(f"🌎 Local API: {local_api_url}")
+    else:
+        click.secho("⚠️ Local API:  Unable to start local server.")
 
-    def on_exit(signum, frame):
-        click.secho("Shutting down server.")
-        server.stop()
-        click.secho("Shut down.")
-        exit(1)
+    # Start the web UI
+    web_url = _run_web_interface(ngrok_api_url or local_api_url)
+    if web_url:
+        click.secho(f"🌎 Web UI:  {web_url}")
 
-    signal.signal(signal.SIGINT, on_exit)
-
-    if repl:
-        # TODO Start the local repl
-        pass
-
-    # TODO: Move up
-    click.secho(f"Starting development server on port {server.port}")
-    server.start()
-    click.secho()
-
-    click.secho("Starting HTTP REPL")
-    HttpREPL(f"https://localhost:{server.port}").run()
+    # Start the REPL
+    click.secho("\nStarting REPL -- type below to interact.\n")
+    repl = HttpREPL(ngrok_api_url or local_api_url)
+    repl.run()
 
 
 @click.command()
