@@ -160,7 +160,7 @@ class AgentREPL(SteamshipREPL):
             from termcolor import colored  # noqa: F401
         except ImportError:
 
-            def colored(text: str, color: str):
+            def colored(text: str, color: str, **kwargs):
                 print(text)
 
         print("Starting REPL for Agent...")

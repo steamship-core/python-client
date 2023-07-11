@@ -4,6 +4,7 @@ from steamship import Block, File, PluginInstance, Steamship
 from steamship.agents.schema import LLM, ChatLLM, Tool
 
 PLUGIN_HANDLE = "gpt-4"
+DEFAULT_MAX_TOKENS = 256
 
 
 class OpenAI(LLM):
@@ -24,17 +25,34 @@ class OpenAI(LLM):
         Valid model names are:
          - gpt-4
          - gpt-3.5-turbo
+
+        Supported kwargs include:
+        - `max_tokens` (controls the size of LLM responses)
         """
         client = client
+        max_tokens = DEFAULT_MAX_TOKENS
+        if kwargs.get("max_tokens"):
+            max_tokens = kwargs["max_tokens"]
+
         generator = client.use_plugin(
-            PLUGIN_HANDLE, config={"model": model_name, "temperature": temperature}
+            PLUGIN_HANDLE,
+            config={"model": model_name, "temperature": temperature, "max_tokens": max_tokens},
         )
         super().__init__(client=client, generator=generator, *args, **kwargs)
 
-    def complete(self, prompt: str, stop: Optional[str] = None) -> List[Block]:
+    def complete(self, prompt: str, stop: Optional[str] = None, **kwargs) -> List[Block]:
+        """Completes the prompt, respecting the supplied stop sequence.
+
+        Supported kwargs include:
+        - `max_tokens` (controls the size of LLM responses)
+        """
         options = {}
         if stop:
             options["stop"] = stop
+
+        if kwargs.get("max_tokens"):
+            options["max_tokens"] = kwargs["max_tokens"]
+
         action_task = self.generator.generate(text=prompt, options=options)
         action_task.wait()
         return action_task.output.blocks
@@ -43,19 +61,25 @@ class OpenAI(LLM):
 class ChatOpenAI(ChatLLM, OpenAI):
     """ChatLLM that uses Steamship's OpenAI plugin to generate chat completions."""
 
-    def __init__(
-        self, client, model_name: str = "gpt-4-0613", temperature: float = 0.4, *args, **kwargs
-    ):
+    def __init__(self, client, model_name: str = "gpt-4-0613", *args, **kwargs):
         """Create a new instance.
 
         Valid model names are:
          - gpt-4
          - gpt-4-0613
+
+        Supported kwargs include:
+        - `max_tokens` (controls the size of LLM responses)
         """
         super().__init__(client=client, model_name=model_name, *args, **kwargs)
 
-    def chat(self, messages: List[Block], tools: Optional[List[Tool]]) -> List[Block]:
-        # TODO(dougreid): this feels icky. find a better way?
+    def chat(self, messages: List[Block], tools: Optional[List[Tool]], **kwargs) -> List[Block]:
+        """Sends chat messages to the LLM with functions from the supplied tools in a side-channel.
+
+        Supported kwargs include:
+        - `max_tokens` (controls the size of LLM responses)
+        """
+
         temp_file = File.create(client=self.client, blocks=messages)
 
         options = {}
@@ -64,6 +88,9 @@ class ChatOpenAI(ChatLLM, OpenAI):
             for tool in tools:
                 functions.append(tool.as_openai_function())
             options["functions"] = functions
+
+        if kwargs.get("max_tokens"):
+            options["max_tokens"] = kwargs["max_tokens"]
 
         tool_selection_task = self.generator.generate(input_file_id=temp_file.id, options=options)
         tool_selection_task.wait()
