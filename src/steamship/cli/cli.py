@@ -79,7 +79,8 @@ def ships():
 def serve_local(
     port: int = 8080,
     instance_handle: Optional[str] = None,
-    ngrok: Optional[bool] = False,
+    no_ngrok: Optional[bool] = False,
+    no_repl: Optional[bool] = False,
     ui: Optional[bool] = True,
     config: Optional[str] = None,
     workspace: Optional[str] = None,
@@ -96,6 +97,14 @@ def serve_local(
     set_unset_params(config, invocable_config, is_file, manifest)
     add_port_to_invocable_url = True
 
+    # Always use the UI
+    ui = True
+
+    # Default to using ngrok
+    ngrok = not no_ngrok
+
+    repl = not no_repl = True
+
     if ngrok or ui:
         try:
             from pyngrok import ngrok
@@ -103,7 +112,7 @@ def serve_local(
             click.secho("Shut down.")
             click.secho("⚠️ Unable to create public URL with ngrok. Please either:")
             click.secho("   1) Install pyngrok (`pip install pyngrok`) and re-run, or")
-            click.secho("   2) Run without the --ngrok flag")
+            click.secho("   2) Run with the --no_ngrok flag to disable ngrok")
             exit(1)
 
         http_tunnel = ngrok.connect(port, bind_tls=True)
@@ -145,6 +154,11 @@ def serve_local(
 
     signal.signal(signal.SIGINT, on_exit)
 
+    if repl:
+        # TODO Start the local repl
+        pass
+
+    # TODO: Move up
     click.secho(f"Starting development server on port {server.port}")
     server.start()
     click.secho()
