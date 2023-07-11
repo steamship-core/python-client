@@ -50,6 +50,8 @@ AgentService
 
 The AgentService class provides a convenient way to deploy an Agent as a Steamship :ref:`Package<Packages>`.
 
+At a minimum, all  :class:`steamship.agents.service.agent_service.AgentService` implementations implement a ``prompt(self, prompt: str, **kwargs) -> List[Block]`` method that accepts an inbound ``str`` in the form of a user message and produces a list of multimodal ``Block`` objects which represent the response.
+
 TelegramAgentService
 --------------------
 
