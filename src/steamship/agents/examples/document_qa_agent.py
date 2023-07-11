@@ -1,5 +1,5 @@
-from steamship.agents.llms.openai import OpenAI
-from steamship.agents.react import ReACTAgent
+from steamship.agents.functional import FunctionsBasedAgent
+from steamship.agents.llms.openai import ChatOpenAI
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.tools.question_answering import VectorSearchQATool
 from steamship.invocable.mixins.blockifier_mixin import BlockifierMixin
@@ -41,18 +41,11 @@ class ExampleDocumentQAService(AgentService):
         # That vector index is then available to the question answering tool, below.
         self.add_mixin(IndexerPipelineMixin(self.client, self))
 
-        # A ReACTAgent is an agent that is able to:
-        #    1) Converse with you, casually... but also
-        #    2) Use tools that have been provided to it, such as QA tools or Image Generation tools
-        #
-        # This particular ReACTAgent has been provided with a single tool which will be used whenever
-        # the user answers a question. But you can extend this with more tools if you wish. For example,
-        # you could add tools to generate images, or search Google, or register an account.
-        self._agent = ReACTAgent(
+        self._agent = FunctionsBasedAgent(
             tools=[
                 VectorSearchQATool(),  # Tool to answer questions based on a vector store.
             ],
-            llm=OpenAI(self.client),
+            llm=ChatOpenAI(self.client),
         )
 
 

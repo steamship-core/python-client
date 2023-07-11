@@ -193,7 +193,10 @@ def serve(
 
         click.secho("")
         click.secho("To view the graphical UI, visit: ")
-        click.secho(f"    {web_base}/debug?endpoint={public_url}/answer")
+        if web_base.endswith("/"):
+            click.secho(f"    {web_base}debug?endpoint={public_url}/answer")
+        else:
+            click.secho(f"    {web_base}/debug?endpoint={public_url}/answer")
 
     def on_exit(signum, frame):
         click.secho("Shutting down server.")
