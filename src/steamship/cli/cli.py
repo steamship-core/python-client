@@ -83,7 +83,7 @@ def _display_server_endpoints(local_api_url=None, ngrok_api_url=None):
     if local_api_url or ngrok_api_url:
         web_url = f"{web_base}/debug?endpoint={ngrok_api_url or local_api_url}/answer"
 
-    print("Running your project..\n")
+    print("Serving your Agent..\n")
 
     if ngrok_api_url:
         print(f"🌎 Public API: {ngrok_api_url}")
@@ -201,7 +201,7 @@ def serve_local(
     instance_handle: Optional[str] = None,
     no_ngrok: Optional[bool] = False,
     no_repl: Optional[bool] = False,
-    ui: Optional[bool] = True,
+    no_ui: Optional[bool] = False,
     config: Optional[str] = None,
     workspace: Optional[str] = None,
 ):
@@ -231,14 +231,16 @@ def serve_local(
         click.secho("⚠️ Local API:  Unable to start local server.")
 
     # Start the web UI
-    web_url = _run_web_interface(ngrok_api_url or local_api_url)
-    if web_url:
-        click.secho(f"🌎 Web UI:  {web_url}")
+    if not no_ui:
+        web_url = _run_web_interface(ngrok_api_url or local_api_url)
+        if web_url:
+            click.secho(f"🌎 Web UI:  {web_url}")
 
     # Start the REPL
-    click.secho("\nStarting REPL -- type below to interact.\n")
-    repl = HttpREPL(ngrok_api_url or local_api_url)
-    repl.run()
+    if not no_repl:
+        click.secho("\n💬 Interactive REPL below. Type to interact.\n")
+        repl = HttpREPL(ngrok_api_url or local_api_url)
+        repl.run()
 
 
 @click.command()
