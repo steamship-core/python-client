@@ -14,10 +14,10 @@ class ExampleDocumentQAService(AgentService):
 
     - A few authenticated endpoints for learning PDF and YouTube documents:
 
-         /learn_url
+         /index_url
         { url }
 
-        /learn_text
+        /index_text
         { text }
 
     - An unauthenticated endpoint for answering questions about what it has learned
