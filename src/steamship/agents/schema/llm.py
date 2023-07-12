@@ -13,7 +13,7 @@ class LLM(BaseModel, ABC):
     They may be used with LLMAgents in Action selection, or for direct prompt completion."""
 
     @abstractmethod
-    def complete(self, prompt: str, stop: Optional[str] = None) -> List[Block]:
+    def complete(self, prompt: str, stop: Optional[str] = None, **kwargs) -> List[Block]:
         """Completes the provided prompt, stopping when the stop sequeunce is found."""
         pass
 
@@ -25,6 +25,6 @@ class ChatLLM(BaseModel, ABC):
     They may be used with Agents in Action selection, or for direct prompt completion."""
 
     @abstractmethod
-    def chat(self, messages: List[Block], tools: Optional[List[Tool]]) -> List[Block]:
+    def chat(self, messages: List[Block], tools: Optional[List[Tool]], **kwargs) -> List[Block]:
         """Sends the set of chat messages to the LLM, returning the next part of the conversation"""
         pass
