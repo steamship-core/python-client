@@ -9,7 +9,10 @@ from steamship.data.tags.tag_constants import RoleTag
 
 
 def is_punctuation(text: str):
-    return text in string.punctuation
+    for c in text:
+        if c not in string.punctuation:
+            return False
+    return True
 
 
 class FunctionsBasedOutputParser(OutputParser):
