@@ -31,6 +31,7 @@ from steamship.cli.utils import find_api_py, get_api_module
 from steamship.data.manifest import DeployableType, Manifest
 from steamship.data.user import User
 from steamship.invocable.lambda_handler import get_class_from_module
+from steamship.utils.repl import HttpREPL
 
 
 @click.group()
@@ -134,7 +135,10 @@ def serve_local(
 
         click.secho("")
         click.secho("To view the graphical UI, visit: ")
-        click.secho(f"    {web_base}/debug?endpoint={public_url}/answer")
+        if web_base.endswith("/"):
+            click.secho(f"    {web_base}debug?endpoint={public_url}/answer")
+        else:
+            click.secho(f"    {web_base}/debug?endpoint={public_url}/answer")
 
     def on_exit(signum, frame):
         click.secho("Shutting down server.")
@@ -147,6 +151,9 @@ def serve_local(
     click.secho(f"Starting development server on port {server.port}")
     server.start()
     click.secho()
+
+    click.secho("Starting HTTP REPL")
+    HttpREPL(f"https://localhost:{server.port}").run()
 
 
 @click.command()
