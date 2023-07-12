@@ -39,6 +39,7 @@ def make_handler(  # noqa: C901
     invocable_instance_handle: str = None,
     config: dict = None,
     add_port_to_invocable_url: bool = True,  # The invocable url represents the external URL, which may be NGROK
+    workspace: str = None,
 ):
     """Creates and returns a SimpleHTTPRequestHandler class for an Invocable (package or plugin).
 
@@ -79,7 +80,7 @@ def make_handler(  # noqa: C901
             for h in self.headers:
                 if h.lower() == "authorization":
                     api_key = re.sub(r"^[Bb]earer\s+", "", self.headers[h])
-            return Steamship(api_key=api_key)
+            return Steamship(api_key=api_key, workspace=workspace)
 
         def _get_invocation_context(self, client) -> InvocationContext:
             nonlocal user_for_key
