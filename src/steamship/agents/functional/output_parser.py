@@ -27,15 +27,15 @@ class FunctionsBasedOutputParser(OutputParser):
             )
 
         input_blocks = []
-        arguments = fc.get("arguments", "")
-        args = json.loads(arguments)
-        # TODO(dougreid): validation and error handling?
+        arguments = fc.get("arguments")
+        if arguments:
+            args = json.loads(arguments)
+            # TODO(dougreid): validation and error handling?
 
-        if text := args.get("text"):
-            input_blocks.append(Block(text=text, mime_type=MimeTypes.TXT))
-        else:
-            uuid = args.get("uuid")
-            input_blocks.append(Block.get(context.client, id=uuid))
+            if text := args.get("text"):
+                input_blocks.append(Block(text=text, mime_type=MimeTypes.TXT))
+            elif uuid := args.get("uuid"):
+                input_blocks.append(Block.get(context.client, _id=uuid))
 
         return Action(tool=tool, input=input_blocks, context=context)
 
@@ -84,6 +84,7 @@ class FunctionsBasedOutputParser(OutputParser):
         if "function_call" in text:
             return self._extract_action_from_function_call(text, context)
 
-        finish_block = Block(text=text)
-        finish_block.set_chat_role(RoleTag.ASSISTANT)
-        return FinishAction(output=[finish_block], context=context)
+        finish_blocks = FunctionsBasedOutputParser._blocks_from_text(context.client, text)
+        for finish_block in finish_blocks:
+            finish_block.set_chat_role(RoleTag.ASSISTANT)
+        return FinishAction(output=finish_blocks, context=context)
