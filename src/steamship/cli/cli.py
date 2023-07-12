@@ -76,73 +76,15 @@ def ships():
     click.secho()
 
 
-@click.command()
-@click.option(
-    "--port",
-    "-p",
-    type=int,
-    default=8080,
-    help="Port to host the server on.",
-)
-@click.option(
-    "--invocable_handle",
-    "-i",
-    type=str,
-    default=None,
-    help="Handle of the package or plugin being hosted.",
-)
-@click.option(
-    "--invocable_version_handle",
-    "-v",
-    type=str,
-    default=None,
-    help="Handle of the package or plugin version being hosted.",
-)
-@click.option(
-    "--invocable_instance_handle",
-    "-h",
-    type=str,
-    default=None,
-    help="Handle of the package or plugin instance being hosted.",
-)
-@click.option(
-    "--api_key",
-    "-k",
-    type=str,
-    default=None,
-    help="API Key to hard-code for hosting.",
-)
-@click.option(
-    "--ngrok",
-    "-n",
-    is_flag=True,
-    help="Whether to create a public ngrok URL.",
-)
-@click.option(
-    "--ui",
-    "-u",
-    is_flag=True,
-    help="Whether to connect to graphical interface.",
-)
-@click.option(
-    "--config",
-    "-c",
-    type=str,
-    required=False,
-    help="Instance configuration. May be inline JSON or a path to a file. If not specified, "
-    "an empty configuration dictionary will be passed to the instance.",
-)
-def serve(
+def serve_local(
     port: int = 8080,
-    invocable_handle: Optional[str] = None,
-    invocable_version_handle: Optional[str] = None,
-    invocable_instance_handle: Optional[str] = None,
-    api_key: Optional[str] = None,
+    instance_handle: Optional[str] = None,
     ngrok: Optional[bool] = False,
     ui: Optional[bool] = True,
     config: Optional[str] = None,
+    workspace: Optional[str] = None,
 ):
-    """Serve the local invocable"""
+    """Serve the invocable on localhost. Useful for debugging locally."""
     initialize()
     path = find_api_py()
     api_module = get_api_module(path)
@@ -174,12 +116,12 @@ def serve(
         invocable_class,
         base_url=base_url,
         port=port,
-        invocable_handle=invocable_handle,
-        invocable_version_handle=invocable_version_handle,
-        invocable_instance_handle=invocable_instance_handle,
-        default_api_key=api_key,
+        invocable_handle=manifest.handle,
+        invocable_version_handle=manifest.version,
+        invocable_instance_handle=instance_handle,
         config=invocable_config,
         add_port_to_invocable_url=add_port_to_invocable_url,
+        workspace=workspace,
     )
     if ui:
         web_base = DEFAULT_WEB_BASE
@@ -212,6 +154,83 @@ def serve(
 
     click.secho("Starting HTTP REPL")
     HttpREPL(f"https://localhost:{server.port}").run()
+
+
+@click.command()
+@click.option(
+    "--port",
+    "-p",
+    type=int,
+    default=8443,
+    help="Port to host the server on.",
+)
+@click.option(
+    "--instance_handle",
+    "-h",
+    type=str,
+    default=None,
+    help="Handle of the package or plugin instance being hosted.",
+)
+@click.option(
+    "--ngrok",
+    "-n",
+    is_flag=True,
+    default=True,
+    help="Whether to create a public ngrok URL.",
+)
+@click.option(
+    "--ui",
+    "-u",
+    is_flag=True,
+    default=True,
+    help="Whether to connect to graphical interface.",
+)
+@click.option(
+    "--config",
+    "-c",
+    type=str,
+    required=False,
+    help="Instance configuration. May be inline JSON or a path to a file. If not specified, "
+    "an empty configuration dictionary will be passed to the instance.",
+)
+@click.option(
+    "--workspace",
+    "-w",
+    required=False,
+    type=str,
+    help="Workspace handle. The new instance will be created in this workspace. If not specified, "
+    "the default workspace will be used.",
+)
+@click.argument(
+    "environment", required=True, type=click.Choice(["local", "remote"], case_sensitive=False)
+)
+@click.pass_context
+def run(
+    ctx,
+    environment: str,
+    port: int = 8080,
+    instance_handle: Optional[str] = None,
+    ngrok: Optional[bool] = False,
+    ui: Optional[bool] = True,
+    config: Optional[str] = None,
+    workspace: Optional[str] = None,
+):
+    """Serve your invocable locally or on prod"""
+    if environment == "local":
+        serve_local(
+            port=port,
+            instance_handle=instance_handle,
+            ngrok=ngrok,
+            ui=ui,
+            config=config,
+            workspace=workspace,
+        )
+    else:
+        if click.confirm("Do you want to deploy a new version first?", default=False):
+            ctx.invoke(deploy)
+        ctx.invoke(
+            create_instance, workspace=workspace, instance_handle=instance_handle, config=config
+        )
 
 
 @click.command()
@@ -415,9 +434,5 @@ cli.add_command(info)
 cli.add_command(deploy, name="it")
 cli.add_command(ships)
 cli.add_command(logs)
-cli.add_command(serve)
+cli.add_command(run)
 cli.add_command(create_instance, name="use")
-
-
-if __name__ == "__main__":
-    serve([])
