@@ -36,7 +36,7 @@ release = version
 # setup.py install" in the RTD Advanced Settings.
 # Additionally it helps us to avoid running apidoc manually
 
-output_dir = os.path.join(__location__, "api")
+output_dir = os.path.join(__location__, "reference/api")
 module_dir = os.path.join(__location__, "../src/steamship")
 try:
     shutil.rmtree(output_dir)
@@ -50,7 +50,7 @@ try:
     cmd_line_template = "sphinx-apidoc --implicit-namespaces -f -o {outputdir} {moduledir}"
     cmd_line = cmd_line_template.format(outputdir=output_dir, moduledir=module_dir)
 
-    print(f"Funning: {cmd_line}")
+    print(f"Running: {cmd_line}")
 
     args = cmd_line.split(" ")
     if tuple(sphinx.__version__.split(".")) >= ("1", "7"):
@@ -101,7 +101,7 @@ master_doc = "index"
 # General information about the project.
 project = "steamship"
 # noinspection PyShadowingBuiltins
-copyright = "2022, Steamship Inc."
+copyright = "2023, Steamship Inc."
 author = "Steamship"
 
 # The version info for the project you're documenting, acts as replacement for

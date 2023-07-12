@@ -5,6 +5,7 @@ ROOT_PATH = Path(__file__).parent.parent.parent
 VENV_PATH = ROOT_PATH / ".venv"
 SRC_PATH = ROOT_PATH / "src"
 TEST_PATH = Path(__file__).parent.parent
+DOCS_PATH = ROOT_PATH / "docs"
 TEST_ASSETS_PATH = TEST_PATH / "assets"
 PACKAGES_PATH = TEST_ASSETS_PATH / "packages"
 PLUGINS_PATH = TEST_ASSETS_PATH / "plugins"
