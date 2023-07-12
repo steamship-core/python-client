@@ -31,7 +31,7 @@ class OpenAI(LLM):
         """
         client = client
         max_tokens = DEFAULT_MAX_TOKENS
-        if kwargs.get("max_tokens"):
+        if "max_tokens" in kwargs:
             max_tokens = kwargs["max_tokens"]
 
         generator = client.use_plugin(
@@ -50,7 +50,7 @@ class OpenAI(LLM):
         if stop:
             options["stop"] = stop
 
-        if kwargs.get("max_tokens"):
+        if "max_tokens" in kwargs:
             options["max_tokens"] = kwargs["max_tokens"]
 
         action_task = self.generator.generate(text=prompt, options=options)
@@ -89,7 +89,7 @@ class ChatOpenAI(ChatLLM, OpenAI):
                 functions.append(tool.as_openai_function())
             options["functions"] = functions
 
-        if kwargs.get("max_tokens"):
+        if "max_tokens" in kwargs:
             options["max_tokens"] = kwargs["max_tokens"]
 
         tool_selection_task = self.generator.generate(input_file_id=temp_file.id, options=options)
