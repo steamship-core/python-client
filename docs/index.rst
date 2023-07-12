@@ -89,14 +89,10 @@ Contents
 .. toctree::
    :maxdepth: 4
 
-   Configuration <configuration/index>
-   Agents <agents/index>
-   Packages <packages/index>
-   Plugins <plugins/index>
-   Data <data/index>
-   Embedding Search Index <embedding-search/index>
-   Developer Reference <developing/index>
-   Python Client Reference <api/modules>
+   Concepts <concepts/index>
+   Getting Started <getting-started/index>
+   How-To Guides <how-to/index>
+   Reference <reference/index>
    License <license>
    Authors <authors>
 
