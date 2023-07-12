@@ -1,3 +1,4 @@
+import logging
 import socketserver
 import threading
 from socketserver import TCPServer
@@ -74,32 +75,31 @@ class SteamshipHTTPServer:
             workspace=self.workspace,
         )
 
-        server = ThreadedTCPServer(("", self.port), handler)
-        with server:
-            # ip, port = server.server_address
-            self.server = server
+        self.server = ThreadedTCPServer(("", self.port), handler)
+        self.server.allow_reuse_address = True
 
-            # Start a thread with the server -- that thread will then start one
-            # more thread for each request
-            self.server_thread = threading.Thread(target=self.server.serve_forever)
-            # Exit the server thread when the main thread terminates
-            self.server_thread.daemon = True
-            self.server_thread.start()
+        # Start a thread with the server -- that thread will then start one
+        # more thread for each request
+        self.server_thread = threading.Thread(target=self.server.serve_forever)
+        # Exit the server thread when the main thread terminates
+        self.server_thread.daemon = True
+        self.server_thread.start()
+        logging.info(f"Started local server thread on port {self.port}.")
 
-            # Call the __dir__ method
-            context = InvocationContext(invocable_url=f"{self.base_url}/")
+        # Call the __dir__ method
+        context = InvocationContext(invocable_url=f"{self.base_url}/")
 
-            invocation = Invocation(
-                http_verb="POST", invocation_path="__dir__", arguments={}, config=self.config
-            )
-            event = InvocableRequest(
-                client_config=Steamship(workspace=self.workspace).config,
-                invocation=invocation,
-                logging_config=LoggingConfig(logging_host=None, logging_port=None),
-                invocation_context=context,
-            )
-            handler = create_safe_handler(self.invocable)
-            handler(event.dict(by_alias=True), context)
+        invocation = Invocation(
+            http_verb="POST", invocation_path="__dir__", arguments={}, config=self.config
+        )
+        event = InvocableRequest(
+            client_config=Steamship(workspace=self.workspace).config,
+            invocation=invocation,
+            logging_config=LoggingConfig(logging_host=None, logging_port=None),
+            invocation_context=context,
+        )
+        handler = create_safe_handler(self.invocable)
+        handler(event.dict(by_alias=True), context)
 
     def stop(self):
         """Stop the server.

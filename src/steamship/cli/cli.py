@@ -30,6 +30,7 @@ from steamship.cli.ship_spinner import ship_spinner
 from steamship.cli.utils import find_api_py, get_api_module
 from steamship.data.manifest import DeployableType, Manifest
 from steamship.data.user import User
+from steamship.invocable.dev_logging_handler import DevelopmentLoggingHandler
 from steamship.invocable.lambda_handler import get_class_from_module
 from steamship.utils.repl import HttpREPL
 
@@ -76,34 +77,6 @@ def ships():
     click.secho()
 
 
-def _display_server_endpoints(local_api_url=None, ngrok_api_url=None):
-    web_base = DEFAULT_WEB_BASE
-    web_url = None
-
-    if local_api_url or ngrok_api_url:
-        web_url = f"{web_base}/debug?endpoint={ngrok_api_url or local_api_url}/answer"
-
-    print("Serving your Agent..\n")
-
-    if ngrok_api_url:
-        print(f"🌎 Public API: {ngrok_api_url}")
-
-    else:
-        print(
-            "⚠️ Public API: Unable to start ngrok. Try `pip install pyngrok` or use a different --port "
-        )
-
-    if local_api_url:
-        print(f"🌎 Local API: {local_api_url}")
-    else:
-        print("⚠️ Local API:  Unable to start local server.")
-
-    if web_url:
-        print(f"🌎 Web UI:  {web_url}")
-    else:
-        print("⚠️ Web UI:  Unable to start web interface.")
-
-
 def _run_ngrok(local_port: int) -> str:
     """Create an NGROK URL directed at `local_port`."""
     try:
@@ -135,6 +108,10 @@ def _run_local_server(
     ] = None,  # If provided, will override the default calculation, eg for ngrok
 ) -> str:
     """Start the local API Server."""
+    logging.info(
+        f"Starting local server. port={local_port}, instance_handle={instance_handle}, workspace={workspace}"
+    )
+
     path = find_api_py()
     api_module = get_api_module(path)
     invocable_class = get_class_from_module(api_module)
@@ -142,7 +119,10 @@ def _run_local_server(
     # Use the provided base url (e.g. from NGROK) or default to localhost
     _base_url = base_url or "http://localhost"
 
+    logging.info(f"Local server base URL (for PackageService configuration) is {_base_url}")
+
     if not invocable_class:
+        logging.error("Local server startup unable to find Steamship service.")
         click.secho("⚠️ Local API: Unable to find Steamship service. Please:")
         click.secho(
             "   - Check to see that you have an api.py file containing an AgentService or PackageService "
@@ -152,6 +132,7 @@ def _run_local_server(
     manifest = load_manifest()
 
     if not manifest:
+        logging.error("Local server startup unable to find Steamship manifest.")
         click.secho("⚠️ Local API: Unable to find your steamship.json file")
         exit(1)
 
@@ -170,20 +151,29 @@ def _run_local_server(
     )
     server.start()
 
+    logging.info("Local server running.")
+
     def on_exit(signum, frame):
+        logging.info("Local server shutting down.")
         click.secho("Shutting down server.")
         server.stop()
         click.secho("Shut down.")
+        logging.info("Local server shut down complete.")
         exit(1)
 
     signal.signal(signal.SIGINT, on_exit)
 
     local_api_url = f"http://localhost:{server.port}"
+
+    logging.info(f"Local server address: {local_api_url}")
+
     return local_api_url
 
 
 def _run_web_interface(base_url: str) -> str:
     web_base = DEFAULT_WEB_BASE
+    logging.info(f"Starting web interface. web_base={web_base} and base_url={base_url}")
+
     try:
         config = Configuration()
         web_base = config.web_base
@@ -193,7 +183,10 @@ def _run_web_interface(base_url: str) -> str:
             "   - Run `ship login` to make sure you have Steamship credentials in your environment."
         )
 
-    return f"{web_base}/debug?endpoint={base_url}/prompt"
+    web_url = f"{web_base}/debug?endpoint={base_url}/prompt"
+    logging.info(f"Web interface url is: {web_url}")
+
+    return web_url
 
 
 def serve_local(
@@ -206,9 +199,13 @@ def serve_local(
     workspace: Optional[str] = None,
 ):
     """Serve the invocable on localhost. Useful for debugging locally."""
-    initialize()
+    dev_logging_handler = DevelopmentLoggingHandler.init_and_take_root()
 
+    initialize()
     click.secho("Running your project..\n")
+
+    # Report the logs
+    click.secho(f"📝 Log file:   {dev_logging_handler.log_filename}")
 
     # Start the NGROK connection
     ngrok_api_url = None
@@ -226,7 +223,7 @@ def serve_local(
     )
 
     if local_api_url:
-        click.secho(f"🌎 Local API: {local_api_url}")
+        click.secho(f"🌎 Local API:  {local_api_url}")
     else:
         click.secho("⚠️ Local API:  Unable to start local server.")
 
@@ -234,12 +231,13 @@ def serve_local(
     if not no_ui:
         web_url = _run_web_interface(ngrok_api_url or local_api_url)
         if web_url:
-            click.secho(f"🌎 Web UI:  {web_url}")
+            click.secho(f"🌎 Web UI:     {web_url}")
 
     # Start the REPL
     if not no_repl:
         click.secho("\n💬 Interactive REPL below. Type to interact.\n")
-        repl = HttpREPL(ngrok_api_url or local_api_url)
+        prompt_url = f"{local_api_url or ngrok_api_url}/prompt"
+        repl = HttpREPL(prompt_url=prompt_url, dev_logging_handler=dev_logging_handler)
         repl.run()
 
 
@@ -326,6 +324,9 @@ def serve(
         ctx.invoke(
             create_instance, workspace=workspace, instance_handle=instance_handle, config=config
         )
+
+    click.secho("Starting HTTP REPL")
+    HttpREPL(f"https://localhost:{port}").run()
 
 
 @click.command()

@@ -22,7 +22,9 @@ class MyAssistant(AgentService):
                 SearchTool(),
                 DalleTool(),
             ],
-            llm=OpenAI(self.client, temperature=0, model_name="gpt-4-0613"),
+            llm=OpenAI(
+                self.client, temperature=0, model_name="gpt-4-0314"
+            ),  # MUST PIN to older model
             conversation_memory=MessageWindowMessageSelector(k=2),
         )
 

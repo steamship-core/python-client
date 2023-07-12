@@ -5,7 +5,14 @@ from steamship.agents.schema import LLM, Action, AgentContext, LLMAgent, Tool
 
 
 class ReACTAgent(LLMAgent):
-    """Selects actions for AgentService based on a ReACT style LLM Prompt and a configured set of Tools."""
+    """Selects actions for AgentService based on a ReACT style LLM Prompt and a configured set of Tools.
+
+    NOTE: Deprecated. Use at your own risk.
+
+    WARNING: This model should only be used with LLMs that use the older model versions of gpt-4 (gpt-4-0314)
+    and gpt-3.5-turbo (gpt-3.5-turbo-0301). Those models will be discontinued on 9-13-2023. Use of this agent
+    after that date will likely lead to complete reasoning failures.
+    """
 
     PROMPT = """Assistant is a large language model trained by OpenAI.
 Assistant is designed to be able to assist with a wide range of tasks, from answering simple questions to providing in-depth explanations and discussions on a wide range of topics. As a language model, Assistant is able to generate human-like text based on the input it receives, allowing it to engage in natural-sounding conversations and provide responses that are coherent and relevant to the topic at hand.

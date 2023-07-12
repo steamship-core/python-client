@@ -2,11 +2,12 @@ import abc
 import contextlib
 import logging
 from abc import ABC
+from json import JSONDecodeError
 from typing import Any, Dict, List, Optional, Type, Union, cast
 
 import requests
 
-from steamship import Block, Steamship, Task
+from steamship import Block, Steamship, Task, TaskState
 from steamship.agents.logging import AgentLogging
 from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.service.agent_service import AgentService
@@ -27,12 +28,15 @@ class SteamshipREPL(ABC):
     client: Steamship
     dev_logging_handler: DevelopmentLoggingHandler
 
-    def __init__(self, log_level=None):
-        logger = logging.getLogger()
-        logger.handlers.clear()
-        logger.setLevel(log_level or logging.DEBUG)
-        dev_logging_handler = DevelopmentLoggingHandler()
-        logger.addHandler(dev_logging_handler)
+    def __init__(
+        self,
+        log_level=None,
+        dev_logging_handler=None,
+    ):
+        if not dev_logging_handler:
+            self.dev_logging_handler = DevelopmentLoggingHandler.init_and_take_root()
+        else:
+            self.dev_logging_handler = dev_logging_handler
 
     def print_string(self, output: str, metadata: Optional[Dict[str, Any]] = None):
         """Print a string to console. All REPL output should ideally route through this method."""
@@ -111,8 +115,8 @@ class ToolREPL(SteamshipREPL):
     tool: Tool
     client = Steamship
 
-    def __init__(self, tool: Tool, client: Optional[Steamship] = None):
-        super().__init__()
+    def __init__(self, tool: Tool, client: Optional[Steamship] = None, **kwargs):
+        super().__init__(**kwargs)
         self.tool = tool
         self.client = client or Steamship()
 
@@ -147,8 +151,9 @@ class AgentREPL(SteamshipREPL):
         method: Optional[str] = None,
         agent_package_config: Optional[Dict[str, Any]] = None,
         client: Optional[Steamship] = None,
+        **kwargs,
     ):
-        super().__init__()
+        super().__init__(**kwargs)
         self.agent_class = agent_class
         self.method = method
         self.client = client or Steamship()
@@ -188,16 +193,12 @@ class HttpREPL(SteamshipREPL):
     client = Steamship
     config = None
 
-    def __init__(
-        self,
-        prompt_url: str,
-        client: Optional[Steamship] = None,
-    ):
-        super().__init__()
+    def __init__(self, prompt_url: str, client: Optional[Steamship] = None, **kwargs):
+        super().__init__(**kwargs)
         self.prompt_url = prompt_url
         self.client = client or Steamship()
 
-    def run_with_client(self, client: Steamship, **kwargs):
+    def run_with_client(self, client: Steamship, **kwargs):  # noqa: C901
         try:
             from termcolor import colored  # noqa: F401
         except ImportError:
@@ -207,7 +208,6 @@ class HttpREPL(SteamshipREPL):
 
         print("Starting REPL for Agent...")
         print("If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n")
-
         while True:
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
             resp = requests.post(
@@ -215,13 +215,38 @@ class HttpREPL(SteamshipREPL):
                 json={"prompt": input_text},
                 headers={
                     "Content-Type": "application/json",
-                    "Authorization": f"Bearer {self.client.config.api_key}",
+                    "Authorization": f"Bearer {self.client.config.api_key.get_secret_value()}",
                 },
             )
-            result = resp.json()
-            print(result)
 
-            self.print_object_or_objects(result)
+            result = None
+
+            if not resp.ok:
+                logging.error(
+                    f"Request to AgentService failed with HTTP Status {resp.status_code}."
+                )
+                logging.error(f"Message: {resp.text}")
+            try:
+                result = resp.json()
+            except JSONDecodeError as ex:
+                logging.exception(ex)
+            except BaseException as ex:
+                logging.exception(ex)
+
+            if result:
+                if result.get("status", {}).get("state", None) == TaskState.failed:
+                    message = result.get("status", {}).get("status_message", None)
+                    logging.error(f"Response failed with remote error: {message or 'No message'}")
+                    if suggestion := result.get("status", {}).get("status_suggestion", None):
+                        logging.error(f"Suggestion: {suggestion}")
+                elif data := result.get("data", None):
+                    self.print_object_or_objects(data)
+                else:
+                    logging.warning(
+                        "REPL interaction completed with empty data field in InvocableResponse."
+                    )
+            else:
+                logging.warning("REPL interaction completed with no result to print.")
 
     def run(self, **kwargs):
         with self.temporary_workspace() as client:

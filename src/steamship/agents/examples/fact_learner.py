@@ -1,5 +1,5 @@
-from steamship.agents.llms.openai import OpenAI
-from steamship.agents.react import ReACTAgent
+from steamship.agents.functional import FunctionsBasedAgent
+from steamship.agents.llms.openai import ChatOpenAI
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.tools.question_answering import VectorSearchQATool
 from steamship.agents.tools.question_answering.vector_search_learner_tool import (
@@ -16,12 +16,12 @@ class FactLearner(AgentService):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._agent = ReACTAgent(
+        self._agent = FunctionsBasedAgent(
             tools=[
                 VectorSearchLearnerTool(),
                 VectorSearchQATool(),
             ],
-            llm=OpenAI(self.client, model_name="gpt-4-0613"),
+            llm=ChatOpenAI(self.client),
         )
 
 
