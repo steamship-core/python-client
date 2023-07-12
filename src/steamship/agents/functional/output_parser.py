@@ -27,15 +27,15 @@ class FunctionsBasedOutputParser(OutputParser):
             )
 
         input_blocks = []
-        arguments = fc.get("arguments", "")
-        args = json.loads(arguments)
-        # TODO(dougreid): validation and error handling?
+        arguments = fc.get("arguments")
+        if arguments:
+            args = json.loads(arguments)
+            # TODO(dougreid): validation and error handling?
 
-        if text := args.get("text"):
-            input_blocks.append(Block(text=text, mime_type=MimeTypes.TXT))
-        else:
-            uuid = args.get("uuid")
-            input_blocks.append(Block.get(context.client, id=uuid))
+            if text := args.get("text"):
+                input_blocks.append(Block(text=text, mime_type=MimeTypes.TXT))
+            elif uuid := args.get("uuid"):
+                input_blocks.append(Block.get(context.client, _id=uuid))
 
         return Action(tool=tool, input=input_blocks, context=context)
 
