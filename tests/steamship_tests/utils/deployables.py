@@ -3,7 +3,7 @@ import io
 import os
 import zipfile
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from steamship_tests import ROOT_PATH, SRC_PATH, TEST_ASSETS_PATH
 
@@ -14,7 +14,7 @@ from steamship.data.plugin.plugin_version import PluginVersion
 from steamship.data.user import User
 
 
-def zip_deployable(file_path: Path) -> bytes:
+def zip_deployable(file_path: Path, additional_requirements: Optional[List[str]] = None) -> bytes:
     """Prepare and zip a Steamship plugin."""
 
     package_paths = [
@@ -33,7 +33,13 @@ def zip_deployable(file_path: Path) -> bytes:
                 for file in files:
                     pypi_file = Path(root) / file
                     zip_file.write(pypi_file, pypi_file.relative_to(package_path.parent))
-        zip_file.write(ROOT_PATH / "requirements.txt", "requirements.txt")
+        if additional_requirements is None:
+            zip_file.write(ROOT_PATH / "requirements.txt", "requirements.txt")
+        else:
+            with open(ROOT_PATH / "requirements.txt", "r") as file:
+                requirements_string = file.read()
+            requirements_string += "\n" + "\n".join(additional_requirements)
+            zip_file.writestr("requirements.txt", requirements_string)
 
         # Now we'll copy in the whole assets directory so that our test files can access things there..
         for root, _, files in os.walk(TEST_ASSETS_PATH):

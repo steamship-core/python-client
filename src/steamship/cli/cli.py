@@ -257,25 +257,18 @@ def serve_local(
     help="Handle of the package or plugin instance being hosted.",
 )
 @click.option(
-    "--no_ngrok",
+    "--ngrok",
     "-n",
     is_flag=True,
-    default=False,
-    help="Don't attempt to create an ngrok URL.",
+    default=True,
+    help="Whether to create a public ngrok URL.",
 )
 @click.option(
-    "--no_ui",
+    "--ui",
     "-u",
     is_flag=True,
-    default=False,
-    help="Don't attempt to attach to a web UI.",
-)
-@click.option(
-    "--no_repl",
-    "-r",
-    is_flag=True,
-    default=False,
-    help="Don't start a console REPL.",
+    default=True,
+    help="Whether to connect to graphical interface.",
 )
 @click.option(
     "--config",
@@ -294,17 +287,16 @@ def serve_local(
     "the default workspace will be used.",
 )
 @click.argument(
-    "environment", required=True, type=click.Choice(["local", "prod"], case_sensitive=False)
+    "environment", required=True, type=click.Choice(["local", "remote"], case_sensitive=False)
 )
 @click.pass_context
-def serve(
+def run(
     ctx,
     environment: str,
     port: int = 8080,
     instance_handle: Optional[str] = None,
-    no_ngrok: Optional[bool] = False,
-    no_repl: Optional[bool] = False,
-    no_ui: Optional[bool] = False,
+    ngrok: Optional[bool] = False,
+    ui: Optional[bool] = True,
     config: Optional[str] = None,
     workspace: Optional[str] = None,
 ):
@@ -313,20 +305,17 @@ def serve(
         serve_local(
             port=port,
             instance_handle=instance_handle,
-            no_ngrok=no_ngrok,
-            no_repl=no_repl,
-            no_ui=no_ui,
+            ngrok=ngrok,
+            ui=ui,
             config=config,
             workspace=workspace,
         )
     else:
-        ctx.invoke(deploy)
+        if click.confirm("Do you want to deploy a new version first?", default=False):
+            ctx.invoke(deploy)
         ctx.invoke(
             create_instance, workspace=workspace, instance_handle=instance_handle, config=config
         )
-
-    click.secho("Starting HTTP REPL")
-    HttpREPL(f"https://localhost:{port}").run()
 
 
 @click.command()
@@ -530,8 +519,5 @@ cli.add_command(info)
 cli.add_command(deploy, name="it")
 cli.add_command(ships)
 cli.add_command(logs)
-cli.add_command(serve)
+cli.add_command(run)
 cli.add_command(create_instance, name="use")
-
-if __name__ == "__main__":
-    serve([])

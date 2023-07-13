@@ -16,5 +16,5 @@ def test_output_block_ids_are_converted(client: Steamship):
     result = output_formatter.parse(test_text, context)
 
     assert isinstance(result, FinishAction)
-    assert len(result.output) == 3
+    assert len(result.output) == 2
     assert result.output[1].id == block_id

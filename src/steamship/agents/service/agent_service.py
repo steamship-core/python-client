@@ -135,6 +135,9 @@ class AgentService(PackageService):
         # Now append the output blocks to the chat history
         # TODO: It seems like we've been going from block -> not block -> block here. Opportunity to optimize.
         for output_block in output_blocks:
+            # Need to make the output blocks public here so that they can be copied to the chat history.
+            # They generally need to be public anyway for the REPL to be able to show a clickable link.
+            output_block.set_public_data(True)
             context.chat_history.append_assistant_message(
                 text=output_block.text,
                 tags=output_block.tags,
