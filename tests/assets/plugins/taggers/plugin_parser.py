@@ -1,5 +1,6 @@
 import logging
 import re
+import time
 
 from steamship import Block, DocTag, Tag
 from steamship.data import TagKind
@@ -41,6 +42,7 @@ class TestParserPlugin(Tagger):
     def run(
         self, request: PluginRequest[BlockAndTagPluginInput]
     ) -> InvocableResponse[BlockAndTagPluginOutput]:
+        time.sleep(1)  # simulate longer-running tagging operation
         logging.info(f"Inside parser: {type(request)}")
         file = request.data.file
         for block in file.blocks:
