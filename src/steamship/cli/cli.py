@@ -237,8 +237,11 @@ def serve_local(
         if web_url:
             click.secho(f"🌎 Web UI:     {web_url}")
 
-    # Start the REPL
-    if not no_repl:
+    if no_repl:
+        while True:
+            # We need to make sure the thread doesn't exit.
+            time.sleep(1)
+    else:
         click.secho("\n💬 Interactive REPL below. Type to interact.\n")
         prompt_url = f"{local_api_url or ngrok_api_url}/prompt"
         repl = HttpREPL(prompt_url=prompt_url, dev_logging_handler=dev_logging_handler)

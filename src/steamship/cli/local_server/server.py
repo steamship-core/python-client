@@ -108,14 +108,3 @@ class SteamshipHTTPServer:
         """
         _server = self.server
         _server.shutdown()
-
-        # class ShutdownThread(threading.Thread):
-        #     def __init__(self):
-        #         threading.Thread.__init__(self)
-        #
-        #     def run(self):
-        #         nonlocal _server
-        #         _server.shutdown()
-        #
-        # shutdown_thread = ShutdownThread()
-        # shutdown_thread.start()
