@@ -183,14 +183,18 @@ def _run_web_interface(base_url: str) -> str:
             "   - Run `ship login` to make sure you have Steamship credentials in your environment."
         )
 
-    web_url = f"{web_base}/debug?endpoint={base_url}/prompt"
+    # Guarantee one and only one trailing /
+    if not web_base.endswith("/"):
+        web_base = f"{web_base}/"
+
+    web_url = f"{web_base}debug?endpoint={base_url}/prompt"
     logging.info(f"Web interface url is: {web_url}")
 
     return web_url
 
 
 def serve_local(
-    port: int = 8080,
+    port: int = 8443,
     instance_handle: Optional[str] = None,
     no_ngrok: Optional[bool] = False,
     no_repl: Optional[bool] = False,
@@ -202,7 +206,7 @@ def serve_local(
     dev_logging_handler = DevelopmentLoggingHandler.init_and_take_root()
 
     initialize()
-    click.secho("Running your project..\n")
+    click.secho("Running your project...\n")
 
     # Report the logs
     click.secho(f"📝 Log file:   {dev_logging_handler.log_filename}")
@@ -257,18 +261,22 @@ def serve_local(
     help="Handle of the package or plugin instance being hosted.",
 )
 @click.option(
-    "--ngrok",
-    "-n",
+    "--no-ngrok",
     is_flag=True,
-    default=True,
-    help="Whether to create a public ngrok URL.",
+    default=False,
+    help="Don't attempt to attach to ngrok.",
 )
 @click.option(
-    "--ui",
-    "-u",
+    "--no-ui",
     is_flag=True,
-    default=True,
-    help="Whether to connect to graphical interface.",
+    default=False,
+    help="Don't attempt to attach to a web UI.",
+)
+@click.option(
+    "--no-repl",
+    is_flag=True,
+    default=False,
+    help="Don't start a console REPL.",
 )
 @click.option(
     "--config",
@@ -295,8 +303,9 @@ def run(
     environment: str,
     port: int = 8080,
     instance_handle: Optional[str] = None,
-    ngrok: Optional[bool] = False,
-    ui: Optional[bool] = True,
+    no_ngrok: Optional[bool] = False,
+    no_ui: Optional[bool] = False,
+    no_repl: Optional[bool] = False,
     config: Optional[str] = None,
     workspace: Optional[str] = None,
 ):
@@ -305,8 +314,9 @@ def run(
         serve_local(
             port=port,
             instance_handle=instance_handle,
-            ngrok=ngrok,
-            ui=ui,
+            no_ngrok=no_ngrok,
+            no_repl=no_repl,
+            no_ui=no_ui,
             config=config,
             workspace=workspace,
         )
