@@ -31,14 +31,12 @@ def create_safe_handler(invocable: Type[Invocable] = None):
 
 def make_handler(  # noqa: C901
     invocable_class: Type[Invocable],  # The invocable (package or plugin) that this handler hosts.
-    port: int,
     base_url: Optional[str] = "http://localhost",
     default_api_key: Optional[str] = None,
     invocable_handle: str = None,
     invocable_version_handle: str = None,
     invocable_instance_handle: str = None,
     config: dict = None,
-    add_port_to_invocable_url: bool = True,  # The invocable url represents the external URL, which may be NGROK
     workspace: str = None,
 ):
     """Creates and returns a SimpleHTTPRequestHandler class for an Invocable (package or plugin).
@@ -92,10 +90,7 @@ def make_handler(  # noqa: C901
                 user = User.current(client)
                 user_for_key[client.config.api_key] = user
 
-            if add_port_to_invocable_url:
-                url = f"{base_url}:{port}"
-            else:
-                url = f"{base_url}"
+            url = f"{base_url}"
 
             # Append a trailing slash if not already there.
             if not url.endswith("/"):

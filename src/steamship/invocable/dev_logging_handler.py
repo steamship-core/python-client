@@ -1,4 +1,6 @@
 import logging
+import os
+import time
 from logging import StreamHandler
 from typing import cast
 
@@ -27,13 +29,43 @@ class DevelopmentLoggingHandler(StreamHandler):
 
     log_level: any
     log_level_with_message_type: any
+    file_log_level: any
+    file_handler: logging.FileHandler
+    log_filename: str
 
-    def __init__(self, log_level: any = logging.WARN, log_level_for_messages: any = logging.INFO):
+    def __init__(
+        self,
+        log_level: any = logging.WARN,
+        log_level_for_messages: any = logging.INFO,
+        file_log_level: any = logging.INFO,
+    ):
         StreamHandler.__init__(self)
         formatter = FluentRecordFormatter(LOGGING_FORMAT, fill_missing_fmt_key=True)
         self.setFormatter(formatter)
         self.log_level = log_level
         self.log_level_for_messages = log_level_for_messages
+        self.file_log_level = file_log_level
+
+        timestr = time.strftime("shiplog--%Y-%m-%d--%H:%M:%S.log")
+
+        try:
+            if not os.path.exists("logs"):
+                os.makedirs("logs")
+            self.log_filename = os.path.join("logs", timestr)
+        except BaseException:
+            print("Unable to create logs/ directory to store debugging logs.")
+            self.log_filename = os.path.join("logs", timestr)
+
+        self.file_handler = logging.FileHandler(self.log_filename)
+
+    @staticmethod
+    def init_and_take_root(log_level: any = logging.INFO) -> "DevelopmentLoggingHandler":
+        logger = logging.getLogger()
+        logger.handlers.clear()
+        logger.setLevel(log_level)
+        dev_logging_handler = DevelopmentLoggingHandler()
+        logger.addHandler(dev_logging_handler)
+        return dev_logging_handler
 
     def _emit_regular(self, message_dict: dict):
         level = message_dict.get("level", None)
@@ -60,6 +92,10 @@ class DevelopmentLoggingHandler(StreamHandler):
 
         A future implementation may use a cascade of loggers attached to the AgentContext to do this more cleanly.
         """
+        if self.file_handler and record.levelno >= self.file_log_level:
+            self.file_handler.emit(record)
+            self.file_handler.flush()
+
         message_dict = cast(dict, self.format(record))
 
         # It will be returned as a string representation of a bool

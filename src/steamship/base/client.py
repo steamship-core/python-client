@@ -19,8 +19,6 @@ from steamship.base.request import Request
 from steamship.base.tasks import Task, TaskState
 from steamship.utils.url import Verb, is_local
 
-_logger = logging.getLogger(__name__)
-
 T = TypeVar("T")  # TODO (enias): Do we need this?
 
 

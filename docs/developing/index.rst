@@ -34,8 +34,8 @@ The process for  details are located in the following pages:
    Python Environment Setup <environment-setup>
    Accepting Configuration <configuration>
    Storing Secrets <storing-secrets>
+   Running on Localhost <running>
    Writing Tests <testing>
    Deploying <deploying>
    Monitoring your Instances <monitoring>
-   Updating your Web Listing <updating-web-listing>
 
