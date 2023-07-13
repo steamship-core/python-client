@@ -5,7 +5,7 @@ To run your project on localhost type:
 
 .. code-block:: bash
 
-   ship serve local
+   ship run local
 
 This will start a local instance with a number of ways to interact with it:
 
