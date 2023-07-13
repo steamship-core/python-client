@@ -149,7 +149,22 @@ def _run_local_server(
         config=invocable_config,
         workspace=workspace,
     )
-    server.start()
+    try:
+        server.start()
+    except SteamshipError as e:
+        click.secho(f"⚠️ Local API: {e.message}")
+        if "validation error" in e.message:
+            click.secho(
+                "💡 Suggestion: Create a configuration file called config.json containing the required "
+            )
+            click.secho(
+                "               configuration fields in your agent's configuration. Then run again with"
+            )
+            click.secho("               ship run local -c config.json")
+            exit(-1)
+    except BaseException as e:
+        click.secho(f"⚠️ Local API: {e}")
+        exit(-1)
 
     logging.info("Local server running.")
 
@@ -218,18 +233,24 @@ def serve_local(
         click.secho(f"🌎 Public API: {ngrok_api_url}")
 
     # Start the local API Server. This has to happen after NGROK because the port & url need to be plummed.
-    local_api_url = _run_local_server(
-        local_port=port,
-        instance_handle=instance_handle,
-        config=config,
-        workspace=workspace,
-        base_url=ngrok_api_url,
-    )
+    try:
+        local_api_url = _run_local_server(
+            local_port=port,
+            instance_handle=instance_handle,
+            config=config,
+            workspace=workspace,
+            base_url=ngrok_api_url,
+        )
+    except BaseException as e:
+        click.secho("⚠️ Local API:  Unable to start local server.")
+        click.secho(e)
+        exit(-1)
 
     if local_api_url:
         click.secho(f"🌎 Local API:  {local_api_url}")
     else:
         click.secho("⚠️ Local API:  Unable to start local server.")
+        exit(-1)
 
     # Start the web UI
     if not no_ui:

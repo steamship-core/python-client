@@ -4,7 +4,7 @@ import threading
 from socketserver import TCPServer
 from typing import Optional, Type
 
-from steamship import Steamship
+from steamship import Steamship, SteamshipError, TaskState
 from steamship.cli.local_server.handler import create_safe_handler, make_handler
 from steamship.invocable import (
     Invocable,
@@ -99,7 +99,17 @@ class SteamshipHTTPServer:
             invocation_context=context,
         )
         handler = create_safe_handler(self.invocable)
-        handler(event.dict(by_alias=True), context)
+        resp = handler(event.dict(by_alias=True), context)
+        state = None
+        try:
+            state = resp.get("status", {}).get("state", None)
+        except BaseException:
+            state = "succeeded"
+
+        if state == TaskState.failed:
+            raise SteamshipError(
+                message=resp.get("status", {}).get("statusMessage", "Unable to start project")
+            )
 
     def stop(self):
         """Stop the server.
