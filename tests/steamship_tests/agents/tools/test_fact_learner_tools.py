@@ -9,15 +9,15 @@ from steamship import Block, Steamship
 def test_fact_learner_agent_service(client: Steamship):
 
     agent_path = SRC_PATH / "steamship/agents/examples/fact_learner.py"
-    with deploy_package(client, agent_path) as (_, _, instance):
+    with deploy_package(client, agent_path) as (_, _, agent):
 
-        instance.invoke("prompt", prompt="please remember that my name is Inigo Montoya")
-        instance.invoke("prompt", prompt="please remember that I am skilled swordsman")
+        agent.invoke("prompt", prompt="please remember that my name is Inigo Montoya")
+        agent.invoke("prompt", prompt="please remember that I am skilled swordsman")
 
-        answer_blocks = instance.invoke("prompt", prompt="what is my name?")
+        answer_blocks = agent.invoke("prompt", prompt="what is my name?")
         assert len(answer_blocks) == 1
         assert "Inigo Montoya" in Block(**answer_blocks[0]).text
 
-        answer_blocks = instance.invoke("prompt", prompt="what do I know how to do well?")
+        answer_blocks = agent.invoke("prompt", prompt="what do I know how to do well?")
         assert len(answer_blocks) == 1
         assert "sword" in Block(**answer_blocks[0]).text

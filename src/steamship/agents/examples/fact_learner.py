@@ -21,7 +21,7 @@ class FactLearner(AgentService):
                 VectorSearchLearnerTool(),
                 VectorSearchQATool(),
             ],
-            llm=ChatOpenAI(self.client, temperature=0),
+            llm=ChatOpenAI(self.client, temperature=0.2),
         )
 
 
