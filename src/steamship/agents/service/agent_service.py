@@ -88,8 +88,9 @@ class AgentService(PackageService):
             func(action.output, context.metadata)
 
     @post("prompt")
-    def prompt(self, prompt: str, **kwargs) -> List[Block]:
+    def prompt(self, prompt: Optional[str] = None, **kwargs) -> List[Block]:
         """Run an agent with the provided text as the input."""
+        prompt = prompt or kwargs.get("question")
 
         # AgentContexts serve to allow the AgentService to run agents
         # with appropriate information about the desired tasking.

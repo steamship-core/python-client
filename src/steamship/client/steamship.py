@@ -22,8 +22,6 @@ from steamship.data.workspace import Workspace
 from steamship.utils.metadata import hash_dict
 from steamship.utils.utils import create_instance_handle
 
-_logger = logging.getLogger(__name__)
-
 
 class Steamship(Client):
     """Steamship Python Client."""

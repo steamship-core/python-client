@@ -1,8 +1,10 @@
+import logging
+import socketserver
 import threading
 from socketserver import TCPServer
 from typing import Optional, Type
 
-from steamship import Steamship
+from steamship import Steamship, SteamshipError, TaskState
 from steamship.cli.local_server.handler import create_safe_handler, make_handler
 from steamship.invocable import (
     Invocable,
@@ -11,6 +13,10 @@ from steamship.invocable import (
     InvocationContext,
     LoggingConfig,
 )
+
+
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    pass
 
 
 class SteamshipHTTPServer:
@@ -28,34 +34,32 @@ class SteamshipHTTPServer:
     """
 
     invocable: Type[Invocable]
+    base_url: str
     port: int
     server: TCPServer
     default_api_key: Optional[str] = (None,)
     invocable_handle: str = (None,)
     invocable_version_handle: str = (None,)
     invocable_instance_handle: str = (None,)
-    add_port_to_invocable_url: bool = True
 
     def __init__(
         self,
         invocable: Type[Invocable],
-        base_url: str = "http://localhost",
+        base_url: Optional[str] = None,
         port: int = 8080,
         invocable_handle: str = None,
         invocable_version_handle: str = None,
         invocable_instance_handle: str = None,
         config: dict = None,
-        add_port_to_invocable_url: bool = True,  # The invocable url represents the external URL, which may be NGROK
         workspace: str = None,
     ):
         self.invocable = invocable
         self.port = port
-        self.base_url = base_url
+        self.base_url = base_url or f"http://localhost:{self.port}"
         self.invocable_handle = invocable_handle
         self.invocable_version_handle = invocable_version_handle
         self.invocable_instance_handle = invocable_instance_handle
         self.config = config
-        self.add_port_to_invocable_url = add_port_to_invocable_url
         self.workspace = workspace
 
     def start(self):
@@ -63,17 +67,26 @@ class SteamshipHTTPServer:
 
         handler = make_handler(
             self.invocable,
-            self.port,
             base_url=self.base_url,
             invocable_handle=self.invocable_handle,
             invocable_version_handle=self.invocable_version_handle,
             invocable_instance_handle=self.invocable_instance_handle,
             config=self.config,
-            add_port_to_invocable_url=self.add_port_to_invocable_url,
             workspace=self.workspace,
         )
-        self.server = TCPServer(("", self.port), handler)
-        # We need to trigger the instance init.
+
+        self.server = ThreadedTCPServer(("", self.port), handler)
+        self.server.allow_reuse_address = True
+
+        # Start a thread with the server -- that thread will then start one
+        # more thread for each request
+        self.server_thread = threading.Thread(target=self.server.serve_forever)
+        # Exit the server thread when the main thread terminates
+        self.server_thread.daemon = True
+        self.server_thread.start()
+        logging.info(f"Started local server thread on port {self.port}.")
+
+        # Call the __dir__ method
         context = InvocationContext(invocable_url=f"{self.base_url}/")
 
         invocation = Invocation(
@@ -86,9 +99,17 @@ class SteamshipHTTPServer:
             invocation_context=context,
         )
         handler = create_safe_handler(self.invocable)
-        handler(event.dict(by_alias=True), context)
+        resp = handler(event.dict(by_alias=True), context)
+        state = None
+        try:
+            state = resp.get("status", {}).get("state", None)
+        except BaseException:
+            state = "succeeded"
 
-        self.server.serve_forever()
+        if state == TaskState.failed:
+            raise SteamshipError(
+                message=resp.get("status", {}).get("statusMessage", "Unable to start project")
+            )
 
     def stop(self):
         """Stop the server.
@@ -96,14 +117,4 @@ class SteamshipHTTPServer:
         Note: This has to be called from a different thread or else it will deadlock.
         """
         _server = self.server
-
-        class ShutdownThread(threading.Thread):
-            def __init__(self):
-                threading.Thread.__init__(self)
-
-            def run(self):
-                nonlocal _server
-                _server.shutdown()
-
-        shutdown_thread = ShutdownThread()
-        shutdown_thread.start()
+        _server.shutdown()
