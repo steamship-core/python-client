@@ -1,3 +1,4 @@
+import uuid
 from typing import Any, Dict, Optional
 
 from steamship.utils.metadata import hash_dict
@@ -19,3 +20,11 @@ def create_instance_handle(
 ) -> str:
     """Create an instance handle deterministically from package/plugin metadata and configuration."""
     return f"{invocable_handle}-{hash_dict({**invocable_config, 'version': version_handle})}"
+
+
+def is_valid_uuid4(candidate: str) -> bool:
+    try:
+        _ = uuid.UUID(candidate, version=4)
+        return True
+    except Exception:
+        return False
