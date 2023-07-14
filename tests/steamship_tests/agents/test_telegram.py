@@ -60,9 +60,10 @@ def test_telegram(client: Steamship):
             assert response.ok
             files = File.query(client, f'kind "{MockTelegram.TEXT_MESSAGE_TAG}"').files
             assert len(files) == 1
-            assert files[0].tags[0].name == "Response to: a test".replace(
-                " ", "+"
-            )  # bug somewhere - results being url encoded
+            allowed_responses = ["Response to: a test", "Response to: a test".replace(" ", "+")]
+            assert (
+                files[0].tags[0].name in allowed_responses
+            )  # bug somewhere - results being url encoded in some envs
             assert files[0].tags[0].value == {MockTelegram.CHAT_ID_KEY: 1}
 
             # test sending another message; this has been a problem before
@@ -71,11 +72,13 @@ def test_telegram(client: Steamship):
             )
             files = File.query(client, f'kind "{MockTelegram.TEXT_MESSAGE_TAG}"').files
             assert len(files) == 2
+            allowed_responses.extend(
+                ["Response to: another test", "Response to: another test".replace(" ", "+")]
+            )
             for file in files:
-                assert file.tags[0].name in [
-                    "Response to: a test".replace(" ", "+"),
-                    "Response to: another test".replace(" ", "+"),
-                ]  # bug somewhere - results being url encoded
+                assert (
+                    file.tags[0].name in allowed_responses
+                )  # bug somewhere - results being url encoded in some envs
                 assert file.tags[0].value == {MockTelegram.CHAT_ID_KEY: 1}
 
             # Test the agent sending a "photo"
