@@ -1,7 +1,0 @@
-[Client] Creating/Fetching workspace with handle/id: default/None.
-[Client] Switched to workspace default/562A13D4-28E4-4A6D-8350-0DE11823580A
-[Client] Creating/Fetching workspace with handle/id: ardent-winds-wjcwi/None.
-[Client] Switched to workspace ardent-winds-wjcwi/C04B5654-B52C-4995-A0D3-D388976BCAA5
-Completed agent run. Result: 1 blocks. 34 total text length. Emitting on 1 functions.
-Emitting via function: sync_emit
-Hello! How can I assist you today?
