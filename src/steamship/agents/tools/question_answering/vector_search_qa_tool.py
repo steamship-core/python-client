@@ -27,7 +27,7 @@ class VectorSearchQATool(VectorSearchTool):
     """Tool to answer questions with the assistance of a vector search plugin."""
 
     name: str = "VectorSearchQATool"
-    human_description: str = "Answers questions with help from a Vector Database."
+    human_description: str = "Answers questions about user data. Can access personal data, as it is a private store of information."
     agent_description: str = (
         "Used to answer questions. ",
         "The input should be a plain text question. ",
@@ -38,8 +38,8 @@ class VectorSearchQATool(VectorSearchTool):
     load_docs_count: int = 2
 
     def answer_question(self, question: str, context: AgentContext) -> List[Block]:
-        index = self.get_embedding_index(context.client)
-        task = index.search(question, k=self.load_docs_count)
+        embed_index = self.get_embedding_index(context.client)
+        task = embed_index.search(question, k=self.load_docs_count)
         task.wait()
 
         source_texts = []

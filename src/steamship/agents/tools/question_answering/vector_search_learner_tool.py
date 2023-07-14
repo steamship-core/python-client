@@ -15,7 +15,7 @@ class VectorSearchLearnerTool(VectorSearchTool):
     name: str = "VectorSearchLearnerTool"
     human_description: str = "Learns a new fact and puts it in the Vector Database."
     agent_description: str = (
-        "Used to remember a fact. Only use this tool if someone asks to remember or learn something. ",
+        "Used to remember a fact. Only use this tool if someone asks to remember or learn something.",
         "The input is a fact to learn. ",
         "The output is a confirmation that the fact has been learned.",
     )
