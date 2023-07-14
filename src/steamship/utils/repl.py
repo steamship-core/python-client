@@ -1,6 +1,7 @@
 import abc
 import contextlib
 import logging
+import uuid
 from abc import ABC
 from json import JSONDecodeError
 from typing import Any, Dict, List, Optional, Type, Union, cast
@@ -174,11 +175,20 @@ class AgentREPL(SteamshipREPL):
         self.agent_instance = self.agent_class(client=client, config=self.config)
 
         # Determine the responder, which may have been custom-supplied on the agent.
-        responder = getattr(self.agent_instance, self.method or "prompt")
+        method = self.method or "prompt"
+        if method == "prompt":
+            ctx = uuid.uuid4()
+        else:
+            ctx = None
+
+        responder = getattr(self.agent_instance, method)
 
         while True:
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
-            output = responder(input_text)
+            if ctx:
+                output = responder(input_text, context_id=ctx)
+            else:
+                output = responder(input_text)
             self.print_object_or_objects(output)
 
     def run(self, **kwargs):

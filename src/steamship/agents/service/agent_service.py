@@ -96,7 +96,7 @@ class AgentService(PackageService):
         # with appropriate information about the desired tasking.
         # Here, we create a new context on each prompt, and append the
         # prompt to the message history stored in the context.
-        context_id = uuid.uuid4()
+        context_id = kwargs.get("context_id") or uuid.uuid4()
         context = AgentContext.get_or_create(self.client, {"id": f"{context_id}"})
         context.chat_history.append_user_message(prompt)
 
