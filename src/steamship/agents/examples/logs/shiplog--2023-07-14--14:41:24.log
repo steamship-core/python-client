@@ -1,0 +1,10 @@
+[Client] Creating/Fetching workspace with handle/id: default/None.
+[Client] Switched to workspace default/562A13D4-28E4-4A6D-8350-0DE11823580A
+[Client] Creating/Fetching workspace with handle/id: fuscia-pilot-tbd7y/None.
+[Client] Switched to workspace fuscia-pilot-tbd7y/C2524837-78B8-42AB-8A76-268F82B0EC25
+Completed agent run. Result: 1 blocks. 34 total text length. Emitting on 1 functions.
+Emitting via function: sync_emit
+Hello! How can I assist you today?
+Completed agent run. Result: 1 blocks. 60 total text length. Emitting on 1 functions.
+Emitting via function: sync_emit
+My name is OpenAI. I'm a language model developed by OpenAI.

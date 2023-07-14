@@ -1,0 +1,7 @@
+[Client] Creating/Fetching workspace with handle/id: default/None.
+[Client] Switched to workspace default/562A13D4-28E4-4A6D-8350-0DE11823580A
+[Client] Creating/Fetching workspace with handle/id: can-plateau-438yz/None.
+[Client] Switched to workspace can-plateau-438yz/677A83C0-583A-4232-8F04-1A0F08174694
+Completed agent run. Result: 1 blocks. 54 total text length. Emitting on 1 functions.
+Emitting via function: sync_emit
+I'm Harry Potter, the Boy Who Lived. Nice to meet you!
