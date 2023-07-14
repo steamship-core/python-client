@@ -1,5 +1,3 @@
-import uuid
-
 from steamship.agents.llms.openai import OpenAI
 from steamship.agents.react import ReACTAgent
 from steamship.agents.schema.message_selectors import MessageWindowMessageSelector
@@ -33,4 +31,4 @@ if __name__ == "__main__":
     # AgentREPL provides a mechanism for local execution of an AgentService method.
     # This is used for simplified debugging as agents and tools are developed and
     # added.
-    AgentREPL(MyAssistant, agent_package_config={}).run(context_id=uuid.uuid4())
+    AgentREPL(MyAssistant, agent_package_config={}).run()
