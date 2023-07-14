@@ -11,6 +11,18 @@ from steamship.utils.signed_urls import download_from_signed_url, upload_to_sign
 from steamship.utils.zip_archives import unzip_folder, zip_folder
 
 
+def _hash_file(path: Path):
+    import hashlib
+
+    md5 = hashlib.md5()  # noqa: S303 we don't need security, just a fingerprint
+    backing_bytes = bytearray(128 * 1024)
+    memory_view = memoryview(backing_bytes)
+    with open(path, "rb", buffering=0) as file:
+        while n := file.readinto(memory_view):
+            md5.update(memory_view[:n])
+    return md5.hexdigest()
+
+
 class ModelCheckpoint(CamelModel):
     # The default model checkpoint handle unless one is provided.
     DEFAULT_HANDLE: ClassVar[str] = "default"
@@ -79,7 +91,7 @@ class ModelCheckpoint(CamelModel):
         """
         return f"{self.plugin_instance_id}/{as_handle or self.handle}.zip"
 
-    def download_model_bundle(self) -> Path:
+    def download_model_bundle(self) -> (Path, str):
         """Download's the model from Steamship and unzips to `parent_directory`"""
         download_resp = self.workspace.create_signed_url(
             SignedUrl.Request(
@@ -94,13 +106,10 @@ class ModelCheckpoint(CamelModel):
             )
         download_from_signed_url(download_resp.signed_url, to_file=self.archive_path_on_disk())
         unzip_folder(self.archive_path_on_disk(), into_folder=self.folder_path_on_disk())
-        if not download_resp or not download_resp.signed_url:
-            raise SteamshipError(
-                message=f"Received empty Signed URL for model download of '{self.handle}."
-            )
-        download_from_signed_url(download_resp.signed_url, to_file=self.archive_path_on_disk())
-        unzip_folder(self.archive_path_on_disk(), into_folder=self.folder_path_on_disk())
-        return self.folder_path_on_disk()
+
+        version = _hash_file(self.archive_path_on_disk())
+
+        return self.folder_path_on_disk(), version
 
     def _upload_model_zip(self, as_handle: str = None):
         """Assumes a pre-zipped model, uploads to the requested zip.
@@ -126,10 +135,12 @@ class ModelCheckpoint(CamelModel):
 
         upload_to_signed_url(signed_url_resp.signed_url, filepath=self.archive_path_on_disk())
 
-    def upload_model_bundle(self, set_as_default: bool = True):
+    def upload_model_bundle(self, set_as_default: bool = True) -> str:
         """Zips and uploads the Model to steamship"""
         logging.info("ModelCheckpoint:upload_model_bundle")
-        zip_folder(self.folder_path_on_disk(), into_file=self.archive_path_on_disk())
+        file = zip_folder(self.folder_path_on_disk(), into_file=self.archive_path_on_disk())
+        version = _hash_file(file)
+
         self._upload_model_zip()
 
         if set_as_default:
@@ -138,3 +149,5 @@ class ModelCheckpoint(CamelModel):
             # - Once under the actual checkpoint name (e.g. `epoch-10`)
             # - Again under the name: default
             self._upload_model_zip(as_handle=ModelCheckpoint.DEFAULT_HANDLE)
+
+        return version

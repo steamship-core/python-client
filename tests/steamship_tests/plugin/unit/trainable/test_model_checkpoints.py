@@ -42,20 +42,41 @@ def test_model_checkpoint_save_load():
     checkpoint_1 = ModelCheckpoint(client=client, handle="epoch1", plugin_instance_id="0000")
     with open(checkpoint_1.folder_path_on_disk() / "params.json", "w") as f:
         f.write("HI THERE")
-    checkpoint_1.upload_model_bundle()
+    update_version = checkpoint_1.upload_model_bundle()
 
-    # Now let's download the checkpoint labeled "epoch1" and test that it is equal
-    checkpoint_downloaded = ModelCheckpoint(
-        client=client, handle="epoch1", plugin_instance_id="0000"
-    )
-    checkpoint_downloaded.download_model_bundle()
+    version_mismatch = True
+    attempts = 5
+    while version_mismatch and attempts > 0:
+        # Now let's download the checkpoint labeled "epoch1" and test that it is equal
+        checkpoint_downloaded = ModelCheckpoint(
+            client=client, handle="epoch1", plugin_instance_id="0000"
+        )
+        _, model_version = checkpoint_downloaded.download_model_bundle()
+        if update_version != model_version:
+            attempts -= 1
+            update_version = checkpoint_1.upload_model_bundle()
+        else:
+            version_mismatch = False
+
+    assert attempts > 0
     _test_folders_equal(
         checkpoint_1.folder_path_on_disk(), checkpoint_downloaded.folder_path_on_disk()
     )
 
     # We should also be able to download "default" checkpoint by not providing a handle
     checkpoint_default_1 = ModelCheckpoint(client=client, plugin_instance_id="0000")
-    checkpoint_default_1.download_model_bundle()
+
+    version_mismatch = True
+    attempts = 5
+    while version_mismatch and attempts > 0:
+        _, model_version = checkpoint_default_1.download_model_bundle()
+        if update_version != model_version:
+            attempts -= 1
+            update_version = checkpoint_1.upload_model_bundle()
+        else:
+            version_mismatch = False
+
+    assert attempts > 0
     _test_folders_equal(
         checkpoint_1.folder_path_on_disk(), checkpoint_default_1.folder_path_on_disk()
     )
@@ -64,11 +85,24 @@ def test_model_checkpoint_save_load():
     checkpoint_2 = ModelCheckpoint(client=client, handle="epoch2", plugin_instance_id="0000")
     with open(checkpoint_2.folder_path_on_disk() / "params.json", "w") as f:
         f.write("UPDATED PARAMS")
-    checkpoint_2.upload_model_bundle()
 
-    # If we download the new DEFAULT checkpoint, we will now receive the epoch2 files...
-    checkpoint_default_2 = ModelCheckpoint(client=client, plugin_instance_id="0000")
-    checkpoint_default_2.download_model_bundle()
+    update_version = checkpoint_2.upload_model_bundle()
+
+    version_mismatch = True
+    attempts = 5
+    while version_mismatch and attempts > 0:
+        # If we download the new DEFAULT checkpoint, we will now receive the epoch2 files...
+        checkpoint_default_2 = ModelCheckpoint(client=client, plugin_instance_id="0000")
+        _, model_version = checkpoint_default_2.download_model_bundle()
+
+        if update_version != model_version:
+            attempts -= 1
+            update_version = checkpoint_2.upload_model_bundle()
+        else:
+            version_mismatch = False
+
+    assert attempts > 0
+
     _test_folders_equal(
         checkpoint_2.folder_path_on_disk(), checkpoint_default_2.folder_path_on_disk()
     )
