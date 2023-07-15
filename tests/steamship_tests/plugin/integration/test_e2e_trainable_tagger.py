@@ -81,7 +81,7 @@ def test_e2e_trainable_tagger_lambda_training(client: Steamship):
                     handle="default",
                     plugin_instance_id=tagger_instance.id,
                 )
-                checkpoint_path, _ = checkpoint.download_model_bundle()
+                checkpoint_path = checkpoint.download_model_bundle()
                 assert checkpoint_path.exists()
                 keyword_path = Path(checkpoint_path) / TestTrainableTaggerModel.KEYWORD_LIST_FILE
                 assert keyword_path.exists()
@@ -159,7 +159,7 @@ def test_e2e_trainable_tagger_lambda_training_new_train_params(client: Steamship
                     handle="default",
                     plugin_instance_id=tagger_instance.id,
                 )
-                checkpoint_path, _ = checkpoint.download_model_bundle()
+                checkpoint_path = checkpoint.download_model_bundle()
                 assert checkpoint_path.exists()
                 keyword_path = Path(checkpoint_path) / TestTrainableTaggerModel.KEYWORD_LIST_FILE
                 assert keyword_path.exists()
