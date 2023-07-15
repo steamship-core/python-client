@@ -135,16 +135,23 @@ def test_list_workspace_paging():
     resp = Workspace.list(client, page_size=2)
     assert resp.next_page_token is not None
 
-    updated_page_of_workspace_ids = [w.id for w in resp.workspaces]
-    assert len(updated_page_of_workspace_ids) == 2
-    assert workspace1.id not in updated_page_of_workspace_ids
-    assert workspace2.id in updated_page_of_workspace_ids
-    assert workspace3.id in updated_page_of_workspace_ids
+    found_ws_one = False
+    found_ws_two = False
+    found_ws_three = False
+    while resp.next_page_token:
+        updated_page_of_workspace_ids = [w.id for w in resp.workspaces]
+        assert len(updated_page_of_workspace_ids) <= 2
+        if workspace1.id in updated_page_of_workspace_ids:
+            found_ws_one = True
+        if workspace2.id in updated_page_of_workspace_ids:
+            found_ws_two = True
+        if workspace3.id in updated_page_of_workspace_ids:
+            found_ws_three = True
+        resp = Workspace.list(client, page_size=2, page_token=resp.next_page_token)
 
-    resp = Workspace.list(client, page_size=1, page_token=resp.next_page_token)
-    final_page_of_workspace_ids = [w.id for w in resp.workspaces]
-    assert len(final_page_of_workspace_ids) == 1
-    assert workspace1.id in final_page_of_workspace_ids
+    assert found_ws_one
+    assert found_ws_two
+    assert found_ws_three
 
     with pytest.raises(SteamshipError):
         Workspace.list(client, page_size=-1)

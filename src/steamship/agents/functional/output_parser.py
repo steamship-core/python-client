@@ -6,6 +6,7 @@ from typing import Dict, List, Optional
 from steamship import Block, MimeTypes, Steamship
 from steamship.agents.schema import Action, AgentContext, FinishAction, OutputParser, Tool
 from steamship.data.tags.tag_constants import RoleTag
+from steamship.utils.utils import is_valid_uuid4
 
 
 def is_punctuation(text: str):
@@ -36,13 +37,18 @@ class FunctionsBasedOutputParser(OutputParser):
         input_blocks = []
         arguments = fc.get("arguments")
         if arguments:
-            args = json.loads(arguments)
-            # TODO(dougreid): validation and error handling?
-
-            if text := args.get("text"):
-                input_blocks.append(Block(text=text, mime_type=MimeTypes.TXT))
-            elif uuid := args.get("uuid"):
-                input_blocks.append(Block.get(context.client, _id=uuid))
+            try:
+                args = json.loads(arguments)
+                if text := args.get("text"):
+                    input_blocks.append(Block(text=text, mime_type=MimeTypes.TXT))
+                elif uuid_arg := args.get("uuid"):
+                    input_blocks.append(Block.get(context.client, _id=uuid_arg))
+            except json.decoder.JSONDecodeError:
+                if isinstance(arguments, str):
+                    if is_valid_uuid4(arguments):
+                        input_blocks.append(Block.get(context.client, _id=uuid_arg))
+                    else:
+                        input_blocks.append(Block(text=arguments, mime_type=MimeTypes.TXT))
 
         return Action(tool=tool, input=input_blocks, context=context)
 
