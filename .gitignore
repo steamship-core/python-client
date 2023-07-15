@@ -108,3 +108,4 @@ fabric.properties
 # Generated website
 docs/_build
 venv
+logs/
