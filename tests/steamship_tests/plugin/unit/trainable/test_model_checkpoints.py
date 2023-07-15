@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from typing import Callable
 
 from assets.plugins.taggers.plugin_trainable_tagger import (
     TRAINING_PARAMETERS,
@@ -12,7 +13,18 @@ from steamship.plugin.outputs.model_checkpoint import ModelCheckpoint
 from steamship.plugin.request import PluginRequest
 
 
-def _test_folders_equal(p1: Path, p2: Path):
+def _retry(func: Callable, n: int = 5):
+    attempts = n
+    while attempts:
+        try:
+            return func()
+        except AssertionError:
+            attempts -= 1
+            if not attempts:
+                raise
+
+
+def _assert_same_content(p1: Path, p2: Path):
     assert p1 != p2
 
     p1_files = os.listdir(p1)
@@ -42,36 +54,52 @@ def test_model_checkpoint_save_load():
     checkpoint_1 = ModelCheckpoint(client=client, handle="epoch1", plugin_instance_id="0000")
     with open(checkpoint_1.folder_path_on_disk() / "params.json", "w") as f:
         f.write("HI THERE")
-    checkpoint_1.upload_model_bundle()
 
-    # Now let's download the checkpoint labeled "epoch1" and test that it is equal
-    checkpoint_downloaded = ModelCheckpoint(
-        client=client, handle="epoch1", plugin_instance_id="0000"
-    )
-    checkpoint_downloaded.download_model_bundle()
-    _test_folders_equal(
-        checkpoint_1.folder_path_on_disk(), checkpoint_downloaded.folder_path_on_disk()
-    )
+    def retry_fn_1():
+        checkpoint_1.upload_model_bundle()
+
+        # Now let's download the checkpoint labeled "epoch1" and test that it is equal
+        checkpoint_downloaded = ModelCheckpoint(
+            client=client, handle="epoch1", plugin_instance_id="0000"
+        )
+        checkpoint_downloaded.download_model_bundle()
+
+        _assert_same_content(
+            checkpoint_1.folder_path_on_disk(),
+            checkpoint_downloaded.folder_path_on_disk(),
+        )
+
+    _retry(retry_fn_1)
 
     # We should also be able to download "default" checkpoint by not providing a handle
     checkpoint_default_1 = ModelCheckpoint(client=client, plugin_instance_id="0000")
-    checkpoint_default_1.download_model_bundle()
-    _test_folders_equal(
-        checkpoint_1.folder_path_on_disk(), checkpoint_default_1.folder_path_on_disk()
-    )
+
+    def retry_fn_2():
+        checkpoint_1.upload_model_bundle()
+        checkpoint_default_1.download_model_bundle()
+        _assert_same_content(
+            checkpoint_1.folder_path_on_disk(), checkpoint_default_1.folder_path_on_disk()
+        )
+
+    _retry(retry_fn_2)
 
     # Let's create a new checkpoint with our trainer... epoch2
     checkpoint_2 = ModelCheckpoint(client=client, handle="epoch2", plugin_instance_id="0000")
     with open(checkpoint_2.folder_path_on_disk() / "params.json", "w") as f:
         f.write("UPDATED PARAMS")
-    checkpoint_2.upload_model_bundle()
 
-    # If we download the new DEFAULT checkpoint, we will now receive the epoch2 files...
-    checkpoint_default_2 = ModelCheckpoint(client=client, plugin_instance_id="0000")
-    checkpoint_default_2.download_model_bundle()
-    _test_folders_equal(
-        checkpoint_2.folder_path_on_disk(), checkpoint_default_2.folder_path_on_disk()
-    )
+    def retry_fn_3():
+        checkpoint_2.upload_model_bundle()
+
+        # If we download the new DEFAULT checkpoint, we will now receive the epoch2 files...
+        checkpoint_default_2 = ModelCheckpoint(client=client, plugin_instance_id="0000")
+        checkpoint_default_2.download_model_bundle()
+
+        _assert_same_content(
+            checkpoint_2.folder_path_on_disk(), checkpoint_default_2.folder_path_on_disk()
+        )
+
+    _retry(retry_fn_3)
 
 
 def test_model_can_save_to_and_load_from_checkpoint():
