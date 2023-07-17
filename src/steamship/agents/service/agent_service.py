@@ -88,16 +88,21 @@ class AgentService(PackageService):
             func(action.output, context.metadata)
 
     @post("prompt")
-    def prompt(self, prompt: Optional[str] = None, **kwargs) -> List[Block]:
+    def prompt(
+        self, prompt: Optional[str] = None, context_id: Optional[str] = None, **kwargs
+    ) -> List[Block]:
         """Run an agent with the provided text as the input."""
         prompt = prompt or kwargs.get("question")
 
         # AgentContexts serve to allow the AgentService to run agents
         # with appropriate information about the desired tasking.
-        # Here, we create a new context on each prompt, and append the
-        # prompt to the message history stored in the context.
-        context_id = uuid.uuid4()
-        context = AgentContext.get_or_create(self.client, {"id": f"{context_id}"})
+        if context_id is None:
+            context_id = uuid.uuid4()
+            logging.warning(
+                f"No context_id was provided; generated {context_id}. This likely means no conversational history will be present."
+            )
+
+        context = AgentContext.get_or_create(self.client, context_keys={"id": f"{context_id}"})
         context.chat_history.append_user_message(prompt)
 
         # Add a default LLM
