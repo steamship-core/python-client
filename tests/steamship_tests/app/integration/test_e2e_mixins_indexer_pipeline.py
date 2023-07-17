@@ -28,6 +28,38 @@ def test_indexer_pipeline_mixin(client: Steamship):
         assert len(result.items) == 1
         winner = result.items[0]
         assert winner.tag.text
+        assert winner.tag.value
+        assert winner.tag.value.get("block_id")  # It has a block id stamped
+        assert winner.tag.value.get("file_id")  # It has a file id stamped
+        assert winner.tag.value.get("page") == 0
+
+        # LOAD THE TAO TE QING PDF
+        # This will test metadata
+        pdf_url2 = "https://www.with.org/tao_te_ching_en.pdf"
+
+        index_task2 = instance.invoke(
+            "index_url", url=pdf_url2, metadata={"url": pdf_url2, "is_tao": True}
+        )
+        index_task2 = Task.parse_obj(index_task2)
+        index_task2.client = client
+
+        assert index_task2.task_id
+        assert index_task2.state == TaskState.waiting
+
+        index_task2.wait()
+
+        result = instance.invoke("search_index", query="Tao", k=1)
+        result = SearchResults.parse_obj(result)
+        assert len(result.items) == 1
+        winner = result.items[0]
+        assert winner.tag.text
+
+        assert winner.tag.value
+        assert winner.tag.value.get("block_id")  # It has a block id stamped
+        assert winner.tag.value.get("file_id")  # It has a file id stamped
+        assert winner.tag.value.get("page") is not None
+        assert winner.tag.value.get("is_tao") is True
+        assert winner.tag.value.get("url") == pdf_url2
 
         # NOTE NOTE NOTE
         # This portion of the test will be added.. but commented out, to be run only on localhost on an as-needed

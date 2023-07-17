@@ -1,11 +1,12 @@
 """Answers questions with the assistance of a VectorSearch plugin."""
 from typing import Any, List, Optional, Union
 
-from steamship import Block, Tag, Task
+from steamship import Block, DocTag, Tag, Task
 from steamship.agents.llms import OpenAI
 from steamship.agents.schema import AgentContext
 from steamship.agents.tools.question_answering.vector_search_tool import VectorSearchTool
 from steamship.agents.utils import get_llm, with_llm
+from steamship.data import TagKind
 from steamship.utils.repl import ToolREPL
 
 DEFAULT_QUESTION_ANSWERING_PROMPT = (
@@ -43,17 +44,31 @@ class VectorSearchQATool(VectorSearchTool):
         task.wait()
 
         source_texts = []
+        source_metadata = []
 
         for item in task.output.items:
             if item.tag and item.tag.text:
                 item_data = {"text": item.tag.text}
                 source_texts.append(self.source_document_prompt.format(**item_data))
+                _metadata = {}
+                if item.tag.value:
+                    _metadata.update(item.tag.value)
+                source_metadata.append(_metadata)
 
         final_prompt = self.question_answering_prompt.format(
             **{"source_text": "\n".join(source_texts), "question": question}
         )
 
-        return get_llm(context, default=OpenAI(client=context.client)).complete(prompt=final_prompt)
+        output_blocks = get_llm(context, default=OpenAI(client=context.client)).complete(
+            prompt=final_prompt
+        )
+        for output_block in output_blocks:
+            if output_block.tags is None:
+                output_block.tags = []
+            output_block.tags.append(
+                Tag(kind=TagKind.DOCUMENT, name=DocTag.SOURCE, value={"sources": source_metadata})
+            )
+        return output_blocks
 
     def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
         """Answers questions with the assistance of an Embedding Index plugin.

@@ -38,6 +38,7 @@ class BlockifierMixin(PackageMixin):
 
         _mime_type = mime_type or file.mime_type
         if not _mime_type:
+            update_file_status(self.client, file, "Failed Blockifying")
             raise SteamshipError(
                 message=f"No MIME Type found for file {file.id}. Unable to blockify."
             )
@@ -54,6 +55,7 @@ class BlockifierMixin(PackageMixin):
             plugin_instance = self.client.use_plugin("markdown-blockifier-default")
 
         if not plugin_instance:
+            update_file_status(self.client, file, "Failed Blockifying")
             raise SteamshipError(
                 message=f"Unable to blockify file {file.id}. MIME Type {_mime_type} unsupported"
             )
