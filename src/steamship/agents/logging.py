@@ -30,6 +30,7 @@ class AgentLogging:
     OBSERVATION = "observation"
     ACTION = "action"
     MESSAGE = "message"
+    PROMPT = "prompt"
 
     MESSAGE_AUTHOR = "message_author"
     USER = "user"

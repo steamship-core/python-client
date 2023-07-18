@@ -1,7 +1,8 @@
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Dict, List, Optional
 
 from steamship import Block, Steamship, Tag
 from steamship.agents.schema.action import Action
+from steamship.agents.schema.cache import ActionCache, LLMCache
 
 Metadata = Dict[str, Any]
 EmitFunc = Callable[[List[Block], Metadata], None]
@@ -38,6 +39,14 @@ class AgentContext:
     """Called when an agent execution has completed. These provide a way for the AgentService
     to return the result of an agent execution to the package that requested the agent execution."""
 
+    action_cache: ActionCache
+    """Caches all interations with Tools within a Context. This provides a way to avoid duplicated
+    calls to Tools when within the same context."""
+
+    llm_cache: LLMCache
+    """Caches all interations with LLMs within a Context. This provides a way to avoid duplicated
+    calls to LLMs when within the same context."""
+
     def __init__(self):
         self.metadata = {}
         self.completed_steps = []
@@ -49,6 +58,8 @@ class AgentContext:
         context_keys: Dict[str, str],
         tags: List[Tag] = None,
         searchable: bool = True,
+        use_llm_cache: Optional[bool] = False,
+        use_action_cache: Optional[bool] = False,
     ):
         from steamship.agents.schema.chathistory import ChatHistory
 
@@ -56,4 +67,17 @@ class AgentContext:
         context = AgentContext()
         context.chat_history = history
         context.client = client
+
+        if use_action_cache:
+            context.action_cache = ActionCache.get_or_create(
+                client=client, context_keys=context_keys
+            )
+        else:
+            context.action_cache = None
+
+        if use_llm_cache:
+            context.llm_cache = LLMCache.get_or_create(client=client, context_keys=context_keys)
+        else:
+            context.llm_cache = None
+
         return context

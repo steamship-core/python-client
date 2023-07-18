@@ -33,7 +33,7 @@ def test_functions_based_agent_single_tool_selection_with_no_memory(client: Stea
 
     action = agent.next_action(context=ctx)
     assert not isinstance(action, FinishAction)
-    assert action.tool.name == "SearchTool"
+    assert action.tool == "SearchTool"
 
 
 @pytest.mark.usefixtures("client")
@@ -48,7 +48,7 @@ def test_functions_based_agent_multimodal_tool_selection_with_no_memory(client: 
 
     action = agent.next_action(context=ctx)
     assert not isinstance(action, FinishAction)
-    assert action.tool.name == "DalleTool"
+    assert action.tool == "DalleTool"
 
 
 @pytest.mark.usefixtures("client")
@@ -82,14 +82,14 @@ def test_functions_based_agent_tool_chaining_without_memory(client: Steamship):
 
     action = agent.next_action(context=ctx)
     assert not isinstance(action, FinishAction)
-    assert action.tool.name == "SearchTool"
+    assert action.tool == "SearchTool"
 
     action.output.append(Block(text="George Washington"))
     ctx.completed_steps.append(action)
 
     second_action = agent.next_action(context=ctx)
     assert not isinstance(second_action, FinishAction)
-    assert second_action.tool.name == "DalleTool"
+    assert second_action.tool == "DalleTool"
 
 
 @pytest.mark.usefixtures("client")
@@ -106,7 +106,7 @@ def test_functions_based_agent_tools_with_memory(client: Steamship):
 
     action = agent.next_action(context=ctx)
     assert not isinstance(action, FinishAction)
-    assert action.tool.name == "SearchTool"
+    assert action.tool == "SearchTool"
 
     ctx.chat_history.append_assistant_message("Tsai Ing-wen")
     ctx.completed_steps = []
@@ -115,7 +115,7 @@ def test_functions_based_agent_tools_with_memory(client: Steamship):
 
     second_action = agent.next_action(context=ctx)
     assert not isinstance(second_action, FinishAction)
-    assert second_action.tool.name == "DalleTool"
+    assert second_action.tool == "DalleTool"
 
     found = False
     for block in second_action.input:
