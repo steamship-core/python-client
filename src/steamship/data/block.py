@@ -219,6 +219,27 @@ class Block(CamelModel):
         """Return whether this is a video Block."""
         return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO, MimeTypes.OGG_VIDEO]
 
+    def to_public_url(self) -> str:
+        """Return a public URL to access the Block's data."""
+        if self.public_data and self.client:
+            # First choice: if the block is public, just return its public URL
+            return f"{self.client.config.api_base}block/{self.id}/raw"
+        elif self.content_url:
+            # Second choice: if block has a content_url assigned to it; just send that.
+            return self.content_url
+        elif self.client:
+            # Last choice: send back a signed URL. Adding here but will need an Engine change.
+            raise SteamshipError(
+                message=f"Unable to create a signed URL for block id={self.id}. Unimplemented in Engine."
+            )
+
+        if not self.client:
+            raise SteamshipError(
+                message=f"Unable to create a public URL for block id={self.id}. Client was absent."
+            )
+
+        raise SteamshipError(message=f"Unable to create a public URL for block id={self.id}.")
+
     @property
     def raw_data_url(self) -> Optional[str]:
         """Return a URL at which the data content of this Block can be accessed.  If public_data is True,

@@ -149,12 +149,13 @@ class SlackRequest(BaseModel):
 class SlackTransportConfig(Config):
     """Configuration object for the SlackTransport."""
 
-    # TODO: Makes sense to put options here related to which kinds of messages trigger interaction.
+    # TODO: This is a placeholder for a V2 to include a choice of what kind of scope you wish your bot to have.
+    #       For example: only reply to direct mentions? Listen to ALL messages?
     pass
 
 
 class SlackTransport(Transport):
-    """Preliminary support for Slack I/O.
+    """Slack Transport Mixin for Steamship Agent to Slack interaction.
 
     Current support:
     - Outputs: outputs: text, image, video, audio output
@@ -185,6 +186,7 @@ class SlackTransport(Transport):
     bot_token: str
     agent: Agent
     agent_service: AgentService
+    config: SlackTransportConfig
 
     def __init__(
         self,
@@ -197,13 +199,11 @@ class SlackTransport(Transport):
         self.bot_token = None
         self.agent = agent
         self.agent_service = agent_service
+        self.config = config
 
     def instance_init(self, config: Config, invocation_context: InvocationContext):
+        """Called when the owning AgentService initializes for the first time."""
         pass
-
-    def _to_url(self, block: Block) -> str:
-        # TODO: Return the URL corresponding to the Block's media
-        return "URL"
 
     def _manifest(self) -> dict:
         """Return the Slack Manifest which describes this app."""
@@ -297,12 +297,12 @@ class SlackTransport(Transport):
                     {"type": "section", "text": {"type": "mrkdwn", "text": block.text}}
                 )
             elif block.is_image():
-                image_url = self._to_url(block)
+                image_url = block.to_public_url()
                 slack_blocks.append(
                     {"type": "image", "image_url": image_url, "alt_text": image_url}
                 )
             elif block.is_audio():
-                audio_url = self._to_url(block)
+                audio_url = block.to_public_url()
                 slack_blocks.append(
                     {
                         "type": "section",
@@ -313,7 +313,7 @@ class SlackTransport(Transport):
                     }
                 )
             elif block.is_video():
-                video_url = self._to_url(block)
+                video_url = block.to_public_url()
                 slack_blocks.append(
                     {"type": "video", "video_url": video_url, "alt_text": video_url}
                 )
@@ -331,14 +331,13 @@ class SlackTransport(Transport):
             logging.error("Unable to send Slack Message: no chat_id on output blocks")
             return
 
-        # https://api.slack.com/methods/chat.postMessage
         headers = {
             "Authorization": f"Bearer {bot_token}",
             "Content-Type": "application/json",
         }
         body = {
             "blocks": slack_blocks,
-            "text": text,  # This is for mobile previews
+            "text": text,  # This is for mobile previews. The "block" key has the real content.
             "channel": chat_id,
         }
 
