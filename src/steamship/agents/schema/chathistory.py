@@ -227,3 +227,46 @@ class ChatHistory:
         if self.embedding_index is None:
             raise SteamshipError("This ChatHistory has no embedding index and is not searchable.")
         return self.embedding_index.search(text, k)
+
+    def is_searchable(self) -> bool:
+        return self.embedding_index is not None
+
+    def delete_messages(self, selector: MessageSelector):
+        """Delete a set of selected messages from the ChatHistory.
+
+        If `selector == None`, no messages will be deleted.
+
+        NOTES:
+        - upon deletion, refresh() is called to ensure up-to-date history refs.
+        - causes a full re-index of chat history if the history is searchable.
+        """
+        if selector:
+            selected_messages = selector.get_messages(self.messages)
+            for msg in selected_messages:
+                msg.delete()
+
+            self.refresh()
+            if self.is_searchable():
+                self.embedding_index.reset()
+                for msg in self.messages:
+                    for tag in msg.tags:
+                        if tag.kind == TagKind.CHAT and tag.name == ChatTag.CHUNK:
+                            # TODO(dougreid): figure out why tag.text gets lost.
+                            if not tag.text:
+                                tag.text = msg.text[tag.start_idx : tag.end_idx]
+                            self.embedding_index.insert(tag)
+
+        self.refresh()
+
+    def clear(self):
+        """Deletes ALL messages from the ChatHistory (including system).
+
+        NOTE: upon deletion, refresh() is called to ensure up-to-date history refs.
+        """
+        for block in self.file.blocks:
+            block.delete()
+
+        if self.is_searchable():
+            self.embedding_index.reset()
+
+        self.refresh()

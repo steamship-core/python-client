@@ -314,10 +314,12 @@ class Block(CamelModel):
 
         self.tags.append(tag)
 
-    def as_llm_input(self) -> str:
+    def as_llm_input(self, exclude_block_wrapper: Optional[bool] = False) -> str:
         if self.is_text():
             return self.text
         else:
+            if exclude_block_wrapper:
+                return f"{self.id}"
             return f"Block({self.id})"
 
 

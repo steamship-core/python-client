@@ -94,12 +94,6 @@ class ModelCheckpoint(CamelModel):
             )
         download_from_signed_url(download_resp.signed_url, to_file=self.archive_path_on_disk())
         unzip_folder(self.archive_path_on_disk(), into_folder=self.folder_path_on_disk())
-        if not download_resp or not download_resp.signed_url:
-            raise SteamshipError(
-                message=f"Received empty Signed URL for model download of '{self.handle}."
-            )
-        download_from_signed_url(download_resp.signed_url, to_file=self.archive_path_on_disk())
-        unzip_folder(self.archive_path_on_disk(), into_folder=self.folder_path_on_disk())
         return self.folder_path_on_disk()
 
     def _upload_model_zip(self, as_handle: str = None):
