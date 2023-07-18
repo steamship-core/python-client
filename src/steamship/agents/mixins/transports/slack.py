@@ -15,7 +15,7 @@ from steamship.agents.utils import with_llm
 from steamship.invocable import Config, InvocableResponse, InvocationContext, get, post
 from steamship.utils.kv_store import KeyValueStore
 
-POST_URL = "https://slack.com/api/chat.postMessage"
+SLACK_API_BASE = "https://slack.com/api/"
 SETTINGS_KVSTORE_KEY = "slack-transport"
 
 
@@ -151,7 +151,10 @@ class SlackTransportConfig(Config):
 
     # TODO: This is a placeholder for a V2 to include a choice of what kind of scope you wish your bot to have.
     #       For example: only reply to direct mentions? Listen to ALL messages?
-    pass
+
+    slack_api_base: str = Field(
+        SLACK_API_BASE, description="Slack API base URL. If blank defaults to production Slack."
+    )
 
 
 class SlackTransport(Transport):
@@ -341,7 +344,9 @@ class SlackTransport(Transport):
             "channel": chat_id,
         }
 
-        requests.post(POST_URL, headers=headers, json=body)
+        post_url = f"{self.config.slack_api_base}chat.postMessage"
+
+        requests.post(post_url, headers=headers, json=body)
 
     def build_emit_func(self, chat_id: str) -> EmitFunc:
         """Return an EmitFun that sends messages to the appropriate Slack channel."""
@@ -461,3 +466,11 @@ class SlackTransport(Transport):
             return None
         self.bot_token = v.get("token", None)
         return self.bot_token
+
+    @post("is_slack_token_set")
+    def is_slack_token_set(self) -> InvocableResponse[bool]:
+        """Return whether the Slack token has been set as a way for a remote UI to check status."""
+        token = self.get_slack_access_token()
+        if token is None:
+            return InvocableResponse(json=False)
+        return InvocableResponse(json=True)
