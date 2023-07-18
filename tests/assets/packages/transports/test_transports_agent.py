@@ -10,8 +10,9 @@ from steamship.invocable import Config, InvocationContext
 
 
 class TestTransportsAgentConfig(Config):
-    bot_token: Optional[str] = None
-    slack_api_base: Optional[str] = None
+    bot_token: Optional[str] = ""
+    api_base: Optional[str] = ""
+    slack_api_base: Optional[str] = ""
 
 
 class TestAgent(Agent):
@@ -31,6 +32,7 @@ class TestAgent(Agent):
                 content="some image bytes",
                 mime_type=MimeTypes.PNG,
                 file_id=output_file.id,
+                public_data=True,
             )
         elif input_text == "audio":
             output_file = File.create(self.client, blocks=[])
@@ -39,6 +41,7 @@ class TestAgent(Agent):
                 content="some audio bytes",
                 mime_type=MimeTypes.WAV,
                 file_id=output_file.id,
+                public_data=True,
             )
         elif input_text == "video":
             output_file = File.create(self.client, blocks=[])
@@ -47,6 +50,7 @@ class TestAgent(Agent):
                 content="some video bytes",
                 mime_type=MimeTypes.MP4_VIDEO,
                 file_id=output_file.id,
+                public_data=True,
             )
         else:
             output_block = Block(text=f"Response to: {input_text}")
@@ -76,14 +80,19 @@ class TestTransportsAgentService(AgentService):
         self.add_mixin(
             SteamshipWidgetTransport(client=client, agent_service=self, agent=self.agent)
         )
-        self.add_mixin(
-            TelegramTransport(
-                client=client,
-                config=TelegramTransportConfig(bot_token=self.config.bot_token),
-                agent_service=self,
-                agent=self.agent,
+        if self.config.bot_token:
+            # Only add the mixin if a telegram key was provided.
+            self.add_mixin(
+                TelegramTransport(
+                    client=client,
+                    # TODO: We need to rename these telegram_token and telegram_api_base
+                    config=TelegramTransportConfig(
+                        bot_token=self.config.bot_token, api_base=self.config.api_base
+                    ),
+                    agent_service=self,
+                    agent=self.agent,
+                )
             )
-        )
         self.add_mixin(
             SlackTransport(
                 client=client,

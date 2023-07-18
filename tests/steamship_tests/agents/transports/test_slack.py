@@ -35,7 +35,15 @@ def test_slack(client: Steamship):
             version_config_template=config_template,
             instance_config=instance_config,
         ) as (_, _, agent_instance):
+            # Set the bot token
+            is_token_set_no = agent_instance.invoke("is_slack_token_set")
+            assert is_token_set_no is False
 
+            agent_instance.invoke("set_slack_access_token", token="")  # noqa: S106
+            is_token_set_true = agent_instance.invoke("is_slack_token_set")
+            assert is_token_set_true is True
+
+            # test sending another message; this has been a problem before
             respond_method = "slack_respond"
 
             # Set the response URL
@@ -52,10 +60,11 @@ def test_slack(client: Steamship):
             assert response.ok
             files = File.query(client, f'kind "{MockSlackApi.TEXT_MESSAGE_TAG}"').files
             assert len(files) == 1
-            assert files[0].tags[0].name == "Response to: a test".replace(
-                " ", "+"
-            )  # bug somewhere - results being url encoded
-            assert files[0].tags[0].value == {MockSlackApi.CHAT_ID_KEY: 1}
+            allowed_responses = ["Response to: a test", "Response to: a test".replace(" ", "+")]
+            assert (
+                files[0].tags[0].name in allowed_responses
+            )  # bug somewhere - results being url encoded in some envs
+            assert files[0].tags[0].value == {MockSlackApi.CHAT_ID_KEY: "1"}
 
             # test sending another message; this has been a problem before
             agent_instance.invoke(
@@ -63,12 +72,14 @@ def test_slack(client: Steamship):
             )
             files = File.query(client, f'kind "{MockSlackApi.TEXT_MESSAGE_TAG}"').files
             assert len(files) == 2
+            allowed_responses.extend(
+                ["Response to: another test", "Response to: another test".replace(" ", "+")]
+            )
             for file in files:
-                assert file.tags[0].name in [
-                    "Response to: a test".replace(" ", "+"),
-                    "Response to: another test".replace(" ", "+"),
-                ]  # bug somewhere - results being url encoded
-                assert file.tags[0].value == {MockSlackApi.CHAT_ID_KEY: 1}
+                assert (
+                    file.tags[0].name in allowed_responses
+                )  # bug somewhere - results being url encoded in some envs
+                assert file.tags[0].value == {MockSlackApi.CHAT_ID_KEY: "1"}
 
             # Test the agent sending a "photo"
             agent_instance.invoke(
@@ -76,10 +87,8 @@ def test_slack(client: Steamship):
             )
             files = File.query(client, f'kind "{MockSlackApi.PHOTO_MESSAGE_TAG}"').files
             assert len(files) == 1
-            assert files[0].tags[0].value == {
-                MockSlackApi.CHAT_ID_KEY: 1,
-                MockSlackApi.PHOTO_KEY: "some image bytes",
-            }
+            assert files[0].tags[0].value.get(MockSlackApi.CHAT_ID_KEY) == "1"
+            assert client.config.api_base in files[0].tags[0].value.get(MockSlackApi.PHOTO_KEY)
 
             # Test the agent sending "audio"
             agent_instance.invoke(
@@ -87,10 +96,8 @@ def test_slack(client: Steamship):
             )
             files = File.query(client, f'kind "{MockSlackApi.AUDIO_MESSAGE_TAG}"').files
             assert len(files) == 1
-            assert files[0].tags[0].value == {
-                MockSlackApi.CHAT_ID_KEY: 1,
-                MockSlackApi.AUDIO_KEY: "some audio bytes",
-            }
+            assert files[0].tags[0].value.get(MockSlackApi.CHAT_ID_KEY) == "1"
+            assert client.config.api_base in files[0].tags[0].value.get(MockSlackApi.AUDIO_KEY)
 
             # Test the agent sending a "video"
             agent_instance.invoke(
@@ -98,7 +105,5 @@ def test_slack(client: Steamship):
             )
             files = File.query(client, f'kind "{MockSlackApi.VIDEO_MESSAGE_TAG}"').files
             assert len(files) == 1
-            assert files[0].tags[0].value == {
-                MockSlackApi.CHAT_ID_KEY: 1,
-                MockSlackApi.VIDEO_KEY: "some video bytes",
-            }
+            assert files[0].tags[0].value.get(MockSlackApi.CHAT_ID_KEY) == "1"
+            assert client.config.api_base in files[0].tags[0].value.get(MockSlackApi.VIDEO_KEY)

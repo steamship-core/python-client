@@ -283,6 +283,9 @@ class SlackTransport(Transport):
         chat_id = None
 
         for block in blocks:
+            # This is required for the public_url creation below.
+            block.client = self.client
+
             if slack_blocks is None:
                 slack_blocks = []
 

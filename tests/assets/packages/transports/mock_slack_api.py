@@ -98,5 +98,5 @@ class MockSlackApi(PackageService):
                     return self.send_message(channel, txt)
             elif kind == "image":
                 image_url = block.get("image_url")
-                return self.send_video(channel, image_url)
+                return self.send_photo(channel, image_url)
         raise SteamshipError(message="Unsure how to respond")
