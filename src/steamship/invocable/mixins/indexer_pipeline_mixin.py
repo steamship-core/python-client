@@ -78,10 +78,14 @@ class IndexerPipelineMixin(PackageMixin):
         )
 
         # Step 3: Index the File
+        _metadata = {"url": url}
+        if metadata is not None:
+            _metadata.update(metadata)
+
         index_task = self.invocable.invoke_later(
             method="index_file",
             wait_on_tasks=[blockify_task],
-            arguments={"file_id": file.id, "index_handle": index_handle, "metadata": metadata},
+            arguments={"file_id": file.id, "index_handle": index_handle, "metadata": _metadata},
         )
 
         # Step 4: Set the File Status to 'indexed'

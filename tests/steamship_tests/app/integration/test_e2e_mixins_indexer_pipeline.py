@@ -2,7 +2,7 @@ import pytest
 from steamship_tests import PACKAGES_PATH
 from steamship_tests.utils.deployables import deploy_package
 
-from steamship import Steamship, Task, TaskState
+from steamship import MimeTypes, Steamship, Task, TaskState
 from steamship.data.plugin.index_plugin_instance import SearchResults
 
 
@@ -37,9 +37,7 @@ def test_indexer_pipeline_mixin(client: Steamship):
         # This will test metadata
         pdf_url2 = "https://www.with.org/tao_te_ching_en.pdf"
 
-        index_task2 = instance.invoke(
-            "index_url", url=pdf_url2, metadata={"url": pdf_url2, "is_tao": True}
-        )
+        index_task2 = instance.invoke("index_url", url=pdf_url2, metadata={"is_tao": True})
         index_task2 = Task.parse_obj(index_task2)
         index_task2.client = client
 
@@ -60,6 +58,7 @@ def test_indexer_pipeline_mixin(client: Steamship):
         assert winner.tag.value.get("page") is not None
         assert winner.tag.value.get("is_tao") is True
         assert winner.tag.value.get("url") == pdf_url2
+        assert winner.tag.value.get("mime_type") == MimeTypes.PDF
 
         # NOTE NOTE NOTE
         # This portion of the test will be added.. but commented out, to be run only on localhost on an as-needed

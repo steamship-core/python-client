@@ -1,7 +1,7 @@
 from typing import Optional, cast
 
 from steamship import Block, DocTag, File, Steamship, Tag
-from steamship.data import TagValueKey
+from steamship.data import TagKind, TagValueKey
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance, SearchResults
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
@@ -93,6 +93,7 @@ class IndexerMixin(PackageMixin):
         _metadata = {}
         if metadata:
             _metadata.update(metadata)
+
         _metadata.update(
             {
                 "source": "",
@@ -142,8 +143,20 @@ class IndexerMixin(PackageMixin):
         file = File.get(self.client, _id=file_id)
         update_file_status(self.client, file, "Indexing")
 
+        _metadata = {}
+        if file.mime_type:
+            _metadata["mime_type"] = file.mime_type
+
+        for tag in file.tags or []:
+            if tag.kind == TagKind.DOCUMENT and tag.name == DocTag.TITLE:
+                if title := tag.value.get(TagValueKey.STRING_VALUE):
+                    _metadata["title"] = title
+
+        if metadata:
+            _metadata.update(metadata)
+
         for block in file.blocks or []:
-            self._index_block(block, metadata=metadata, index_handle=index_handle)
+            self._index_block(block, metadata=_metadata, index_handle=index_handle)
 
         update_file_status(self.client, file, "Indexed")
         return True
