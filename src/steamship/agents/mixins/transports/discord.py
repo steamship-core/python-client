@@ -15,7 +15,7 @@ from steamship.agents.utils import with_llm
 from steamship.invocable import Config, InvocableResponse, InvocationContext, get, post
 from steamship.utils.kv_store import KeyValueStore
 
-DISCORD_API_BASE = "https://slack.com/api/"
+DISCORD_API_BASE = "https://discord.com/api/v9/"
 SETTINGS_KVSTORE_KEY = "discord-transport"
 
 
@@ -39,6 +39,15 @@ class DiscordMessage(BaseModel):
     type: Optional[int] = Field(
         description="Type of message"  # DEFAULT 0; REPLY 19; THREAD_STARTER_MESSAGE 21,
     )
+
+    def to_blocks(self) -> List[Block]:
+        ret = []
+        if self.content:
+            block = Block(text=self.content)
+            block.set_chat_id(str(self.channel_id))
+            # TODO: Set other metadata on block
+            ret.append(block)
+        return ret
 
 
 class DiscordChannel(BaseModel):
@@ -71,11 +80,21 @@ class DiscordInteraction(BaseModel):
         description="Channel that the interaction was sent from"
     )
 
+    def is_message(self) -> bool:
+        return self.type == 3
+
+    def to_blocks(self) -> List[Block]:
+        ret = []
+        if self.message:
+            for block in self.message.to_blocks():
+                ret.append(block)
+        return ret
+
 
 class DiscordTransportConfig(Config):
     """Configuration object for the DiscordTransport."""
 
-    slack_api_base: str = Field(
+    discord_api_base: str = Field(
         DISCORD_API_BASE, description="Slack API base URL. If blank defaults to production Slack."
     )
 
@@ -105,57 +124,6 @@ class DiscordTransport(Transport):
         """Called when the owning AgentService initializes for the first time."""
         pass
 
-    def _manifest(self) -> dict:
-        """Return the Slack Manifest which describes this app."""
-        # When running in development, the below values will be none.
-        invocable_instance_handle = (
-            self.agent_service.context.invocable_instance_handle or "Development Steamship Agent"
-        )
-        invocable_handle = (
-            self.agent_service.context.invocable_handle or "Development Steamship Agent"
-        )
-
-        # Slack only supports names of 25 characters or less
-        invocable_instance_handle = invocable_instance_handle[:34]
-
-        """Return the Slack Manifest for this Transport."""
-        return {
-            "display_information": {
-                "name": invocable_instance_handle,
-                "description": f"An instance of {self.agent_service.context.invocable_handle} powered by Steamship",
-            },
-            "features": {"bot_user": {"display_name": invocable_handle, "always_online": True}},
-            "oauth_config": {
-                "scopes": {
-                    "bot": [
-                        "commands",
-                        "app_mentions:read",
-                        "chat:write",
-                        "chat:write.public",
-                        "im:history",
-                    ]
-                }
-            },
-            "settings": {
-                "org_deploy_enabled": True,
-                "socket_mode_enabled": False,
-                "token_rotation_enabled": False,
-                "interactivity": {
-                    "is_enabled": True,
-                    "request_url": f"{self.agent_service.context.invocable_url}slack_respond",
-                },
-                "event_subscriptions": {
-                    "bot_events": [
-                        "app_home_opened",
-                        "app_mention",
-                        "message.app_home",
-                        "message.im",
-                    ],
-                    "request_url": f"{self.agent_service.context.invocable_url}slack_event",
-                },
-            },
-        }
-
     def _manifest_url(self) -> str:
         """Return the Manifest Installation URL of the Bot."""
         manifest_dict = self._manifest()
@@ -176,15 +144,15 @@ class DiscordTransport(Transport):
         """
 
         text = None
-        slack_blocks = None
+        embeds = None
         chat_id = None
 
         for block in blocks:
             # This is required for the public_url creation below.
             block.client = self.client
 
-            if slack_blocks is None:
-                slack_blocks = []
+            if embeds is None:
+                embeds = []
 
             if block.chat_id:
                 chat_id = block.chat_id
@@ -193,58 +161,42 @@ class DiscordTransport(Transport):
                 if not text:
                     # This is the fallback for mobile notifications
                     text = block.text
-                # The real thing we send is a block
-                if blocks is None:
-                    blocks = []
-                slack_blocks.append(
-                    {"type": "section", "text": {"type": "mrkdwn", "text": block.text}}
-                )
+                else:
+                    text = f"{text}\n{block.text}"
             elif block.is_image():
-                image_url = block.to_public_url()
-                slack_blocks.append(
-                    {"type": "image", "image_url": image_url, "alt_text": image_url}
-                )
+                url = block.to_public_url()
+                embeds.append({"type": "image", "url": url})
             elif block.is_audio():
-                audio_url = block.to_public_url()
-                slack_blocks.append(
-                    {
-                        "type": "section",
-                        "text": {
-                            "type": "mrkdwn",
-                            "text": f"<{audio_url}|Audio Message>",
-                        },
-                    }
-                )
+                url = block.to_public_url()
+                embeds.append({"type": "link", "url": url})
             elif block.is_video():
-                video_url = block.to_public_url()
-                slack_blocks.append(
-                    {"type": "video", "video_url": video_url, "alt_text": video_url}
-                )
+                url = block.to_public_url()
+                embeds.append({"type": "video", "url": url})
             else:
                 logging.error(
-                    f"Slack transport unable to send a block of MimeType {block.mime_type}"
+                    f"Discord transport unable to send a block of MimeType {block.mime_type}"
                 )
 
-        bot_token = self.get_slack_access_token()
+        bot_token = self.get_discord_access_token()
         if not bot_token:
-            logging.error("Unable to send Slack Message: Slack transport had null bot token")
+            logging.error("Unable to send Discord Message: Discord transport had null bot token")
             return
 
         if not chat_id:
-            logging.error("Unable to send Slack Message: no chat_id on output blocks")
+            logging.error("Unable to send Discord Message: no chat_id on output blocks")
             return
 
         headers = {
-            "Authorization": f"Bearer {bot_token}",
+            "Authorization": f"{bot_token}",
             "Content-Type": "application/json",
         }
         body = {
-            "blocks": slack_blocks,
-            "text": text,  # This is for mobile previews. The "block" key has the real content.
-            "channel": chat_id,
+            "content": text,
+            #            'nonce': str(random.randint(10 ** 18, 10 ** 18 + 2 * (10 ** 17))),
+            "tts": False,
         }
 
-        post_url = f"{self.config.slack_api_base}chat.postMessage"
+        post_url = f"{self.config.discord_api_base}channels/{chat_id}/messages"
 
         requests.post(post_url, headers=headers, json=body)
 
@@ -307,26 +259,16 @@ class DiscordTransport(Transport):
     def _respond_to_webhook(self, **kwargs) -> InvocableResponse[str]:
         """Respond to inbound Slack events. This is a PUBLIC endpoint."""
         try:
-            slack_request = DiscordInteraction.parse_obj(kwargs)
-            # TODO: For truly async requests, we'll have to find some way to plumb through the token.
-            # For now it appears to be provided upon each inbound request.
-            if slack_request.event:
-                if slack_request.event.is_message():
-                    logging.info(
-                        f"User {slack_request.event.user} sent message in channel {slack_request.event.channel}"
-                    )
-                    incoming_messages = slack_request.event.to_blocks()
-                    for incoming_message in incoming_messages:
-                        if incoming_message is not None:
-                            logging.info(f"Responding to {incoming_message}")
-                            self._respond_to_block(incoming_message)
-                elif slack_request.event.type == "app_home_opened":
-                    logging.info(
-                        f"User {slack_request.event.user} opened App Tab with channel {slack_request.event.channel}"
-                    )
-                    result = Block(text="Hi there!")
-                    result.set_chat_id(slack_request.event.channel)
-                    self.send([result])
+            discord_request = DiscordInteraction.parse_obj(kwargs)
+            if discord_request.is_message():
+                logging.info(
+                    f"User {discord_request.user} sent message in channel {discord_request.channel_id}"
+                )
+                incoming_messages = discord_request.to_blocks()
+                for incoming_message in incoming_messages:
+                    if incoming_message is not None:
+                        logging.info(f"Responding to {incoming_message}")
+                        self._respond_to_block(incoming_message)
 
         except BaseException as e:
             logging.error(e)
@@ -339,38 +281,33 @@ class DiscordTransport(Transport):
         # Even if we do nothing, make sure we return ok
         return InvocableResponse(string="OK")
 
-    @post("slack_event", public=True)
-    def slack_event(self, **kwargs) -> InvocableResponse[str]:
+    @post("discord_respond", public=True)
+    def discord_respond(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
         return self._respond_to_webhook(**kwargs)
 
-    @post("slack_respond", public=True)
-    def slack_respond(self, **kwargs) -> InvocableResponse[str]:
-        """Respond to an inbound event from Slack."""
-        return self._respond_to_webhook(**kwargs)
-
-    @post("set_slack_access_token")
-    def set_slack_access_token(self, token: str) -> InvocableResponse[str]:
-        """Set the slack access token."""
+    @post("set_discord_access_token")
+    def set_discord_access_token(self, token: str) -> InvocableResponse[str]:
+        """Set the discord access token."""
         kv = KeyValueStore(client=self.agent_service.client, store_identifier=SETTINGS_KVSTORE_KEY)
-        kv.set("slack_token", {"token": token})
+        kv.set("discord_token", {"token": token})
         return InvocableResponse(string="OK")
 
-    def get_slack_access_token(self) -> Optional[str]:
-        """Return the Slack Access token, which permits the agent to post to Slack."""
+    def get_discord_access_token(self) -> Optional[str]:
+        """Return the Discord Access token, which permits the agent to post to Discord."""
         if self.bot_token:
             return self.bot_token
         kv = KeyValueStore(client=self.agent_service.client, store_identifier=SETTINGS_KVSTORE_KEY)
-        v = kv.get("slack_token")
+        v = kv.get("discord_token")
         if not v:
             return None
         self.bot_token = v.get("token", None)
         return self.bot_token
 
-    @post("is_slack_token_set")
-    def is_slack_token_set(self) -> InvocableResponse[bool]:
-        """Return whether the Slack token has been set as a way for a remote UI to check status."""
-        token = self.get_slack_access_token()
+    @post("is_discord_token_set")
+    def is_discord_token_set(self) -> InvocableResponse[bool]:
+        """Return whether the Discord token has been set as a way for a remote UI to check status."""
+        token = self.get_discord_access_token()
         if token is None:
             return InvocableResponse(json=False)
         return InvocableResponse(json=True)
