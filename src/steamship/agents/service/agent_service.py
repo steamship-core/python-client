@@ -3,7 +3,7 @@ import uuid
 from typing import List, Optional
 
 from steamship import Block, SteamshipError, Task
-from steamship.agents.llms import OpenAI
+from steamship.agents.llms.openai import ChatOpenAI
 from steamship.agents.logging import AgentLogging
 from steamship.agents.schema import Action, Agent, FinishAction
 from steamship.agents.schema.context import AgentContext, Metadata
@@ -106,7 +106,7 @@ class AgentService(PackageService):
         context.chat_history.append_user_message(prompt)
 
         # Add a default LLM
-        context = with_llm(context=context, llm=OpenAI(client=self.client, model_name="gpt-4-0613"))
+        context = with_llm(context=context, llm=ChatOpenAI(client=self.client, model_name="gpt-4"))
 
         # AgentServices provide an emit function hook to access the output of running
         # agents and tools. The emit functions fire at after the supplied agent emits
