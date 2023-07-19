@@ -107,6 +107,7 @@ fabric.properties
 
 # Generated website
 docs/_build
+docs/_lazy_docs_build
 venv
 
 # Logs directory

@@ -84,6 +84,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_inline_tabs",
+    "sphinx_markdown_builder",
 ]
 
 # Add Any paths that contain templates here, relative to this directory.
@@ -127,6 +128,7 @@ release = ""  # Is set by calling `setup.py docs`
 # directories to ignore when looking for source files.
 exclude_patterns = [
     "_build",
+     "_lazy_docs_build",
     "Thumbs.db",
     ".DS_Store",
     ".venv",
