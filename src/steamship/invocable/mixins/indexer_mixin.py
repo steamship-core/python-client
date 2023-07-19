@@ -96,7 +96,6 @@ class IndexerMixin(PackageMixin):
 
         _metadata.update(
             {
-                "source": "",
                 "file_id": block.file_id,
                 "block_id": block.id,
                 "page": page_id,
@@ -121,7 +120,6 @@ class IndexerMixin(PackageMixin):
         _metadata.update(metadata)
         _metadata.update(
             {
-                "source": "",
                 "file_id": block.file_id,
                 "block_id": block.id,
                 "page": page_id,
