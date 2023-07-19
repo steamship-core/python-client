@@ -162,7 +162,7 @@ class AgentREPL(SteamshipREPL):
         self.client = client or Steamship()
         self.config = agent_package_config
         self.agent_instance = None
-        self.context_id = context_id or uuid.uuid4()
+        self.context_id = context_id or str(uuid.uuid4())
 
     def run_with_client(self, client: Steamship, **kwargs):
         try:
@@ -208,7 +208,7 @@ class HttpREPL(SteamshipREPL):
         super().__init__(**kwargs)
         self.prompt_url = prompt_url
         self.client = client or Steamship()
-        self.context_id = context_id or uuid.uuid4()
+        self.context_id = context_id or str(uuid.uuid4())
 
     def run_with_client(self, client: Steamship, **kwargs):  # noqa: C901
         try:
