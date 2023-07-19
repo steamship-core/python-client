@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    steamship.agents.examples
+   steamship.agents.functional
    steamship.agents.llms
    steamship.agents.mixins
    steamship.agents.react

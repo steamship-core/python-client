@@ -34,14 +34,3 @@ That gives you the ability to use the full breadth of modern AI with a single ``
       :link: cookbook/index.html
 
       Code snippets for converting content, tagging entities, searching content, and more.
-
-Packages Table of Contents
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. toctree::
-   :maxdepth: 2
-
-   Using Packages <using>
-   Developing Packages <developing/index>
-   Package Project Structure <developing/project-structure>
-   Package Cookbook <cookbook/index>

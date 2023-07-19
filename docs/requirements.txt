@@ -10,3 +10,4 @@ sphinx-design
 sphinx-inline-tabs
 sphinx-tabs
 Pygments
+sphinx-markdown-builder==0.6.3
