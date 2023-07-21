@@ -29,7 +29,7 @@ class FunctionsBasedOutputParser(OutputParser):
         fc = wrapper.get("function_call")
         name = fc.get("name", "")
         if name.startswith("functions."):
-            name = name[len("functions."):]  # occasionally, OpenAI prepends "functions."
+            name = name[len("functions.") :]  # occasionally, OpenAI prepends "functions."
         tool = self.tools_lookup_dict.get(name, None)
         if tool is None:
             raise RuntimeError(

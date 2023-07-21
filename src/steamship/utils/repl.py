@@ -18,6 +18,7 @@ from steamship.invocable.dev_logging_handler import DevelopmentLoggingHandler
 try:
     from termcolor import colored  # noqa: F401
 except ImportError:
+
     def colored(text: str, color: str, **kwargs):
         print(text)
 
