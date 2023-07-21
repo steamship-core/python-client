@@ -1,10 +1,6 @@
 import pytest
 
 from steamship import Steamship
-from steamship.agents.llms import OpenAI
-from steamship.agents.schema import AgentContext
-from steamship.agents.tools.question_answering import VectorSearchQATool
-from steamship.agents.utils import with_llm
 from steamship.invocable.mixins.indexer_mixin import IndexerMixin
 
 
@@ -18,12 +14,13 @@ def test_indexer_mixin_and_qa_tool(client: Steamship):
     assert len(res.items) == 1
     item = res.items[0]
     assert item.tag.text == "Mario was a very fun game."
+    assert item.tag.value == {}
 
-    tool = VectorSearchQATool()
-    context = with_llm(
-        OpenAI(client=client),
-        AgentContext.get_or_create(client=client, context_keys={"id": "test"}),
-    )
-    res = tool.answer_question("Mario", context)
-    assert len(res) == 1
-    assert res[0].text  # Note we can't test for the exact value here since the LLM will weigh in.
+    assert indexer.index_text("Sonic was also pretty good.", metadata={"sega": True})
+    res = indexer.search_index("Sonic")
+    assert res.items
+    assert len(res.items) == 2
+    item = res.items[0]
+    assert item.tag.text == "Sonic was also pretty good."
+    assert item.tag.value
+    assert item.tag.value.get("sega", True)

@@ -19,7 +19,7 @@ try:
     from termcolor import colored  # noqa: F401
 except ImportError:
 
-    def colored(text: str, **kwargs):
+    def colored(text: str, color: str, **kwargs):
         print(text)
 
 

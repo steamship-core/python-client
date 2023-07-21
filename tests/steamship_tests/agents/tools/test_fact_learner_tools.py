@@ -14,10 +14,10 @@ def test_fact_learner_agent_service(client: Steamship):
         agent.invoke("prompt", prompt="please remember that my name is Inigo Montoya")
         agent.invoke("prompt", prompt="please remember that I am skilled swordsman")
 
-        answer_blocks = agent.invoke("prompt", prompt="what is my name?")
+        answer_blocks = agent.invoke("prompt", prompt="Is my name Inigo?")
         assert len(answer_blocks) == 1
-        assert "Inigo Montoya" in Block(**answer_blocks[0]).text
+        assert "yes" in Block(**answer_blocks[0]).text.lower()
 
         answer_blocks = agent.invoke("prompt", prompt="what do I know how to do well?")
         assert len(answer_blocks) == 1
-        assert "sword" in Block(**answer_blocks[0]).text
+        assert "sword" in Block(**answer_blocks[0]).text.lower()

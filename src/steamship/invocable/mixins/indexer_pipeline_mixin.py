@@ -53,6 +53,18 @@ class IndexerPipelineMixin(PackageMixin):
         index_handle: Optional[str] = None,
         mime_type: Optional[str] = None,
     ) -> Task:
+        """Load a URL into an embedding index.
+
+        URL Types supported:
+        - PDF (Text)
+        - TXT and Markdown
+        - YouTube (Though failure rate is high)
+
+        Optional arguments:
+        - mime_type (if it can be guessed by the Content-Type header or the URL schema)
+        - index_handle (uses your default index if blank)
+        - metadata (returned on embedding results for source attribution)
+        """
         # Step 1: Import the URL
         file, task = self.importer_mixin.import_url_to_file_and_task(url)
 
@@ -66,13 +78,14 @@ class IndexerPipelineMixin(PackageMixin):
         )
 
         # Step 3: Index the File
+        _metadata = {"url": url}
+        if metadata is not None:
+            _metadata.update(metadata)
+
         index_task = self.invocable.invoke_later(
             method="index_file",
             wait_on_tasks=[blockify_task],
-            arguments={
-                "file_id": file.id,
-                "index_handle": index_handle,
-            },
+            arguments={"file_id": file.id, "index_handle": index_handle, "metadata": _metadata},
         )
 
         # Step 4: Set the File Status to 'indexed'
