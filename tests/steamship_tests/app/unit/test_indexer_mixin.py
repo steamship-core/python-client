@@ -14,7 +14,7 @@ def test_indexer_mixin_and_qa_tool(client: Steamship):
     assert len(res.items) == 1
     item = res.items[0]
     assert item.tag.text == "Mario was a very fun game."
-    assert item.tag.value is None
+    assert item.tag.value == {}
 
     assert indexer.index_text("Sonic was also pretty good.", metadata={"sega": True})
     res = indexer.search_index("Sonic")
