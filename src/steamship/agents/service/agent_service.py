@@ -39,7 +39,17 @@ class AgentService(PackageService):
         action: Action = None
         if context.llm_cache:
             action = context.llm_cache.lookup(key=input_blocks)
-        if not action:
+        if action:
+            logging.info(
+                f"Using cached response: calling {action.tool}.",
+                extra={
+                    AgentLogging.TOOL_NAME: "LLM",
+                    AgentLogging.IS_MESSAGE: True,
+                    AgentLogging.MESSAGE_TYPE: AgentLogging.OBSERVATION,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+                },
+            )
+        else:
             inputs = ",".join([f"{b.as_llm_input()}" for b in input_blocks])
             logging.info(
                 f"Prompting LLM with: ({inputs})",

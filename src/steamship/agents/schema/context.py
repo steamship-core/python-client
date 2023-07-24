@@ -39,11 +39,11 @@ class AgentContext:
     """Called when an agent execution has completed. These provide a way for the AgentService
     to return the result of an agent execution to the package that requested the agent execution."""
 
-    action_cache: ActionCache
+    action_cache: Optional[ActionCache]
     """Caches all interations with Tools within a Context. This provides a way to avoid duplicated
     calls to Tools when within the same context."""
 
-    llm_cache: LLMCache
+    llm_cache: Optional[LLMCache]
     """Caches all interations with LLMs within a Context. This provides a way to avoid duplicated
     calls to LLMs when within the same context."""
 
