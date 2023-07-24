@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel, Field
 
-from steamship import SteamshipError
+from steamship import SteamshipError, Task
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
@@ -123,6 +123,15 @@ class PackageInstance(CamelModel):
                 return [Block(client=self.client, **potential_blocks)]
         except Exception as e:
             raise SteamshipError(f"Could not convert to blocks: {e}")
+
+    def task_from_invoke(
+        self, path: str, verb: Verb = Verb.POST, timeout_s: Optional[float] = None, **kwargs
+    ) -> Task:
+        task_dict = self.invoke(path=path, verb=verb, timeout_s=timeout_s, **kwargs)
+        try:
+            return Task(client=self.client, **task_dict)
+        except Exception as e:
+            raise SteamshipError(f"Could not convert to task: {e}")
 
     def full_url_for(self, path: str):
         return f"{self.invocation_url}{path}"
