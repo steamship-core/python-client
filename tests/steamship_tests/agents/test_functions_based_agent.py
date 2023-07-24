@@ -84,6 +84,9 @@ def test_functions_based_agent_tool_chaining_without_memory(client: Steamship):
     assert not isinstance(action, FinishAction)
     assert action.tool == "SearchTool"
 
+    if not action.output:
+        action.output = []
+
     action.output.append(Block(text="George Washington"))
     ctx.completed_steps.append(action)
 
