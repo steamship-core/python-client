@@ -618,7 +618,7 @@ def delete(
             return
         except SteamshipError as e:
             click.secho(
-                f"⚠️ Failed to delete instance '{instance}' in workspace '{workspace}': {e.code}",
+                f"⚠️ Failed to delete instance '{instance}' in workspace '{workspace}': {e.message}",
                 fg="red",
             )
             exit(1)
