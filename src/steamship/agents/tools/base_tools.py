@@ -18,6 +18,7 @@ class GeneratorTool(Tool):
     generator_plugin_instance_handle: Optional[str] = None
     generator_plugin_config: dict = {}
     merge_blocks: bool = False
+    make_output_public: bool = False
 
     @abstractmethod
     def accept_output_block(self, block: Block) -> bool:
@@ -45,7 +46,9 @@ class GeneratorTool(Tool):
                 continue
 
             prompt = block.text
-            task = generator.generate(text=prompt, append_output_to_file=True)
+            task = generator.generate(
+                text=prompt, append_output_to_file=True, make_output_public=self.make_output_public
+            )
             tasks.append(task)
 
         # TODO / REMOVE Synchronous execution is a temporary simplification while we merge code.
@@ -78,6 +81,9 @@ class ImageGeneratorTool(GeneratorTool):
     A base class for tools that wrap Steamship Image Generator plugins.
     """
 
+    # So that generated image blocks can be accessed from chat clients
+    make_output_public: bool = True
+
     def accept_output_block(self, block: Block) -> bool:
         return block.is_image()
 
@@ -87,6 +93,9 @@ class VideoGeneratorTool(GeneratorTool):
     A base class for tools that wrap Steamship Video Generator plugins.
     """
 
+    # So that generated video blocks can be accessed from chat clients
+    make_output_public: bool = True
+
     def accept_output_block(self, block: Block) -> bool:
         return block.is_video()
 
@@ -95,6 +104,9 @@ class AudioGeneratorTool(GeneratorTool):
     """
     A base class for tools that wrap Steamship Audio Generator plugins.
     """
+
+    # So that generated audio blocks can be accessed from chat clients
+    make_output_public: bool = True
 
     def accept_output_block(self, block: Block) -> bool:
         return block.is_audio()

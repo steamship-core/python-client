@@ -3,7 +3,7 @@ import uuid
 from typing import List, Optional
 
 from steamship import Block, SteamshipError, Task
-from steamship.agents.llms import OpenAI
+from steamship.agents.llms.openai import ChatOpenAI
 from steamship.agents.logging import AgentLogging
 from steamship.agents.schema import Action, Agent, FinishAction
 from steamship.agents.schema.context import AgentContext, Metadata
@@ -88,20 +88,25 @@ class AgentService(PackageService):
             func(action.output, context.metadata)
 
     @post("prompt")
-    def prompt(self, prompt: Optional[str] = None, **kwargs) -> List[Block]:
+    def prompt(
+        self, prompt: Optional[str] = None, context_id: Optional[str] = None, **kwargs
+    ) -> List[Block]:
         """Run an agent with the provided text as the input."""
         prompt = prompt or kwargs.get("question")
 
         # AgentContexts serve to allow the AgentService to run agents
         # with appropriate information about the desired tasking.
-        # Here, we create a new context on each prompt, and append the
-        # prompt to the message history stored in the context.
-        context_id = uuid.uuid4()
-        context = AgentContext.get_or_create(self.client, {"id": f"{context_id}"})
+        if context_id is None:
+            context_id = uuid.uuid4()
+            logging.warning(
+                f"No context_id was provided; generated {context_id}. This likely means no conversational history will be present."
+            )
+
+        context = AgentContext.get_or_create(self.client, context_keys={"id": f"{context_id}"})
         context.chat_history.append_user_message(prompt)
 
         # Add a default LLM
-        context = with_llm(context=context, llm=OpenAI(client=self.client, model_name="gpt-4-0613"))
+        context = with_llm(context=context, llm=ChatOpenAI(client=self.client, model_name="gpt-4"))
 
         # AgentServices provide an emit function hook to access the output of running
         # agents and tools. The emit functions fire at after the supplied agent emits

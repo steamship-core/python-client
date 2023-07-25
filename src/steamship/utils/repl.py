@@ -1,6 +1,7 @@
 import abc
 import contextlib
 import logging
+import uuid
 from abc import ABC
 from json import JSONDecodeError
 from typing import Any, Dict, List, Optional, Type, Union, cast
@@ -18,7 +19,7 @@ try:
     from termcolor import colored  # noqa: F401
 except ImportError:
 
-    def colored(text: str, **kwargs):
+    def colored(text: str, color: str, **kwargs):
         print(text)
 
 
@@ -84,7 +85,7 @@ class SteamshipREPL(ABC):
             output = block.content_url
         else:
             block.set_public_data(True)
-            output = block.raw_data_url
+            output = f"{self.client.config.api_base}block/{block.id}/raw"
         if output:
             self.print_string(output, metadata)
 
@@ -142,6 +143,7 @@ class ToolREPL(SteamshipREPL):
 class AgentREPL(SteamshipREPL):
     agent_class: Type[AgentService]
     agent_instance: Optional[AgentService]
+    context_id: Optional[str] = None
     client = Steamship
     config = None
 
@@ -151,6 +153,7 @@ class AgentREPL(SteamshipREPL):
         method: Optional[str] = None,
         agent_package_config: Optional[Dict[str, Any]] = None,
         client: Optional[Steamship] = None,
+        context_id: Optional[str] = None,
         **kwargs,
     ):
         super().__init__(**kwargs)
@@ -159,6 +162,7 @@ class AgentREPL(SteamshipREPL):
         self.client = client or Steamship()
         self.config = agent_package_config
         self.agent_instance = None
+        self.context_id = context_id or str(uuid.uuid4())
 
     def run_with_client(self, client: Steamship, **kwargs):
         try:
@@ -178,7 +182,7 @@ class AgentREPL(SteamshipREPL):
 
         while True:
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
-            output = responder(input_text)
+            output = responder(prompt=input_text, context_id=self.context_id)
             self.print_object_or_objects(output)
 
     def run(self, **kwargs):
@@ -192,11 +196,19 @@ class HttpREPL(SteamshipREPL):
     prompt_url: Optional[AgentService]
     client = Steamship
     config = None
+    context_id: Optional[str] = None
 
-    def __init__(self, prompt_url: str, client: Optional[Steamship] = None, **kwargs):
+    def __init__(
+        self,
+        prompt_url: str,
+        context_id: Optional[str] = None,
+        client: Optional[Steamship] = None,
+        **kwargs,
+    ):
         super().__init__(**kwargs)
         self.prompt_url = prompt_url
         self.client = client or Steamship()
+        self.context_id = context_id or str(uuid.uuid4())
 
     def run_with_client(self, client: Steamship, **kwargs):  # noqa: C901
         try:
@@ -212,7 +224,7 @@ class HttpREPL(SteamshipREPL):
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
             resp = requests.post(
                 self.prompt_url,
-                json={"prompt": input_text},
+                json={"prompt": input_text, "context_id": self.context_id},
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {self.client.config.api_key.get_secret_value()}",
