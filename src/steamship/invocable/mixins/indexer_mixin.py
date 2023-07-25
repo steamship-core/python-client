@@ -5,7 +5,6 @@ from steamship.data import TagValueKey
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance, SearchResults
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
-from steamship.utils.file_tags import update_file_status
 from steamship.utils.text_chunker import chunk_text
 
 DEFAULT_EMBEDDING_INDEX_CONFIG = {
@@ -78,7 +77,7 @@ class IndexerMixin(PackageMixin):
         for chunk in chunk_text(
                 text, chunk_size=self.context_window_size, chunk_overlap=self.context_window_overlap
         ):
-            tags.append(Tag(text=chunk, value={**metadata, "chunk": chunk}))
+            tags.append(Tag(text=chunk, value={**metadata, "chunk": chunk, "_index": index_handle}))
         self._get_index(index_handle).insert(tags)
         return True
 
@@ -94,6 +93,7 @@ class IndexerMixin(PackageMixin):
             **block.metadata,
             "page": page,
             **(metadata or {}),
+            "_index": index_handle
         }
 
         return self.index_text(block.text, metadata=_metadata, index_handle=index_handle)
@@ -129,6 +129,7 @@ class IndexerMixin(PackageMixin):
             _metadata = {
                 **file.metadata,
                 **(metadata or {}),
+                "_index": index_handle
             }
 
             self._index_block(
