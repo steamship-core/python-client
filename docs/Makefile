@@ -28,19 +28,9 @@ markdown:
 	pip install -r ../requirements.txt
 	pip install -r ../requirements.dev.txt
 	pip install -r ./requirements.txt
-	rm -rf $(BUILDDIR)/markdown
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-	mkdir -p $(BUILDDIR)/markdown/client-reference
-	rm -rf $(BUILDDIR)/markdown/api
-	./clear_markdown.sh
-	cp -R $(BUILDDIR)/markdown/* $(DOCSDIR)
-	./rename_index.sh
-	rm -rf $(DOCSDIR)/_sphinx_design_static/
-	find $(DOCSDIR) -name '*.md' -exec sed -i '' 's/(\([^)]*.png\))/(\/\1)/g' {} \;
-	lazydocs --overview-file="steamship.md" --src-base-url="https://github.com/steamship-core/python-client/tree/main/" ../src/
-	cp -R $(BUILDDIR)/docs/* $(DOCSDIR)/client-reference/steamship
-	mv $(DOCSDIR)/client-reference/steamship/steamship.md $(DOCSDIR)/client-reference/steamship.md
-	rm -f $(DOCSDIR)/client-reference/steamship/.pages
+
+	./make_markdown.sh
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
