@@ -1,8 +1,4 @@
 #!/bin/bash
-
-SPHINXOPTS=""
-SPHINXBUILD="sphinx-build"
-SOURCEDIR="."
 BUILDDIR="_build"
 AUTODOCDIR="api"
 DOCSDIR="../../python-docs/pages"
