@@ -2,7 +2,7 @@ import logging
 import os
 import time
 from logging import StreamHandler
-from typing import cast
+from typing import Optional, cast
 
 from fluent.handler import FluentRecordFormatter
 
@@ -30,7 +30,7 @@ class DevelopmentLoggingHandler(StreamHandler):
     log_level: any
     log_level_with_message_type: any
     file_log_level: any
-    file_handler: logging.FileHandler
+    file_handler: Optional[logging.FileHandler]
     log_filename: str
 
     def __init__(
@@ -46,17 +46,16 @@ class DevelopmentLoggingHandler(StreamHandler):
         self.log_level_for_messages = log_level_for_messages
         self.file_log_level = file_log_level
 
-        timestr = time.strftime("shiplog--%Y-%m-%d--%H:%M:%S.log")
+        timestr = time.strftime("shiplog--%Y-%m-%d--%H-%M-%S.log")
 
         try:
             if not os.path.exists("logs"):
                 os.makedirs("logs")
             self.log_filename = os.path.join("logs", timestr)
+            self.file_handler = logging.FileHandler(self.log_filename, encoding="utf-8")
         except BaseException:
-            print("Unable to create logs/ directory to store debugging logs.")
-            self.log_filename = os.path.join("logs", timestr)
-
-        self.file_handler = logging.FileHandler(self.log_filename)
+            print("Unable to create logs/ directory to store debugging logs in current directory.")
+            self.file_handler = None
 
     @staticmethod
     def init_and_take_root(log_level: any = logging.INFO) -> "DevelopmentLoggingHandler":
