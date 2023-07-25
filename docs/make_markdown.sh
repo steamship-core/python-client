@@ -34,7 +34,6 @@ cp -R $BUILDDIR/markdown/* "$DOCSDIR"
 # Rename example/example.md to example/index.md. This is necessary because the
 # markdown files are nested in a folder with the same name as the file and for
 # Nextra they should be at the same level
-# Find .md files in the directory
 # Use 'find' to search for all directories from the current directory, excluding the current directory
 find "$DOCSDIR" -mindepth 1 -type d | while read dir; do
   # If the directory contains a file named "index.md"
