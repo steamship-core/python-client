@@ -6,7 +6,7 @@ from steamship.data.package.package_instance import PackageInstance
 from steamship.data.plugin.plugin_instance import PluginInstance
 from steamship.utils.url import Verb
 
-TESTING_PROFILE = "test"
+TESTING_PROFILE = "prod"
 
 
 def get_steamship_client(fail_if_workspace_exists=False, **kwargs) -> Steamship:
@@ -19,13 +19,13 @@ def get_steamship_client(fail_if_workspace_exists=False, **kwargs) -> Steamship:
 
 @contextmanager
 def steamship_use(
-    package_handle: str,
-    instance_handle: str = None,
-    config: Dict[str, Any] = None,
-    version: str = None,
-    fetch_if_exists: bool = True,
-    delete_workspace: bool = True,
-    **kwargs,
+        package_handle: str,
+        instance_handle: str = None,
+        config: Dict[str, Any] = None,
+        version: str = None,
+        fetch_if_exists: bool = True,
+        delete_workspace: bool = True,
+        **kwargs,
 ) -> PackageInstance:
     # Always use the `test` profile
     kwargs["profile"] = TESTING_PROFILE
@@ -87,13 +87,13 @@ def steamship_use_as_if_deployed(klass):
 
 @contextmanager
 def steamship_use_plugin(
-    plugin_handle: str,
-    instance_handle: str = None,
-    config: Dict[str, Any] = None,
-    version: str = None,
-    fetch_if_exists: bool = True,
-    delete_workspace: bool = True,
-    **kwargs,
+        plugin_handle: str,
+        instance_handle: str = None,
+        config: Dict[str, Any] = None,
+        version: str = None,
+        fetch_if_exists: bool = True,
+        delete_workspace: bool = True,
+        **kwargs,
 ) -> PluginInstance:
     # Always use the `test` profile
     kwargs["profile"] = TESTING_PROFILE
@@ -109,11 +109,11 @@ def steamship_use_plugin(
 
 @contextmanager
 def steamship_use_skill(
-    skill: str,
-    provider: Optional[str] = None,
-    instance_handle: str = None,
-    fetch_if_exists: bool = True,
-    delete_workspace: bool = True,
+        skill: str,
+        provider: Optional[str] = None,
+        instance_handle: str = None,
+        fetch_if_exists: bool = True,
+        delete_workspace: bool = True,
 ) -> PluginInstance:
     # TODO (enias): Always use the same steamship instance for testing
     instance = Steamship(profile=TESTING_PROFILE).use_skill(

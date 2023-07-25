@@ -161,6 +161,10 @@ class Block(CamelModel):
         )
         return res
 
+    @property
+    def metadata(self):
+        return {tag.kind: tag.name for tag in self.tags}
+
     def index(self, embedding_plugin_instance: Any = None):
         """Index this block."""
         tags = [

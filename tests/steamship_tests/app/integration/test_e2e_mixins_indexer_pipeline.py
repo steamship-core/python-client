@@ -1,4 +1,6 @@
 import pytest
+
+from steamship.invocable.mixins import FileType
 from steamship_tests import PACKAGES_PATH
 from steamship_tests.utils.deployables import deploy_package
 
@@ -14,7 +16,7 @@ def test_indexer_pipeline_mixin(client: Steamship):
         # Test indexing a pdf file
         pdf_url = "https://www.orimi.com/pdf-test.pdf"
 
-        index_task = instance.invoke("index_url", url=pdf_url)
+        index_task = instance.invoke("add", content_or_url=pdf_url, file_type=FileType.PDF)
         index_task = Task.parse_obj(index_task)
         index_task.client = client
 
@@ -65,7 +67,7 @@ def test_indexer_pipeline_mixin(client: Steamship):
         # basis. From experience we've learned that putting YouTube imports in a unit-test is just asking for random
         # failures in the CI/CD pipeline, yet it's still useful to encode what those tests are so that we can debug.
 
-        # youtube_url = "https://www.youtube.com/watch?v=ShPjYHw_K-Uf"
+        # youtube_url = "https://www.youtube.com/watch?v=LXDZ6aBjv_I"
         #
         # index_task2 = instance.invoke("index_url", url=youtube_url, index_handle="i2")
         # index_task2 = Task.parse_obj(index_task2)
@@ -79,7 +81,7 @@ def test_indexer_pipeline_mixin(client: Steamship):
         # result2 = instance.invoke(
         #     "search_index", query="How do you deploy?", index_handle="i2", k=1
         # )
-        # result2 = SearchResults.parse_obj(result)
+        # result2 = SearchResults.parse_obj(result2)
         # assert len(result2.items) == 1
         # winner2 = result2.items[0]
         # print(winner2)

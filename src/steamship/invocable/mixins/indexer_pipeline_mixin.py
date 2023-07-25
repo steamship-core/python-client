@@ -1,7 +1,10 @@
-from typing import Optional
+from typing import Optional, Union
+
+from pydantic import AnyUrl
 
 from steamship import File, Steamship, Task
 from steamship.invocable import PackageService, post
+from steamship.invocable.mixins import FileType
 from steamship.invocable.mixins.blockifier_mixin import BlockifierMixin
 from steamship.invocable.mixins.file_importer_mixin import FileImporterMixin
 from steamship.invocable.mixins.indexer_mixin import IndexerMixin
@@ -26,7 +29,7 @@ class IndexerPipelineMixin(PackageMixin):
     indexer_mixin: IndexerMixin
 
     def __init__(self, client: Steamship, invocable: PackageService):
-        self.client = client
+        super().__init__(client)
         self.invocable = invocable
 
         self.importer_mixin = FileImporterMixin(client)
@@ -47,11 +50,11 @@ class IndexerPipelineMixin(PackageMixin):
 
     @post("/index_url")
     def index_url(
-        self,
-        url: str,
-        metadata: Optional[dict] = None,
-        index_handle: Optional[str] = None,
-        mime_type: Optional[str] = None,
+            self,
+            url: str,
+            metadata: Optional[dict] = None,
+            index_handle: Optional[str] = None,
+            mime_type: Optional[str] = None,
     ) -> Task:
         """Load a URL into an embedding index.
 
@@ -66,7 +69,9 @@ class IndexerPipelineMixin(PackageMixin):
         - metadata (returned on embedding results for source attribution)
         """
         # Step 1: Import the URL
-        file, task = self.importer_mixin.import_url_to_file_and_task(url)
+        file, task = self.importer_mixin.import_content(content_or_url=url,
+                                                        metadata=metadata,
+                                                        mime_type=mime_type)
 
         # Step 2: Blockify the File
         importer_task_id = None
@@ -79,6 +84,68 @@ class IndexerPipelineMixin(PackageMixin):
 
         # Step 3: Index the File
         _metadata = {"url": url}
+        if metadata is not None:
+            _metadata.update(metadata)
+
+        index_task = self.invocable.invoke_later(
+            method="index_file",
+            wait_on_tasks=[blockify_task],
+            arguments={"file_id": file.id, "index_handle": index_handle, "metadata": _metadata},
+        )
+
+        # Step 4: Set the File Status to 'indexed'
+        self.invocable.invoke_later(
+            method="set_file_status",
+            wait_on_tasks=[index_task],
+            arguments={
+                "file_id": file.id,
+                "status": "Indexed",
+            },
+        )
+
+        # We return the index task instead of the file set task just to safe a few seconds.
+        return index_task
+
+    @post("/add")
+    def index_content(
+            self,
+            content_or_url: Union[str, AnyUrl],
+            file_type: FileType,
+            metadata: Optional[dict] = None,
+            index_handle: Optional[str] = None,
+            mime_type: Optional[str] = None,
+    ) -> Task:
+        """Load a URL into an embedding index.
+
+        URL Types supported:
+        - PDF (Text)
+        - TXT and Markdown
+        - YouTube (Though failure rate is high)
+
+        Optional arguments:
+        - mime_type (if it can be guessed by the Content-Type header or the URL schema)
+        - index_handle (uses your default index if blank)
+        - metadata (returned on embedding results for source attribution)
+        """
+        # Step 1: Import the URL
+        file, task = self.importer_mixin.import_content(
+            content_or_url=content_or_url,
+            file_type=file_type,
+            metadata=metadata,
+            mime_type=mime_type,
+        )
+
+        # Step 2: Blockify the File
+        importer_task_id = None
+        if task and task.task_id:
+            importer_task_id = task.task_id
+
+        blockify_task = self.blockifier_mixin.blockify(
+            file_id=file.id, after_task_id=importer_task_id
+        )
+
+        # Step 3: Index the File
+        _metadata = {"url": content_or_url}
         if metadata is not None:
             _metadata.update(metadata)
 

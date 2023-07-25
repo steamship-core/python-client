@@ -100,6 +100,20 @@ class File(CamelModel):
             expect=File,
         )
 
+    @property
+    def metadata(self):
+        return {tag.kind: tag.name for tag in self.tags}
+
+    def add_or_update_metadata(self, key: str, value: str):
+        tags = []
+        for tag in self.tags:
+            if tag.kind == key:
+                tag.delete()
+            else:
+                tags.append(tag)
+        tags.append(Tag.create(client=self.client, file_id=self.id, kind=key, name=value))
+        self.tags = tags
+
     @staticmethod
     def get(
         client: Client,
