@@ -13,7 +13,3 @@ class FileType(str, Enum):
 
 def metadata_to_tags(metadata: Dict[str, Any]):
     return [Tag(kind=k, name=v) for k, v in metadata.items()]
-
-
-def tags_to_metadata(tags: List[Tag]):
-    return {tag.kind: tag.name for tag in tags}
