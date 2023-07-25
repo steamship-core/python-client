@@ -52,7 +52,7 @@ class FunctionsBasedOutputParser(OutputParser):
                     else:
                         input_blocks.append(Block(text=arguments, mime_type=MimeTypes.TXT))
 
-        return Action(tool=tool, input=input_blocks, context=context)
+        return Action(tool=tool.name, input=input_blocks, context=context)
 
     @staticmethod
     def _blocks_from_text(client: Steamship, text: str) -> List[Block]:
