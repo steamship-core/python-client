@@ -83,9 +83,13 @@ class AgentService(PackageService):
         logging.info(
             f"Completed agent run. Result: {len(action.output or [])} blocks. {output_text_length} total text length. Emitting on {len(context.emit_funcs)} functions."
         )
+        self.emit(action.output, context)
+
+    def emit(self, blocks: [Block], context: AgentContext):
+        """Emit blocks to the callback functions registered on `context`."""
         for func in context.emit_funcs:
             logging.info(f"Emitting via function: {func.__name__}")
-            func(action.output, context.metadata)
+            func(blocks, context.metadata)
 
     @post("prompt")
     def prompt(

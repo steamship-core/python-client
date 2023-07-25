@@ -2,13 +2,15 @@ from typing import Type
 
 from pydantic import Field
 
+from steamship import Block
 from steamship.agents.functional import FunctionsBasedAgent
 from steamship.agents.llms.openai import ChatOpenAI
 from steamship.agents.mixins.transports.steamship_widget import SteamshipWidgetTransport
 from steamship.agents.mixins.transports.telegram import TelegramTransport, TelegramTransportConfig
+from steamship.agents.schema import AgentContext
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.tools.image_generation.stable_diffusion import StableDiffusionTool
-from steamship.invocable import Config
+from steamship.invocable import Config, post
 from steamship.utils.repl import AgentREPL
 
 SYSTEM_PROMPT = """You are Picard, captain of the Starship Enterprise.
@@ -81,6 +83,63 @@ class TelegramBot(AgentService):
             agent=self._agent,
         )
         self.add_mixin(self.telegram_transport)
+
+    @post("/send_manual_assistant_message")
+    def send_manual_assistant_message(
+        self, message: str, context_id: str, append_to_chat_history: bool = True
+    ):
+        """Example of how to manually send a message as the assistant.
+
+        There are four ways to call this method:
+
+        Immediately, from Python
+
+           self.send_manual_assistant_message(message, context_id, append_to_chat_history)
+
+        Immediately, from HTTP
+
+           HTTP POST {agent_url}/send_manual_assistant_message
+           Authorization: Bearer {steamship_api_key}
+           Content-Type: application/json
+
+           {"message": "..", "context_id": "..", "append_to_chat_history": ".."}
+
+        Scheduled, from Python
+
+           self.invoke_later('send_manual_assistant_message', arguments={}, delay_ms=MILLISECOND_DELAY)
+
+        Scheduled, from HTTP
+
+           POST https://api.steamship.com/api/v1/package/instance/invoke
+           Authorization: Bearer {steamship_api_key}
+           Content-Type: application/json
+           X-Task-Background: true
+           X-Workspace-Handle: {this-workspace-handle}
+           X-Task-Run-After: {ISO DATE}+00:00
+
+           {
+                "instanceHandle": "{this_instance_handle}",
+                "payload": {
+                    "httpVerb": "POST",
+                    "invocationPath": "send_manual_assistant_message",
+                    "arguments":  {"message": "..", "context_id": "..", "append_to_chat_history": ".."}
+                }
+           }
+        """
+
+        # First you have to build a context.
+        context = AgentContext.get_or_create(self.client, context_keys={"id": f"{context_id}"})
+
+        # If you want it to be preserved to the ChatHistory, you can add it.
+        if append_to_chat_history:
+            context.chat_history.append_assistant_message(message)
+
+        # Make sure Telegram is included in the emit list.
+        context.emit_funcs.append(self.telegram_transport.build_emit_func(context_id))
+
+        # Finally emit. Running on localhost, this will only show up as a logging message since the
+        # agent doesn't have a push connection to the REPL.
+        self.emit(Block(text=message, context=context))
 
 
 if __name__ == "__main__":
