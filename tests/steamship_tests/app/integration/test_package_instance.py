@@ -10,7 +10,7 @@ from steamship_tests import PACKAGES_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_package
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import PackageInstance, SteamshipError, Task, Workspace
+from steamship import Block, PackageInstance, Steamship, SteamshipError, Task, Workspace
 from steamship.base import TaskState
 from steamship.base.mime_types import MimeTypes
 from steamship.utils.url import Verb
@@ -187,6 +187,36 @@ def test_instance_invoke():
         future_task_bytes2 = base64.b64decode(future_task2.output)
         future_task_string2 = future_task_bytes2.decode("utf-8")
         assert future_task_string2 == "Hello, Decacorn 2!"
+
+
+def test_task_from_invoke():
+    with Steamship.temporary_workspace() as client:
+        demo_package_path = PACKAGES_PATH / "demo_package.py"
+        with deploy_package(client, demo_package_path) as (_, _, demo):
+            task = demo.task_from_invoke("future_greet", name="Unicorn")
+            assert isinstance(task, Task)
+            task.wait()
+            assert task.state == TaskState.succeeded
+            assert len(task.output) > 0
+
+            with pytest.raises(SteamshipError, match=".*task.*"):
+                demo.task_from_invoke("greet", name="Unicorn")
+
+
+def test_blocks_from_invoke():
+    with Steamship.temporary_workspace() as client:
+        test_package_path = PACKAGES_PATH / "returns_blocks.py"
+        with deploy_package(client, test_package_path) as (_, _, test):
+            blocks = test.blocks_from_invoke("blocks")
+            assert isinstance(blocks, list)
+            assert len(blocks) > 0
+            for b in blocks:
+                assert isinstance(b, Block)
+
+        demo_package_path = PACKAGES_PATH / "demo_package.py"
+        with deploy_package(client, demo_package_path) as (_, _, demo):
+            with pytest.raises(SteamshipError, match=".*blocks.*"):
+                demo.blocks_from_invoke("greet", name="Unicorn")
 
 
 def test_deploy_in_workspace():

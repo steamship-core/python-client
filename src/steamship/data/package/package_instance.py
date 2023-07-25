@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import time
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel, Field
 
-from steamship import SteamshipError
+from steamship import SteamshipError, Task
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
+from steamship.data.block import Block
 from steamship.data.invocable_init_status import InvocableInitStatus
 from steamship.data.workspace import Workspace
 from steamship.utils.url import Verb
@@ -110,6 +111,27 @@ class PackageInstance(CamelModel):
             as_background_task=False,
             timeout_s=timeout_s,
         )
+
+    def blocks_from_invoke(
+        self, path: str, verb: Verb = Verb.POST, timeout_s: Optional[float] = None, **kwargs
+    ) -> List[Block]:
+        potential_blocks = self.invoke(path=path, verb=verb, timeout_s=timeout_s, **kwargs)
+        try:
+            if isinstance(potential_blocks, list):
+                return [Block(client=self.client, **raw) for raw in potential_blocks]
+            else:
+                return [Block(client=self.client, **potential_blocks)]
+        except Exception as e:
+            raise SteamshipError(f"Could not convert to blocks: {e}")
+
+    def task_from_invoke(
+        self, path: str, verb: Verb = Verb.POST, timeout_s: Optional[float] = None, **kwargs
+    ) -> Task:
+        task_dict = self.invoke(path=path, verb=verb, timeout_s=timeout_s, **kwargs)
+        try:
+            return Task(client=self.client, **task_dict)
+        except Exception as e:
+            raise SteamshipError(f"Could not convert to task: {e}")
 
     def full_url_for(self, path: str):
         return f"{self.invocation_url}{path}"
