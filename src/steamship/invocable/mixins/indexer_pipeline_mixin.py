@@ -50,11 +50,11 @@ class IndexerPipelineMixin(PackageMixin):
 
     @post("/index_url")
     def index_url(
-            self,
-            url: str,
-            metadata: Optional[dict] = None,
-            index_handle: Optional[str] = None,
-            mime_type: Optional[str] = None,
+        self,
+        url: str,
+        metadata: Optional[dict] = None,
+        index_handle: Optional[str] = None,
+        mime_type: Optional[str] = None,
     ) -> Task:
         """Load a URL into an embedding index.
 
@@ -69,9 +69,9 @@ class IndexerPipelineMixin(PackageMixin):
         - metadata (returned on embedding results for source attribution)
         """
         # Step 1: Import the URL
-        file, task = self.importer_mixin.import_content(content_or_url=url,
-                                                        metadata=metadata,
-                                                        mime_type=mime_type)
+        file, task = self.importer_mixin.import_content(
+            content_or_url=url, metadata=metadata, mime_type=mime_type
+        )
 
         # Step 2: Blockify the File
         importer_task_id = None
@@ -108,12 +108,12 @@ class IndexerPipelineMixin(PackageMixin):
 
     @post("/add")
     def index_content(
-            self,
-            content_or_url: Union[str, AnyUrl],
-            file_type: FileType,
-            metadata: Optional[dict] = None,
-            index_handle: Optional[str] = None,
-            mime_type: Optional[str] = None,
+        self,
+        content_or_url: Union[str, AnyUrl],
+        file_type: FileType,
+        metadata: Optional[dict] = None,
+        index_handle: Optional[str] = None,
+        mime_type: Optional[str] = None,
     ) -> Task:
         """Load a URL into an embedding index.
 

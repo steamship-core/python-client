@@ -1,6 +1,6 @@
 from typing import Optional
 
-from steamship import File, Steamship, SteamshipError, Task, MimeTypes
+from steamship import File, MimeTypes, Steamship, SteamshipError, Task
 from steamship.invocable import post
 from steamship.invocable.mixins.file_importer_mixin import FileType
 from steamship.invocable.package_mixin import PackageMixin
@@ -14,12 +14,12 @@ class BlockifierMixin(PackageMixin):
 
     @post("/blockify_file")
     def blockify(
-            self,
-            file_id: str,
-            file_type: Optional[FileType] = None,
-            mime_type: Optional[MimeTypes] = None,
-            blockifier_handle: Optional[str] = None,
-            after_task_id: Optional[str] = None,
+        self,
+        file_id: str,
+        file_type: Optional[FileType] = None,
+        mime_type: Optional[MimeTypes] = None,
+        blockifier_handle: Optional[str] = None,
+        after_task_id: Optional[str] = None,
     ) -> Task:
         """Blockify the file `file_id` using a curated set of defaults for the provided `mime_type`.
 
@@ -49,7 +49,8 @@ class BlockifierMixin(PackageMixin):
         elif file_type == FileType.PDF or (file_type is None and _mime_type == MimeTypes.PDF):
             plugin_instance = self.client.use_plugin("pdf-blockifier")
         elif file_type in (FileType.YOUTUBE, FileType.TEXT) or (
-                file_type is None and _mime_type in [MimeTypes.MKD, MimeTypes.TXT]):
+            file_type is None and _mime_type in [MimeTypes.MKD, MimeTypes.TXT]
+        ):
             plugin_instance = self.client.use_plugin("markdown-blockifier-default")
         elif file_type == FileType.WEB:
             plugin_instance = None

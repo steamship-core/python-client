@@ -1,11 +1,10 @@
 import pytest
-
-from steamship.invocable.mixins import FileType
 from steamship_tests import PACKAGES_PATH
 from steamship_tests.utils.deployables import deploy_package
 
 from steamship import MimeTypes, Steamship, Task, TaskState
 from steamship.data.plugin.index_plugin_instance import SearchResults
+from steamship.invocable.mixins import FileType
 
 
 @pytest.mark.usefixtures("client")

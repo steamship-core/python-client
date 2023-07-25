@@ -1,7 +1,6 @@
 import logging
 import os
-from typing import List, Optional, Tuple
-from typing import Union
+from typing import List, Optional, Tuple, Union
 from urllib.parse import urlparse
 
 import requests
@@ -17,11 +16,11 @@ class FileImporterMixin(PackageMixin):
     """Provide endpoints for easy file import -- both sync and async."""
 
     def _import_with_async_importer(
-            self,
-            url: str,
-            importer_handle: str,
-            mime_type: MimeTypes,
-            tags: Optional[List[Tag]] = None,
+        self,
+        url: str,
+        importer_handle: str,
+        mime_type: MimeTypes,
+        tags: Optional[List[Tag]] = None,
     ) -> Tuple[File, Optional[Task]]:
         file = File.create(self.client, tags=tags, mime_type=mime_type)
 
@@ -38,10 +37,10 @@ class FileImporterMixin(PackageMixin):
         return file, task
 
     def _scrape_and_import_url(
-            self,
-            url: str,
-            mime_type: MimeTypes,
-            tags: Optional[List[Tag]] = None,
+        self,
+        url: str,
+        mime_type: MimeTypes,
+        tags: Optional[List[Tag]] = None,
     ) -> Tuple[File, Optional[Task]]:
         """Scrape and then import the URL to a File, returning a synchronous File and no import Task."""
 
@@ -81,11 +80,11 @@ class FileImporterMixin(PackageMixin):
 
     @post("import")
     def import_content(
-            self,
-            content_or_url: Union[str, AnyUrl],
-            file_type: Optional[FileType] = None,
-            metadata: Optional[dict] = None,
-            mime_type: Optional[str] = None,
+        self,
+        content_or_url: Union[str, AnyUrl],
+        file_type: Optional[FileType] = None,
+        metadata: Optional[dict] = None,
+        mime_type: Optional[str] = None,
     ) -> Tuple[File, Optional[Task]]:
 
         metadata = metadata or {}
@@ -112,7 +111,7 @@ class FileImporterMixin(PackageMixin):
                 tags=metadata_to_tags(metadata),
             )
         elif file_type == FileType.PDF or (
-                file_type is None and (".pdf" in content_or_url or mime_type == FileType.PDF)
+            file_type is None and (".pdf" in content_or_url or mime_type == FileType.PDF)
         ):
             parsed_url = urlparse(content_or_url)
             filename = os.path.basename(parsed_url.path)

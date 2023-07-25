@@ -1,6 +1,6 @@
 from typing import Optional, cast
 
-from steamship import Block, File, Steamship, Tag, DocTag
+from steamship import Block, DocTag, File, Steamship, Tag
 from steamship.data import TagValueKey
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance, SearchResults
 from steamship.invocable import post
@@ -27,8 +27,13 @@ class IndexerMixin(PackageMixin):
     context_window_overlap: int
     embedding_index_config: dict
 
-    def __init__(self, client: Steamship, embedder_config: dict = None, context_window_size: int = 200,
-                 context_window_overlap: int = 50):
+    def __init__(
+        self,
+        client: Steamship,
+        embedder_config: dict = None,
+        context_window_size: int = 200,
+        context_window_overlap: int = 50,
+    ):
         super().__init__(client)
         self.client = client
         self.context_window_size = context_window_size
@@ -65,7 +70,7 @@ class IndexerMixin(PackageMixin):
 
     @post("/index_text")
     def index_text(
-            self, text: str, metadata: Optional[dict] = None, index_handle: Optional[str] = None
+        self, text: str, metadata: Optional[dict] = None, index_handle: Optional[str] = None
     ) -> bool:
         """Load text into an embedding index.
 
@@ -75,14 +80,14 @@ class IndexerMixin(PackageMixin):
         """
         tags = []
         for chunk in chunk_text(
-                text, chunk_size=self.context_window_size, chunk_overlap=self.context_window_overlap
+            text, chunk_size=self.context_window_size, chunk_overlap=self.context_window_overlap
         ):
             tags.append(Tag(text=chunk, value={**metadata, "chunk": chunk, "_index": index_handle}))
         self._get_index(index_handle).insert(tags)
         return True
 
     def _index_block(
-            self, block: Block, metadata: Optional[dict] = None, index_handle: Optional[str] = None
+        self, block: Block, metadata: Optional[dict] = None, index_handle: Optional[str] = None
     ):
         page = self._get_page(block)
         _metadata = {
@@ -93,14 +98,14 @@ class IndexerMixin(PackageMixin):
             **block.metadata,
             "page": page,
             **(metadata or {}),
-            "_index": index_handle
+            "_index": index_handle,
         }
 
         return self.index_text(block.text, metadata=_metadata, index_handle=index_handle)
 
     @post("/index_block")
     def index_block(
-            self, block_id: str, metadata: Optional[dict] = None, index_handle: Optional[str] = None
+        self, block_id: str, metadata: Optional[dict] = None, index_handle: Optional[str] = None
     ):
         """Load a Steamship Block into an embedding index.
 
@@ -114,7 +119,7 @@ class IndexerMixin(PackageMixin):
 
     @post("/index_file")
     def index_file(
-            self, file_id: str, metadata: Optional[dict] = None, index_handle: Optional[str] = None
+        self, file_id: str, metadata: Optional[dict] = None, index_handle: Optional[str] = None
     ) -> bool:
         """Load a Steamship File into an embedding index.
 
@@ -126,11 +131,7 @@ class IndexerMixin(PackageMixin):
         file.add_or_update_metadata("status", "Indexing")
 
         for block in file.blocks or []:
-            _metadata = {
-                **file.metadata,
-                **(metadata or {}),
-                "_index": index_handle
-            }
+            _metadata = {**file.metadata, **(metadata or {}), "_index": index_handle}
 
             self._index_block(
                 block,
@@ -142,7 +143,7 @@ class IndexerMixin(PackageMixin):
 
     @post("/search_index")
     def search_index(
-            self, query: str, index_handle: Optional[str] = None, k: int = 5
+        self, query: str, index_handle: Optional[str] = None, k: int = 5
     ) -> SearchResults:
         """Search an embedding index.
 
