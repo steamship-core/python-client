@@ -9,7 +9,7 @@ from typing import Optional
 import click
 
 import steamship
-from steamship import Steamship, SteamshipError
+from steamship import PackageInstance, Steamship, SteamshipError
 from steamship.base.configuration import DEFAULT_WEB_BASE, Configuration
 from steamship.cli.create_instance import (
     config_str_to_dict,
@@ -547,6 +547,83 @@ def logs(
     )
 
 
+def _exit_if_not_proceed(skip: bool, prompt: str):
+    if skip:
+        return
+
+    click.secho("⚠️ Deletion is a destructive operation. It is not recoverable. ⚠️", fg="red")
+    click.secho(prompt, fg="red")
+    confirm = click.confirm("Proceed?", default=False)
+    if not confirm:
+        exit(0)
+
+
+@click.command()
+@click.option(
+    "--workspace",
+    "-w",
+    required=True,
+    type=str,
+    help="Workspace handle.",
+)
+@click.option(
+    "--instance",
+    "-i",
+    type=str,
+    help="Instance handle.",
+)
+@click.option("--yes", is_flag=True)
+def delete(
+    workspace: str,
+    instance: Optional[str] = None,
+    yes: Optional[bool] = False,
+):
+    """Deletes Steamship workspaces and instances, based on provided fields.
+
+    NOTE: If `instance` is not specified, the `workspace` will be deleted.
+    """
+    initialize(suppress_message=True)
+    client = None
+    try:
+        client = Steamship(workspace=workspace)
+    except SteamshipError as e:
+        raise click.UsageError(message=e.message)
+
+    if not instance:
+        # delete workspace
+        _exit_if_not_proceed(
+            skip=yes,
+            prompt=f"This will delete workspace '{workspace}' and all data contained within.",
+        )
+        wspace = client.get_workspace()
+        click.secho(f"Deleting workspace '{workspace}'... ", nl=False, fg="green")
+        wspace.delete()
+        click.secho("Done.", fg="green")
+        return
+
+    if instance:
+        # delete instance
+        _exit_if_not_proceed(
+            skip=yes, prompt=f"This will delete instance '{instance}' in workspace '{workspace}'"
+        )
+        try:
+            pkg_inst = PackageInstance.get(client=client, handle=instance)
+            click.secho(
+                f"Deleting instance '{instance}' in workspace '{workspace}'... ",
+                nl=False,
+                fg="green",
+            )
+            pkg_inst.delete()
+            click.secho("Done.", fg="green")
+            return
+        except SteamshipError as e:
+            click.secho(
+                f"⚠️ Failed to delete instance '{instance}' in workspace '{workspace}': {e.message}",
+                fg="red",
+            )
+            exit(1)
+
+
 cli.add_command(login)
 cli.add_command(deploy)
 cli.add_command(info)
@@ -555,3 +632,4 @@ cli.add_command(ships)
 cli.add_command(logs)
 cli.add_command(run)
 cli.add_command(create_instance, name="use")
+cli.add_command(delete)
