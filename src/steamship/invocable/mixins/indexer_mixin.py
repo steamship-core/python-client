@@ -129,6 +129,7 @@ class IndexerMixin(PackageMixin):
         """
         file = File.get(self.client, _id=file_id)
         file.add_or_update_metadata("status", "Indexing")
+        file.add_or_update_metadata("_index", index_handle)
 
         for block in file.blocks or []:
             _metadata = {**file.metadata, **(metadata or {}), "_index": index_handle}
