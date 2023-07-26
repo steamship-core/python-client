@@ -48,10 +48,8 @@ class TelegramTransport(Transport):
         if self.bot_token:
             self.api_root = f"{config.api_base}{config.bot_token or self.bot_token}"
             try:
-                self._instance_init(
-                    config=config, invocation_context=invocation_context
-                )
-            except Exception:
+                self._instance_init(config=config, invocation_context=invocation_context)
+            except Exception:  # noqa: S110
                 pass
 
     def _instance_init(self, config: Config, invocation_context: InvocationContext):
