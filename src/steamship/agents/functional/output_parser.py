@@ -28,6 +28,8 @@ class FunctionsBasedOutputParser(OutputParser):
         wrapper = json.loads(text)
         fc = wrapper.get("function_call")
         name = fc.get("name", "")
+        if name.startswith("functions."):
+            name = name[len("functions.") :]  # occasionally, OpenAI prepends "functions."
         tool = self.tools_lookup_dict.get(name, None)
         if tool is None:
             raise RuntimeError(
@@ -50,7 +52,7 @@ class FunctionsBasedOutputParser(OutputParser):
                     else:
                         input_blocks.append(Block(text=arguments, mime_type=MimeTypes.TXT))
 
-        return Action(tool=tool, input=input_blocks, context=context)
+        return Action(tool=tool.name, input=input_blocks, context=context)
 
     @staticmethod
     def _blocks_from_text(client: Steamship, text: str) -> List[Block]:

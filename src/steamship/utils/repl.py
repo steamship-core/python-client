@@ -19,7 +19,7 @@ try:
     from termcolor import colored  # noqa: F401
 except ImportError:
 
-    def colored(text: str, **kwargs):
+    def colored(text: str, color: str, **kwargs):
         print(text)
 
 
@@ -85,7 +85,7 @@ class SteamshipREPL(ABC):
             output = block.content_url
         else:
             block.set_public_data(True)
-            output = block.raw_data_url
+            output = f"{self.client.config.api_base}block/{block.id}/raw"
         if output:
             self.print_string(output, metadata)
 
@@ -162,7 +162,7 @@ class AgentREPL(SteamshipREPL):
         self.client = client or Steamship()
         self.config = agent_package_config
         self.agent_instance = None
-        self.context_id = context_id or uuid.uuid4()
+        self.context_id = context_id or str(uuid.uuid4())
 
     def run_with_client(self, client: Steamship, **kwargs):
         try:
@@ -208,7 +208,7 @@ class HttpREPL(SteamshipREPL):
         super().__init__(**kwargs)
         self.prompt_url = prompt_url
         self.client = client or Steamship()
-        self.context_id = context_id or uuid.uuid4()
+        self.context_id = context_id or str(uuid.uuid4())
 
     def run_with_client(self, client: Steamship, **kwargs):  # noqa: C901
         try:
