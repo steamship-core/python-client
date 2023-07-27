@@ -1,0 +1,1226 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="steamship.agents.examples package" href="steamship.agents.examples.html" /><link rel="prev" title="steamship package" href="steamship.html" />
+
+    <link rel="shortcut icon" href="../_static/favicon.ico"/><!-- Generated with Sphinx 6.2.1 and Furo 2023.05.20 -->
+        <title>steamship.agents package - Steamship Documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  --color-brand-primary: #202B45;
+  --color-brand-content: #9558FC;
+  --font-stack: Albert Sans, sans-serif;
+  --font-stack--monospace: Courier, monospace;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #9558FC;
+  --color-brand-content: #F6B938;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #9558FC;
+  --color-brand-content: #F6B938;
+  
+      }
+    }
+  }
+</style>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-T2NFFR7');</script>
+<!-- End Google Tag Manager -->
+</head>
+  <body>
+    
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-T2NFFR7"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Steamship Documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <div class="sidebar-logo-container">
+    <img class="sidebar-logo only-light" src="../_static/Steamship-symbol-dark.png" alt="Light Logo"/>
+    <img class="sidebar-logo only-dark" src="../_static/Steamship-symbol-light.png" alt="Dark Logo"/>
+  </div>
+  
+  <span class="sidebar-brand-text">Steamship Documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../configuration/index.html">Configuration</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Configuration</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/authentication.html">Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/clients.html">Client Libraries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/cli.html">CLI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../configuration/http.html">HTTP API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../agents/index.html">Agents</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../packages/index.html">Packages</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../plugins/index.html">Plugins</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Plugins</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../plugins/using/index.html">Using Plugins</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Using Plugins</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../plugins/using/importers/index.html">File Importers</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of File Importers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/using/blockifiers/index.html">Blockifiers</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../plugins/using/taggers/index.html">Taggers</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Taggers</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../plugins/using/generators/index.html">Generators</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Generators</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="../plugins/using/generators/dalle.html">DALL-E</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../plugins/using/generators/gpt4.html">GPT-4</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../plugins/using/embedders/index.html">Embedders</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Embedders</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/using/tasks.html">Tasks</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../plugins/developing/index.html">Developing Plugins</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Developing Plugins</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/developing/project-structure.html">Plugin Project Structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/developing/importers.html">Developing File Importers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/developing/blockifiers.html">Developing Blockifiers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/developing/generators.html">Developing Generators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/developing/taggers.html">Developing Taggers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/developing/embedders.html">Developing Embedders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugins/developing/async-plugins.html">Writing Async Plugins</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../data/index.html">Data</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Data</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../data/workspaces.html">Workspaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/files.html">Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/blocks.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/tags.html">Tags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../data/queries/index.html">Querying Data</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../embedding-search/index.html">Embedding Search Index</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../embedding-search/index.html#inserting-data">Inserting Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../embedding-search/index.html#querying-data">Querying Data</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../developing/index.html">Developer Reference</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Developer Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../developing/project-creation.html">Cloning a Starter Project</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developing/steamship-manifest.html">The Steamship Manifest file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developing/environment-setup.html">Python Environment Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developing/configuration.html">Accepting Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developing/storing-secrets.html">Storing Secrets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developing/running.html">Running on Localhost</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developing/testing.html">Writing Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developing/deploying.html">Deploying</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../developing/monitoring.html">Monitoring your Instances</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="modules.html">Python Client Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Python Client Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="steamship.html">steamship package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of steamship package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 current has-children current-page"><a class="current reference internal" href="#">steamship.agents package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of steamship.agents package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.examples.html">steamship.agents.examples package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.functional.html">steamship.agents.functional package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.llms.html">steamship.agents.llms package</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="steamship.agents.mixins.html">steamship.agents.mixins package</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of steamship.agents.mixins package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="steamship.agents.mixins.transports.html">steamship.agents.mixins.transports package</a></li>
+</ul>
+</li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.react.html">steamship.agents.react package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html">steamship.agents.schema package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.service.html">steamship.agents.service package</a></li>
+<li class="toctree-l4 has-children"><a class="reference internal" href="steamship.agents.tools.html">steamship.agents.tools package</a><input class="toctree-checkbox" id="toctree-checkbox-15" name="toctree-checkbox-15" role="switch" type="checkbox"/><label for="toctree-checkbox-15"><div class="visually-hidden">Toggle navigation of steamship.agents.tools package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l5"><a class="reference internal" href="steamship.agents.tools.audio_transcription.html">steamship.agents.tools.audio_transcription package</a></li>
+<li class="toctree-l5"><a class="reference internal" href="steamship.agents.tools.classification.html">steamship.agents.tools.classification package</a></li>
+<li class="toctree-l5"><a class="reference internal" href="steamship.agents.tools.conversation_starters.html">steamship.agents.tools.conversation_starters package</a></li>
+<li class="toctree-l5"><a class="reference internal" href="steamship.agents.tools.image_generation.html">steamship.agents.tools.image_generation package</a></li>
+<li class="toctree-l5"><a class="reference internal" href="steamship.agents.tools.question_answering.html">steamship.agents.tools.question_answering package</a></li>
+<li class="toctree-l5"><a class="reference internal" href="steamship.agents.tools.search.html">steamship.agents.tools.search package</a></li>
+<li class="toctree-l5"><a class="reference internal" href="steamship.agents.tools.speech_generation.html">steamship.agents.tools.speech_generation package</a></li>
+<li class="toctree-l5"><a class="reference internal" href="steamship.agents.tools.text_generation.html">steamship.agents.tools.text_generation package</a></li>
+<li class="toctree-l5"><a class="reference internal" href="steamship.agents.tools.video_generation.html">steamship.agents.tools.video_generation package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.base.html">steamship.base package</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="steamship.cli.html">steamship.cli package</a><input class="toctree-checkbox" id="toctree-checkbox-16" name="toctree-checkbox-16" role="switch" type="checkbox"/><label for="toctree-checkbox-16"><div class="visually-hidden">Toggle navigation of steamship.cli package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.cli.local_server.html">steamship.cli.local_server package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.client.html">steamship.client package</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="steamship.data.html">steamship.data package</a><input class="toctree-checkbox" id="toctree-checkbox-17" name="toctree-checkbox-17" role="switch" type="checkbox"/><label for="toctree-checkbox-17"><div class="visually-hidden">Toggle navigation of steamship.data package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.data.operations.html">steamship.data.operations package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.data.package.html">steamship.data.package package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.data.plugin.html">steamship.data.plugin package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.data.tags.html">steamship.data.tags package</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="steamship.experimental.html">steamship.experimental package</a><input class="toctree-checkbox" id="toctree-checkbox-18" name="toctree-checkbox-18" role="switch" type="checkbox"/><label for="toctree-checkbox-18"><div class="visually-hidden">Toggle navigation of steamship.experimental package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.experimental.easy.html">steamship.experimental.easy package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.experimental.package_starters.html">steamship.experimental.package_starters namespace</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="steamship.invocable.html">steamship.invocable package</a><input class="toctree-checkbox" id="toctree-checkbox-19" name="toctree-checkbox-19" role="switch" type="checkbox"/><label for="toctree-checkbox-19"><div class="visually-hidden">Toggle navigation of steamship.invocable package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.invocable.mixins.html">steamship.invocable.mixins package</a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="steamship.plugin.html">steamship.plugin package</a><input class="toctree-checkbox" id="toctree-checkbox-20" name="toctree-checkbox-20" role="switch" type="checkbox"/><label for="toctree-checkbox-20"><div class="visually-hidden">Toggle navigation of steamship.plugin package</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.plugin.blockifier.html">steamship.plugin.blockifier package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.plugin.inputs.html">steamship.plugin.inputs package</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.plugin.outputs.html">steamship.plugin.outputs package</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.utils.html">steamship.utils package</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../authors.html">Authors</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="edit-this-page">
+  <a class="muted-link" href="https://github.com/steamship-core/python-client/edit/main/docs/api/steamship.agents.rst" title="Edit this page">
+    <svg aria-hidden="true" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
+      <line x1="13.5" y1="6.5" x2="17.5" y2="10.5" />
+    </svg>
+    <span class="visually-hidden">Edit this page</span>
+  </a>
+</div><div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="steamship-agents-package">
+<h1>steamship.agents package<a class="headerlink" href="#steamship-agents-package" title="Permalink to this heading">#</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="steamship.agents.examples.html">steamship.agents.examples package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.examples.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.examples.html#module-steamship.agents.examples.chatgpt_api">steamship.agents.examples.chatgpt_api module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.chatgpt_api.MyAssistant"><code class="docutils literal notranslate"><span class="pre">MyAssistant</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.examples.html#module-steamship.agents.examples.chatgpt_with_web_and_telegram">steamship.agents.examples.chatgpt_with_web_and_telegram module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.chatgpt_with_web_and_telegram.MyAssistant"><code class="docutils literal notranslate"><span class="pre">MyAssistant</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.chatgpt_with_web_and_telegram.MyAssistant.MyAssistantConfig"><code class="docutils literal notranslate"><span class="pre">MyAssistant.MyAssistantConfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.chatgpt_with_web_and_telegram.MyAssistant.config"><code class="docutils literal notranslate"><span class="pre">MyAssistant.config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.chatgpt_with_web_and_telegram.MyAssistant.config_cls"><code class="docutils literal notranslate"><span class="pre">MyAssistant.config_cls()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.examples.html#module-steamship.agents.examples.document_qa_agent">steamship.agents.examples.document_qa_agent module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.document_qa_agent.ExampleDocumentQAService"><code class="docutils literal notranslate"><span class="pre">ExampleDocumentQAService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.document_qa_agent.ExampleDocumentQAService.USED_MIXIN_CLASSES"><code class="docutils literal notranslate"><span class="pre">ExampleDocumentQAService.USED_MIXIN_CLASSES</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.examples.html#module-steamship.agents.examples.example_assistant">steamship.agents.examples.example_assistant module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.example_assistant.MyFunctionsBasedAssistant"><code class="docutils literal notranslate"><span class="pre">MyFunctionsBasedAssistant</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.examples.html#module-steamship.agents.examples.example_react_assistant">steamship.agents.examples.example_react_assistant module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.example_react_assistant.MyAssistant"><code class="docutils literal notranslate"><span class="pre">MyAssistant</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.examples.html#module-steamship.agents.examples.fact_learner">steamship.agents.examples.fact_learner module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.fact_learner.FactLearner"><code class="docutils literal notranslate"><span class="pre">FactLearner</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.examples.html#module-steamship.agents.examples.telegram_bot">steamship.agents.examples.telegram_bot module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.telegram_bot.TelegramBot"><code class="docutils literal notranslate"><span class="pre">TelegramBot</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.telegram_bot.TelegramBot.TelegramBotConfig"><code class="docutils literal notranslate"><span class="pre">TelegramBot.TelegramBotConfig</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.examples.html#steamship.agents.examples.telegram_bot.TelegramBot.config_cls"><code class="docutils literal notranslate"><span class="pre">TelegramBot.config_cls()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.examples.html#module-steamship.agents.examples">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="steamship.agents.functional.html">steamship.agents.functional package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.functional.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.functional.html#module-steamship.agents.functional.functions_based">steamship.agents.functional.functions_based module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.functions_based.FunctionsBasedAgent"><code class="docutils literal notranslate"><span class="pre">FunctionsBasedAgent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.functions_based.FunctionsBasedAgent.next_action"><code class="docutils literal notranslate"><span class="pre">FunctionsBasedAgent.next_action()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.functional.html#module-steamship.agents.functional.output_parser">steamship.agents.functional.output_parser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.output_parser.FunctionsBasedOutputParser"><code class="docutils literal notranslate"><span class="pre">FunctionsBasedOutputParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.output_parser.FunctionsBasedOutputParser.parse"><code class="docutils literal notranslate"><span class="pre">FunctionsBasedOutputParser.parse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.output_parser.FunctionsBasedOutputParser.tools_lookup_dict"><code class="docutils literal notranslate"><span class="pre">FunctionsBasedOutputParser.tools_lookup_dict</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.output_parser.is_punctuation"><code class="docutils literal notranslate"><span class="pre">is_punctuation()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.functional.html#module-steamship.agents.functional">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.FunctionsBasedAgent"><code class="docutils literal notranslate"><span class="pre">FunctionsBasedAgent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.FunctionsBasedAgent.next_action"><code class="docutils literal notranslate"><span class="pre">FunctionsBasedAgent.next_action()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.FunctionsBasedOutputParser"><code class="docutils literal notranslate"><span class="pre">FunctionsBasedOutputParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.FunctionsBasedOutputParser.parse"><code class="docutils literal notranslate"><span class="pre">FunctionsBasedOutputParser.parse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.functional.html#steamship.agents.functional.FunctionsBasedOutputParser.tools_lookup_dict"><code class="docutils literal notranslate"><span class="pre">FunctionsBasedOutputParser.tools_lookup_dict</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="steamship.agents.llms.html">steamship.agents.llms package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.llms.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.llms.html#module-steamship.agents.llms.openai">steamship.agents.llms.openai module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.llms.html#steamship.agents.llms.openai.ChatOpenAI"><code class="docutils literal notranslate"><span class="pre">ChatOpenAI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.llms.html#steamship.agents.llms.openai.ChatOpenAI.chat"><code class="docutils literal notranslate"><span class="pre">ChatOpenAI.chat()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.llms.html#steamship.agents.llms.openai.OpenAI"><code class="docutils literal notranslate"><span class="pre">OpenAI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.llms.html#steamship.agents.llms.openai.OpenAI.client"><code class="docutils literal notranslate"><span class="pre">OpenAI.client</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.llms.html#steamship.agents.llms.openai.OpenAI.complete"><code class="docutils literal notranslate"><span class="pre">OpenAI.complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.llms.html#steamship.agents.llms.openai.OpenAI.generator"><code class="docutils literal notranslate"><span class="pre">OpenAI.generator</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.llms.html#module-steamship.agents.llms">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.llms.html#steamship.agents.llms.OpenAI"><code class="docutils literal notranslate"><span class="pre">OpenAI</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.llms.html#steamship.agents.llms.OpenAI.client"><code class="docutils literal notranslate"><span class="pre">OpenAI.client</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.llms.html#steamship.agents.llms.OpenAI.complete"><code class="docutils literal notranslate"><span class="pre">OpenAI.complete()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.llms.html#steamship.agents.llms.OpenAI.generator"><code class="docutils literal notranslate"><span class="pre">OpenAI.generator</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="steamship.agents.mixins.html">steamship.agents.mixins package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.mixins.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.mixins.transports.html">steamship.agents.mixins.transports package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.mixins.transports.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.mixins.transports.html#module-steamship.agents.mixins.transports.steamship_widget">steamship.agents.mixins.transports.steamship_widget module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.mixins.transports.html#module-steamship.agents.mixins.transports.telegram">steamship.agents.mixins.transports.telegram module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.mixins.transports.html#module-steamship.agents.mixins.transports.transport">steamship.agents.mixins.transports.transport module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.mixins.transports.html#module-steamship.agents.mixins.transports">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.mixins.html#module-steamship.agents.mixins">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="steamship.agents.react.html">steamship.agents.react package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.react.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.react.html#module-steamship.agents.react.output_parser">steamship.agents.react.output_parser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.react.html#steamship.agents.react.output_parser.ReACTOutputParser"><code class="docutils literal notranslate"><span class="pre">ReACTOutputParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.react.html#steamship.agents.react.output_parser.ReACTOutputParser.parse"><code class="docutils literal notranslate"><span class="pre">ReACTOutputParser.parse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.react.html#steamship.agents.react.output_parser.ReACTOutputParser.tools_lookup_dict"><code class="docutils literal notranslate"><span class="pre">ReACTOutputParser.tools_lookup_dict</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.react.html#module-steamship.agents.react.react">steamship.agents.react.react module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.react.html#steamship.agents.react.react.ReACTAgent"><code class="docutils literal notranslate"><span class="pre">ReACTAgent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.react.html#steamship.agents.react.react.ReACTAgent.next_action"><code class="docutils literal notranslate"><span class="pre">ReACTAgent.next_action()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.react.html#module-steamship.agents.react">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.react.html#steamship.agents.react.ReACTAgent"><code class="docutils literal notranslate"><span class="pre">ReACTAgent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.react.html#steamship.agents.react.ReACTAgent.next_action"><code class="docutils literal notranslate"><span class="pre">ReACTAgent.next_action()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.react.html#steamship.agents.react.ReACTOutputParser"><code class="docutils literal notranslate"><span class="pre">ReACTOutputParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.react.html#steamship.agents.react.ReACTOutputParser.parse"><code class="docutils literal notranslate"><span class="pre">ReACTOutputParser.parse()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.react.html#steamship.agents.react.ReACTOutputParser.tools_lookup_dict"><code class="docutils literal notranslate"><span class="pre">ReACTOutputParser.tools_lookup_dict</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="steamship.agents.schema.html">steamship.agents.schema package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema.action">steamship.agents.schema.action module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.action.Action"><code class="docutils literal notranslate"><span class="pre">Action</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.action.Action.input"><code class="docutils literal notranslate"><span class="pre">Action.input</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.action.Action.output"><code class="docutils literal notranslate"><span class="pre">Action.output</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.action.Action.to_chat_messages"><code class="docutils literal notranslate"><span class="pre">Action.to_chat_messages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.action.Action.tool"><code class="docutils literal notranslate"><span class="pre">Action.tool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.action.AgentTool"><code class="docutils literal notranslate"><span class="pre">AgentTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.action.AgentTool.run"><code class="docutils literal notranslate"><span class="pre">AgentTool.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.action.FinishAction"><code class="docutils literal notranslate"><span class="pre">FinishAction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.action.FinishAction.input"><code class="docutils literal notranslate"><span class="pre">FinishAction.input</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.action.FinishAction.tool"><code class="docutils literal notranslate"><span class="pre">FinishAction.tool</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema.agent">steamship.agents.schema.agent module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.Agent"><code class="docutils literal notranslate"><span class="pre">Agent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.Agent.message_selector"><code class="docutils literal notranslate"><span class="pre">Agent.message_selector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.Agent.next_action"><code class="docutils literal notranslate"><span class="pre">Agent.next_action()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.Agent.tools"><code class="docutils literal notranslate"><span class="pre">Agent.tools</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.ChatAgent"><code class="docutils literal notranslate"><span class="pre">ChatAgent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.ChatAgent.llm"><code class="docutils literal notranslate"><span class="pre">ChatAgent.llm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.ChatAgent.output_parser"><code class="docutils literal notranslate"><span class="pre">ChatAgent.output_parser</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.LLMAgent"><code class="docutils literal notranslate"><span class="pre">LLMAgent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.LLMAgent.llm"><code class="docutils literal notranslate"><span class="pre">LLMAgent.llm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.LLMAgent.messages_to_prompt_history"><code class="docutils literal notranslate"><span class="pre">LLMAgent.messages_to_prompt_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.LLMAgent.next_action"><code class="docutils literal notranslate"><span class="pre">LLMAgent.next_action()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.agent.LLMAgent.output_parser"><code class="docutils literal notranslate"><span class="pre">LLMAgent.output_parser</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema.chathistory">steamship.agents.schema.chathistory module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory"><code class="docutils literal notranslate"><span class="pre">ChatHistory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.append_assistant_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.append_assistant_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.append_message_with_role"><code class="docutils literal notranslate"><span class="pre">ChatHistory.append_message_with_role()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.append_system_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.append_system_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.append_user_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.append_user_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.clear"><code class="docutils literal notranslate"><span class="pre">ChatHistory.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.client"><code class="docutils literal notranslate"><span class="pre">ChatHistory.client</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.delete_messages"><code class="docutils literal notranslate"><span class="pre">ChatHistory.delete_messages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.embedding_index"><code class="docutils literal notranslate"><span class="pre">ChatHistory.embedding_index</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.file"><code class="docutils literal notranslate"><span class="pre">ChatHistory.file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.get_or_create"><code class="docutils literal notranslate"><span class="pre">ChatHistory.get_or_create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.initial_system_prompt"><code class="docutils literal notranslate"><span class="pre">ChatHistory.initial_system_prompt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.is_searchable"><code class="docutils literal notranslate"><span class="pre">ChatHistory.is_searchable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.last_agent_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.last_agent_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.last_system_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.last_system_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.last_user_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.last_user_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.messages"><code class="docutils literal notranslate"><span class="pre">ChatHistory.messages</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.refresh"><code class="docutils literal notranslate"><span class="pre">ChatHistory.refresh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.search"><code class="docutils literal notranslate"><span class="pre">ChatHistory.search()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.select_messages"><code class="docutils literal notranslate"><span class="pre">ChatHistory.select_messages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.tags"><code class="docutils literal notranslate"><span class="pre">ChatHistory.tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.chathistory.ChatHistory.text_splitter"><code class="docutils literal notranslate"><span class="pre">ChatHistory.text_splitter</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema.context">steamship.agents.schema.context module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext"><code class="docutils literal notranslate"><span class="pre">AgentContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext.chat_history"><code class="docutils literal notranslate"><span class="pre">AgentContext.chat_history</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext.client"><code class="docutils literal notranslate"><span class="pre">AgentContext.client</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext.completed_steps"><code class="docutils literal notranslate"><span class="pre">AgentContext.completed_steps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext.emit_funcs"><code class="docutils literal notranslate"><span class="pre">AgentContext.emit_funcs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext.get_or_create"><code class="docutils literal notranslate"><span class="pre">AgentContext.get_or_create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext.id"><code class="docutils literal notranslate"><span class="pre">AgentContext.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext.metadata"><code class="docutils literal notranslate"><span class="pre">AgentContext.metadata</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema.functions">steamship.agents.schema.functions module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.FunctionParameters"><code class="docutils literal notranslate"><span class="pre">FunctionParameters</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.FunctionParameters.properties"><code class="docutils literal notranslate"><span class="pre">FunctionParameters.properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.FunctionParameters.required"><code class="docutils literal notranslate"><span class="pre">FunctionParameters.required</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.FunctionParameters.type"><code class="docutils literal notranslate"><span class="pre">FunctionParameters.type</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.FunctionProperty"><code class="docutils literal notranslate"><span class="pre">FunctionProperty</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.FunctionProperty.description"><code class="docutils literal notranslate"><span class="pre">FunctionProperty.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.FunctionProperty.type"><code class="docutils literal notranslate"><span class="pre">FunctionProperty.type</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.JSONType"><code class="docutils literal notranslate"><span class="pre">JSONType</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.JSONType.array"><code class="docutils literal notranslate"><span class="pre">JSONType.array</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.JSONType.boolean"><code class="docutils literal notranslate"><span class="pre">JSONType.boolean</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.JSONType.integer"><code class="docutils literal notranslate"><span class="pre">JSONType.integer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.JSONType.null"><code class="docutils literal notranslate"><span class="pre">JSONType.null</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.JSONType.number"><code class="docutils literal notranslate"><span class="pre">JSONType.number</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.JSONType.object"><code class="docutils literal notranslate"><span class="pre">JSONType.object</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.JSONType.string"><code class="docutils literal notranslate"><span class="pre">JSONType.string</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.OpenAIFunction"><code class="docutils literal notranslate"><span class="pre">OpenAIFunction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.OpenAIFunction.description"><code class="docutils literal notranslate"><span class="pre">OpenAIFunction.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.OpenAIFunction.name"><code class="docutils literal notranslate"><span class="pre">OpenAIFunction.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.functions.OpenAIFunction.parameters"><code class="docutils literal notranslate"><span class="pre">OpenAIFunction.parameters</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema.llm">steamship.agents.schema.llm module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.llm.ChatLLM"><code class="docutils literal notranslate"><span class="pre">ChatLLM</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.llm.ChatLLM.chat"><code class="docutils literal notranslate"><span class="pre">ChatLLM.chat()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.llm.LLM"><code class="docutils literal notranslate"><span class="pre">LLM</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.llm.LLM.complete"><code class="docutils literal notranslate"><span class="pre">LLM.complete()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema.message_selectors">steamship.agents.schema.message_selectors module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.MessageSelector"><code class="docutils literal notranslate"><span class="pre">MessageSelector</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.MessageSelector.get_messages"><code class="docutils literal notranslate"><span class="pre">MessageSelector.get_messages()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.MessageWindowMessageSelector"><code class="docutils literal notranslate"><span class="pre">MessageWindowMessageSelector</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.MessageWindowMessageSelector.get_messages"><code class="docutils literal notranslate"><span class="pre">MessageWindowMessageSelector.get_messages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.MessageWindowMessageSelector.k"><code class="docutils literal notranslate"><span class="pre">MessageWindowMessageSelector.k</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.NoMessages"><code class="docutils literal notranslate"><span class="pre">NoMessages</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.NoMessages.get_messages"><code class="docutils literal notranslate"><span class="pre">NoMessages.get_messages()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.TokenWindowMessageSelector"><code class="docutils literal notranslate"><span class="pre">TokenWindowMessageSelector</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.TokenWindowMessageSelector.get_messages"><code class="docutils literal notranslate"><span class="pre">TokenWindowMessageSelector.get_messages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.TokenWindowMessageSelector.max_tokens"><code class="docutils literal notranslate"><span class="pre">TokenWindowMessageSelector.max_tokens</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.is_assistant_message"><code class="docutils literal notranslate"><span class="pre">is_assistant_message()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.is_user_message"><code class="docutils literal notranslate"><span class="pre">is_user_message()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.message_selectors.tokens"><code class="docutils literal notranslate"><span class="pre">tokens()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema.output_parser">steamship.agents.schema.output_parser module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.output_parser.OutputParser"><code class="docutils literal notranslate"><span class="pre">OutputParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.output_parser.OutputParser.parse"><code class="docutils literal notranslate"><span class="pre">OutputParser.parse()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema.text_splitters">steamship.agents.schema.text_splitters module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.text_splitters.FixedSizeTextSplitter"><code class="docutils literal notranslate"><span class="pre">FixedSizeTextSplitter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.text_splitters.FixedSizeTextSplitter.chunk_size"><code class="docutils literal notranslate"><span class="pre">FixedSizeTextSplitter.chunk_size</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.text_splitters.FixedSizeTextSplitter.split_text"><code class="docutils literal notranslate"><span class="pre">FixedSizeTextSplitter.split_text()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.text_splitters.TextSplitter"><code class="docutils literal notranslate"><span class="pre">TextSplitter</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.text_splitters.TextSplitter.chunk_text_to_tags"><code class="docutils literal notranslate"><span class="pre">TextSplitter.chunk_text_to_tags()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.text_splitters.TextSplitter.split_text"><code class="docutils literal notranslate"><span class="pre">TextSplitter.split_text()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema.tool">steamship.agents.schema.tool module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.tool.AgentContext"><code class="docutils literal notranslate"><span class="pre">AgentContext</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.tool.Tool"><code class="docutils literal notranslate"><span class="pre">Tool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.tool.Tool.agent_description"><code class="docutils literal notranslate"><span class="pre">Tool.agent_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.tool.Tool.as_openai_function"><code class="docutils literal notranslate"><span class="pre">Tool.as_openai_function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.tool.Tool.human_description"><code class="docutils literal notranslate"><span class="pre">Tool.human_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.tool.Tool.name"><code class="docutils literal notranslate"><span class="pre">Tool.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.tool.Tool.post_process"><code class="docutils literal notranslate"><span class="pre">Tool.post_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.tool.Tool.run"><code class="docutils literal notranslate"><span class="pre">Tool.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.schema.html#module-steamship.agents.schema">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Action"><code class="docutils literal notranslate"><span class="pre">Action</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Action.input"><code class="docutils literal notranslate"><span class="pre">Action.input</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Action.output"><code class="docutils literal notranslate"><span class="pre">Action.output</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Action.to_chat_messages"><code class="docutils literal notranslate"><span class="pre">Action.to_chat_messages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Action.tool"><code class="docutils literal notranslate"><span class="pre">Action.tool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Agent"><code class="docutils literal notranslate"><span class="pre">Agent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Agent.message_selector"><code class="docutils literal notranslate"><span class="pre">Agent.message_selector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Agent.next_action"><code class="docutils literal notranslate"><span class="pre">Agent.next_action()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Agent.tools"><code class="docutils literal notranslate"><span class="pre">Agent.tools</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.AgentContext"><code class="docutils literal notranslate"><span class="pre">AgentContext</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.AgentContext.chat_history"><code class="docutils literal notranslate"><span class="pre">AgentContext.chat_history</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.AgentContext.client"><code class="docutils literal notranslate"><span class="pre">AgentContext.client</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.AgentContext.completed_steps"><code class="docutils literal notranslate"><span class="pre">AgentContext.completed_steps</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.AgentContext.emit_funcs"><code class="docutils literal notranslate"><span class="pre">AgentContext.emit_funcs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.AgentContext.get_or_create"><code class="docutils literal notranslate"><span class="pre">AgentContext.get_or_create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.AgentContext.id"><code class="docutils literal notranslate"><span class="pre">AgentContext.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.AgentContext.metadata"><code class="docutils literal notranslate"><span class="pre">AgentContext.metadata</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatAgent"><code class="docutils literal notranslate"><span class="pre">ChatAgent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatAgent.llm"><code class="docutils literal notranslate"><span class="pre">ChatAgent.llm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatAgent.message_selector"><code class="docutils literal notranslate"><span class="pre">ChatAgent.message_selector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatAgent.output_parser"><code class="docutils literal notranslate"><span class="pre">ChatAgent.output_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatAgent.tools"><code class="docutils literal notranslate"><span class="pre">ChatAgent.tools</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory"><code class="docutils literal notranslate"><span class="pre">ChatHistory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.append_assistant_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.append_assistant_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.append_message_with_role"><code class="docutils literal notranslate"><span class="pre">ChatHistory.append_message_with_role()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.append_system_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.append_system_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.append_user_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.append_user_message()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.clear"><code class="docutils literal notranslate"><span class="pre">ChatHistory.clear()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.client"><code class="docutils literal notranslate"><span class="pre">ChatHistory.client</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.delete_messages"><code class="docutils literal notranslate"><span class="pre">ChatHistory.delete_messages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.embedding_index"><code class="docutils literal notranslate"><span class="pre">ChatHistory.embedding_index</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.file"><code class="docutils literal notranslate"><span class="pre">ChatHistory.file</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.get_or_create"><code class="docutils literal notranslate"><span class="pre">ChatHistory.get_or_create()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.initial_system_prompt"><code class="docutils literal notranslate"><span class="pre">ChatHistory.initial_system_prompt</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.is_searchable"><code class="docutils literal notranslate"><span class="pre">ChatHistory.is_searchable()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.last_agent_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.last_agent_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.last_system_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.last_system_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.last_user_message"><code class="docutils literal notranslate"><span class="pre">ChatHistory.last_user_message</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.messages"><code class="docutils literal notranslate"><span class="pre">ChatHistory.messages</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.refresh"><code class="docutils literal notranslate"><span class="pre">ChatHistory.refresh()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.search"><code class="docutils literal notranslate"><span class="pre">ChatHistory.search()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.select_messages"><code class="docutils literal notranslate"><span class="pre">ChatHistory.select_messages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.tags"><code class="docutils literal notranslate"><span class="pre">ChatHistory.tags</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatHistory.text_splitter"><code class="docutils literal notranslate"><span class="pre">ChatHistory.text_splitter</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatLLM"><code class="docutils literal notranslate"><span class="pre">ChatLLM</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.ChatLLM.chat"><code class="docutils literal notranslate"><span class="pre">ChatLLM.chat()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.FinishAction"><code class="docutils literal notranslate"><span class="pre">FinishAction</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.FinishAction.input"><code class="docutils literal notranslate"><span class="pre">FinishAction.input</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.FinishAction.output"><code class="docutils literal notranslate"><span class="pre">FinishAction.output</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.FinishAction.tool"><code class="docutils literal notranslate"><span class="pre">FinishAction.tool</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.LLM"><code class="docutils literal notranslate"><span class="pre">LLM</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.LLM.complete"><code class="docutils literal notranslate"><span class="pre">LLM.complete()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.LLMAgent"><code class="docutils literal notranslate"><span class="pre">LLMAgent</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.LLMAgent.llm"><code class="docutils literal notranslate"><span class="pre">LLMAgent.llm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.LLMAgent.message_selector"><code class="docutils literal notranslate"><span class="pre">LLMAgent.message_selector</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.LLMAgent.messages_to_prompt_history"><code class="docutils literal notranslate"><span class="pre">LLMAgent.messages_to_prompt_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.LLMAgent.next_action"><code class="docutils literal notranslate"><span class="pre">LLMAgent.next_action()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.LLMAgent.output_parser"><code class="docutils literal notranslate"><span class="pre">LLMAgent.output_parser</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.LLMAgent.tools"><code class="docutils literal notranslate"><span class="pre">LLMAgent.tools</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.OutputParser"><code class="docutils literal notranslate"><span class="pre">OutputParser</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.OutputParser.parse"><code class="docutils literal notranslate"><span class="pre">OutputParser.parse()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Tool"><code class="docutils literal notranslate"><span class="pre">Tool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Tool.agent_description"><code class="docutils literal notranslate"><span class="pre">Tool.agent_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Tool.as_openai_function"><code class="docutils literal notranslate"><span class="pre">Tool.as_openai_function()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Tool.human_description"><code class="docutils literal notranslate"><span class="pre">Tool.human_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Tool.name"><code class="docutils literal notranslate"><span class="pre">Tool.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Tool.post_process"><code class="docutils literal notranslate"><span class="pre">Tool.post_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.Tool.run"><code class="docutils literal notranslate"><span class="pre">Tool.run()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="steamship.agents.service.html">steamship.agents.service package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.service.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.service.html#module-steamship.agents.service.agent_service">steamship.agents.service.agent_service module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.service.html#steamship.agents.service.agent_service.AgentService"><code class="docutils literal notranslate"><span class="pre">AgentService</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.service.html#steamship.agents.service.agent_service.AgentService.prompt"><code class="docutils literal notranslate"><span class="pre">AgentService.prompt()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.service.html#steamship.agents.service.agent_service.AgentService.run_action"><code class="docutils literal notranslate"><span class="pre">AgentService.run_action()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.service.html#steamship.agents.service.agent_service.AgentService.run_agent"><code class="docutils literal notranslate"><span class="pre">AgentService.run_agent()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.service.html#module-steamship.agents.service">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="steamship.agents.tools.html">steamship.agents.tools package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.tools.html#subpackages">Subpackages</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.audio_transcription.html">steamship.agents.tools.audio_transcription package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.audio_transcription.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.audio_transcription.html#module-steamship.agents.tools.audio_transcription.assembly_speech_to_text_tool">steamship.agents.tools.audio_transcription.assembly_speech_to_text_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.audio_transcription.html#module-steamship.agents.tools.audio_transcription.fetch_audio_urls_from_rss_tool">steamship.agents.tools.audio_transcription.fetch_audio_urls_from_rss_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.audio_transcription.html#module-steamship.agents.tools.audio_transcription.whisper_speech_to_text_tool">steamship.agents.tools.audio_transcription.whisper_speech_to_text_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.audio_transcription.html#module-steamship.agents.tools.audio_transcription">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.classification.html">steamship.agents.tools.classification package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.classification.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.classification.html#module-steamship.agents.tools.classification.sentiment_analysis_tool">steamship.agents.tools.classification.sentiment_analysis_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.classification.html#module-steamship.agents.tools.classification.zero_shot_classifier_tool">steamship.agents.tools.classification.zero_shot_classifier_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.classification.html#module-steamship.agents.tools.classification">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.conversation_starters.html">steamship.agents.tools.conversation_starters package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.conversation_starters.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.conversation_starters.html#module-steamship.agents.tools.conversation_starters.knock_knock_tool">steamship.agents.tools.conversation_starters.knock_knock_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.conversation_starters.html#module-steamship.agents.tools.conversation_starters">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.image_generation.html">steamship.agents.tools.image_generation package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.image_generation.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.image_generation.html#module-steamship.agents.tools.image_generation.dalle">steamship.agents.tools.image_generation.dalle module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.image_generation.html#module-steamship.agents.tools.image_generation.google_image_search">steamship.agents.tools.image_generation.google_image_search module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.image_generation.html#module-steamship.agents.tools.image_generation.stable_diffusion">steamship.agents.tools.image_generation.stable_diffusion module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.image_generation.html#module-steamship.agents.tools.image_generation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.question_answering.html">steamship.agents.tools.question_answering package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.question_answering.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.question_answering.html#module-steamship.agents.tools.question_answering.prompt_database_question_answerer">steamship.agents.tools.question_answering.prompt_database_question_answerer module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.question_answering.html#module-steamship.agents.tools.question_answering.vector_search_learner_tool">steamship.agents.tools.question_answering.vector_search_learner_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.question_answering.html#module-steamship.agents.tools.question_answering.vector_search_qa_tool">steamship.agents.tools.question_answering.vector_search_qa_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.question_answering.html#module-steamship.agents.tools.question_answering.vector_search_tool">steamship.agents.tools.question_answering.vector_search_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.question_answering.html#module-steamship.agents.tools.question_answering">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.search.html">steamship.agents.tools.search package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.search.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.search.html#module-steamship.agents.tools.search.search">steamship.agents.tools.search.search module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.search.html#module-steamship.agents.tools.search">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.speech_generation.html">steamship.agents.tools.speech_generation package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.speech_generation.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.speech_generation.html#module-steamship.agents.tools.speech_generation.generate_speech">steamship.agents.tools.speech_generation.generate_speech module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.speech_generation.html#module-steamship.agents.tools.speech_generation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.text_generation.html">steamship.agents.tools.text_generation package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.text_generation.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.text_generation.html#module-steamship.agents.tools.text_generation.image_prompt_generator_tool">steamship.agents.tools.text_generation.image_prompt_generator_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.text_generation.html#module-steamship.agents.tools.text_generation.json_object_generator">steamship.agents.tools.text_generation.json_object_generator module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.text_generation.html#module-steamship.agents.tools.text_generation.personality_tool">steamship.agents.tools.text_generation.personality_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.text_generation.html#module-steamship.agents.tools.text_generation.summarize_text_with_prompt_tool">steamship.agents.tools.text_generation.summarize_text_with_prompt_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.text_generation.html#module-steamship.agents.tools.text_generation.text_rewrite_tool">steamship.agents.tools.text_generation.text_rewrite_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.text_generation.html#module-steamship.agents.tools.text_generation.text_translation_tool">steamship.agents.tools.text_generation.text_translation_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.text_generation.html#module-steamship.agents.tools.text_generation">Module contents</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.video_generation.html">steamship.agents.tools.video_generation package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.video_generation.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.video_generation.html#module-steamship.agents.tools.video_generation.did_video_generator_tool">steamship.agents.tools.video_generation.did_video_generator_tool module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.video_generation.html#module-steamship.agents.tools.video_generation">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.tools.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.tools.html#module-steamship.agents.tools.base_tools">steamship.agents.tools.base_tools module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.AudioBlockifierTool"><code class="docutils literal notranslate"><span class="pre">AudioBlockifierTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.AudioBlockifierTool.get_mime_type"><code class="docutils literal notranslate"><span class="pre">AudioBlockifierTool.get_mime_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.AudioBlockifierTool.should_blockify"><code class="docutils literal notranslate"><span class="pre">AudioBlockifierTool.should_blockify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.AudioGeneratorTool"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.AudioGeneratorTool.accept_output_block"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.accept_output_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.AudioGeneratorTool.make_output_public"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.make_output_public</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.GeneratorTool"><code class="docutils literal notranslate"><span class="pre">GeneratorTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.GeneratorTool.accept_output_block"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.accept_output_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.GeneratorTool.generator_plugin_config"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.generator_plugin_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.GeneratorTool.generator_plugin_handle"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.generator_plugin_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.GeneratorTool.generator_plugin_instance_handle"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.generator_plugin_instance_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.GeneratorTool.make_output_public"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.make_output_public</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.GeneratorTool.merge_blocks"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.merge_blocks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.GeneratorTool.post_process"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.post_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.GeneratorTool.run"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ImageBlockifierTool"><code class="docutils literal notranslate"><span class="pre">ImageBlockifierTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ImageBlockifierTool.get_mime_type"><code class="docutils literal notranslate"><span class="pre">ImageBlockifierTool.get_mime_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ImageBlockifierTool.should_blockify"><code class="docutils literal notranslate"><span class="pre">ImageBlockifierTool.should_blockify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ImageGeneratorTool"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ImageGeneratorTool.accept_output_block"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.accept_output_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ImageGeneratorTool.make_output_public"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.make_output_public</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ScrapeAndBlockifyTool"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ScrapeAndBlockifyTool.blockifier_plugin_config"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.blockifier_plugin_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ScrapeAndBlockifyTool.blockifier_plugin_handle"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.blockifier_plugin_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ScrapeAndBlockifyTool.blockifier_plugin_instance_handle"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.blockifier_plugin_instance_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ScrapeAndBlockifyTool.get_mime_type"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.get_mime_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ScrapeAndBlockifyTool.post_process"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.post_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ScrapeAndBlockifyTool.run"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.ScrapeAndBlockifyTool.should_blockify"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.should_blockify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.VideoGeneratorTool"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.VideoGeneratorTool.accept_output_block"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.accept_output_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.base_tools.VideoGeneratorTool.make_output_public"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.make_output_public</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="steamship.agents.tools.html#module-steamship.agents.tools">Module contents</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioBlockifierTool"><code class="docutils literal notranslate"><span class="pre">AudioBlockifierTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioBlockifierTool.get_mime_type"><code class="docutils literal notranslate"><span class="pre">AudioBlockifierTool.get_mime_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioBlockifierTool.should_blockify"><code class="docutils literal notranslate"><span class="pre">AudioBlockifierTool.should_blockify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioGeneratorTool"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioGeneratorTool.accept_output_block"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.accept_output_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioGeneratorTool.agent_description"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.agent_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioGeneratorTool.generator_plugin_config"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.generator_plugin_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioGeneratorTool.generator_plugin_handle"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.generator_plugin_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioGeneratorTool.generator_plugin_instance_handle"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.generator_plugin_instance_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioGeneratorTool.human_description"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.human_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioGeneratorTool.make_output_public"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.make_output_public</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioGeneratorTool.merge_blocks"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.merge_blocks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.AudioGeneratorTool.name"><code class="docutils literal notranslate"><span class="pre">AudioGeneratorTool.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool"><code class="docutils literal notranslate"><span class="pre">GeneratorTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.accept_output_block"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.accept_output_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.agent_description"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.agent_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.generator_plugin_config"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.generator_plugin_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.generator_plugin_handle"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.generator_plugin_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.generator_plugin_instance_handle"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.generator_plugin_instance_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.human_description"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.human_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.make_output_public"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.make_output_public</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.merge_blocks"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.merge_blocks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.name"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.post_process"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.post_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.GeneratorTool.run"><code class="docutils literal notranslate"><span class="pre">GeneratorTool.run()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageBlockifierTool"><code class="docutils literal notranslate"><span class="pre">ImageBlockifierTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageBlockifierTool.get_mime_type"><code class="docutils literal notranslate"><span class="pre">ImageBlockifierTool.get_mime_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageBlockifierTool.should_blockify"><code class="docutils literal notranslate"><span class="pre">ImageBlockifierTool.should_blockify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageGeneratorTool"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageGeneratorTool.accept_output_block"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.accept_output_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageGeneratorTool.agent_description"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.agent_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageGeneratorTool.generator_plugin_config"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.generator_plugin_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageGeneratorTool.generator_plugin_handle"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.generator_plugin_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageGeneratorTool.generator_plugin_instance_handle"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.generator_plugin_instance_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageGeneratorTool.human_description"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.human_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageGeneratorTool.make_output_public"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.make_output_public</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageGeneratorTool.merge_blocks"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.merge_blocks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ImageGeneratorTool.name"><code class="docutils literal notranslate"><span class="pre">ImageGeneratorTool.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool.agent_description"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.agent_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool.blockifier_plugin_config"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.blockifier_plugin_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool.blockifier_plugin_handle"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.blockifier_plugin_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool.blockifier_plugin_instance_handle"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.blockifier_plugin_instance_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool.get_mime_type"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.get_mime_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool.human_description"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.human_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool.name"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool.post_process"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.post_process()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool.run"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.run()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.ScrapeAndBlockifyTool.should_blockify"><code class="docutils literal notranslate"><span class="pre">ScrapeAndBlockifyTool.should_blockify()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.VideoGeneratorTool"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.VideoGeneratorTool.accept_output_block"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.accept_output_block()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.VideoGeneratorTool.agent_description"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.agent_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.VideoGeneratorTool.generator_plugin_config"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.generator_plugin_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.VideoGeneratorTool.generator_plugin_handle"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.generator_plugin_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.VideoGeneratorTool.generator_plugin_instance_handle"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.generator_plugin_instance_handle</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.VideoGeneratorTool.human_description"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.human_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.VideoGeneratorTool.make_output_public"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.make_output_public</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.VideoGeneratorTool.merge_blocks"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.merge_blocks</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="steamship.agents.tools.html#steamship.agents.tools.VideoGeneratorTool.name"><code class="docutils literal notranslate"><span class="pre">VideoGeneratorTool.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="module-steamship.agents.logging">
+<span id="steamship-agents-logging-module"></span><h2>steamship.agents.logging module<a class="headerlink" href="#module-steamship.agents.logging" title="Permalink to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">steamship.agents.logging.</span></span><span class="sig-name descname"><span class="pre">AgentLogging</span></span><a class="reference internal" href="../_modules/steamship/agents/logging.html#AgentLogging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steamship.agents.logging.AgentLogging" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.11/library/functions.html#object" title="(in Python v3.11)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>These keys are for use in the <cite>extra</cite> field of agent logging operations. #noqa: RST203</p>
+<p>For now, they are manually applied at the time of logging. In the future, the AgentContext may provide a logger
+which fills some automatically.</p>
+<p>For example:</p>
+<dl class="simple">
+<dt>logging.info(“I should use tool MakeAPicture”, extra={</dt><dd><p>AgentLogging.AGENT_NAME: self.name,
+AgentLogging.IS_AGENT_MESSAGE: True,
+AgentLogging.MESSAGE_TYPE: AgentLogging.THOUGHT</p>
+</dd>
+</dl>
+<p>}) # noqa: RST203</p>
+<p>This provides:</p>
+<ul class="simple">
+<li><p>Structured additions to Fluent/Elastic that help with internal debugging.</p></li>
+<li><p>Helpful output in development mode</p></li>
+<li><p>[Eventual] User-visible logs</p></li>
+<li><p>[Eventual] Visualiations about tool execution and ReAct reasoning</p></li>
+</ul>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.ACTION">
+<span class="sig-name descname"><span class="pre">ACTION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'action'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.ACTION" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.AGENT">
+<span class="sig-name descname"><span class="pre">AGENT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'agent'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.AGENT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.AGENT_NAME">
+<span class="sig-name descname"><span class="pre">AGENT_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'agent_name'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.AGENT_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.IS_MESSAGE">
+<span class="sig-name descname"><span class="pre">IS_MESSAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'is_message'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.IS_MESSAGE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.MESSAGE">
+<span class="sig-name descname"><span class="pre">MESSAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'message'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.MESSAGE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.MESSAGE_AUTHOR">
+<span class="sig-name descname"><span class="pre">MESSAGE_AUTHOR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'message_author'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.MESSAGE_AUTHOR" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.MESSAGE_TYPE">
+<span class="sig-name descname"><span class="pre">MESSAGE_TYPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'agent_message_type'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.MESSAGE_TYPE" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.OBSERVATION">
+<span class="sig-name descname"><span class="pre">OBSERVATION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'observation'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.OBSERVATION" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.SYSTEM">
+<span class="sig-name descname"><span class="pre">SYSTEM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'system'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.SYSTEM" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.THOUGHT">
+<span class="sig-name descname"><span class="pre">THOUGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'thought'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.THOUGHT" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.TOOL">
+<span class="sig-name descname"><span class="pre">TOOL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tool'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.TOOL" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.TOOL_NAME">
+<span class="sig-name descname"><span class="pre">TOOL_NAME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'tool_name'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.TOOL_NAME" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="steamship.agents.logging.AgentLogging.USER">
+<span class="sig-name descname"><span class="pre">USER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'user'</span></em><a class="headerlink" href="#steamship.agents.logging.AgentLogging.USER" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-steamship.agents.utils">
+<span id="steamship-agents-utils-module"></span><h2>steamship.agents.utils module<a class="headerlink" href="#module-steamship.agents.utils" title="Permalink to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="steamship.agents.utils.get_llm">
+<span class="sig-prename descclassname"><span class="pre">steamship.agents.utils.</span></span><span class="sig-name descname"><span class="pre">get_llm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext" title="steamship.agents.schema.context.AgentContext"><span class="pre">AgentContext</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.llm.LLM" title="steamship.agents.schema.llm.LLM"><span class="pre">LLM</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.11/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.llm.LLM" title="steamship.agents.schema.llm.LLM"><span class="pre">LLM</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.11/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span></span><a class="reference internal" href="../_modules/steamship/agents/utils.html#get_llm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steamship.agents.utils.get_llm" title="Permalink to this definition">#</a></dt>
+<dd><p>Retrieves the LLM from the provided AgentContext (if it exists).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="steamship.agents.utils.with_llm">
+<span class="sig-prename descclassname"><span class="pre">steamship.agents.utils.</span></span><span class="sig-name descname"><span class="pre">with_llm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">llm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.llm.LLM" title="steamship.agents.schema.llm.LLM"><span class="pre">LLM</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext" title="steamship.agents.schema.context.AgentContext"><span class="pre">AgentContext</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3.11/library/constants.html#None" title="(in Python v3.11)"><span class="pre">None</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="steamship.agents.schema.html#steamship.agents.schema.context.AgentContext" title="steamship.agents.schema.context.AgentContext"><span class="pre">AgentContext</span></a></span></span><a class="reference internal" href="../_modules/steamship/agents/utils.html#with_llm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#steamship.agents.utils.with_llm" title="Permalink to this definition">#</a></dt>
+<dd><p>Sets an LLM for general purpose lookup and usage on an AgentContext.</p>
+</dd></dl>
+
+</section>
+<section id="module-steamship.agents">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-steamship.agents" title="Permalink to this heading">#</a></h2>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="steamship.agents.examples.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">steamship.agents.examples package</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="steamship.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">steamship package</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, Steamship Inc.
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            <div class="icons">
+              <a class="muted-link " href="https://github.com/steamship-core/python-client" aria-label="GitHub">
+            <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"></path>
+            </svg>
+        </a>
+              
+            </div>
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">steamship.agents package</a><ul>
+<li><a class="reference internal" href="#subpackages">Subpackages</a></li>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-steamship.agents.logging">steamship.agents.logging module</a><ul>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging"><code class="docutils literal notranslate"><span class="pre">AgentLogging</span></code></a><ul>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.ACTION"><code class="docutils literal notranslate"><span class="pre">AgentLogging.ACTION</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.AGENT"><code class="docutils literal notranslate"><span class="pre">AgentLogging.AGENT</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.AGENT_NAME"><code class="docutils literal notranslate"><span class="pre">AgentLogging.AGENT_NAME</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.IS_MESSAGE"><code class="docutils literal notranslate"><span class="pre">AgentLogging.IS_MESSAGE</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.MESSAGE"><code class="docutils literal notranslate"><span class="pre">AgentLogging.MESSAGE</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.MESSAGE_AUTHOR"><code class="docutils literal notranslate"><span class="pre">AgentLogging.MESSAGE_AUTHOR</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.MESSAGE_TYPE"><code class="docutils literal notranslate"><span class="pre">AgentLogging.MESSAGE_TYPE</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.OBSERVATION"><code class="docutils literal notranslate"><span class="pre">AgentLogging.OBSERVATION</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.SYSTEM"><code class="docutils literal notranslate"><span class="pre">AgentLogging.SYSTEM</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.THOUGHT"><code class="docutils literal notranslate"><span class="pre">AgentLogging.THOUGHT</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.TOOL"><code class="docutils literal notranslate"><span class="pre">AgentLogging.TOOL</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.TOOL_NAME"><code class="docutils literal notranslate"><span class="pre">AgentLogging.TOOL_NAME</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.logging.AgentLogging.USER"><code class="docutils literal notranslate"><span class="pre">AgentLogging.USER</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-steamship.agents.utils">steamship.agents.utils module</a><ul>
+<li><a class="reference internal" href="#steamship.agents.utils.get_llm"><code class="docutils literal notranslate"><span class="pre">get_llm()</span></code></a></li>
+<li><a class="reference internal" href="#steamship.agents.utils.with_llm"><code class="docutils literal notranslate"><span class="pre">with_llm()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-steamship.agents">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/tabs.js"></script>
+    <script src="../_static/design-tabs.js"></script>
+    </body>
+</html>
