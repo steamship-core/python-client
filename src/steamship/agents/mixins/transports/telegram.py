@@ -29,11 +29,11 @@ class TelegramTransport(Transport):
     agent_service: AgentService
 
     def __init__(
-            self,
-            client: Steamship,
-            config: TelegramTransportConfig,
-            agent_service: AgentService,
-            agent: Agent,
+        self,
+        client: Steamship,
+        config: TelegramTransportConfig,
+        agent_service: AgentService,
+        agent: Agent,
     ):
         super().__init__(client=client)
 
