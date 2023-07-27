@@ -78,6 +78,8 @@ class IndexerMixin(PackageMixin):
         - index_handle (uses your default index if blank)
         - metadata (returned on embedding results for source attribution)
         """
+        metadata = metadata or {}
+        index_handle = index_handle or DEFAULT_EMBEDDING_INDEX_HANDLE
         tags = []
         for chunk in chunk_text(
             text, chunk_size=self.context_window_size, chunk_overlap=self.context_window_overlap
@@ -89,6 +91,8 @@ class IndexerMixin(PackageMixin):
     def _index_block(
         self, block: Block, metadata: Optional[dict] = None, index_handle: Optional[str] = None
     ):
+        metadata = metadata or {}
+        index_handle = index_handle or DEFAULT_EMBEDDING_INDEX_HANDLE
         page = self._get_page(block)
         _metadata = {
             **{
@@ -97,7 +101,7 @@ class IndexerMixin(PackageMixin):
             },
             **block.metadata,
             "page": page,
-            **(metadata or {}),
+            **metadata,
             "_index": index_handle,
         }
 
@@ -127,12 +131,15 @@ class IndexerMixin(PackageMixin):
         - index_handle (uses your default index if blank)
         - metadata (returned on embedding results for source attribution)
         """
+        metadata = metadata or {}
+        index_handle = index_handle or DEFAULT_EMBEDDING_INDEX_HANDLE
+
         file = File.get(self.client, _id=file_id)
         file.add_or_update_metadata("status", "Indexing")
         file.add_or_update_metadata("_index", index_handle)
 
         for block in file.blocks or []:
-            _metadata = {**file.metadata, **(metadata or {}), "_index": index_handle}
+            _metadata = {**file.metadata, **metadata, "_index": index_handle}
 
             self._index_block(
                 block,

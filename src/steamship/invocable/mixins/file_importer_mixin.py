@@ -56,15 +56,16 @@ class FileImporterMixin(PackageMixin):
         return file, None
 
     @post("/import_url")
-    def import_url(self, url: str) -> File:
+    def import_url(self, url: str, mime_type: Optional[MimeTypes] = None) -> File:
         """Import the URL to a Steamship File. Actual import will be scheduled async."""
         file, _ = self.import_content(
             content_or_url=url,
+            mime_type=mime_type,
         )
         return file
 
     @post("/import_text")
-    def import_text(self, text: str, mime_type: Optional[str] = None) -> File:
+    def import_text(self, text: str, mime_type: Optional[MimeTypes] = None) -> File:
         """Import the text to a Steamship File."""
         file, _ = self.import_content(
             content_or_url=text,
@@ -84,7 +85,7 @@ class FileImporterMixin(PackageMixin):
         content_or_url: Union[str, AnyUrl],
         file_type: Optional[FileType] = None,
         metadata: Optional[dict] = None,
-        mime_type: Optional[str] = None,
+        mime_type: Optional[MimeTypes] = None,
     ) -> Tuple[File, Optional[Task]]:
 
         metadata = metadata or {}
@@ -92,7 +93,7 @@ class FileImporterMixin(PackageMixin):
         metadata["_index"] = "not_indexed_yet"
 
         task = None
-        if file_type == FileType.YOUTUBE or self.is_youtube(content_or_url):
+        if file_type == FileType.YOUTUBE or (file_type is None and self.is_youtube(content_or_url)):
             metadata["source"] = metadata.get("source", content_or_url)
             metadata["mime_type"] = MimeTypes.TXT
             file, task = self._import_with_async_importer(
@@ -103,11 +104,11 @@ class FileImporterMixin(PackageMixin):
             )
         elif file_type == FileType.TEXT:
             metadata["source"] = metadata.get("source", "local")
-            metadata["mime_type"] = MimeTypes.TXT
+            metadata["mime_type"] = mime_type or MimeTypes.TXT
             file = File.create(
                 self.client,
                 content=content_or_url,
-                mime_type=mime_type,
+                mime_type=mime_type or MimeTypes.TXT,
                 tags=metadata_to_tags(metadata),
             )
         elif file_type == FileType.PDF or (
@@ -126,7 +127,16 @@ class FileImporterMixin(PackageMixin):
         elif file_type == FileType.WEB:
             metadata["source"] = metadata.get("source", content_or_url)
             raise NotImplementedError()
+        elif file_type is None:
+            metadata["source"] = metadata.get("source", content_or_url)
+            file, task = self._scrape_and_import_url(
+                content_or_url,
+                tags=metadata_to_tags(metadata),
+                mime_type=mime_type,
+            )
         else:
-            raise NotImplementedError()
+            raise SteamshipError(
+                message=f"Importer not implemented for mimetype {mime_type} and filetype {file_type}"
+            )
 
         return file, task

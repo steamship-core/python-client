@@ -25,16 +25,14 @@ def test_importer_mixin_and_package_invocation(client: Steamship):
 Hi there this is a paragraph.
         """
 
-        mixin_response2 = instance.invoke(
-            "import_text", text=text_content, mime_type="text/markdown"
-        )
+        mixin_response2 = instance.invoke("import_text", text=text_content, mime_type=MimeTypes.MKD)
         assert mixin_response2
         file_id = mixin_response2.get("id")
         assert file_id
         file2 = File.get(client, _id=file_id)
         content2 = file2.raw().decode("utf-8")
         assert content2 == text_content
-        assert file2.mime_type == "text/markdown"
+        assert file2.mime_type == MimeTypes.MKD.value
 
         # Test the blockify mixin
 
