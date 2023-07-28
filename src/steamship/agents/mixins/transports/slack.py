@@ -420,22 +420,23 @@ class SlackTransport(Transport):
             # TODO: For truly async requests, we'll have to find some way to plumb through the token.
             # For now it appears to be provided upon each inbound request.
             if slack_request.event:
-                if slack_request.event.is_message() and slack_request.event.bot_id is None:
-                    logging.info(
-                        f"User {slack_request.event.user} sent message in channel {slack_request.event.channel}"
-                    )
-                    incoming_messages = slack_request.event.to_blocks()
-                    for incoming_message in incoming_messages:
-                        if incoming_message is not None:
-                            logging.info(f"Responding to {incoming_message}")
-                            self._respond_to_block(incoming_message)
-                elif slack_request.event.type == "app_home_opened":
-                    logging.info(
-                        f"User {slack_request.event.user} opened App Tab with channel {slack_request.event.channel}"
-                    )
-                    result = Block(text="Hi there!")
-                    result.set_chat_id(slack_request.event.channel)
-                    self.send([result])
+                if slack_request.event.bot_id is None:
+                    if slack_request.event.is_message():
+                        logging.info(
+                            f"User {slack_request.event.user} sent message in channel {slack_request.event.channel}"
+                        )
+                        incoming_messages = slack_request.event.to_blocks()
+                        for incoming_message in incoming_messages:
+                            if incoming_message is not None:
+                                logging.info(f"Responding to {incoming_message}")
+                                self._respond_to_block(incoming_message)
+                    elif slack_request.event.type == "app_home_opened":
+                        logging.info(
+                            f"User {slack_request.event.user} opened App Tab with channel {slack_request.event.channel}"
+                        )
+                        result = Block(text="Hi there!")
+                        result.set_chat_id(slack_request.event.channel)
+                        self.send([result])
 
         except BaseException as e:
             logging.error(e)
