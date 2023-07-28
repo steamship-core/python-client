@@ -5,7 +5,6 @@ from typing import List, Optional
 
 import requests
 from pydantic import BaseModel, Field
-
 from steamship import Block, Steamship
 from steamship.agents.llms import OpenAI
 from steamship.agents.mixins.transports.transport import Transport
@@ -178,7 +177,8 @@ class SlackTransport(Transport):
        This manifest link contains requested access as well as callback URL information.
     2) Clicks "Accept" to create a Slack Bot using that manifest.
     3) Clicks "Install" to install the Slack Bot to a workspace, accepting the permissions
-    4) Copies the "Bot Key" from Slack's administrative console
+    4) Copy the Oauth Token from the "Settings > Install App" page.
+    5) Set the access token for you agent using the set_slack_access_token POST method
     5) Activates an endpoint on the Steamship Agent to set the bot key
 
     At this point, (1) Slack knows about the Agent, and (2) the Agent knows about Slack.
@@ -192,11 +192,11 @@ class SlackTransport(Transport):
     config: SlackTransportConfig
 
     def __init__(
-        self,
-        client: Steamship,
-        config: SlackTransportConfig,
-        agent_service: AgentService,
-        agent: Agent,
+            self,
+            client: Steamship,
+            config: SlackTransportConfig,
+            agent_service: AgentService,
+            agent: Agent,
     ):
         super().__init__(client=client)
         self.bot_token = None
@@ -212,10 +212,10 @@ class SlackTransport(Transport):
         """Return the Slack Manifest which describes this app."""
         # When running in development, the below values will be none.
         invocable_instance_handle = (
-            self.agent_service.context.invocable_instance_handle or "Development Steamship Agent"
+                self.agent_service.context.invocable_instance_handle or "Development Steamship Agent"
         )
         invocable_handle = (
-            self.agent_service.context.invocable_handle or "Development Steamship Agent"
+                self.agent_service.context.invocable_handle or "Development Steamship Agent"
         )
 
         # Slack only supports names of 25 characters or less
@@ -349,7 +349,7 @@ class SlackTransport(Transport):
 
         post_url = f"{self.config.slack_api_base}chat.postMessage"
 
-        requests.post(post_url, headers=headers, json=body)
+        requests.post(post_url, headers=headers, json=body, )
 
     def build_emit_func(self, chat_id: str) -> EmitFunc:
         """Return an EmitFun that sends messages to the appropriate Slack channel."""
@@ -407,8 +407,10 @@ class SlackTransport(Transport):
         is of acceptable quality, it feels like that would be putting too much into one PR."""
         return None
 
-    def _respond_to_webhook(self, **kwargs) -> InvocableResponse[str]:
+    @post("respond_to_webhook")
+    def respond_to_webhook(self, **kwargs) -> InvocableResponse[str]:
         """Respond to inbound Slack events. This is a PUBLIC endpoint."""
+        print("I'm responding NOW! ")
         try:
             slack_request = SlackRequest.parse_obj(kwargs)
             # TODO: For truly async requests, we'll have to find some way to plumb through the token.
@@ -445,12 +447,16 @@ class SlackTransport(Transport):
     @post("slack_event", public=True)
     def slack_event(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
-        return self._respond_to_webhook(**kwargs)
+        self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
+        return InvocableResponse("OK")
+
+        # return self._respond_to_webhook(**kwargs)
 
     @post("slack_respond", public=True)
     def slack_respond(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
-        return self._respond_to_webhook(**kwargs)
+        self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
+        return InvocableResponse("OK")
 
     @post("set_slack_access_token")
     def set_slack_access_token(self, token: str) -> InvocableResponse[str]:
