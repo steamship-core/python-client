@@ -105,6 +105,9 @@ class SlackEvent(BaseModel):
         description="The text preview of the sequence of messages"
     )
     team: Optional[str] = Field(description="The team from which the message came")
+    bot_id: Optional[str] = Field(
+        description="The unique identifier for the bot that sent the event."
+    )
 
     def is_message(self) -> bool:
         """Return whether this event is a message"""
@@ -135,6 +138,7 @@ class SlackRequest(BaseModel):
     team_id: Optional[str] = Field(
         description="The unique identifier for the workspace/team where this event occurred."
     )
+
     api_app_id: Optional[str] = Field(
         description="The unique identifier for the application this event is intended for."
     )
@@ -410,13 +414,13 @@ class SlackTransport(Transport):
     @post("respond_to_webhook")
     def respond_to_webhook(self, **kwargs) -> InvocableResponse[str]:
         """Respond to inbound Slack events. This is a PUBLIC endpoint."""
-        print("I'm responding NOW! ")
+        logging.info("I'm responding NOW! ")
         try:
             slack_request = SlackRequest.parse_obj(kwargs)
             # TODO: For truly async requests, we'll have to find some way to plumb through the token.
             # For now it appears to be provided upon each inbound request.
             if slack_request.event:
-                if slack_request.event.is_message():
+                if slack_request.event.is_message() and slack_request.event.bot_id is None:
                     logging.info(
                         f"User {slack_request.event.user} sent message in channel {slack_request.event.channel}"
                     )
@@ -448,15 +452,13 @@ class SlackTransport(Transport):
     def slack_event(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
         self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
-        return InvocableResponse("OK")
-
-        # return self._respond_to_webhook(**kwargs)
+        return InvocableResponse(string="OK")
 
     @post("slack_respond", public=True)
     def slack_respond(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
         self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
-        return InvocableResponse("OK")
+        return InvocableResponse(string="OK")
 
     @post("set_slack_access_token")
     def set_slack_access_token(self, token: str) -> InvocableResponse[str]:
