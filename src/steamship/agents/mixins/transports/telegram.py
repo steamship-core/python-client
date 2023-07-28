@@ -17,7 +17,9 @@ from steamship.utils.kv_store import KeyValueStore
 
 class TelegramTransportConfig(Config):
     bot_token: Optional[str] = Field("", description="The secret token for your Telegram bot")
-    api_base: Optional[str] = Field("https://api.telegram.org/bot", description="The root API for Telegram")
+    api_base: Optional[str] = Field(
+        "https://api.telegram.org/bot", description="The root API for Telegram"
+    )
 
 
 class TelegramTransport(Transport):
@@ -29,11 +31,11 @@ class TelegramTransport(Transport):
     agent_service: AgentService
 
     def __init__(
-            self,
-            client: Steamship,
-            config: TelegramTransportConfig,
-            agent_service: AgentService,
-            agent: Agent,
+        self,
+        client: Steamship,
+        config: TelegramTransportConfig,
+        agent_service: AgentService,
+        agent: Agent,
     ):
         super().__init__(client=client)
 
