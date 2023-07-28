@@ -12,11 +12,14 @@ from steamship.agents.schema import Agent, AgentContext, EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.utils import with_llm
 from steamship.invocable import Config, InvocableResponse, InvocationContext, post
+from steamship.utils.kv_store import KeyValueStore
 
 
 class TelegramTransportConfig(Config):
-    bot_token: str = Field(description="The secret token for your Telegram bot")
-    api_base: str = Field("https://api.telegram.org/bot", description="The root API for Telegram")
+    bot_token: Optional[str] = Field("", description="The secret token for your Telegram bot")
+    api_base: Optional[str] = Field(
+        "https://api.telegram.org/bot", description="The root API for Telegram"
+    )
 
 
 class TelegramTransport(Transport):
@@ -35,12 +38,23 @@ class TelegramTransport(Transport):
         agent: Agent,
     ):
         super().__init__(client=client)
-        self.api_root = f"{config.api_base}{config.bot_token}"
-        self.bot_token = config.bot_token
+
+        self.store = KeyValueStore(self.client, store_identifier="_telegram_config")
+        bot_token = (self.store.get("bot_token") or {}).get("token")
+        self.bot_token = config.bot_token or bot_token
+        self.api_root = f"{config.api_base}{self.bot_token}"
         self.agent = agent
         self.agent_service = agent_service
 
     def instance_init(self, config: Config, invocation_context: InvocationContext):
+        if self.bot_token:
+            self.api_root = f"{config.api_base}{config.bot_token or self.bot_token}"
+            try:
+                self._instance_init(config=config, invocation_context=invocation_context)
+            except Exception:  # noqa: S110
+                pass
+
+    def _instance_init(self, config: Config, invocation_context: InvocationContext):
         webhook_url = invocation_context.invocable_url + "telegram_respond"
 
         logging.info(
@@ -64,6 +78,17 @@ class TelegramTransport(Transport):
     @post("telegram_webhook_info")
     def telegram_webhook_info(self) -> dict:
         return requests.get(self.api_root + "/getWebhookInfo").json()
+
+    @post("connect_telegram")
+    def connect_telegram(self, bot_token: str):
+        self.store.set("bot_token", {"token": bot_token})
+        self.bot_token = bot_token
+
+        try:
+            self.instance_init(self.agent_service.config, self.agent_service.context)
+            return "OK"
+        except Exception as e:
+            return f"Could not set webhook for bot. Exception: {e}"
 
     @post("telegram_disconnect_webhook")
     def telegram_disconnect_webhook(self, *args, **kwargs):
