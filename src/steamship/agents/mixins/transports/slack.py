@@ -5,6 +5,7 @@ from typing import List, Optional
 
 import requests
 from pydantic import BaseModel, Field
+
 from steamship import Block, Steamship
 from steamship.agents.llms import OpenAI
 from steamship.agents.mixins.transports.transport import Transport
@@ -161,6 +162,7 @@ class SlackTransportConfig(Config):
 
 
 class SlackTransport(Transport):
+    # noqa: RST204
     """Slack Transport Mixin for Steamship Agent to Slack interaction.
 
     Current support:
@@ -182,8 +184,7 @@ class SlackTransport(Transport):
     2) Clicks "Accept" to create a Slack Bot using that manifest.
     3) Clicks "Install" to install the Slack Bot to a workspace, accepting the permissions
     4) Copy the Oauth Token from the "Settings > Install App" page.
-    5) Set the access token for you agent using the set_slack_access_token POST method
-    5) Activates an endpoint on the Steamship Agent to set the bot key
+    5) Set the Oauth token for your agent using the set_slack_access_token POST method
 
     At this point, (1) Slack knows about the Agent, and (2) the Agent knows about Slack.
 
@@ -196,11 +197,11 @@ class SlackTransport(Transport):
     config: SlackTransportConfig
 
     def __init__(
-            self,
-            client: Steamship,
-            config: SlackTransportConfig,
-            agent_service: AgentService,
-            agent: Agent,
+        self,
+        client: Steamship,
+        config: SlackTransportConfig,
+        agent_service: AgentService,
+        agent: Agent,
     ):
         super().__init__(client=client)
         self.bot_token = None
@@ -216,10 +217,10 @@ class SlackTransport(Transport):
         """Return the Slack Manifest which describes this app."""
         # When running in development, the below values will be none.
         invocable_instance_handle = (
-                self.agent_service.context.invocable_instance_handle or "Development Steamship Agent"
+            self.agent_service.context.invocable_instance_handle or "Development Steamship Agent"
         )
         invocable_handle = (
-                self.agent_service.context.invocable_handle or "Development Steamship Agent"
+            self.agent_service.context.invocable_handle or "Development Steamship Agent"
         )
 
         # Slack only supports names of 25 characters or less
@@ -353,7 +354,11 @@ class SlackTransport(Transport):
 
         post_url = f"{self.config.slack_api_base}chat.postMessage"
 
-        requests.post(post_url, headers=headers, json=body, )
+        requests.post(
+            post_url,
+            headers=headers,
+            json=body,
+        )
 
     def build_emit_func(self, chat_id: str) -> EmitFunc:
         """Return an EmitFun that sends messages to the appropriate Slack channel."""
@@ -412,9 +417,8 @@ class SlackTransport(Transport):
         return None
 
     @post("respond_to_webhook")
-    def respond_to_webhook(self, **kwargs) -> InvocableResponse[str]:
+    def respond_to_webhook(self, **kwargs) -> InvocableResponse[str]:  # noqa: C901
         """Respond to inbound Slack events. This is a PUBLIC endpoint."""
-        logging.info("I'm responding NOW! ")
         try:
             slack_request = SlackRequest.parse_obj(kwargs)
             # TODO: For truly async requests, we'll have to find some way to plumb through the token.
