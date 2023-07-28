@@ -102,4 +102,9 @@ class FileImporterMixin(PackageMixin):
     @post("/import_text")
     def import_text(self, text: str, mime_type: Optional[str]) -> File:
         """Import the text to a Steamship File."""
-        return File.create(self.client, content=text, mime_type=mime_type)
+        return File.create(
+            self.client,
+            content=text,
+            mime_type=mime_type,
+            tags=[Tag(kind=DocTag.SOURCE, name="local")],
+        )
