@@ -30,6 +30,7 @@ class InvocationContext(CamelModel):
     invocable_url: str = None
     invocable_owner_handle: Optional[str] = None
     workspace_handle: Optional[str] = None
+    headers: Dict[str, str] = None
 
 
 class InvocableRequest(CamelModel):
