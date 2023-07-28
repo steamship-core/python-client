@@ -16,8 +16,10 @@ from steamship.utils.kv_store import KeyValueStore
 
 
 class TelegramTransportConfig(Config):
-    bot_token: str = Field(description="The secret token for your Telegram bot")
-    api_base: str = Field("https://api.telegram.org/bot", description="The root API for Telegram")
+    bot_token: Optional[str] = Field("", description="The secret token for your Telegram bot")
+    api_base: Optional[str] = Field(
+        "https://api.telegram.org/bot", description="The root API for Telegram"
+    )
 
 
 class TelegramTransport(Transport):
