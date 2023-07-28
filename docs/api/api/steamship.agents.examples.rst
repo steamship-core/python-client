@@ -36,6 +36,14 @@ steamship.agents.examples.example\_assistant module
    :undoc-members:
    :show-inheritance:
 
+steamship.agents.examples.example\_assistant\_with\_caching module
+------------------------------------------------------------------
+
+.. automodule:: steamship.agents.examples.example_assistant_with_caching
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.agents.examples.example\_react\_assistant module
 ----------------------------------------------------------
 
