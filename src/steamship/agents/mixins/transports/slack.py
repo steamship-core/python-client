@@ -282,17 +282,13 @@ class SlackTransport(Transport):
         Slack uses the `text` field for fallback.
         But we want to also provide the blocks and attachments for multiple messages that are multi-modal
         """
-
         text = None
-        slack_blocks = None
+        slack_blocks = []
         chat_id = None
-
         for block in blocks:
             # This is required for the public_url creation below.
-            block.client = self.client
 
-            if slack_blocks is None:
-                slack_blocks = []
+            block.client = self.client
 
             if block.chat_id:
                 chat_id = block.chat_id
@@ -334,7 +330,7 @@ class SlackTransport(Transport):
                 )
 
         bot_token = self.get_slack_access_token()
-        if not bot_token:
+        if bot_token is None:
             logging.error("Unable to send Slack Message: Slack transport had null bot token")
             return
 
@@ -378,12 +374,13 @@ class SlackTransport(Transport):
             if not chat_id:
                 logging.error(f"No chat id on incoming block {incoming_message}")
                 return
-
             # TODO: It feels like context is something the Agent should be providing.
             context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
+
             context.chat_history.append_user_message(
                 text=incoming_message.text, tags=incoming_message.tags
             )
+
             # TODO: For truly async support, this emit fn will need to be wired in at the Agent level.
             context.emit_funcs = [self.build_emit_func(chat_id=chat_id)]
 
@@ -396,12 +393,7 @@ class SlackTransport(Transport):
 
             context = with_llm(context=context, llm=llm)
 
-            response = self.agent_service.run_agent(self.agent, context)
-            if response is not None:
-                self.send(response)
-            else:
-                # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
-                pass
+            self.agent_service.run_agent(self.agent, context)
 
         except BaseException as e:
             logging.error(e)
@@ -456,7 +448,7 @@ class SlackTransport(Transport):
     @post("slack_event", public=True)
     def slack_event(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
-        self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
+        self.respond_to_webhook(**kwargs)
         return InvocableResponse(string="OK")
 
     @post("slack_respond", public=True)

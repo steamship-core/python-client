@@ -15,7 +15,6 @@ config_template = {
 
 @pytest.mark.usefixtures("client")
 def test_slack(client: Steamship):
-
     mock_slack_api_path = PACKAGES_PATH / "transports" / "mock_slack_api.py"
     transport_agent_path = PACKAGES_PATH / "transports" / "test_transports_agent.py"
 
@@ -44,7 +43,7 @@ def test_slack(client: Steamship):
             assert is_token_set_true is True
 
             # test sending another message; this has been a problem before
-            respond_method = "slack_respond"
+            respond_method = "slack_event"
 
             # Set the response URL
             response_url = agent_instance.invocation_url
