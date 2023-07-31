@@ -1,10 +1,10 @@
-from typing import List
+from typing import Dict, List
 
 from steamship import File, Tag
 from steamship.invocable import PackageService, get, post
 
 
-class MockTelegram(PackageService):
+class MockTelegramApi(PackageService):
     WEBHOOK_TAG = "webhook"
     TEXT_MESSAGE_TAG = "text_message"
     CHAT_ID_KEY = "chat_id"
@@ -14,6 +14,14 @@ class MockTelegram(PackageService):
     AUDIO_KEY = "audio"
     VIDEO_MESSAGE_TAG = "video_message"
     VIDEO_KEY = "video"
+
+    @staticmethod
+    def generate_inbound_webhook_body(text: str) -> Dict:
+        """Generates a Telegram inbound message that conforms to a specific structure which will cause the test agent to respond with a specific media type."""
+        return {
+            "update_id": 1,
+            "message": {"message_id": 1, "chat": {"id": 1}, "text": text},
+        }
 
     @get("setWebhook", public=True)
     def set_webhook(self, url: str, allowed_updates: List[str], drop_pending_updates: bool) -> str:
