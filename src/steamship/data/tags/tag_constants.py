@@ -30,6 +30,7 @@ class TagKind(str, Enum):
     CHAT = "chat"
     CHAT_HISTORY_CONTEXT = "chat-history-context"
     MESSAGE_ID = "message-id"
+    STATUS = "status"
 
 
 class DocTag(str, Enum):
@@ -278,3 +279,11 @@ class ChatTag(str, Enum):
 
     # A chunk of text for indexing
     CHUNK = "chunk"
+
+
+class StatusTagName(str, Enum):
+    IMPORTING = "importing"
+    INDEXING = "indexing"
+    INDEXED = "indexed"
+    BLOCKIFYING = "blockifying"
+    BLOCKIFYING_FAILED = "blockifying failed"

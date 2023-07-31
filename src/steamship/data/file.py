@@ -4,7 +4,7 @@ import io
 import mimetypes
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type, Union
 
 from pydantic import BaseModel, Field
 
@@ -17,7 +17,7 @@ from steamship.base.tasks import Task
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
 from steamship.data.tags import Tag, TagKind
-from steamship.data.tags.tag_constants import ProvenanceTag
+from steamship.data.tags.tag_constants import ProvenanceTag, TagValueKey
 from steamship.utils.binary_utils import flexi_create
 
 if TYPE_CHECKING:
@@ -235,6 +235,24 @@ class File(CamelModel):
             ),
             raw_response=True,
         )
+
+    def add_or_update_tag(
+        self,
+        kind: str,
+        name: Optional[str] = None,
+        value: Optional[Dict[Union[TagValueKey, str], Any]] = None,
+    ):
+        self.refresh()
+        tags = []
+        for tag in self.tags:
+            if tag.kind == kind:
+                tag.delete()
+            else:
+                tags.append(tag)
+        tags.append(
+            Tag.create(client=self.client, file_id=self.id, kind=kind, name=name, value=value)
+        )
+        self.tags = tags
 
     @property
     def raw_data_url(self) -> Optional[str]:

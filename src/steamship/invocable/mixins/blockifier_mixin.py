@@ -1,9 +1,10 @@
 from typing import Optional
 
 from steamship import File, MimeTypes, Steamship, SteamshipError, Task
+from steamship.data import TagKind
+from steamship.data.tags.tag_constants import StatusTagName
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
-from steamship.utils.file_tags import update_file_status
 
 
 class BlockifierMixin(PackageMixin):
@@ -34,11 +35,11 @@ class BlockifierMixin(PackageMixin):
         """
 
         file = File.get(self.client, _id=file_id)
-        update_file_status(self.client, file, "Blockifying")
+        file.add_or_update_tag(TagKind.STATUS, StatusTagName.BLOCKIFYING)
 
-        _mime_type = mime_type or file.mime_type
-        if not _mime_type:
-            update_file_status(self.client, file, "Failed Blockifying")
+        mime_type = mime_type or file.mime_type
+        if not mime_type:
+            file.add_or_update_tag(TagKind.STATUS, StatusTagName.BLOCKIFYING_FAILED)
             raise SteamshipError(
                 message=f"No MIME Type found for file {file.id}. Unable to blockify."
             )
@@ -47,17 +48,17 @@ class BlockifierMixin(PackageMixin):
 
         if blockifier_handle:
             plugin_instance = self.client.use_plugin(blockifier_handle)
-        elif _mime_type == MimeTypes.PDF:
+        elif mime_type == MimeTypes.PDF:
             plugin_instance = self.client.use_plugin("pdf-blockifier")
-        elif _mime_type in [MimeTypes.MP3, MimeTypes.MP4_AUDIO, MimeTypes.WEBM_AUDIO]:
+        elif mime_type in [MimeTypes.MP3, MimeTypes.MP4_AUDIO, MimeTypes.WEBM_AUDIO]:
             plugin_instance = self.client.use_plugin("s2t-blockifier-default")
-        elif _mime_type in [MimeTypes.MKD, MimeTypes.TXT]:
+        elif mime_type in [MimeTypes.MKD, MimeTypes.TXT]:
             plugin_instance = self.client.use_plugin("markdown-blockifier-default")
 
         if not plugin_instance:
-            update_file_status(self.client, file, "Failed Blockifying")
+            file.add_or_update_tag(TagKind.STATUS, StatusTagName.BLOCKIFYING_FAILED)
             raise SteamshipError(
-                message=f"Unable to blockify file {file.id}. MIME Type {_mime_type} unsupported"
+                message=f"Unable to blockify file {file.id}. MIME Type {mime_type} unsupported"
             )
 
         # Postpone the operation if required.

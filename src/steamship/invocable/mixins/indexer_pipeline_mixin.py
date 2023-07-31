@@ -1,12 +1,13 @@
 from typing import Optional
 
 from steamship import File, Steamship, Task
+from steamship.data import TagKind
+from steamship.data.tags.tag_constants import StatusTagName
 from steamship.invocable import PackageService, post
 from steamship.invocable.mixins.blockifier_mixin import BlockifierMixin
 from steamship.invocable.mixins.file_importer_mixin import FileImporterMixin
 from steamship.invocable.mixins.indexer_mixin import IndexerMixin
 from steamship.invocable.package_mixin import PackageMixin
-from steamship.utils.file_tags import update_file_status
 
 
 class IndexerPipelineMixin(PackageMixin):
@@ -39,10 +40,10 @@ class IndexerPipelineMixin(PackageMixin):
         self.invocable.add_mixin(self.indexer_mixin)
 
     @post("/set_file_status")
-    def set_file_status(self, file_id: str, status: str) -> bool:
+    def set_file_status(self, file_id: str, status: StatusTagName) -> bool:
         """Set the status bit of a file. Intended to be scheduled after import."""
         file = File.get(self.client, _id=file_id)
-        update_file_status(self.client, file, status)
+        file.add_or_update_tag(TagKind.STATUS, status)
         return True
 
     @post("/index_url")

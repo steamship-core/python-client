@@ -1,12 +1,15 @@
 import logging
+import os
 from typing import List, Optional, Tuple
+from urllib.parse import urlparse
 
 import requests
 
 from steamship import DocTag, File, MimeTypes, Steamship, SteamshipError, Tag, Task
+from steamship.data import TagKind
+from steamship.data.tags.tag_constants import StatusTagName
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
-from steamship.utils.file_tags import update_file_status
 
 
 class FileImporterMixin(PackageMixin):
@@ -17,7 +20,8 @@ class FileImporterMixin(PackageMixin):
     def __init__(self, client: Steamship):
         self.client = client
 
-    def _async_importer_for_url(self, url: str) -> Optional[str]:
+    @staticmethod
+    def _async_importer_for_url(url: str) -> Optional[str]:
         """Return the async importer plugin, if necessary."""
         if "youtube.com" in url or "youtu.be" in url:
             return "youtube-transcript-importer"
@@ -47,7 +51,7 @@ class FileImporterMixin(PackageMixin):
         task = file.import_with_plugin(
             plugin_instance=file_importer.handle, url=url, mime_type=mime_type
         )
-        update_file_status(self.client, file, "Importing")
+        file.add_or_update_tag(TagKind.STATUS, StatusTagName.IMPORTING)
 
         return file, task
 
@@ -74,19 +78,17 @@ class FileImporterMixin(PackageMixin):
 
     def import_url_to_file_and_task(self, url: str) -> Tuple[File, Optional[Task]]:
         """Import the provided URL, returning the file and optional task, if async work is required."""
-        async_importer_for_url = self._async_importer_for_url(url)
+        parsed_url = urlparse(url)
+        filename = os.path.basename(parsed_url.path)
 
-        source_tag = Tag(kind=DocTag.SOURCE, name=url)
+        tags = [
+            Tag(kind=DocTag.SOURCE, name=url),
+            Tag(kind="_type", name="document"),
+            Tag(kind="_index", name="not_index_yet"),
+            Tag(kind=DocTag.TITLE, name=filename),
+        ]
 
-        # Hacky way to get ta title
-        title = url.split("/")[-1]
-        title = title.split("?")[0]
-        title = title.split("#")[0]
-
-        title_tag = Tag(kind=DocTag.TITLE, name=title)
-        tags = [source_tag, title_tag]
-
-        if async_importer_for_url:
+        if async_importer_for_url := self._async_importer_for_url(url):
             return self._import_with_async_importer(
                 url, async_importer_for_url, tags=tags, mime_type=None
             )
@@ -102,9 +104,10 @@ class FileImporterMixin(PackageMixin):
     @post("/import_text")
     def import_text(self, text: str, mime_type: Optional[str]) -> File:
         """Import the text to a Steamship File."""
-        return File.create(
-            self.client,
-            content=text,
-            mime_type=mime_type,
-            tags=[Tag(kind=DocTag.SOURCE, name="local")],
-        )
+
+        tags = [
+            Tag(kind=DocTag.SOURCE, name="text"),
+            Tag(kind="_type", name="document"),
+            Tag(kind="_index", name="not_index_yet"),
+        ]
+        return File.create(self.client, content=text, mime_type=mime_type, tags=tags)

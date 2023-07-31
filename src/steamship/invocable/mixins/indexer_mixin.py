@@ -3,9 +3,9 @@ from typing import Optional, cast
 from steamship import Block, DocTag, File, Steamship, Tag
 from steamship.data import TagKind, TagValueKey
 from steamship.data.plugin.index_plugin_instance import EmbeddingIndexPluginInstance, SearchResults
+from steamship.data.tags.tag_constants import StatusTagName
 from steamship.invocable import post
 from steamship.invocable.package_mixin import PackageMixin
-from steamship.utils.file_tags import update_file_status
 from steamship.utils.text_chunker import chunk_text
 
 DEFAULT_EMBEDDING_INDEX_CONFIG = {
@@ -41,7 +41,8 @@ class IndexerMixin(PackageMixin):
         self.embedding_indexes = {}
         self.embedding_index_config = embedder_config or DEFAULT_EMBEDDING_INDEX_CONFIG
 
-    def _get_page(self, block: Block) -> Optional[str]:
+    @staticmethod
+    def _get_page(block: Block) -> Optional[str]:
         """Return the page_id from the block if it exists."""
         page_id = None
         for tag in block.tags:
@@ -139,7 +140,7 @@ class IndexerMixin(PackageMixin):
         - metadata (returned on embedding results for source attribution)
         """
         file = File.get(self.client, _id=file_id)
-        update_file_status(self.client, file, "Indexing")
+        file.add_or_update_tag(TagKind.STATUS, StatusTagName.INDEXING)
 
         _metadata = {}
         if file.mime_type:
@@ -156,7 +157,8 @@ class IndexerMixin(PackageMixin):
         for block in file.blocks or []:
             self._index_block(block, metadata=_metadata, index_handle=index_handle)
 
-        update_file_status(self.client, file, "Indexed")
+        file.add_or_update_tag(TagKind.STATUS, StatusTagName.INDEXED)
+        file.add_or_update_tag("_index", index_handle or DEFAULT_EMBEDDING_INDEX_HANDLE)
         return True
 
     @post("/search_index")
