@@ -48,7 +48,7 @@ find "$DOCSDIR" -mindepth 1 -type d | while read dir; do
       # Ignore lines containing "http" or "mailto"
       if [[ "$line" != *"http"* && "$line" != *"mailto"* ]]; then
         # If the line contains "](", append the parent folder name after it
-        echo "${line//](/](/$parent_name/}"
+        echo "${line//](/](/$parent_dir/$parent_name/}" | node rename_link
       else
         echo "$line"
       fi
