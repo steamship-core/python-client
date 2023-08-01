@@ -6,8 +6,9 @@ async function main() {
   });
 
   for await (const line of rl) {
+    // replace all instances of "/../../../steamship/apps/python-docs/pages" with ""
     // process a line at a time
-    process.stdout.write(`${line.replace('/../../../steamship/apps/python-docs/pages', '')}\n`);
+    process.stdout.write(`${line.replaceAll('/../../../steamship/apps/python-docs/pages', '')}\n`);
   }
 }
 
