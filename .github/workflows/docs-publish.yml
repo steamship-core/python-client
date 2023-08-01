@@ -36,13 +36,13 @@ jobs:
         uses: addnab/docker-run-action@v3
         with:
             image: sphinxdoc/sphinx:latest
-            options: -v ${{ github.workspace }}:/docs --workdir /docs/docs
+            options: -v ${{ github.workspace }}:/docs --workdir /docs/docs/api
             run: make html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
-          path: './docs/_build/html'
+          path: './docs/api/_build/html'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
