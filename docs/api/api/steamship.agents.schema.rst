@@ -20,6 +20,14 @@ steamship.agents.schema.agent module
    :undoc-members:
    :show-inheritance:
 
+steamship.agents.schema.cache module
+------------------------------------
+
+.. automodule:: steamship.agents.schema.cache
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.agents.schema.chathistory module
 ------------------------------------------
 

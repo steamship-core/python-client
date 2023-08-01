@@ -37,7 +37,7 @@ release = version
 # Additionally it helps us to avoid running apidoc manually
 
 output_dir = os.path.join(__location__, "api")
-module_dir = os.path.join(__location__, "../src/steamship")
+module_dir = os.path.join(__location__, "../../src/steamship")
 try:
     shutil.rmtree(output_dir)
 except FileNotFoundError:
@@ -84,6 +84,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_inline_tabs",
+    "sphinx_markdown_builder",
 ]
 
 # Add Any paths that contain templates here, relative to this directory.

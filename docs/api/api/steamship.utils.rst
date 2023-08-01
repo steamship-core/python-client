@@ -68,6 +68,14 @@ steamship.utils.signed\_urls module
    :undoc-members:
    :show-inheritance:
 
+steamship.utils.text\_chunker module
+------------------------------------
+
+.. automodule:: steamship.utils.text_chunker
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.utils.url module
 --------------------------
 
