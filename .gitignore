@@ -106,7 +106,7 @@ fabric.properties
 .coverage/
 
 # Generated website
-docs/_build
+_build
 venv
 
 # Logs directory

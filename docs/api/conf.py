@@ -22,7 +22,7 @@ __location__ = os.path.join(os.getcwd(), os.path.dirname(inspect.getfile(inspect
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-sys.path.insert(0, os.path.join(__location__, "../src"))
+sys.path.insert(0, os.path.join(__location__, "../../src"))
 
 from steamship import __version__ as version  # noqa: E402
 
@@ -37,7 +37,7 @@ release = version
 # Additionally it helps us to avoid running apidoc manually
 
 output_dir = os.path.join(__location__, "api")
-module_dir = os.path.join(__location__, "../src/steamship")
+module_dir = os.path.join(__location__, "../../src/steamship")
 try:
     shutil.rmtree(output_dir)
 except FileNotFoundError:
@@ -84,6 +84,7 @@ extensions = [
     "sphinx_copybutton",
     "sphinx_design",
     "sphinx_inline_tabs",
+    "sphinx_markdown_builder",
 ]
 
 # Add Any paths that contain templates here, relative to this directory.
@@ -101,7 +102,7 @@ master_doc = "index"
 # General information about the project.
 project = "steamship"
 # noinspection PyShadowingBuiltins
-copyright = "2022, Steamship Inc."
+copyright = "2023, Steamship Inc."
 author = "Steamship"
 
 # The version info for the project you're documenting, acts as replacement for
