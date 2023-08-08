@@ -46,6 +46,30 @@ def initialize(suppress_message: bool = False):
         click.echo(f"Steamship Python CLI version {steamship.__version__}")
 
 
+def initialize_and_get_client_and_prep_project():
+    initialize()
+    client = None
+    try:
+        client = Steamship()
+    except SteamshipError as e:
+        click.secho(e.message, fg="red")
+        click.get_current_context().abort()
+
+    user = User.current(client)
+    if path.exists("steamship.json"):
+        manifest = Manifest.load_manifest()
+    else:
+        manifest = manifest_init_wizard(client)
+        manifest.save()
+
+    if not path.exists("requirements.txt"):
+        requirements_init_wizard()
+
+    update_config_template(manifest)
+
+    return client, user, manifest
+
+
 @click.command()
 def login():
     """Log in to Steamship, creating ~/.steamship.json"""
@@ -208,6 +232,27 @@ def _run_web_interface(base_url: str) -> str:
     return web_url
 
 
+def register_locally_running_package_with_engine(
+    client: Steamship,
+    ngrok_api_url: str,
+    package_handle: str,
+    manifest: Manifest,
+    config: Optional[str] = None,
+) -> PackageInstance:
+    """Registers the locally running package with the Steamship Engine."""
+
+    # Register the Instance in the Engine
+    invocable_config, is_file = config_str_to_dict(config)
+    set_unset_params(config, invocable_config, is_file, manifest)
+    package_instance = PackageInstance.create_local_development_instance(
+        client,
+        local_development_url=ngrok_api_url,
+        package_handle=package_handle,
+        config=invocable_config,
+    )
+    return package_instance
+
+
 def serve_local(
     port: int = 8443,
     instance_handle: Optional[str] = None,
@@ -220,17 +265,41 @@ def serve_local(
     """Serve the invocable on localhost. Useful for debugging locally."""
     dev_logging_handler = DevelopmentLoggingHandler.init_and_take_root()
 
-    initialize()
     click.secho("Running your project...\n")
 
-    # Report the logs
+    client, user, manifest = initialize_and_get_client_and_prep_project()
+
+    # Make sure we're running a package.
+    if manifest.type != DeployableType.PACKAGE:
+        click.secho(
+            f"⚠️ Must run `ship serve local` in a folder with a Steamship Package. Found: {manifest.type}"
+        )
+        exit(-1)
+
+    # Make sure we have a package name -- this allows us to register the running copy with the engine.
+    deployer = PackageDeployer()
+    deployable = deployer.create_or_fetch_deployable(client, user, manifest)
+
+    # Report the logs output file.
     click.secho(f"📝 Log file:   {dev_logging_handler.log_filename}")
 
     # Start the NGROK connection
     ngrok_api_url = None
+    public_api_url = None
+
     if not no_ngrok:
         ngrok_api_url = _run_ngrok(port)
-        click.secho(f"🌎 Public API: {ngrok_api_url}")
+
+        registered_instance = register_locally_running_package_with_engine(
+            client=client,
+            ngrok_api_url=ngrok_api_url,
+            package_handle=deployable.handle,
+            manifest=manifest,
+            config=config,
+        )
+
+        public_api_url = registered_instance.invocation_url()
+        click.secho(f"🌎 Public API: {public_api_url}")
 
     # Start the local API Server. This has to happen after NGROK because the port & url need to be plummed.
     try:
@@ -239,7 +308,7 @@ def serve_local(
             instance_handle=instance_handle,
             config=config,
             workspace=workspace,
-            base_url=ngrok_api_url,
+            base_url=public_api_url,
         )
     except BaseException as e:
         click.secho("⚠️ Local API:  Unable to start local server.")
@@ -254,7 +323,7 @@ def serve_local(
 
     # Start the web UI
     if not no_ui:
-        web_url = _run_web_interface(ngrok_api_url or local_api_url)
+        web_url = _run_web_interface(public_api_url or local_api_url)
         if web_url:
             click.secho(f"🌎 Web UI:     {web_url}")
 
@@ -264,7 +333,7 @@ def serve_local(
             time.sleep(1)
     else:
         click.secho("\n💬 Interactive REPL below. Type to interact.\n")
-        prompt_url = f"{local_api_url or ngrok_api_url}/prompt"
+        prompt_url = f"{local_api_url or public_api_url}/prompt"
         repl = HttpREPL(prompt_url=prompt_url, dev_logging_handler=dev_logging_handler)
         repl.run()
 
@@ -355,27 +424,9 @@ def run(
 @click.command()
 def deploy():
     """Deploy the package or plugin in this directory"""
-    initialize()
-    client = None
-    try:
-        client = Steamship()
-    except SteamshipError as e:
-        click.secho(e.message, fg="red")
-        click.get_current_context().abort()
-
-    user = User.current(client)
-    if path.exists("steamship.json"):
-        manifest = Manifest.load_manifest()
-    else:
-        manifest = manifest_init_wizard(client)
-        manifest.save()
-
-    if not path.exists("requirements.txt"):
-        requirements_init_wizard()
+    client, user, manifest = initialize_and_get_client_and_prep_project()
 
     deployable_type = manifest.type
-
-    update_config_template(manifest)
 
     deployer = None
     if deployable_type == DeployableType.PACKAGE:
