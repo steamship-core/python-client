@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field
 from steamship import Block, Steamship
 from steamship.agents.llms import OpenAI
 from steamship.agents.mixins.transports.transport import Transport
-from steamship.agents.schema import Agent, AgentContext, EmitFunc, Metadata
+from steamship.agents.schema import Agent, EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.utils import with_llm
 from steamship.invocable import Config, InvocableResponse, InvocationContext, get, post
@@ -370,12 +370,7 @@ class SlackTransport(Transport):
         """Respond to a single inbound message from Slack, posting the response back to Slack."""
         try:
             chat_id = incoming_message.chat_id
-
-            if not chat_id:
-                logging.error(f"No chat id on incoming block {incoming_message}")
-                return
-            # TODO: It feels like context is something the Agent should be providing.
-            context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
+            context = self.agent_service.build_default_context(context_id=chat_id)
 
             context.chat_history.append_user_message(
                 text=incoming_message.text, tags=incoming_message.tags
