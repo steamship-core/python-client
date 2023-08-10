@@ -9,7 +9,7 @@ from typing import Optional
 import click
 
 import steamship
-from steamship import PackageInstance, Steamship, SteamshipError
+from steamship import PackageInstance, Steamship, SteamshipError, Workspace
 from steamship.base.configuration import DEFAULT_WEB_BASE, Configuration
 from steamship.cli.create_instance import (
     config_str_to_dict,
@@ -253,9 +253,8 @@ def register_locally_running_package_with_engine(
     return package_instance
 
 
-def serve_local(
+def serve_local(  # noqa: C901
     port: int = 8443,
-    instance_handle: Optional[str] = None,
     no_ngrok: Optional[bool] = False,
     no_repl: Optional[bool] = False,
     no_ui: Optional[bool] = False,
@@ -268,6 +267,12 @@ def serve_local(
     click.secho("Running your project...\n")
 
     client, user, manifest = initialize_and_get_client_and_prep_project()
+
+    if workspace:
+        workspace_obj = Workspace.get(client, handle=workspace)
+    else:
+        workspace_obj = Workspace.get(client)
+        workspace = workspace_obj.handle
 
     # Make sure we're running a package.
     if manifest.type != DeployableType.PACKAGE:
@@ -290,6 +295,10 @@ def serve_local(
     if not no_ngrok:
         ngrok_api_url = _run_ngrok(port)
 
+        # It requires a trailing slash
+        if ngrok_api_url[-1] != "/":
+            ngrok_api_url = ngrok_api_url + "/"
+
         registered_instance = register_locally_running_package_with_engine(
             client=client,
             ngrok_api_url=ngrok_api_url,
@@ -298,14 +307,22 @@ def serve_local(
             config=config,
         )
 
-        public_api_url = registered_instance.invocation_url()
+        # It's not registered_instance.invocation_url because that ends up being the local url!
+        # We need to construct the URL dynamically
+        # user_handle = user.handle
+        # app_url = client.config.app_base.replace("//", f"//{user_handle}.")
+        # if app_url[-1] != "/":
+        #     app_url = app_url + "/"
+        #
+        # public_api_url = f"{app_url}{workspace}/{registered_instance.handle}"
+        public_api_url = ngrok_api_url
         click.secho(f"🌎 Public API: {public_api_url}")
 
     # Start the local API Server. This has to happen after NGROK because the port & url need to be plummed.
     try:
         local_api_url = _run_local_server(
             local_port=port,
-            instance_handle=instance_handle,
+            instance_handle=registered_instance.handle,
             config=config,
             workspace=workspace,
             base_url=public_api_url,
@@ -314,6 +331,9 @@ def serve_local(
         click.secho("⚠️ Local API:  Unable to start local server.")
         click.secho(e)
         exit(-1)
+
+    if local_api_url[-1] != "/":
+        local_api_url = local_api_url + "/"
 
     if local_api_url:
         click.secho(f"🌎 Local API:  {local_api_url}")
@@ -333,7 +353,7 @@ def serve_local(
             time.sleep(1)
     else:
         click.secho("\n💬 Interactive REPL below. Type to interact.\n")
-        prompt_url = f"{local_api_url or public_api_url}/prompt"
+        prompt_url = f"{local_api_url or public_api_url}prompt"
         repl = HttpREPL(prompt_url=prompt_url, dev_logging_handler=dev_logging_handler)
         repl.run()
 
@@ -406,7 +426,6 @@ def run(
     if environment == "local":
         serve_local(
             port=port,
-            instance_handle=instance_handle,
             no_ngrok=no_ngrok,
             no_repl=no_repl,
             no_ui=no_ui,

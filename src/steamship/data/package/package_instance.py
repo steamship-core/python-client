@@ -15,7 +15,7 @@ from steamship.data.workspace import Workspace
 from steamship.utils.url import Verb
 
 LOCAL_DEVELOPMENT_VERSION_HANDLE = (
-    "local-development"  # Special handle for a locally-running development instances.
+    "local-development!"  # Special handle for a locally-running development instances.
 )
 
 
