@@ -165,7 +165,7 @@ class AgentService(PackageService):
             logging.info(f"Emitting via function: {func.__name__}")
             func(action.output, context.metadata)
 
-    def get_default_agent(self) -> Optional[Agent]:
+    def get_default_agent(self, throw_if_missing: bool = True) -> Optional[Agent]:
         """Return the default agent of this agent service.
 
         This is a helper wrapper to safeguard naming conventions that have formed.
@@ -175,7 +175,13 @@ class AgentService(PackageService):
         elif hasattr(self, "_agent"):
             return self._agent
         else:
-            return None
+            if throw_if_missing:
+                raise SteamshipError(
+                    message="No Agent object found in the Agent Service. "
+                    "Please name it either self.agent or self._agent."
+                )
+            else:
+                return None
 
     def build_default_context(self, context_id: Optional[str] = None, **kwargs) -> AgentContext:
         """Build's the agent's default context.
@@ -252,18 +258,7 @@ class AgentService(PackageService):
         context.emit_funcs.append(sync_emit)
 
         # Get the agent
-        agent: Optional[Agent] = None
-        if hasattr(self, "agent"):
-            agent = self.agent
-        elif hasattr(self, "_agent"):
-            agent = self._agent
-
-        if not agent:
-            raise SteamshipError(
-                message="No Agent object found in the Agent Service. "
-                "Please name it either self.agent or self._agent."
-            )
-
+        agent: Optional[Agent] = self.get_default_agent()
         self.run_agent(agent, context)
 
         # Now append the output blocks to the chat history
