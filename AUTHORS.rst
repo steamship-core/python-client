@@ -9,4 +9,5 @@ Steamship is made with love from around the world.
 * Dave Kolas <dave@steamship.com>
 * Enias Cailliau <enias@steamship.com>
 * Doug Reid <doug@steamship.com>
+* Max Freundlich <max@steamship.com>
 

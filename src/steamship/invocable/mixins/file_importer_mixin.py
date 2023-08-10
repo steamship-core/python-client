@@ -95,7 +95,7 @@ class FileImporterMixin(PackageMixin):
 
     @post("/import_url")
     def import_url(self, url: str) -> File:
-        """Import the URL to a Steamship File. Actual import will be scheduled Async."""
+        """Import the URL to a Steamship File. Actual import will be scheduled async."""
         file, task = self.import_url_to_file_and_task(url)
         return file
 

@@ -135,11 +135,9 @@ to destroy them manually.
 
 ## Deployment
 
-To deploy a new version, use the GitHub Release feature to create a release and tag it `v#.#.#`.  
+To deploy a new version, use the GitHub Release feature: 
 
-To release manually with only git & GitHub Actions, push a tag labeled `v#.#.#`:
-
-```
-git tag vX.Y.Z
-git push origin --tags
-```
+1. Create a new tag using the semver format `#.#.#` (without the v)
+2. Target `main` 
+3. Click `Generate release notes` 
+4. Click `Publich release` 

@@ -19,7 +19,7 @@ try:
     from termcolor import colored  # noqa: F401
 except ImportError:
 
-    def colored(text: str, **kwargs):
+    def colored(text: str, color: str, **kwargs):
         print(text)
 
 
@@ -85,7 +85,7 @@ class SteamshipREPL(ABC):
             output = block.content_url
         else:
             block.set_public_data(True)
-            output = block.raw_data_url
+            output = f"{self.client.config.api_base}block/{block.id}/raw"
         if output:
             self.print_string(output, metadata)
 
