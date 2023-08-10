@@ -78,7 +78,7 @@ class TelegramBot(AgentService):
             client=self.client,
             config=TelegramTransportConfig(bot_token=self.config.bot_token),
             agent_service=self,
-            agent=self._agent,
+            agent=self.get_default_agent(),
         )
         self.add_mixin(self.telegram_transport)
 
