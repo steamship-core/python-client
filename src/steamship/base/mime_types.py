@@ -36,6 +36,7 @@ class MimeTypes(str, Enum):
 
     @classmethod
     def is_binary(cls, value):
+        """Returns whether the mime type is likely a binary file."""
         return value in [
             cls.UNKNOWN,
             cls.PDF,

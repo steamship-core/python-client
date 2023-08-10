@@ -205,12 +205,9 @@ class Task(GenericCamelModel, Generic[T]):
 
     def update(self, other: Optional[Task] = None):
         """Incorporates a `Task` into this object."""
-        print("UPdating")
         other = other or Task()
         for k, v in other.__dict__.items():
-            print("k", k, "v", v)
             self.__dict__[k] = v
-        print("UPdated")
 
     def add_comment(
         self,

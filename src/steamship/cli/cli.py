@@ -307,14 +307,11 @@ def serve_local(  # noqa: C901
             config=config,
         )
 
-        # It's not registered_instance.invocation_url because that ends up being the local url!
-        # We need to construct the URL dynamically
-        # user_handle = user.handle
-        # app_url = client.config.app_base.replace("//", f"//{user_handle}.")
-        # if app_url[-1] != "/":
-        #     app_url = app_url + "/"
-        #
-        # public_api_url = f"{app_url}{workspace}/{registered_instance.handle}"
+        # Notes:
+        #  1. registered_instance.invocation_url is the NGROK URL, not the Steamship Proxy URL.
+        #  2. The public_api_url should still be NGROK, not the Proxy. The local server emulates the Proxy and
+        #     the Proxy blocks this kind of development traffic.
+
         public_api_url = ngrok_api_url
         click.secho(f"🌎 Public API: {public_api_url}")
 
