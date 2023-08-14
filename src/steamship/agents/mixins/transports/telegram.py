@@ -6,11 +6,9 @@ import requests
 from pydantic import Field
 
 from steamship import Block, Steamship, SteamshipError
-from steamship.agents.llms import OpenAI
 from steamship.agents.mixins.transports.transport import Transport
-from steamship.agents.schema import Agent, AgentContext, EmitFunc, Metadata
+from steamship.agents.schema import Agent, EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
-from steamship.agents.utils import with_llm
 from steamship.invocable import Config, InvocableResponse, InvocationContext, post
 from steamship.utils.kv_store import KeyValueStore
 
@@ -211,20 +209,12 @@ class TelegramTransport(Transport):
         try:
             incoming_message = self.parse_inbound(message)
             if incoming_message is not None:
-                context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
+                context = self.agent_service.build_default_context(chat_id)
+
                 context.chat_history.append_user_message(
                     text=incoming_message.text, tags=incoming_message.tags
                 )
                 context.emit_funcs = [self.build_emit_func(chat_id=chat_id)]
-
-                # Add an LLM to the context, using the Agent's if it exists.
-                llm = None
-                if hasattr(self.agent, "llm"):
-                    llm = self.agent.llm
-                else:
-                    llm = OpenAI(client=self.client)
-
-                context = with_llm(context=context, llm=llm)
 
                 response = self.agent_service.run_agent(self.agent, context)
                 if response is not None:

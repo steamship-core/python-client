@@ -1,4 +1,4 @@
-from steamship import MimeTypes
+from steamship import MimeTypes, Tag
 from steamship.invocable import InvocableResponse, create_handler
 from steamship.invocable.plugin_service import PluginRequest
 from steamship.plugin.file_importer import FileImporter
@@ -18,7 +18,13 @@ class TestFileImporterPlugin(FileImporter):
     def run(
         self, request: PluginRequest[FileImportPluginInput]
     ) -> InvocableResponse[RawDataPluginOutput]:
-        return InvocableResponse(data=RawDataPluginOutput(string=TEST_DOC, mime_type=MimeTypes.MKD))
+        return InvocableResponse(
+            data=RawDataPluginOutput(
+                string=TEST_DOC,
+                mime_type=MimeTypes.MKD,
+                tags=[Tag(kind="test-kind", name="test-name")],
+            )
+        )
 
 
 handler = create_handler(TestFileImporterPlugin)
