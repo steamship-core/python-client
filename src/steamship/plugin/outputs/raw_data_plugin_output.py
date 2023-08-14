@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import io
-from typing import Any, Optional, Type, Union
+from typing import Any, List, Optional, Type, Union
 
 from pydantic import BaseModel
 
+from steamship import Tag
 from steamship.base import MimeTypes
 from steamship.plugin.outputs.plugin_output import PluginOutput
 from steamship.utils.binary_utils import flexi_create
@@ -30,6 +31,7 @@ class RawDataPluginOutput(PluginOutput):
 
     data: Optional[str] = None  # Note: This is **always** Base64 encoded.
     mime_type: Optional[str] = None
+    tags: Optional[List[Tag]] = None
 
     def __init__(
         self,
@@ -38,10 +40,11 @@ class RawDataPluginOutput(PluginOutput):
         _bytes: Union[bytes, io.BytesIO] = None,
         json: Any = None,
         mime_type: str = None,
+        tags: Optional[List[Tag]] = None,
         **kwargs,
     ):
         super().__init__()
-
+        self.tags = tags
         if base64string is not None:
             self.data = base64string
             self.mime_type = mime_type or MimeTypes.BINARY
