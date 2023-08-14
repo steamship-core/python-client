@@ -84,7 +84,7 @@ def _run_ngrok(local_port: int) -> str:
     except BaseException:
         click.secho("⚠️ Public API: Unable to start ngrok. Please either:")
         click.secho("   - Install pyngrok via `pip install pyngrok`")
-        click.secho("   - Use the --no_ngrok flag")
+        click.secho("   - Use the --no-ngrok flag")
         click.secho("   NGROK is only necessary if you wish to debug Telegram or Slack locally.")
         exit(1)
     try:
