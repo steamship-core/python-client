@@ -48,3 +48,10 @@ class FinishAction(Action):
 
     tool = "Agent-FinishAction"
     input: List[Block] = []
+
+
+class SendMessageAction(Action):
+    """Represents an action whose output is to immediately send a message to the user."""
+
+    tool = "Agent-SendMessageAction"
+    input: List[Block] = []
