@@ -20,6 +20,8 @@ class SlackBot(AgentService):
     For installation instructions, see: https://github.com/steamship-core/python-client/blob/15bd58daf4da882dbbb26b8169a75145f9a920e9/src/steamship/agents/mixins/transports/slack.py#L165
     """
 
+    USED_MIXIN_CLASSES = [SteamshipWidgetTransport, SlackTransport]
+
     class SlackBotBotConfig(Config):
         pass
 

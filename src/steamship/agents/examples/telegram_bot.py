@@ -49,6 +49,8 @@ class TelegramBot(AgentService):
 
     """
 
+    USED_MIXIN_CLASSES = [SteamshipWidgetTransport, TelegramTransport]
+
     class TelegramBotConfig(Config):
         bot_token: str = Field(description="The secret token for your Telegram bot")
 
