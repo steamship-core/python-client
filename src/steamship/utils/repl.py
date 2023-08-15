@@ -246,17 +246,25 @@ class HttpREPL(SteamshipREPL):
                 logging.exception(ex)
 
             if result:
-                if result.get("status", {}).get("state", None) == TaskState.failed:
-                    message = result.get("status", {}).get("status_message", None)
-                    logging.error(f"Response failed with remote error: {message or 'No message'}")
-                    if suggestion := result.get("status", {}).get("status_suggestion", None):
-                        logging.error(f"Suggestion: {suggestion}")
-                elif data := result.get("data", None):
-                    self.print_object_or_objects(data)
+                if isinstance(result, dict):
+                    if result.get("status", {}).get("state", None) == TaskState.failed:
+                        message = result.get("status", {}).get("status_message", None)
+                        logging.error(
+                            f"Response failed with remote error: {message or 'No message'}"
+                        )
+                        if suggestion := result.get("status", {}).get("status_suggestion", None):
+                            logging.error(f"Suggestion: {suggestion}")
+                    elif data := result.get("data", None):
+                        self.print_object_or_objects(data)
+                    else:
+                        logging.warning(
+                            "REPL interaction completed with empty data field in InvocableResponse."
+                        )
+                if isinstance(result, list):
+                    self.print_object_or_objects(result)
                 else:
-                    logging.warning(
-                        "REPL interaction completed with empty data field in InvocableResponse."
-                    )
+                    logging.warning("Unsure how to display result:")
+                    logging.warning(result)
             else:
                 logging.warning("REPL interaction completed with no result to print.")
 

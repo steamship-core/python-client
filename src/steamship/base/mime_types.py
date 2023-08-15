@@ -34,6 +34,29 @@ class MimeTypes(str, Enum):
     def has_value(cls, value):
         return value in cls._value2member_map_
 
+    @classmethod
+    def is_binary(cls, value):
+        """Returns whether the mime type is likely a binary file."""
+        return value in [
+            cls.UNKNOWN,
+            cls.PDF,
+            cls.JPG,
+            cls.PNG,
+            cls.TIFF,
+            cls.GIF,
+            cls.DOC,
+            cls.PPT,
+            cls.BINARY,
+            cls.WAV,
+            cls.MP3,
+            cls.OGG_VIDEO,
+            cls.OGG_AUDIO,
+            cls.MP4_AUDIO,
+            cls.MP4_VIDEO,
+            cls.WEBM_AUDIO,
+            cls.WEBM_VIDEO,
+        ]
+
 
 class ContentEncodings:
     BASE64 = "base64"

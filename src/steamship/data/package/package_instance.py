@@ -14,6 +14,10 @@ from steamship.data.invocable_init_status import InvocableInitStatus
 from steamship.data.workspace import Workspace
 from steamship.utils.url import Verb
 
+LOCAL_DEVELOPMENT_VERSION_HANDLE = (
+    "local-development!"  # Special handle for a locally-running development instances.
+)
+
 
 class CreatePackageInstanceRequest(Request):
     id: str = None
@@ -25,6 +29,12 @@ class CreatePackageInstanceRequest(Request):
     fetch_if_exists: bool = None
     config: Dict[str, Any] = None
     workspace_id: str = None
+
+    local_development_url: Optional[str] = None
+    """Special argument only intended for creating an PackageInstance bound to a local development server.
+
+    If used, the package_version_handle should be set to LOCAL_DEVELOPMENT_VERSION_HANDLE above.
+    """
 
 
 class PackageInstance(CamelModel):
@@ -70,6 +80,28 @@ class PackageInstance(CamelModel):
             config=config,
         )
 
+        return client.post("package/instance/create", payload=req, expect=PackageInstance)
+
+    @staticmethod
+    def create_local_development_instance(
+        client: Client,
+        local_development_url: str,
+        package_id: str = None,
+        package_handle: str = None,
+        handle: str = None,
+        fetch_if_exists: bool = True,
+        config: Dict[str, Any] = None,
+    ) -> PackageInstance:
+        req = CreatePackageInstanceRequest(
+            handle=handle,
+            package_id=package_id,
+            package_handle=package_handle,
+            package_version_handle=LOCAL_DEVELOPMENT_VERSION_HANDLE,
+            fetch_if_exists=fetch_if_exists,
+            config=config,
+            local_development_url=local_development_url,
+        )
+        """Create a PackageInstance bound to a local development server."""
         return client.post("package/instance/create", payload=req, expect=PackageInstance)
 
     def delete(self) -> PackageInstance:
