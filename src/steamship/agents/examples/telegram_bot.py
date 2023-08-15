@@ -49,7 +49,7 @@ class TelegramBot(AgentService):
 
     """
 
-    class TelegramBotConfig(Config):
+    class TelegramBotConfig(TelegramTransportConfig):
         bot_token: str = Field(description="The secret token for your Telegram bot")
 
     @classmethod
