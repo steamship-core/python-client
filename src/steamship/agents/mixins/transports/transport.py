@@ -56,6 +56,8 @@ class Transport(PackageMixin, ABC):
 
     def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
         message = self._parse_inbound(payload, context)
+        if not message:
+            return None
 
         if message.url and not message.text:
             context = AgentContext()
