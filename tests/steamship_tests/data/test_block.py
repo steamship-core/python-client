@@ -66,7 +66,9 @@ def test_append_block_url(client: Steamship):
     file = File.create(client, blocks=[])
 
     appended_block = Block.create(
-        client, file_id=file.id, url="https://docs.steamship.com/_static/Steamship-symbol-dark.png"
+        client,
+        file_id=file.id,
+        url="https://docs.steamship.com/_next/image?url=%2Flogo-dark%403x.png&w=3840&q=75",
     )
 
     assert appended_block.text == ""
@@ -75,7 +77,7 @@ def test_append_block_url(client: Steamship):
     assert file.blocks[0].mime_type == MimeTypes.PNG
 
     block_content = file.blocks[0].raw()
-    assert len(block_content) == 20693
+    assert len(block_content) == 56253
     assert not file.blocks[0].is_text()
 
 
