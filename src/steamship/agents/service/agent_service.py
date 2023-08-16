@@ -131,15 +131,48 @@ class AgentService(PackageService):
                 context.action_cache.update(key=action, value=action.output)
 
     def run_agent(self, agent: Agent, context: AgentContext):
-        # first, clear any prior agent steps from set of completed steps
-        # this will allow the agent to select tools/dispatch actions based on a new context
+        """Run the agent.
+
+        This is the root method that runs when the agent awakes to do work. Any chat messages to response to should
+        have already been appended to the ChatHistory associated with the AgentContext.
+        """
+
+        # Clear any prior agent steps from set of completed steps.
+        # This will allow the agent to select tools/dispatch actions based on a new context
         context.completed_steps = []
 
-        action = self.next_action(
-            agent=agent, input_blocks=[context.chat_history.last_user_message], context=context
-        )
+        last_user_message = context.chat_history.last_user_message
+
+        if last_user_message is None:
+            # There is nothing to respond to.
+            # TODO: Consider the situations in which an agent awakes for reasons other than message response.
+            logging.info(
+                "AgentService.run_agent invoked but no last user message existed.",
+                extra={
+                    AgentLogging.IS_MESSAGE: False,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+                },
+            )
+            return
+
+        if last_user_message.response_sent:
+            # We've already sent a response to this message, so exit.
+            # TODO: Consider the situations in which an agent awakes for reasons other than message response.
+            logging.info(
+                "AgentService.run_agent invoked but the last user message was already responded to.",
+                extra={
+                    AgentLogging.IS_MESSAGE: False,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+                },
+            )
+            return
+
+        # Select the first action to perform, based on the user message.
+        action = self.next_action(agent=agent, input_blocks=[last_user_message], context=context)
 
         while not isinstance(action, FinishAction):
+            # As long as the Agent hasn't decided to complete an action sequence, continue performing actions and then
+            # selecting a potential next action.
             self.run_action(agent=agent, action=action, context=context)
             action = self.next_action(agent=agent, input_blocks=action.output, context=context)
 
@@ -154,7 +187,11 @@ class AgentService(PackageService):
                 },
             )
 
+        # At this point, the final action is a FinishAction. Add it to the completed_steps.
         context.completed_steps.append(action)
+
+        # Emit the result of the action.
+        # Note that we don't append it to the chat history here; that's left for the invoker of run_agent to do.
         output_text_length = 0
         if action.output is not None:
             output_text_length = sum([len(block.text or "") for block in action.output])
@@ -164,6 +201,9 @@ class AgentService(PackageService):
         for func in context.emit_funcs:
             logging.info(f"Emitting via function: {func.__name__}")
             func(action.output, context.metadata)
+
+        # Finally, mark this block as responded to.
+        last_user_message.set_response_sent(True)
 
     def get_default_agent(self, throw_if_missing: bool = True) -> Optional[Agent]:
         """Return the default agent of this agent service.

@@ -251,6 +251,17 @@ class Block(CamelModel):
             return None
 
     @property
+    def response_sent(self) -> bool:
+        return get_tag_value_key(
+            self.tags, TagValueKey.BOOL_VALUE, kind=DocTag.CHAT, name=ChatTag.RESPONSE_SENT
+        )
+
+    def set_response_sent(self, is_sent: bool):
+        return self._one_time_set_tag(
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.RESPONSE_SENT, bool_value=is_sent
+        )
+
+    @property
     def chat_role(self) -> Optional[RoleTag]:
         return get_tag_value_key(
             self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.ROLE
@@ -283,17 +294,29 @@ class Block(CamelModel):
             tag_kind=DocTag.CHAT, tag_name=ChatTag.CHAT_ID, string_value=chat_id
         )
 
-    def _one_time_set_tag(self, tag_kind: str, tag_name: str, string_value: str):
-        existing = get_tag_value_key(
-            self.tags, TagValueKey.STRING_VALUE, kind=tag_kind, name=tag_name
-        )
+    def _one_time_set_tag(
+        self,
+        tag_kind: str,
+        tag_name: str,
+        string_value: Optional[str] = None,
+        bool_value: Optional[bool] = None,
+    ):
+        _value = None
+        if bool_value is not None:
+            _value = bool_value
+            _key = TagValueKey.BOOL_VALUE
+        else:
+            _value = string_value
+            _key = TagValueKey.STRING_VALUE
+
+        existing = get_tag_value_key(self.tags, _key, kind=tag_kind, name=tag_name)
 
         if existing is not None:
-            if existing == string_value:
+            if existing == _value:
                 return  # No action necessary
             else:
                 raise SteamshipError(
-                    message=f"Block {self.id} already has an existing {tag_kind}/{tag_name} with value {existing}. Unable to set to {string_value}"
+                    message=f"Block {self.id} already has an existing {tag_kind}/{tag_name} with value {existing}. Unable to set to {_value}"
                 )
 
         if self.client and self.id:
@@ -303,13 +326,13 @@ class Block(CamelModel):
                 block_id=self.id,
                 kind=tag_kind,
                 name=tag_name,
-                value={TagValueKey.STRING_VALUE: string_value},
+                value={_key: _value},
             )
         else:
             tag = Tag(
                 kind=tag_kind,
                 name=tag_name,
-                value={TagValueKey.STRING_VALUE: string_value},
+                value={_key: _value},
             )
 
         self.tags.append(tag)

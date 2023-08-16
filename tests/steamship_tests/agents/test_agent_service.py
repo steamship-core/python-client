@@ -41,6 +41,11 @@ def test_example_with_caching_service(client: Steamship):
         agent_context = AgentContext.get_or_create(
             client=client, context_keys=context_keys, use_llm_cache=True, use_action_cache=True
         )
+
+        # Make sure that the last user message was remarked as responded to
+        last_user_message = agent_context.chat_history.last_user_message
+        assert last_user_message.response_sent
+
         # just clear the cache to start fresh
         agent_context.llm_cache.clear()
         agent_context.action_cache.clear()

@@ -278,3 +278,6 @@ class ChatTag(str, Enum):
 
     # A chunk of text for indexing
     CHUNK = "chunk"
+
+    # Whether a response was sent
+    RESPONSE_SENT = "response-sent"
