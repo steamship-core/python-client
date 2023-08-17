@@ -12,7 +12,8 @@ from steamship.invocable.package_mixin import PackageMixin
 
 
 class Transport(PackageMixin, ABC):
-    client = Steamship
+    client: Steamship
+
     """ Base class to encapsulate a communication channel mixin
 
     Intended use is:
@@ -32,7 +33,7 @@ class Transport(PackageMixin, ABC):
 
     """
 
-    def __init__(self, client):
+    def __init__(self, client: Steamship):
         self.client = client
 
     def send(self, blocks: List[Block], metadata: Optional[Metadata] = None):
@@ -55,6 +56,8 @@ class Transport(PackageMixin, ABC):
 
     def parse_inbound(self, payload: dict, context: Optional[dict] = None) -> Optional[Block]:
         message = self._parse_inbound(payload, context)
+        if not message:
+            return None
 
         if message.url and not message.text:
             context = AgentContext()

@@ -49,7 +49,7 @@ class TelegramBot(AgentService):
 
     """
 
-    class TelegramBotConfig(Config):
+    class TelegramBotConfig(TelegramTransportConfig):
         bot_token: str = Field(description="The secret token for your Telegram bot")
 
     @classmethod
@@ -76,7 +76,7 @@ class TelegramBot(AgentService):
                 client=self.client,
                 config=TelegramTransportConfig(bot_token=self.config.bot_token),
                 agent_service=self,
-                agent=self._agent,
+                agent=self.get_default_agent(),
             )
         )
 
