@@ -230,9 +230,11 @@ class SlackTransport(Transport):
         return {
             "display_information": {
                 "name": invocable_instance_handle,
-                "description": f"An instance of {self.agent_service.context.invocable_handle} powered by Steamship",
+                "description": f"An instance of {invocable_handle} powered by Steamship",
             },
-            "features": {"bot_user": {"display_name": invocable_handle, "always_online": True}},
+            "features": {
+                "bot_user": {"display_name": invocable_instance_handle, "always_online": True}
+            },
             "oauth_config": {
                 "scopes": {
                     "bot": [
@@ -443,13 +445,19 @@ class SlackTransport(Transport):
     @post("slack_event", public=True)
     def slack_event(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
-        self.respond_to_webhook(**kwargs)
+        task = self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
+        logging.info(
+            f"/slack_event: Created task {task.task_id} to respond to inbound Slack Message {kwargs}"
+        )
         return InvocableResponse(string="OK")
 
     @post("slack_respond", public=True)
     def slack_respond(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
-        self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
+        task = self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
+        logging.info(
+            f"/slack_respond: Created task {task.task_id} to respond to inbound Slack Message {kwargs}"
+        )
         return InvocableResponse(string="OK")
 
     @post("set_slack_access_token")
