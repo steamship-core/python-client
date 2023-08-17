@@ -39,7 +39,7 @@ Then run:
 
    ship run local
 
-Now that you've interacted with your new agent, you're ready to start modifying it in `src/api.py`.
+Now that you've interacted with your new agent, you're ready to start modifying it in :code:`src/api.py`.
 
 See the **[Agent Guidebook](/agent-guidebook)** for details.
 
