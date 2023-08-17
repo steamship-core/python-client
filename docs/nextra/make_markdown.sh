@@ -13,12 +13,12 @@ find "$DOCSDIR" -type f | while read -r file; do
     dir=$(dirname "$file")
 
     # If the file is within a directory named 'api', skip it
-    if [[ $dir == *"/api"* ]]; then
+    if [[ $dir == *"/api"* ]] || [[ $dir == *"/agent-guidebook"* ]]; then
         continue
     fi
 
     # If the file isn't '_meta.json' or '_app.mdx', delete it
-    if [[ "$(basename "$file")" != "_meta.json" ]] && [[ "$(basename "$file")" != "_app.mdx" ]] && [[ "$(basename "$file")" != "pages.md" ]]; then
+    if [[ "$(basename "$file")" != "_meta.json" ]] && [[ "$(basename "$file")" != "_app.mdx" ]] && [[ "$(basename "$file")" != "pages.md" ]] && [[ "$(basename "$file")" != "react.mdx" ]]; then
         rm "$file"
     fi
 done
