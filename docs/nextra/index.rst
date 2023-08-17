@@ -1,11 +1,9 @@
 Steamship
 =========
 
-Steamship is the fastest way to add AI to your software.
+Steamship is an SDK and hosting platform for AI Agents and Tools.
 
-Think of Steamship as both a package manager and package hosting for AI.
-Each `Steamship package <https://www.steamship.com/packages>`_ runs in the cloud on a managed stack.
-
+**Follow our [Agent Guidebook](/agent-guidebook) for a complete tutorial.**  
 
 Steamship in 30 seconds
 -----------------------
@@ -17,15 +15,13 @@ Steamship in 30 seconds
 
 The best way to start is to make a simple package:
 
-Start from a template
----------------------
+## Start from our Multimodal Agent Template
 
-Clone one of our starter packages (https://github.com/steamship-packages):
+Clone our starter repository:
 
 .. code-block:: bash
 
-   git clone https://github.com/steamship-packages/empty-package.git
-
+   git clone https://github.com/steamship-core/multimodal-agent-starter
 
 Create a virtual environment and install dependencies:
 
@@ -37,55 +33,20 @@ Create a virtual environment and install dependencies:
    pip install -r requirements.txt
    pip install -r requirements.dev.txt
 
-and start editing ``src/api.py``.
-
-Start from scratch
-------------------
-First, install our SDK and CLI (ideally in a virtual environment):
+Then run:
 
 .. code-block:: bash
 
-   python3 -m venv venv
-   source venv/bin/activate
+   ship run local
 
-   pip install steamship
+Now that you've interacted with your new agent, you're ready to start modifying it in `src/api.py`.
 
-Now copy this into ``api.py``:
-
-.. code-block:: python
-
-    from steamship.invocable import post, PackageService
-
-    class MyPackage(PackageService):
-
-        @post("hello_world")
-        def hello_world(self, name: str = None) -> str:
-            return f"Hello, {name}"
-
-Next Steps
-==========
-
-.. grid::  1 1 2 3
-
-   .. grid-item-card:: **Using Packages**
-      :link: packages/using.html
-
-      Use full-stack language AI packages in your own code.
-
-   .. grid-item-card:: **Developing Packages**
-      :link: packages/developing/index.html
-
-      Build and deploy packages with our low-code framework.
-
-   .. grid-item-card:: **Package Cookbook**
-      :link: packages/cookbook/index.html
-
-      Package examples for common scenarios.
-
+See the **[Agent Guidebook](/agent-guidebook)** for details.
 
 Contents
 ========
 
+* [Agent Guidebook](agent-guidebook)
 .. toctree::
    :maxdepth: 4
 
