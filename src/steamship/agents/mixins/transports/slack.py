@@ -5,18 +5,28 @@ from typing import List, Optional
 
 import requests
 from pydantic import BaseModel, Field
-
 from steamship import Block, Steamship
+from steamship import DocTag
 from steamship.agents.llms import OpenAI
 from steamship.agents.mixins.transports.transport import Transport
 from steamship.agents.schema import EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.utils import with_llm
+from steamship.data import TagValueKey
+from steamship.data.block import get_tag_value_key
 from steamship.invocable import Config, InvocableResponse, get, post
 from steamship.utils.kv_store import KeyValueStore
 
 SLACK_API_BASE = "https://slack.com/api/"
 SETTINGS_KVSTORE_KEY = "slack-transport"
+
+
+def get_block_thread_ts(block: Block) -> Optional[str]:
+    return get_tag_value_key(block.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name="slack-threadts")
+
+
+def set_block_thread_ts(block: Block, thread_ts) -> None:
+    block._one_time_set_tag(tag_kind=DocTag.CHAT, tag_name="slack-threadid", string_value=thread_ts)
 
 
 class SlackElement(BaseModel):
@@ -95,6 +105,9 @@ class SlackEvent(BaseModel):
     ts: Optional[str] = Field(
         description="Timestamp of the message. A string, but is a floating point number within that."
     )
+    thread_ts: Optional[str] = Field(
+        description="Timestamp of the thread this message is a part of, if any.  Same format as `ts`."
+    )
     item: Optional[str] = Field(
         description="Data specific to the underlying object type being described."
     )
@@ -120,8 +133,16 @@ class SlackEvent(BaseModel):
         ret = []
         for slack_block in self.blocks or []:
             for block in slack_block.to_blocks() or []:
+                # TODO (george): Having some sort of wrapper for Slack-specific Blocks might be nice
+                #   Or I guess the metadata block?
                 if self.channel:
                     block.set_chat_id(str(self.channel))
+                if self.ts:
+                    block.set_message_id(str(self.ts))
+                if self.user:
+                    block._one_time_set_tag(tag_kind=DocTag.CHAT, tag_name="userid", string_value=self.user)
+                if self.thread_ts:
+                    set_block_thread_ts(block, self.thread_ts)
                 # TODO: Do we want to encode other things like the tab, user, etc?
                 ret.append(block)
         return ret
@@ -282,6 +303,7 @@ class SlackTransport(Transport):
         text = None
         slack_blocks = []
         chat_id = None
+        thread_ts = None
         for block in blocks:
             # This is required for the public_url creation below.
 
@@ -289,6 +311,8 @@ class SlackTransport(Transport):
 
             if block.chat_id:
                 chat_id = block.chat_id
+
+            thread_ts = get_block_thread_ts(block)
 
             if block.is_text() or block.text:
                 if not text:
@@ -344,6 +368,8 @@ class SlackTransport(Transport):
             "text": text,  # This is for mobile previews. The "block" key has the real content.
             "channel": chat_id,
         }
+        if thread_ts:
+            body["thread_ts"] = thread_ts
 
         post_url = f"{self.config.slack_api_base}chat.postMessage"
 
@@ -353,12 +379,14 @@ class SlackTransport(Transport):
             json=body,
         )
 
-    def build_emit_func(self, chat_id: str) -> EmitFunc:
+    def build_emit_func(self, chat_id: str, thread_ts: Optional[str]) -> EmitFunc:
         """Return an EmitFun that sends messages to the appropriate Slack channel."""
 
         def new_emit_func(blocks: List[Block], metadata: Metadata):
             for block in blocks:
                 block.set_chat_id(chat_id)
+                if thread_ts:
+                    set_block_thread_ts(block, thread_ts)
             return self.send(blocks, metadata)
 
         return new_emit_func
@@ -367,14 +395,18 @@ class SlackTransport(Transport):
         """Respond to a single inbound message from Slack, posting the response back to Slack."""
         try:
             chat_id = incoming_message.chat_id
-            context = self.agent_service.build_default_context(context_id=chat_id)
+            thread_ts = get_block_thread_ts(incoming_message)
+            # TODO (george) not sure this is always what we want, unfortunately.  Some bots may want to keep a
+            #  conversation going through threads, others may not?
+            context_id = chat_id if not thread_ts else f"{chat_id}-{thread_ts}"
+            context = self.agent_service.build_default_context(context_id=context_id)
 
             context.chat_history.append_user_message(
                 text=incoming_message.text, tags=incoming_message.tags
             )
 
             # TODO: For truly async support, this emit fn will need to be wired in at the Agent level.
-            context.emit_funcs = [self.build_emit_func(chat_id=chat_id)]
+            context.emit_funcs = [self.build_emit_func(chat_id=chat_id, thread_ts=thread_ts)]
 
             # Add an LLM to the context, using the Agent's if it exists.
             llm = None
@@ -411,9 +443,10 @@ class SlackTransport(Transport):
             if slack_request.event:
                 if slack_request.event.bot_id is None:
                     if slack_request.event.is_message():
-                        logging.info(
-                            f"User {slack_request.event.user} sent message in channel {slack_request.event.channel}"
-                        )
+                        log_message = f"User {slack_request.event.user} sent message in channel {slack_request.event.channel}"
+                        if slack_request.event.thread_ts:
+                            log_message += f" from within thread {slack_request.event.thread_ts}"
+                        logging.info(log_message)
                         incoming_messages = slack_request.event.to_blocks()
                         for incoming_message in incoming_messages:
                             if incoming_message is not None:
