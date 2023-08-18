@@ -15,15 +15,17 @@ class MyAssistant(AgentService):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._agent = ReACTAgent(
-            tools=[
-                SearchTool(),
-                DalleTool(),
-            ],
-            llm=OpenAI(
-                self.client, temperature=0, model_name="gpt-4-0314"
-            ),  # MUST PIN to older model
-            conversation_memory=MessageWindowMessageSelector(k=2),
+        self.set_default_agent(
+            ReACTAgent(
+                tools=[
+                    SearchTool(),
+                    DalleTool(),
+                ],
+                llm=OpenAI(
+                    self.client, temperature=0, model_name="gpt-4-0314"
+                ),  # MUST PIN to older model
+                conversation_memory=MessageWindowMessageSelector(k=2),
+            )
         )
 
 

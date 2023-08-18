@@ -215,7 +215,9 @@ class TelegramTransport(Transport):
                 )
                 context.emit_funcs = [self.build_emit_func(chat_id=chat_id)]
 
-                response = self.agent_service.run_agent(self.agent, context)
+                response = self.agent_service.run_agent(
+                    self.agent_service.get_default_agent(), context
+                )
                 if response is not None:
                     self.send(response)
                 else:

@@ -12,15 +12,15 @@ class ChatGpt(AgentService):
         super().__init__(**kwargs)
 
         # The agent's planner is responsible for making decisions about what to do for a given input.
-        self._agent = FunctionsBasedAgent(
-            tools=[],
-            llm=ChatOpenAI(self.client, model_name="gpt-4"),
+        self.set_default_agent(
+            FunctionsBasedAgent(
+                tools=[],
+                llm=ChatOpenAI(self.client, model_name="gpt-4"),
+            )
         )
 
         # This Mixin provides HTTP endpoints that connects this agent to a web client
-        self.add_mixin(
-            SteamshipWidgetTransport(client=self.client, agent_service=self, agent=self._agent)
-        )
+        self.add_mixin(SteamshipWidgetTransport(client=self.client, agent_service=self))
 
 
 if __name__ == "__main__":

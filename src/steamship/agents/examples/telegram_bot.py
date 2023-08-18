@@ -51,16 +51,16 @@ class TelegramBot(AgentService):
         super().__init__(**kwargs)
 
         # The agent's planner is responsible for making decisions about what to do for a given input.
-        self._agent = FunctionsBasedAgent(
-            tools=[StableDiffusionTool()],
-            llm=ChatOpenAI(self.client, model_name=MODEL_NAME),
+        self.set_default_agent(
+            FunctionsBasedAgent(
+                tools=[StableDiffusionTool()],
+                llm=ChatOpenAI(self.client, model_name=MODEL_NAME),
+            )
         )
-        self._agent.PROMPT = SYSTEM_PROMPT
+        self.get_default_agent().PROMPT = SYSTEM_PROMPT
 
         # This Mixin provides HTTP endpoints that connects this agent to a web client
-        self.add_mixin(
-            SteamshipWidgetTransport(client=self.client, agent_service=self, agent=self._agent)
-        )
+        self.add_mixin(SteamshipWidgetTransport(client=self.client, agent_service=self))
         # This Mixin provides support for Telegram bots
         self.add_mixin(
             TelegramTransport(

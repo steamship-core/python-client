@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from steamship import Block, Steamship, SteamshipError
 from steamship.agents.mixins.transports.transport import Transport
-from steamship.agents.schema import Agent, Metadata
+from steamship.agents.schema import Metadata
 from steamship.agents.service.agent_service import AgentService
 from steamship.invocable import post
 
@@ -15,9 +15,8 @@ class SteamshipWidgetTransport(Transport):
 
     message_output: List[Block]
 
-    def __init__(self, client: Steamship, agent_service: AgentService, agent: Agent):
+    def __init__(self, client: Steamship, agent_service: AgentService):
         super().__init__(client=client)
-        self.agent = agent
         self.agent_service = agent_service
 
     def instance_init(self):
@@ -67,7 +66,7 @@ class SteamshipWidgetTransport(Transport):
         context.emit_funcs = [self.save_for_emit]
 
         try:
-            self.agent_service.run_agent(self.agent, context)
+            self.agent_service.run_agent(self.agent_service.get_default_agent(), context)
         except Exception as e:
             self.message_output = [self.response_for_exception(e, chat_id=incoming_message.chat_id)]
 

@@ -15,6 +15,9 @@ class AgentService(PackageService):
     """AgentService is a Steamship Package that can use an Agent, Tools, and a provided AgentContext to
     respond to user input."""
 
+    agent: Optional[Agent]
+    """The default agent for this agent service."""
+
     use_llm_cache: bool
     """Whether or not to cache LLM calls (for tool selection/direct responses) by default."""
 
@@ -25,10 +28,12 @@ class AgentService(PackageService):
         self,
         use_llm_cache: Optional[bool] = False,
         use_action_cache: Optional[bool] = False,
+        agent: Optional[Agent] = None,
         **kwargs,
     ):
         self.use_llm_cache = use_llm_cache
         self.use_action_cache = use_action_cache
+        self.agent = agent
         super().__init__(**kwargs)
 
     ###############################################
@@ -164,6 +169,9 @@ class AgentService(PackageService):
         for func in context.emit_funcs:
             logging.info(f"Emitting via function: {func.__name__}")
             func(action.output, context.metadata)
+
+    def set_default_agent(self, agent: Agent):
+        self.agent = agent
 
     def get_default_agent(self, throw_if_missing: bool = True) -> Optional[Agent]:
         """Return the default agent of this agent service.
