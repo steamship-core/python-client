@@ -9,10 +9,6 @@ from steamship.agents.tools.image_generation.stable_diffusion import StableDiffu
 from steamship.invocable import Config
 from steamship.utils.repl import AgentREPL
 
-SYSTEM_PROMPT = """You are Assistant - a Slack bot that generates Stable Diffusion images."""
-
-MODEL_NAME = "gpt-4"
-
 
 class SlackBot(AgentService):
     """Deployable Multimodal Slack Bot that lets you generate Stable Diffusion images.
@@ -33,24 +29,18 @@ class SlackBot(AgentService):
         super().__init__(**kwargs)
 
         # The agent's planner is responsible for making decisions about what to do for a given input.
-        self._agent = FunctionsBasedAgent(
-            tools=[StableDiffusionTool()],
-            llm=ChatOpenAI(self.client, model_name=MODEL_NAME),
+        self.set_default_agent(
+            FunctionsBasedAgent(
+                tools=[StableDiffusionTool()],
+                llm=ChatOpenAI(self.client, model_name="gpt-4"),
+            )
         )
-        self._agent.PROMPT = SYSTEM_PROMPT
 
         # This Mixin provides HTTP endpoints that connects this agent to a web client
-        self.add_mixin(
-            SteamshipWidgetTransport(client=self.client, agent_service=self, agent=self._agent)
-        )
+        self.add_mixin(SteamshipWidgetTransport(client=self.client, agent_service=self))
         # This Mixin provides support for Telegram bots
         self.add_mixin(
-            SlackTransport(
-                client=self.client,
-                config=SlackTransportConfig(),
-                agent_service=self,
-                agent=self._agent,
-            )
+            SlackTransport(client=self.client, config=SlackTransportConfig(), agent_service=self)
         )
 
 
