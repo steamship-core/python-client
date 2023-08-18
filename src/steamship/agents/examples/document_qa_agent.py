@@ -41,11 +41,13 @@ class ExampleDocumentQAService(AgentService):
         # That vector index is then available to the question answering tool, below.
         self.add_mixin(IndexerPipelineMixin(self.client, self))
 
-        self._agent = FunctionsBasedAgent(
-            tools=[
-                VectorSearchQATool(),  # Tool to answer questions based on a vector store.
-            ],
-            llm=ChatOpenAI(self.client),
+        self.set_default_agent(
+            FunctionsBasedAgent(
+                tools=[
+                    VectorSearchQATool(),  # Tool to answer questions based on a vector store.
+                ],
+                llm=ChatOpenAI(self.client),
+            )
         )
 
 

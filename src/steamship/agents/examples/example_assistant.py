@@ -15,13 +15,15 @@ class MyFunctionsBasedAssistant(AgentService):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._agent = FunctionsBasedAgent(
-            tools=[
-                SearchTool(),
-                DalleTool(),
-            ],
-            llm=ChatOpenAI(self.client, temperature=0),
-            conversation_memory=MessageWindowMessageSelector(k=2),
+        self.set_default_agent(
+            FunctionsBasedAgent(
+                tools=[
+                    SearchTool(),
+                    DalleTool(),
+                ],
+                llm=ChatOpenAI(self.client, temperature=0),
+                conversation_memory=MessageWindowMessageSelector(k=2),
+            )
         )
 
 

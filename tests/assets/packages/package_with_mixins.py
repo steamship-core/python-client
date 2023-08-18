@@ -1,4 +1,4 @@
-from steamship.invocable import Config, InvocableResponse, InvocationContext, PackageService, post
+from steamship.invocable import InvocableResponse, PackageService, post
 from steamship.invocable.package_mixin import PackageMixin
 
 
@@ -10,7 +10,7 @@ class TestMixin(PackageMixin):
     def __init__(self, suffix: str):
         self.suffix = suffix
 
-    def instance_init(self, config: Config, context: InvocationContext):
+    def instance_init(self):
         self.instance_init_called = True
 
     @post("test_mixin_route", public=True)
