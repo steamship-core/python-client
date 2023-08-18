@@ -11,21 +11,27 @@ from steamship.agents.examples.telegram_bot import TelegramBot
 from steamship.agents.functional import FunctionsBasedAgent
 from steamship.agents.llms.openai import ChatOpenAI
 from steamship.agents.mixins.transports.steamship_widget import SteamshipWidgetTransport
-from steamship.agents.mixins.transports.telegram import TelegramTransport, TelegramTransportConfig
+from steamship.agents.mixins.transports.telegram import TelegramTransport
 from steamship.agents.service.agent_service import AgentService
 from steamship.invocable import Config
 from steamship.utils.repl import AgentREPL
 
 
 class MyAssistant(AgentService):
-    class MyAssistantConfig(Config):
+    class MyAssistantConfig(Config, TelegramBot.TelegramBotConfig):
+        """Configuration for this AgentService.
+
+        IMPORTANT: If any Mixin you are using has a configuration, the AgentService configuration must
+        include it as a parent class, as above.
+        """
+
         bot_token: str = Field(description="The secret token for your Telegram bot")
 
     config: MyAssistantConfig
 
     @classmethod
     def config_cls(cls) -> Type[Config]:
-        return TelegramBot.TelegramBotConfig
+        return MyAssistant.MyAssistantConfig
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -40,7 +46,8 @@ class MyAssistant(AgentService):
         self.add_mixin(
             TelegramTransport(
                 client=self.client,
-                config=TelegramTransportConfig(bot_token=self.config.bot_token),
+                # TelegramTransport expects a TelegramTransport config object here, which the AgentService config object is.
+                config=self.config,
                 agent_service=self,
                 agent=self._agent,
             )

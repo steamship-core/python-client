@@ -12,7 +12,7 @@ from steamship.agents.mixins.transports.transport import Transport
 from steamship.agents.schema import Agent, EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.utils import with_llm
-from steamship.invocable import Config, InvocableResponse, InvocationContext, get, post
+from steamship.invocable import Config, InvocableResponse, get, post
 from steamship.utils.kv_store import KeyValueStore
 
 SLACK_API_BASE = "https://slack.com/api/"
@@ -209,7 +209,7 @@ class SlackTransport(Transport):
         self.agent_service = agent_service
         self.config = config
 
-    def instance_init(self, config: Config, invocation_context: InvocationContext):
+    def instance_init(self):
         """Called when the owning AgentService initializes for the first time."""
         pass
 

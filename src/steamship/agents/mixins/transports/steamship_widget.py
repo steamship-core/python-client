@@ -5,7 +5,7 @@ from steamship import Block, Steamship, SteamshipError
 from steamship.agents.mixins.transports.transport import Transport
 from steamship.agents.schema import Agent, Metadata
 from steamship.agents.service.agent_service import AgentService
-from steamship.invocable import Config, InvocationContext, post
+from steamship.invocable import post
 
 API_BASE = "https://api.telegram.org/bot"
 
@@ -20,7 +20,7 @@ class SteamshipWidgetTransport(Transport):
         self.agent = agent
         self.agent_service = agent_service
 
-    def instance_init(self, config: Config, context: InvocationContext):
+    def instance_init(self):
         pass
 
     def _instance_deinit(self, *args, **kwargs):
