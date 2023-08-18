@@ -42,8 +42,9 @@ def test_slack(client: Steamship):
             is_token_set_true = agent_instance.invoke("is_slack_token_set")
             assert is_token_set_true is True
 
-            # test sending another message; this has been a problem before
-            respond_method = "slack_event"
+            # Note: this is the synchronous respond method which is easier to test.
+            # The actual Slack webhook calls this async in order to respond within Slack's required latency.
+            respond_method = "slack_respond_sync"
 
             # Set the response URL
             response_url = agent_instance.invocation_url

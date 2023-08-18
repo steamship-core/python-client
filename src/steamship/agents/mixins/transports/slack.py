@@ -403,8 +403,8 @@ class SlackTransport(Transport):
         is of acceptable quality, it feels like that would be putting too much into one PR."""
         return None
 
-    @post("respond_to_webhook")
-    def respond_to_webhook(self, **kwargs) -> InvocableResponse[str]:  # noqa: C901
+    @post("slack_respond_sync", public=True)
+    def slack_respond_sync(self, **kwargs) -> InvocableResponse[str]:  # noqa: C901
         """Respond to inbound Slack events. This is a PUBLIC endpoint."""
         try:
             slack_request = SlackRequest.parse_obj(kwargs)
@@ -443,7 +443,7 @@ class SlackTransport(Transport):
     @post("slack_event", public=True)
     def slack_event(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
-        task = self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
+        task = self.agent_service.invoke_later("slack_respond_sync", arguments=kwargs)
         logging.info(
             f"/slack_event: Created task {task.task_id} to respond to inbound Slack Message {kwargs}"
         )
@@ -452,7 +452,7 @@ class SlackTransport(Transport):
     @post("slack_respond", public=True)
     def slack_respond(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
-        task = self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
+        task = self.agent_service.invoke_later("slack_respond_sync", arguments=kwargs)
         logging.info(
             f"/slack_respond: Created task {task.task_id} to respond to inbound Slack Message {kwargs}"
         )
