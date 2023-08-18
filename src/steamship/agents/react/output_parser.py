@@ -34,7 +34,7 @@ class ReACTOutputParser(OutputParser):
             )
         action = match.group(1)
         action_input = match.group(2).strip()
-        tool = self.tools_lookup_dict.get(action.strip(), None)
+        tool = action.strip()
         if tool is None:
             raise RuntimeError(
                 f"Could not find tool from action: `{action}`. Known tools: {self.tools_lookup_dict.keys()}"

@@ -73,13 +73,11 @@ class TestTransportsAgentService(AgentService):
         self, client: Steamship, config: Dict[str, Any] = None, context: InvocationContext = None
     ):
         super().__init__(client=client, config=config, context=context)
-        self.agent = TestAgent(client)
+        self.set_default_agent(TestAgent(client))
 
         # Including the web widget transport on the telegram test
         # agent to make sure it doesn't interfere
-        self.add_mixin(
-            SteamshipWidgetTransport(client=client, agent_service=self, agent=self.agent)
-        )
+        self.add_mixin(SteamshipWidgetTransport(client=client, agent_service=self))
         if self.config.bot_token:
             # Only add the mixin if a telegram key was provided.
             self.add_mixin(
@@ -90,7 +88,6 @@ class TestTransportsAgentService(AgentService):
                         bot_token=self.config.bot_token, api_base=self.config.api_base
                     ),
                     agent_service=self,
-                    agent=self.agent,
                 )
             )
         self.add_mixin(
@@ -98,7 +95,6 @@ class TestTransportsAgentService(AgentService):
                 client=client,
                 config=SlackTransportConfig(slack_api_base=self.config.slack_api_base),
                 agent_service=self,
-                agent=self.agent,
             )
         )
         # TODO: Future Transport authors: add your transport here.
