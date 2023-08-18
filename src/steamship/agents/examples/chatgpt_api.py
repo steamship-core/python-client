@@ -12,7 +12,7 @@ from steamship.utils.repl import AgentREPL
 class MyAssistant(AgentService):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._agent = FunctionsBasedAgent(llm=ChatOpenAI(self.client), tools=[])
+        self.set_default_agent(FunctionsBasedAgent(llm=ChatOpenAI(self.client), tools=[]))
 
 
 if __name__ == "__main__":

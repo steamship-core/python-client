@@ -15,13 +15,15 @@ class MyCachingAssistant(AgentService):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs, use_llm_cache=True, use_action_cache=True)
-        self._agent = FunctionsBasedAgent(
-            tools=[
-                SearchTool(),
-                DalleTool(),
-            ],
-            llm=ChatOpenAI(self.client, temperature=0),
-            conversation_memory=MessageWindowMessageSelector(k=2),
+        self.set_default_agent(
+            FunctionsBasedAgent(
+                tools=[
+                    SearchTool(),
+                    DalleTool(),
+                ],
+                llm=ChatOpenAI(self.client, temperature=0),
+                conversation_memory=MessageWindowMessageSelector(k=2),
+            )
         )
 
 
