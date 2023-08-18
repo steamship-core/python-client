@@ -3,7 +3,7 @@ import uuid
 from typing import List, Optional
 
 from steamship import Block, SteamshipError, Task
-from steamship.agents.llms.openai import ChatOpenAI
+from steamship.agents.llms.openai import ChatOpenAI, OpenAI
 from steamship.agents.logging import AgentLogging
 from steamship.agents.schema import Action, Agent, FinishAction
 from steamship.agents.schema.context import AgentContext, Metadata
@@ -15,6 +15,9 @@ class AgentService(PackageService):
     """AgentService is a Steamship Package that can use an Agent, Tools, and a provided AgentContext to
     respond to user input."""
 
+    agent: Optional[Agent]
+    """The default agent for this agent service."""
+
     use_llm_cache: bool
     """Whether or not to cache LLM calls (for tool selection/direct responses) by default."""
 
@@ -25,10 +28,12 @@ class AgentService(PackageService):
         self,
         use_llm_cache: Optional[bool] = False,
         use_action_cache: Optional[bool] = False,
+        agent: Optional[Agent] = None,
         **kwargs,
     ):
         self.use_llm_cache = use_llm_cache
         self.use_action_cache = use_action_cache
+        self.agent = agent
         super().__init__(**kwargs)
 
     ###############################################
@@ -165,12 +170,36 @@ class AgentService(PackageService):
             logging.info(f"Emitting via function: {func.__name__}")
             func(action.output, context.metadata)
 
-    @post("prompt")
-    def prompt(
-        self, prompt: Optional[str] = None, context_id: Optional[str] = None, **kwargs
-    ) -> List[Block]:
-        """Run an agent with the provided text as the input."""
-        prompt = prompt or kwargs.get("question")
+    def set_default_agent(self, agent: Agent):
+        self.agent = agent
+
+    def get_default_agent(self, throw_if_missing: bool = True) -> Optional[Agent]:
+        """Return the default agent of this agent service.
+
+        This is a helper wrapper to safeguard naming conventions that have formed.
+        """
+        if hasattr(self, "agent"):
+            return self.agent
+        elif hasattr(self, "_agent"):
+            return self._agent
+        else:
+            if throw_if_missing:
+                raise SteamshipError(
+                    message="No Agent object found in the Agent Service. "
+                    "Please name it either self.agent or self._agent."
+                )
+            else:
+                return None
+
+    def build_default_context(self, context_id: Optional[str] = None, **kwargs) -> AgentContext:
+        """Build's the agent's default context.
+
+        The provides a single place to implement (or override) the default context that will be used by endpoints
+        that transports define. This allows an Agent developer to use, eg, the TelegramTransport but with a custom
+        type of memory or caching.
+
+        The returned context does not have any emit functions yet registered to it.
+        """
 
         # AgentContexts serve to allow the AgentService to run agents
         # with appropriate information about the desired tasking.
@@ -194,6 +223,28 @@ class AgentService(PackageService):
             use_llm_cache=use_llm_cache,
             use_action_cache=use_action_cache,
         )
+
+        # Add a default LLM to the context, using the Agent's if it exists.
+        llm = None
+        if agent := self.get_default_agent():
+            if hasattr(agent, "llm"):
+                llm = agent.llm
+        if llm is None:
+            llm = OpenAI(client=self.client)
+
+        context = with_llm(context=context, llm=llm)
+
+        return context
+
+    @post("prompt")
+    def prompt(
+        self, prompt: Optional[str] = None, context_id: Optional[str] = None, **kwargs
+    ) -> List[Block]:
+        """Run an agent with the provided text as the input."""
+        prompt = prompt or kwargs.get("question")
+
+        context = self.build_default_context(context_id, **kwargs)
+
         context.chat_history.append_user_message(prompt)
 
         # Add a default LLM
@@ -215,18 +266,7 @@ class AgentService(PackageService):
         context.emit_funcs.append(sync_emit)
 
         # Get the agent
-        agent: Optional[Agent] = None
-        if hasattr(self, "agent"):
-            agent = self.agent
-        elif hasattr(self, "_agent"):
-            agent = self._agent
-
-        if not agent:
-            raise SteamshipError(
-                message="No Agent object found in the Agent Service. "
-                "Please name it either self.agent or self._agent."
-            )
-
+        agent: Optional[Agent] = self.get_default_agent()
         self.run_agent(agent, context)
 
         # Now append the output blocks to the chat history

@@ -2,12 +2,10 @@ import uuid
 from typing import List, Optional
 
 from steamship import Block, Steamship, SteamshipError
-from steamship.agents.llms import OpenAI
 from steamship.agents.mixins.transports.transport import Transport
-from steamship.agents.schema import Agent, AgentContext, Metadata
+from steamship.agents.schema import Metadata
 from steamship.agents.service.agent_service import AgentService
-from steamship.agents.utils import with_llm
-from steamship.invocable import Config, InvocationContext, post
+from steamship.invocable import post
 
 API_BASE = "https://api.telegram.org/bot"
 
@@ -17,12 +15,11 @@ class SteamshipWidgetTransport(Transport):
 
     message_output: List[Block]
 
-    def __init__(self, client: Steamship, agent_service: AgentService, agent: Agent):
+    def __init__(self, client: Steamship, agent_service: AgentService):
         super().__init__(client=client)
-        self.agent = agent
         self.agent_service = agent_service
 
-    def instance_init(self, config: Config, context: InvocationContext):
+    def instance_init(self):
         pass
 
     def _instance_deinit(self, *args, **kwargs):
@@ -60,25 +57,16 @@ class SteamshipWidgetTransport(Transport):
     def answer(self, **payload) -> List[Block]:
         """Endpoint that implements the contract for Steamship embeddable chat widgets. This is a PUBLIC endpoint since these webhooks do not pass a token."""
         incoming_message = self.parse_inbound(payload)
-        context = AgentContext.get_or_create(
-            self.client, context_keys={"chat_id": incoming_message.chat_id}
-        )
+
+        context = self.agent_service.build_default_context(context_id=incoming_message.chat_id)
+
         context.chat_history.append_user_message(
             text=incoming_message.text, tags=incoming_message.tags
         )
         context.emit_funcs = [self.save_for_emit]
 
-        # Add an LLM to the context, using the Agent's if it exists.
-        llm = None
-        if hasattr(self.agent, "llm"):
-            llm = self.agent.llm
-        else:
-            llm = OpenAI(client=self.client)
-
-        context = with_llm(context=context, llm=llm)
-
         try:
-            self.agent_service.run_agent(self.agent, context)
+            self.agent_service.run_agent(self.agent_service.get_default_agent(), context)
         except Exception as e:
             self.message_output = [self.response_for_exception(e, chat_id=incoming_message.chat_id)]
 

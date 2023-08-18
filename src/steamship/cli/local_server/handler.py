@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import re
@@ -128,8 +129,16 @@ def make_handler(  # noqa: C901
                 client = self._get_client()
                 context = self._get_invocation_context(client)
 
+                # Fix for GET parameters -- in production the Proxy would have done this.
+                thepath = self.path
+                if "?" in thepath:
+                    path_parts = thepath.split("?")
+                    thepath = path_parts[0]
+                    queryargs = parse_qs(path_parts[1])
+                    payload.update(queryargs)
+
                 invocation = Invocation(
-                    http_verb=http_verb, invocation_path=self.path, arguments=payload, config=config
+                    http_verb=http_verb, invocation_path=thepath, arguments=payload, config=config
                 )
                 event = InvocableRequest(
                     client_config=client.config,
@@ -140,9 +149,31 @@ def make_handler(  # noqa: C901
 
                 handler = create_safe_handler(invocable_class)
                 resp = handler(event.dict(by_alias=True), context)
-                res_str = json.dumps(resp)
-                res_bytes = bytes(res_str, "utf-8")
-                self._send_response(res_bytes, MimeTypes.JSON)
+
+                # Since the local-server handler is simulating the Steamship Proxy's behavior, we now have to unwrap the
+                # `resp.data` object if it exists. This is what the proxy would do before returning the raw values
+                # to the HTTP User. Note that this is the behavior for a Package but not a Plugin.
+
+                res_mime = MimeTypes.JSON
+                if isinstance(resp, dict):
+                    res_mime = (
+                        resp.get("http", {}).get("headers", {}).get("Content-Type", MimeTypes.JSON)
+                    )
+
+                if "data" in resp and resp.get("data") is not None:
+                    if res_mime in [MimeTypes.JSON, MimeTypes.FILE_JSON]:
+                        res_str = json.dumps(resp.get("data"))
+                        res_bytes = bytes(res_str, "utf-8")
+                    elif MimeTypes.is_binary(res_mime):
+                        res_bytes = base64.b64decode(resp.get("data"))
+                    else:
+                        res_str = resp.get("data")
+                        res_bytes = bytes(res_str, "utf-8")
+                else:
+                    res_str = json.dumps(resp)
+                    res_bytes = bytes(res_str, "utf-8")
+
+                self._send_response(res_bytes, res_mime)
             except Exception as e:
                 self._send_response(bytes(f"{e}", "utf-8"), MimeTypes.TXT)
 

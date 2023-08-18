@@ -6,11 +6,9 @@ import requests
 from pydantic import Field
 
 from steamship import Block, Steamship, SteamshipError
-from steamship.agents.llms import OpenAI
 from steamship.agents.mixins.transports.transport import Transport
-from steamship.agents.schema import Agent, AgentContext, EmitFunc, Metadata
+from steamship.agents.schema import EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
-from steamship.agents.utils import with_llm
 from steamship.invocable import Config, InvocableResponse, InvocationContext, post
 from steamship.utils.kv_store import KeyValueStore
 
@@ -27,35 +25,34 @@ class TelegramTransport(Transport):
 
     api_root: str
     bot_token: str
-    agent: Agent
     agent_service: AgentService
+    config: TelegramTransportConfig
+    context: InvocationContext
 
     def __init__(
         self,
         client: Steamship,
         config: TelegramTransportConfig,
         agent_service: AgentService,
-        agent: Agent,
     ):
         super().__init__(client=client)
-
+        self.config = config
         self.store = KeyValueStore(self.client, store_identifier="_telegram_config")
         bot_token = (self.store.get("bot_token") or {}).get("token")
         self.bot_token = config.bot_token or bot_token
         self.api_root = f"{config.api_base}{self.bot_token}"
-        self.agent = agent
         self.agent_service = agent_service
 
-    def instance_init(self, config: Config, invocation_context: InvocationContext):
+    def instance_init(self):
         if self.bot_token:
-            self.api_root = f"{config.api_base}{config.bot_token or self.bot_token}"
+            self.api_root = f"{self.config.api_base}{self.config.bot_token or self.bot_token}"
             try:
-                self._instance_init(config=config, invocation_context=invocation_context)
+                self._instance_init()
             except Exception:  # noqa: S110
                 pass
 
-    def _instance_init(self, config: Config, invocation_context: InvocationContext):
-        webhook_url = invocation_context.invocable_url + "telegram_respond"
+    def _instance_init(self):
+        webhook_url = self.agent_service.context.invocable_url + "telegram_respond"
 
         logging.info(
             f"Setting Telegram webhook URL: {webhook_url}. Post is to {self.api_root}/setWebhook"
@@ -85,7 +82,7 @@ class TelegramTransport(Transport):
         self.bot_token = bot_token
 
         try:
-            self.instance_init(self.agent_service.config, self.agent_service.context)
+            self.instance_init()
             return "OK"
         except Exception as e:
             return f"Could not set webhook for bot. Exception: {e}"
@@ -211,22 +208,16 @@ class TelegramTransport(Transport):
         try:
             incoming_message = self.parse_inbound(message)
             if incoming_message is not None:
-                context = AgentContext.get_or_create(self.client, context_keys={"chat_id": chat_id})
+                context = self.agent_service.build_default_context(chat_id)
+
                 context.chat_history.append_user_message(
                     text=incoming_message.text, tags=incoming_message.tags
                 )
                 context.emit_funcs = [self.build_emit_func(chat_id=chat_id)]
 
-                # Add an LLM to the context, using the Agent's if it exists.
-                llm = None
-                if hasattr(self.agent, "llm"):
-                    llm = self.agent.llm
-                else:
-                    llm = OpenAI(client=self.client)
-
-                context = with_llm(context=context, llm=llm)
-
-                response = self.agent_service.run_agent(self.agent, context)
+                response = self.agent_service.run_agent(
+                    self.agent_service.get_default_agent(), context
+                )
                 if response is not None:
                     self.send(response)
                 else:
