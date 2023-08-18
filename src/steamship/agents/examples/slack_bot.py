@@ -38,6 +38,7 @@ class SlackBot(AgentService):
 
         # This Mixin provides HTTP endpoints that connects this agent to a web client
         self.add_mixin(SteamshipWidgetTransport(client=self.client, agent_service=self))
+
         # This Mixin provides support for Telegram bots
         self.add_mixin(
             SlackTransport(client=self.client, config=SlackTransportConfig(), agent_service=self)

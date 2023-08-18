@@ -1,5 +1,6 @@
 from steamship.agents.functional import FunctionsBasedAgent
 from steamship.agents.llms.openai import ChatOpenAI
+from steamship.agents.mixins.transports.steamship_widget import SteamshipWidgetTransport
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.tools.question_answering import VectorSearchQATool
 from steamship.agents.tools.question_answering.vector_search_learner_tool import (
@@ -25,6 +26,9 @@ class FactLearner(AgentService):
                 llm=ChatOpenAI(self.client, temperature=0.2),
             )
         )
+
+        # This Mixin provides HTTP endpoints that connects this agent to a web client
+        self.add_mixin(SteamshipWidgetTransport(client=self.client, agent_service=self))
 
 
 if __name__ == "__main__":
