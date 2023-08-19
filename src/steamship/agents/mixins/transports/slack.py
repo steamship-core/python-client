@@ -26,7 +26,7 @@ def get_block_thread_ts(block: Block) -> Optional[str]:
 
 
 def set_block_thread_ts(block: Block, thread_ts) -> None:
-    block._one_time_set_tag(tag_kind=DocTag.CHAT, tag_name="slack-threadid", string_value=thread_ts)
+    block._one_time_set_tag(tag_kind=DocTag.CHAT, tag_name="slack-threadts", string_value=thread_ts)
 
 
 class SlackElement(BaseModel):
