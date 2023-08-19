@@ -12,7 +12,7 @@ def test_indexer_pipeline_mixin(client: Steamship):
 
     with deploy_package(client, demo_package_path) as (_, _, instance):
         # Test indexing a pdf file
-        pdf_url = "https://www.orimi.com/pdf-test.pdf"
+        pdf_url = "https://steamship.com/test/pdf-test.pdf"
 
         index_task = instance.invoke("index_url", url=pdf_url)
         index_task = Task.parse_obj(index_task)
