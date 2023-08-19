@@ -370,6 +370,7 @@ class SlackTransport(Transport):
         }
         if thread_ts:
             body["thread_ts"] = thread_ts
+        logging.info(f"Post to slack: {body}")
 
         post_url = f"{self.config.slack_api_base}chat.postMessage"
 
@@ -406,6 +407,7 @@ class SlackTransport(Transport):
             )
 
             # TODO: For truly async support, this emit fn will need to be wired in at the Agent level.
+            logging.info("Context: {context_id}")
             context.emit_funcs = [self.build_emit_func(chat_id=chat_id, thread_ts=thread_ts)]
 
             # Add an LLM to the context, using the Agent's if it exists.
