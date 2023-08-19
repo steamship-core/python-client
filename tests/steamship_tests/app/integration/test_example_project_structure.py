@@ -10,7 +10,7 @@ def test_example_project_structure():
     client = get_steamship_client()
     demo_package_path = PACKAGES_PATH / "example_project_structure.py"
 
-    with deploy_package(client, demo_package_path) as (_, _, instance):
+    with deploy_package(client, demo_package_path, wait_for_init=True) as (_, _, instance):
         response = instance.invoke("say_hello", verb=Verb.GET)
         assert response is not None
         assert response == "Hello, None"

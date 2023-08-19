@@ -10,7 +10,7 @@ from steamship.data.plugin.index_plugin_instance import SearchResults
 def test_indexer_pipeline_mixin(client: Steamship):
     demo_package_path = PACKAGES_PATH / "package_with_mixin_indexer_pipeline.py"
 
-    with deploy_package(client, demo_package_path) as (_, _, instance):
+    with deploy_package(client, demo_package_path, wait_for_init=True) as (_, _, instance):
         # Test indexing a pdf file
         pdf_url = "https://steamship.com/test/pdf-test.pdf"
 

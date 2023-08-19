@@ -33,6 +33,7 @@ def test_slack(client: Steamship):
             transport_agent_path,
             version_config_template=config_template,
             instance_config=instance_config,
+            wait_for_init=True,
         ) as (_, _, agent_instance):
             # Set the bot token
             is_token_set_no = agent_instance.invoke("is_slack_token_set")
