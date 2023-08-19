@@ -9,7 +9,7 @@ from steamship import Block, Steamship
 def test_fact_learner_agent_service(client: Steamship):
 
     agent_path = SRC_PATH / "steamship/agents/examples/fact_learner.py"
-    with deploy_package(client, agent_path) as (_, _, agent):
+    with deploy_package(client, agent_path, wait_for_init=True) as (_, _, agent):
 
         agent.invoke("prompt", prompt="please remember that my name is Inigo Montoya")
         agent.invoke("prompt", prompt="please remember that I am skilled swordsman")

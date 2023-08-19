@@ -26,6 +26,7 @@ def test_adding_configuration():
         demo_package_path,
         version_config_template=config_template,
         instance_config=instance_config,
+        wait_for_init=True,
     ) as (_, _, instance):
         response = instance.invoke("my_faves")
         assert response is not None
