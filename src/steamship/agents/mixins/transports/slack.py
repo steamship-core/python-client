@@ -406,6 +406,10 @@ class SlackTransport(Transport):
                 text=incoming_message.text, tags=incoming_message.tags
             )
 
+            context.metadata["slack-channel"] = chat_id
+            context.metadata["slack-threadts"] = thread_ts
+            context.metadata["slack-messagets"] = incoming_message.message_id
+
             # TODO: For truly async support, this emit fn will need to be wired in at the Agent level.
             logging.info(f"Context: {context_id}")
             context.emit_funcs = [self.build_emit_func(chat_id=chat_id, thread_ts=thread_ts)]
