@@ -9,7 +9,7 @@ from steamship import Steamship
 def test_mixin_and_package_invocation(client: Steamship):
     demo_package_path = PACKAGES_PATH / "package_with_mixins.py"
 
-    with deploy_package(client, demo_package_path) as (_, _, instance):
+    with deploy_package(client, demo_package_path, wait_for_init=True) as (_, _, instance):
         mixin_response = instance.invoke("test_mixin_route", text="test")
         assert mixin_response == "mixin yo"
 
