@@ -48,6 +48,7 @@ def test_telegram(client: Steamship):
             telegram_agent_path,
             version_config_template=config_template,
             instance_config=instance_config,
+            wait_for_init=True,
         ) as (_, _, agent_instance):
             respond_method = "telegram_respond"
 

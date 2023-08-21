@@ -28,6 +28,7 @@ def test_article_tagging():
         demo_package_path,
         version_config_template=config_template,
         instance_config=instance_config,
+        wait_for_init=True,
     ) as (_, _, instance):
         steamship_file_handle = instance.invoke(
             "add_document", content="steamship, steamship, steamship.", url="https://steamship.com/"

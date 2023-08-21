@@ -20,7 +20,7 @@ class FileImporterMixin(PackageMixin):
     def _async_importer_for_url(self, url: str) -> Optional[str]:
         """Return the async importer plugin, if necessary."""
         if "youtube.com" in url or "youtu.be" in url:
-            return "youtube-file-importer"
+            return "youtube-transcript-importer"
         return None
 
     def _import_with_async_importer(
@@ -34,7 +34,7 @@ class FileImporterMixin(PackageMixin):
 
         if ("youtube" in url or "youtu.be" in url) and mime_type is None:
             # Mark it as audio so that the s2t will work later.
-            mime_type = MimeTypes.MP3
+            mime_type = MimeTypes.TXT
 
         file = File.create(self.client, tags=tags, mime_type=mime_type)
 
@@ -102,4 +102,9 @@ class FileImporterMixin(PackageMixin):
     @post("/import_text")
     def import_text(self, text: str, mime_type: Optional[str]) -> File:
         """Import the text to a Steamship File."""
-        return File.create(self.client, content=text, mime_type=mime_type)
+        return File.create(
+            self.client,
+            content=text,
+            mime_type=mime_type,
+            tags=[Tag(kind=DocTag.SOURCE, name="local")],
+        )
