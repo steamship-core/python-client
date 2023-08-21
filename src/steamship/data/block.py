@@ -75,26 +75,50 @@ class Block(CamelModel):
     """
 
     client: Client = Field(None, exclude=True)
-    id: str = None
-    file_id: str = None
-    text: str = None
-    tags: Optional[List[Tag]] = []
-    index_in_file: Optional[int] = Field(alias="index")
-    mime_type: Optional[MimeTypes]
-    public_data: bool = False
+    """Associated Steamship Client which has permission to access this block."""
 
-    url: Optional[
-        str
-    ] = None  # Only for creation of blocks; used to fetch content from a public URL.
-    content_url: Optional[
-        str
-    ] = None  # For overriding the URL of the raw data for ephemeral blocks. Setting this will have no effect
-    upload_type: Optional[
-        BlockUploadType
-    ] = None  # for returning Blocks as the result of a generate request
-    upload_bytes: Optional[
-        bytes
-    ] = None  # ONLY for returning Blocks as the result of a generate request. Will not be set when receiving blocks from the server. See raw()
+    id: str = None
+    """ID of this block."""
+
+    file_id: str = None
+    """ID of the file which contains this block."""
+
+    text: str = None
+    """The text content of this block."""
+
+    tags: Optional[List[Tag]] = []
+    """Tags which annotate this block."""
+
+    index_in_file: Optional[int] = Field(alias="index")
+    """The index of this block within the file that contains it."""
+
+    mime_type: Optional[MimeTypes]
+    """The mime type of this block's content."""
+
+    public_data: bool = False
+    """Whether this block's raw contents are public."""
+
+    generation_started_at: str = None
+    """When the work generating this Block began."""
+
+    generation_complete: bool = (
+        False  # Whether the generation of this block is complete. If not, consider .stream()
+    )
+    """Whether generation of this block is complete. If not, consider calling .stream()"""
+
+    url: Optional[str] = None
+    """Only for use at creation time. Used to create a block containing the content of a public URL."""
+
+    content_url: Optional[str] = None
+    """For overriding the URL of the raw data for ephemeral blocks. Setting this will have no effect."""
+
+    upload_type: Optional[BlockUploadType] = None
+    """Used when returning BLocks as a GeneratorPlugin author to specify the creation type desired."""
+
+    upload_bytes: Optional[bytes] = None
+    """Used ONLY for returning Blocks as the result of a generate request.
+    Will not be set when receiving blocks from the server. See raw().
+    """
 
     class ListRequest(Request):
         file_id: str = None
@@ -355,7 +379,7 @@ class Block(CamelModel):
             return f"Block({self.id})"
 
     def stream(self):
-        """Return a stream of BlockEvent for this block."""
+        """Return a stream of BlockEvent events for this block."""
         return self.client.stream(
             "file/stream",
             EventStreamRequest(),
