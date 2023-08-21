@@ -20,6 +20,7 @@ There are a few ways to accomplish this:
 - Create a :class:`File <steamship.data.file.File>` by uploading raw binary data, then convert it to ``Blocks`` with a :ref:`blockifier plugin<Blockifiers>`
 - Create a :class:`File <steamship.data.file.File>` by importing raw binary data via a :ref:`File Importer<File Importers>`, then convert it to ``Blocks`` with a :ref:`blockifier plugin<Blockifiers>`
 
+
 It's useful to think of Steamship Files more broadly than "file on your desktop."
 The following are all comfortably modeled with a File object:
 
@@ -37,7 +38,7 @@ Read the :py:class:`File PyDoc spec here<steamship.data.file.File>`.
 Creating Files Directly
 -----------------------
 
-The quickest way to create data is to create Files with ``Block`` content directly:
+The quickest way to create data is to create Files with :py:class:`Block<steamship.data.block.Block>` content directly:
 
 .. code-block:: python
 

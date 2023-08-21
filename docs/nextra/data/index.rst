@@ -7,7 +7,7 @@ There are only three core concepts you need to know.
 
 #. :ref:`Files` are the top level object for storing data. A :py:class:`File<steamship.data.file.File>` can store raw data and an ordered list of ``Blocks``.
 #. :ref:`Blocks` are chunks of content within a :py:class:`File<steamship.data.file.File>`.  They can contain raw data and/or text, and an unordered set of ``Tags``.
-#. :ref:`Tags` are typed annotations on a ``Block`` or :py:class:`File<steamship.data.file.File>`.
+#. :ref:`Tags` are typed annotations on a :py:class:`Block<steamship.data.block.Block>` or :py:class:`File<steamship.data.file.File>`.
 
 
 The following diagram shows how data is created and used within Steamship:

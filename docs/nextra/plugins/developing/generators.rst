@@ -18,7 +18,7 @@ and implement the abstract ``run`` method:
         return InvocableResponse(data=RawBlockAndTagPluginOutput(blocks=output_blocks))
 
 
-For example, an image ``Generator`` could merge the ``text`` from the input blocks and use it to generate an image ``Block``.
+For example, an image ``Generator`` could merge the ``text`` from the input blocks and use it to generate an image :py:class:`Block<steamship.data.block.Block>`.
 
 In addition to the input blocks and instance :ref:`configuration <Plugin Accepting Configuration>`, Generators can also receive
 arbitrary key/value runtime parameters.  These are present in ``request.data.options``.
