@@ -16,8 +16,8 @@ from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes
 from steamship.base.model import CamelModel, to_camel
 from steamship.base.request import Request
+from steamship.base.stream import ServerSentEventStream
 from steamship.base.tasks import Task, TaskState
-from steamship.data.streams import ServerSentEventStream
 from steamship.utils.url import Verb, is_local
 
 T = TypeVar("T")  # TODO (enias): Do we need this?
@@ -401,6 +401,10 @@ class Client(CamelModel, ABC):
                     # typing.get_type_hints fails for Workspace
                     pass
 
+    def rehydrate_steamship_model_object(self, model_klass: Type[T], the_dict: dict):
+        """Rehydrates a Steamship model object (T) from a dict."""
+        return model_klass.parse_obj(self._add_client_to_response(model_klass, the_dict))
+
     def call(  # noqa: C901
         self,
         verb: Verb,
@@ -418,8 +422,9 @@ class Client(CamelModel, ABC):
         wait_on_tasks: List[Union[str, Task]] = None,
         timeout_s: Optional[float] = None,
         task_delay_ms: Optional[int] = None,
+        stream: bool = False,
     ) -> Union[
-        Any, Task
+        Any, Task, ServerSentEventStream[T]
     ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
         """Post to the Steamship API.
 
@@ -460,11 +465,17 @@ class Client(CamelModel, ABC):
         if verb == Verb.POST:
             if file is not None:
                 files = self._prepare_multipart_data(data, file)
-                resp = self._session.post(url, files=files, headers=headers, timeout=timeout_s)
+                resp = self._session.post(
+                    url, files=files, headers=headers, timeout=timeout_s, stream=stream
+                )
             else:
-                resp = self._session.post(url, json=data, headers=headers, timeout=timeout_s)
+                resp = self._session.post(
+                    url, json=data, headers=headers, timeout=timeout_s, stream=stream
+                )
         elif verb == Verb.GET:
-            resp = self._session.get(url, params=data, headers=headers, timeout=timeout_s)
+            resp = self._session.get(
+                url, params=data, headers=headers, timeout=timeout_s, stream=stream
+            )
         else:
             raise Exception(f"Unsupported verb: {verb}")
 
@@ -472,6 +483,14 @@ class Client(CamelModel, ABC):
 
         if debug is True:
             logging.debug(f"Got response {resp}")
+
+        if stream is True:
+
+            def rehydrate_fn(data):
+                return self.rehydrate_steamship_model_object(expect, data)
+
+            event_stream = ServerSentEventStream(resp, rehydrate_fn)
+            return event_stream
 
         response_data = self._response_data(resp, raw_response=raw_response)
 
@@ -509,9 +528,7 @@ class Client(CamelModel, ABC):
                     if issubclass(expect, SteamshipError):
                         data = expect.from_dict({**response_data["data"], "client": self})
                     elif issubclass(expect, BaseModel):
-                        data = expect.parse_obj(
-                            self._add_client_to_response(expect, response_data["data"])
-                        )
+                        data = self.rehydrate_steamship_model_object(expect, response_data["data"])
                     else:
                         raise RuntimeError(f"obj of type {expect} does not have a from_dict method")
                 else:
@@ -643,7 +660,7 @@ class Client(CamelModel, ABC):
     ) -> ServerSentEventStream[Any]:
         """Open a Server-Sent Event Stream.
 
-        The `expect` variable in this case is the type of the Event that will be returned by this tream.
+        The `expect` variable in this case is the type of the Event that will be returned by this Stream.
         """
         raise NotImplementedError()
 
