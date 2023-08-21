@@ -6,6 +6,7 @@ from typing import List, Optional
 
 import requests
 from pydantic import BaseModel, Field
+
 from steamship import Block, Steamship
 from steamship.agents.llms import OpenAI
 from steamship.agents.mixins.transports.transport import Transport
@@ -26,13 +27,13 @@ class SlackContextBehavior(Enum):
     Context.
     """
 
-    ENTIRE_CHANNEL = 0,
+    ENTIRE_CHANNEL = (0,)
     """
     Agent context is per channel as a whole, which includes bot mentions sent to the top level channel, and across *any*
     thread in that channel.
     """
 
-    THREADS_ARE_NEW_CONVERSATIONS = 1,
+    THREADS_ARE_NEW_CONVERSATIONS = (1,)
     """
     Agent context is thread-aware. The top level channel is treated as its own context, and threads have their own
     contexts.
@@ -42,13 +43,13 @@ class SlackContextBehavior(Enum):
 class SlackThreadingBehavior(Enum):
     """Defines how responses from the agent will be delivered in response to user mentions."""
 
-    FOLLOW_THREADS = 0,
+    FOLLOW_THREADS = (0,)
     """
     If the bot is mentioned from the top-level channel, the response will be in the channel. If the bot is mentioned
     from within a thread, the response will be to that thread.
     """
 
-    ALWAYS_THREADED = 1
+    ALWAYS_THREADED = (1,)
     """
     Responses from the bot will always be threaded. If the bot was mentioned at the top level of the channel, a new
     thread will be created for the response.
@@ -205,11 +206,11 @@ class SlackTransportConfig(Config):
     )
     threading_behavior: SlackThreadingBehavior = Field(
         SlackThreadingBehavior.FOLLOW_THREADS,
-        description="Whether the bot will always respond in threads, or only if the invocation was threaded"
+        description="Whether the bot will always respond in threads, or only if the invocation was threaded",
     )
     context_behavior: SlackContextBehavior = Field(
         SlackContextBehavior.ENTIRE_CHANNEL,
-        description="Whether the bot will be provided conversation context from the channel as a whole, or per thread."
+        description="Whether the bot will be provided conversation context from the channel as a whole, or per thread.",
     )
 
 
@@ -413,29 +414,40 @@ class SlackTransport(Transport):
             json=body,
         )
 
-    def build_emit_func(self, chat_id: str, thread_ts: Optional[str]) -> EmitFunc:
+    def build_emit_func(
+        self, chat_id: str, incoming_message_ts: str, thread_ts: Optional[str]
+    ) -> EmitFunc:
         """Return an EmitFun that sends messages to the appropriate Slack channel."""
+        if self.config.threading_behavior == SlackThreadingBehavior.FOLLOW_THREADS:
+            reply_thread_ts = thread_ts
+        elif self.config.threading_behavior == SlackThreadingBehavior.ALWAYS_THREADED:
+            reply_thread_ts = thread_ts or incoming_message_ts
+        else:
+            raise ValueError(f"Unhandled threading behavior: {self.config.threading_behavior}")
 
         def new_emit_func(blocks: List[Block], metadata: Metadata):
             for block in blocks:
                 block.set_chat_id(chat_id)
                 if thread_ts:
-                    block.set_thread_id(thread_ts)
+                    block.set_thread_id(reply_thread_ts)
             return self.send(blocks, metadata)
 
         return new_emit_func
+
+    def _get_context_id_for_response(self, channel: str, thread_ts: Optional[str]) -> str:
+        if self.config.context_behavior == SlackContextBehavior.ENTIRE_CHANNEL:
+            return channel
+        elif self.config.context_behavior == SlackContextBehavior.THREADS_ARE_NEW_CONVERSATIONS:
+            return channel if not thread_ts else f"{channel}-{thread_ts}"
+        else:
+            raise ValueError(f"Unhandled context behavior: {self.config.context_behavior}")
 
     def _respond_to_block(self, incoming_message: Block):
         """Respond to a single inbound message from Slack, posting the response back to Slack."""
         try:
             chat_id = incoming_message.chat_id
             thread_ts = incoming_message.thread_id
-            if self.config.context_behavior == SlackContextBehavior.ENTIRE_CHANNEL:
-                context_id = chat_id
-            elif self.config.context_behavior == SlackContextBehavior.THREADS_ARE_NEW_CONVERSATIONS:
-                context_id = chat_id if not thread_ts else f"{chat_id}-{thread_ts}"
-            else:
-                raise ValueError(f"Unhandled context behavior: {self.config.context_behavior}")
+            context_id = self._get_context_id_for_response(chat_id, thread_ts)
             context = self.agent_service.build_default_context(context_id=context_id)
 
             context.chat_history.append_user_message(
@@ -444,19 +456,19 @@ class SlackTransport(Transport):
 
             context.metadata["slack"] = {
                 "channel": chat_id,
-                "message_ts": incoming_message.message_id
+                "message_ts": incoming_message.message_id,
             }
             if thread_ts:
                 context.metadata["slack"]["thread_ts"] = thread_ts
 
             # TODO: For truly async support, this emit fn will need to be wired in at the Agent level.
-            if self.config.threading_behavior == SlackThreadingBehavior.FOLLOW_THREADS:
-                reply_thread_ts = thread_ts
-            elif self.config.threading_behavior == SlackThreadingBehavior.ALWAYS_THREADED:
-                reply_thread_ts = thread_ts or incoming_message.message_id
-            else:
-                raise ValueError(f"Unhandled threading behavior: {self.config.threading_behavior}")
-            context.emit_funcs = [self.build_emit_func(chat_id=chat_id, thread_ts=reply_thread_ts)]
+            context.emit_funcs = [
+                self.build_emit_func(
+                    chat_id=chat_id,
+                    incoming_message_ts=incoming_message.message_id,
+                    thread_ts=thread_ts,
+                )
+            ]
 
             # Add an LLM to the context, using the Agent's if it exists.
             llm = None
