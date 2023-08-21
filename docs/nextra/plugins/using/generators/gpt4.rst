@@ -25,7 +25,7 @@ The simplest possible example is:
     task.wait()
     joke = task.output.blocks[0].text
 
-To build a chat interaction, you can persist the prompt components to a ``File`` object,
+To build a chat interaction, you can persist the prompt components to a :py:class:`File<steamship.data.file.File>` object,
 tagging them with their conversational roles:
 
 .. code-block:: python

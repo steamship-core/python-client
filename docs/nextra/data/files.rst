@@ -5,20 +5,20 @@ Files
 
 Files are the top-level object for any piece of data in a workspace.
 
-A ``File`` contains the following:
+A :class:`File <steamship.data.file.File>` contains the following:
 
 * Raw source data, as bytes
 * A ``mime_type``
 * A list of :ref:`Blocks`, which represent the Steamship interpretation of the File's bytes
 * A list of :ref:`Tags` (annotations), which provide key-value metadata about the file
 
-To do work on a ``File``, its binary content needs to be converted into :ref:`Blocks`.
+To do work on a :py:class:`File<steamship.data.file.File>`, its binary content needs to be converted into :ref:`Blocks`.
 
 There are a few ways to accomplish this:
 
-- Create ``File`` and ``Block`` content directly (see below)
-- Create a ``File`` by uploading raw binary data, then convert it to ``Blocks`` with a :ref:`blockifier plugin<Blockifiers>`
-- Create a ``File`` by importing raw binary data via a :ref:`File Importer<File Importers>`, then convert it to ``Blocks`` with a :ref:`blockifier plugin<Blockifiers>`
+- Create :class:`File <steamship.data.file.File>` and ``Block`` content directly (see below)
+- Create a :class:`File <steamship.data.file.File>` by uploading raw binary data, then convert it to ``Blocks`` with a :ref:`blockifier plugin<Blockifiers>`
+- Create a :class:`File <steamship.data.file.File>` by importing raw binary data via a :ref:`File Importer<File Importers>`, then convert it to ``Blocks`` with a :ref:`blockifier plugin<Blockifiers>`
 
 It's useful to think of Steamship Files more broadly than "file on your desktop."
 The following are all comfortably modeled with a File object:
@@ -51,15 +51,15 @@ The quickest way to create data is to create Files with ``Block`` content direct
 Making File Data Public
 ------------------------
 
-If you want the raw data bytes of a ``File`` to be publicly accessible, you can set the parameter ``public_data = True`` when calling ``File.create()``.
+If you want the raw data bytes of a :py:class:`File<steamship.data.file.File>` to be publicly accessible, you can set the parameter ``public_data = True`` when calling ``File.create()``.
 This is useful if you wish to share a generated image or audio file, or must make the content viewable in a place that cannot
-retain your Steamship API key.  You can also change the value of the ``public_data`` flag on an existing ``File`` by calling
+retain your Steamship API key.  You can also change the value of the ``public_data`` flag on an existing :py:class:`File<steamship.data.file.File>` by calling
 ``File.set_public_data``.
 
 Streaming Files
 ---------------
 
-Updates to a File be consumed via a ``FileStream``.
+Updates to a :py:class:`File<steamship.data.file.File>` can be consumed via a :class:`ServerSentEventStream<steamship.data.stream.ServerSentEventStream>`.
 
 * At the HTTP Level, this is implemented as Server-Sent Events (SSE)
 * At the Python SDK and Typescript SDK levels, this is implemented in callbacks about file updates.

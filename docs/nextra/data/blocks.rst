@@ -23,7 +23,7 @@ Metadata and annotations about the content of the ``Block`` added via :ref:`Tags
 Creating Blocks
 ---------------
 
-Blocks may be created when creating a ``File`` by passing them in the ``blocks`` parameter, or they can be appended
+Blocks may be created when creating a :py:class:`File<steamship.data.file.File>` by passing them in the ``blocks`` parameter, or they can be appended
 to an existing file.
 
 Please see ``Block.create()`` and ``File.append_block()``.
