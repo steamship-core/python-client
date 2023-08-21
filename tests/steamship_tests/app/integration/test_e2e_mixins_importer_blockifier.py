@@ -10,7 +10,7 @@ from steamship.data.plugin.index_plugin_instance import SearchResults
 def test_importer_mixin_and_package_invocation(client: Steamship):
     demo_package_path = PACKAGES_PATH / "package_with_mixin_importer.py"
 
-    with deploy_package(client, demo_package_path) as (_, _, instance):
+    with deploy_package(client, demo_package_path, wait_for_init=True) as (_, _, instance):
         mixin_response = instance.invoke("import_url", url="https://www.google.com/")
         assert mixin_response
         file_id = mixin_response.get("id")

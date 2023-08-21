@@ -26,7 +26,11 @@ def test_example_with_caching_service(client: Steamship):
     example_caching_agent_path = (
         SRC_PATH / "steamship" / "agents" / "examples" / "example_assistant_with_caching.py"
     )
-    with deploy_package(client, example_caching_agent_path) as (_, _, caching_agent):
+    with deploy_package(client, example_caching_agent_path, wait_for_init=True) as (
+        _,
+        _,
+        caching_agent,
+    ):
         context_id = "foo-test-caching"
         context_keys = {"id": context_id}
 

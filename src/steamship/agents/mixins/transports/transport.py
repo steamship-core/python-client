@@ -24,12 +24,10 @@ class Transport(PackageMixin, ABC):
                     self, client: Steamship, config: Dict[str, Any] = None, context: InvocationContext = None
                 ):
                     super().__init__(client=client, config=config, context=context)
-                    self.agent = TestAgent()
-                self.add_mixin(
-                    TelegramTransport(
-                        client=client, config=self.config, agent_service=self, agent=self.agent
+                    self.set_default_agent(TestAgent())
+                    self.add_mixin(
+                        TelegramTransport(client=client, config=self.config, agent_service=self)
                     )
-                )
 
     """
 

@@ -10,10 +10,7 @@ def test_web(client: Steamship):
 
     web_agent_path = PACKAGES_PATH / "transports" / "test_web_agent.py"
 
-    with deploy_package(
-        client,
-        web_agent_path,
-    ) as (_, _, web_instance):
+    with deploy_package(client, web_agent_path, wait_for_init=True) as (_, _, web_instance):
 
         response = web_instance.invoke("answer", question="test")
         assert response[0].get("text") == "Response to: test"

@@ -104,7 +104,7 @@ New input: {input}
         for action in context.completed_steps:
             steps.append(
                 "Thought: Do I need to use a tool? Yes\n"
-                f"Action: {action.tool.name}\n"
+                f"Action: {action.tool}\n"
                 f'Action Input: {" ".join([b.as_llm_input() for b in action.input])}\n'
                 f'Observation: {" ".join([b.as_llm_input() for b in action.output])}\n'
             )

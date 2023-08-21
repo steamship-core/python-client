@@ -4,6 +4,14 @@ steamship.agents.mixins.transports package
 Submodules
 ----------
 
+steamship.agents.mixins.transports.slack module
+-----------------------------------------------
+
+.. automodule:: steamship.agents.mixins.transports.slack
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 steamship.agents.mixins.transports.steamship\_widget module
 -----------------------------------------------------------
 

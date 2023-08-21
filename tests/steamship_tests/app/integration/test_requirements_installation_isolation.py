@@ -26,6 +26,9 @@ def test_install_two_packages_at_once(client: Steamship):
         client, package_id=pandas_version.package_id, package_version_id=pandas_version.id
     )
 
+    pillow_instance.wait_for_init()
+    pandas_instance.wait_for_init()
+
     # Pillow version should be able to run the method that imports pillow locally
     assert pillow_instance.invoke("try_pillow", verb=Verb.GET) == "PIL"
 

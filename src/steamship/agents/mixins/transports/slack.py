@@ -9,10 +9,10 @@ from pydantic import BaseModel, Field
 from steamship import Block, Steamship
 from steamship.agents.llms import OpenAI
 from steamship.agents.mixins.transports.transport import Transport
-from steamship.agents.schema import Agent, EmitFunc, Metadata
+from steamship.agents.schema import EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.utils import with_llm
-from steamship.invocable import Config, InvocableResponse, InvocationContext, get, post
+from steamship.invocable import Config, InvocableResponse, get, post
 from steamship.utils.kv_store import KeyValueStore
 
 SLACK_API_BASE = "https://slack.com/api/"
@@ -192,7 +192,6 @@ class SlackTransport(Transport):
     """
 
     bot_token: str
-    agent: Agent
     agent_service: AgentService
     config: SlackTransportConfig
 
@@ -201,15 +200,13 @@ class SlackTransport(Transport):
         client: Steamship,
         config: SlackTransportConfig,
         agent_service: AgentService,
-        agent: Agent,
     ):
         super().__init__(client=client)
         self.bot_token = None
-        self.agent = agent
         self.agent_service = agent_service
         self.config = config
 
-    def instance_init(self, config: Config, invocation_context: InvocationContext):
+    def instance_init(self):
         """Called when the owning AgentService initializes for the first time."""
         pass
 
@@ -230,9 +227,11 @@ class SlackTransport(Transport):
         return {
             "display_information": {
                 "name": invocable_instance_handle,
-                "description": f"An instance of {self.agent_service.context.invocable_handle} powered by Steamship",
+                "description": f"An instance of {invocable_handle} powered by Steamship",
             },
-            "features": {"bot_user": {"display_name": invocable_handle, "always_online": True}},
+            "features": {
+                "bot_user": {"display_name": invocable_instance_handle, "always_online": True}
+            },
             "oauth_config": {
                 "scopes": {
                     "bot": [
@@ -381,14 +380,15 @@ class SlackTransport(Transport):
 
             # Add an LLM to the context, using the Agent's if it exists.
             llm = None
-            if hasattr(self.agent, "llm"):
-                llm = self.agent.llm
+            agent = self.agent_service.get_default_agent()
+            if hasattr(agent, "llm"):
+                llm = agent.llm
             else:
                 llm = OpenAI(client=self.client)
 
             context = with_llm(context=context, llm=llm)
 
-            self.agent_service.run_agent(self.agent, context)
+            self.agent_service.run_agent(agent, context)
 
         except BaseException as e:
             logging.error(e)
@@ -403,8 +403,8 @@ class SlackTransport(Transport):
         is of acceptable quality, it feels like that would be putting too much into one PR."""
         return None
 
-    @post("respond_to_webhook")
-    def respond_to_webhook(self, **kwargs) -> InvocableResponse[str]:  # noqa: C901
+    @post("slack_respond_sync", public=True)
+    def slack_respond_sync(self, **kwargs) -> InvocableResponse[str]:  # noqa: C901
         """Respond to inbound Slack events. This is a PUBLIC endpoint."""
         try:
             slack_request = SlackRequest.parse_obj(kwargs)
@@ -443,13 +443,19 @@ class SlackTransport(Transport):
     @post("slack_event", public=True)
     def slack_event(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
-        self.respond_to_webhook(**kwargs)
+        task = self.agent_service.invoke_later("slack_respond_sync", arguments=kwargs)
+        logging.info(
+            f"/slack_event: Created task {task.task_id} to respond to inbound Slack Message {kwargs}"
+        )
         return InvocableResponse(string="OK")
 
     @post("slack_respond", public=True)
     def slack_respond(self, **kwargs) -> InvocableResponse[str]:
         """Respond to an inbound event from Slack."""
-        self.agent_service.invoke_later("respond_to_webhook", arguments=kwargs)
+        task = self.agent_service.invoke_later("slack_respond_sync", arguments=kwargs)
+        logging.info(
+            f"/slack_respond: Created task {task.task_id} to respond to inbound Slack Message {kwargs}"
+        )
         return InvocableResponse(string="OK")
 
     @post("set_slack_access_token")

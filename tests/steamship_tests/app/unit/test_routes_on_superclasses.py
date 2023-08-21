@@ -226,12 +226,8 @@ class MyAgentService(AgentService):
         incoming_message_agent: Agent,
     ):
         super().__init__(client=client, config=config, context=context)
-        self.agent = incoming_message_agent
-        self.add_mixin(
-            TelegramTransport(
-                client=client, config=self.config, agent_service=self, agent=self.agent
-            )
-        )
+        self.set_default_agent(incoming_message_agent)
+        self.add_mixin(TelegramTransport(client=client, config=self.config, agent_service=self))
 
 
 @pytest.mark.usefixtures("client")

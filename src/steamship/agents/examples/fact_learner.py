@@ -16,12 +16,14 @@ class FactLearner(AgentService):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._agent = FunctionsBasedAgent(
-            tools=[
-                VectorSearchLearnerTool(),
-                VectorSearchQATool(),
-            ],
-            llm=ChatOpenAI(self.client, temperature=0.2),
+        self.set_default_agent(
+            FunctionsBasedAgent(
+                tools=[
+                    VectorSearchLearnerTool(),
+                    VectorSearchQATool(),
+                ],
+                llm=ChatOpenAI(self.client, temperature=0.2),
+            )
         )
 
 
