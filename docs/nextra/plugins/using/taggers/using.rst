@@ -29,7 +29,7 @@ Note that a file must first have :ref:`Blocks`, either by direct creation or usi
 Input
 -----
 
-The input to a ``tag`` operation is a ``File``.  Most ``Taggers`` by default will tag all ``Blocks`` within that file.
+The input to a ``tag`` operation is a :py:class:`File<steamship.data.file.File>`.  Most ``Taggers`` by default will tag all ``Blocks`` within that file.
 
 Output
 ------

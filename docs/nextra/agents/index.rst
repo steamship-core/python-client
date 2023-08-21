@@ -50,4 +50,4 @@ AgentService
 The AgentService class provides a convenient way to deploy an Agent as a Steamship :ref:`Package<Packages>`.
 
 All  :class:`steamship.agents.service.agent_service.AgentService` instances contain a ``prompt(self, prompt: str, **kwargs) -> List[Block]`` method from thier base class.
-This method is the core ``chat`` loop: it accepts an inbound ``str`` in the form of a user message, and it produces a list of multimodal ``Block`` objects that contain the response.
+This method is the core ``chat`` loop: it accepts an inbound ``str`` in the form of a user message, and it produces a list of multimodal :py:class:`Block<steamship.data.block.Block>` objects that contain the response.

@@ -32,7 +32,7 @@ Taggers
 -------
 Taggers create :ref:`Tags` (annotations) on :ref:`Files` and :ref:`Blocks`.
 
-*Examples*: A text classifier would attach a classification ``Tag`` to a ``Block``, an image object recognizer would add ``Tags`` to a ``Block`` that identified known objects.
+*Examples*: A text classifier would attach a classification :py:class:`Tag<steamship.data.tags.tag.Tag>` to a :py:class:`Block<steamship.data.block.Block>`, an image object recognizer would add ``Tags`` to a :py:class:`Block<steamship.data.block.Block>` that identified known objects.
 
 - :ref:`Using Taggers<Taggers>`
 - :ref:`Developing Taggers<DevelopingTaggers>`

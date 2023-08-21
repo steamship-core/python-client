@@ -163,7 +163,7 @@ But Steamship actually supports two types of tags: **File Tags** and **Block Tag
 **Block Tags** annotate text within a :ref:`Block<Blocks>` object:
 
 - They are attached to the :ref:`Block<Blocks>` object (``block.tags``)
-- Their ``start_idx`` and ``end_idx`` fields are either both null or both non-null. If both are null, the ``Tag is assumed to apply to the whole ``Block``. They  represent offsets into the text that is spanned by that block.
+- Their ``start_idx`` and ``end_idx`` fields are either both null or both non-null. If both are null, the ``Tag is assumed to apply to the whole :py:class:`Block<steamship.data.block.Block>`. They  represent offsets into the text that is spanned by that block.
 - They are referenced via the ``blocktag`` keyword in our :ref:`query system<queries>`.
 
 Notes:

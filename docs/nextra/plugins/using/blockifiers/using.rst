@@ -56,7 +56,7 @@ Our currently supported blockifiers are:
 Input
 -----
 
-The input to a ``blockify`` operation is a ``File`` with no ``Blocks``.
+The input to a ``blockify`` operation is a :py:class:`File<steamship.data.file.File>` with no ``Blocks``.
 
 Output
 ------

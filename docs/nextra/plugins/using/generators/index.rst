@@ -37,7 +37,7 @@ There are several ways to specify input to a ``Generator``:
 
    generator_task = generator.generate(text="some text")
 
-**Blocks of an existing File** You can pass the generator a ``File`` id to work on, optionally passing a subset of blocks:
+**Blocks of an existing File** You can pass the generator a :py:class:`File<steamship.data.file.File>` id to work on, optionally passing a subset of blocks:
 
 .. code-block:: python
 
@@ -78,8 +78,8 @@ The output to a ``generate`` operation is :ref:`Blocks`. You can always get thes
 
    blocks = generator_task.output.blocks
 
-By default, this output is **not** saved to a ``File``.  If you wish the result to be persisted,
-you can pass ``append_output_to_file=True`` to the call, and it will be persisted to a **new** ``File``:
+By default, this output is **not** saved to a :py:class:`File<steamship.data.file.File>`.  If you wish the result to be persisted,
+you can pass ``append_output_to_file=True`` to the call, and it will be persisted to a **new** :py:class:`File<steamship.data.file.File>`:
 
 .. code-block:: python
 
@@ -90,7 +90,7 @@ you can pass ``append_output_to_file=True`` to the call, and it will be persiste
    blocks = generator_task.output.blocks
    new_file_id = blocks[0].file_id
 
-If you want the output to be appended to an existing ``File``, just pass its id as well:
+If you want the output to be appended to an existing :py:class:`File<steamship.data.file.File>`, just pass its id as well:
 
 .. code-block:: python
 
