@@ -5,19 +5,23 @@ Files
 
 Files are the top-level object for any piece of data in a workspace.
 
-Files hold bytes of raw data (with a ``mime_type``, and processed data in :ref:`Blocks`.
-A ``File`` may also have a list of :ref:`Tags` (annotations).
+A ``File`` contains the following:
 
-To do work on a ``File``, it needs to be saved and its content must be in :ref:`Blocks`.
+* Raw source data, as bytes
+* A ``mime_type``
+* A list of :ref:`Blocks`, which represent the Steamship interpretation of the File's bytes
+* A list of :ref:`Tags` (annotations), which provide key-value metadata about the file
+
+To do work on a ``File``, its binary content needs to be converted into :ref:`Blocks`.
 
 There are a few ways to accomplish this:
 
 - Create ``File`` and ``Block`` content directly (see below)
-- Add raw data directly, then create ``Blocks`` with a :ref:`blockifier plugin<Blockifiers>`
-- Import raw data with a :ref:`File Importer<File Importers>`, then create ``Blocks`` with a :ref:`blockifier plugin<Blockifiers>`
+- Create a ``File`` by uploading raw binary data, then convert it to ``Blocks`` with a :ref:`blockifier plugin<Blockifiers>`
+- Create a ``File`` by importing raw binary data via a :ref:`File Importer<File Importers>`, then convert it to ``Blocks`` with a :ref:`blockifier plugin<Blockifiers>`
 
 It's useful to think of Steamship Files more broadly than "file on your desktop."
-They are any useful object:
+The following are all comfortably modeled with a File object:
 
 - A conversation between a user and an assistant
 - a PDF file
@@ -51,3 +55,19 @@ If you want the raw data bytes of a ``File`` to be publicly accessible, you can 
 This is useful if you wish to share a generated image or audio file, or must make the content viewable in a place that cannot
 retain your Steamship API key.  You can also change the value of the ``public_data`` flag on an existing ``File`` by calling
 ``File.set_public_data``.
+
+Streaming Files
+---------------
+
+Updates to a File be consumed via a ``FileStream``.
+
+* At the HTTP Level, this is implemented as Server-Sent Events (SSE)
+* At the Python SDK and Typescript SDK levels, this is implemented in callbacks about file updates.
+
+
+
+File streams contain the following events:
+
+* ``block-created`` -
+* ``block-deleted``
+

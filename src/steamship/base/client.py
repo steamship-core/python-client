@@ -17,6 +17,7 @@ from steamship.base.mime_types import MimeTypes
 from steamship.base.model import CamelModel, to_camel
 from steamship.base.request import Request
 from steamship.base.tasks import Task, TaskState
+from steamship.data.streams import ServerSentEventStream
 from steamship.utils.url import Verb, is_local
 
 T = TypeVar("T")  # TODO (enias): Do we need this?
@@ -622,6 +623,29 @@ class Client(CamelModel, ABC):
             timeout_s=timeout_s,
             task_delay_ms=task_delay_ms,
         )
+
+    def stream(
+        self,
+        operation: str,
+        payload: Union[Request, dict, BaseModel] = None,
+        file: Any = None,
+        expect: Any = None,
+        debug: bool = False,
+        raw_response: bool = False,
+        is_package_call: bool = False,
+        package_owner: str = None,
+        package_id: str = None,
+        package_instance_id: str = None,
+        as_background_task: bool = False,
+        wait_on_tasks: List[Union[str, Task]] = None,
+        timeout_s: Optional[float] = None,
+        task_delay_ms: Optional[int] = None,
+    ) -> ServerSentEventStream[Any]:
+        """Open a Server-Sent Event Stream.
+
+        The `expect` variable in this case is the type of the Event that will be returned by this tream.
+        """
+        raise NotImplementedError()
 
     def logs(
         self,

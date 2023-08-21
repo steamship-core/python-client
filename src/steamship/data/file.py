@@ -16,6 +16,7 @@ from steamship.base.response import ListResponse, Response
 from steamship.base.tasks import Task
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
+from steamship.data.streams import EventStreamRequest, ServerSentEvent
 from steamship.data.tags import Tag, TagKind
 from steamship.data.tags.tag_constants import ProvenanceTag
 from steamship.utils.binary_utils import flexi_create
@@ -46,6 +47,26 @@ class ListFileResponse(ListResponse):
 
 class FileQueryRequest(Request):
     tag_filter_query: str
+
+
+class FileEventType(str, Enum):
+    """Event types for watchers on a File Stream."""
+
+    BLOCK_APPENDED = "block-appended"  # A block has been appended to the file
+
+
+class FileEvent(ServerSentEvent):
+    """A Server-Sent Event for a File Stream.
+
+    The following data values are to be expected:
+
+    Event            Data
+    -------          -------
+    BLOCK_APPENDED   A Block has been appended to the file
+    """
+
+    event: FileEventType = None
+    data: Block
 
 
 class File(CamelModel):
@@ -417,6 +438,14 @@ class File(CamelModel):
                 tags=_tags,
                 public_data=public_data,
             )
+
+    def stream(self):
+        """Return a stream of FileEvent for this file."""
+        return self.client.stream(
+            "file/stream",
+            EventStreamRequest(),
+            expect=FileEvent,
+        )
 
 
 class FileQueryResponse(Response):

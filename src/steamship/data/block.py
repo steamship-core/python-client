@@ -11,6 +11,7 @@ from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.base.response import Response
+from steamship.data.streams import EventStreamRequest, ServerSentEvent
 from steamship.data.tags.tag import Tag
 from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValueKey
 
@@ -34,6 +35,37 @@ def get_tag_value_key(
         if (kind is None or tag.kind == kind) and (name is None or tag.name == name):
             return (tag.value or {}).get(key)
     return None
+
+
+class BlockEventType(str, Enum):
+    """Event types for watchers on a Block Stream."""
+
+    # This block stream has been created.
+    CREATED = "created"
+
+    # Updates to the byte content of the block have been added.
+    APPENDED = "appended"
+
+    # This stream anticipates no further updates.
+    # - Closing the stream is appropriate.
+    # - In the future, loading this block through Block.get is appropriate
+    FINISHED = "finished"
+
+
+class BlockEvent(ServerSentEvent):
+    """A Server-Sent Event for a Block Stream.
+
+    The following data values are to be expected:
+
+    Event     Data
+    -------   -------
+    CREATED   A Block
+    APPENDED  Bytes
+    FINISHED  A Block
+    """
+
+    event: BlockEventType = None
+    data: Union[Block, bytes]
 
 
 class Block(CamelModel):
@@ -321,6 +353,14 @@ class Block(CamelModel):
             if exclude_block_wrapper:
                 return f"{self.id}"
             return f"Block({self.id})"
+
+    def stream(self):
+        """Return a stream of BlockEvent for this block."""
+        return self.client.stream(
+            "file/stream",
+            EventStreamRequest(),
+            expect=BlockEvent,
+        )
 
 
 class BlockQueryResponse(Response):
