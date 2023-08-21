@@ -65,10 +65,12 @@ Updates to a :py:class:`File<steamship.data.file.File>` can be consumed via a :c
 * At the HTTP Level, this is implemented as Server-Sent Events (SSE)
 * At the Python SDK and Typescript SDK levels, this is implemented in callbacks about file updates.
 
+For a file, that stream will consist of :py:class:`FileEvent<steamship.data.file.FileEvent>` objects, which has only one
+possible :py:class:`FileEventType<steamship.data.file.FileEventType>`:
 
+* ``BLOCK_APPENDED`` - A new block has been appended to the File
 
-File streams contain the following events:
-
-* ``block-created`` -
-* ``block-deleted``
-
+The payload of that event will be the :py:class:`Block<steamship.data.block.Block>` object which was appended to the
+:py:class:`File<steamship.data.file.File>`, which may itself be a streaming
+:py:class:`Block<steamship.data.block.Block>` in progress. See :ref:`Streaming Blocks` for details on how to
+stream such a block.
