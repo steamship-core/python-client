@@ -7,9 +7,9 @@ The GPT-4 ``Generator`` plugin uses OpenAI's GPT-4 to generate text from a text 
 or the continuation of a chat. It can also be used with GPT-3.5 by passing ``"gpt-3.5-turbo"``
 as the ``model`` configuration parameter.
 
-The plugin will treat each ``Block`` of the input as an element of a chat. If a ``Block`` has
-a ``Tag`` of kind "role" and name ( "system" | "user" | "assistant" ), the content will be passed
-to OpenAI with the corresponding role. If a ``Block`` does not have a role tag, it will
+The plugin will treat each :py:class:`Block<steamship.data.block.Block>` of the input as an element of a chat. If a :py:class:`Block<steamship.data.block.Block>` has
+a :py:class:`Tag<steamship.data.tags.tag.Tag>` of kind "role" and name ( "system" | "user" | "assistant" ), the content will be passed
+to OpenAI with the corresponding role. If a :py:class:`Block<steamship.data.block.Block>` does not have a role tag, it will
 be passed with the configured default role, which defaults to "user" (see config params below).
 
 The plugin handles retrying for rate limits and uses Steamship's OpenAI API key by default,
@@ -25,7 +25,7 @@ The simplest possible example is:
     task.wait()
     joke = task.output.blocks[0].text
 
-To build a chat interaction, you can persist the prompt components to a ``File`` object,
+To build a chat interaction, you can persist the prompt components to a :py:class:`File<steamship.data.file.File>` object,
 tagging them with their conversational roles:
 
 .. code-block:: python
@@ -51,7 +51,7 @@ tagging them with their conversational roles:
     joke = task.output.blocks[0].text
 
 In the example above, in addition to being returned as the result of the ``Task``, the output
-``Block`` is appended to ``chat_file``.
+:py:class:`Block<steamship.data.block.Block>` is appended to ``chat_file``.
 
 All output ``Blocks`` will be tagged with the "assistant" role to allow more
 content to be easily appended and generated.
