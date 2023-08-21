@@ -380,11 +380,7 @@ class Block(CamelModel):
 
     def stream(self):
         """Return a stream of BlockEvent events for this block."""
-        return self.client.stream(
-            "file/stream",
-            EventStreamRequest(),
-            expect=BlockEvent,
-        )
+        return self.client.post("file/stream", EventStreamRequest(), expect=BlockEvent, stream=True)
 
 
 class BlockQueryResponse(Response):

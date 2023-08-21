@@ -441,11 +441,7 @@ class File(CamelModel):
 
     def stream(self):
         """Return a stream of FileEvent for this file."""
-        return self.client.stream(
-            "file/stream",
-            EventStreamRequest(),
-            expect=FileEvent,
-        )
+        return self.client.post("file/stream", EventStreamRequest(), expect=FileEvent, stream=True)
 
 
 class FileQueryResponse(Response):
