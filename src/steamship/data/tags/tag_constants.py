@@ -267,6 +267,12 @@ class ChatTag(str, Enum):
     # The message id of a message
     MESSAGE_ID = "message-id"
 
+    # In environments which support threading, the thread id where the message occurred
+    THREAD_ID = "thread-id"
+
+    # In multiuser environments, the ID of the user who created the message
+    USER_ID = "user-id"
+
     # The role of a message
     ROLE = "role"
 
