@@ -405,6 +405,7 @@ class SlackTransport(Transport):
         }
         if thread_ts:
             body["thread_ts"] = thread_ts
+        logging.info(f"Post mesage: {body}")
 
         post_url = f"{self.config.slack_api_base}chat.postMessage"
 
@@ -417,6 +418,7 @@ class SlackTransport(Transport):
     def build_emit_func(
         self, chat_id: str, incoming_message_ts: str, thread_ts: Optional[str]
     ) -> EmitFunc:
+        logging.info(f"Logging behavior: {self.config.threading_behavior}")
         """Return an EmitFun that sends messages to the appropriate Slack channel."""
         if self.config.threading_behavior == SlackThreadingBehavior.FOLLOW_THREADS.value:
             reply_thread_ts = thread_ts
@@ -424,6 +426,7 @@ class SlackTransport(Transport):
             reply_thread_ts = thread_ts or incoming_message_ts
         else:
             raise ValueError(f"Unhandled threading behavior: {self.config.threading_behavior}")
+        logging.info(f"reply_thread_ts: {reply_thread_ts}")
 
         def new_emit_func(blocks: List[Block], metadata: Metadata):
             for block in blocks:
