@@ -1,7 +1,7 @@
 import json
 import logging
 import urllib.parse
-from enum import StrEnum
+from enum import Enum
 from typing import List, Optional
 
 import requests
@@ -20,7 +20,7 @@ SLACK_API_BASE = "https://slack.com/api/"
 SETTINGS_KVSTORE_KEY = "slack-transport"
 
 
-class SlackContextBehavior(StrEnum):
+class SlackContextBehavior(Enum):
     """Defines how history between agent and users is tracked.
 
     These specifications are specifically in regard to how the agent interacts with Slack as it pertains to Agent
@@ -40,7 +40,7 @@ class SlackContextBehavior(StrEnum):
     """
 
 
-class SlackThreadingBehavior(StrEnum):
+class SlackThreadingBehavior(Enum):
     """Defines how responses from the agent will be delivered in response to user mentions."""
 
     FOLLOW_THREADS = "follow-threads"
