@@ -1,7 +1,7 @@
 import json
 import logging
 import urllib.parse
-from enum import Enum
+from enum import StrEnum
 from typing import List, Optional
 
 import requests
@@ -20,36 +20,36 @@ SLACK_API_BASE = "https://slack.com/api/"
 SETTINGS_KVSTORE_KEY = "slack-transport"
 
 
-class SlackContextBehavior(Enum):
+class SlackContextBehavior(StrEnum):
     """Defines how history between agent and users is tracked.
 
     These specifications are specifically in regard to how the agent interacts with Slack as it pertains to Agent
     Context.
     """
 
-    ENTIRE_CHANNEL = (0,)
+    ENTIRE_CHANNEL = "entire-channel"
     """
     Agent context is per channel as a whole, which includes bot mentions sent to the top level channel, and across *any*
     thread in that channel.
     """
 
-    THREADS_ARE_NEW_CONVERSATIONS = (1,)
+    THREADS_ARE_NEW_CONVERSATIONS = "threads-are-new-conversations"
     """
     Agent context is thread-aware. The top level channel is treated as its own context, and threads have their own
     contexts.
     """
 
 
-class SlackThreadingBehavior(Enum):
+class SlackThreadingBehavior(StrEnum):
     """Defines how responses from the agent will be delivered in response to user mentions."""
 
-    FOLLOW_THREADS = (0,)
+    FOLLOW_THREADS = "follow-threads"
     """
     If the bot is mentioned from the top-level channel, the response will be in the channel. If the bot is mentioned
     from within a thread, the response will be to that thread.
     """
 
-    ALWAYS_THREADED = (1,)
+    ALWAYS_THREADED = "always-threaded"
     """
     Responses from the bot will always be threaded. If the bot was mentioned at the top level of the channel, a new
     thread will be created for the response.
@@ -418,9 +418,9 @@ class SlackTransport(Transport):
         self, chat_id: str, incoming_message_ts: str, thread_ts: Optional[str]
     ) -> EmitFunc:
         """Return an EmitFun that sends messages to the appropriate Slack channel."""
-        if self.config.threading_behavior == SlackThreadingBehavior.FOLLOW_THREADS:
+        if self.config.threading_behavior == SlackThreadingBehavior.FOLLOW_THREADS.value:
             reply_thread_ts = thread_ts
-        elif self.config.threading_behavior == SlackThreadingBehavior.ALWAYS_THREADED:
+        elif self.config.threading_behavior == SlackThreadingBehavior.ALWAYS_THREADED.value:
             reply_thread_ts = thread_ts or incoming_message_ts
         else:
             raise ValueError(f"Unhandled threading behavior: {self.config.threading_behavior}")
@@ -435,9 +435,11 @@ class SlackTransport(Transport):
         return new_emit_func
 
     def _get_context_id_for_response(self, channel: str, thread_ts: Optional[str]) -> str:
-        if self.config.context_behavior == SlackContextBehavior.ENTIRE_CHANNEL:
+        if self.config.context_behavior == SlackContextBehavior.ENTIRE_CHANNEL.value:
             return channel
-        elif self.config.context_behavior == SlackContextBehavior.THREADS_ARE_NEW_CONVERSATIONS:
+        elif (
+            self.config.context_behavior == SlackContextBehavior.THREADS_ARE_NEW_CONVERSATIONS.value
+        ):
             return channel if not thread_ts else f"{channel}-{thread_ts}"
         else:
             raise ValueError(f"Unhandled context behavior: {self.config.context_behavior}")
