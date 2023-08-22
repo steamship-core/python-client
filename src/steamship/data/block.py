@@ -11,7 +11,8 @@ from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.base.response import Response
-from steamship.data.streams import EventStreamRequest, ServerSentEvent
+from steamship.base.stream import ResponseByteIterator
+from steamship.data.streams import EventStreamRequest
 from steamship.data.tags.tag import Tag
 from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValueKey
 
@@ -35,37 +36,6 @@ def get_tag_value_key(
         if (kind is None or tag.kind == kind) and (name is None or tag.name == name):
             return (tag.value or {}).get(key)
     return None
-
-
-class BlockEventType(str, Enum):
-    """Event types for watchers on a Block Stream."""
-
-    # This block stream has been created.
-    CREATED = "created"
-
-    # Updates to the byte content of the block have been added.
-    APPENDED = "appended"
-
-    # This stream anticipates no further updates.
-    # - Closing the stream is appropriate.
-    # - In the future, loading this block through Block.get is appropriate
-    FINISHED = "finished"
-
-
-class BlockEvent(ServerSentEvent):
-    """A Server-Sent Event for a Block Stream.
-
-    The following data values are to be expected:
-
-    Event     Data
-    -------   -------
-    CREATED   A Block
-    APPENDED  Bytes
-    FINISHED  A Block
-    """
-
-    event: BlockEventType = None
-    data: Union[Block, bytes]
 
 
 class Block(CamelModel):
@@ -378,9 +348,16 @@ class Block(CamelModel):
                 return f"{self.id}"
             return f"Block({self.id})"
 
-    def stream(self):
-        """Return a stream of BlockEvent events for this block."""
-        return self.client.post("file/stream", EventStreamRequest(), expect=BlockEvent, stream=True)
+    def stream(self) -> ResponseByteIterator:
+        """Return a stream of bytes for this block.
+
+        - The stream always starts with the first byte of the block's data.
+        - The stream always proceeds until the data is finished.
+        - If no data is yet available, the stream awaits the first byte.
+        - If all data is already available, the stream cover it all.
+        - The interpretation of the bytes should be based on `self.mime_type`.
+        """
+        return self.client.post("block/stream", EventStreamRequest(), stream=True)
 
 
 class BlockQueryResponse(Response):

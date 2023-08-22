@@ -16,7 +16,7 @@ from steamship.base.error import SteamshipError
 from steamship.base.mime_types import MimeTypes
 from steamship.base.model import CamelModel, to_camel
 from steamship.base.request import Request
-from steamship.base.stream import ServerSentEventStream
+from steamship.base.stream import ResponseByteIterator, ResponseSSEIterator
 from steamship.base.tasks import Task, TaskState
 from steamship.utils.url import Verb, is_local
 
@@ -423,9 +423,7 @@ class Client(CamelModel, ABC):
         timeout_s: Optional[float] = None,
         task_delay_ms: Optional[int] = None,
         stream: bool = False,
-    ) -> Union[
-        Any, Task, ServerSentEventStream[T]
-    ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
+    ) -> Union[Any, Task, ResponseByteIterator, ResponseSSEIterator[T]]:
         """Post to the Steamship API.
 
         All responses have the format::
@@ -485,12 +483,15 @@ class Client(CamelModel, ABC):
             logging.debug(f"Got response {resp}")
 
         if stream is True:
+            if expect is None:
+                # Parse as raw bytes
+                return ResponseByteIterator(resp)
+            else:
+                # Parse as SSE that contain the expect type.
+                def rehydrate_fn(data):
+                    return self.rehydrate_steamship_model_object(expect, data)
 
-            def rehydrate_fn(data):
-                return self.rehydrate_steamship_model_object(expect, data)
-
-            event_stream = ServerSentEventStream(resp, rehydrate_fn)
-            return event_stream
+                return ResponseSSEIterator(resp, rehydrate_fn)
 
         response_data = self._response_data(resp, raw_response=raw_response)
 
@@ -584,9 +585,7 @@ class Client(CamelModel, ABC):
         timeout_s: Optional[float] = None,
         task_delay_ms: Optional[int] = None,
         stream: bool = False,
-    ) -> Union[
-        Any, Task
-    ]:  # TODO (enias): I would like to list all possible return types using interfaces instead of Any
+    ) -> Union[Any, Task]:
         return self.call(
             verb=Verb.POST,
             operation=operation,

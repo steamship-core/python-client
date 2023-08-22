@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import mimetypes
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Optional, Type, Union
@@ -13,10 +14,10 @@ from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import GetRequest, IdentifierRequest, ListRequest, Request, SortOrder
 from steamship.base.response import ListResponse, Response
+from steamship.base.stream import EventStreamRequest, ResponseSSEIterator, ServerSentEvent
 from steamship.base.tasks import Task
 from steamship.data.block import Block
 from steamship.data.embeddings import EmbeddingIndex
-from steamship.data.streams import EventStreamRequest, ServerSentEvent
 from steamship.data.tags import Tag, TagKind
 from steamship.data.tags.tag_constants import ProvenanceTag
 from steamship.utils.binary_utils import flexi_create
@@ -439,8 +440,19 @@ class File(CamelModel):
                 public_data=public_data,
             )
 
-    def stream(self):
-        """Return a stream of FileEvent for this file."""
+    def stream(self, since_time: Optional[datetime] = None) -> ResponseSSEIterator[FileEvent]:
+        """Return a stream of FileEvent objects for this file.
+
+        - If `since_time` is provided, the stream includes all FileEvents after `since_time`
+        - If `since_tine` is None, the stream only includes new FileEvents as they arise
+
+        TODO: @Dave how does this mesh with the Engine-side? I'm trying to solve for the edge case where a small
+        amount of time separates File.get() and file.stream() in which a new block may have been created.
+
+        In practice, there is only one type of FileEvent: a new Block creation. This Block may be fully formed
+        or it may be, itself, in the midst of streaming, in which case calling `block.stream()` will produce the
+        byte stream of content for that block.
+        """
         return self.client.post("file/stream", EventStreamRequest(), expect=FileEvent, stream=True)
 
 
