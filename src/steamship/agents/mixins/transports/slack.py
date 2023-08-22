@@ -431,7 +431,7 @@ class SlackTransport(Transport):
         def new_emit_func(blocks: List[Block], metadata: Metadata):
             for block in blocks:
                 block.set_chat_id(chat_id)
-                if thread_ts:
+                if reply_thread_ts:
                     block.set_thread_id(reply_thread_ts)
             return self.send(blocks, metadata)
 
