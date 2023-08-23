@@ -45,6 +45,9 @@ class Configuration(CamelModel):
     workspace_handle: str = None
     profile: Optional[str] = None
 
+    # For use in deployed packages and plugins for tracing. Do not set manually
+    request_id: Optional[str] = None
+
     def __init__(
         self,
         config_file: Optional[Path] = None,
