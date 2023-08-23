@@ -205,11 +205,11 @@ class SlackTransportConfig(Config):
         SLACK_API_BASE, description="Slack API base URL. If blank defaults to production Slack."
     )
     threading_behavior: SlackThreadingBehavior = Field(
-        SlackThreadingBehavior.FOLLOW_THREADS,
+        SlackThreadingBehavior.FOLLOW_THREADS.value,
         description="Whether the bot will always respond in threads, or only if the invocation was threaded",
     )
     context_behavior: SlackContextBehavior = Field(
-        SlackContextBehavior.ENTIRE_CHANNEL,
+        SlackContextBehavior.ENTIRE_CHANNEL.value,
         description="Whether the bot will be provided conversation context from the channel as a whole, or per thread.",
     )
 
