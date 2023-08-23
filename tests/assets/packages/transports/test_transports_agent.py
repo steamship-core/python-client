@@ -10,8 +10,8 @@ from steamship.invocable import Config, InvocationContext
 
 
 class TestTransportsAgentConfig(Config):
-    bot_token: Optional[str] = ""
-    api_base: Optional[str] = ""
+    telegram_token: Optional[str] = ""
+    telegram_api_base: Optional[str] = ""
     slack_api_base: Optional[str] = ""
 
 
@@ -78,14 +78,14 @@ class TestTransportsAgentService(AgentService):
         # Including the web widget transport on the telegram test
         # agent to make sure it doesn't interfere
         self.add_mixin(SteamshipWidgetTransport(client=client, agent_service=self))
-        if self.config.bot_token:
+        if self.config.telegram_token:
             # Only add the mixin if a telegram key was provided.
             self.add_mixin(
                 TelegramTransport(
                     client=client,
                     # TODO: We need to rename these telegram_token and telegram_api_base
                     config=TelegramTransportConfig(
-                        bot_token=self.config.bot_token, api_base=self.config.api_base
+                        bot_token=self.config.telegram_token, api_base=self.config.telegram_api_base
                     ),
                     agent_service=self,
                 )

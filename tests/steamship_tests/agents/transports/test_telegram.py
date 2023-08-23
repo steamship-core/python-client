@@ -4,11 +4,11 @@ from assets.packages.transports.mock_telegram_api import MockTelegramApi
 from steamship_tests import PACKAGES_PATH
 from steamship_tests.utils.deployables import deploy_package
 
-from steamship import File, Steamship
+from steamship import File, PackageInstance, Steamship
 
 config_template = {
-    "bot_token": {"type": "string"},
-    "api_base": {"type": "string"},
+    "telegram_token": {"type": "string"},
+    "telegram_api_base": {"type": "string"},
     "slack_api_base": {"type": "string"},
 }
 
@@ -19,13 +19,18 @@ def test_telegram(client: Steamship):
     mock_telegram_api_path = PACKAGES_PATH / "transports" / "mock_telegram_api.py"
     telegram_agent_path = PACKAGES_PATH / "transports" / "test_transports_agent.py"
 
-    with deploy_package(client, mock_telegram_api_path) as (_, _, mock_chat_api):
+    with deploy_package(client, mock_telegram_api_path, wait_for_init=True) as (
+        _,
+        _,
+        mock_chat_api,
+    ):
+        # Test that the default instance doesn't have an API set.
 
-        # Removing the / from the invocation URL and passing it as the bot_token allows
+        # Removing the / from the invocation URL and passing it as the telegram_token allows
         # the bot token to not be empty and the two appended to each other to just equal the
         # invocation url.
         instance_config = {
-            "bot_token": "/",
+            "telegram_token": "/",
             "api_base": mock_chat_api.invocation_url[:-1],
             "slack_api_base": mock_chat_api.invocation_url,
         }
@@ -49,8 +54,11 @@ def test_telegram(client: Steamship):
             version_config_template=config_template,
             instance_config=instance_config,
             wait_for_init=True,
-        ) as (_, _, agent_instance):
+        ) as (agent_package, agent_version, agent_instance):
             respond_method = "telegram_respond"
+
+            # The configuration provided a token, so the token should be reported as having been set.
+            assert agent_instance.invoke("is_slack_token_set") is True
 
             # Test that agent called instance_init and registered webhook
             files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
@@ -115,3 +123,46 @@ def test_telegram(client: Steamship):
                 MockTelegramApi.CHAT_ID_KEY: 1,
                 MockTelegramApi.VIDEO_KEY: "some video bytes",
             }
+
+            # Verify that we don't have any webhook set files
+            files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
+            assert len(files) == 0
+
+            agent_instance.invoke("set_slack_access_token", token="foo-bar")  # noqa: S106
+
+            # Test that this triggered a web hook reset
+            files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
+            assert len(files) == 1
+            assert files[0].tags[0].name == "test"
+
+            files[0].delete()
+
+            # Create another instance to test LATE BOUND conections.
+
+            instance_config_without_token = {
+                "api_base": mock_chat_api.invocation_url[:-1],
+                "slack_api_base": mock_chat_api.invocation_url,
+            }
+
+            package_instance_2 = PackageInstance.create(
+                client,
+                package_id=agent_package.id,
+                package_version_id=agent_version.id,
+                config=instance_config_without_token,
+            )
+
+            package_instance_2.wait_for_init()
+
+            # The configuration provided a token, so the token should be reported as having been set.
+            assert package_instance_2.invoke("is_slack_token_set") is False
+
+            package_instance_2.invoke(
+                "set_slack_access_token", token=instance_config.get("telegram_token")
+            )
+
+            assert package_instance_2.invoke("is_slack_token_set") is True
+
+            # See that the webhook was registered
+            files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
+            assert len(files) == 1
+            assert files[0].tags[0].name == "test"
