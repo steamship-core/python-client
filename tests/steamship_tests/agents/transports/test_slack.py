@@ -25,7 +25,7 @@ def test_slack(client: Steamship):
         instance_config = {
             "slack_api_base": mock_chat_api.invocation_url,
             "telegram_token": "",
-            "api_base": "",
+            "telegram_api_base": "",
         }
 
         with deploy_package(

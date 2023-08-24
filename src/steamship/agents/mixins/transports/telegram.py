@@ -42,7 +42,7 @@ class TelegramTransport(Transport):
         self.agent_service = agent_service
 
     def instance_init(self):
-        if self.bot_token:
+        if self.get_telegram_access_token():
             try:
                 self.telegram_connect_webhook()
             except Exception:  # noqa: S110
@@ -125,7 +125,7 @@ class TelegramTransport(Transport):
         ]
 
     def _get_file_url(self, file_id: str) -> str:
-        return f"https://api.telegram.org/file/bot{self.bot_token}/{self._get_file(file_id)['file_path']}"
+        return f"https://api.telegram.org/file/bot{self.get_telegram_access_token()}/{self._get_file(file_id)['file_path']}"
 
     def _download_file(self, file_id: str):
         result = requests.get(self._get_file_url(file_id))
@@ -272,7 +272,6 @@ class TelegramTransport(Transport):
     @post("is_telegram_token_set")
     def is_telegram_token_set(self) -> InvocableResponse[bool]:
         """Return whether the Telegram token has been set as a way for a remote UI to check status."""
-        token = self.get_telegram_access_token() or self.config.bot_token
-        if token is None:
+        if self.get_telegram_access_token() is None:
             return InvocableResponse(json=False)
         return InvocableResponse(json=True)

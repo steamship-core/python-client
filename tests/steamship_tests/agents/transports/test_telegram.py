@@ -31,7 +31,7 @@ def test_telegram(client: Steamship):
         # invocation url.
         instance_config = {
             "telegram_token": "/",
-            "api_base": mock_chat_api.invocation_url[:-1],
+            "telegram_api_base": mock_chat_api.invocation_url[:-1],
             "slack_api_base": mock_chat_api.invocation_url,
         }
 
@@ -58,7 +58,7 @@ def test_telegram(client: Steamship):
             respond_method = "telegram_respond"
 
             # The configuration provided a token, so the token should be reported as having been set.
-            assert agent_instance.invoke("is_slack_token_set") is True
+            assert agent_instance.invoke("is_telegram_token_set") is True
 
             # Test that agent called instance_init and registered webhook
             files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
@@ -128,7 +128,7 @@ def test_telegram(client: Steamship):
             files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
             assert len(files) == 0
 
-            agent_instance.invoke("set_slack_access_token", token="foo-bar")  # noqa: S106
+            agent_instance.invoke("set_telegram_access_token", token="foo-bar")  # noqa: S106
 
             # Test that this triggered a web hook reset
             files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
@@ -140,7 +140,7 @@ def test_telegram(client: Steamship):
             # Create another instance to test LATE BOUND conections.
 
             instance_config_without_token = {
-                "api_base": mock_chat_api.invocation_url[:-1],
+                "telegram_api_base": mock_chat_api.invocation_url[:-1],
                 "slack_api_base": mock_chat_api.invocation_url,
             }
 
@@ -154,13 +154,13 @@ def test_telegram(client: Steamship):
             package_instance_2.wait_for_init()
 
             # The configuration provided a token, so the token should be reported as having been set.
-            assert package_instance_2.invoke("is_slack_token_set") is False
+            assert package_instance_2.invoke("is_telegram_token_set") is False
 
             package_instance_2.invoke(
-                "set_slack_access_token", token=instance_config.get("telegram_token")
+                "set_telegram_access_token", token=instance_config.get("telegram_token")
             )
 
-            assert package_instance_2.invoke("is_slack_token_set") is True
+            assert package_instance_2.invoke("is_telegram_token_set") is True
 
             # See that the webhook was registered
             files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
