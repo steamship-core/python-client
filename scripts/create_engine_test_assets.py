@@ -27,6 +27,14 @@ def main():
             PLUGINS_PATH / "generators" / "plugin_with_instance_init.py",
             "plugin-with-instance-init.zip",
         ),
+        (
+            PLUGINS_PATH / "generators" / "request_id_generator.py",
+            "request-id-generator.zip",
+        ),
+        (
+            PACKAGES_PATH / "request_id_plumbing_test_package.py",
+            "request-id-plumbing-test-package.zip",
+        ),
     ]
 
     for path, output in assets_to_build:
