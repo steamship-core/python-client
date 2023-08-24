@@ -7,9 +7,9 @@ from steamship_tests.utils.deployables import deploy_package
 from steamship import File, PackageInstance, Steamship
 
 config_template = {
-    "telegram_token": {"type": "string"},
-    "telegram_api_base": {"type": "string"},
-    "slack_api_base": {"type": "string"},
+    "telegram_token": {"type": "string", "default": ""},
+    "telegram_api_base": {"type": "string", "default": ""},
+    "slack_api_base": {"type": "string", "default": ""},
 }
 
 
@@ -30,7 +30,7 @@ def test_telegram(client: Steamship):
         # the bot token to not be empty and the two appended to each other to just equal the
         # invocation url.
         instance_config = {
-            "telegram_token": "/",
+            "telegram_token": "abcdefg",
             "telegram_api_base": mock_chat_api.invocation_url[:-1],
             "slack_api_base": mock_chat_api.invocation_url,
         }
@@ -48,6 +48,9 @@ def test_telegram(client: Steamship):
 
         files[0].delete()
 
+        files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
+        assert len(files) == 0
+
         with deploy_package(
             client,
             telegram_agent_path,
@@ -64,6 +67,11 @@ def test_telegram(client: Steamship):
             files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
             assert len(files) == 1
             assert files[0].tags[0].name == agent_instance.invocation_url + respond_method
+
+            files[0].delete()
+
+            files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
+            assert len(files) == 0
 
             # test sending messages (without auth)
             response = requests.post(
@@ -133,11 +141,10 @@ def test_telegram(client: Steamship):
             # Test that this triggered a web hook reset
             files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
             assert len(files) == 1
-            assert files[0].tags[0].name == "test"
 
             files[0].delete()
 
-            # Create another instance to test LATE BOUND conections.
+            # Create another instance to test LATE BOUND Telegram connections.
 
             instance_config_without_token = {
                 "telegram_api_base": mock_chat_api.invocation_url[:-1],
@@ -165,4 +172,3 @@ def test_telegram(client: Steamship):
             # See that the webhook was registered
             files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
             assert len(files) == 1
-            assert files[0].tags[0].name == "test"

@@ -152,6 +152,10 @@ def test_instance_invoke():
         resp_obj = instance.invoke("json_with_status", verb=Verb.POST)
         assert resp_obj == {"status": "a string"}
 
+        # Test raw true & false responses
+        assert instance.invoke("resp_true", verb=Verb.POST) is True
+        assert instance.invoke("resp_false", verb=Verb.POST) is False
+
         # Test that the __steamship_dir__ method works
         #
         # Note: The output of the InvocableResponse includes a dynamically generated value:
