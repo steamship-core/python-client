@@ -17,4 +17,9 @@ def test_get_param_decoding(client: Steamship):
             _,
         ):
             result = instance.invoke("requestids", plugin_handle=plugin.handle)
-            assert result == "Hello, A test with spaces!"
+            package_request_id = result.get("packageRequestId")
+            plugin_request_id = result.get("pluginRequestId")
+            invoke_later_request_id = result.get("invokeLaterRequestId")
+            assert package_request_id is not None
+            assert package_request_id == plugin_request_id
+            assert package_request_id == invoke_later_request_id
