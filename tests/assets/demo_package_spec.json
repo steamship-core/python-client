@@ -226,6 +226,15 @@
       "doc": null
     },
     {
+      "args": [],
+      "className": "TestPackage",
+      "config": {},
+      "doc": null,
+      "path": "/resp_false",
+      "returns": "<class 'foo.InvocableResponse[dict]'>",
+      "verb": "POST"
+    },
+    {
       "returns": "<class 'foo.InvocableResponse[bytes]'>",
       "args": [],
       "className": "TestPackage",
@@ -251,6 +260,15 @@
       "path": "/resp_string",
       "verb": "GET",
       "doc": null
+    },
+    {
+      "args": [],
+      "className": "TestPackage",
+      "config": {},
+      "doc": null,
+      "path": "/resp_true",
+      "returns": "<class 'foo.InvocableResponse[dict]'>",
+      "verb": "POST"
     },
     {
       "returns": "<class 'foo.InvocableResponse[dict]'>",

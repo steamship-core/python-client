@@ -9,8 +9,10 @@ from steamship import Block, Steamship, SteamshipError
 from steamship.agents.mixins.transports.transport import Transport
 from steamship.agents.schema import EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
-from steamship.invocable import Config, InvocableResponse, InvocationContext, post
+from steamship.invocable import Config, InvocableResponse, post
 from steamship.utils.kv_store import KeyValueStore
+
+SETTINGS_KVSTORE_KEY = "telegram-transport"
 
 
 class TelegramTransportConfig(Config):
@@ -23,11 +25,9 @@ class TelegramTransportConfig(Config):
 class TelegramTransport(Transport):
     """Experimental base class to encapsulate a Telegram communication channel."""
 
-    api_root: str
-    bot_token: str
+    bot_token: Optional[str]
     agent_service: AgentService
     config: TelegramTransportConfig
-    context: InvocationContext
 
     def __init__(
         self,
@@ -37,29 +37,37 @@ class TelegramTransport(Transport):
     ):
         super().__init__(client=client)
         self.config = config
-        self.store = KeyValueStore(self.client, store_identifier="_telegram_config")
-        bot_token = (self.store.get("bot_token") or {}).get("token")
-        self.bot_token = config.bot_token or bot_token
-        self.api_root = f"{config.api_base}{self.bot_token}"
         self.agent_service = agent_service
+        try:
+            self.bot_token = self.get_telegram_access_token() or None
+        except BaseException as e:
+            logging.warning(e)
+            self.bot_token = None
 
     def instance_init(self):
-        if self.bot_token:
-            self.api_root = f"{self.config.api_base}{self.config.bot_token or self.bot_token}"
+        if self.get_telegram_access_token():
             try:
-                self._instance_init()
+                self.telegram_connect_webhook()
             except Exception:  # noqa: S110
                 pass
 
-    def _instance_init(self):
+    @post("telegram_connect_webhook")
+    def telegram_connect_webhook(self):
+        """Register this AgentService with Telegram."""
         webhook_url = self.agent_service.context.invocable_url + "telegram_respond"
 
+        api_root = self.get_api_root()
+        if not api_root:
+            raise SteamshipError(
+                message="Unable to determine Telegram API root -- perhaps your bot token isn't set?"
+            )
+
         logging.info(
-            f"Setting Telegram webhook URL: {webhook_url}. Post is to {self.api_root}/setWebhook"
+            f"Setting Telegram webhook URL: {webhook_url}. Post is to {api_root}/setWebhook"
         )
 
         response = requests.get(
-            f"{self.api_root}/setWebhook",
+            f"{api_root}/setWebhook",
             params={
                 "url": webhook_url,
                 "allowed_updates": ["message"],
@@ -74,31 +82,38 @@ class TelegramTransport(Transport):
 
     @post("telegram_webhook_info")
     def telegram_webhook_info(self) -> dict:
-        return requests.get(self.api_root + "/getWebhookInfo").json()
+        api_root = self.get_api_root()
+        if not api_root:
+            raise SteamshipError(
+                message="Unable to fetch Telegram API info -- perhaps your bot token isn't set?"
+            )
 
-    @post("connect_telegram")
-    def connect_telegram(self, bot_token: str):
-        self.store.set("bot_token", {"token": bot_token})
-        self.bot_token = bot_token
-
-        try:
-            self.instance_init()
-            return "OK"
-        except Exception as e:
-            return f"Could not set webhook for bot. Exception: {e}"
+        return requests.get(api_root + "/getWebhookInfo").json()
 
     @post("telegram_disconnect_webhook")
     def telegram_disconnect_webhook(self, *args, **kwargs):
         """Unsubscribe from Telegram updates."""
-        requests.get(f"{self.api_root}/deleteWebhook")
+        api_root = self.get_api_root()
+        if not api_root:
+            raise SteamshipError(
+                message="Unable to disconnect from Telegram -- perhaps your bot token isn't set?"
+            )
+
+        requests.get(f"{api_root}/deleteWebhook")
 
     def _send(self, blocks: [Block], metadata: Metadata):
         """Send a response to the Telegram chat."""
+        api_root = self.get_api_root()
+        if not api_root:
+            raise SteamshipError(
+                message="Unable to send to Telegram -- perhaps your bot token isn't set?"
+            )
+
         for block in blocks:
             chat_id = block.chat_id
             if block.is_text() or block.text:
                 params = {"chat_id": int(chat_id), "text": block.text}
-                requests.get(f"{self.api_root}/sendMessage", params=params)
+                requests.get(f"{api_root}/sendMessage", params=params)
             elif block.is_image() or block.is_audio() or block.is_video():
                 if block.is_image():
                     suffix = "sendPhoto"
@@ -115,7 +130,7 @@ class TelegramTransport(Transport):
                     temp_file.write(_bytes)
                     temp_file.seek(0)
                     resp = requests.post(
-                        url=f"{self.api_root}/{suffix}?chat_id={chat_id}",
+                        url=f"{api_root}/{suffix}?chat_id={chat_id}",
                         files={key: temp_file},
                     )
                     if resp.status_code != 200:
@@ -129,12 +144,16 @@ class TelegramTransport(Transport):
                 )
 
     def _get_file(self, file_id: str) -> Dict[str, Any]:
-        return requests.get(f"{self.api_root}/getFile", params={"file_id": file_id}).json()[
-            "result"
-        ]
+        api_root = self.get_api_root()
+        if not api_root:
+            raise SteamshipError(
+                message="Unable to get Telegram file -- perhaps your bot token isn't set?"
+            )
+
+        return requests.get(f"{api_root}/getFile", params={"file_id": file_id}).json()["result"]
 
     def _get_file_url(self, file_id: str) -> str:
-        return f"https://api.telegram.org/file/bot{self.bot_token}/{self._get_file(file_id)['file_path']}"
+        return f"https://api.telegram.org/file/bot{self.get_telegram_access_token()}/{self._get_file(file_id)['file_path']}"
 
     def _download_file(self, file_id: str):
         result = requests.get(self._get_file_url(file_id))
@@ -233,3 +252,90 @@ class TelegramTransport(Transport):
                 self.send([response])
         # Even if we do nothing, make sure we return ok
         return InvocableResponse(string="OK")
+
+    @post("set_telegram_access_token")
+    def set_telegram_access_token(self, token: str) -> InvocableResponse[str]:
+        """Set the telegram access token."""
+        existing_token = self.get_telegram_access_token()
+        if existing_token:
+            try:
+                self.telegram_disconnect_webhook()
+            except BaseException as e:
+                # Note: we don't want to fully fail here, because that would mean that a bot user that had some
+                # other error relating to disconnecting would never be able to RE-connect to a new bot.
+                logging.error(e)
+
+        kv = KeyValueStore(
+            client=self.agent_service.client, store_identifier=self.setting_store_key()
+        )
+        kv.set("telegram_token", {"token": token})
+
+        # Now attempt to modify the connection in Telegram
+        self.bot_token = token
+        try:
+            self.telegram_connect_webhook()
+            return InvocableResponse(string="OK")
+        except Exception as e:
+            raise SteamshipError(message=f"Could not set Telegram Webhook. Exception: {e}")
+
+    def get_api_root(self) -> Optional[str]:
+        """Return the API root"""
+        bot_token = self.get_telegram_access_token()
+        api_base = self.config.api_base
+
+        # Ensure we have an API Base
+        if not api_base:
+            raise SteamshipError(message="Missing Telegram API Base")
+
+        # Ensure it ends in a trailing slash
+        if api_base[-1] != "/":
+            api_base += "/"
+
+        if bot_token:
+            if ".steamship.run/" in api_base:
+                # This is a special case for our testing pipeline -- it contains a mock Telegram server.
+                return api_base
+            else:
+                return f"{api_base}{bot_token}"
+        else:
+            return None
+
+    def setting_store_key(self):
+        return f"{SETTINGS_KVSTORE_KEY}-{self.agent_service.context.invocable_instance_handle}"
+
+    def get_telegram_access_token(self) -> Optional[str]:
+        """Return the Telegram Access token, which permits the agent to post to Telegram."""
+
+        # Warning: This can't be an 'is not None' check since the config system uses an empty string to represent None
+        if self.bot_token:
+            return self.bot_token
+
+        _dynamically_set_token = None
+        _fallback_token = None
+
+        # Prefer the dynamically set token if available
+        kv = KeyValueStore(
+            client=self.agent_service.client, store_identifier=self.setting_store_key()
+        )
+        v = kv.get("telegram_token")
+        if v:
+            _dynamically_set_token = v.get("token", None)
+
+        # Fall back on the config-provided one
+        if self.config:
+            _fallback_token = self.config.bot_token
+
+        _return_token = _dynamically_set_token or _fallback_token
+
+        # Cache it to avoid another KV Store lookup and return
+        self.bot_token = _return_token
+        return _return_token
+
+    @post("is_telegram_token_set")
+    def is_telegram_token_set(self) -> InvocableResponse[bool]:
+        """Return whether the Telegram token has been set as a way for a remote UI to check status."""
+
+        # Warning: This can't be an 'is not None' check since the config system uses an empty string to represent None
+        if not self.get_telegram_access_token():
+            return InvocableResponse(json=False)
+        return InvocableResponse(json=True)

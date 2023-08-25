@@ -556,7 +556,9 @@ class SlackTransport(Transport):
     @post("set_slack_access_token")
     def set_slack_access_token(self, token: str) -> InvocableResponse[str]:
         """Set the slack access token."""
-        kv = KeyValueStore(client=self.agent_service.client, store_identifier=SETTINGS_KVSTORE_KEY)
+        kv = KeyValueStore(
+            client=self.agent_service.client, store_identifier=self.setting_store_key()
+        )
         kv.set("slack_token", {"token": token})
         return InvocableResponse(string="OK")
 
@@ -564,7 +566,9 @@ class SlackTransport(Transport):
         """Return the Slack Access token, which permits the agent to post to Slack."""
         if self.bot_token:
             return self.bot_token
-        kv = KeyValueStore(client=self.agent_service.client, store_identifier=SETTINGS_KVSTORE_KEY)
+        kv = KeyValueStore(
+            client=self.agent_service.client, store_identifier=self.setting_store_key()
+        )
         v = kv.get("slack_token")
         if not v:
             return None
@@ -578,3 +582,6 @@ class SlackTransport(Transport):
         if token is None:
             return InvocableResponse(json=False)
         return InvocableResponse(json=True)
+
+    def setting_store_key(self):
+        return f"{SETTINGS_KVSTORE_KEY}-{self.agent_service.context.invocable_instance_handle}"
