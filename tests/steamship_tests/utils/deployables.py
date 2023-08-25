@@ -8,6 +8,7 @@ from typing import Any, Dict, List, Optional
 from steamship_tests import ROOT_PATH, SRC_PATH, TEST_ASSETS_PATH
 
 from steamship import Package, PackageInstance, PackageVersion, Steamship
+from steamship.data.invocable_init_status import InvocableInitStatus
 from steamship.data.plugin import HostingType, Plugin
 from steamship.data.plugin.plugin_instance import PluginInstance
 from steamship.data.plugin.plugin_version import PluginVersion
@@ -101,6 +102,10 @@ def deploy_plugin(
 
     if wait_for_init:
         plugin_instance.wait_for_init()
+        assert plugin_instance.init_status in [
+            InvocableInitStatus.COMPLETE,
+            InvocableInitStatus.NOT_NEEDED,
+        ]
 
     yield plugin, plugin_version, plugin_instance
 
@@ -143,6 +148,10 @@ def deploy_package(
 
     if wait_for_init:
         package_instance.wait_for_init()
+        assert package_instance.init_status in [
+            InvocableInitStatus.COMPLETE,
+            InvocableInitStatus.NOT_NEEDED,
+        ]
 
     yield package, version, package_instance
 
