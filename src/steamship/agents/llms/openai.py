@@ -1,7 +1,9 @@
 from typing import List, Optional
 
-from steamship import Block, File, PluginInstance, Steamship
+from steamship import Block, File, PluginInstance, Steamship, Tag
 from steamship.agents.schema import LLM, ChatLLM, Tool
+from steamship.data import TagKind
+from steamship.data.tags.tag_constants import ChatTag
 
 PLUGIN_HANDLE = "gpt-4"
 DEFAULT_MAX_TOKENS = 256
@@ -80,7 +82,14 @@ class ChatOpenAI(ChatLLM, OpenAI):
         - `max_tokens` (controls the size of LLM responses)
         """
 
-        temp_file = File.create(client=self.client, blocks=messages)
+        temp_file = File.create(
+            client=self.client,
+            blocks=messages,
+            tags=[
+                # Mark that this is a CHAT COMPLETION file
+                Tag(kind=TagKind.CHAT, name=ChatTag.COMPLETION)
+            ],
+        )
 
         options = {}
         if len(tools) > 0:
@@ -94,4 +103,5 @@ class ChatOpenAI(ChatLLM, OpenAI):
 
         tool_selection_task = self.generator.generate(input_file_id=temp_file.id, options=options)
         tool_selection_task.wait()
+
         return tool_selection_task.output.blocks

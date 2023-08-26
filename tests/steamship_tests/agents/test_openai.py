@@ -3,6 +3,9 @@ import pytest
 from steamship import Block, Steamship
 from steamship.agents.llms import OpenAI
 from steamship.agents.llms.openai import ChatOpenAI
+from steamship.data import TagKind
+from steamship.data.tags.tag_constants import ChatTag
+from steamship.data.tags.tag_utils import get_tag
 
 
 @pytest.mark.usefixtures("client")
@@ -11,6 +14,8 @@ def test_openai_llm(client: Steamship):
     blocks = llm.complete(prompt="Why did the chicken cross the road?", stop="side.")
 
     assert len(blocks) == 1
+    # It should be marked as a Chat Completion
+    assert get_tag(blocks[0].tags, kind=TagKind.CHAT, name=ChatTag.COMPLETION)
     assert blocks[0].is_text()
 
 
@@ -20,6 +25,8 @@ def test_openai_llm_model_selection(client: Steamship):
     blocks = llm.complete(prompt="Why did the chicken cross the road?", stop="side.")
 
     assert len(blocks) == 1
+    # It should be marked as a Chat Completion
+    assert get_tag(blocks[0].tags, kind=TagKind.CHAT, name=ChatTag.COMPLETION)
     assert blocks[0].is_text()
 
 
@@ -29,6 +36,8 @@ def test_openai_llm_model_max_tokens_static(client: Steamship):
     blocks = llm.complete(prompt="Why did the chicken cross the road?")
 
     assert len(blocks) == 1
+    # It should be marked as a Chat Completion
+    assert get_tag(blocks[0].tags, kind=TagKind.CHAT, name=ChatTag.COMPLETION)
     assert blocks[0].is_text()
     assert len(blocks[0].text.split()) == 1
 
@@ -39,6 +48,8 @@ def test_openai_llm_model_max_tokens_dynamic(client: Steamship):
     blocks = llm.complete(prompt="Why did the chicken cross the road?", max_tokens=1)
 
     assert len(blocks) == 1
+    # It should be marked as a Chat Completion
+    assert get_tag(blocks[0].tags, kind=TagKind.CHAT, name=ChatTag.COMPLETION)
     assert blocks[0].is_text()
     assert len(blocks[0].text.split()) == 1
 
@@ -51,5 +62,7 @@ def test_openai_llm_chat_model_max_tokens_dynamic(client: Steamship):
     )
 
     assert len(blocks) == 1
+    # It should be marked as a Chat Completion
+    assert get_tag(blocks[0].tags, kind=TagKind.CHAT, name=ChatTag.COMPLETION)
     assert blocks[0].is_text()
     assert len(blocks[0].text.split()) == 1
