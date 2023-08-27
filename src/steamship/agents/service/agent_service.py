@@ -135,6 +135,8 @@ class AgentService(PackageService):
             if context.action_cache:
                 context.action_cache.update(key=action, value=action.output)
 
+        action.return_direct = tool.return_direct
+
     def run_agent(self, agent: Agent, context: AgentContext):
         # first, clear any prior agent steps from set of completed steps
         # this will allow the agent to select tools/dispatch actions based on a new context
@@ -146,6 +148,20 @@ class AgentService(PackageService):
 
         while not isinstance(action, FinishAction):
             self.run_action(agent=agent, action=action, context=context)
+
+            # If this action wishes to end the loop, comply with that wish
+            if action.return_direct:
+                logging.info(
+                    f"Exciting reasoning loop by request of: {action.tool}",
+                    extra={
+                        AgentLogging.TOOL_NAME: action.tool,
+                        AgentLogging.IS_MESSAGE: False,
+                        AgentLogging.MESSAGE_TYPE: AgentLogging.ACTION,
+                        AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+                    },
+                )
+                break
+
             action = self.next_action(agent=agent, input_blocks=action.output, context=context)
 
             # TODO: Arrive at a solid design for the details of this structured log object

@@ -40,6 +40,12 @@ class Tool(BaseModel):
     """Human-friendly description.
     Used for logging, tool indices, etc."""
 
+    return_direct: bool = False
+    """Whether to return the tool's output directly.
+
+    Setting this to True means that after the tool is called, the AgentExecutor will stop looping.
+    """
+
     @abstractmethod
     def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
         """Run the tool given the provided input and context.
