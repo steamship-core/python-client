@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from steamship import Tag
+from steamship.data.tags.tag import Tag
 
 
 def get_tag(
