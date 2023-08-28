@@ -9,6 +9,7 @@ from steamship.agents.schema.message_selectors import MessageSelector
 from steamship.client import Steamship
 from steamship.data import TagKind
 from steamship.data.tags.tag_constants import ChatTag, RoleTag, TagValueKey
+from steamship.data.tags.tag_utils import get_tag, get_tag_value_key
 
 
 @pytest.mark.usefixtures("client")
@@ -17,9 +18,8 @@ def test_chat_create(client: Steamship):
 
     assert chat.client is not None
     assert isinstance(chat, ChatHistory)
-    assert len(chat.tags) == 3
-    assert chat.tags[0].kind == TagKind.DOCUMENT
-    assert chat.tags[0].name == DocTag.CHAT
+    assert len(chat.tags) == 4
+    assert get_tag(chat.tags, kind=TagKind.DOCUMENT, name=DocTag.CHAT)
 
 
 @pytest.mark.usefixtures("client")
@@ -32,10 +32,17 @@ def test_chat_append_system(client: Steamship):
     assert len(chat.messages) == 1
     assert chat.messages[0].text == "some system text"
 
-    assert len(chat.messages[0].tags) == 2
-    assert chat.messages[0].tags[0].kind == TagKind.CHAT
-    assert chat.messages[0].tags[0].name == ChatTag.ROLE
-    assert chat.messages[0].tags[0].value == {TagValueKey.STRING_VALUE: RoleTag.SYSTEM}
+    assert len(chat.messages[0].tags) == 3
+    assert get_tag(chat.messages[0].tags, kind=TagKind.CHAT, name=ChatTag.ROLE)
+    assert (
+        get_tag_value_key(
+            chat.messages[0].tags,
+            key=TagValueKey.STRING_VALUE,
+            kind=TagKind.CHAT,
+            name=ChatTag.ROLE,
+        )
+        == RoleTag.SYSTEM
+    )
 
 
 @pytest.mark.usefixtures("client")
@@ -48,10 +55,17 @@ def test_chat_append_user(client: Steamship):
     assert len(chat.messages) == 1
     assert chat.messages[0].text == "some user text"
 
-    assert len(chat.messages[0].tags) == 2
-    assert chat.messages[0].tags[0].kind == TagKind.CHAT
-    assert chat.messages[0].tags[0].name == ChatTag.ROLE
-    assert chat.messages[0].tags[0].value == {TagValueKey.STRING_VALUE: RoleTag.USER}
+    assert len(chat.messages[0].tags) == 3
+    assert get_tag(chat.messages[0].tags, kind=TagKind.CHAT, name=ChatTag.ROLE)
+    assert (
+        get_tag_value_key(
+            chat.messages[0].tags,
+            key=TagValueKey.STRING_VALUE,
+            kind=TagKind.CHAT,
+            name=ChatTag.ROLE,
+        )
+        == RoleTag.USER
+    )
 
 
 @pytest.mark.usefixtures("client")
