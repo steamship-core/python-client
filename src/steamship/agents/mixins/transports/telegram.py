@@ -25,7 +25,7 @@ class TelegramTransportConfig(Config):
 class TelegramTransport(Transport):
     """Experimental base class to encapsulate a Telegram communication channel."""
 
-    bot_token: Optional[str]
+    bot_token: Optional[str] = None
     agent_service: AgentService
     config: TelegramTransportConfig
 
@@ -292,7 +292,7 @@ class TelegramTransport(Transport):
             api_base += "/"
 
         if bot_token:
-            if ".steamship.run/" in api_base:
+            if ".steamship.run/" in api_base or ".apps.staging.steamship.com" in api_base:
                 # This is a special case for our testing pipeline -- it contains a mock Telegram server.
                 return api_base
             else:
