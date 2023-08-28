@@ -40,10 +40,10 @@ class Tool(BaseModel):
     """Human-friendly description.
     Used for logging, tool indices, etc."""
 
-    return_direct: bool = False
-    """Whether to return the tool's output directly.
+    is_final: bool = False
+    """Whether actions performed by this tool should have their is_final bit marked.
 
-    Setting this to True means that after the tool is called, the AgentExecutor will stop looping.
+    Setting this to True means that the output of this tool will halt the reasoning loop.
     """
 
     @abstractmethod

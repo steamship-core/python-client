@@ -155,7 +155,7 @@ class LLMCache:
         if out_blocks := value.get("output"):
             output_blocks = _blocks_from_cache_dict(self.client, out_blocks)
 
-        if value.get("tool") == "Agent-FinishAction":
+        if value.get("tool") == FinishAction.tool:
             return FinishAction(input=input_blocks, output=output_blocks)
 
         return Action(tool=value.get("tool"), input=input_blocks, output=output_blocks)

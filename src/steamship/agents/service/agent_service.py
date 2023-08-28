@@ -5,7 +5,7 @@ from typing import List, Optional
 from steamship import Block, SteamshipError, Task
 from steamship.agents.llms.openai import ChatOpenAI, OpenAI
 from steamship.agents.logging import AgentLogging
-from steamship.agents.schema import Action, Agent, FinishAction
+from steamship.agents.schema import Action, Agent
 from steamship.agents.schema.context import AgentContext, Metadata
 from steamship.agents.utils import with_llm
 from steamship.invocable import PackageService, post
@@ -46,7 +46,7 @@ class AgentService(PackageService):
             action = context.llm_cache.lookup(key=input_blocks)
         if action:
             logging.info(
-                f"Using cached response: calling {action.tool}.",
+                f"Selected next action via cached response: calling {action.tool}.",
                 extra={
                     AgentLogging.TOOL_NAME: "LLM",
                     AgentLogging.IS_MESSAGE: True,
@@ -57,7 +57,7 @@ class AgentService(PackageService):
         else:
             inputs = ",".join([f"{b.as_llm_input()}" for b in input_blocks])
             logging.info(
-                f"Prompting LLM with: ({inputs})",
+                f"Selecting next action by prompting LLM: ({inputs})",
                 extra={
                     AgentLogging.TOOL_NAME: "LLM",
                     AgentLogging.IS_MESSAGE: True,
@@ -68,10 +68,21 @@ class AgentService(PackageService):
             action = agent.next_action(context=context)
             if context.llm_cache:
                 context.llm_cache.update(key=input_blocks, value=action)
+
+        logging.info(
+            f"Selected next action: {action.tool}",
+            extra={
+                AgentLogging.TOOL_NAME: action.tool,
+                AgentLogging.IS_MESSAGE: False,
+                AgentLogging.MESSAGE_TYPE: AgentLogging.ACTION,
+                AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+            },
+        )
+
         return action
 
     def run_action(self, agent: Agent, action: Action, context: AgentContext):
-        if isinstance(action, FinishAction):
+        if action.is_final:
             return
 
         if not agent:
@@ -131,11 +142,12 @@ class AgentService(PackageService):
                 },
             )
             action.output = blocks_or_task
+            action.is_final = (
+                tool.is_final
+            )  # Permit the tool to decide if this action should halt the reasoning loop.
             context.completed_steps.append(action)
             if context.action_cache:
                 context.action_cache.update(key=action, value=action.output)
-
-        action.return_direct = tool.return_direct
 
     def run_agent(self, agent: Agent, context: AgentContext):
         # first, clear any prior agent steps from set of completed steps
@@ -146,34 +158,12 @@ class AgentService(PackageService):
             agent=agent, input_blocks=[context.chat_history.last_user_message], context=context
         )
 
-        while not isinstance(action, FinishAction):
+        while not action.is_final:
             self.run_action(agent=agent, action=action, context=context)
-
-            # If this action wishes to end the loop, comply with that wish
-            if action.return_direct:
-                logging.info(
-                    f"Exciting reasoning loop by request of: {action.tool}",
-                    extra={
-                        AgentLogging.TOOL_NAME: action.tool,
-                        AgentLogging.IS_MESSAGE: False,
-                        AgentLogging.MESSAGE_TYPE: AgentLogging.ACTION,
-                        AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
-                    },
-                )
+            if action.is_final:
                 break
-
-            action = self.next_action(agent=agent, input_blocks=action.output, context=context)
-
-            # TODO: Arrive at a solid design for the details of this structured log object
-            logging.info(
-                f"Next Tool: {action.tool}",
-                extra={
-                    AgentLogging.TOOL_NAME: action.tool,
-                    AgentLogging.IS_MESSAGE: False,
-                    AgentLogging.MESSAGE_TYPE: AgentLogging.ACTION,
-                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
-                },
-            )
+            else:
+                action = self.next_action(agent=agent, input_blocks=action.output, context=context)
 
         context.completed_steps.append(action)
         output_text_length = 0
