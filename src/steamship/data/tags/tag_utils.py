@@ -17,6 +17,6 @@ def get_tag_value_key(
     tags: Optional[List[Tag]], key: str, kind: Optional[str] = None, name: Optional[str] = None
 ) -> Optional[any]:
     """Return the value key from the first tag of a list with the provided kind & name."""
-    if tag := get_tag(tags, key, name):
+    if tag := get_tag(tags, kind=kind, name=name):
         return (tag.value or {}).get(key)
     return None
