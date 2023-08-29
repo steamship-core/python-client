@@ -3,9 +3,9 @@ import uuid
 from typing import List, Optional
 
 from steamship import Block, SteamshipError, Task
-from steamship.agents.llms.openai import ChatOpenAI, OpenAI
-from steamship.agents.logging import AgentLogging
-from steamship.agents.schema import Action, Agent
+from steamship.agents.llms.openai import OpenAI
+from steamship.agents.logging import AgentLogging, StreamingOpts
+from steamship.agents.schema import Action, Agent, FinishAction
 from steamship.agents.schema.context import AgentContext, Metadata
 from steamship.agents.utils import with_llm
 from steamship.invocable import PackageService, post
@@ -55,22 +55,19 @@ class AgentService(PackageService):
             action = context.llm_cache.lookup(key=input_blocks)
         if action:
             logging.info(
-                f"Selected next action via cached response: calling {action.tool}.",
+                f"Using cached tool selection: calling {action.tool}.",
                 extra={
-                    AgentLogging.TOOL_NAME: "LLM",
                     AgentLogging.IS_MESSAGE: True,
-                    AgentLogging.MESSAGE_TYPE: AgentLogging.OBSERVATION,
+                    AgentLogging.MESSAGE_TYPE: AgentLogging.THOUGHT,
                     AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
                 },
             )
         else:
-            inputs = ",".join([f"{b.as_llm_input()}" for b in input_blocks])
             logging.info(
-                f"Selecting next action by prompting LLM: ({inputs})",
+                "Selecting next action...",
                 extra={
-                    AgentLogging.TOOL_NAME: "LLM",
                     AgentLogging.IS_MESSAGE: True,
-                    AgentLogging.MESSAGE_TYPE: AgentLogging.PROMPT,
+                    AgentLogging.MESSAGE_TYPE: AgentLogging.THOUGHT,
                     AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
                 },
             )
@@ -81,9 +78,8 @@ class AgentService(PackageService):
         logging.info(
             f"Selected next action: {action.tool}",
             extra={
-                AgentLogging.TOOL_NAME: action.tool,
-                AgentLogging.IS_MESSAGE: False,
-                AgentLogging.MESSAGE_TYPE: AgentLogging.ACTION,
+                AgentLogging.IS_MESSAGE: True,
+                AgentLogging.MESSAGE_TYPE: AgentLogging.THOUGHT,
                 AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
             },
         )
@@ -91,7 +87,7 @@ class AgentService(PackageService):
         return action
 
     def run_action(self, agent: Agent, action: Action, context: AgentContext):
-        if action.is_final:
+        if isinstance(action, FinishAction):
             return
 
         if not agent:
@@ -272,11 +268,28 @@ class AgentService(PackageService):
         if runtime_use_action_cache := kwargs.get("use_action_cache"):
             use_action_cache = runtime_use_action_cache
 
+        include_agent_messages = True
+        if kwargs.get("include_agent_messages") is not None:
+            include_agent_messages = kwargs.get("include_agent_messages")
+
+        include_llm_messages = True
+        if kwargs.get("include_llm_messages") is not None:
+            include_llm_messages = kwargs.get("include_llm_messages")
+
+        include_tool_messages = True
+        if kwargs.get("include_tool_messages") is not None:
+            include_tool_messages = kwargs.get("include_tool_messages")
+
         context = AgentContext.get_or_create(
             client=self.client,
             context_keys={"id": f"{context_id}"},
             use_llm_cache=use_llm_cache,
             use_action_cache=use_action_cache,
+            streaming_opts=StreamingOpts(
+                include_agent_messages=include_agent_messages,
+                include_llm_messages=include_llm_messages,
+                include_tool_messages=include_tool_messages,
+            ),
         )
 
         # Add a default LLM to the context, using the Agent's if it exists.
@@ -288,7 +301,6 @@ class AgentService(PackageService):
             llm = OpenAI(client=self.client)
 
         context = with_llm(context=context, llm=llm)
-
         return context
 
     @post("prompt")
@@ -296,46 +308,41 @@ class AgentService(PackageService):
         self, prompt: Optional[str] = None, context_id: Optional[str] = None, **kwargs
     ) -> List[Block]:
         """Run an agent with the provided text as the input."""
-        prompt = prompt or kwargs.get("question")
+        with self.build_default_context(context_id, **kwargs) as context:
+            prompt = prompt or kwargs.get("question")
+            context.chat_history.append_user_message(prompt)
 
-        context = self.build_default_context(context_id, **kwargs)
+            # AgentServices provide an emit function hook to access the output of running
+            # agents and tools. The emit functions fire at after the supplied agent emits
+            # a "FinishAction".
+            #
+            # Here, we show one way of accessing the output in a synchronous fashion. An
+            # alternative way would be to access the final Action in the `context.completed_steps`
+            # after the call to `run_agent()`.
+            output_blocks = []
 
-        context.chat_history.append_user_message(prompt)
+            def sync_emit(blocks: List[Block], meta: Metadata):
+                nonlocal output_blocks
+                output_blocks.extend(blocks)
 
-        # Add a default LLM
-        context = with_llm(context=context, llm=ChatOpenAI(client=self.client, model_name="gpt-4"))
+            context.emit_funcs.append(sync_emit)
 
-        # AgentServices provide an emit function hook to access the output of running
-        # agents and tools. The emit functions fire at after the supplied agent emits
-        # a "FinishAction".
-        #
-        # Here, we show one way of accessing the output in a synchronous fashion. An
-        # alternative way would be to access the final Action in the `context.completed_steps`
-        # after the call to `run_agent()`.
-        output_blocks = []
+            # Get the agent
+            agent: Optional[Agent] = self.get_default_agent()
+            self.run_agent(agent, context)
 
-        def sync_emit(blocks: List[Block], meta: Metadata):
-            nonlocal output_blocks
-            output_blocks.extend(blocks)
+            # Now append the output blocks to the chat history
+            # TODO: It seems like we've been going from block -> not block -> block here. Opportunity to optimize.
+            for output_block in output_blocks:
+                # Need to make the output blocks public here so that they can be copied to the chat history.
+                # They generally need to be public anyway for the REPL to be able to show a clickable link.
+                output_block.set_public_data(True)
+                context.chat_history.append_assistant_message(
+                    text=output_block.text,
+                    tags=output_block.tags,
+                    url=output_block.raw_data_url or output_block.url or output_block.content_url,
+                    mime_type=output_block.mime_type,
+                )
 
-        context.emit_funcs.append(sync_emit)
-
-        # Get the agent
-        agent: Optional[Agent] = self.get_default_agent()
-        self.run_agent(agent, context)
-
-        # Now append the output blocks to the chat history
-        # TODO: It seems like we've been going from block -> not block -> block here. Opportunity to optimize.
-        for output_block in output_blocks:
-            # Need to make the output blocks public here so that they can be copied to the chat history.
-            # They generally need to be public anyway for the REPL to be able to show a clickable link.
-            output_block.set_public_data(True)
-            context.chat_history.append_assistant_message(
-                text=output_block.text,
-                tags=output_block.tags,
-                url=output_block.raw_data_url or output_block.url or output_block.content_url,
-                mime_type=output_block.mime_type,
-            )
-
-        # Return the response as a set of multi-modal blocks.
-        return output_blocks
+            # Return the response as a set of multi-modal blocks.
+            return output_blocks

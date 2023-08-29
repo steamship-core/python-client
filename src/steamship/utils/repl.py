@@ -1,8 +1,10 @@
 import abc
 import contextlib
 import logging
+import signal
 import uuid
 from abc import ABC
+from functools import partial
 from json import JSONDecodeError
 from typing import Any, Dict, List, Optional, Type, Union, cast
 
@@ -182,12 +184,30 @@ class AgentREPL(SteamshipREPL):
 
         while True:
             input_text = input(colored(text="Input: ", color="blue"))  # noqa: F821
-            output = responder(prompt=input_text, context_id=self.context_id)
+            output = responder(prompt=input_text, context_id=self.context_id, **kwargs)
             self.print_object_or_objects(output)
 
-    def run(self, **kwargs):
+    def run(self, dump_history_on_exit: Optional[bool] = False, **kwargs):
         with self.temporary_workspace() as client:
+            if dump_history_on_exit:
+                signal.signal(signal.SIGTERM, partial(self.print_history, client))
+                signal.signal(signal.SIGINT, partial(self.print_history, client))
             self.run_with_client(client, **kwargs)
+
+    def print_history(self, client: Steamship, *args, **kwargs):
+        agent_ctx = AgentContext.get_or_create(
+            client=client, context_keys={"id": f"{self.context_id}"}
+        )
+        print(f"\n\n----- Agent Chat History {agent_ctx.id} -----\n")
+        history = agent_ctx.chat_history
+        history.refresh()
+        for block in history.messages:
+            if block.is_text():
+                print(f"[{block.chat_role}] {block.text}")
+            else:
+                print(f"[{block.chat_role}] {block.id} ({block.mime_type})")
+        print("\n------------------------------\n")
+        exit(0)
 
 
 class HttpREPL(SteamshipREPL):
