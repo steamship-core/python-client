@@ -4,6 +4,9 @@ from steamship.agents.schema.message_selectors import MessageWindowMessageSelect
 from steamship.agents.service.agent_service import AgentService
 from steamship.agents.tools.image_generation import DalleTool
 from steamship.agents.tools.search import SearchTool
+from steamship.data import TagValueKey
+from steamship.invocable import post
+from steamship.utils.kv_store import KeyValueStore
 from steamship.utils.repl import AgentREPL
 
 
@@ -15,6 +18,13 @@ class MyCachingAssistant(AgentService):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs, use_llm_cache=True, use_action_cache=True)
+
+        # Load the max_actions_per_run from the saved store for use in testing.
+        self.kv = KeyValueStore(self.client)
+        self.max_actions_per_run = (self.kv.get("max_actions_per_run") or {}).get(
+            TagValueKey.NUMBER_VALUE, 5
+        )
+
         self.set_default_agent(
             FunctionsBasedAgent(
                 tools=[
@@ -24,6 +34,13 @@ class MyCachingAssistant(AgentService):
                 llm=ChatOpenAI(self.client, temperature=0),
                 conversation_memory=MessageWindowMessageSelector(k=2),
             )
+        )
+
+    @post("set_max_actions_per_run")
+    def set_max_actions_per_run(self, value: int):
+        """Save the max_actions_per_run value so that it will be reloaded upon next request."""
+        self.max_actions_per_run = self.kv.set(
+            "max_actions_per_run", {TagValueKey.NUMBER_VALUE: value}
         )
 
 

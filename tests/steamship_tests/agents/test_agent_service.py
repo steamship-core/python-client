@@ -66,3 +66,9 @@ def test_example_with_caching_service(client: Steamship):
         blocks = _blocks_from_invoke(client, blocks_json)
         assert len(blocks) == 1
         assert "insert cat image here" == blocks[0].text
+
+        # Set the max actions per run to zero and observe the error.
+        caching_agent.invoke("set_max_actions_per_run", value=0)
+
+        blocks_json = caching_agent.invoke("prompt", prompt="draw a cat", context_id=context_id)
+        print(blocks_json)
