@@ -160,7 +160,7 @@ class AgentService(PackageService):
 
         while not action.is_final:
             self.run_action(agent=agent, action=action, context=context)
-            if action.is_final:
+            if action.is_final:  # Note that self.run_action has modified the action object here.
                 break
             else:
                 action = self.next_action(agent=agent, input_blocks=action.output, context=context)
