@@ -21,9 +21,7 @@ class MyCachingAssistant(AgentService):
 
         # Load the max_actions_per_run from the saved store for use in testing.
         self.kv = KeyValueStore(self.client)
-        self.max_actions_per_run = (self.kv.get("max_actions_per_run") or {}).get(
-            TagValueKey.NUMBER_VALUE, 5
-        )
+        self.max_actions_per_run = self.get_max_actions_per_run()
 
         self.set_default_agent(
             FunctionsBasedAgent(
@@ -42,6 +40,12 @@ class MyCachingAssistant(AgentService):
         self.max_actions_per_run = self.kv.set(
             "max_actions_per_run", {TagValueKey.NUMBER_VALUE: value}
         )
+        return value
+
+    @post("get_max_actions_per_run")
+    def get_max_actions_per_run(self) -> int:
+        """Save the max_actions_per_run value so that it will be reloaded upon next request."""
+        return (self.kv.get("max_actions_per_run") or {}).get(TagValueKey.NUMBER_VALUE, 5)
 
 
 if __name__ == "__main__":

@@ -157,9 +157,11 @@ class AgentService(PackageService):
 
         while not isinstance(action, FinishAction):
             # Throw an error if we've exceeded our action budget.
-            if number_of_actions_run > self.max_actions_per_run:
+            if number_of_actions_run >= self.max_actions_per_run:
                 raise SteamshipError(
-                    message=f"Agent exceeded it's Action budget of {self.max_actions_per_run} without arriving at a response. If you are the developer, checking the logs may reveal it was selecting unhelpful tools or receiving unhelpful responses from them."
+                    message=(
+                        f"Agent reached its Action budget of {self.max_actions_per_run} without arriving at a response. If you are the developer, checking the logs may reveal it was selecting unhelpful tools or receiving unhelpful responses from them."
+                    )
                 )
 
             # Run the next action
