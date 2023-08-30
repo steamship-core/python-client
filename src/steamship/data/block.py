@@ -248,7 +248,7 @@ class Block(CamelModel):
         )
 
     def set_chat_role(self, role: RoleTag):
-        return self._one_time_set_tag(
+        return self._one_time_set_tag_string_value(
             tag_kind=DocTag.CHAT, tag_name=ChatTag.ROLE, string_value=role.value
         )
 
@@ -259,7 +259,7 @@ class Block(CamelModel):
         )
 
     def set_message_id(self, message_id: str):
-        return self._one_time_set_tag(
+        return self._one_time_set_tag_string_value(
             tag_kind=DocTag.CHAT, tag_name=ChatTag.MESSAGE_ID, string_value=message_id
         )
 
@@ -270,7 +270,7 @@ class Block(CamelModel):
         )
 
     def set_chat_id(self, chat_id: str):
-        return self._one_time_set_tag(
+        return self._one_time_set_tag_string_value(
             tag_kind=DocTag.CHAT, tag_name=ChatTag.CHAT_ID, string_value=chat_id
         )
 
@@ -281,7 +281,7 @@ class Block(CamelModel):
         )
 
     def set_thread_id(self, thread_id: str) -> None:
-        return self._one_time_set_tag(
+        return self._one_time_set_tag_string_value(
             tag_kind=DocTag.CHAT, tag_name=ChatTag.THREAD_ID, string_value=thread_id
         )
 
@@ -292,11 +292,11 @@ class Block(CamelModel):
         )
 
     def set_user_id(self, user_id: str) -> None:
-        return self._one_time_set_tag(
+        return self._one_time_set_tag_string_value(
             tag_kind=DocTag.CHAT, tag_name=ChatTag.USER_ID, string_value=user_id
         )
 
-    def _one_time_set_tag(self, tag_kind: str, tag_name: str, string_value: str):
+    def _one_time_set_tag_string_value(self, tag_kind: str, tag_name: str, string_value: str):
         existing = get_tag_value_key(
             self.tags, TagValueKey.STRING_VALUE, kind=tag_kind, name=tag_name
         )

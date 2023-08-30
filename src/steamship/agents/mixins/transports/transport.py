@@ -67,6 +67,7 @@ class Transport(PackageMixin, ABC):
                 }
             ).run([Block(text=message.url)], context=context)
             message.text = transcriptions[0].text
+
         return message
 
     @abstractmethod

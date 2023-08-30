@@ -290,3 +290,5 @@ class ChatTag(str, Enum):
 
     # A message should be marked as kind=CHAT/name=MESSAGE
     MESSAGE = "message"
+
+    MESSAGE_METADATA = "message-metadata"

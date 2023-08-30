@@ -9,6 +9,7 @@ from steamship import Block, Steamship, SteamshipError
 from steamship.agents.mixins.transports.transport import Transport
 from steamship.agents.schema import EmitFunc, Metadata
 from steamship.agents.service.agent_service import AgentService
+from steamship.data.tags.tag import ChatMessageTag, ChatMessageTagMetadata
 from steamship.invocable import Config, InvocableResponse, post
 from steamship.utils.kv_store import KeyValueStore
 
@@ -187,6 +188,8 @@ class TelegramTransport(Transport):
                 f"Bad 'message_id' found in Telegram message: ({message_id}). Should have been an int"
             )
 
+        block = None
+
         if video_or_voice := (payload.get("voice") or payload.get("video_note")):
             file_id = video_or_voice.get("file_id")
             file_url = self._get_file_url(file_id)
@@ -196,18 +199,30 @@ class TelegramTransport(Transport):
             )
             block.set_chat_id(str(chat_id))
             block.set_message_id(str(message_id))
-            return block
-
-        # Some incoming messages (like the group join message) don't have message text.
-        # Rather than throw an error, we just don't return a Block.
-        message_text = payload.get("text")
-        if message_text is not None:
-            result = Block(text=message_text)
-            result.set_chat_id(str(chat_id))
-            result.set_message_id(str(message_id))
-            return result
+        elif message_text := payload.get("text"):
+            block = Block(text=message_text)
+            block.set_chat_id(str(chat_id))
+            block.set_message_id(str(message_id))
         else:
-            return None
+            # Some incoming messages (like the group join message) don't have message text.
+            # Rather than throw an error, we just don't return a Block.
+            pass
+
+        # Add metadata about the speaker of the message, from Telegram's point of view
+        message_metadata = ChatMessageTagMetadata()
+
+        if user := payload.get("user"):
+            if username := user.get("username"):
+                message_metadata.speaker_handle = username
+
+        if chat := payload.get("chat"):
+            if channel_name := chat.get("title") or chat.get("username"):
+                # Note: the username field is claimed to be used for private 1:1 chats.
+                message_metadata.channel_name = channel_name
+
+        block.tags.append(ChatMessageTag(message_metadata))
+
+        return block
 
     def build_emit_func(self, chat_id: str) -> EmitFunc:
         def new_emit_func(blocks: List[Block], metadata: Metadata):

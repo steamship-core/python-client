@@ -11,7 +11,7 @@ from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import Request
 from steamship.base.response import Response
-from steamship.data.tags.tag_constants import GenerationTag, TagKind, TagValueKey
+from steamship.data.tags.tag_constants import ChatTag, GenerationTag, TagKind, TagValueKey
 
 
 class TagQueryRequest(Request):
@@ -332,6 +332,20 @@ class PromptCompletionTag(Tag):
         )
 
 
+class ChatMessageTagMetadata(BaseModel):
+    """Typed value object for the CHAT/MESSAGE_METADATA tag."""
+
+    transport: Optional[str] = None  # The transport of the message name; E.g. slack
+    channel_name: Optional[str] = None  # Name of the channel in the remote transport; E.g. #general
+    speaker_handle: Optional[str] = None  # The handle of the remote speaker; E.g. @bob
+    speaker_pic: Optional[str] = None  # URL of speaker profile pic, if known
+
+
+class ChatMessageTag(Tag):
+    def __init__(self, value: ChatMessageTagMetadata):
+        super().__init__(kind=TagKind.CHAT, name=ChatTag.MESSAGE_METADATA, value=value)
+
+
 class TagQueryResponse(Response):
     tags: List[Tag]
 
@@ -345,3 +359,4 @@ SentimentTag.update_forward_refs()
 EntityTag.update_forward_refs()
 IntentTag.update_forward_refs()
 EmotionTag.update_forward_refs()
+ChatMessageTag.update_forward_refs()
