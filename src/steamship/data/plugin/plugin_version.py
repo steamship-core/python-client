@@ -56,15 +56,16 @@ class PluginVersion(CamelModel):
     def create(
         client: Client,
         handle: str,
-        plugin_id: str = None,
-        filename: str = None,
-        filebytes: bytes = None,
+        plugin_id: Optional[str] = None,
+        filename: Optional[str] = None,
+        filebytes: Optional[bytes] = None,
         hosting_memory: Optional[HostingMemory] = None,
         hosting_timeout: Optional[HostingTimeout] = None,
-        hosting_handler: str = None,
-        is_public: bool = None,
-        is_default: bool = None,
-        config_template: Dict[str, Any] = None,
+        hosting_handler: Optional[str] = None,
+        is_public: Optional[bool] = None,
+        is_default: Optional[bool] = None,
+        config_template: Optional[Dict[str, Any]] = None,
+        max_deployment_timeout_s: Optional[int] = None,
     ) -> PluginVersion:
 
         if filename is None and filebytes is None:
@@ -94,7 +95,7 @@ class PluginVersion(CamelModel):
             expect=PluginVersion,
         )
 
-        task.wait()
+        task.wait(max_timeout_s=max_deployment_timeout_s)
         return task.output
 
     @staticmethod

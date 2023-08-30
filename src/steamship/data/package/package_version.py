@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, Type
+from typing import Any, Dict, Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -35,12 +35,13 @@ class PackageVersion(CamelModel):
     @staticmethod
     def create(
         client: Client,
-        package_id: str = None,
-        handle: str = None,
-        filename: str = None,
-        filebytes: bytes = None,
-        config_template: Dict[str, Any] = None,
-        hosting_handler: str = None,
+        package_id: Optional[str] = None,
+        handle: Optional[str] = None,
+        filename: Optional[str] = None,
+        filebytes: Optional[bytes] = None,
+        config_template: Optional[Dict[str, Any]] = None,
+        hosting_handler: Optional[str] = None,
+        max_deployment_timeout_s: Optional[int] = None,
     ) -> PackageVersion:
 
         if filename is None and filebytes is None:
@@ -65,7 +66,7 @@ class PackageVersion(CamelModel):
             file=("package.zip", filebytes, "multipart/form-data"),
             expect=PackageVersion,
         )
-        task.wait()
+        task.wait(max_timeout_s=max_deployment_timeout_s)
         return task.output
 
     def delete(self) -> PackageVersion:
