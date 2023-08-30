@@ -13,6 +13,7 @@ from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.base.response import Response
 from steamship.data.tags.tag import Tag
 from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValueKey
+from steamship.data.tags.tag_utils import get_tag_value_key
 
 
 class BlockQueryRequest(Request):
@@ -24,16 +25,6 @@ class BlockUploadType(str, Enum):
     BLOCKS = "blocks"  # Blocks are sent to create a file
     URL = "url"  # content will be fetched from a URL
     NONE = "none"  # No upload; plain text only.
-
-
-def get_tag_value_key(
-    tags: Optional[List[Tag]], key: str, kind: Optional[str] = None, name: Optional[str] = None
-) -> Optional[any]:
-    """Iterates through a list of tags and returns the first that contains the provided Kind/Name/ValueKey."""
-    for tag in tags or []:
-        if (kind is None or tag.kind == kind) and (name is None or tag.name == name):
-            return (tag.value or {}).get(key)
-    return None
 
 
 class Block(CamelModel):
