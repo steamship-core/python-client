@@ -295,6 +295,9 @@ def serve_local(  # noqa: C901
     ngrok_api_url = None
     public_api_url = None
 
+    # Hard coded instance handle to represent "a local instance that isn't connected to the engine"
+    local_instance_handle = "local-dev-instance-not-connected-to-engine"
+
     if not no_ngrok:
         ngrok_api_url = _run_ngrok(port)
 
@@ -310,6 +313,9 @@ def serve_local(  # noqa: C901
             config=config,
         )
 
+        # Replace the local instance handle with the instance just registered in the engine.
+        local_instance_handle = registered_instance.handle
+
         # Notes:
         #  1. registered_instance.invocation_url is the NGROK URL, not the Steamship Proxy URL.
         #  2. The public_api_url should still be NGROK, not the Proxy. The local server emulates the Proxy and
@@ -322,7 +328,7 @@ def serve_local(  # noqa: C901
     try:
         local_api_url = _run_local_server(
             local_port=port,
-            instance_handle=registered_instance.handle,
+            instance_handle=local_instance_handle,
             config=config,
             workspace=workspace,
             base_url=public_api_url,

@@ -93,7 +93,8 @@ class ChatHistory:
         if file is None:
             tags = tags or []
             index_handle = str(uuid.uuid4())
-            tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))
+            tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))  # This is a Chat-related tag
+            tags.append(Tag(kind=TagKind.CHAT, name=ChatTag.HISTORY))  # This is a ChatHistory file
             tags.append(Tag(kind=TagKind.CHAT, name=ChatTag.CONTEXT_KEYS, value=context_keys))
             tags.append(
                 Tag(
@@ -133,6 +134,7 @@ class ChatHistory:
         tags.append(
             Tag(kind=TagKind.CHAT, name=ChatTag.ROLE, value={TagValueKey.STRING_VALUE: role})
         )
+        tags.append(Tag(kind=TagKind.CHAT, name=ChatTag.MESSAGE))
         block = self.file.append_block(
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )

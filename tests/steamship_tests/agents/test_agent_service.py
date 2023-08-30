@@ -42,6 +42,17 @@ def test_example_with_caching_service(client: Steamship):
         assert "image" in blocks[0].text
         assert blocks[1].is_image()
 
+        # attempt with a max_actions_per_run budget of 0 (should fail!)
+        assert caching_agent.invoke("get_max_actions_per_run") == 5
+        caching_agent.invoke("set_max_actions_per_run", value=0)
+        assert caching_agent.invoke("get_max_actions_per_run") == 0
+
+        with pytest.raises(SteamshipError, match="budget"):
+            blocks_json = caching_agent.invoke("prompt", prompt="draw a cat", context_id=context_id)
+
+        caching_agent.invoke("set_max_actions_per_run", value=5)
+        assert caching_agent.invoke("get_max_actions_per_run") == 5
+
         agent_context = AgentContext.get_or_create(
             client=client, context_keys=context_keys, use_llm_cache=True, use_action_cache=True
         )

@@ -284,3 +284,9 @@ class ChatTag(str, Enum):
 
     # A chunk of text for indexing
     CHUNK = "chunk"
+
+    # A chat history should be marked as kind=CHAT/name=HISTORY
+    HISTORY = "history"
+
+    # A message should be marked as kind=CHAT/name=MESSAGE
+    MESSAGE = "message"
