@@ -24,15 +24,24 @@ class AgentService(PackageService):
     use_action_cache: bool
     """Whether or not to cache agent Actions (for tool runs) by default."""
 
+    max_actions_per_run: int
+    """The maximum number of actions to permit while the agent is reasoning.
+
+    This is intended primarily to act as a backstop to prevent a condition in which the Agent decides to loop endlessly
+    on tool runs that consume resources with a cost-basis (e.g. prompt completions, embedding operations, vector lookups)
+    """
+
     def __init__(
         self,
         use_llm_cache: Optional[bool] = False,
         use_action_cache: Optional[bool] = False,
+        max_actions_per_run: Optional[int] = 5,
         agent: Optional[Agent] = None,
         **kwargs,
     ):
         self.use_llm_cache = use_llm_cache
         self.use_action_cache = use_action_cache
+        self.max_actions_per_run = max_actions_per_run
         self.agent = agent
         super().__init__(**kwargs)
 
@@ -150,20 +159,65 @@ class AgentService(PackageService):
                 context.action_cache.update(key=action, value=action.output)
 
     def run_agent(self, agent: Agent, context: AgentContext):
-        # first, clear any prior agent steps from set of completed steps
-        # this will allow the agent to select tools/dispatch actions based on a new context
+        # First, some bookkeeping.
+
+        # Clear any prior agent steps from set of completed steps.
+        # This will allow the agent to select tools/dispatch actions based on a new context
         context.completed_steps = []
 
+        # Set the pointer for the current action.
+        # The agent will continue to take actions until it is ready to respond.
         action = self.next_action(
             agent=agent, input_blocks=[context.chat_history.last_user_message], context=context
         )
 
+        # Set the counter for the number of actions run.
+        # This enables the agent to enforce a budget on actions to guard against running forever.
+        number_of_actions_run = 0
+
         while not action.is_final:
+            # If we've exceeded our Action Budget, throw an error.
+            if number_of_actions_run >= self.max_actions_per_run:
+                raise SteamshipError(
+                    message=(
+                        f"Agent reached its Action budget of {self.max_actions_per_run} without arriving at a response. If you are the developer, checking the logs may reveal it was selecting unhelpful tools or receiving unhelpful responses from them."
+                    )
+                )
+
+            # Select the next action to run
+            action = self.next_action(
+                agent=agent, input_blocks=[context.chat_history.last_user_message], context=context
+            )
+
+            # Run the next action and incremenet our counter
             self.run_action(agent=agent, action=action, context=context)
-            if action.is_final:  # Note that self.run_action has modified the action object here.
+            number_of_actions_run += 1
+
+            # Sometimes, running an action will result in it being dynamically set as a final action as a result of
+            # the tool that performed the action's operation. E.g. a Tool wishes to have its output considered the
+            # final and complete response.
+            #
+            # This is a distinct scenario from the next_action method returning a FinalAction, which is why this is
+            # a break statement here rather than hidden within the while loop condition above: it's essentially an
+            # "early exit" signal.
+            if action.is_final:
                 break
-            else:
-                action = self.next_action(agent=agent, input_blocks=action.output, context=context)
+
+            # If we're still here, then the Agent has performed work and must decide what to do next. The next
+            # action might be another tool, or it might be the Agent deciding to convert this Action's output into
+            # A FinalAction object, which would then cause the while loop to terminate upon next iteration.
+            action = self.next_action(agent=agent, input_blocks=action.output, context=context)
+
+            # TODO: Arrive at a solid design for the details of this structured log object
+            logging.info(
+                f"Next Tool: {action.tool}",
+                extra={
+                    AgentLogging.TOOL_NAME: action.tool,
+                    AgentLogging.IS_MESSAGE: False,
+                    AgentLogging.MESSAGE_TYPE: AgentLogging.ACTION,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+                },
+            )
 
         context.completed_steps.append(action)
         output_text_length = 0
