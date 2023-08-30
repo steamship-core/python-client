@@ -244,7 +244,7 @@ class SlackTransport(Transport):
     Interacting with the Bot on Slack will trigger a request/response loop in the Agent.
     """
 
-    bot_token: str
+    bot_token: Optional[str] = None
     agent_service: AgentService
     config: SlackTransportConfig
 

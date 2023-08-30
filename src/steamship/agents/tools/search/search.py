@@ -8,7 +8,7 @@ from steamship.agents.llms import OpenAI
 from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.utils import with_llm
 from steamship.data import TagValueKey
-from steamship.experimental.easy.tags import get_tag_value_key
+from steamship.data.tags.tag_utils import get_tag_value_key
 from steamship.utils.kv_store import KeyValueStore
 from steamship.utils.repl import ToolREPL
 
