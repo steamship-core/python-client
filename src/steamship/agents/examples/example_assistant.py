@@ -22,7 +22,7 @@ class MyFunctionsBasedAssistant(AgentService):
                     DalleTool(),
                 ],
                 llm=ChatOpenAI(self.client, temperature=0),
-                conversation_memory=MessageWindowMessageSelector(k=2),
+                message_selector=MessageWindowMessageSelector(k=2),
             )
         )
 
