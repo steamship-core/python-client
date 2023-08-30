@@ -288,8 +288,5 @@ class ChatTag(str, Enum):
     # A chat history should be marked as kind=CHAT/name=HISTORY
     HISTORY = "history"
 
-    # A completion should be marked as kind=CHAT/name=COMPLETION
-    COMPLETION = "completion"
-
     # A message should be marked as kind=CHAT/name=MESSAGE
     MESSAGE = "message"
