@@ -1,5 +1,7 @@
 import json
 import logging
+import os
+import platform
 import signal
 import subprocess  # noqa: S404
 import sys
@@ -740,6 +742,14 @@ def support_info():
                 click.secho("")
     else:
         click.echo("FILE NOT PRESENT")
+
+    click.echo("\n\nEnvironment/OS Info\n=====================")
+    click.secho(f"OS type: {os.name}")
+    click.secho(f"OS Name: {platform.system()}")
+    click.secho(f"OS Version: {platform.release()}")
+    click.secho(f"Python version: {sys.version}")
+    click.secho(f"Shell: {os.environ.get('SHELL')}")
+    click.secho(f"In virtual env: {sys.prefix != sys.base_prefix}")
 
 
 cli.add_command(login)
