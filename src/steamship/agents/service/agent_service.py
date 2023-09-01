@@ -155,7 +155,7 @@ class AgentService(PackageService):
                 tool.is_final
             )  # Permit the tool to decide if this action should halt the reasoning loop.
             context.completed_steps.append(action)
-            if context.action_cache:
+            if context.action_cache and tool.cacheable:
                 context.action_cache.update(key=action, value=action.output)
 
     def run_agent(self, agent: Agent, context: AgentContext):

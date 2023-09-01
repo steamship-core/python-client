@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from typing import Any, List, Union
 
+from pydantic.fields import Field
 from pydantic.main import BaseModel
 
 from steamship import Block, Task
@@ -44,6 +45,13 @@ class Tool(BaseModel):
     """Whether actions performed by this tool should have their is_final bit marked.
 
     Setting this to True means that the output of this tool will halt the reasoning loop.
+    """
+    
+    cacheable: bool = Field(default=True)
+    """Whether runs of this Tool should be cached based on inputs (if caching is enabled in the AgentContext for a run).
+    Setting this to False will make prevent any Actions that involve this tool from being cached, meaning that
+    every Action using this Tool will result in a call to `run`.
+    By default, Tools are considered cacheable.
     """
 
     @abstractmethod

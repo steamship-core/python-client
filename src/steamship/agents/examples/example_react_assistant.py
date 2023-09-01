@@ -24,7 +24,7 @@ class MyAssistant(AgentService):
                 llm=OpenAI(
                     self.client, temperature=0, model_name="gpt-4-0314"
                 ),  # MUST PIN to older model
-                conversation_memory=MessageWindowMessageSelector(k=2),
+                message_selector=MessageWindowMessageSelector(k=2),
             )
         )
 
