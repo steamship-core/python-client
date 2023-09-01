@@ -1,6 +1,7 @@
 from abc import abstractmethod
 from typing import Any, List, Union
 
+from pydantic.fields import Field
 from pydantic.main import BaseModel
 
 from steamship import Block, Task
@@ -39,6 +40,13 @@ class Tool(BaseModel):
     human_description: str
     """Human-friendly description.
     Used for logging, tool indices, etc."""
+
+    cacheable: bool = Field(default=True)
+    """Whether runs of this Tool should be cached based on inputs (if caching is enabled in the AgentContext for a run).
+    Setting this to False will make prevent any Actions that involve this tool from being cached, meaning that
+    every Action using this Tool will result in a call to `run`.
+    By default, Tools are considered cacheable.
+    """
 
     @abstractmethod
     def run(self, tool_input: List[Block], context: AgentContext) -> Union[List[Block], Task[Any]]:
