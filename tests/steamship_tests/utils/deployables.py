@@ -83,7 +83,6 @@ def deploy_plugin(
         filebytes=zip_bytes,
         config_template=version_config_template,
         hosting_handler=hosting_handler,
-        max_deployment_timeout_s=360,  # Task default is 180; this occasionally fails in CI/CD
     )
     # TODO: This is due to having to wait for the lambda to finish deploying.
     # TODO: We should update the task system to allow its .wait() to depend on this.
@@ -132,7 +131,6 @@ def deploy_package(
         filebytes=zip_bytes,
         config_template=version_config_template,
         hosting_handler=hosting_handler,
-        max_deployment_timeout_s=360,  # Task default is 180; this occasionally fails in CI/CD
     )
 
     _wait_for_version(version)

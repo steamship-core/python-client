@@ -65,7 +65,6 @@ class PluginVersion(CamelModel):
         is_public: Optional[bool] = None,
         is_default: Optional[bool] = None,
         config_template: Optional[Dict[str, Any]] = None,
-        max_deployment_timeout_s: Optional[int] = None,
     ) -> PluginVersion:
 
         if filename is None and filebytes is None:
@@ -95,7 +94,7 @@ class PluginVersion(CamelModel):
             expect=PluginVersion,
         )
 
-        task.wait(max_timeout_s=max_deployment_timeout_s)
+        task.wait_until_completed()
         return task.output
 
     @staticmethod

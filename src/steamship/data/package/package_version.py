@@ -41,7 +41,6 @@ class PackageVersion(CamelModel):
         filebytes: Optional[bytes] = None,
         config_template: Optional[Dict[str, Any]] = None,
         hosting_handler: Optional[str] = None,
-        max_deployment_timeout_s: Optional[int] = None,
     ) -> PackageVersion:
 
         if filename is None and filebytes is None:
@@ -66,7 +65,7 @@ class PackageVersion(CamelModel):
             file=("package.zip", filebytes, "multipart/form-data"),
             expect=PackageVersion,
         )
-        task.wait(max_timeout_s=max_deployment_timeout_s)
+        task.wait_until_completed()
         return task.output
 
     def delete(self) -> PackageVersion:
