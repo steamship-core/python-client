@@ -22,6 +22,12 @@ class Action(BaseModel):
     output: Optional[List[Block]]
     """Any direct output produced by the Tool."""
 
+    is_final: bool = False
+    """Whether this Action should be the final action performed in a reasoning loop.
+
+    Setting this to True means that the executing Agent should halt any reasoning.
+    """
+
     def to_chat_messages(self) -> List[Block]:
         tags = [
             Tag(kind=TagKind.ROLE, name=RoleTag.FUNCTION),
@@ -48,3 +54,4 @@ class FinishAction(Action):
 
     tool = "Agent-FinishAction"
     input: List[Block] = []
+    is_final = True

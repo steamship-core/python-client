@@ -5,7 +5,7 @@ from typing import List, Optional
 from steamship import Block, SteamshipError, Task
 from steamship.agents.llms.openai import ChatOpenAI, OpenAI
 from steamship.agents.logging import AgentLogging
-from steamship.agents.schema import Action, Agent, FinishAction
+from steamship.agents.schema import Action, Agent
 from steamship.agents.schema.context import AgentContext, Metadata
 from steamship.agents.utils import with_llm
 from steamship.invocable import PackageService, post
@@ -55,7 +55,7 @@ class AgentService(PackageService):
             action = context.llm_cache.lookup(key=input_blocks)
         if action:
             logging.info(
-                f"Using cached response: calling {action.tool}.",
+                f"Selected next action via cached response: calling {action.tool}.",
                 extra={
                     AgentLogging.TOOL_NAME: "LLM",
                     AgentLogging.IS_MESSAGE: True,
@@ -66,7 +66,7 @@ class AgentService(PackageService):
         else:
             inputs = ",".join([f"{b.as_llm_input()}" for b in input_blocks])
             logging.info(
-                f"Prompting LLM with: ({inputs})",
+                f"Selecting next action by prompting LLM: ({inputs})",
                 extra={
                     AgentLogging.TOOL_NAME: "LLM",
                     AgentLogging.IS_MESSAGE: True,
@@ -77,10 +77,21 @@ class AgentService(PackageService):
             action = agent.next_action(context=context)
             if context.llm_cache:
                 context.llm_cache.update(key=input_blocks, value=action)
+
+        logging.info(
+            f"Selected next action: {action.tool}",
+            extra={
+                AgentLogging.TOOL_NAME: action.tool,
+                AgentLogging.IS_MESSAGE: False,
+                AgentLogging.MESSAGE_TYPE: AgentLogging.ACTION,
+                AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+            },
+        )
+
         return action
 
     def run_action(self, agent: Agent, action: Action, context: AgentContext):
-        if isinstance(action, FinishAction):
+        if action.is_final:
             return
 
         if not agent:
@@ -140,23 +151,32 @@ class AgentService(PackageService):
                 },
             )
             action.output = blocks_or_task
+            action.is_final = (
+                tool.is_final
+            )  # Permit the tool to decide if this action should halt the reasoning loop.
             context.completed_steps.append(action)
             if context.action_cache and tool.cacheable:
                 context.action_cache.update(key=action, value=action.output)
 
     def run_agent(self, agent: Agent, context: AgentContext):
-        # first, clear any prior agent steps from set of completed steps
-        # this will allow the agent to select tools/dispatch actions based on a new context
+        # First, some bookkeeping.
+
+        # Clear any prior agent steps from set of completed steps.
+        # This will allow the agent to select tools/dispatch actions based on a new context
         context.completed_steps = []
 
+        # Set the pointer for the current action.
+        # The agent will continue to take actions until it is ready to respond.
         action = self.next_action(
             agent=agent, input_blocks=[context.chat_history.last_user_message], context=context
         )
 
+        # Set the counter for the number of actions run.
+        # This enables the agent to enforce a budget on actions to guard against running forever.
         number_of_actions_run = 0
 
-        while not isinstance(action, FinishAction):
-            # Throw an error if we've exceeded our action budget.
+        while not action.is_final:
+            # If we've exceeded our Action Budget, throw an error.
             if number_of_actions_run >= self.max_actions_per_run:
                 raise SteamshipError(
                     message=(
@@ -164,11 +184,28 @@ class AgentService(PackageService):
                     )
                 )
 
-            # Run the next action
+            # Select the next action to run
+            action = self.next_action(
+                agent=agent, input_blocks=[context.chat_history.last_user_message], context=context
+            )
+
+            # Run the next action and incremenet our counter
             self.run_action(agent=agent, action=action, context=context)
             number_of_actions_run += 1
 
-            # Select a new next_action and log it
+            # Sometimes, running an action will result in it being dynamically set as a final action as a result of
+            # the tool that performed the action's operation. E.g. a Tool wishes to have its output considered the
+            # final and complete response.
+            #
+            # This is a distinct scenario from the next_action method returning a FinalAction, which is why this is
+            # a break statement here rather than hidden within the while loop condition above: it's essentially an
+            # "early exit" signal.
+            if action.is_final:
+                break
+
+            # If we're still here, then the Agent has performed work and must decide what to do next. The next
+            # action might be another tool, or it might be the Agent deciding to convert this Action's output into
+            # A FinalAction object, which would then cause the while loop to terminate upon next iteration.
             action = self.next_action(agent=agent, input_blocks=action.output, context=context)
 
             # TODO: Arrive at a solid design for the details of this structured log object
