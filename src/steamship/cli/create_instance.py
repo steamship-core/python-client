@@ -145,9 +145,7 @@ def load_manifest():
 def set_unset_params(config, invocable_config, is_file, manifest):
     new_param_values = False
     for param, param_config in manifest.configTemplate.items():
-        if param not in invocable_config and (
-            param_config.default is None or param_config.default == ""
-        ):
+        if param not in invocable_config and param_config.default is not None:
             if param.upper() in os.environ:
                 invocable_config[param] = os.environ[param.upper()]
             else:
