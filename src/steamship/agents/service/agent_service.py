@@ -184,11 +184,6 @@ class AgentService(PackageService):
                     )
                 )
 
-            # Select the next action to run
-            action = self.next_action(
-                agent=agent, input_blocks=[context.chat_history.last_user_message], context=context
-            )
-
             # Run the next action and incremenet our counter
             self.run_action(agent=agent, action=action, context=context)
             number_of_actions_run += 1
