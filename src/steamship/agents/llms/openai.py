@@ -58,6 +58,7 @@ class OpenAI(LLM):
         if "max_tokens" in kwargs:
             options["max_tokens"] = kwargs["max_tokens"]
 
+        # TODO(dougreid): do we care about streaming here? should we take a kwarg that is file_id ?
         action_task = self.generator.generate(text=prompt, options=options)
         action_task.wait()
         return action_task.output.blocks
@@ -84,47 +85,74 @@ class ChatOpenAI(ChatLLM, OpenAI):
         Supported kwargs include:
         - `max_tokens` (controls the size of LLM responses)
         """
+        if len(messages) <= 0:
+            return []
 
-        temp_file = File.create(
-            client=self.client,
-            blocks=messages,
-            tags=[Tag(kind=TagKind.GENERATION, name=GenerationTag.PROMPT_COMPLETION)],
-        )
+        options = {}
+        if len(tools) > 0:
+            functions = []
+            for tool in tools:
+                functions.append(tool.as_openai_function().dict())
+            options["functions"] = functions
 
-        try:
-            options = {}
-            if len(tools) > 0:
-                functions = []
-                for tool in tools:
-                    functions.append(tool.as_openai_function().dict())
-                options["functions"] = functions
+        if "max_tokens" in kwargs:
+            options["max_tokens"] = kwargs["max_tokens"]
 
-            if "max_tokens" in kwargs:
-                options["max_tokens"] = kwargs["max_tokens"]
+        extra = {
+            AgentLogging.LLM_NAME: "OpenAI",
+            AgentLogging.IS_MESSAGE: True,
+            AgentLogging.MESSAGE_TYPE: AgentLogging.PROMPT,
+            AgentLogging.MESSAGE_AUTHOR: AgentLogging.LLM,
+        }
 
-            extra = {
-                AgentLogging.LLM_NAME: "OpenAI",
-                AgentLogging.IS_MESSAGE: True,
-                AgentLogging.MESSAGE_TYPE: AgentLogging.PROMPT,
-                AgentLogging.MESSAGE_AUTHOR: AgentLogging.LLM,
-            }
-
-            if logging.DEBUG >= logging.root.getEffectiveLevel():
-                extra["messages"] = json.dumps(
-                    "\n".join([f"[{msg.chat_role}] {msg.as_llm_input()}" for msg in messages])
-                )
-                extra["tools"] = ",".join([t.name for t in tools])
-            else:
-                extra["num_messages"] = len(messages)
-                extra["num_tools"] = len(tools)
-
-            logging.info(f"OpenAI ChatComplete ({messages[-1].as_llm_input()})", extra=extra)
-
-            tool_selection_task = self.generator.generate(
-                input_file_id=temp_file.id, options=options
+        if logging.DEBUG >= logging.root.getEffectiveLevel():
+            extra["messages"] = json.dumps(
+                "\n".join([f"[{msg.chat_role}] {msg.as_llm_input()}" for msg in messages])
             )
-            tool_selection_task.wait()
+            extra["tools"] = ",".join([t.name for t in tools])
+        else:
+            extra["num_messages"] = len(messages)
+            extra["num_tools"] = len(tools)
 
-            return tool_selection_task.output.blocks
-        finally:
-            temp_file.delete()
+        logging.info(f"OpenAI ChatComplete ({messages[-1].as_llm_input()})", extra=extra)
+
+        # for streaming use cases, we want to always use the existing file
+        # the way to detect this would be if all messages were from the same file
+        if self._from_same_existing_file(blocks=messages):
+            file_id = messages[0].file_id
+            block_indices = [b.index_in_file for b in messages]
+            generate_task = self.generator.generate(
+                input_file_id=file_id,
+                input_file_block_index_list=block_indices.sort(),
+                options=options,
+                append_output_to_file=True,
+            )
+        else:
+            tags = [Tag(kind=TagKind.GENERATION, name=GenerationTag.PROMPT_COMPLETION)]
+            try:
+                temp_file = File.create(client=self.client, blocks=messages, tags=tags)
+                generate_task = self.generator.generate(input_file_id=temp_file.id, options=options)
+            finally:
+                temp_file.delete()
+
+        generate_task.wait()
+
+        return generate_task.output.blocks
+
+    def _from_same_existing_file(self, blocks: List[Block]) -> bool:
+        if len(blocks) == 1:
+            return blocks[0].file_id is not None
+        file_id = blocks[0].file_id
+        for b in blocks[1:]:
+            if b.file_id != file_id:
+                return False
+        return True
+
+    def _from_same_file(self, blocks: List[Block]) -> bool:
+        if len(blocks) <= 1:
+            return True
+        file_id = blocks[0].file_id
+        for b in blocks[1:]:
+            if b.file_id != file_id:
+                return False
+        return True

@@ -30,6 +30,7 @@ class TagKind(str, Enum):
     CHAT = "chat"
     CHAT_HISTORY_CONTEXT = "chat-history-context"
     MESSAGE_ID = "message-id"
+    STATUS_MESSAGE = "status-message"
     AGENT_STATUS_MESSAGE = "agent-status-message"
     TOOL_STATUS_MESSAGE = "tool-status-message"
     LLM_STATUS_MESSAGE = "llm-status-message"

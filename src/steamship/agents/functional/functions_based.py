@@ -5,7 +5,9 @@ from typing import List
 from steamship import Block, MimeTypes, Tag
 from steamship.agents.functional.output_parser import FunctionsBasedOutputParser
 from steamship.agents.schema import Action, AgentContext, ChatAgent, ChatLLM, FinishAction, Tool
+
 from steamship.data.tags.tag_constants import ChatTag, RoleTag, TagKind, TagValueKey
+from steamship.data.tags.tag_constants import RoleTag, TagKind, TagValueKey
 from steamship.data.tags.tag_utils import get_tag
 
 
@@ -44,15 +46,7 @@ Only use the functions you have been provided with."""
                 .wait()
                 .to_ranked_blocks()
             )
-
             # TODO(dougreid): we need a way to threshold message inclusion, especially for small contexts
-
-            # remove the actual prompt from the semantic search (it will be an exact match)
-            messages_from_memory = [
-                msg
-                for msg in messages_from_memory
-                if msg.id != context.chat_history.last_user_message.id
-            ]
 
         # get most recent context
         messages_from_memory.extend(context.chat_history.select_messages(self.message_selector))

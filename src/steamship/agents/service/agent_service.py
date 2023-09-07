@@ -3,12 +3,16 @@ import uuid
 from collections import defaultdict
 from typing import Dict, List, Optional
 
-from steamship import Block, SteamshipError, Task
+from pydantic.main import BaseModel
+
+from steamship import Block, File, SteamshipError, Task
 from steamship.agents.llms.openai import OpenAI
 from steamship.agents.logging import AgentLogging, StreamingOpts
 from steamship.agents.schema import Action, Agent, FinishAction
 from steamship.agents.schema.context import AgentContext, EmitFunc, Metadata
 from steamship.agents.utils import with_llm
+from steamship.data import TagKind
+from steamship.data.tags.tag_constants import ChatTag
 from steamship.invocable import PackageService, post
 
 
@@ -32,6 +36,11 @@ def build_context_appending_emit_func(
             )
 
     return chat_history_append_func
+
+
+class StreamingResponse(BaseModel):
+    task: Task
+    file: File
 
 
 class AgentService(PackageService):
@@ -116,6 +125,7 @@ class AgentService(PackageService):
             },
         )
 
+        # save action selection to history...
         return action
 
     def run_action(self, agent: Agent, action: Action, context: AgentContext):
@@ -337,6 +347,33 @@ class AgentService(PackageService):
 
         context = with_llm(context=context, llm=llm)
         return context
+
+    @post("async_prompt")
+    def async_prompt(
+        self, prompt: Optional[str] = None, context_id: Optional[str] = None, **kwargs
+    ) -> StreamingResponse:
+        with self.build_default_context(context_id, **kwargs) as context:
+            ctx_id = context_id
+
+            # if no context ID is provided, we need to make sure that the streaming context ID
+            # is the same one as the non-streaming.
+            if not ctx_id:
+                ctx_file = context.chat_history.file
+                for tag in ctx_file.tags:
+                    if tag.kind == TagKind.CHAT and tag.name == ChatTag.CONTEXT_KEYS:
+                        if value := tag.value:
+                            ctx_id = value.get("id", None)
+
+            # if you can't find a consistent context_id, then there is no way to provide an accurate
+            # streaming endpoint.
+            if not ctx_id:
+                # TODO(dougreid): this points to a slight flaw in the context_keys vs. context_id
+                raise SteamshipError("Error setting up context: no id found for context.")
+
+            task = self.invoke_later(
+                "/prompt", arguments={"prompt": prompt, "context_id": ctx_id, **kwargs}
+            )
+            return StreamingResponse(task=task, file=context.chat_history.file)
 
     @post("prompt")
     def prompt(

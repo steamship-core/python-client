@@ -11,7 +11,8 @@ from steamship.agents.schema.llm import LLM, ChatLLM
 from steamship.agents.schema.message_selectors import MessageSelector, NoMessages
 from steamship.agents.schema.output_parser import OutputParser
 from steamship.agents.schema.tool import Tool
-from steamship.data.tags.tag_constants import RoleTag
+from steamship.data.tags.tag_constants import RoleTag, TagKind
+from steamship.data.tags.tag_utils import get_tag
 
 
 class Agent(BaseModel, ABC):
@@ -57,17 +58,16 @@ class LLMAgent(Agent):
             # Internal Status Messages are not considered part of **prompt** history.
             # Their inclusion could lead to problematic LLM behavior, etc.
             # As such are explicitly skipped here:
-            # - DON'T RETURN AGENT MESSAGES
-            # - DON'T RETURN TOOL MESSAGES
-            # - DON'T RETURN LLM MESSAGES
+            # - DON'T RETURN STATUS MESSAGES
+            # - DON'T RETURN FUNCTION or FUNCTION_SELECTION MESSAGES
             if role == RoleTag.USER:
                 as_strings.append(f"User: {block.text}")
-            elif role == RoleTag.ASSISTANT:
+            elif role == RoleTag.ASSISTANT and (
+                get_tag(block.tags, TagKind.FUNCTION_SELECTION) is None
+            ):
                 as_strings.append(f"Assistant: {block.text}")
             elif role == RoleTag.SYSTEM:
                 as_strings.append(f"System: {block.text}")
-            elif role == RoleTag.FUNCTION:
-                as_strings.append(f"Function: {block.text}")
         return "\n".join(as_strings)
 
 
