@@ -3,7 +3,7 @@ from typing import List, Optional
 from steamship import Block, PluginInstance, Steamship
 from steamship.agents.schema import LLM
 
-PLUGIN_HANDLE = "gpt-4"
+PLUGIN_HANDLE = "replicate-llm"
 DEFAULT_MAX_TOKENS = 256
 
 LLAMA_2_70B = "replicate/llama-2-70b-chat"
