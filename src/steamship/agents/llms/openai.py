@@ -58,6 +58,7 @@ class OpenAI(LLM):
         if "max_tokens" in kwargs:
             options["max_tokens"] = kwargs["max_tokens"]
 
+        # TODO(dougreid): do we care about streaming here? should we take a kwarg that is file_id ?
         action_task = self.generator.generate(text=prompt, options=options)
         action_task.wait()
         return action_task.output.blocks
@@ -84,12 +85,8 @@ class ChatOpenAI(ChatLLM, OpenAI):
         Supported kwargs include:
         - `max_tokens` (controls the size of LLM responses)
         """
-
-        temp_file = File.create(
-            client=self.client,
-            blocks=messages,
-            tags=[Tag(kind=TagKind.GENERATION, name=GenerationTag.PROMPT_COMPLETION)],
-        )
+        if len(messages) <= 0:
+            return []
 
         options = {}
         if len(tools) > 0:
@@ -119,7 +116,31 @@ class ChatOpenAI(ChatLLM, OpenAI):
 
         logging.info(f"OpenAI ChatComplete ({messages[-1].as_llm_input()})", extra=extra)
 
-        tool_selection_task = self.generator.generate(input_file_id=temp_file.id, options=options)
-        tool_selection_task.wait()
+        # for streaming use cases, we want to always use the existing file
+        # the way to detect this would be if all messages were from the same file
+        if self._from_same_file(blocks=messages):
+            file_id = messages[0].id
+            block_ids = [b.id for b in messages]
+            generate_task = self.generator.generate(
+                input_file_id=file_id,
+                input_file_block_index_list=block_ids,
+                options=options,
+                append_output_to_file=True,
+            )
+        else:
+            tags = [Tag(kind=TagKind.GENERATION, name=GenerationTag.PROMPT_COMPLETION)]
+            temp_file = File.create(client=self.client, blocks=messages, tags=tags)
+            generate_task = self.generator.generate(input_file_id=temp_file.id, options=options)
 
-        return tool_selection_task.output.blocks
+        generate_task.wait()
+
+        return generate_task.output.blocks
+
+    def _from_same_file(self, blocks: List[Block]) -> bool:
+        if len(blocks) <= 1:
+            return True
+        file_id = blocks[0].file_id
+        for b in blocks[1:]:
+            if b.file_id != file_id:
+                return False
+        return True

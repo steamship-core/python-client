@@ -5,7 +5,7 @@ from pydantic.fields import PrivateAttr
 from steamship_tests import SRC_PATH
 from steamship_tests.utils.deployables import deploy_package
 
-from steamship import Block, Steamship, SteamshipError, Task
+from steamship import Block, File, Steamship, SteamshipError, Task, TaskState
 from steamship.agents.functional import FunctionsBasedAgent
 from steamship.agents.llms.openai import ChatOpenAI
 from steamship.agents.schema import Action, AgentContext, Tool
@@ -248,3 +248,38 @@ def test_context_logging_to_chat_history_everything(client: Steamship):
         assert not has_status_message(chat_history.messages, RoleTag.AGENT)
         assert not has_status_message(chat_history.messages, RoleTag.LLM)
         assert has_status_message(chat_history.messages, RoleTag.TOOL)
+
+
+@pytest.mark.usefixtures("client")
+def test_async_prompt(client: Steamship):
+    example_agent_service_path = (
+        SRC_PATH / "steamship" / "agents" / "examples" / "example_assistant.py"
+    )
+    with deploy_package(client, example_agent_service_path, wait_for_init=True) as (
+        _,
+        _,
+        agent_service,
+    ):
+        context_id = "some_async_fun"
+        streaming_resp = agent_service.invoke(
+            "async_prompt",
+            prompt="who is the current president of the United States?",
+            context_id=context_id,
+        )
+
+        assert streaming_resp is not None
+        assert streaming_resp["file"] is not None
+        assert streaming_resp["task"] is not None
+
+        file = File(client=client, **(streaming_resp["file"]))
+        task = Task(client=client, **(streaming_resp["task"]))
+
+        original_len = len(file.blocks)
+
+        task.wait()
+        assert task.state in [TaskState.succeeded, TaskState.failed]
+
+        file.refresh()
+        assert (
+            len(file.blocks) > original_len
+        ), "File should have increased in size during AgentService execution"
