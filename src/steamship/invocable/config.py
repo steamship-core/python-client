@@ -55,7 +55,6 @@ class Config(CamelModel):
         for field_name, field in cls.__fields__.items():
             description = field.field_info.description
             type_ = ConfigParameterType.from_python_type(field.type_)
-            print(field, field.required)
             default_ = cls.strip_enum(field.default)
 
             # Note: Pydantic treats any field with a default value as being `required == False`, which is not strictly
