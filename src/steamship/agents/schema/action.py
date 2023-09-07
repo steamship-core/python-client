@@ -1,10 +1,9 @@
 from typing import List, Optional
 
 from pydantic import BaseModel
+from pydantic.fields import Field
 
-from steamship import Block, Tag
-from steamship.data import TagKind
-from steamship.data.tags.tag_constants import RoleTag
+from steamship import Block
 
 
 class Action(BaseModel):
@@ -22,31 +21,11 @@ class Action(BaseModel):
     output: Optional[List[Block]]
     """Any direct output produced by the Tool."""
 
-    is_final: bool = False
+    is_final: bool = Field(default=False)
     """Whether this Action should be the final action performed in a reasoning loop.
 
     Setting this to True means that the executing Agent should halt any reasoning.
     """
-
-    def to_chat_messages(self) -> List[Block]:
-        tags = [
-            Tag(kind=TagKind.ROLE, name=RoleTag.FUNCTION),
-            Tag(kind="name", name=self.tool),
-        ]
-        blocks = []
-        for block in self.output:
-            # TODO(dougreid): should we revisit as_llm_input?  we might need only the UUID...
-            blocks.append(
-                Block(
-                    text=block.as_llm_input(exclude_block_wrapper=True),
-                    tags=tags,
-                    mime_type=block.mime_type,
-                )
-            )
-
-        # TODO(dougreid): revisit when have multiple output functions.
-        # Current thinking: LLM will be OK with multiple function blocks in a row. NEEDS validation.
-        return blocks
 
 
 class FinishAction(Action):

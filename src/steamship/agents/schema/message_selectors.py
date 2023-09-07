@@ -5,7 +5,8 @@ import tiktoken
 from pydantic.main import BaseModel
 
 from steamship import Block
-from steamship.data.tags.tag_constants import RoleTag
+from steamship.data.tags.tag_constants import RoleTag, TagKind
+from steamship.data.tags.tag_utils import get_tag
 
 
 class MessageSelector(BaseModel, ABC):
@@ -29,20 +30,34 @@ def is_assistant_message(block: Block) -> bool:
     return role == RoleTag.ASSISTANT
 
 
+def is_assistant_function_message(block: Block) -> bool:
+    is_function_selection = get_tag(block.tags, kind=TagKind.FUNCTION_SELECTION)
+    return is_assistant_message(block) and is_function_selection
+
+
+def is_user_history_message(block: Block) -> bool:
+    return is_user_message(block) or (
+        is_assistant_message(block) and not is_assistant_function_message(block)
+    )
+
+
 class MessageWindowMessageSelector(MessageSelector):
     k: int
 
     def get_messages(self, messages: List[Block]) -> List[Block]:
         msgs = messages[:]
         msgs.pop()  # don't add the current prompt to the memory
-        if len(msgs) <= (self.k * 2):
-            return msgs
+        history_msgs = [
+            msg for msg in msgs if is_user_history_message(msg)
+        ]  # filter to only user history messages
+        if len(history_msgs) <= (self.k * 2):
+            return history_msgs
 
         selected_msgs = []
         limit = self.k * 2
-        scope = msgs[len(messages) - limit :]
+        scope = history_msgs[len(history_msgs) - limit :]
         for block in scope:
-            if is_user_message(block) or is_assistant_message(block):
+            if is_user_history_message(block):
                 selected_msgs.append(block)
 
         return selected_msgs
@@ -63,7 +78,10 @@ class TokenWindowMessageSelector(MessageSelector):
 
         msgs = messages[:]
         msgs.pop()  # don't add the current prompt to the memory
-        for block in reversed(msgs):
+        history_msgs = [
+            msg for msg in msgs if is_user_history_message(msg)
+        ]  # filter to only user history messages
+        for block in reversed(history_msgs):
             if block.chat_role != RoleTag.SYSTEM and current_tokens < self.max_tokens:
                 block_tokens = tokens(block)
                 if block_tokens + current_tokens < self.max_tokens:

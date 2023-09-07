@@ -279,6 +279,28 @@ class ChatHistory:
 
         self.refresh()
 
+    def append_status_message_with_role(
+        self,
+        text: str = None,
+        role: RoleTag = RoleTag.USER,
+        tags: List[Tag] = None,
+        content: Union[str, bytes] = None,
+        url: Optional[str] = None,
+        mime_type: Optional[MimeTypes] = None,
+    ) -> Block:
+        """Append a new block to this with content provided by the end-user."""
+        tags = tags or []
+        tags.append(
+            Tag(
+                kind=TagKind.STATUS_MESSAGE,
+                name=ChatTag.ROLE,
+                value={TagValueKey.STRING_VALUE: role},
+            )
+        )
+        return self.file.append_block(
+            text=text, tags=tags, content=content, url=url, mime_type=mime_type
+        )
+
     def append_agent_message(
         self,
         text: str = None,
@@ -288,7 +310,9 @@ class ChatHistory:
         mime_type: Optional[MimeTypes] = None,
     ) -> Block:
         """Append a new block to this with status update messages from the Agent."""
-        return self.append_message_with_role(text, RoleTag.AGENT, tags, content, url, mime_type)
+        return self.append_status_message_with_role(
+            text, RoleTag.AGENT, tags, content, url, mime_type
+        )
 
     def append_tool_message(
         self,
@@ -299,7 +323,9 @@ class ChatHistory:
         mime_type: Optional[MimeTypes] = None,
     ) -> Block:
         """Append a new block to this with status update messages from the Agent."""
-        return self.append_message_with_role(text, RoleTag.TOOL, tags, content, url, mime_type)
+        return self.append_status_message_with_role(
+            text, RoleTag.TOOL, tags, content, url, mime_type
+        )
 
     def append_llm_message(
         self,
@@ -310,7 +336,9 @@ class ChatHistory:
         mime_type: Optional[MimeTypes] = None,
     ) -> Block:
         """Append a new block to this with status update messages from the Agent."""
-        return self.append_message_with_role(text, RoleTag.LLM, tags, content, url, mime_type)
+        return self.append_status_message_with_role(
+            text, RoleTag.LLM, tags, content, url, mime_type
+        )
 
 
 class ChatHistoryLoggingHandler(StreamHandler):
@@ -365,13 +393,6 @@ class ChatHistoryLoggingHandler(StreamHandler):
         if author_kind == AgentLogging.AGENT:
             return self.chat_history.append_agent_message(
                 text=message,
-                tags=[
-                    Tag(
-                        kind=TagKind.AGENT_STATUS_MESSAGE,
-                        name=message_type,
-                        value={TagValueKey.STRING_VALUE: message},
-                    ),
-                ],
                 mime_type=MimeTypes.TXT,
             )
         elif author_kind == AgentLogging.TOOL:

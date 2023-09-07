@@ -1,9 +1,11 @@
+import json
 from typing import List
 
-from steamship import Block
+from steamship import Block, MimeTypes, Tag
 from steamship.agents.functional.output_parser import FunctionsBasedOutputParser
-from steamship.agents.schema import Action, AgentContext, ChatAgent, ChatLLM, Tool
-from steamship.data.tags.tag_constants import RoleTag
+from steamship.agents.schema import Action, AgentContext, ChatAgent, ChatLLM, FinishAction, Tool
+from steamship.data.tags.tag_constants import RoleTag, TagKind, TagValueKey
+from steamship.data.tags.tag_utils import get_tag
 
 
 class FunctionsBasedAgent(ChatAgent):
@@ -41,21 +43,15 @@ Only use the functions you have been provided with."""
                 .wait()
                 .to_ranked_blocks()
             )
-
             # TODO(dougreid): we need a way to threshold message inclusion, especially for small contexts
-
-            # remove the actual prompt from the semantic search (it will be an exact match)
-            messages_from_memory = [
-                msg
-                for msg in messages_from_memory
-                if msg.id != context.chat_history.last_user_message.id
-            ]
 
         # get most recent context
         messages_from_memory.extend(context.chat_history.select_messages(self.message_selector))
 
         # de-dupe the messages from memory
-        ids = []
+        ids = [
+            context.chat_history.last_user_message.id
+        ]  # filter out last user message, it is appended afterwards
         for msg in messages_from_memory:
             if msg.id not in ids:
                 messages.append(msg)
@@ -67,10 +63,8 @@ Only use the functions you have been provided with."""
         # this should happen BEFORE any agent/assistant messages related to tool selection
         messages.append(context.chat_history.last_user_message)
 
-        # get completed steps
-        actions = context.completed_steps
-        for action in actions:
-            messages.extend(action.to_chat_messages())
+        # get working history (completed actions)
+        messages.extend(self._function_calls_since_last_user_message(context))
 
         return messages
 
@@ -81,4 +75,58 @@ Only use the functions you have been provided with."""
         # Run the default LLM on those messages
         output_blocks = self.llm.chat(messages=messages, tools=self.tools)
 
-        return self.output_parser.parse(output_blocks[0].text, context)
+        future_action = self.output_parser.parse(output_blocks[0].text, context)
+        if not isinstance(future_action, FinishAction):
+            # record the LLM's function response in history
+            self._record_action_selection(future_action, context)
+        return future_action
+
+    def _function_calls_since_last_user_message(self, context: AgentContext) -> List[Block]:
+        function_calls = []
+        for block in context.chat_history.messages[::-1]:  # is this too inefficient at scale?
+            if block.chat_role == RoleTag.USER:
+                return reversed(function_calls)
+            if get_tag(block.tags, kind=TagKind.ROLE, name=RoleTag.FUNCTION):
+                function_calls.append(block)
+            elif get_tag(block.tags, kind=TagKind.FUNCTION_SELECTION):
+                function_calls.append(block)
+        return reversed(function_calls)
+
+    def _to_openai_function_selection(self, action: Action) -> str:
+        fc = {"name": action.tool}
+        args = {}
+        for block in action.input:
+            for t in block.tags:
+                if t.kind == TagKind.FUNCTION_ARG:
+                    args[t.name] = block.as_llm_input(exclude_block_wrapper=True)
+
+        fc["arguments"] = json.dumps(args)  # the arguments must be a string value NOT a dict
+        return json.dumps(fc)
+
+    def _record_action_selection(self, action: Action, context: AgentContext):
+        tags = [
+            Tag(kind=TagKind.ROLE, name=RoleTag.ASSISTANT),
+            Tag(kind=TagKind.FUNCTION_SELECTION, name=action.tool),
+        ]
+        context.chat_history.file.append_block(
+            text=self._to_openai_function_selection(action), tags=tags, mime_type=MimeTypes.TXT
+        )
+
+    def record_action_run(self, action: Action, context: AgentContext):
+        super().record_action_run(action, context)
+
+        tags = [
+            Tag(
+                kind=TagKind.ROLE,
+                name=RoleTag.FUNCTION,
+                value={TagValueKey.STRING_VALUE: action.tool},
+            ),
+        ]
+        # TODO(dougreid): I'm not convinced this is correct for tools that return multiple values.
+        #                 It _feels_ like these should be named and inlined as a single message in history, etc.
+        for block in action.output:
+            context.chat_history.file.append_block(
+                text=block.as_llm_input(exclude_block_wrapper=True),
+                tags=tags,
+                mime_type=block.mime_type,
+            )
