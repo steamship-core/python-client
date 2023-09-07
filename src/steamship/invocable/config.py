@@ -55,10 +55,22 @@ class Config(CamelModel):
         for field_name, field in cls.__fields__.items():
             description = field.field_info.description
             type_ = ConfigParameterType.from_python_type(field.type_)
+            print(field, field.required)
+            default_ = cls.strip_enum(field.default)
+
+            # Note: Pydantic treats any field with a default value as being `required == False`, which is not strictly
+            # the same thing as being optional which, from the Python perspective means that "being absent is OK"
+            #
+            # The reason it's useful to preserve this distinction is that this metadata gets stored in the engine and
+            # then used to generate user interfaces shown to an end-user.
+            #
+            # It is useful for that interface-generation code to have access to BOTH the status of a default value but
+            # also the notion of whether the absense of a value is OK. That way it can provide hints to the user to
+            # minimize surprise about how their inputs will be interpreted.
+            optional_ = field.required is False and field.allow_none is True
+
             result[field_name] = ConfigParameter(
-                type=type_,
-                default=cls.strip_enum(field.default),
-                description=description,
+                type=type_, default=default_, description=description, optional=optional_
             )
 
         return result
