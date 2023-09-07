@@ -345,11 +345,24 @@ class ChatHistoryLoggingHandler(StreamHandler):
             return
 
         message_dict = cast(dict, self.format(record))
-        is_agent_message = message_dict.get(AgentLogging.MESSAGE_AUTHOR, None) == AgentLogging.AGENT
 
+        is_agent_message = message_dict.get(AgentLogging.MESSAGE_AUTHOR, None) == AgentLogging.AGENT
         if self.streaming_opts.include_agent_messages and is_agent_message:
-            message = message_dict.get("message", None)
-            message_type = message_dict.get(AgentLogging.MESSAGE_TYPE, AgentLogging.MESSAGE)
+            return self._append_message(message_dict, AgentLogging.AGENT)
+
+        is_tool_message = message_dict.get(AgentLogging.MESSAGE_AUTHOR, None) == AgentLogging.TOOL
+        if self.streaming_opts.include_tool_messages and is_tool_message:
+            return self._append_message(message_dict, AgentLogging.TOOL)
+
+        is_llm_message = message_dict.get(AgentLogging.MESSAGE_AUTHOR, None) == AgentLogging.LLM
+        if self.streaming_opts.include_llm_messages and is_llm_message:
+            return self._append_message(message_dict, AgentLogging.LLM)
+
+    def _append_message(self, message_dict: dict, author_kind: str):
+        message = message_dict.get("message", None)
+        message_type = message_dict.get(AgentLogging.MESSAGE_TYPE, AgentLogging.MESSAGE)
+
+        if author_kind == AgentLogging.AGENT:
             return self.chat_history.append_agent_message(
                 text=message,
                 tags=[
@@ -361,11 +374,7 @@ class ChatHistoryLoggingHandler(StreamHandler):
                 ],
                 mime_type=MimeTypes.TXT,
             )
-
-        is_tool_message = message_dict.get(AgentLogging.MESSAGE_AUTHOR, None) == AgentLogging.TOOL
-        if self.streaming_opts.include_tool_messages and is_tool_message:
-            message = message_dict.get("message", None)
-            message_type = message_dict.get(AgentLogging.MESSAGE_TYPE, AgentLogging.MESSAGE)
+        elif author_kind == AgentLogging.TOOL:
             tool_name = message_dict.get(AgentLogging.TOOL_NAME, AgentLogging.TOOL)
             return self.chat_history.append_tool_message(
                 text=message,
@@ -378,11 +387,7 @@ class ChatHistoryLoggingHandler(StreamHandler):
                 ],
                 mime_type=MimeTypes.TXT,
             )
-
-        is_llm_message = message_dict.get(AgentLogging.MESSAGE_AUTHOR, None) == AgentLogging.LLM
-        if self.streaming_opts.include_llm_messages and is_llm_message:
-            message = message_dict.get("message", None)
-            message_type = message_dict.get(AgentLogging.MESSAGE_TYPE, AgentLogging.MESSAGE)
+        elif author_kind == AgentLogging.LLM:
             llm_name = message_dict.get(AgentLogging.LLM_NAME, AgentLogging.LLM)
             return self.chat_history.append_llm_message(
                 text=message,

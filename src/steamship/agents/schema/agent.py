@@ -50,7 +50,12 @@ class LLMAgent(Agent):
         as_strings = []
         for block in messages:
             role = block.chat_role
-            # DON'T RETURN AGENT MESSAGES -- THOSE ARE INTERNAL STATUS MESSAGES
+            # Internal Status Messages are not considered part of **prompt** history.
+            # Their inclusion could lead to problematic LLM behavior, etc.
+            # As such are explicitly skipped here:
+            # - DON'T RETURN AGENT MESSAGES
+            # - DON'T RETURN TOOL MESSAGES
+            # - DON'T RETURN LLM MESSAGES
             if role == RoleTag.USER:
                 as_strings.append(f"User: {block.text}")
             elif role == RoleTag.ASSISTANT:

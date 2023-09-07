@@ -268,17 +268,9 @@ class AgentService(PackageService):
         if runtime_use_action_cache := kwargs.get("use_action_cache"):
             use_action_cache = runtime_use_action_cache
 
-        include_agent_messages = True
-        if kwargs.get("include_agent_messages") is not None:
-            include_agent_messages = kwargs.get("include_agent_messages")
-
-        include_llm_messages = True
-        if kwargs.get("include_llm_messages") is not None:
-            include_llm_messages = kwargs.get("include_llm_messages")
-
-        include_tool_messages = True
-        if kwargs.get("include_tool_messages") is not None:
-            include_tool_messages = kwargs.get("include_tool_messages")
+        include_agent_messages = kwargs.get("include_agent_messages", True)
+        include_llm_messages = kwargs.get("include_llm_messages", True)
+        include_tool_messages = kwargs.get("include_tool_messages", True)
 
         context = AgentContext.get_or_create(
             client=self.client,

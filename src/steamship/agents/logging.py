@@ -65,8 +65,25 @@ class StreamingOpts(BaseModel):
     """Controls what status messages for a given AgentService invocation should be included in the resultant stream."""
 
     include_agent_messages: bool = Field(default=True)
+    """Whether or not to include agent-generated messages in the ChatHistory stream.
+
+    Agent messages are any logging messages with: `AgentLogging.MESSAGE_AUTHOR == AgentLogging.AGENT`. These typically
+    are status messages logged in either the `AgentService` or the `Agent` code.
+    """
+
     include_llm_messages: bool = Field(default=True)
+    """Whether or not to include LLM-generated messages in the ChatHistory stream.
+
+    LLM messages are any logging messages with: `AgentLogging.MESSAGE_AUTHOR == AgentLogging.LLM`. These typically
+    are status messages logged in LLM code (ex: `ChatOpenAI`).
+    """
+
     include_tool_messages: bool = Field(default=True)
+    """Whether or not to include Tool-generated messages in the ChatHistory stream.
+
+    LLM messages are any logging messages with: `AgentLogging.MESSAGE_AUTHOR == AgentLogging.TOOL`. These typically
+    are status messages logged in Tool code (ex: `GeneratorTool`).
+    """
 
     @property
     def stream_intermediate_events(self):
