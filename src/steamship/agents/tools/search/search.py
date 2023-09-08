@@ -1,10 +1,12 @@
 """Tool for searching the web for answers."""
+import logging
 from typing import Any, List, Optional, Union
 
 from pydantic import Field
 
 from steamship import Block, File, PluginInstance, Steamship, SteamshipError, Task
 from steamship.agents.llms import OpenAI
+from steamship.agents.logging import AgentLogging
 from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.utils import with_llm
 from steamship.data import TagValueKey
@@ -55,6 +57,16 @@ class SearchTool(Tool):
                 value = self.cache_store.get(query)
                 if value is not None:
                     return value.get(TagValueKey.STRING_VALUE, "")
+
+            logging.info(
+                f"Executing search: {query}",
+                extra={
+                    AgentLogging.TOOL_NAME: self.name,
+                    AgentLogging.IS_MESSAGE: True,
+                    AgentLogging.MESSAGE_TYPE: AgentLogging.ACTION,
+                    AgentLogging.MESSAGE_AUTHOR: AgentLogging.TOOL,
+                },
+            )
 
             task = search_tool.tag(doc=query)
             task.wait()

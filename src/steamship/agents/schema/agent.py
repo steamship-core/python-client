@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from pydantic import BaseModel
+from pydantic.fields import Field
 
 from steamship import Block
 from steamship.agents.schema.action import Action
@@ -23,7 +24,7 @@ class Agent(BaseModel, ABC):
     tools: List[Tool]
     """Tools that can be used by the Agent in selecting the next Action."""
 
-    message_selector: MessageSelector = NoMessages()
+    message_selector: MessageSelector = Field(default=NoMessages())
     """Selector of messages from ChatHistory. Used for conversation memory retrieval."""
 
     @abstractmethod
@@ -49,14 +50,18 @@ class LLMAgent(Agent):
         as_strings = []
         for block in messages:
             role = block.chat_role
+            # Internal Status Messages are not considered part of **prompt** history.
+            # Their inclusion could lead to problematic LLM behavior, etc.
+            # As such are explicitly skipped here:
+            # - DON'T RETURN AGENT MESSAGES
+            # - DON'T RETURN TOOL MESSAGES
+            # - DON'T RETURN LLM MESSAGES
             if role == RoleTag.USER:
                 as_strings.append(f"User: {block.text}")
             elif role == RoleTag.ASSISTANT:
                 as_strings.append(f"Assistant: {block.text}")
             elif role == RoleTag.SYSTEM:
                 as_strings.append(f"System: {block.text}")
-            elif role == RoleTag.AGENT:
-                as_strings.append(f"Agent: {block.text}")
             elif role == RoleTag.FUNCTION:
                 as_strings.append(f"Function: {block.text}")
         return "\n".join(as_strings)
