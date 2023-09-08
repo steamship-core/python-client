@@ -27,6 +27,7 @@ class ConfigParameterType(str, Enum):
 class ConfigParameter(BaseModel):
     type: ConfigParameterType
     description: Optional[str] = None
+    optional: Optional[bool] = None
 
     # Use strict so that Pydantic doesn't coerce values into the first one that fits
     default: Optional[Union[StrictStr, StrictBool, StrictFloat, StrictInt]] = None
