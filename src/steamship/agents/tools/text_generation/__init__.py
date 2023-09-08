@@ -1,3 +1,4 @@
+from .custom_llm_prompt import CustomLLMPromptTool
 from .image_prompt_generator_tool import ImagePromptGeneratorTool
 from .json_object_generator import JsonObjectGeneratorTool
 from .personality_tool import PersonalityTool
@@ -12,4 +13,5 @@ __all__ = [
     "TextRewritingTool",
     "TextTranslationTool",
     "JsonObjectGeneratorTool",
+    "CustomLLMPromptTool",
 ]
