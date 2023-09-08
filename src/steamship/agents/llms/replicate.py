@@ -58,7 +58,7 @@ class Replicate(LLM):
             }
         )
 
-        generator = client.use_plugin(PLUGIN_HANDLE, replicate_config)
+        generator = client.use_plugin(PLUGIN_HANDLE, config=replicate_config)
         super().__init__(client=client, generator=generator, **kwargs)
 
     def complete(self, prompt: str, **kwargs) -> List[Block]:
