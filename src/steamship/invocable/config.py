@@ -62,10 +62,12 @@ class Config(CamelModel):
             # user interface generation code has access to BOTH the status of a default value and also
             # the notion of whether the absense of a value will truly be treated as absence.
             # That way it can provide hints to the user to minimize surprise about how their inputs will be interpreted.
-            optional_ = field.required is False and field.allow_none is True
+            # optional_ = field.required is False and field.allow_none is True
 
             result[field_name] = ConfigParameter(
-                type=type_, default=default_, description=description, optional=optional_
+                type=type_,
+                default=default_,
+                description=description,  # optional=optional_
             )
 
         return result
