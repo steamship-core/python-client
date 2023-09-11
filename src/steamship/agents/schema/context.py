@@ -1,6 +1,8 @@
+import logging
 from typing import Any, Callable, Dict, List, Optional
 
 from steamship import Block, Steamship, Tag
+from steamship.agents.logging import StreamingOpts
 from steamship.agents.schema.action import Action
 from steamship.agents.schema.cache import ActionCache, LLMCache
 
@@ -47,10 +49,14 @@ class AgentContext:
     """Caches all interations with LLMs within a Context. This provides a way to avoid duplicated
     calls to LLMs when within the same context."""
 
-    def __init__(self):
+    def __init__(self, streaming_opts: Optional[StreamingOpts] = None):
         self.metadata = {}
         self.completed_steps = []
         self.emit_funcs = []
+        if streaming_opts is not None:
+            self._streaming_opts = streaming_opts
+        else:
+            self._streaming_opts = StreamingOpts()
 
     @staticmethod
     def get_or_create(
@@ -60,11 +66,15 @@ class AgentContext:
         searchable: bool = True,
         use_llm_cache: Optional[bool] = False,
         use_action_cache: Optional[bool] = False,
+        streaming_opts: Optional[StreamingOpts] = None,
     ):
         from steamship.agents.schema.chathistory import ChatHistory
 
+        if streaming_opts is None:
+            streaming_opts = StreamingOpts()
+
         history = ChatHistory.get_or_create(client, context_keys, tags, searchable=searchable)
-        context = AgentContext()
+        context = AgentContext(streaming_opts=streaming_opts)
         context.chat_history = history
         context.client = client
 
@@ -81,3 +91,20 @@ class AgentContext:
             context.llm_cache = None
 
         return context
+
+    def __enter__(self):
+        from steamship.agents.schema.chathistory import ChatHistoryLoggingHandler
+
+        if self._streaming_opts.stream_intermediate_events:
+            self._chat_history_logger = ChatHistoryLoggingHandler(
+                chat_history=self.chat_history, streaming_opts=self._streaming_opts
+            )
+            logger = logging.getLogger()
+            logger.addHandler(self._chat_history_logger)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self._chat_history_logger:
+            logger = logging.getLogger()
+            logger.removeHandler(self._chat_history_logger)
+            self._chat_history_logger = None
