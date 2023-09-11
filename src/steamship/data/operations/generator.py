@@ -60,6 +60,13 @@ class GenerateRequest(Request):
     # Arbitrary runtime options which may be passed to a generator
     options: Optional[dict]
 
+    # Whether we wish to have the output blocks streamed back to us.
+    # If the blocks are streamed, they will be returned with a streamState=started,
+    # and the content can be fetched in a streaming manner by
+    # fetching Block.raw()
+    # Default behavior if not provided is streaming=false
+    streaming: Optional[bool] = None
+
 
 class GenerateResponse(Response):
     blocks: List[Block]
