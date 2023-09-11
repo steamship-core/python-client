@@ -48,8 +48,12 @@ class StreamingGenerator(
             block.client = self.client
         try:
             return self.determine_output_block_types(input)
-        except BaseException:
+        except BaseException as e:
+            # If anything goes wrong, make sure
+            # we automatically abort any open streams
+            # so the client can know
             self.abort_open_block_streams(input.data.blocks)
+            raise e
 
     @abstractmethod
     def determine_output_block_types(
