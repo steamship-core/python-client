@@ -340,9 +340,14 @@ class Block(CamelModel):
         if self.is_text():
             return self.text
         else:
+            identifier = self.id
+            if identifier is None:
+                # attempt to handle ephemeral blocks from Action::to_chat_message
+                identifier = self.text
+
             if exclude_block_wrapper:
-                return f"{self.id}"
-            return f"Block({self.id})"
+                return f"{identifier}"
+            return f"Block({identifier})"
 
     def finish_stream(self):
         self.client.post(
