@@ -1,4 +1,4 @@
 from .openai import OpenAI
-from .replicate import Replicate
+from .replicate_llama import Llama
 
-__all__ = ["OpenAI", "Replicate"]
+__all__ = ["OpenAI", "Llama", "LLamaChat"]

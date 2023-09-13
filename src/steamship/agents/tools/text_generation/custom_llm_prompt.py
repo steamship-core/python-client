@@ -1,7 +1,7 @@
 from typing import Any, List, Union
 
 from steamship import Block, Steamship, Task
-from steamship.agents.llms import OpenAI, Replicate
+from steamship.agents.llms import Llama, OpenAI
 from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.utils import get_llm, with_llm
 from steamship.utils.repl import ToolREPL
@@ -53,7 +53,7 @@ class CustomLLMPromptTool(Tool):
             A list of blocks whose content has been rewritten. Synchronously produced (for now).
         """
 
-        custom_llm = get_llm(context, default=Replicate(client=context.client))
+        custom_llm = get_llm(context, default=Llama(client=context.client))
 
         blocks = []
         for block in tool_input:
