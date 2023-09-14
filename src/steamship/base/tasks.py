@@ -244,6 +244,7 @@ class Task(GenericCamelModel, Generic[T]):
         ----------
         max_timeout_s : int
             Max timeout in seconds. Default: 180s. After this timeout, an exception will be thrown.
+            A timeout of -1 is equivalent to no timeout.
         retry_delay_s : float
             Delay between status checks. Default: 1s.
         on_each_refresh : Optional[Callable[[int, float, Task], None]]
@@ -254,7 +255,9 @@ class Task(GenericCamelModel, Generic[T]):
         """
         t0 = time.perf_counter()
         refresh_count = 0
-        while time.perf_counter() - t0 < max_timeout_s and self.state not in (
+        while (
+            (max_timeout_s == -1) or (time.perf_counter() - t0 < max_timeout_s)
+        ) and self.state not in (
             TaskState.succeeded,
             TaskState.failed,
         ):
@@ -272,6 +275,29 @@ class Task(GenericCamelModel, Generic[T]):
                 message=f"Task {self.task_id} did not complete within requested timeout of {max_timeout_s}s. The task is still running on the server. You can retrieve its status via Task.get() or try waiting again with wait()."
             )
         return self.output
+
+    def wait_until_completed(
+        self,
+        retry_delay_s: float = 1,
+        on_each_refresh: "Optional[Callable[[int, float, Task], None]]" = None,
+    ):
+        """Polls and blocks until the task has succeeded or failed. No timeout on waiting is applied.
+
+        Parameters
+        ----------
+        retry_delay_s : float
+            Delay between status checks. Default: 1s.
+        on_each_refresh : Optional[Callable[[int, float, Task], None]]
+            Optional call back you can get after each refresh is made, including success state refreshes.
+            The signature represents: (refresh #, total elapsed time, task)
+
+            WARNING: Do not pass a long-running function to this variable. It will block the update polling.
+        """
+        return self.wait(
+            max_timeout_s=-1,  # Indicates to not apply a timeout
+            retry_delay_s=retry_delay_s,
+            on_each_refresh=on_each_refresh,
+        )
 
     def refresh(self):
         if self.task_id is None:

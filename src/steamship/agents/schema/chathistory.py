@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import logging
 import uuid
+from logging import StreamHandler
 from typing import Dict, List, Optional, Union, cast
 
+from fluent.handler import FluentRecordFormatter
+
 from steamship import File, MimeTypes, Steamship, SteamshipError, Task
+from steamship.agents.logging import LOGGING_FORMAT, AgentLogging, StreamingOpts
 from steamship.agents.schema.message_selectors import MessageSelector
 from steamship.agents.schema.text_splitters import FixedSizeTextSplitter, TextSplitter
 from steamship.base.client import Client
@@ -93,7 +98,8 @@ class ChatHistory:
         if file is None:
             tags = tags or []
             index_handle = str(uuid.uuid4())
-            tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))
+            tags.append(Tag(kind=TagKind.DOCUMENT, name=DocTag.CHAT))  # This is a Chat-related tag
+            tags.append(Tag(kind=TagKind.CHAT, name=ChatTag.HISTORY))  # This is a ChatHistory file
             tags.append(Tag(kind=TagKind.CHAT, name=ChatTag.CONTEXT_KEYS, value=context_keys))
             tags.append(
                 Tag(
@@ -133,10 +139,12 @@ class ChatHistory:
         tags.append(
             Tag(kind=TagKind.CHAT, name=ChatTag.ROLE, value={TagValueKey.STRING_VALUE: role})
         )
+        tags.append(Tag(kind=TagKind.CHAT, name=ChatTag.MESSAGE))
         block = self.file.append_block(
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )
-        if self.embedding_index is not None:
+        # don't index status messages
+        if self.embedding_index is not None and role is not RoleTag.AGENT:
             chunk_tags = self.text_splitter.chunk_text_to_tags(
                 block, kind=TagKind.CHAT, name=ChatTag.CHUNK
             )
@@ -270,3 +278,125 @@ class ChatHistory:
             self.embedding_index.reset()
 
         self.refresh()
+
+    def append_agent_message(
+        self,
+        text: str = None,
+        tags: List[Tag] = None,
+        content: Union[str, bytes] = None,
+        url: Optional[str] = None,
+        mime_type: Optional[MimeTypes] = None,
+    ) -> Block:
+        """Append a new block to this with status update messages from the Agent."""
+        return self.append_message_with_role(text, RoleTag.AGENT, tags, content, url, mime_type)
+
+    def append_tool_message(
+        self,
+        text: str = None,
+        tags: List[Tag] = None,
+        content: Union[str, bytes] = None,
+        url: Optional[str] = None,
+        mime_type: Optional[MimeTypes] = None,
+    ) -> Block:
+        """Append a new block to this with status update messages from the Agent."""
+        return self.append_message_with_role(text, RoleTag.TOOL, tags, content, url, mime_type)
+
+    def append_llm_message(
+        self,
+        text: str = None,
+        tags: List[Tag] = None,
+        content: Union[str, bytes] = None,
+        url: Optional[str] = None,
+        mime_type: Optional[MimeTypes] = None,
+    ) -> Block:
+        """Append a new block to this with status update messages from the Agent."""
+        return self.append_message_with_role(text, RoleTag.LLM, tags, content, url, mime_type)
+
+
+class ChatHistoryLoggingHandler(StreamHandler):
+    """Logs messages emitted by Agents and Tools into a ChatHistory file.
+
+    This is a basic mechanism for streaming status messages alongside generated content.
+    """
+
+    chat_history: ChatHistory
+    log_level: any
+    streaming_opts: StreamingOpts
+
+    def __init__(
+        self,
+        chat_history: ChatHistory,
+        log_level: any = logging.INFO,
+        streaming_opts: Optional[StreamingOpts] = None,
+    ):
+        StreamHandler.__init__(self)
+        formatter = FluentRecordFormatter(LOGGING_FORMAT, fill_missing_fmt_key=True)
+        self.setFormatter(formatter)
+        self.chat_history = chat_history
+        self.log_level = log_level
+        if streaming_opts is not None:
+            self.streaming_opts = streaming_opts
+        else:
+            self.streaming_opts = StreamingOpts()
+
+    def emit(self, record):
+        if record.levelno < self.log_level:
+            # don't bother doing anything if level is below logging level
+            return
+
+        message_dict = cast(dict, self.format(record))
+
+        is_agent_message = message_dict.get(AgentLogging.MESSAGE_AUTHOR, None) == AgentLogging.AGENT
+        if self.streaming_opts.include_agent_messages and is_agent_message:
+            return self._append_message(message_dict, AgentLogging.AGENT)
+
+        is_tool_message = message_dict.get(AgentLogging.MESSAGE_AUTHOR, None) == AgentLogging.TOOL
+        if self.streaming_opts.include_tool_messages and is_tool_message:
+            return self._append_message(message_dict, AgentLogging.TOOL)
+
+        is_llm_message = message_dict.get(AgentLogging.MESSAGE_AUTHOR, None) == AgentLogging.LLM
+        if self.streaming_opts.include_llm_messages and is_llm_message:
+            return self._append_message(message_dict, AgentLogging.LLM)
+
+    def _append_message(self, message_dict: dict, author_kind: str):
+        message = message_dict.get("message", None)
+        message_type = message_dict.get(AgentLogging.MESSAGE_TYPE, AgentLogging.MESSAGE)
+
+        if author_kind == AgentLogging.AGENT:
+            return self.chat_history.append_agent_message(
+                text=message,
+                tags=[
+                    Tag(
+                        kind=TagKind.AGENT_STATUS_MESSAGE,
+                        name=message_type,
+                        value={TagValueKey.STRING_VALUE: message},
+                    ),
+                ],
+                mime_type=MimeTypes.TXT,
+            )
+        elif author_kind == AgentLogging.TOOL:
+            tool_name = message_dict.get(AgentLogging.TOOL_NAME, AgentLogging.TOOL)
+            return self.chat_history.append_tool_message(
+                text=message,
+                tags=[
+                    Tag(
+                        kind=TagKind.TOOL_STATUS_MESSAGE,
+                        name=message_type,
+                        value={TagValueKey.STRING_VALUE: message, "tool": tool_name},
+                    )
+                ],
+                mime_type=MimeTypes.TXT,
+            )
+        elif author_kind == AgentLogging.LLM:
+            llm_name = message_dict.get(AgentLogging.LLM_NAME, AgentLogging.LLM)
+            return self.chat_history.append_llm_message(
+                text=message,
+                tags=[
+                    Tag(
+                        kind=TagKind.LLM_STATUS_MESSAGE,
+                        name=message_type,
+                        value={TagValueKey.STRING_VALUE: message, "llm": llm_name},
+                    )
+                ],
+                mime_type=MimeTypes.TXT,
+            )

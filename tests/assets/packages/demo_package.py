@@ -48,6 +48,14 @@ class TestPackage(PackageService):
     def resp_obj(self) -> InvocableResponse[dict]:
         return InvocableResponse(json=TestObj(name="Foo"))
 
+    @post("resp_true")
+    def resp_true(self) -> InvocableResponse[dict]:
+        return InvocableResponse(json=True)
+
+    @post("resp_false")
+    def resp_false(self) -> InvocableResponse[dict]:
+        return InvocableResponse(json=False)
+
     @get("resp_binary")
     def resp_binary(self) -> InvocableResponse[bytes]:
         _bytes = base64.b64decode(PALM_TREE_BASE_64)

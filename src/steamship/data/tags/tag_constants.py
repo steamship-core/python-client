@@ -30,6 +30,9 @@ class TagKind(str, Enum):
     CHAT = "chat"
     CHAT_HISTORY_CONTEXT = "chat-history-context"
     MESSAGE_ID = "message-id"
+    AGENT_STATUS_MESSAGE = "agent-status-message"
+    TOOL_STATUS_MESSAGE = "tool-status-message"
+    LLM_STATUS_MESSAGE = "llm-status-message"
 
 
 class DocTag(str, Enum):
@@ -251,11 +254,20 @@ class RoleTag(str, Enum):
     # This block's content was created by the generative AI assistant
     ASSISTANT = "assistant"
 
-    # This block's content was created by a non-human agent participating in the chat
+    # This block's content was created by a non-human agent. This will be omitted from prompt history, etc.
+    # They are meant to carry internal status messages.
     AGENT = "agent"
 
     # This block was created by a Tool, as selected by an OpenAI Function call
     FUNCTION = "function"
+
+    # This block's content was created by a tool. This will be omitted from prompt history, etc.
+    # They are meant to carry internal status messages.
+    TOOL = "tool"
+
+    # This block's content was created by an LLM. This will be omitted from prompt history, etc.
+    # They are meant to carry internal status messages.
+    LLM = "llm"
 
 
 class ChatTag(str, Enum):
@@ -266,6 +278,12 @@ class ChatTag(str, Enum):
 
     # The message id of a message
     MESSAGE_ID = "message-id"
+
+    # In environments which support threading, the thread id where the message occurred
+    THREAD_ID = "thread-id"
+
+    # In multiuser environments, the ID of the user who created the message
+    USER_ID = "user-id"
 
     # The role of a message
     ROLE = "role"
@@ -278,3 +296,9 @@ class ChatTag(str, Enum):
 
     # A chunk of text for indexing
     CHUNK = "chunk"
+
+    # A chat history should be marked as kind=CHAT/name=HISTORY
+    HISTORY = "history"
+
+    # A message should be marked as kind=CHAT/name=MESSAGE
+    MESSAGE = "message"

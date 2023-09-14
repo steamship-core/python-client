@@ -3,8 +3,8 @@ import uuid
 from typing import List, Optional
 
 from steamship import Block, SteamshipError, Task
-from steamship.agents.llms.openai import ChatOpenAI, OpenAI
-from steamship.agents.logging import AgentLogging
+from steamship.agents.llms.openai import OpenAI
+from steamship.agents.logging import AgentLogging, StreamingOpts
 from steamship.agents.schema import Action, Agent, FinishAction
 from steamship.agents.schema.context import AgentContext, Metadata
 from steamship.agents.utils import with_llm
@@ -24,15 +24,24 @@ class AgentService(PackageService):
     use_action_cache: bool
     """Whether or not to cache agent Actions (for tool runs) by default."""
 
+    max_actions_per_run: int
+    """The maximum number of actions to permit while the agent is reasoning.
+
+    This is intended primarily to act as a backstop to prevent a condition in which the Agent decides to loop endlessly
+    on tool runs that consume resources with a cost-basis (e.g. prompt completions, embedding operations, vector lookups)
+    """
+
     def __init__(
         self,
         use_llm_cache: Optional[bool] = False,
         use_action_cache: Optional[bool] = False,
+        max_actions_per_run: Optional[int] = 5,
         agent: Optional[Agent] = None,
         **kwargs,
     ):
         self.use_llm_cache = use_llm_cache
         self.use_action_cache = use_action_cache
+        self.max_actions_per_run = max_actions_per_run
         self.agent = agent
         super().__init__(**kwargs)
 
@@ -46,28 +55,35 @@ class AgentService(PackageService):
             action = context.llm_cache.lookup(key=input_blocks)
         if action:
             logging.info(
-                f"Using cached response: calling {action.tool}.",
+                f"Using cached tool selection: calling {action.tool}.",
                 extra={
-                    AgentLogging.TOOL_NAME: "LLM",
                     AgentLogging.IS_MESSAGE: True,
-                    AgentLogging.MESSAGE_TYPE: AgentLogging.OBSERVATION,
+                    AgentLogging.MESSAGE_TYPE: AgentLogging.THOUGHT,
                     AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
                 },
             )
         else:
-            inputs = ",".join([f"{b.as_llm_input()}" for b in input_blocks])
             logging.info(
-                f"Prompting LLM with: ({inputs})",
+                "Selecting next action...",
                 extra={
-                    AgentLogging.TOOL_NAME: "LLM",
                     AgentLogging.IS_MESSAGE: True,
-                    AgentLogging.MESSAGE_TYPE: AgentLogging.PROMPT,
+                    AgentLogging.MESSAGE_TYPE: AgentLogging.THOUGHT,
                     AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
                 },
             )
             action = agent.next_action(context=context)
             if context.llm_cache:
                 context.llm_cache.update(key=input_blocks, value=action)
+
+        logging.info(
+            f"Selected next action: {action.tool}",
+            extra={
+                AgentLogging.IS_MESSAGE: True,
+                AgentLogging.MESSAGE_TYPE: AgentLogging.THOUGHT,
+                AgentLogging.MESSAGE_AUTHOR: AgentLogging.AGENT,
+            },
+        )
+
         return action
 
     def run_action(self, agent: Agent, action: Action, context: AgentContext):
@@ -131,21 +147,56 @@ class AgentService(PackageService):
                 },
             )
             action.output = blocks_or_task
+            action.is_final = (
+                tool.is_final
+            )  # Permit the tool to decide if this action should halt the reasoning loop.
             context.completed_steps.append(action)
-            if context.action_cache:
+            if context.action_cache and tool.cacheable:
                 context.action_cache.update(key=action, value=action.output)
 
     def run_agent(self, agent: Agent, context: AgentContext):
-        # first, clear any prior agent steps from set of completed steps
-        # this will allow the agent to select tools/dispatch actions based on a new context
+        # First, some bookkeeping.
+
+        # Clear any prior agent steps from set of completed steps.
+        # This will allow the agent to select tools/dispatch actions based on a new context
         context.completed_steps = []
 
+        # Set the pointer for the current action.
+        # The agent will continue to take actions until it is ready to respond.
         action = self.next_action(
             agent=agent, input_blocks=[context.chat_history.last_user_message], context=context
         )
 
-        while not isinstance(action, FinishAction):
+        # Set the counter for the number of actions run.
+        # This enables the agent to enforce a budget on actions to guard against running forever.
+        number_of_actions_run = 0
+
+        while not action.is_final:
+            # If we've exceeded our Action Budget, throw an error.
+            if number_of_actions_run >= self.max_actions_per_run:
+                raise SteamshipError(
+                    message=(
+                        f"Agent reached its Action budget of {self.max_actions_per_run} without arriving at a response. If you are the developer, checking the logs may reveal it was selecting unhelpful tools or receiving unhelpful responses from them."
+                    )
+                )
+
+            # Run the next action and incremenet our counter
             self.run_action(agent=agent, action=action, context=context)
+            number_of_actions_run += 1
+
+            # Sometimes, running an action will result in it being dynamically set as a final action as a result of
+            # the tool that performed the action's operation. E.g. a Tool wishes to have its output considered the
+            # final and complete response.
+            #
+            # This is a distinct scenario from the next_action method returning a FinalAction, which is why this is
+            # a break statement here rather than hidden within the while loop condition above: it's essentially an
+            # "early exit" signal.
+            if action.is_final:
+                break
+
+            # If we're still here, then the Agent has performed work and must decide what to do next. The next
+            # action might be another tool, or it might be the Agent deciding to convert this Action's output into
+            # A FinalAction object, which would then cause the while loop to terminate upon next iteration.
             action = self.next_action(agent=agent, input_blocks=action.output, context=context)
 
             # TODO: Arrive at a solid design for the details of this structured log object
@@ -217,11 +268,20 @@ class AgentService(PackageService):
         if runtime_use_action_cache := kwargs.get("use_action_cache"):
             use_action_cache = runtime_use_action_cache
 
+        include_agent_messages = kwargs.get("include_agent_messages", True)
+        include_llm_messages = kwargs.get("include_llm_messages", True)
+        include_tool_messages = kwargs.get("include_tool_messages", True)
+
         context = AgentContext.get_or_create(
             client=self.client,
             context_keys={"id": f"{context_id}"},
             use_llm_cache=use_llm_cache,
             use_action_cache=use_action_cache,
+            streaming_opts=StreamingOpts(
+                include_agent_messages=include_agent_messages,
+                include_llm_messages=include_llm_messages,
+                include_tool_messages=include_tool_messages,
+            ),
         )
 
         # Add a default LLM to the context, using the Agent's if it exists.
@@ -233,7 +293,6 @@ class AgentService(PackageService):
             llm = OpenAI(client=self.client)
 
         context = with_llm(context=context, llm=llm)
-
         return context
 
     @post("prompt")
@@ -241,46 +300,41 @@ class AgentService(PackageService):
         self, prompt: Optional[str] = None, context_id: Optional[str] = None, **kwargs
     ) -> List[Block]:
         """Run an agent with the provided text as the input."""
-        prompt = prompt or kwargs.get("question")
+        with self.build_default_context(context_id, **kwargs) as context:
+            prompt = prompt or kwargs.get("question")
+            context.chat_history.append_user_message(prompt)
 
-        context = self.build_default_context(context_id, **kwargs)
+            # AgentServices provide an emit function hook to access the output of running
+            # agents and tools. The emit functions fire at after the supplied agent emits
+            # a "FinishAction".
+            #
+            # Here, we show one way of accessing the output in a synchronous fashion. An
+            # alternative way would be to access the final Action in the `context.completed_steps`
+            # after the call to `run_agent()`.
+            output_blocks = []
 
-        context.chat_history.append_user_message(prompt)
+            def sync_emit(blocks: List[Block], meta: Metadata):
+                nonlocal output_blocks
+                output_blocks.extend(blocks)
 
-        # Add a default LLM
-        context = with_llm(context=context, llm=ChatOpenAI(client=self.client, model_name="gpt-4"))
+            context.emit_funcs.append(sync_emit)
 
-        # AgentServices provide an emit function hook to access the output of running
-        # agents and tools. The emit functions fire at after the supplied agent emits
-        # a "FinishAction".
-        #
-        # Here, we show one way of accessing the output in a synchronous fashion. An
-        # alternative way would be to access the final Action in the `context.completed_steps`
-        # after the call to `run_agent()`.
-        output_blocks = []
+            # Get the agent
+            agent: Optional[Agent] = self.get_default_agent()
+            self.run_agent(agent, context)
 
-        def sync_emit(blocks: List[Block], meta: Metadata):
-            nonlocal output_blocks
-            output_blocks.extend(blocks)
+            # Now append the output blocks to the chat history
+            # TODO: It seems like we've been going from block -> not block -> block here. Opportunity to optimize.
+            for output_block in output_blocks:
+                # Need to make the output blocks public here so that they can be copied to the chat history.
+                # They generally need to be public anyway for the REPL to be able to show a clickable link.
+                output_block.set_public_data(True)
+                context.chat_history.append_assistant_message(
+                    text=output_block.text,
+                    tags=output_block.tags,
+                    url=output_block.raw_data_url or output_block.url or output_block.content_url,
+                    mime_type=output_block.mime_type,
+                )
 
-        context.emit_funcs.append(sync_emit)
-
-        # Get the agent
-        agent: Optional[Agent] = self.get_default_agent()
-        self.run_agent(agent, context)
-
-        # Now append the output blocks to the chat history
-        # TODO: It seems like we've been going from block -> not block -> block here. Opportunity to optimize.
-        for output_block in output_blocks:
-            # Need to make the output blocks public here so that they can be copied to the chat history.
-            # They generally need to be public anyway for the REPL to be able to show a clickable link.
-            output_block.set_public_data(True)
-            context.chat_history.append_assistant_message(
-                text=output_block.text,
-                tags=output_block.tags,
-                url=output_block.raw_data_url or output_block.url or output_block.content_url,
-                mime_type=output_block.mime_type,
-            )
-
-        # Return the response as a set of multi-modal blocks.
-        return output_blocks
+            # Return the response as a set of multi-modal blocks.
+            return output_blocks

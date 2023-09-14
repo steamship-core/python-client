@@ -1,6 +1,9 @@
 import json
 import logging
+import os
+import platform
 import signal
+import subprocess  # noqa: S404
 import sys
 import time
 from os import getenv, path
@@ -292,6 +295,9 @@ def serve_local(  # noqa: C901
     ngrok_api_url = None
     public_api_url = None
 
+    # Hard coded instance handle to represent "a local instance that isn't connected to the engine"
+    local_instance_handle = "local-dev-instance-not-connected-to-engine"
+
     if not no_ngrok:
         ngrok_api_url = _run_ngrok(port)
 
@@ -307,6 +313,9 @@ def serve_local(  # noqa: C901
             config=config,
         )
 
+        # Replace the local instance handle with the instance just registered in the engine.
+        local_instance_handle = registered_instance.handle
+
         # Notes:
         #  1. registered_instance.invocation_url is the NGROK URL, not the Steamship Proxy URL.
         #  2. The public_api_url should still be NGROK, not the Proxy. The local server emulates the Proxy and
@@ -319,7 +328,7 @@ def serve_local(  # noqa: C901
     try:
         local_api_url = _run_local_server(
             local_port=port,
-            instance_handle=registered_instance.handle,
+            instance_handle=local_instance_handle,
             config=config,
             workspace=workspace,
             base_url=public_api_url,
@@ -691,6 +700,64 @@ def delete(
             exit(1)
 
 
+@click.command()
+def support_info():
+    """Displays detailed information needed for getting technical support"""
+    initialize()
+    click.echo("\nSteamship User Info\n=====================")
+
+    if Configuration.default_config_file_has_api_key() or getenv("STEAMSHIP_API_KEY", None):
+        # User is logged in!
+        client = None
+        try:
+            client = Steamship()
+            user = User.current(client)
+            click.echo(f"User ID:     {user.id}")
+
+        except BaseException:
+            click.secho("User not logged in.")
+    else:
+        click.secho("User not logged in.")
+
+    click.echo("\n\nDeployable Info\n=====================")
+    if path.exists("steamship.json"):
+        manifest = Manifest.load_manifest()
+        click.echo(f"Deployable type: {manifest.type.value}")
+        if manifest.type.value == DeployableType.PLUGIN:
+            click.echo(f"Plugin type: {manifest.plugin.type}")
+        click.echo(f"Deployable handle: {manifest.handle}")
+        click.echo(f"Deployable version: {manifest.version}")
+
+    else:
+        click.echo("No deployable manifest.")
+    click.echo("\n\nDependency Info\n=====================")
+    click.echo(f"Running Python CLI version: {steamship.__version__}")
+    click.echo("\nEnv packages:")
+    click.echo("\n-------------")
+    subprocess.run(["pip", "list"])  # noqa: S607, S603
+    click.echo("\nRequirements.txt:")
+    click.echo("\n-----------------")
+    if path.exists("requirements.txt"):
+        with open("requirements.txt") as requirements:
+            lines = requirements.readlines()
+            if len(lines) == 0:
+                click.secho("Empty requirements.txt")
+            else:
+                for line in lines:
+                    click.secho(line, nl=False)
+                click.secho("")
+    else:
+        click.echo("FILE NOT PRESENT")
+
+    click.echo("\n\nEnvironment/OS Info\n=====================")
+    click.secho(f"OS type: {os.name}")
+    click.secho(f"OS Name: {platform.system()}")
+    click.secho(f"OS Version: {platform.release()}")
+    click.secho(f"Python version: {sys.version}")
+    click.secho(f"Shell: {os.environ.get('SHELL')}")
+    click.secho(f"In virtual env: {sys.prefix != sys.base_prefix}")
+
+
 cli.add_command(login)
 cli.add_command(deploy)
 cli.add_command(info)
@@ -700,3 +767,4 @@ cli.add_command(logs)
 cli.add_command(run)
 cli.add_command(create_instance, name="use")
 cli.add_command(delete)
+cli.add_command(support_info, name="support-info")

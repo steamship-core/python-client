@@ -7,8 +7,8 @@ from steamship_tests.utils.deployables import deploy_package
 from steamship import File, Steamship
 
 config_template = {
-    "bot_token": {"type": "string"},
-    "api_base": {"type": "string"},
+    "telegram_token": {"type": "string"},
+    "telegram_api_base": {"type": "string"},
     "slack_api_base": {"type": "string"},
 }
 
@@ -24,8 +24,8 @@ def test_slack(client: Steamship):
         # This will allow us to test for the proper receipt of messages.
         instance_config = {
             "slack_api_base": mock_chat_api.invocation_url,
-            "bot_token": "",
-            "api_base": "",
+            "telegram_token": "",
+            "telegram_api_base": "",
         }
 
         with deploy_package(

@@ -19,6 +19,7 @@ reports/
 
 # Distribution / packaging
 *.egg-info/
+build/
 
 
 # dotenv

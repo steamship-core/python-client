@@ -25,10 +25,10 @@ Only use the functions you have been provided with."""
             output_parser=FunctionsBasedOutputParser(tools=tools), llm=llm, tools=tools, **kwargs
         )
 
-    def next_action(self, context: AgentContext) -> Action:
-        messages = []
+    def build_chat_history_for_tool(self, context: AgentContext) -> List[Block]:
+        messages: List[Block] = []
 
-        # get system messsage
+        # get system message
         system_message = Block(text=self.PROMPT)
         system_message.set_chat_role(RoleTag.SYSTEM)
         messages.append(system_message)
@@ -72,7 +72,13 @@ Only use the functions you have been provided with."""
         for action in actions:
             messages.extend(action.to_chat_messages())
 
-        # call chat()
+        return messages
+
+    def next_action(self, context: AgentContext) -> Action:
+        # Build the Chat History that we'll provide as input to the action
+        messages = self.build_chat_history_for_tool(context)
+
+        # Run the default LLM on those messages
         output_blocks = self.llm.chat(messages=messages, tools=self.tools)
 
         return self.output_parser.parse(output_blocks[0].text, context)

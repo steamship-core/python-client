@@ -22,7 +22,7 @@ class MyFunctionsBasedAssistant(AgentService):
                     DalleTool(),
                 ],
                 llm=ChatOpenAI(self.client, temperature=0),
-                conversation_memory=MessageWindowMessageSelector(k=2),
+                message_selector=MessageWindowMessageSelector(k=2),
             )
         )
 
@@ -31,4 +31,4 @@ if __name__ == "__main__":
     # AgentREPL provides a mechanism for local execution of an AgentService method.
     # This is used for simplified debugging as agents and tools are developed and
     # added.
-    AgentREPL(MyFunctionsBasedAssistant, agent_package_config={}).run()
+    AgentREPL(MyFunctionsBasedAssistant, agent_package_config={}).run(dump_history_on_exit=True)

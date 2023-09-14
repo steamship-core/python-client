@@ -6,22 +6,7 @@ from typing import Optional, cast
 
 from fluent.handler import FluentRecordFormatter
 
-from steamship.agents.logging import AgentLogging
-
-LOGGING_FORMAT = {
-    "level": "%(levelname)s",
-    "host": "%(hostname)s",
-    "where": "%(module)s.%(filename)s.%(funcName)s:%(lineno)s",
-    "type": "%(levelname)s",
-    "stack_trace": "%(exc_text)s",
-    "message_type": "%(message_type)s",
-    "component_name": "%(component_name)s",
-    AgentLogging.IS_MESSAGE: f"%({AgentLogging.IS_MESSAGE})s",  # b doesn't work. Unsure how to make a bool
-    AgentLogging.AGENT_NAME: f"%({AgentLogging.AGENT_NAME})s",
-    AgentLogging.MESSAGE_AUTHOR: f"%({AgentLogging.MESSAGE_AUTHOR})s",
-    AgentLogging.MESSAGE_TYPE: f"%({AgentLogging.MESSAGE_TYPE})s",
-    AgentLogging.TOOL_NAME: f"%({AgentLogging.TOOL_NAME})s",
-}
+from steamship.agents.logging import LOGGING_FORMAT, AgentLogging
 
 
 class DevelopmentLoggingHandler(StreamHandler):

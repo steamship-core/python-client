@@ -13,6 +13,7 @@ from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.base.response import Response
 from steamship.data.tags.tag import Tag
 from steamship.data.tags.tag_constants import ChatTag, DocTag, RoleTag, TagValueKey
+from steamship.data.tags.tag_utils import get_tag_value_key
 
 
 class BlockQueryRequest(Request):
@@ -24,16 +25,6 @@ class BlockUploadType(str, Enum):
     BLOCKS = "blocks"  # Blocks are sent to create a file
     URL = "url"  # content will be fetched from a URL
     NONE = "none"  # No upload; plain text only.
-
-
-def get_tag_value_key(
-    tags: Optional[List[Tag]], key: str, kind: Optional[str] = None, name: Optional[str] = None
-) -> Optional[any]:
-    """Iterates through a list of tags and returns the first that contains the provided Kind/Name/ValueKey."""
-    for tag in tags or []:
-        if (kind is None or tag.kind == kind) and (name is None or tag.name == name):
-            return (tag.value or {}).get(key)
-    return None
 
 
 class Block(CamelModel):
@@ -283,6 +274,28 @@ class Block(CamelModel):
             tag_kind=DocTag.CHAT, tag_name=ChatTag.CHAT_ID, string_value=chat_id
         )
 
+    @property
+    def thread_id(self) -> Optional[str]:
+        return get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.THREAD_ID
+        )
+
+    def set_thread_id(self, thread_id: str) -> None:
+        return self._one_time_set_tag(
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.THREAD_ID, string_value=thread_id
+        )
+
+    @property
+    def user_id(self) -> Optional[str]:
+        return get_tag_value_key(
+            self.tags, TagValueKey.STRING_VALUE, kind=DocTag.CHAT, name=ChatTag.USER_ID
+        )
+
+    def set_user_id(self, user_id: str) -> None:
+        return self._one_time_set_tag(
+            tag_kind=DocTag.CHAT, tag_name=ChatTag.USER_ID, string_value=user_id
+        )
+
     def _one_time_set_tag(self, tag_kind: str, tag_name: str, string_value: str):
         existing = get_tag_value_key(
             self.tags, TagValueKey.STRING_VALUE, kind=tag_kind, name=tag_name
@@ -318,9 +331,14 @@ class Block(CamelModel):
         if self.is_text():
             return self.text
         else:
+            identifier = self.id
+            if identifier is None:
+                # attempt to handle ephemeral blocks from Action::to_chat_message
+                identifier = self.text
+
             if exclude_block_wrapper:
-                return f"{self.id}"
-            return f"Block({self.id})"
+                return f"{identifier}"
+            return f"Block({identifier})"
 
 
 class BlockQueryResponse(Response):

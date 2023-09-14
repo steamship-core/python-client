@@ -10,6 +10,30 @@ from steamship.agents.tools.search import SearchTool
 
 
 @pytest.mark.usefixtures("client")
+def test_functions_based_agent_build_chat_history(client: Steamship):
+    agent = FunctionsBasedAgent(tools=[], llm=ChatOpenAI(client, temperature=0))
+
+    ctx_keys = {"id": "testing-foo"}
+    ctx = AgentContext.get_or_create(client=client, context_keys=ctx_keys, searchable=False)
+
+    msg_text = "what should I eat for dinner?"
+    appended_msg = ctx.chat_history.append_user_message(msg_text)
+    assert appended_msg
+    assert appended_msg.text == msg_text
+
+    last_user_message = ctx.chat_history.last_user_message
+    assert last_user_message
+    assert last_user_message.text == msg_text
+
+    messages = agent.build_chat_history_for_tool(context=ctx)
+
+    assert messages
+    assert len(messages) == 2
+
+    assert messages[1].text == msg_text
+
+
+@pytest.mark.usefixtures("client")
 def test_functions_based_agent_with_no_tools_and_no_memory(client: Steamship):
     agent = FunctionsBasedAgent(tools=[], llm=ChatOpenAI(client, temperature=0))
 
