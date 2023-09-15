@@ -260,6 +260,9 @@ class Client(CamelModel, ABC):
         elif self.config.workspace_handle:
             headers["X-Workspace-Handle"] = self.config.workspace_handle
 
+        if self.config.request_id:
+            headers["x-request-id"] = self.config.request_id
+
         if is_package_call:
             if package_owner:
                 headers["X-Package-Owner-Handle"] = package_owner
