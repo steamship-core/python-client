@@ -84,6 +84,8 @@ class SearchResults(CamelModel):
 
     def to_ranked_blocks(self) -> List[Block]:
         blocks = []
+        if not self.items:
+            return blocks
         for result in self.items:
             tag = result.tag
             blocks.append(Block.get(tag.client, tag.block_id))
