@@ -241,3 +241,14 @@ def test_set_public_data(client: Steamship):
     # Intentionally no API key
     failed_response = requests.get(block.raw_data_url)
     assert not failed_response.ok
+
+
+@pytest.mark.usefixtures("client")
+def test_streamed_text_block(client: Steamship):
+    file = File.create(client, blocks=[])
+    block = Block.create(client, file_id=file.id, mime_type=MimeTypes.TXT, streaming=True)
+    block.append_stream(bytes("happy ", encoding="utf-8"))
+    block.append_stream(bytes("birthday", encoding="utf-8"))
+    block.finish_stream()
+    result = str(block.raw(), encoding="utf-8")
+    assert result == "happy birthday"

@@ -130,6 +130,7 @@ class PluginInstance(CamelModel):
         output_file_id: Optional[str] = None,
         make_output_public: Optional[bool] = None,
         options: Optional[dict] = None,
+        streaming: Optional[bool] = None,
     ) -> Task[GenerateResponse]:
         """See GenerateRequest for description of parameter options"""
         req = GenerateRequest(
@@ -146,6 +147,7 @@ class PluginInstance(CamelModel):
             output_file_id=output_file_id,
             make_output_public=make_output_public,
             options=options,
+            streaming=streaming,
         )
         return self.client.post("plugin/instance/generate", req, expect=GenerateResponse)
 

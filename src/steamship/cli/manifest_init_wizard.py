@@ -58,7 +58,11 @@ def manifest_init_wizard(client: Steamship):
             trainable = click.confirm("Is the plugin trainable?", default=False)
         else:
             trainable = False
-        plugin_detail = PluginConfig(isTrainable=trainable, type=plugin_type)
+        if plugin_type == "generator":
+            streaming = click.confirm("Will the plugin stream its results?", default=False)
+        else:
+            streaming = False
+        plugin_detail = PluginConfig(isTrainable=trainable, type=plugin_type, streaming=streaming)
 
     public = click.confirm(f"Do you want this {deployable_type} to be public?", default=True)
 
@@ -71,7 +75,7 @@ def manifest_init_wizard(client: Steamship):
     if public:
         tagline = click.prompt(f"Want to give the {deployable_type} a tagline?", default="")
         author_github = click.prompt(
-            "If you'd like this associated with your github account, please your github username",
+            "If you'd like this associated with your github account, please input your github username",
             default="",
         )
 
