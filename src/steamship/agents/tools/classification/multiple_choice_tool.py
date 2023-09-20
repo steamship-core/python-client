@@ -95,11 +95,9 @@ DEFAULT_QUESTION = MultipleChoiceQuestion(
 
 class MultipleChoiceTool(Tool):
     """
-    Example tool to illustrate how one might classify a user message.
+    Example tool to illustrate how one can parse a user response into a fixed multiple-choice answer.
 
-    For example: the agent may wish to know if the use message was a question, complaint, or suggestion.
-
-    TODO: This feels like it wants to emit data to a side channel. Or perhaps it TAGS the user input block?
+    Supports traversing a hierarchical tree of multiple-choice answers.
     """
 
     name = "MultipleChoiceTool"
