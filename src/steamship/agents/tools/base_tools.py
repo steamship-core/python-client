@@ -9,7 +9,8 @@ from steamship.agents.schema import AgentContext, Tool
 
 
 class ToolInterruptedError(Exception):
-    def __init__(self, context_id: Optional[str], **kwargs):
+    def __init__(self, message: str, context_id: Optional[str], **kwargs):
+        self.message = message
         self.context_id = context_id
 
 
