@@ -8,6 +8,11 @@ from steamship import Block, File, MimeTypes, Task
 from steamship.agents.schema import AgentContext, Tool
 
 
+class ToolInterruptedError(Exception):
+    def __init__(self, context_id: Optional[str], **kwargs):
+        self.context_id = context_id
+
+
 class GeneratorTool(Tool):
     """
     A base class for tools that wrap Steamship Generator plugins. Subclass this and implement

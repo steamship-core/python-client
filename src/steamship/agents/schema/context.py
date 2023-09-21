@@ -49,6 +49,10 @@ class AgentContext:
     """Caches all interations with LLMs within a Context. This provides a way to avoid duplicated
     calls to LLMs when within the same context."""
 
+    continued_action: Optional[Action]
+    """If an action is interrupted for external / asynchronous input, this will be present when the action is completed
+    and flow can be resumed."""
+
     def __init__(self, streaming_opts: Optional[StreamingOpts] = None):
         self.metadata = {}
         self.completed_steps = []

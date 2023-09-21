@@ -163,7 +163,7 @@ class AgentService(PackageService):
 
         # Set the pointer for the current action.
         # The agent will continue to take actions until it is ready to respond.
-        action = self.next_action(
+        action = context.continued_action or self.next_action(
             agent=agent, input_blocks=[context.chat_history.last_user_message], context=context
         )
 
