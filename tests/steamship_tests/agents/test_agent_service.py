@@ -5,7 +5,7 @@ from pydantic.fields import PrivateAttr
 from steamship_tests import SRC_PATH
 from steamship_tests.utils.deployables import deploy_package
 
-from steamship import Block, Steamship, SteamshipError, Task
+from steamship import Block, File, Steamship, SteamshipError, Task, TaskState
 from steamship.agents.functional import FunctionsBasedAgent
 from steamship.agents.llms.openai import ChatOpenAI
 from steamship.agents.schema import Action, AgentContext, Tool
@@ -248,3 +248,100 @@ def test_context_logging_to_chat_history_everything(client: Steamship):
         assert not has_status_message(chat_history.messages, RoleTag.AGENT)
         assert not has_status_message(chat_history.messages, RoleTag.LLM)
         assert has_status_message(chat_history.messages, RoleTag.TOOL)
+
+
+@pytest.mark.usefixtures("client")
+def test_async_prompt(client: Steamship):
+    example_agent_service_path = (
+        SRC_PATH / "steamship" / "agents" / "examples" / "example_assistant.py"
+    )
+    with deploy_package(client, example_agent_service_path, wait_for_init=True) as (
+        _,
+        _,
+        agent_service,
+    ):
+        context_id = "some_async_fun"
+        try:
+            streaming_resp = agent_service.invoke(
+                "async_prompt",
+                prompt="who is the current president of the United States?",
+                context_id=context_id,
+            )
+        except SteamshipError as error:
+            pytest.fail(f"failed request: {error}")
+
+        assert streaming_resp is not None
+        assert streaming_resp["file"] is not None
+        assert streaming_resp["task"] is not None
+
+        file = File(client=client, **(streaming_resp["file"]))
+        streaming_task = Task(client=client, **(streaming_resp["task"]))
+
+        original_len = len(file.blocks)
+        req_id = streaming_task.request_id
+
+        import sseclient
+
+        # import requests
+        sse_source = f"{client.config.api_base}file/{file.id}/stream?tagKindFilter=request-id&tagNameFilter={req_id}"
+        print(f"\nSSE SOURCE: {sse_source}")
+        headers = {
+            "Accept": "text/event-stream",
+            "X-Workspace-Id": client.get_workspace().id,
+            "Authorization": f"Bearer {client.config.api_key.get_secret_value()}",
+        }
+        print(headers)
+        # sse_response = requests.get(sse_source, stream=True, headers=headers)
+
+        # TODO: it is concerning that putting this block after a Task completes is the only way it seems to work
+        # import urllib3
+        # timeout = urllib3.Timeout(connect=2.0, read=10.0)
+        # http = urllib3.PoolManager(timeout=timeout)
+        # sse_response = http.request('GET', sse_source, preload_content=False, headers=headers)
+        #
+        # sse_client = sseclient.SSEClient(sse_response)
+        # num_events = 0
+        # try:
+        #     for event in sse_client.events():
+        #         num_events += 1
+        #
+        #         # TODO: should we assert these are blockCreated events?
+        #         print(event)
+        # except urllib3.exceptions.ReadTimeoutError:
+        #     # TODO: this is required to get a termination on the streaming wait.
+        #     # TODO: do we have a way to signal events have stopped?
+        #     pass
+
+        try:
+            streaming_task.wait_until_completed()
+        except SteamshipError as error:
+            pytest.fail(f"Task failed to complete: {error}")
+
+        assert streaming_task.state in [TaskState.succeeded]
+
+        # TODO: it is concerning that putting this block after a Task completes is the only way it seems to work
+        import urllib3
+
+        timeout = urllib3.Timeout(connect=2.0, read=10.0)
+        http = urllib3.PoolManager(timeout=timeout)
+        sse_response = http.request("GET", sse_source, preload_content=False, headers=headers)
+
+        sse_client = sseclient.SSEClient(sse_response)
+        num_events = 0
+        try:
+            for event in sse_client.events():
+                num_events += 1
+
+                # TODO: should we assert these are blockCreated events?
+                print(event)
+        except urllib3.exceptions.ReadTimeoutError:
+            # TODO: this is required to get a termination on the streaming wait.
+            # TODO: do we have a way to signal events have stopped?
+            pass
+
+        file.refresh()
+        assert (
+            len(file.blocks) > original_len
+        ), "File should have increased in size during AgentService execution"
+
+        assert num_events == 13
