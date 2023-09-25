@@ -1,3 +1,4 @@
+import json
 from typing import Any, List, Union
 
 import pytest
@@ -8,6 +9,7 @@ from steamship_tests.utils.deployables import deploy_package
 from steamship import Block, File, Steamship, SteamshipError, Task, TaskState
 from steamship.agents.functional import FunctionsBasedAgent
 from steamship.agents.llms.openai import ChatOpenAI
+from steamship.agents.logging import AgentLogging
 from steamship.agents.schema import Action, AgentContext, Tool
 from steamship.agents.service.agent_service import AgentService
 from steamship.data.tags.tag_constants import ChatTag, RoleTag, TagKind, TagValueKey
@@ -315,37 +317,15 @@ def test_async_prompt(client: Steamship):
         original_len = len(file.blocks)
         req_id = streaming_task.request_id
 
+        import requests
         import sseclient
 
-        # import requests
-        sse_source = f"{client.config.api_base}file/{file.id}/stream?tagKindFilter=request-id&tagNameFilter={req_id}"
-        print(f"\nSSE SOURCE: {sse_source}")
+        sse_source = f"{client.config.api_base}file/{file.id}/stream?tagKindFilter=request-id&tagNameFilter={req_id}&timeoutSeconds=30"
         headers = {
             "Accept": "text/event-stream",
             "X-Workspace-Id": client.get_workspace().id,
             "Authorization": f"Bearer {client.config.api_key.get_secret_value()}",
         }
-        print(headers)
-        # sse_response = requests.get(sse_source, stream=True, headers=headers)
-
-        # TODO: it is concerning that putting this block after a Task completes is the only way it seems to work
-        # import urllib3
-        # timeout = urllib3.Timeout(connect=2.0, read=10.0)
-        # http = urllib3.PoolManager(timeout=timeout)
-        # sse_response = http.request('GET', sse_source, preload_content=False, headers=headers)
-        #
-        # sse_client = sseclient.SSEClient(sse_response)
-        # num_events = 0
-        # try:
-        #     for event in sse_client.events():
-        #         num_events += 1
-        #
-        #         # TODO: should we assert these are blockCreated events?
-        #         print(event)
-        # except urllib3.exceptions.ReadTimeoutError:
-        #     # TODO: this is required to get a termination on the streaming wait.
-        #     # TODO: do we have a way to signal events have stopped?
-        #     pass
 
         try:
             streaming_task.wait_until_completed()
@@ -354,29 +334,70 @@ def test_async_prompt(client: Steamship):
 
         assert streaming_task.state in [TaskState.succeeded]
 
+        llm_prompt_event_count = 0
+        function_selection_event = False
+        tool_execution_event = False
+        function_complete_event = False
+        assistant_chat_response_event = False
+
         # TODO: it is concerning that putting this block after a Task completes is the only way it seems to work
-        import urllib3
-
-        timeout = urllib3.Timeout(connect=2.0, read=10.0)
-        http = urllib3.PoolManager(timeout=timeout)
-        sse_response = http.request("GET", sse_source, preload_content=False, headers=headers)
-
+        sse_response = requests.get(sse_source, stream=True, headers=headers, timeout=45)
         sse_client = sseclient.SSEClient(sse_response)
         num_events = 0
         try:
+            # sse event format: {'blockCreated': {'blockId': '<uuid>', 'createdAt': '2023-09-25T16:12:54Z'}}
             for event in sse_client.events():
                 num_events += 1
-
-                # TODO: should we assert these are blockCreated events?
-                print(event)
-        except urllib3.exceptions.ReadTimeoutError:
+                block_creation_event = json.loads(event.data)
+                block_created = block_creation_event["blockCreated"]
+                block_id = block_created["blockId"]
+                block = Block.get(client=client, _id=block_id)
+                for t in block.tags:
+                    match t.kind:
+                        case TagKind.LLM_STATUS_MESSAGE:
+                            if t.name == AgentLogging.PROMPT:
+                                llm_prompt_event_count += 1
+                        case TagKind.FUNCTION_SELECTION:
+                            if t.name == "SearchTool":
+                                function_selection_event = True
+                        case TagKind.TOOL_STATUS_MESSAGE:
+                            tool_execution_event = True
+                        case TagKind.ROLE:
+                            if t.name == RoleTag.FUNCTION:
+                                function_complete_event = True
+                        case TagKind.CHAT:
+                            if (
+                                t.name == ChatTag.ROLE
+                                and t.value.get(TagValueKey.STRING_VALUE, "") == RoleTag.ASSISTANT
+                            ):
+                                assistant_chat_response_event = True
+        except requests.exceptions.ConnectionError as err:
+            sse_response.close()
             # TODO: this is required to get a termination on the streaming wait.
             # TODO: do we have a way to signal events have stopped?
-            pass
+            if "Read timed out." in str(err):
+                pass
+            else:
+                raise err
+        except Exception as err:
+            sse_response.close()
+            raise err
+        else:
+            sse_response.close()
 
         file.refresh()
         assert (
             len(file.blocks) > original_len
         ), "File should have increased in size during AgentService execution"
 
-        assert num_events == 13
+        assert num_events > 0, "Events should have been streamed during execution"
+        assert llm_prompt_event_count == 2, (
+            "At least 3 llm prompts should have happened (first for tool selection, "
+            "second for generating final answer)"
+        )
+        assert function_selection_event is True, "SearchTool should have been selected"
+        assert tool_execution_event is True, "SearchTool should log a status message"
+        assert function_complete_event is True, "SearchTool should return a response"
+        assert (
+            assistant_chat_response_event is True
+        ), "Agent should have sent the assistant chat response"
