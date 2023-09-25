@@ -119,11 +119,11 @@ class ChatOpenAI(ChatLLM, OpenAI):
         # for streaming use cases, we want to always use the existing file
         # the way to detect this would be if all messages were from the same file
         if self._from_same_file(blocks=messages):
-            file_id = messages[0].id
-            block_ids = [b.id for b in messages]
+            file_id = messages[0].file_id
+            block_indices = [b.index_in_file for b in messages]
             generate_task = self.generator.generate(
                 input_file_id=file_id,
-                input_file_block_index_list=block_ids,
+                input_file_block_index_list=block_indices,
                 options=options,
                 append_output_to_file=True,
             )

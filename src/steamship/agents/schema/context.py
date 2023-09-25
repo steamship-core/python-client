@@ -1,4 +1,5 @@
 import logging
+import uuid
 from typing import Any, Callable, Dict, List, Optional
 
 from steamship import Block, Steamship, Tag
@@ -49,10 +50,14 @@ class AgentContext:
     """Caches all interations with LLMs within a Context. This provides a way to avoid duplicated
     calls to LLMs when within the same context."""
 
-    def __init__(self, streaming_opts: Optional[StreamingOpts] = None):
+    request_id: str
+    """Identifier for the current request being handled by this context."""
+
+    def __init__(self, request_id: str, streaming_opts: Optional[StreamingOpts] = None):
         self.metadata = {}
         self.completed_steps = []
         self.emit_funcs = []
+        self.request_id = request_id  # TODO: protect this?
         if streaming_opts is not None:
             self._streaming_opts = streaming_opts
         else:
@@ -67,14 +72,18 @@ class AgentContext:
         use_llm_cache: Optional[bool] = False,
         use_action_cache: Optional[bool] = False,
         streaming_opts: Optional[StreamingOpts] = None,
+        request_id: Optional[str] = None,
     ):
         from steamship.agents.schema.chathistory import ChatHistory
 
         if streaming_opts is None:
             streaming_opts = StreamingOpts()
 
+        if request_id is None:
+            request_id = str(uuid.uuid4())
+
         history = ChatHistory.get_or_create(client, context_keys, tags, searchable=searchable)
-        context = AgentContext(streaming_opts=streaming_opts)
+        context = AgentContext(streaming_opts=streaming_opts, request_id=request_id)
         context.chat_history = history
         context.client = client
 
@@ -97,7 +106,9 @@ class AgentContext:
 
         if self._streaming_opts.stream_intermediate_events:
             self._chat_history_logger = ChatHistoryLoggingHandler(
-                chat_history=self.chat_history, streaming_opts=self._streaming_opts
+                chat_history=self.chat_history,
+                streaming_opts=self._streaming_opts,
+                request_id=self.request_id,
             )
             logger = logging.getLogger()
             logger.addHandler(self._chat_history_logger)

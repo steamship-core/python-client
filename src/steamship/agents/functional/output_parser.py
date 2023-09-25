@@ -136,4 +136,5 @@ class FunctionsBasedOutputParser(OutputParser):
         finish_blocks = FunctionsBasedOutputParser._blocks_from_text(context.client, text)
         for finish_block in finish_blocks:
             finish_block.set_chat_role(RoleTag.ASSISTANT)
+            finish_block.set_request_id(context.request_id)
         return FinishAction(output=finish_blocks, context=context)
