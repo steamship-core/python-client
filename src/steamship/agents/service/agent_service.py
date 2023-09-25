@@ -327,6 +327,7 @@ class AgentService(PackageService):
 
         context = AgentContext.get_or_create(
             client=self.client,
+            request_id=self.client.config.request_id,
             context_keys={"id": f"{context_id}"},
             use_llm_cache=use_llm_cache,
             use_action_cache=use_action_cache,

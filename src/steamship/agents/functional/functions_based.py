@@ -30,13 +30,17 @@ Only use the functions you have been provided with."""
             output_parser=FunctionsBasedOutputParser(tools=tools), llm=llm, tools=tools, **kwargs
         )
 
+    def _get_or_create_system_message(self, context: AgentContext) -> Block:
+        sys_msg = context.chat_history.last_system_message
+        if sys_msg:
+            return sys_msg
+
+        return context.chat_history.append_system_message(text=self.PROMPT, mime_type=MimeTypes.TXT)
+
     def build_chat_history_for_tool(self, context: AgentContext) -> List[Block]:
-        messages: List[Block] = []
+        messages: List[Block] = [self._get_or_create_system_message(context)]
 
         # get system message
-        system_message = Block(text=self.PROMPT)
-        system_message.set_chat_role(RoleTag.SYSTEM)
-        messages.append(system_message)
 
         messages_from_memory = []
         # get prior conversations
@@ -115,6 +119,11 @@ Only use the functions you have been provided with."""
                 value={TagValueKey.STRING_VALUE: RoleTag.ASSISTANT},
             ),
             Tag(kind=TagKind.FUNCTION_SELECTION, name=action.tool),
+            Tag(
+                kind="request-id",
+                name=context.request_id,
+                value={TagValueKey.STRING_VALUE: context.request_id},
+            ),
         ]
         context.chat_history.file.append_block(
             text=self._to_openai_function_selection(action), tags=tags, mime_type=MimeTypes.TXT
@@ -136,6 +145,11 @@ Only use the functions you have been provided with."""
             Tag(
                 kind="name",
                 name=action.tool,
+            ),
+            Tag(
+                kind="request-id",
+                name=context.request_id,
+                value={TagValueKey.STRING_VALUE: context.request_id},
             ),
         ]
         # TODO(dougreid): I'm not convinced this is correct for tools that return multiple values.

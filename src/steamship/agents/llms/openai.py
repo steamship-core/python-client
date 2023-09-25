@@ -147,12 +147,3 @@ class ChatOpenAI(ChatLLM, OpenAI):
             if b.file_id != file_id:
                 return False
         return True
-
-    def _from_same_file(self, blocks: List[Block]) -> bool:
-        if len(blocks) <= 1:
-            return True
-        file_id = blocks[0].file_id
-        for b in blocks[1:]:
-            if b.file_id != file_id:
-                return False
-        return True

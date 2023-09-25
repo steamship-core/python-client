@@ -356,10 +356,12 @@ class ChatHistoryLoggingHandler(StreamHandler):
     chat_history: ChatHistory
     log_level: any
     streaming_opts: StreamingOpts
+    request_id: str
 
     def __init__(
         self,
         chat_history: ChatHistory,
+        request_id: str,
         log_level: any = logging.INFO,
         streaming_opts: Optional[StreamingOpts] = None,
     ):
@@ -372,6 +374,7 @@ class ChatHistoryLoggingHandler(StreamHandler):
             self.streaming_opts = streaming_opts
         else:
             self.streaming_opts = StreamingOpts()
+        self.request_id = request_id
 
     def emit(self, record):
         if record.levelno < self.log_level:
@@ -396,9 +399,16 @@ class ChatHistoryLoggingHandler(StreamHandler):
         message = message_dict.get("message", None)
         message_type = message_dict.get(AgentLogging.MESSAGE_TYPE, AgentLogging.MESSAGE)
 
+        req_id_tag = Tag(
+            kind="request-id",
+            name=self.request_id,
+            value={TagValueKey.STRING_VALUE: self.request_id},
+        )
+
         if author_kind == AgentLogging.AGENT:
             return self.chat_history.append_agent_message(
                 text=message,
+                tags=[req_id_tag],
                 mime_type=MimeTypes.TXT,
             )
         elif author_kind == AgentLogging.TOOL:
@@ -410,7 +420,8 @@ class ChatHistoryLoggingHandler(StreamHandler):
                         kind=TagKind.TOOL_STATUS_MESSAGE,
                         name=message_type,
                         value={TagValueKey.STRING_VALUE: message, "tool": tool_name},
-                    )
+                    ),
+                    req_id_tag,
                 ],
                 mime_type=MimeTypes.TXT,
             )
@@ -423,7 +434,8 @@ class ChatHistoryLoggingHandler(StreamHandler):
                         kind=TagKind.LLM_STATUS_MESSAGE,
                         name=message_type,
                         value={TagValueKey.STRING_VALUE: message, "llm": llm_name},
-                    )
+                    ),
+                    req_id_tag,
                 ],
                 mime_type=MimeTypes.TXT,
             )
