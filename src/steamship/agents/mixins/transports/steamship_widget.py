@@ -58,20 +58,34 @@ class SteamshipWidgetTransport(Transport):
         """Endpoint that implements the contract for Steamship embeddable chat widgets. This is a PUBLIC endpoint since these webhooks do not pass a token."""
         incoming_message = self.parse_inbound(payload)
 
-        context = self.agent_service.build_default_context(context_id=incoming_message.chat_id)
+        with self.agent_service.build_default_context(
+            context_id=incoming_message.chat_id
+        ) as context:
+            context.chat_history.append_user_message(
+                text=incoming_message.text, tags=incoming_message.tags
+            )
+            context.emit_funcs = [self.save_for_emit]
 
-        context.chat_history.append_user_message(
-            text=incoming_message.text, tags=incoming_message.tags
-        )
-        context.emit_funcs = [self.save_for_emit]
+            try:
+                self.agent_service.run_agent(self.agent_service.get_default_agent(), context)
+            except Exception as e:
+                self.message_output = [
+                    self.response_for_exception(e, chat_id=incoming_message.chat_id)
+                ]
 
-        try:
-            self.agent_service.run_agent(self.agent_service.get_default_agent(), context)
-        except Exception as e:
-            self.message_output = [self.response_for_exception(e, chat_id=incoming_message.chat_id)]
+            for output_block in self.message_output:
+                # Need to make the output blocks public here so that they can be copied to the chat history.
+                output_block.set_public_data(True)
+                context.chat_history.append_assistant_message(
+                    text=output_block.text,
+                    tags=output_block.tags,
+                    url=output_block.raw_data_url or output_block.url or output_block.content_url,
+                    mime_type=output_block.mime_type,
+                )
 
-        # We don't call self.steamship_widget_transport.send because the result is the return value
-        return self.message_output
+            # We don't call self.steamship_widget_transport.send because the result is the return value
+            return self.message_output
 
     def save_for_emit(self, blocks: List[Block], metadata: Metadata):
+
         self.message_output = blocks
