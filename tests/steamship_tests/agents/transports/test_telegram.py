@@ -5,12 +5,25 @@ from steamship_tests import PACKAGES_PATH
 from steamship_tests.utils.deployables import deploy_package
 
 from steamship import File, PackageInstance, Steamship
+from steamship.agents.mixins.transports.telegram import TelegramTransport, TelegramTransportConfig
+from steamship.agents.service.agent_service import AgentService
 
 config_template = {
     "telegram_token": {"type": "string", "default": ""},
     "telegram_api_base": {"type": "string", "default": ""},
     "slack_api_base": {"type": "string", "default": ""},
 }
+
+
+def test_telegram_api_base():
+    with Steamship.temporary_workspace() as client:
+        transport = TelegramTransport(
+            client=client,
+            agent_service=AgentService(client=client),
+            config=TelegramTransportConfig(),
+        )
+        transport.bot_token = "TOKEN"  # noqa: S105
+        assert transport.get_api_root() == "https://api.telegram.org/botTOKEN"
 
 
 @pytest.mark.usefixtures("client")
