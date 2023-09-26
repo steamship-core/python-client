@@ -76,6 +76,9 @@ def test_telegram(client: Steamship):
             # The configuration provided a token, so the token should be reported as having been set.
             assert agent_instance.invoke("is_telegram_token_set") is True
 
+            # The telegram_bot_info should return {"username": "TestBot"}
+            assert agent_instance.invoke("telegram_bot_info") == {"username": "TestBot"}
+
             # Test that agent called instance_init and registered webhook
             files = File.query(client, f'kind "{MockTelegramApi.WEBHOOK_TAG}"').files
             assert len(files) == 1
