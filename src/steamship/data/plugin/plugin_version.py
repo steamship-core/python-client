@@ -23,6 +23,7 @@ class CreatePluginVersionRequest(Request):
     type: str = "file"
     # Note: this is a Dict[str, Any] but should be transmitted to the Engine as a JSON string
     config_template: str = None
+    streaming: Optional[bool] = None
 
 
 class ListPluginVersionsRequest(Request):
@@ -65,6 +66,7 @@ class PluginVersion(CamelModel):
         is_public: Optional[bool] = None,
         is_default: Optional[bool] = None,
         config_template: Optional[Dict[str, Any]] = None,
+        streaming: Optional[bool] = None,
     ) -> PluginVersion:
 
         if filename is None and filebytes is None:
@@ -85,6 +87,7 @@ class PluginVersion(CamelModel):
             is_public=is_public,
             is_default=is_default,
             config_template=json.dumps(config_template or {}),
+            streaming=streaming,
         )
 
         task = client.post(

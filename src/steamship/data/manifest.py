@@ -59,6 +59,7 @@ class PluginConfig(BaseModel):
     isTrainable: Optional[bool] = False  # noqa: N815
     transport: str = "jsonOverHttp"
     type: str  # Does not use PluginType due to circular import
+    streaming: bool = False
 
 
 class Manifest(BaseModel):
