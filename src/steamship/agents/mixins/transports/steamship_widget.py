@@ -4,7 +4,7 @@ from typing import List, Optional
 from steamship import Block, Steamship, SteamshipError
 from steamship.agents.mixins.transports.transport import Transport
 from steamship.agents.schema import Metadata
-from steamship.agents.service.agent_service import AgentService
+from steamship.agents.service.agent_service import AgentService, build_context_appending_emit_func
 from steamship.invocable import post
 
 API_BASE = "https://api.telegram.org/bot"
@@ -58,17 +58,24 @@ class SteamshipWidgetTransport(Transport):
         """Endpoint that implements the contract for Steamship embeddable chat widgets. This is a PUBLIC endpoint since these webhooks do not pass a token."""
         incoming_message = self.parse_inbound(payload)
 
-        context = self.agent_service.build_default_context(context_id=incoming_message.chat_id)
+        with self.agent_service.build_default_context(
+            context_id=incoming_message.chat_id
+        ) as context:
 
-        context.chat_history.append_user_message(
-            text=incoming_message.text, tags=incoming_message.tags
-        )
-        context.emit_funcs = [self.save_for_emit]
+            context.chat_history.append_user_message(
+                text=incoming_message.text, tags=incoming_message.tags
+            )
+            context.emit_funcs = [
+                self.save_for_emit,
+                build_context_appending_emit_func(context=context),
+            ]
 
-        try:
-            self.agent_service.run_agent(self.agent_service.get_default_agent(), context)
-        except Exception as e:
-            self.message_output = [self.response_for_exception(e, chat_id=incoming_message.chat_id)]
+            try:
+                self.agent_service.run_agent(self.agent_service.get_default_agent(), context)
+            except Exception as e:
+                self.message_output = [
+                    self.response_for_exception(e, chat_id=incoming_message.chat_id)
+                ]
 
         # We don't call self.steamship_widget_transport.send because the result is the return value
         return self.message_output

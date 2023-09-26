@@ -6,9 +6,29 @@ from steamship import Block, SteamshipError, Task
 from steamship.agents.llms.openai import OpenAI
 from steamship.agents.logging import AgentLogging, StreamingOpts
 from steamship.agents.schema import Action, Agent, FinishAction
-from steamship.agents.schema.context import AgentContext, Metadata
+from steamship.agents.schema.context import AgentContext, EmitFunc, Metadata
 from steamship.agents.utils import with_llm
 from steamship.invocable import PackageService, post
+
+
+def build_context_appending_emit_func(context: AgentContext) -> EmitFunc:
+    """Build an emit function that will append output blocks directly to ChatHistory, via AgentContext.
+
+    NOTE: Messages will be tagged as ASSISTANT messages, as this assumes that agent output should be considered
+    an assistant response to a USER.
+    """
+
+    def new_emit_func(blocks: List[Block], metadata: Metadata):
+        for block in blocks:
+            block.set_public_data(True)
+            context.chat_history.append_assistant_message(
+                text=block.text,
+                tags=block.tags,
+                url=block.raw_data_url or block.url or block.content_url,
+                mime_type=block.mime_type,
+            )
+
+    return new_emit_func
 
 
 class AgentService(PackageService):
@@ -318,23 +338,11 @@ class AgentService(PackageService):
                 output_blocks.extend(blocks)
 
             context.emit_funcs.append(sync_emit)
+            context.emit_funcs.append(build_context_appending_emit_func(context))
 
             # Get the agent
             agent: Optional[Agent] = self.get_default_agent()
             self.run_agent(agent, context)
-
-            # Now append the output blocks to the chat history
-            # TODO: It seems like we've been going from block -> not block -> block here. Opportunity to optimize.
-            for output_block in output_blocks:
-                # Need to make the output blocks public here so that they can be copied to the chat history.
-                # They generally need to be public anyway for the REPL to be able to show a clickable link.
-                output_block.set_public_data(True)
-                context.chat_history.append_assistant_message(
-                    text=output_block.text,
-                    tags=output_block.tags,
-                    url=output_block.raw_data_url or output_block.url or output_block.content_url,
-                    mime_type=output_block.mime_type,
-                )
 
             # Return the response as a set of multi-modal blocks.
             return output_blocks
