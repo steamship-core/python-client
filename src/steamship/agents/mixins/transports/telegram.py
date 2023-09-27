@@ -296,7 +296,7 @@ class TelegramTransport(Transport):
                 # This is a special case for our testing pipeline -- it contains a mock Telegram server.
                 return api_base
             else:
-                return f"{api_base}{bot_token}"
+                return f"{api_base[:-1]}{bot_token}"
         else:
             return None
 

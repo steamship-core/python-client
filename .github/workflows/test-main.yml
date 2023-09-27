@@ -70,7 +70,7 @@ jobs:
         run: python -m pip install -e .
 
       - name: Run Tests
-        run: pytest --junitxml=tests.xml
+        run: pytest --junitxml=tests.xml -n 5
         env:
           STEAMSHIP_API_KEY: ${{ secrets[matrix.api-key] }}
           STEAMSHIP_API_BASE: ${{ secrets[matrix.api-base] }}
