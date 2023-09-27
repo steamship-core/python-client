@@ -279,6 +279,9 @@ def serve_local(  # noqa: C901
         workspace_obj = Workspace.create(client)
         workspace = workspace_obj.handle
 
+    # Now switch the workspace to the one just created.
+    client.switch_workspace(workspace)
+
     # Make sure we're running a package.
     if manifest.type != DeployableType.PACKAGE:
         click.secho(
