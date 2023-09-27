@@ -244,7 +244,8 @@ class TelegramTransport(Transport):
 
                     context.emit_funcs = [
                         self.build_emit_func(chat_id=chat_id),
-                        build_context_appending_emit_func(context=context),
+                        # allow telegram access to blocks on emit (making them public)
+                        build_context_appending_emit_func(context=context, make_blocks_public=True),
                     ]
 
                     self.agent_service.run_agent(self.agent_service.get_default_agent(), context)

@@ -470,7 +470,8 @@ class SlackTransport(Transport):
                         incoming_message_ts=incoming_message.message_id,
                         thread_ts=thread_ts,
                     ),
-                    build_context_appending_emit_func(context=context),
+                    # allow slack access to blocks on emit (making them public)
+                    build_context_appending_emit_func(context=context, make_blocks_public=True),
                 ]
 
                 # Add an LLM to the context, using the Agent's if it exists.

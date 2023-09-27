@@ -67,7 +67,8 @@ class SteamshipWidgetTransport(Transport):
             )
             context.emit_funcs = [
                 self.save_for_emit,
-                build_context_appending_emit_func(context=context),
+                # allow web-app access to blocks on emit (making them public)
+                build_context_appending_emit_func(context=context, make_blocks_public=True),
             ]
 
             try:

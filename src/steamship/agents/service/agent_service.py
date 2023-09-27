@@ -11,7 +11,9 @@ from steamship.agents.utils import with_llm
 from steamship.invocable import PackageService, post
 
 
-def build_context_appending_emit_func(context: AgentContext) -> EmitFunc:
+def build_context_appending_emit_func(
+    context: AgentContext, make_blocks_public: Optional[bool] = False
+) -> EmitFunc:
     """Build an emit function that will append output blocks directly to ChatHistory, via AgentContext.
 
     NOTE: Messages will be tagged as ASSISTANT messages, as this assumes that agent output should be considered
@@ -20,7 +22,7 @@ def build_context_appending_emit_func(context: AgentContext) -> EmitFunc:
 
     def new_emit_func(blocks: List[Block], metadata: Metadata):
         for block in blocks:
-            block.set_public_data(True)
+            block.set_public_data(make_blocks_public)
             context.chat_history.append_assistant_message(
                 text=block.text,
                 tags=block.tags,
@@ -338,7 +340,11 @@ class AgentService(PackageService):
                 output_blocks.extend(blocks)
 
             context.emit_funcs.append(sync_emit)
-            context.emit_funcs.append(build_context_appending_emit_func(context))
+
+            # NOTE: we make blocks public on output here to allow for ease of testing and sharing
+            context.emit_funcs.append(
+                build_context_appending_emit_func(context=context, make_blocks_public=True)
+            )
 
             # Get the agent
             agent: Optional[Agent] = self.get_default_agent()
