@@ -464,15 +464,18 @@ class SlackTransport(Transport):
                     context.metadata["slack"]["thread_ts"] = thread_ts
 
                 # TODO: For truly async support, this emit fn will need to be wired in at the Agent level.
-                context.emit_funcs = [
+                context.emit_funcs.append(
                     self.build_emit_func(
                         chat_id=chat_id,
                         incoming_message_ts=incoming_message.message_id,
                         thread_ts=thread_ts,
-                    ),
+                    )
+                )
+
+                context.emit_funcs.append(
                     # allow slack access to blocks on emit (making them public)
                     build_context_appending_emit_func(context=context, make_blocks_public=True),
-                ]
+                )
 
                 # Add an LLM to the context, using the Agent's if it exists.
                 llm = None

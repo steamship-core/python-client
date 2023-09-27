@@ -20,17 +20,17 @@ def build_context_appending_emit_func(
     an assistant response to a USER.
     """
 
-    def new_emit_func(blocks: List[Block], metadata: Metadata):
+    def chat_history_append_func(blocks: List[Block], metadata: Metadata):
         for block in blocks:
             block.set_public_data(make_blocks_public)
             context.chat_history.append_assistant_message(
                 text=block.text,
                 tags=block.tags,
-                url=block.raw_data_url or block.url or block.content_url,
+                url=block.raw_data_url or block.url or block.content_url or None,
                 mime_type=block.mime_type,
             )
 
-    return new_emit_func
+    return chat_history_append_func
 
 
 class AgentService(PackageService):
@@ -240,7 +240,7 @@ class AgentService(PackageService):
             f"Completed agent run. Result: {len(action.output or [])} blocks. {output_text_length} total text length. Emitting on {len(context.emit_funcs)} functions."
         )
         for func in context.emit_funcs:
-            logging.info(f"Emitting via function: {func.__name__}")
+            logging.info(f"Emitting via function '{func.__name__}' for context: {context.id}")
             func(action.output, context.metadata)
 
     def set_default_agent(self, agent: Agent):
