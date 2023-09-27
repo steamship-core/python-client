@@ -274,7 +274,9 @@ def serve_local(  # noqa: C901
     if workspace:
         workspace_obj = Workspace.get(client, handle=workspace)
     else:
-        workspace_obj = Workspace.get(client)
+        # Create a new workspace if none was specified.
+        # Otherwise multiple runs co-mingle data in the `default` workspace.
+        workspace_obj = Workspace.create(client)
         workspace = workspace_obj.handle
 
     # Make sure we're running a package.
@@ -287,6 +289,9 @@ def serve_local(  # noqa: C901
     # Make sure we have a package name -- this allows us to register the running copy with the engine.
     deployer = PackageDeployer()
     deployable = deployer.create_or_fetch_deployable(client, user, manifest)
+
+    # Report the workspace we're running in
+    click.secho(f"🗃️ Workspace:  {workspace}")
 
     # Report the logs output file.
     click.secho(f"📝 Log file:   {dev_logging_handler.log_filename}")
