@@ -272,7 +272,8 @@ def serve_local(  # noqa: C901
     client, user, manifest = initialize_and_get_client_and_prep_project()
 
     if workspace:
-        workspace_obj = Workspace.get(client, handle=workspace)
+        # Fetch/create a workspace if one was specified.
+        workspace_obj = Workspace.create(client, handle=workspace, fetch_if_exists=True)
     else:
         # Create a new workspace if none was specified.
         # Otherwise multiple runs co-mingle data in the `default` workspace.
