@@ -264,6 +264,7 @@ def create_custom_format(
             "invocableType": invocation_context.invocable_type,
             "invocableOwnerId": invocation_context.invocable_owner_id,
             "path": event.get("invocation", {}).get("invocationPath"),
+            "requestId": event.get("clientConfig", {}).get("requestId"),
         }
         # if isinstance(record.args, dict):
         for key, value in record.__dict__.items():

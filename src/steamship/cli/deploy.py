@@ -241,6 +241,7 @@ class PluginDeployer(DeployableDeployer):
             handle=manifest.version,
             filename=f"build/archives/{manifest.handle}_v{manifest.version}.zip",
             plugin_id=thing_id,
+            streaming=manifest.plugin.streaming,
         )
 
     def create_object(self, client: Steamship, manifest: Manifest):

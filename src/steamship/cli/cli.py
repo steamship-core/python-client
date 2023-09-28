@@ -272,10 +272,16 @@ def serve_local(  # noqa: C901
     client, user, manifest = initialize_and_get_client_and_prep_project()
 
     if workspace:
-        workspace_obj = Workspace.get(client, handle=workspace)
+        # Fetch/create a workspace if one was specified.
+        workspace_obj = Workspace.create(client, handle=workspace, fetch_if_exists=True)
     else:
-        workspace_obj = Workspace.get(client)
+        # Create a new workspace if none was specified.
+        # Otherwise multiple runs co-mingle data in the `default` workspace.
+        workspace_obj = Workspace.create(client)
         workspace = workspace_obj.handle
+
+    # Now switch the workspace to the one just created.
+    client.switch_workspace(workspace)
 
     # Make sure we're running a package.
     if manifest.type != DeployableType.PACKAGE:
@@ -287,6 +293,9 @@ def serve_local(  # noqa: C901
     # Make sure we have a package name -- this allows us to register the running copy with the engine.
     deployer = PackageDeployer()
     deployable = deployer.create_or_fetch_deployable(client, user, manifest)
+
+    # Report the workspace we're running in
+    click.secho(f"🗃️ Workspace:  {workspace}")
 
     # Report the logs output file.
     click.secho(f"📝 Log file:   {dev_logging_handler.log_filename}")

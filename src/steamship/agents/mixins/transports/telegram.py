@@ -80,12 +80,22 @@ class TelegramTransport(Transport):
                 f"Could not set webhook for bot. Webhook URL was {webhook_url}. Telegram response message: {response.text}"
             )
 
+    @post("telegram_bot_info")
+    def telegram_bot_info(self) -> dict:
+        api_root = self.get_api_root()
+        if not api_root:
+            raise SteamshipError(
+                message="Unable to fetch Telegram Bot info -- perhaps your bot token isn't set?"
+            )
+
+        return requests.get(api_root + "/getMe").json()
+
     @post("telegram_webhook_info")
     def telegram_webhook_info(self) -> dict:
         api_root = self.get_api_root()
         if not api_root:
             raise SteamshipError(
-                message="Unable to fetch Telegram API info -- perhaps your bot token isn't set?"
+                message="Unable to fetch Telegram Webhook info -- perhaps your bot token isn't set?"
             )
 
         return requests.get(api_root + "/getWebhookInfo").json()
@@ -294,9 +304,9 @@ class TelegramTransport(Transport):
         if bot_token:
             if ".steamship.run/" in api_base or ".apps.staging.steamship.com" in api_base:
                 # This is a special case for our testing pipeline -- it contains a mock Telegram server.
-                return api_base
+                return api_base[:-1]
             else:
-                return f"{api_base}{bot_token}"
+                return f"{api_base[:-1]}{bot_token}"
         else:
             return None
 

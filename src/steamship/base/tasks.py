@@ -142,6 +142,9 @@ class Task(GenericCamelModel, Generic[T]):
     task_id: str = None  # The id of this task
     user_id: str = None  # The user who requested this task
     workspace_id: str = None  # The workspace in which this task is executing
+    request_id: Optional[str] = Field(
+        default=None
+    )  # The ID for the request that lead to the creation of this Task.
 
     # Note: The Field object prevents this from being serialized into JSON (and causing a crash)
     expect: Type = Field(

@@ -282,6 +282,7 @@ class File(CamelModel):
         options: Optional[dict] = None,
         wait_on_tasks: List[Task] = None,
         make_output_public: bool = False,
+        streaming: Optional[bool] = False,
     ) -> Task[GenerateResponse]:
         """Generate new content from this file. Assumes this file as context for input and output.  May specify start and end blocks."""
         from steamship.data.operations.generator import GenerateRequest, GenerateResponse
@@ -301,6 +302,7 @@ class File(CamelModel):
             output_file_id=output_file_id,
             options=options,
             make_output_public=make_output_public,
+            streaming=streaming,
         )
         return self.client.post(
             "plugin/instance/generate", req, expect=GenerateResponse, wait_on_tasks=wait_on_tasks

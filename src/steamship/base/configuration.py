@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 import inflection
-from pydantic import HttpUrl, SecretStr
+from pydantic import AnyHttpUrl, SecretStr
 
 from steamship.base.model import CamelModel, to_camel
 from steamship.cli.login import login
@@ -38,12 +38,15 @@ EXCLUDE_FROM_DICT = {
 
 class Configuration(CamelModel):
     api_key: SecretStr
-    api_base: HttpUrl = DEFAULT_API_BASE
-    app_base: HttpUrl = DEFAULT_APP_BASE
-    web_base: HttpUrl = DEFAULT_WEB_BASE
+    api_base: AnyHttpUrl = DEFAULT_API_BASE
+    app_base: AnyHttpUrl = DEFAULT_APP_BASE
+    web_base: AnyHttpUrl = DEFAULT_WEB_BASE
     workspace_id: str = None
     workspace_handle: str = None
     profile: Optional[str] = None
+
+    # For use in deployed packages and plugins for tracing. Do not set manually
+    request_id: Optional[str] = None
 
     def __init__(
         self,

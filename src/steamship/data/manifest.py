@@ -27,7 +27,7 @@ class ConfigParameterType(str, Enum):
 class ConfigParameter(BaseModel):
     type: ConfigParameterType
     description: Optional[str] = None
-    # optional: Optional[bool] = None
+    optional: Optional[bool] = None
 
     # Use strict so that Pydantic doesn't coerce values into the first one that fits
     default: Optional[Union[StrictStr, StrictBool, StrictFloat, StrictInt]] = None
@@ -59,6 +59,7 @@ class PluginConfig(BaseModel):
     isTrainable: Optional[bool] = False  # noqa: N815
     transport: str = "jsonOverHttp"
     type: str  # Does not use PluginType due to circular import
+    streaming: bool = False
 
 
 class Manifest(BaseModel):
