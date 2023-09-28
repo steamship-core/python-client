@@ -346,6 +346,23 @@ class ChatHistory:
             text, RoleTag.LLM, tags, content, url, mime_type
         )
 
+    def append_request_complete_message(
+        self,
+        request_id: str,
+    ) -> Block:
+        """Append a new block to this with status update messages from the Agent."""
+
+        tags = [
+            Tag(kind=TagKind.AGENT_STATUS_MESSAGE, name=ChatTag.REQUEST_COMPLETE),
+            Tag(
+                kind="request-id",
+                name=request_id,
+                value={TagValueKey.STRING_VALUE: request_id},
+            ),
+        ]
+
+        return self.append_status_message_with_role("", RoleTag.AGENT, tags, None, None, None)
+
 
 class ChatHistoryLoggingHandler(StreamHandler):
     """Logs messages emitted by Agents and Tools into a ChatHistory file.

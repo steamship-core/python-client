@@ -274,6 +274,9 @@ class AgentService(PackageService):
             logging.info(f"Emitting via function '{func.__name__}' for context: {context.id}")
             func(action.output, context.metadata)
 
+        # Here we append a final request complete block, which will have no text, but hold a special tag
+        context.chat_history.append_request_complete_message(self.client.config.request_id)
+
     def set_default_agent(self, agent: Agent):
         self.agent = agent
 

@@ -350,6 +350,7 @@ def test_async_prompt(client: Steamship):
         num_events = 0
         # sse event format: {'blockCreated': {'blockId': '<uuid>', 'createdAt': '2023-09-25T16:12:54Z'}}
         for event in events_while_running(client, streaming_task, file):
+            request_complete = False
             # TODO: it seems like event ids aren't consistent
             block_creation_event = json.loads(event.data)
             block_created = block_creation_event["blockCreated"]
@@ -378,6 +379,13 @@ def test_async_prompt(client: Steamship):
                             and t.value.get(TagValueKey.STRING_VALUE, "") == RoleTag.ASSISTANT
                         ):
                             assistant_chat_response_event = True
+                    case TagKind.AGENT_STATUS_MESSAGE:
+                        if t.name == ChatTag.REQUEST_COMPLETE:
+                            print("found request complete notification...")
+                            request_complete = True
+                            break
+            if request_complete:
+                break
 
         file.refresh()
         assert (
@@ -421,6 +429,7 @@ def events_while_running(client: Steamship, task: Task, file: File):
 
 def events_for_file(client: Steamship, file_id: str, req_id: str):
     print("getting events for file.")
+    t = time.time_ns()
     import sseclient
 
     sse_source = f"{client.config.api_base}file/{file_id}/stream?tagKindFilter=request-id&tagNameFilter={req_id}&timeoutSeconds=30"
@@ -436,7 +445,8 @@ def events_for_file(client: Steamship, file_id: str, req_id: str):
     try:
         for event in sse_client.events():
             yields += 1
-            print(f"--> yield: {yields}")
+            new_t = time.time_ns()
+            print(f"--> yield: {yields}: [{(new_t - t)/1000000000}]")
             yield event
     except requests.exceptions.ConnectionError as err:
         if "Read timed out." in str(err):
@@ -455,6 +465,7 @@ def events_for_file(client: Steamship, file_id: str, req_id: str):
         sse_response.close()
         raise err
     else:
-        print("-- successful close of stream.")
+        new_t = time.time_ns()
+        print(f"-- successful close of stream [{(new_t - t)/1000000000}].")
         sse_client.close()
         sse_response.close()

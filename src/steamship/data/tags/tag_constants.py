@@ -305,3 +305,6 @@ class ChatTag(str, Enum):
 
     # A message should be marked as kind=CHAT/name=MESSAGE
     MESSAGE = "message"
+
+    # Used to signal that an individual request was considered complete
+    REQUEST_COMPLETE = "request-complete"
