@@ -119,3 +119,8 @@ class AgentContext:
             logger = logging.getLogger()
             logger.removeHandler(self._chat_history_logger)
             self._chat_history_logger = None
+
+        # Here we append a final request complete block, which will have no text, but hold a special tag
+        # NOTE: This **MUST** happen as the absolute last thing in the AgentService run. If chat history
+        # is updated **outside** of `run_agent`, then this will signal a request completion **before** it happens.
+        self.chat_history.append_request_complete_message(self.request_id)

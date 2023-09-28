@@ -1,9 +1,7 @@
 import logging
 import uuid
 from collections import defaultdict
-from typing import Dict, List, Optional
-
-from pydantic.main import BaseModel
+from typing import Dict, List, Optional, Tuple
 
 from steamship import Block, File, SteamshipError, Task
 from steamship.agents.llms.openai import OpenAI
@@ -14,6 +12,7 @@ from steamship.agents.utils import with_llm
 from steamship.data import TagKind
 from steamship.data.tags.tag_constants import ChatTag
 from steamship.invocable import PackageService, post
+from steamship.invocable.invocable_response import StreamingResponse
 
 
 def build_context_appending_emit_func(
@@ -38,9 +37,12 @@ def build_context_appending_emit_func(
     return chat_history_append_func
 
 
-class StreamingResponse(BaseModel):
-    task: Task
-    file: File
+def _context_key_from_file(key: str, file: File) -> Optional[str]:
+    for tag in file.tags:
+        if tag.kind == TagKind.CHAT and tag.name == ChatTag.CONTEXT_KEYS:
+            if value := tag.value:
+                return value.get(key, None)
+    return None
 
 
 class AgentService(PackageService):
@@ -219,7 +221,9 @@ class AgentService(PackageService):
             if number_of_actions_run >= self.max_actions_per_run:
                 raise SteamshipError(
                     message=(
-                        f"Agent reached its Action budget of {self.max_actions_per_run} without arriving at a response. If you are the developer, checking the logs may reveal it was selecting unhelpful tools or receiving unhelpful responses from them."
+                        f"Agent reached its Action budget of {self.max_actions_per_run} without arriving at a "
+                        f"response. If you are the developer, checking the logs may reveal it was selecting "
+                        f"unhelpful tools or receiving unhelpful responses from them."
                     )
                 )
 
@@ -268,14 +272,12 @@ class AgentService(PackageService):
         if action.output is not None:
             output_text_length = sum([len(block.text or "") for block in action.output])
         logging.info(
-            f"Completed agent run. Result: {len(action.output or [])} blocks. {output_text_length} total text length. Emitting on {len(context.emit_funcs)} functions."
+            f"Completed agent run. Result: {len(action.output or [])} blocks. {output_text_length} total text length. "
+            f"Emitting on {len(context.emit_funcs)} functions."
         )
         for func in context.emit_funcs:
             logging.info(f"Emitting via function '{func.__name__}' for context: {context.id}")
             func(action.output, context.metadata)
-
-        # Here we append a final request complete block, which will have no text, but hold a special tag
-        context.chat_history.append_request_complete_message(self.client.config.request_id)
 
     def set_default_agent(self, agent: Agent):
         self.agent = agent
@@ -313,7 +315,8 @@ class AgentService(PackageService):
         if context_id is None:
             context_id = uuid.uuid4()
             logging.warning(
-                f"No context_id was provided; generated {context_id}. This likely means no conversational history will be present."
+                f"No context_id was provided; generated {context_id}. This likely means "
+                f"no conversational history will be present."
             )
 
         use_llm_cache = self.use_llm_cache
@@ -352,32 +355,41 @@ class AgentService(PackageService):
         context = with_llm(context=context, llm=llm)
         return context
 
+    def _history_file_for_context(self, context_id: Optional[str] = None, **kwargs) -> File:
+        # AgentContexts serve to allow the AgentService to run agents
+        # with appropriate information about the desired tasking.
+        if context_id is None:
+            context_id = uuid.uuid4()
+
+        ctx = AgentContext.get_or_create(self.client, context_keys={"id": f"{context_id}"})
+        return ctx.chat_history.file
+
+    def _streaming_context_id_and_file(
+        self, context_id: Optional[str] = None, **kwargs
+    ) -> Tuple[Optional[str], File]:
+        history_file = self._history_file_for_context(context_id=context_id)
+        ctx_id = context_id
+
+        # if no context ID is provided, try to get a consistent ID from history_file
+        if not ctx_id:
+            ctx_id = _context_key_from_file(key="id", file=history_file)
+
+        # if you can't find a consistent context_id, then something has gone wrong, preventing streaming
+        if not ctx_id:
+            # TODO(dougreid): this points to a slight flaw in the context_keys vs. context_id
+            raise SteamshipError("Error setting up context: no id found for context.")
+
+        return ctx_id, history_file
+
     @post("async_prompt")
     def async_prompt(
         self, prompt: Optional[str] = None, context_id: Optional[str] = None, **kwargs
     ) -> StreamingResponse:
-        with self.build_default_context(context_id, **kwargs) as context:
-            ctx_id = context_id
-
-            # if no context ID is provided, we need to make sure that the streaming context ID
-            # is the same one as the non-streaming.
-            if not ctx_id:
-                ctx_file = context.chat_history.file
-                for tag in ctx_file.tags:
-                    if tag.kind == TagKind.CHAT and tag.name == ChatTag.CONTEXT_KEYS:
-                        if value := tag.value:
-                            ctx_id = value.get("id", None)
-
-            # if you can't find a consistent context_id, then there is no way to provide an accurate
-            # streaming endpoint.
-            if not ctx_id:
-                # TODO(dougreid): this points to a slight flaw in the context_keys vs. context_id
-                raise SteamshipError("Error setting up context: no id found for context.")
-
-            task = self.invoke_later(
-                "/prompt", arguments={"prompt": prompt, "context_id": ctx_id, **kwargs}
-            )
-            return StreamingResponse(task=task, file=context.chat_history.file)
+        ctx_id, history_file = self._streaming_context_id_and_file(context_id=context_id, **kwargs)
+        task = self.invoke_later(
+            "/prompt", arguments={"prompt": prompt, "context_id": ctx_id, **kwargs}
+        )
+        return StreamingResponse(task=task, file=history_file)
 
     @post("prompt")
     def prompt(

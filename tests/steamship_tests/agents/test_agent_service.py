@@ -1,9 +1,11 @@
 import json
+import logging
 import time
-from typing import Any, List, Union
+from typing import Any, List, Optional, Union
 
 import pytest
 import requests
+import sseclient
 from pydantic.fields import PrivateAttr
 from steamship_tests import SRC_PATH
 from steamship_tests.utils.deployables import deploy_package
@@ -252,7 +254,6 @@ def test_context_logging_to_chat_history_everything(client: Steamship):
         assert has_status_message(chat_history.messages, RoleTag.TOOL)
 
 
-<<<<<<< HEAD
 @pytest.mark.usefixtures("client")
 def test_non_duplicate_messages(client: Steamship):
     example_agent_service_path = (
@@ -291,6 +292,7 @@ def test_non_duplicate_messages(client: Steamship):
         ), f"Unexpected response. Should not include function call. Got: {text}"
 
 
+@pytest.mark.usefixtures("client")
 def test_async_prompt(client: Steamship):
     example_agent_service_path = (
         SRC_PATH / "steamship" / "agents" / "examples" / "example_assistant.py"
@@ -310,56 +312,38 @@ def test_async_prompt(client: Steamship):
         except SteamshipError as error:
             pytest.fail(f"failed request: {error}")
 
+        # sanity checking on the response
         assert streaming_resp is not None
         assert streaming_resp["file"] is not None
         assert streaming_resp["task"] is not None
+
+        # we need to validate that the request id is found via requestId and not request_id
+        assert streaming_resp["task"]["requestId"] is not None
 
         file = File(client=client, **(streaming_resp["file"]))
         streaming_task = Task(client=client, **(streaming_resp["task"]))
 
         original_len = len(file.blocks)
 
+        # Checking stream only seems to work **after** the Task **starts**
         while streaming_task.state in [TaskState.waiting]:
             # tight loop to check on waiting status of Task
-            # we only want to try to stream once a Task **starts**
             time.sleep(0.1)
             streaming_task.refresh()
 
-        sse_source = f"{client.config.api_base}file/{file.id}/stream?tagKindFilter=request-id&tagNameFilter={req_id}&timeoutSeconds=30"
-        headers = {
-            "Accept": "text/event-stream",
-            "X-Workspace-Id": client.get_workspace().id,
-            "Authorization": f"Bearer {client.config.api_key.get_secret_value()}",
-        }
-
-        try:
-            streaming_task.wait_until_completed()
-        except SteamshipError as error:
-            pytest.fail(f"Task failed to complete: {error}")
-
         assert streaming_task.state in [TaskState.running]
 
-        block_ids_seen = []
         llm_prompt_event_count = 0
         function_selection_event = False
         tool_execution_event = False
         function_complete_event = False
         assistant_chat_response_event = False
 
-        # TODO: it is concerning that putting this block after a Task completes is the only way it seems to work
-        num_events = 0
-        # sse event format: {'blockCreated': {'blockId': '<uuid>', 'createdAt': '2023-09-25T16:12:54Z'}}
-        for event in events_while_running(client, streaming_task, file):
-            request_complete = False
-            # TODO: it seems like event ids aren't consistent
-            block_creation_event = json.loads(event.data)
-            block_created = block_creation_event["blockCreated"]
-            block_id = block_created["blockId"]
-            if block_id in block_ids_seen:
-                continue
-            block_ids_seen.append(block_id)
-            num_events += 1
-            block = Block.get(client=client, _id=block_id)
+        num_blocks = 0
+        for block in stream_blocks_for_file(
+            client, file_id=file.id, req_id=streaming_task.request_id
+        ):
+            num_blocks += 1
             for t in block.tags:
                 match t.kind:
                     case TagKind.LLM_STATUS_MESSAGE:
@@ -379,21 +363,13 @@ def test_async_prompt(client: Steamship):
                             and t.value.get(TagValueKey.STRING_VALUE, "") == RoleTag.ASSISTANT
                         ):
                             assistant_chat_response_event = True
-                    case TagKind.AGENT_STATUS_MESSAGE:
-                        if t.name == ChatTag.REQUEST_COMPLETE:
-                            print("found request complete notification...")
-                            request_complete = True
-                            break
-            if request_complete:
-                break
 
         file.refresh()
         assert (
             len(file.blocks) > original_len
         ), "File should have increased in size during AgentService execution"
 
-        print(f"num events: {num_events}")
-        assert num_events > 0, "Events should have been streamed during execution"
+        assert num_blocks > 0, "Blocks should have been streamed during execution"
         assert llm_prompt_event_count == 2, (
             "At least 2 llm prompts should have happened (first for tool selection, "
             "second for generating final answer)"
@@ -404,31 +380,9 @@ def test_async_prompt(client: Steamship):
         assert (
             assistant_chat_response_event is True
         ), "Agent should have sent the assistant chat response"
-        # assert False
 
 
-def events_while_running(client: Steamship, task: Task, file: File):
-    req_id = task.request_id
-    while task.state in [TaskState.running]:
-        yields = 0
-        # NOTE: I'm convinced that this generator of generators approach is not correct, but...
-        event_gen = events_for_file(client, file.id, req_id)
-        try:
-            for event in event_gen:
-                yields += 1
-                yield event
-        except StopIteration:
-            # not ready to stream, or done streaming.
-            print("stop iteration")
-            pass
-        print(f"total yields: {yields}")
-        # This is not ideal, but it at least should make sure we get **all** events
-        task.refresh()
-    print(f"task is complete: {task.state}")
-
-
-def events_for_file(client: Steamship, file_id: str, req_id: str):
-    print("getting events for file.")
+def stream_blocks_for_file(client: Steamship, file_id: str, req_id: str):
     t = time.time_ns()
     import sseclient
 
@@ -439,33 +393,43 @@ def events_for_file(client: Steamship, file_id: str, req_id: str):
         "Authorization": f"Bearer {client.config.api_key.get_secret_value()}",
     }
 
+    # set the timeout to longer than the timeout on the sse_source request to prevent a timeout issue, but have
+    # some level of safety
     sse_response = requests.get(sse_source, stream=True, headers=headers, timeout=45)
     sse_client = sseclient.SSEClient(sse_response)
-    yields = 0
     try:
         for event in sse_client.events():
-            yields += 1
             new_t = time.time_ns()
-            print(f"--> yield: {yields}: [{(new_t - t)/1000000000}]")
-            yield event
+            logging.info(f"--> block event: [{(new_t - t)/1000000000}]")
+            if block := _block_from_event(client, event):
+                yield block
+                if _is_terminal_block(block):
+                    raise StopIteration()
     except requests.exceptions.ConnectionError as err:
         if "Read timed out." in str(err):
-            print("-- timeout")
+            logging.info("connection timeout in stream")
             pass
         else:
-            sse_client.close()
-            sse_response.close()
             raise err
     except StopIteration:
-        print("-- stop iteration")
+        logging.info(f"--> stop iteration [{(time.time_ns() - t)/1000000000}]")
+        pass
+    finally:
         sse_client.close()
         sse_response.close()
-    except Exception as err:
-        sse_client.close()
-        sse_response.close()
-        raise err
-    else:
-        new_t = time.time_ns()
-        print(f"-- successful close of stream [{(new_t - t)/1000000000}].")
-        sse_client.close()
-        sse_response.close()
+
+
+def _block_from_event(client: Steamship, event: sseclient.Event) -> Optional[Block]:
+    block_creation_event = json.loads(event.data)
+    if block_created := block_creation_event.get("blockCreated", None):
+        if block_id := block_created.get("blockId", None):
+            return Block.get(client=client, _id=block_id)
+    return None
+
+
+def _is_terminal_block(block: Block) -> bool:
+    for t in block.tags:
+        if t.kind == TagKind.AGENT_STATUS_MESSAGE and t.name == ChatTag.REQUEST_COMPLETE:
+            logging.info("found request complete notification!")
+            return True
+    return False
