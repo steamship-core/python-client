@@ -26,6 +26,7 @@ def test_background_task_call():
     # When we background it, we get a task back instead
     result_2_task = client.post("task/noop", expect=NoOpResult, as_background_task=True)
     assert result_2_task is not None
+    assert result_2_task.request_id is not None
     assert result_2_task.state == TaskState.waiting
 
     result_2_task.wait()
@@ -52,6 +53,7 @@ def test_task_wait_milliseconds():
     # When we background it, we get a task back instead
     result_2_task = client.post("task/noop", expect=NoOpResult, task_delay_ms=1000)
     assert result_2_task is not None
+    assert result_2_task.request_id is not None
     assert result_2_task.state == TaskState.waiting
 
     result_2_task.wait()
@@ -68,6 +70,7 @@ def test_task_update():
     # We'll background this operation in order to transform it into a task we can manipulate
     result_task = client.post("task/noop", expect=NoOpResult, as_background_task=True)
     assert result_task is not None
+    assert result_task.request_id is not None
     assert result_task.state == TaskState.waiting
 
     result_task.wait()

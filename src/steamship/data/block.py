@@ -27,6 +27,12 @@ class BlockUploadType(str, Enum):
     NONE = "none"  # No upload; plain text only.
 
 
+class StreamState(str, Enum):
+    STARTED = "started"  # A producer has begun streaming to this block.
+    COMPLETE = "complete"  # The producer has finished streaming to this block successfully.
+    ABORTED = "aborted"  # The producer finished streaming to the block, but there was an error.
+
+
 class Block(CamelModel):
     """A Block is a chunk of content within a File. It can be plain text content, image content,
     video content, etc. If the content is not text, the text value may be the empty string
@@ -41,6 +47,7 @@ class Block(CamelModel):
     index_in_file: Optional[int] = Field(alias="index")
     mime_type: Optional[MimeTypes]
     public_data: bool = False
+    stream_state: Optional[StreamState] = None
 
     url: Optional[
         str
@@ -88,6 +95,7 @@ class Block(CamelModel):
         url: Optional[str] = None,
         mime_type: Optional[MimeTypes] = None,
         public_data: bool = False,
+        streaming: Optional[bool] = None,
     ) -> Block:
         """
         Create a new Block within a File specified by file_id.
@@ -117,6 +125,7 @@ class Block(CamelModel):
             "mimeType": mime_type,
             "uploadType": upload_type,
             "publicData": public_data,
+            "streaming": streaming,
         }
 
         file_data = (
@@ -169,6 +178,9 @@ class Block(CamelModel):
     def raw(self):
         if self.content_url is not None:
             return requests.get(self.content_url).content
+        elif self.client is None or self.id is None:
+            # guard against transient block raw()s
+            return None
         else:
             return self.client.post(
                 "block/raw",
@@ -236,10 +248,11 @@ class Block(CamelModel):
         """Return a URL at which the data content of this Block can be accessed.  If public_data is True,
         this content can be accessed without an API key.
         """
-        if self.client is not None:
-            return f"{self.client.config.api_base}block/{self.id}/raw"
-        else:
+        if self.client is None or self.id is None:
+            # guard against invalid URLs
             return None
+
+        return f"{self.client.config.api_base}block/{self.id}/raw"
 
     @property
     def chat_role(self) -> Optional[RoleTag]:
@@ -339,6 +352,24 @@ class Block(CamelModel):
             if exclude_block_wrapper:
                 return f"{identifier}"
             return f"Block({identifier})"
+
+    def finish_stream(self):
+        self.client.post(
+            f"block/{self.id}/finishStream",
+            payload={},
+        )
+
+    def append_stream(self, bytes: bytes):
+        self.client.post(
+            f"block/{self.id}/appendStream",
+            payload=bytes,
+        )
+
+    def abort_stream(self):
+        self.client.post(
+            f"block/{self.id}/abortStream",
+            payload={},
+        )
 
 
 class BlockQueryResponse(Response):

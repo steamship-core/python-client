@@ -260,6 +260,9 @@ class Client(CamelModel, ABC):
         elif self.config.workspace_handle:
             headers["X-Workspace-Handle"] = self.config.workspace_handle
 
+        if self.config.request_id:
+            headers["x-request-id"] = self.config.request_id
+
         if is_package_call:
             if package_owner:
                 headers["X-Package-Owner-Handle"] = package_owner
@@ -312,13 +315,15 @@ class Client(CamelModel, ABC):
         return headers
 
     @staticmethod
-    def _prepare_data(payload: Union[Request, dict]):
+    def _prepare_data(payload: Union[Request, dict, bytes]):
         if payload is None:
             data = {}
         elif isinstance(payload, dict):
             data = payload
         elif isinstance(payload, BaseModel):
             data = payload.dict(by_alias=True)
+        elif isinstance(payload, bytes):
+            data = payload
         else:
             raise RuntimeError(f"Unable to parse payload of type {type(payload)}")
 
@@ -404,7 +409,7 @@ class Client(CamelModel, ABC):
         self,
         verb: Verb,
         operation: str,
-        payload: Union[Request, dict] = None,
+        payload: Union[Request, dict, bytes] = None,
         file: Any = None,
         expect: Type[T] = None,
         debug: bool = False,
@@ -461,7 +466,10 @@ class Client(CamelModel, ABC):
                 files = self._prepare_multipart_data(data, file)
                 resp = self._session.post(url, files=files, headers=headers, timeout=timeout_s)
             else:
-                resp = self._session.post(url, json=data, headers=headers, timeout=timeout_s)
+                if isinstance(data, bytes):
+                    resp = self._session.post(url, data=data, headers=headers, timeout=timeout_s)
+                else:
+                    resp = self._session.post(url, json=data, headers=headers, timeout=timeout_s)
         elif verb == Verb.GET:
             resp = self._session.get(url, params=data, headers=headers, timeout=timeout_s)
         else:
@@ -552,7 +560,7 @@ class Client(CamelModel, ABC):
     def post(
         self,
         operation: str,
-        payload: Union[Request, dict, BaseModel] = None,
+        payload: Union[Request, dict, BaseModel, bytes] = None,
         file: Any = None,
         expect: Any = None,
         debug: bool = False,
