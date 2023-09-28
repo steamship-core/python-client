@@ -30,6 +30,10 @@ class MimeTypes(str, Enum):
     WEBM_AUDIO = "audio/webm"
     FILE_JSON = "fileJson"
 
+    # This block contains information that isn't part of the payload to/from a plugin, but instead is json-formatted
+    # information about if/how the plugin supports certain behaviors.
+    STEAMSHIP_PLUGIN_CAPABILITIES = "application/vnd.steamship-block.plugin-capabilities+json"
+
     @classmethod
     def has_value(cls, value):
         return value in cls._value2member_map_

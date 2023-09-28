@@ -215,6 +215,12 @@ class Block(CamelModel):
             MimeTypes.OGG_AUDIO,
         ]
 
+    def is_steamship_internal(self):
+        return self.mime_type in [
+            MimeTypes.STEAMSHIP_BLOCK_JSON,
+            MimeTypes.STEAMSHIP_PLUGIN_REQUEST_META,
+        ]
+
     def is_video(self):
         """Return whether this is a video Block."""
         return self.mime_type in [MimeTypes.MP4_VIDEO, MimeTypes.WEBM_VIDEO, MimeTypes.OGG_VIDEO]
