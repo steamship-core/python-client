@@ -17,14 +17,16 @@ models that it could not support at the levels requested.  Otherwise, when Plugi
 block indicating at which level they served the requested capabilities.
 """
 import logging
-from abc import ABC
 from enum import Enum
 from typing import Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar
 
-from pydantic import BaseModel, Extra, Field
+from pydantic import BaseModel, Extra, Field, validator
+from pydantic.dataclasses import ClassVar
 
 from steamship import Block, MimeTypes, SteamshipError
 from steamship.agents.schema.functions import OpenAIFunction
+
+CapabilityType = TypeVar("CapabilityType", bound="Capability")
 
 
 class RequestLevel(Enum):
@@ -51,10 +53,10 @@ class RequestLevel(Enum):
     """
 
 
-class Capability(ABC, BaseModel, extra=Extra.allow):
+class Capability(BaseModel, extra=Extra.allow):
     """Base class for all capabilities."""
 
-    name: str = Field(init_var=False)
+    NAME: ClassVar[str]
     """Name of the capability.
 
     Each capability provides its own name.  When capabilities are deserialized, they become this base Capability class,
@@ -62,6 +64,13 @@ class Capability(ABC, BaseModel, extra=Extra.allow):
     intention that classes define their names at a class-definition-level.
 
     Make an effort to namespace these by organization, since this is technically extensible.
+    """
+
+    name: str = Field(init_var=False, default=None)
+    """Name of the capability as an instance field.
+
+    The base class of capabilities doesn't have a NAME, but can represent the unresolved Capabilities that clients are
+    requesting.  See CapabilityImpl for the setting of this field.
     """
 
     request_level: RequestLevel = RequestLevel.NATIVE
@@ -99,16 +108,28 @@ class Capability(ABC, BaseModel, extra=Extra.allow):
         also specify additional metadata.
         """
 
+        CAPABILITY_NAME: ClassVar[str]
+
+        name: str = Field(init_var=False, default=None)
         fulfilled_at: RequestLevel
 
 
 class CapabilityImpl(Capability, extra=Extra.forbid):
-    # TODO (PR): The Extra.forbid here (and existence of these classes) is to enforce clamping of deserialization, but
-    #   it may just be simpler to leave that up to individual capabilities?  My goal here is to prevent accidental
-    #   breakage of contract when someone provides specific metadata that makes it so a plugin with an older view of
-    #   the world thinks it has Best Effort support but can't because of those extra requests.
+    # TODO (PR): The Extra.forbid here is to enforce clamping of deserialization, but it may just be simpler to leave
+    #  that up to individual capabilities?  My goal here is to prevent accidental breakage of contract when someone
+    #  provides specific metadata that makes it so e.g. a plugin with an older view of the world thinks it has Best
+    #  Effort support but can't because of those extra requests.
+
+    @validator("name", always=True, pre=True)
+    def name_validator(self, val: str):
+        assert val is None or val == self.NAME
+        return self.NAME
+
     class ResponseImpl(Capability.Response, extra=Extra.forbid):
-        pass
+        @validator("name", always=True, pre=True)
+        def name_validator(self, val: str):
+            assert val is None or val == self.CAPABILITY_NAME
+            return self.CAPABILITY_NAME
 
 
 class UnsupportedCapabilityError(Exception):
@@ -156,9 +177,6 @@ class CapabilityPluginResponse(BaseModel):
         return Block(text=self.json(), mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES)
 
 
-CapabilityType = TypeVar("CapabilityType", bound=Capability)
-
-
 class RequestedCapabilities:
     _requested: Optional[Dict[str, Capability]]
     _supported_levels: Dict[str, RequestLevel]
@@ -167,9 +185,9 @@ class RequestedCapabilities:
     def __init__(self, supported_levels: Mapping[Type[CapabilityType], RequestLevel]):
         self._requested = None
         self._supported_levels = {
-            cap_type.name: request_level for cap_type, request_level in supported_levels
+            cap_type.NAME: request_level for cap_type, request_level in supported_levels.items()
         }
-        self._names_to_types = {cap_type.name: cap_type for cap_type in supported_levels.keys()}
+        self._names_to_types = {cap_type.NAME: cap_type for cap_type in supported_levels.keys()}
 
     def __contains__(self, typ: Type[CapabilityType]):
         return self.get(typ) is not None
@@ -223,7 +241,7 @@ class RequestedCapabilities:
                     break
                 capabilities_block = block
         if not capabilities_block:
-            return CapabilityPluginResponse(capabilities_responses=[])
+            return CapabilityPluginResponse(capability_responses=[])
         return self.load_requests(CapabilityPluginRequest.parse_raw(capabilities_block.text))
 
     def get(
@@ -233,7 +251,7 @@ class RequestedCapabilities:
             raise SteamshipError(
                 "RequestedCapabilities has not been loaded with a set of requests yet.  Load a request with .load_requests()"
             )
-        capability = self._requested.get(typ.name)
+        capability = self._requested.get(typ.NAME)
         if capability:
             return typ.parse_obj(capability)
         return default

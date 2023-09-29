@@ -1,6 +1,27 @@
+from typing import List
+
 import pytest
 
-from steamship.plugin.capabilities import CapabilityImpl, RequestLevel
+from steamship import Block, Tag
+from steamship.data import TagKind
+from steamship.data.tags.tag_constants import ChatTag
+from steamship.plugin.capabilities import (
+    Capability,
+    CapabilityImpl,
+    CapabilityPluginRequest,
+    CapabilityPluginResponse,
+    RequestedCapabilities,
+    RequestLevel,
+    UnsupportedCapabilityError,
+)
+
+
+class TestCapability(CapabilityImpl):
+    NAME = "steamship.test_capability"
+
+
+class AnotherTestCapability(CapabilityImpl):
+    NAME = "steamship.test_capability_2"
 
 
 @pytest.mark.parametrize(
@@ -20,9 +41,6 @@ from steamship.plugin.capabilities import CapabilityImpl, RequestLevel
 def test_is_plugin_support_valid(
     request_level, support_level, expected_support_valid, expected_none_response
 ):
-    class TestCapability(CapabilityImpl):
-        name = "steamship.test_capability"
-
     request = TestCapability(request_level=request_level)
     is_valid, response = request.is_plugin_support_valid(support_level)
     assert is_valid == expected_support_valid
@@ -31,3 +49,66 @@ def test_is_plugin_support_valid(
     else:
         assert response is not None
         assert response.fulfilled_at == support_level
+
+
+def test_capability_plugin_request_block_roundtrips():
+    original = CapabilityPluginRequest(
+        requested_capabilities=[TestCapability(request_level=RequestLevel.NATIVE)]
+    )
+    block = original.to_block()
+    roundtripped = CapabilityPluginRequest.from_block(block)
+    assert original == roundtripped
+
+
+def test_capability_plugin_response_block_roundtrips():
+    original = CapabilityPluginResponse(
+        capability_responses=[Capability.Response(fulfilled_at=RequestLevel.NATIVE)]
+    )
+    block = original.to_block()
+    roundtripped = CapabilityPluginResponse.from_block(block)
+    assert original == roundtripped
+
+
+def _make_input_blocks() -> List[Block]:
+    return [
+        Block(
+            text="Can you make me an image of a whale?",
+            tags=[Tag(kind=TagKind.CHAT, name=ChatTag.HISTORY)],
+        ),
+        Block(text="Sure!  Here's an image:", tags=[Tag(kind=TagKind.CHAT, name=ChatTag.ROLE)]),
+    ]
+
+
+def test_requested_capabilities_extract():
+    request = CapabilityPluginRequest(
+        requested_capabilities=[
+            TestCapability(request_level=RequestLevel.NATIVE),
+            AnotherTestCapability(request_level=RequestLevel.OPTIONAL),
+        ]
+    )
+    blocks = _make_input_blocks()
+    blocks.append(request.to_block())
+
+    req_caps = RequestedCapabilities(supported_levels={TestCapability: RequestLevel.NATIVE})
+    response = req_caps.extract_from_blocks(blocks)
+    assert response == CapabilityPluginResponse(
+        capability_responses=[TestCapability.Response(fulfilled_at=RequestLevel.NATIVE)]
+    )
+
+    test_capability = req_caps[TestCapability]
+    assert test_capability == TestCapability(request_level=RequestLevel.NATIVE)
+
+
+def test_no_requested_capabilities():
+    req_caps = RequestedCapabilities(supported_levels={TestCapability: RequestLevel.NATIVE})
+    response = req_caps.extract_from_blocks(_make_input_blocks())
+    assert response == CapabilityPluginResponse(capability_responses=[])
+
+
+def test_unsupported_requested_capabilities():
+    request = CapabilityPluginRequest(
+        requested_capabilities=[TestCapability(request_level=RequestLevel.NATIVE)]
+    )
+    req_caps = RequestedCapabilities(supported_levels={})
+    with pytest.raises(UnsupportedCapabilityError):
+        req_caps.extract_from_blocks([request.to_block()])
