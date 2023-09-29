@@ -19,6 +19,7 @@ class FunctionProperty(BaseModel):
 
     class Config:
         use_enum_values = True
+        """This tells Pydantic to serialize the Enum values as strings, which is VERY IMPORTANT for OpenAI"""
 
     type: JSONType = JSONType.object
     """Type of the property. Defaults to object."""
@@ -32,6 +33,7 @@ class FunctionParameters(BaseModel):
 
     class Config:
         use_enum_values = True
+        """This tells Pydantic to serialize the Enum values as strings, which is VERY IMPORTANT for OpenAI"""
 
     type: JSONType = JSONType.object
     """Type of this object. DO NOT MODIFY."""
