@@ -1,6 +1,7 @@
 import logging
 import uuid
-from typing import List, Optional
+from collections import defaultdict
+from typing import Dict, List, Optional
 
 from steamship import Block, SteamshipError, Task
 from steamship.agents.llms.openai import OpenAI
@@ -53,11 +54,19 @@ class AgentService(PackageService):
     on tool runs that consume resources with a cost-basis (e.g. prompt completions, embedding operations, vector lookups)
     """
 
+    max_actions_per_tool: Dict[str, int] = {}
+    """The maximum number of actions to permit per tool name.
+
+    This is intended primarily to act as a backstop to prevent a condition in which the Agent decides to loop endlessly
+    on tool runs that consume resources with a cost-basis (e.g. prompt completions, embedding operations, vector lookups)
+    """
+
     def __init__(
         self,
         use_llm_cache: Optional[bool] = False,
         use_action_cache: Optional[bool] = False,
         max_actions_per_run: Optional[int] = 5,
+        max_actions_per_tool: Optional[Dict[str, int]] = None,
         agent: Optional[Agent] = None,
         **kwargs,
     ):
@@ -65,6 +74,7 @@ class AgentService(PackageService):
         self.use_action_cache = use_action_cache
         self.max_actions_per_run = max_actions_per_run
         self.agent = agent
+        self.max_actions_per_tool = max_actions_per_tool or {}
         super().__init__(**kwargs)
 
     ###############################################
@@ -192,6 +202,7 @@ class AgentService(PackageService):
         # Set the counter for the number of actions run.
         # This enables the agent to enforce a budget on actions to guard against running forever.
         number_of_actions_run = 0
+        actions_per_tool = defaultdict(lambda: 0)
 
         while not action.is_final:
             # If we've exceeded our Action Budget, throw an error.
@@ -202,9 +213,19 @@ class AgentService(PackageService):
                     )
                 )
 
-            # Run the next action and incremenet our counter
+            if action.tool and action.tool in self.max_actions_per_tool:
+                if actions_per_tool[action.tool] > self.max_actions_per_tool[action.tool]:
+                    raise SteamshipError(
+                        message=(
+                            f"Agent reached its Action budget of {self.max_actions_per_tool[action.tool]} for tool {action.tool} without arriving at a response. If you are the developer, checking the logs may reveal it was selecting unhelpful tools or receiving unhelpful responses from them."
+                        )
+                    )
+
+            # Run the next action and increment our counter
             self.run_action(agent=agent, action=action, context=context)
             number_of_actions_run += 1
+            if action.tool:
+                actions_per_tool[action.tool] += 1
 
             # Sometimes, running an action will result in it being dynamically set as a final action as a result of
             # the tool that performed the action's operation. E.g. a Tool wishes to have its output considered the
