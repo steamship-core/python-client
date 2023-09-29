@@ -163,7 +163,7 @@ def has_status_message(blocks: List[Block], role: RoleTag) -> bool:
     for b in blocks:
         for t in b.tags:
             if (
-                t.kind == TagKind.CHAT
+                t.kind == TagKind.STATUS_MESSAGE
                 and t.name == ChatTag.ROLE
                 and t.value.get(TagValueKey.STRING_VALUE) == role
             ):

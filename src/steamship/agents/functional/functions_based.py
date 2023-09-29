@@ -38,7 +38,8 @@ Only use the functions you have been provided with."""
         return context.chat_history.append_system_message(text=self.PROMPT, mime_type=MimeTypes.TXT)
 
     def build_chat_history_for_tool(self, context: AgentContext) -> List[Block]:
-        messages: List[Block] = [self._get_or_create_system_message(context)]
+        sys_msg = self._get_or_create_system_message(context)
+        messages: List[Block] = [sys_msg]
 
         # get system message
 
@@ -58,7 +59,10 @@ Only use the functions you have been provided with."""
         messages_from_memory.sort(key=attrgetter("index_in_file"))
 
         # de-dupe the messages from memory
-        ids = [context.chat_history.last_user_message.id]
+        ids = [
+            sys_msg.id,
+            context.chat_history.last_user_message.id,
+        ]  # filter out last user message, it is appended afterwards
         for msg in messages_from_memory:
             if msg.id not in ids:
                 messages.append(msg)
