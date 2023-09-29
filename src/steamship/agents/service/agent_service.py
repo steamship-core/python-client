@@ -1,14 +1,37 @@
 import logging
 import uuid
-from typing import List, Optional
+from collections import defaultdict
+from typing import Dict, List, Optional
 
 from steamship import Block, SteamshipError, Task
 from steamship.agents.llms.openai import OpenAI
 from steamship.agents.logging import AgentLogging, StreamingOpts
 from steamship.agents.schema import Action, Agent, FinishAction
-from steamship.agents.schema.context import AgentContext, Metadata
+from steamship.agents.schema.context import AgentContext, EmitFunc, Metadata
 from steamship.agents.utils import with_llm
 from steamship.invocable import PackageService, post
+
+
+def build_context_appending_emit_func(
+    context: AgentContext, make_blocks_public: Optional[bool] = False
+) -> EmitFunc:
+    """Build an emit function that will append output blocks directly to ChatHistory, via AgentContext.
+
+    NOTE: Messages will be tagged as ASSISTANT messages, as this assumes that agent output should be considered
+    an assistant response to a USER.
+    """
+
+    def chat_history_append_func(blocks: List[Block], metadata: Metadata):
+        for block in blocks:
+            block.set_public_data(make_blocks_public)
+            context.chat_history.append_assistant_message(
+                text=block.text,
+                tags=block.tags,
+                url=block.raw_data_url or block.url or block.content_url or None,
+                mime_type=block.mime_type,
+            )
+
+    return chat_history_append_func
 
 
 class AgentService(PackageService):
@@ -31,11 +54,19 @@ class AgentService(PackageService):
     on tool runs that consume resources with a cost-basis (e.g. prompt completions, embedding operations, vector lookups)
     """
 
+    max_actions_per_tool: Dict[str, int] = {}
+    """The maximum number of actions to permit per tool name.
+
+    This is intended primarily to act as a backstop to prevent a condition in which the Agent decides to loop endlessly
+    on tool runs that consume resources with a cost-basis (e.g. prompt completions, embedding operations, vector lookups)
+    """
+
     def __init__(
         self,
         use_llm_cache: Optional[bool] = False,
         use_action_cache: Optional[bool] = False,
         max_actions_per_run: Optional[int] = 5,
+        max_actions_per_tool: Optional[Dict[str, int]] = None,
         agent: Optional[Agent] = None,
         **kwargs,
     ):
@@ -43,6 +74,7 @@ class AgentService(PackageService):
         self.use_action_cache = use_action_cache
         self.max_actions_per_run = max_actions_per_run
         self.agent = agent
+        self.max_actions_per_tool = max_actions_per_tool or {}
         super().__init__(**kwargs)
 
     ###############################################
@@ -170,6 +202,7 @@ class AgentService(PackageService):
         # Set the counter for the number of actions run.
         # This enables the agent to enforce a budget on actions to guard against running forever.
         number_of_actions_run = 0
+        actions_per_tool = defaultdict(lambda: 0)
 
         while not action.is_final:
             # If we've exceeded our Action Budget, throw an error.
@@ -180,9 +213,19 @@ class AgentService(PackageService):
                     )
                 )
 
-            # Run the next action and incremenet our counter
+            if action.tool and action.tool in self.max_actions_per_tool:
+                if actions_per_tool[action.tool] > self.max_actions_per_tool[action.tool]:
+                    raise SteamshipError(
+                        message=(
+                            f"Agent reached its Action budget of {self.max_actions_per_tool[action.tool]} for tool {action.tool} without arriving at a response. If you are the developer, checking the logs may reveal it was selecting unhelpful tools or receiving unhelpful responses from them."
+                        )
+                    )
+
+            # Run the next action and increment our counter
             self.run_action(agent=agent, action=action, context=context)
             number_of_actions_run += 1
+            if action.tool:
+                actions_per_tool[action.tool] += 1
 
             # Sometimes, running an action will result in it being dynamically set as a final action as a result of
             # the tool that performed the action's operation. E.g. a Tool wishes to have its output considered the
@@ -218,7 +261,7 @@ class AgentService(PackageService):
             f"Completed agent run. Result: {len(action.output or [])} blocks. {output_text_length} total text length. Emitting on {len(context.emit_funcs)} functions."
         )
         for func in context.emit_funcs:
-            logging.info(f"Emitting via function: {func.__name__}")
+            logging.info(f"Emitting via function '{func.__name__}' for context: {context.id}")
             func(action.output, context.metadata)
 
     def set_default_agent(self, agent: Agent):
@@ -319,22 +362,14 @@ class AgentService(PackageService):
 
             context.emit_funcs.append(sync_emit)
 
+            # NOTE: we make blocks public on output here to allow for ease of testing and sharing
+            context.emit_funcs.append(
+                build_context_appending_emit_func(context=context, make_blocks_public=True)
+            )
+
             # Get the agent
             agent: Optional[Agent] = self.get_default_agent()
             self.run_agent(agent, context)
-
-            # Now append the output blocks to the chat history
-            # TODO: It seems like we've been going from block -> not block -> block here. Opportunity to optimize.
-            for output_block in output_blocks:
-                # Need to make the output blocks public here so that they can be copied to the chat history.
-                # They generally need to be public anyway for the REPL to be able to show a clickable link.
-                output_block.set_public_data(True)
-                context.chat_history.append_assistant_message(
-                    text=output_block.text,
-                    tags=output_block.tags,
-                    url=output_block.raw_data_url or output_block.url or output_block.content_url,
-                    mime_type=output_block.mime_type,
-                )
 
             # Return the response as a set of multi-modal blocks.
             return output_blocks
