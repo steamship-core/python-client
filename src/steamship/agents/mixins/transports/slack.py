@@ -11,7 +11,7 @@ from steamship import Block, Steamship
 from steamship.agents.llms import OpenAI
 from steamship.agents.mixins.transports.transport import Transport
 from steamship.agents.schema import EmitFunc, Metadata
-from steamship.agents.service.agent_service import AgentService
+from steamship.agents.service.agent_service import AgentService, build_context_appending_emit_func
 from steamship.agents.utils import with_llm
 from steamship.invocable import Config, InvocableResponse, get, post
 from steamship.utils.kv_store import KeyValueStore
@@ -450,39 +450,44 @@ class SlackTransport(Transport):
             chat_id = incoming_message.chat_id
             thread_ts = incoming_message.thread_id
             context_id = self._get_context_id_for_response(chat_id, thread_ts)
-            context = self.agent_service.build_default_context(context_id=context_id)
 
-            context.chat_history.append_user_message(
-                text=incoming_message.text, tags=incoming_message.tags
-            )
-
-            context.metadata["slack"] = {
-                "channel": chat_id,
-                "message_ts": incoming_message.message_id,
-            }
-            if thread_ts:
-                context.metadata["slack"]["thread_ts"] = thread_ts
-
-            # TODO: For truly async support, this emit fn will need to be wired in at the Agent level.
-            context.emit_funcs = [
-                self.build_emit_func(
-                    chat_id=chat_id,
-                    incoming_message_ts=incoming_message.message_id,
-                    thread_ts=thread_ts,
+            with self.agent_service.build_default_context(context_id=context_id) as context:
+                context.chat_history.append_user_message(
+                    text=incoming_message.text, tags=incoming_message.tags
                 )
-            ]
 
-            # Add an LLM to the context, using the Agent's if it exists.
-            llm = None
-            agent = self.agent_service.get_default_agent()
-            if hasattr(agent, "llm"):
-                llm = agent.llm
-            else:
-                llm = OpenAI(client=self.client)
+                context.metadata["slack"] = {
+                    "channel": chat_id,
+                    "message_ts": incoming_message.message_id,
+                }
+                if thread_ts:
+                    context.metadata["slack"]["thread_ts"] = thread_ts
 
-            context = with_llm(context=context, llm=llm)
+                # TODO: For truly async support, this emit fn will need to be wired in at the Agent level.
+                context.emit_funcs.append(
+                    self.build_emit_func(
+                        chat_id=chat_id,
+                        incoming_message_ts=incoming_message.message_id,
+                        thread_ts=thread_ts,
+                    )
+                )
 
-            self.agent_service.run_agent(agent, context)
+                context.emit_funcs.append(
+                    # allow slack access to blocks on emit (making them public)
+                    build_context_appending_emit_func(context=context, make_blocks_public=True),
+                )
+
+                # Add an LLM to the context, using the Agent's if it exists.
+                llm = None
+                agent = self.agent_service.get_default_agent()
+                if hasattr(agent, "llm"):
+                    llm = agent.llm
+                else:
+                    llm = OpenAI(client=self.client)
+
+                context = with_llm(context=context, llm=llm)
+
+                self.agent_service.run_agent(agent, context)
 
         except BaseException as e:
             logging.error(e)

@@ -55,7 +55,7 @@ Only use the functions you have been provided with."""
         messages_from_memory.extend(context.chat_history.select_messages(self.message_selector))
 
         # de-dupe the messages from memory
-        ids = []
+        ids = [context.chat_history.last_user_message.id]
         for msg in messages_from_memory:
             if msg.id not in ids:
                 messages.append(msg)

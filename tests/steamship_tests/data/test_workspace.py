@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from steamship_tests.utils.fixtures import get_steamship_client
 
@@ -60,14 +62,16 @@ def test_get_workspace():
 def test_create_use_delete_workspace():
     client = get_steamship_client()
     default = Workspace.get(client=client)
-    workspace1 = Workspace.create(client=client, handle="test")
-    workspace2 = Workspace.create(client=client, handle="test2")
+    test_one = f"test-{uuid.uuid4()}"
+    test_two = f"test2-{uuid.uuid4()}"
+    workspace1 = Workspace.create(client=client, handle=test_one)
+    workspace2 = Workspace.create(client=client, handle=test_two)
 
     assert workspace1 is not None
-    assert workspace1.handle == "test"
+    assert workspace1.handle == test_one
 
     assert workspace2 is not None
-    assert workspace2.handle == "test2"
+    assert workspace2.handle == test_two
 
     assert workspace2.id != workspace1.id
     assert workspace1.id != default.id
