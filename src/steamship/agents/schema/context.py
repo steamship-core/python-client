@@ -53,11 +53,13 @@ class AgentContext:
     request_id: str
     """Identifier for the current request being handled by this context."""
 
-    def __init__(self, request_id: str, streaming_opts: Optional[StreamingOpts] = None):
+    def __init__(
+        self, request_id: Optional[str] = None, streaming_opts: Optional[StreamingOpts] = None
+    ):
         self.metadata = {}
         self.completed_steps = []
         self.emit_funcs = []
-        self.request_id = request_id  # TODO: protect this?
+        self.request_id = request_id or str(uuid.uuid4())  # TODO: protect this?
         if streaming_opts is not None:
             self._streaming_opts = streaming_opts
         else:

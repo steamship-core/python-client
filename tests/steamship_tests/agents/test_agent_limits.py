@@ -18,9 +18,6 @@ class MyEverythingTool(Tool):
 
 
 class MyPredictableAgent(Agent):
-    def record_action_run(self, action: Action, context: AgentContext):
-        super().record_action_run()
-
     def next_action(self, context: AgentContext) -> Action:
         return Action(tool="everything", input=[])
 

@@ -89,7 +89,7 @@ def test_functions_based_agent_no_appropriate_tool_with_no_memory(client: Steams
     ctx_keys = {"id": "testing-foo"}
     ctx = AgentContext.get_or_create(client=client, context_keys=ctx_keys, searchable=False)
     ctx.chat_history.append_user_message(
-        "make a 10 second movie about a hamburger that learns to talk"
+        "record an original 30 minute song about a hamburger that learns to talk. do not find an existing one."
     )
 
     action = agent.next_action(context=ctx)
