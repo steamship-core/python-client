@@ -1,12 +1,12 @@
 from typing import Callable, Optional, Type
 
 import pytest
-from steamship_tests.utils.client import get_steamship_client
 
 from steamship import Steamship, Workspace
 from steamship.invocable import InvocableRequest, Invocation, InvocationContext, LoggingConfig
 from steamship.invocable.invocable import Invocable
 from steamship.invocable.lambda_handler import create_safe_handler as _create_handler
+from steamship_tests.utils.client import get_steamship_client
 from steamship_tests.utils.random import random_name
 
 
@@ -62,22 +62,20 @@ def invocable_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     # NOTE: get_steamship_client takes either `workspace_handle` or `workspace_id`, but NOT `workspace` as a keyword arg
     new_client = get_steamship_client(workspace_handle=workspace_handle)
 
-    with Steamship.temporary_workspace() as new_client:
+    def handle(verb: str, invocation_path: str, arguments: Optional[dict] = None) -> dict:
+        _handler = _create_handler(known_invocable_for_testing=invocable)
+        invocation = Invocation(
+            http_verb=verb, invocation_path=invocation_path, arguments=arguments or {}
+        )
+        logging_config = LoggingConfig(logging_host="none", logging_port="none")
+        invocable_request = InvocableRequest(
+            client_config=new_client.config,
+            invocation=invocation,
+            logging_config=logging_config,
+            invocation_context=InvocationContext(invocable_handle="foo"),
+        )
+        event = invocable_request.dict(by_alias=True)
+        return _handler(event, None)
 
-        def handle(verb: str, invocation_path: str, arguments: Optional[dict] = None) -> dict:
-            _handler = _create_handler(known_invocable_for_testing=invocable)
-            invocation = Invocation(
-                http_verb=verb, invocation_path=invocation_path, arguments=arguments or {}
-            )
-            logging_config = LoggingConfig(logging_host="none", logging_port="none")
-            request = InvocableRequest(
-                client_config=new_client.config,
-                invocation=invocation,
-                logging_config=logging_config,
-                invocation_context=InvocationContext(invocable_handle="foo"),
-            )
-            event = request.dict(by_alias=True)
-            return _handler(event, None)
-
-        yield handle
+    yield handle
     workspace.delete()
