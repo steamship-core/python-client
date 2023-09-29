@@ -1,6 +1,7 @@
 import json
 import re
 import string
+from json import JSONDecodeError
 from typing import Dict, List, Optional
 
 from steamship import Block, MimeTypes, Steamship
@@ -102,7 +103,11 @@ class FunctionsBasedOutputParser(OutputParser):
 
     def parse(self, text: str, context: AgentContext) -> Action:
         if "function_call" in text:
-            return self._extract_action_from_function_call(text, context)
+            try:
+                # catch invalid JSON. If it is not valid JSON, just treat as "regular" message
+                return self._extract_action_from_function_call(text, context)
+            except JSONDecodeError:
+                pass
 
         finish_blocks = FunctionsBasedOutputParser._blocks_from_text(context.client, text)
         for finish_block in finish_blocks:
