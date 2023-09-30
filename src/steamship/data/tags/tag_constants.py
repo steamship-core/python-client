@@ -33,6 +33,7 @@ class TagKind(str, Enum):
     AGENT_STATUS_MESSAGE = "agent-status-message"
     TOOL_STATUS_MESSAGE = "tool-status-message"
     LLM_STATUS_MESSAGE = "llm-status-message"
+    CAPABILITY_RESPONSE = "capability-response"
 
 
 class DocTag(str, Enum):
