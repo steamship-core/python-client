@@ -120,16 +120,18 @@ class CapabilityImpl(Capability, extra=Extra.forbid):
     #  provides specific metadata that makes it so e.g. a plugin with an older view of the world thinks it has Best
     #  Effort support but can't because of those extra requests.
 
+    @classmethod
     @validator("name", always=True, pre=True)
-    def name_validator(self, val: str):
-        assert val is None or val == self.NAME
-        return self.NAME
+    def name_validator(cls, val: str):
+        assert val is None or val == cls.NAME
+        return cls.NAME
 
     class ResponseImpl(Capability.Response, extra=Extra.forbid):
+        @classmethod
         @validator("name", always=True, pre=True)
-        def name_validator(self, val: str):
-            assert val is None or val == self.CAPABILITY_NAME
-            return self.CAPABILITY_NAME
+        def name_validator(cls, val: str):
+            assert val is None or val == cls.CAPABILITY_NAME
+            return cls.CAPABILITY_NAME
 
 
 class UnsupportedCapabilityError(Exception):
