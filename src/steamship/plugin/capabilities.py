@@ -20,7 +20,7 @@ import logging
 from enum import Enum
 from typing import Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar
 
-from pydantic import BaseModel, Extra, Field, validator
+from pydantic import BaseModel, Extra, Field
 from pydantic.dataclasses import ClassVar
 
 from steamship import Block, MimeTypes, SteamshipError
@@ -119,19 +119,14 @@ class CapabilityImpl(Capability, extra=Extra.forbid):
     #  that up to individual capabilities?  My goal here is to prevent accidental breakage of contract when someone
     #  provides specific metadata that makes it so e.g. a plugin with an older view of the world thinks it has Best
     #  Effort support but can't because of those extra requests.
-
-    @classmethod
-    @validator("name", always=True, pre=True)
-    def name_validator(cls, val: str):
-        assert val is None or val == cls.NAME
-        return cls.NAME
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = self.NAME
 
     class ResponseImpl(Capability.Response, extra=Extra.forbid):
-        @classmethod
-        @validator("name", always=True, pre=True)
-        def name_validator(cls, val: str):
-            assert val is None or val == cls.CAPABILITY_NAME
-            return cls.CAPABILITY_NAME
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self.name = self.CAPABILITY_NAME
 
 
 class UnsupportedCapabilityError(Exception):
