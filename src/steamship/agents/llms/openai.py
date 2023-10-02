@@ -91,35 +91,40 @@ class ChatOpenAI(ChatLLM, OpenAI):
             tags=[Tag(kind=TagKind.GENERATION, name=GenerationTag.PROMPT_COMPLETION)],
         )
 
-        options = {}
-        if len(tools) > 0:
-            functions = []
-            for tool in tools:
-                functions.append(tool.as_openai_function().dict())
-            options["functions"] = functions
+        try:
+            options = {}
+            if len(tools) > 0:
+                functions = []
+                for tool in tools:
+                    functions.append(tool.as_openai_function().dict())
+                options["functions"] = functions
 
-        if "max_tokens" in kwargs:
-            options["max_tokens"] = kwargs["max_tokens"]
+            if "max_tokens" in kwargs:
+                options["max_tokens"] = kwargs["max_tokens"]
 
-        extra = {
-            AgentLogging.LLM_NAME: "OpenAI",
-            AgentLogging.IS_MESSAGE: True,
-            AgentLogging.MESSAGE_TYPE: AgentLogging.PROMPT,
-            AgentLogging.MESSAGE_AUTHOR: AgentLogging.LLM,
-        }
+            extra = {
+                AgentLogging.LLM_NAME: "OpenAI",
+                AgentLogging.IS_MESSAGE: True,
+                AgentLogging.MESSAGE_TYPE: AgentLogging.PROMPT,
+                AgentLogging.MESSAGE_AUTHOR: AgentLogging.LLM,
+            }
 
-        if logging.DEBUG >= logging.root.getEffectiveLevel():
-            extra["messages"] = json.dumps(
-                "\n".join([f"[{msg.chat_role}] {msg.as_llm_input()}" for msg in messages])
+            if logging.DEBUG >= logging.root.getEffectiveLevel():
+                extra["messages"] = json.dumps(
+                    "\n".join([f"[{msg.chat_role}] {msg.as_llm_input()}" for msg in messages])
+                )
+                extra["tools"] = ",".join([t.name for t in tools])
+            else:
+                extra["num_messages"] = len(messages)
+                extra["num_tools"] = len(tools)
+
+            logging.info(f"OpenAI ChatComplete ({messages[-1].as_llm_input()})", extra=extra)
+
+            tool_selection_task = self.generator.generate(
+                input_file_id=temp_file.id, options=options
             )
-            extra["tools"] = ",".join([t.name for t in tools])
-        else:
-            extra["num_messages"] = len(messages)
-            extra["num_tools"] = len(tools)
+            tool_selection_task.wait()
 
-        logging.info(f"OpenAI ChatComplete ({messages[-1].as_llm_input()})", extra=extra)
-
-        tool_selection_task = self.generator.generate(input_file_id=temp_file.id, options=options)
-        tool_selection_task.wait()
-
-        return tool_selection_task.output.blocks
+            return tool_selection_task.output.blocks
+        finally:
+            temp_file.delete()
