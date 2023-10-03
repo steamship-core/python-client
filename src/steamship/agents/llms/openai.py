@@ -105,7 +105,7 @@ class ChatOpenAI(ChatLLM, OpenAI):
             AgentLogging.MESSAGE_AUTHOR: AgentLogging.LLM,
         }
 
-        if logging.DEBUG >= logging.root.getEffectiveLevel():
+        if logging.WARNING >= logging.root.getEffectiveLevel():
             extra["messages"] = json.dumps(
                 "\n".join([f"[{msg.chat_role}] {msg.as_llm_input()}" for msg in messages])
             )
@@ -121,9 +121,11 @@ class ChatOpenAI(ChatLLM, OpenAI):
         if self._from_same_existing_file(blocks=messages):
             file_id = messages[0].file_id
             block_indices = [b.index_in_file for b in messages]
+            block_indices.sort()
+            logging.info(f"OpenAI ChatComplete block_indices [{block_indices}]")
             generate_task = self.generator.generate(
                 input_file_id=file_id,
-                input_file_block_index_list=block_indices.sort(),
+                input_file_block_index_list=block_indices,
                 options=options,
                 append_output_to_file=True,
             )

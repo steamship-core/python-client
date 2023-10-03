@@ -244,42 +244,42 @@ def test_context_logging_to_chat_history_everything(client: Steamship):
         assert has_status_message(chat_history.messages, RoleTag.TOOL)
 
 
-@pytest.mark.usefixtures("client")
-def test_non_duplicate_messages(client: Steamship):
-    example_agent_service_path = (
-        SRC_PATH / "steamship" / "agents" / "examples" / "example_assistant.py"
-    )
-    version_config_template = {
-        "model_name": {"type": "string"},
-    }
-    instance_config = {"model_name": "gpt-3.5-turbo"}
-    with deploy_package(
-        client=client,
-        py_path=example_agent_service_path,
-        version_config_template=version_config_template,
-        instance_config=instance_config,
-        wait_for_init=True,
-    ) as (
-        _,
-        _,
-        agent_service,
-    ):
-        context_id = "test-for-message-duplication"
-        agent_service.blocks_from_invoke(
-            "prompt", prompt="who is the president of Taiwan?", context_id=context_id
+def test_non_duplicate_messages():
+    with Steamship.temporary_workspace() as client:
+        example_agent_service_path = (
+            SRC_PATH / "steamship" / "agents" / "examples" / "example_assistant.py"
         )
-        final_blocks = agent_service.blocks_from_invoke(
-            "prompt", prompt="totally. thanks.", context_id=context_id
-        )
+        version_config_template = {
+            "model_name": {"type": "string"},
+        }
+        instance_config = {"model_name": "gpt-3.5-turbo"}
+        with deploy_package(
+            client=client,
+            py_path=example_agent_service_path,
+            version_config_template=version_config_template,
+            instance_config=instance_config,
+            wait_for_init=True,
+        ) as (
+            _,
+            _,
+            agent_service,
+        ):
+            context_id = "test-for-message-duplication"
+            agent_service.blocks_from_invoke(
+                "prompt", prompt="who is the president of Taiwan?", context_id=context_id
+            )
+            final_blocks = agent_service.blocks_from_invoke(
+                "prompt", prompt="totally. thanks.", context_id=context_id
+            )
 
-        assert (
-            len(final_blocks) == 1
-        ), f"There should only be a single block. Got: {len(final_blocks)}"
-        text = final_blocks[0].text
-        assert "\n" not in text, f"Unexpected response. Should be single line. Got: {text}"
-        assert (
-            "function_call" not in text
-        ), f"Unexpected response. Should not include function call. Got: {text}"
+            assert (
+                len(final_blocks) == 1
+            ), f"There should only be a single block. Got: {len(final_blocks)}"
+            text = final_blocks[0].text
+            assert "\n" not in text, f"Unexpected response. Should be single line. Got: {text}"
+            assert (
+                "function_call" not in text
+            ), f"Unexpected response. Should not include function call. Got: {text}"
 
 
 @pytest.mark.usefixtures("client")
