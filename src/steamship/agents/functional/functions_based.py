@@ -5,9 +5,7 @@ from typing import List
 from steamship import Block, MimeTypes, Tag
 from steamship.agents.functional.output_parser import FunctionsBasedOutputParser
 from steamship.agents.schema import Action, AgentContext, ChatAgent, ChatLLM, FinishAction, Tool
-
 from steamship.data.tags.tag_constants import ChatTag, RoleTag, TagKind, TagValueKey
-from steamship.data.tags.tag_constants import RoleTag, TagKind, TagValueKey
 from steamship.data.tags.tag_utils import get_tag
 
 

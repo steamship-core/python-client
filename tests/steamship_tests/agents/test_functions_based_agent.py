@@ -172,7 +172,8 @@ def test_proper_message_selection(client: Steamship):
         message_selector=MessageWindowMessageSelector(k=2),
     )
 
-    # simulate prompting and tool selecttion
+    # simulate prompting and tool selection
+    agent_context.chat_history.append_system_message(text=test_agent.PROMPT)
     agent_context.chat_history.append_user_message(text="Who is the current president of Taiwan?")
     agent_context.chat_history.append_agent_message(text="Ignore me.")
     agent_context.chat_history.append_llm_message(text="OpenAI ChatComplete...")
