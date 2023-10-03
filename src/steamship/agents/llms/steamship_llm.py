@@ -23,14 +23,27 @@ class SteamshipLLM:
         self.client = plugin_instance.client
         self.plugin_instance = plugin_instance
 
-    @staticmethod
-    def with_gpt4(client: Steamship, temperature: float = 0.4, max_tokens: int = 256):
-        # TODO (PR callout): This is an example of helpers that can initialize plugins that we know are solid / are
-        #  steamship-published.  These don't need to live in this class either, to keep the interface more pure.
-        gpt4 = client.use_plugin(
-            "gpt-4", config={"model": "gpt-4", "temperature": temperature, "max_tokens": max_tokens}
-        )
-        return SteamshipLLM(gpt4)
+    class Impls:
+        @staticmethod
+        def gpt(
+            client: Steamship,
+            model: str = "gpt-4",
+            temperature: float = 0.4,
+            max_tokens: int = 256,
+            **kwargs,
+        ):
+            # TODO (PR callout): This is an example of helpers that can initialize plugins that we know are solid / are
+            #  steamship-published.  These don't need to live in this class either, to keep the interface more pure.
+            gpt = client.use_plugin(
+                "gpt-4",
+                config={
+                    "model": model,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens,
+                    **kwargs,
+                },
+            )
+            return SteamshipLLM(gpt)
 
     def generate(
         self,
