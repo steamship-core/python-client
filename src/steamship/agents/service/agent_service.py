@@ -141,7 +141,7 @@ class AgentService(PackageService):
                     },
                 )
                 action.output = output_blocks
-                context.completed_steps.append(action)
+                agent.record_action_run(action, context)
                 return
 
         tool = next((tool for tool in agent.tools if tool.name == action.tool), None)
@@ -182,7 +182,7 @@ class AgentService(PackageService):
             action.is_final = (
                 tool.is_final
             )  # Permit the tool to decide if this action should halt the reasoning loop.
-            context.completed_steps.append(action)
+            agent.record_action_run(action, context)
             if context.action_cache and tool.cacheable:
                 context.action_cache.update(key=action, value=action.output)
 
@@ -253,7 +253,7 @@ class AgentService(PackageService):
                 },
             )
 
-        context.completed_steps.append(action)
+        agent.record_action_run(action, context)
         output_text_length = 0
         if action.output is not None:
             output_text_length = sum([len(block.text or "") for block in action.output])

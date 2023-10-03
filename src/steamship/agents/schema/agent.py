@@ -31,6 +31,10 @@ class Agent(BaseModel, ABC):
     def next_action(self, context: AgentContext) -> Action:
         pass
 
+    def record_action_run(self, action: Action, context: AgentContext):
+        # TODO(dougreid): should this method (or just bit) actually be on AgentContext?
+        context.completed_steps.append(action)
+
 
 class LLMAgent(Agent):
     """LLMAgents choose next actions for an AgentService based on interactions with an LLM."""

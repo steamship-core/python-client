@@ -144,7 +144,11 @@ class ChatHistory:
             text=text, tags=tags, content=content, url=url, mime_type=mime_type
         )
         # don't index status messages
-        if self.embedding_index is not None and role is not RoleTag.AGENT:
+        if self.embedding_index is not None and role not in [
+            RoleTag.AGENT,
+            RoleTag.TOOL,
+            RoleTag.LLM,
+        ]:
             chunk_tags = self.text_splitter.chunk_text_to_tags(
                 block, kind=TagKind.CHAT, name=ChatTag.CHUNK
             )
