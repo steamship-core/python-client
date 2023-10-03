@@ -25,7 +25,6 @@ def _blocks_from_invoke(client: Steamship, potential_blocks) -> List[Block]:
 
 @pytest.mark.usefixtures("client")
 def test_example_with_caching_service(client: Steamship):
-
     # TODO(dougreid): replace the example agent with fake/free/fast tools to minimize test time / costs?
 
     example_caching_agent_path = (
@@ -85,7 +84,6 @@ def test_example_with_caching_service(client: Steamship):
 
 
 class FakeUncachableTool(Tool):
-
     name = "FakeUncacheableTool"
     human_description = "Fake tool"
     agent_description = "Ignored"
@@ -248,3 +246,41 @@ def test_context_logging_to_chat_history_everything(client: Steamship):
         assert not has_status_message(chat_history.messages, RoleTag.AGENT)
         assert not has_status_message(chat_history.messages, RoleTag.LLM)
         assert has_status_message(chat_history.messages, RoleTag.TOOL)
+
+
+@pytest.mark.usefixtures("client")
+def test_non_duplicate_messages(client: Steamship):
+    example_agent_service_path = (
+        SRC_PATH / "steamship" / "agents" / "examples" / "example_assistant.py"
+    )
+    version_config_template = {
+        "model_name": {"type": "string"},
+    }
+    instance_config = {"model_name": "gpt-3.5-turbo"}
+    with deploy_package(
+        client=client,
+        py_path=example_agent_service_path,
+        version_config_template=version_config_template,
+        instance_config=instance_config,
+        wait_for_init=True,
+    ) as (
+        _,
+        _,
+        agent_service,
+    ):
+        context_id = "test-for-message-duplication"
+        agent_service.blocks_from_invoke(
+            "prompt", prompt="who is the president of Taiwan?", context_id=context_id
+        )
+        final_blocks = agent_service.blocks_from_invoke(
+            "prompt", prompt="totally. thanks.", context_id=context_id
+        )
+
+        assert (
+            len(final_blocks) == 1
+        ), f"There should only be a single block. Got: {len(final_blocks)}"
+        text = final_blocks[0].text
+        assert "\n" not in text, f"Unexpected response. Should be single line. Got: {text}"
+        assert (
+            "function_call" not in text
+        ), f"Unexpected response. Should not include function call. Got: {text}"

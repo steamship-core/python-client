@@ -59,7 +59,8 @@ def invocable_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
     steamship = get_steamship_client()
     workspace_handle = random_name()
     workspace = Workspace.create(client=steamship, handle=workspace_handle)
-    new_client = get_steamship_client(workspace=workspace_handle)
+    # NOTE: get_steamship_client takes either `workspace_handle` or `workspace_id`, but NOT `workspace` as a keyword arg
+    new_client = get_steamship_client(workspace_handle=workspace_handle)
 
     def handle(verb: str, invocation_path: str, arguments: Optional[dict] = None) -> dict:
         _handler = _create_handler(known_invocable_for_testing=invocable)

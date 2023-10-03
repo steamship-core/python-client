@@ -1,12 +1,17 @@
+import json
+
 import pytest
 
-from steamship import Block, Steamship
+from steamship import Block, Steamship, Tag
 from steamship.agents.functional import FunctionsBasedAgent
 from steamship.agents.llms.openai import ChatOpenAI
-from steamship.agents.schema import AgentContext, FinishAction
+from steamship.agents.schema import Action, AgentContext, FinishAction
 from steamship.agents.schema.message_selectors import MessageWindowMessageSelector
 from steamship.agents.tools.image_generation import DalleTool
 from steamship.agents.tools.search import SearchTool
+from steamship.data import TagKind, TagValueKey
+from steamship.data.tags.tag_constants import ChatTag, RoleTag
+from steamship.data.tags.tag_utils import get_tag, get_tag_value_key
 
 
 @pytest.mark.usefixtures("client")
@@ -112,7 +117,7 @@ def test_functions_based_agent_tool_chaining_without_memory(client: Steamship):
         action.output = []
 
     action.output.append(Block(text="George Washington"))
-    ctx.completed_steps.append(action)
+    agent.record_action_run(action, ctx)
 
     second_action = agent.next_action(context=ctx)
     assert not isinstance(second_action, FinishAction)
@@ -150,3 +155,120 @@ def test_functions_based_agent_tools_with_memory(client: Steamship):
             found = True
 
     assert found
+
+
+@pytest.mark.usefixtures("client")
+def test_proper_message_selection(client: Steamship):
+    context_id = "test-for-message-selection"
+    context_keys = {"id": context_id}
+    agent_context = AgentContext.get_or_create(client=client, context_keys=context_keys)
+
+    test_agent = FunctionsBasedAgent(
+        tools=[
+            SearchTool(),
+            DalleTool(),
+        ],
+        llm=ChatOpenAI(client, temperature=0),
+        message_selector=MessageWindowMessageSelector(k=2),
+    )
+
+    # simulate prompting and tool selecttion
+    agent_context.chat_history.append_user_message(text="Who is the current president of Taiwan?")
+    agent_context.chat_history.append_agent_message(text="Ignore me.")
+    agent_context.chat_history.append_llm_message(text="OpenAI ChatComplete...")
+
+    # simulate running the Tool
+    arg_block = Block(
+        text="current president of Taiwan", tags=[Tag(kind=TagKind.FUNCTION_ARG, name="text")]
+    )
+    action = Action(tool="SearchTool", input=[arg_block], output=[Block(text="Tsai Ing-wen")])
+    test_agent._record_action_selection(action=action, context=agent_context)
+    agent_context.chat_history.append_tool_message(text="Some tool message.")
+    test_agent.record_action_run(action=action, context=agent_context)
+
+    # simulate completing
+    agent_context.chat_history.append_agent_message(text="something about Tsai Ing-wen")
+    agent_context.chat_history.append_llm_message(text="OpenAI ChatComplete...")
+    agent_context.chat_history.append_agent_message(text="Finish Action...")
+    agent_context.chat_history.append_assistant_message(
+        text="The current president of Taiwan is Tsai Ing-wen."
+    )
+
+    # simulate next prompt
+    agent_context.chat_history.append_user_message(text="totally. thanks.")
+
+    selected_messages = test_agent.build_chat_history_for_tool(agent_context)
+
+    expected_messages = [
+        Block(
+            text=test_agent.PROMPT,
+            tags=[
+                Tag(
+                    kind=TagKind.CHAT, name=ChatTag.ROLE, value={TagValueKey.STRING_VALUE: "system"}
+                )
+            ],
+        ),
+        Block(
+            text="Who is the current president of Taiwan?",
+            tags=[
+                Tag(kind=TagKind.CHAT, name=ChatTag.ROLE, value={TagValueKey.STRING_VALUE: "user"})
+            ],
+        ),
+        Block(
+            text=json.dumps(
+                {"name": "SearchTool", "arguments": '{"text": "current president of Taiwan"}'}
+            ),
+            tags=[
+                Tag(
+                    kind=TagKind.CHAT,
+                    name=ChatTag.ROLE,
+                    value={TagValueKey.STRING_VALUE: "assistant"},
+                ),
+                Tag(kind="function-selection", name="SearchTool"),
+            ],
+        ),
+        Block(
+            text="Tsai Ing-wen",
+            tags=[
+                Tag(
+                    kind=ChatTag.ROLE,
+                    name=RoleTag.FUNCTION,
+                    value={TagValueKey.STRING_VALUE: "SearchTool"},
+                )
+            ],
+        ),
+        Block(
+            text="The current president of Taiwan is Tsai Ing-wen.",
+            tags=[
+                Tag(
+                    kind=TagKind.CHAT,
+                    name=ChatTag.ROLE,
+                    value={TagValueKey.STRING_VALUE: "assistant"},
+                )
+            ],
+        ),
+        Block(
+            text="totally. thanks.",
+            tags=[
+                Tag(kind=TagKind.CHAT, name=ChatTag.ROLE, value={TagValueKey.STRING_VALUE: "user"})
+            ],
+        ),
+    ]
+
+    assert len(selected_messages) == len(
+        expected_messages
+    ), "Missing selected messages from prepared messages"
+    for idx, selected_msg in enumerate(selected_messages):
+        expected_msg = expected_messages[idx]
+        assert (
+            selected_msg.text == expected_msg.text
+        ), f"Got: {selected_msg.text}, want: {expected_msg.text}"
+        for t in expected_msg.tags:
+            if t.value:
+                assert get_tag_value_key(
+                    tags=selected_msg.tags, key=TagValueKey.STRING_VALUE, kind=t.kind, name=t.name
+                ), "Expected tag not found in selected message"
+            else:
+                assert get_tag(
+                    tags=selected_msg.tags, kind=t.kind, name=t.name
+                ), "Expected tag not found in selected message"

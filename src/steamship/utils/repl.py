@@ -172,7 +172,7 @@ class AgentREPL(SteamshipREPL):
         except ImportError:
 
             def colored(text: str, color: str, **kwargs):
-                print(text)
+                return text
 
         print("Starting REPL for Agent...")
         print("If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n")
