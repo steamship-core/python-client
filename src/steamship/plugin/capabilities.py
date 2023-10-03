@@ -53,8 +53,11 @@ class RequestLevel(Enum):
     """
 
 
-class Capability(BaseModel, extra=Extra.allow):
+class Capability(BaseModel):
     """Base class for all capabilities."""
+
+    class Config:
+        extra = Extra.allow
 
     NAME: ClassVar[str]
     """Name of the capability.
@@ -101,12 +104,15 @@ class Capability(BaseModel, extra=Extra.allow):
         # They want BEST_EFFORT and we support native
         return True, Capability.Response(fulfilled_at=support_level)
 
-    class Response(BaseModel, extra=Extra.allow):
+    class Response(BaseModel):
         """Response regarding a specific capability served by the plugin.
 
         Responses indicate at minimum the level at which they served the request-level.  They may
         also specify additional metadata.
         """
+
+        class Config:
+            extra = Extra.allow
 
         CAPABILITY_NAME: ClassVar[str]
 
@@ -114,16 +120,22 @@ class Capability(BaseModel, extra=Extra.allow):
         fulfilled_at: RequestLevel
 
 
-class CapabilityImpl(Capability, extra=Extra.forbid):
+class CapabilityImpl(Capability):
     # TODO (PR): The Extra.forbid here is to enforce clamping of deserialization, but it may just be simpler to leave
     #  that up to individual capabilities?  My goal here is to prevent accidental breakage of contract when someone
     #  provides specific metadata that makes it so e.g. a plugin with an older view of the world thinks it has Best
     #  Effort support but can't because of those extra requests.
+    class Config:
+        extra = Extra.forbid
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = self.NAME
 
-    class ResponseImpl(Capability.Response, extra=Extra.forbid):
+    class ResponseImpl(Capability.Response):
+        class Config:
+            extra = Extra.forbid
+
         def __init__(self, *args, **kwargs):
             super().__init__(*args, **kwargs)
             self.name = self.CAPABILITY_NAME
