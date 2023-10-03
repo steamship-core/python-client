@@ -19,16 +19,6 @@ from steamship.agents.service.agent_service import AgentService
 from steamship.data.tags.tag_constants import ChatTag, RoleTag, TagKind, TagValueKey
 
 
-def _blocks_from_invoke(client: Steamship, potential_blocks) -> List[Block]:
-    try:
-        if isinstance(potential_blocks, list):
-            return [Block(client=client, **raw) for raw in potential_blocks]
-        else:
-            return [Block(client=client, **potential_blocks)]
-    except Exception as e:
-        raise SteamshipError(f"Could not convert to blocks: {e}")
-
-
 @pytest.mark.usefixtures("client")
 def test_example_with_caching_service(client: Steamship):
     # TODO(dougreid): replace the example agent with fake/free/fast tools to minimize test time / costs?
@@ -45,9 +35,9 @@ def test_example_with_caching_service(client: Steamship):
         context_keys = {"id": context_id}
 
         # attempt without caching
-        blocks_json = caching_agent.invoke("prompt", prompt="draw a cat", context_id=context_id)
-        assert blocks_json
-        blocks = _blocks_from_invoke(client, blocks_json)
+        blocks = caching_agent.blocks_from_invoke(
+            "prompt", prompt="draw a cat", context_id=context_id
+        )
         assert len(blocks) == 2
         assert "image" in blocks[0].text
         assert blocks[1].is_image()
@@ -58,7 +48,7 @@ def test_example_with_caching_service(client: Steamship):
         assert caching_agent.invoke("get_max_actions_per_run") == 0
 
         with pytest.raises(SteamshipError, match="budget"):
-            blocks_json = caching_agent.invoke("prompt", prompt="draw a cat", context_id=context_id)
+            caching_agent.blocks_from_invoke("prompt", prompt="draw a cat", context_id=context_id)
 
         caching_agent.invoke("set_max_actions_per_run", value=5)
         assert caching_agent.invoke("get_max_actions_per_run") == 5
@@ -82,9 +72,9 @@ def test_example_with_caching_service(client: Steamship):
         agent_context.llm_cache.update(key=fake_output, value=fake_finish_action)
 
         # now attempt with the caching
-        blocks_json = caching_agent.invoke("prompt", prompt="draw a cat", context_id=context_id)
-        assert blocks_json
-        blocks = _blocks_from_invoke(client, blocks_json)
+        blocks = caching_agent.blocks_from_invoke(
+            "prompt", prompt="draw a cat", context_id=context_id
+        )
         assert len(blocks) == 1
         assert "insert cat image here" == blocks[0].text
 

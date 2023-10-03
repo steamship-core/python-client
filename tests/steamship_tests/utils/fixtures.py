@@ -26,8 +26,10 @@ def client() -> Steamship:
           pass
     """
     steamship = get_steamship_client()
-    workspace = Workspace.create(client=steamship)
-    new_client = get_steamship_client(workspace_id=workspace.id)
+    workspace_handle = random_name()
+    workspace = Workspace.create(client=steamship, handle=workspace_handle)
+    # NOTE: get_steamship_client takes either `workspace_handle` or `workspace_id`, but NOT `workspace` as a keyword arg
+    new_client = get_steamship_client(workspace_handle=workspace_handle)
     yield new_client
     workspace.delete()
 
