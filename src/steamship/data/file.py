@@ -121,7 +121,7 @@ class File(CamelModel):
         blocks: List[Block] = None,
         tags: List[Tag] = None,
         public_data: bool = False,
-    ) -> Any:
+    ) -> File:
 
         req = {
             "handle": handle,
