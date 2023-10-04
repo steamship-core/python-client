@@ -24,7 +24,7 @@ from pydantic import BaseModel, Extra, Field
 from pydantic.dataclasses import ClassVar
 
 from steamship import Block, MimeTypes, SteamshipError
-from steamship.agents.schema.functions import OpenAIFunction
+from steamship.agents.schema import Tool
 
 CapabilityType = TypeVar("CapabilityType", bound="Capability")
 
@@ -333,5 +333,4 @@ class FunctionCallingSupport(CapabilityImpl):
 
     name = "steamship.function_calling_support"
 
-    functions: List[OpenAIFunction]
-    # TODO (PR): Worth generalizing this?
+    functions: List[Tool]
