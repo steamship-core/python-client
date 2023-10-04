@@ -1,3 +1,5 @@
+import { Callout } from \'nextra/components\';
+
 Steamship
 =========
 
@@ -38,6 +40,10 @@ Then run:
 .. code-block:: bash
 
    ship run local
+
+<Callout emoji=\"⚠️\">
+An ngrok account is required to run this command.
+</Callout>
 
 Now that you've interacted with your new agent, you're ready to start modifying it in :code:`src/api.py`.
 
