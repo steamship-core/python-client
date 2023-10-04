@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from datetime import datetime
 from typing import Any, Dict, List, Optional, Type
 
 from pydantic import BaseModel, Field
@@ -8,7 +9,8 @@ from pydantic import BaseModel, Field
 from steamship import SteamshipError, Task
 from steamship.base.client import Client
 from steamship.base.model import CamelModel
-from steamship.base.request import DeleteRequest, IdentifierRequest, Request
+from steamship.base.request import DeleteRequest, IdentifierRequest, ListRequest, Request, SortOrder
+from steamship.base.response import ListResponse
 from steamship.data.block import Block
 from steamship.data.invocable_init_status import InvocableInitStatus
 from steamship.data.workspace import Workspace
@@ -17,6 +19,17 @@ from steamship.utils.url import Verb
 LOCAL_DEVELOPMENT_VERSION_HANDLE = (
     "local-development!"  # Special handle for a locally-running development instances.
 )
+
+
+class ListPackageInstancesRequest(ListRequest):
+    package_id: Optional[str] = None
+    package_version_id: Optional[str] = None
+    include_workspace: Optional[bool] = None
+    across_workspaces: Optional[bool] = None
+
+
+class ListPackageInstancesResponse(ListResponse):
+    package_instances: List[PackageInstance]
 
 
 class CreatePackageInstanceRequest(Request):
@@ -52,6 +65,7 @@ class PackageInstance(CamelModel):
     workspace_id: str = None
     workspace_handle: str = None
     init_status: Optional[InvocableInitStatus] = None
+    created_at: Optional[datetime] = None
 
     @classmethod
     def parse_obj(cls: Type[BaseModel], obj: Any) -> BaseModel:
@@ -199,3 +213,31 @@ class PackageInstance(CamelModel):
             raise SteamshipError(
                 message=f"Package Instance {self.id} did not complete within requested timeout of {max_timeout_s}s. The init is still running on the server. You can retrieve its status via PackageInstance.get() or try waiting again with wait_for_init()."
             )
+
+    @staticmethod
+    def list(
+        client: Client,
+        package_id: Optional[str] = None,
+        package_version_id: Optional[str] = None,
+        include_workspace: Optional[bool] = None,
+        across_workspaces: Optional[bool] = None,
+        page_size: Optional[int] = None,
+        page_token: Optional[str] = None,
+        sort_order: Optional[SortOrder] = SortOrder.DESC,
+    ) -> ListPackageInstancesResponse:
+        return client.post(
+            "package/instance/list",
+            ListPackageInstancesRequest(
+                package_id=package_id,
+                package_version_id=package_version_id,
+                include_workspace=include_workspace,
+                across_workspaces=across_workspaces,
+                page_size=page_size,
+                page_token=page_token,
+                sort_order=sort_order,
+            ),
+            expect=ListPackageInstancesResponse,
+        )
+
+
+ListPackageInstancesResponse.update_forward_refs()

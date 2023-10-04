@@ -32,6 +32,7 @@ from steamship.cli.requirements_init_wizard import requirements_init_wizard
 from steamship.cli.ship_spinner import ship_spinner
 from steamship.cli.utils import find_api_py, get_api_module
 from steamship.data.manifest import DeployableType, Manifest
+from steamship.data.package.package_instance import LOCAL_DEVELOPMENT_VERSION_HANDLE
 from steamship.data.user import User
 from steamship.invocable.dev_logging_handler import DevelopmentLoggingHandler
 from steamship.invocable.lambda_handler import get_class_from_module
@@ -758,6 +759,43 @@ def support_info():
     click.secho(f"In virtual env: {sys.prefix != sys.base_prefix}")
 
 
+@click.command()
+@click.option(
+    "--all",
+    is_flag=True,
+    default=False,
+    help="Delete all local development instances without prompting",
+)
+def delete_local_dev_instances(all: Optional[bool] = False):
+    client, _, manifest = initialize_and_get_client_and_prep_project()
+
+    if manifest.type != DeployableType.PACKAGE:
+        click.secho("May only delete development instances of Packages.", fg="red")
+        return
+
+    click.secho(
+        f"Deleting LOCAL DEVELOPMENT instances of package [{manifest.handle}] across workspaces."
+    )
+    for instance in PackageInstance.list(
+        client, include_workspace=True, across_workspaces=True
+    ).package_instances:
+        # Only consider deletion for LOCAL DEVELOPMENT instances of THIS PACKAGE.
+        if (
+            instance.package_version_handle == LOCAL_DEVELOPMENT_VERSION_HANDLE
+            and instance.package_handle == manifest.handle
+        ):
+            workspace = Workspace.get(client, instance.workspace_id)
+            result = all or click.confirm(
+                f"Delete instance [{instance.handle}] in workspace [{workspace.handle}] created {instance.created_at}"
+            )
+            if result:
+                instance.delete()
+                click.secho(
+                    f"Deleted instance [{instance.handle}] in workspace [{workspace.handle}]",
+                    fg="red",
+                )
+
+
 cli.add_command(login)
 cli.add_command(deploy)
 cli.add_command(info)
@@ -768,3 +806,4 @@ cli.add_command(run)
 cli.add_command(create_instance, name="use")
 cli.add_command(delete)
 cli.add_command(support_info, name="support-info")
+cli.add_command(delete_local_dev_instances, name="clean-local-dev")
