@@ -17,7 +17,7 @@ models that it could not support at the levels requested.  Otherwise, when Plugi
 block indicating at which level they served the requested capabilities.
 """
 import logging
-from enum import Enum
+from enum import Enum, Flag, auto
 from typing import Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar
 
 from pydantic import BaseModel, Extra, Field
@@ -52,6 +52,32 @@ class RequestLevel(Enum):
     The plugin may ignore this feature when serving content.
     """
 
+    DISABLE = "disable"
+    """
+    Actively disable this capability.
+
+    In the case that the plugin does not support this capability, no behavior change occurs.
+    In the case that the plugin *can't* disable this capability (it's a core part of the experience), the plugin should
+      fast-fail.
+    In the case that the plugin supports but can opt not to use this capability, it won't be used.
+    """
+
+
+class SupportLevel(Flag):
+    """Flags for how plugins support capabilities.
+
+    NATIVE and BEST_EFFORT *can* be OR-ed together here, but don't need to be: NATIVE implies at least BEST_EFFORT.
+    """
+
+    NATIVE = auto()
+    """The plugin supports this capability natively."""
+
+    BEST_EFFORT = auto()
+    """The plugin claims to support this capability, in a way that is not native to any model."""
+
+    CAN_DISABLE = auto()
+    """The plugin offers the ability to disable this behavior."""
+
 
 class Capability(BaseModel):
     """Base class for all capabilities."""
@@ -79,7 +105,7 @@ class Capability(BaseModel):
     request_level: RequestLevel = RequestLevel.NATIVE
 
     def is_plugin_support_valid(
-        self, support_level: Optional[RequestLevel]
+        self, support_level: Optional[SupportLevel]
     ) -> Tuple[bool, Optional["Capability.Response"]]:
         """Checks if the plugin fulfills the capability request level for this specific capability.
 
@@ -90,18 +116,26 @@ class Capability(BaseModel):
         :return: a bool that indicates whether the Plugin support level is valid, plus an Optional Response for this
           capability's support, if applicable.
         """
-        if self.request_level == RequestLevel.OPTIONAL and support_level is None:
-            # We don't support it, but it's optional.
+        if (
+            self.request_level in (RequestLevel.OPTIONAL, RequestLevel.DISABLE)
+            and support_level is None
+        ):
+            # We don't support it, but it's optional / actively disabled.
             return True, None
         if support_level is None:
-            # Not optional, but we don't support it.
+            # Not optional / disabled, but we don't support it.
             return False, None
-        if self.request_level == RequestLevel.NATIVE and support_level != RequestLevel.NATIVE:
+        if self.request_level == RequestLevel.NATIVE and SupportLevel.NATIVE not in support_level:
             # They want native support, but we don't support it at a native level.
+            return False, None
+        if (
+            self.request_level == RequestLevel.DISABLE
+            and SupportLevel.CAN_DISABLE not in support_level
+        ):
             return False, None
         # They want NATIVE support, and we support that, OR
         # They want BEST_EFFORT support, and we support that, OR
-        # They want BEST_EFFORT and we support native
+        # They want BEST_EFFORT support, and we support native
         return True, Capability.Response(fulfilled_at=support_level)
 
     class Response(BaseModel):
@@ -117,7 +151,7 @@ class Capability(BaseModel):
         CAPABILITY_NAME: ClassVar[str]
 
         name: str = Field(init_var=False, default=None)
-        fulfilled_at: RequestLevel
+        fulfilled_at: SupportLevel
 
 
 class CapabilityImpl(Capability):
@@ -188,10 +222,10 @@ class CapabilityPluginResponse(BaseModel):
 
 class RequestedCapabilities:
     _requested: Optional[Dict[str, Capability]]
-    _supported_levels: Dict[str, RequestLevel]
+    _supported_levels: Dict[str, SupportLevel]
     _names_to_types: Dict[str, Type[CapabilityType]]
 
-    def __init__(self, supported_levels: Mapping[Type[CapabilityType], RequestLevel]):
+    def __init__(self, supported_levels: Mapping[Type[CapabilityType], SupportLevel]):
         self._requested = None
         self._supported_levels = {
             cap_type.NAME: request_level for cap_type, request_level in supported_levels.items()

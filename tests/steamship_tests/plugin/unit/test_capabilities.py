@@ -12,6 +12,7 @@ from steamship.plugin.capabilities import (
     CapabilityPluginResponse,
     RequestedCapabilities,
     RequestLevel,
+    SupportLevel,
     UnsupportedCapabilityError,
 )
 
@@ -27,15 +28,20 @@ class AnotherTestCapability(CapabilityImpl):
 @pytest.mark.parametrize(
     ("request_level", "support_level", "expected_support_valid", "expected_none_response"),
     [
-        (RequestLevel.NATIVE, RequestLevel.NATIVE, True, False),
-        (RequestLevel.NATIVE, RequestLevel.BEST_EFFORT, False, True),
+        (RequestLevel.NATIVE, SupportLevel.NATIVE, True, False),
+        (RequestLevel.NATIVE, SupportLevel.BEST_EFFORT, False, True),
         (RequestLevel.NATIVE, None, False, True),
-        (RequestLevel.BEST_EFFORT, RequestLevel.NATIVE, True, False),
-        (RequestLevel.BEST_EFFORT, RequestLevel.BEST_EFFORT, True, False),
+        (RequestLevel.BEST_EFFORT, SupportLevel.NATIVE, True, False),
+        (RequestLevel.BEST_EFFORT, SupportLevel.BEST_EFFORT, True, False),
         (RequestLevel.BEST_EFFORT, None, False, True),
-        (RequestLevel.OPTIONAL, RequestLevel.NATIVE, True, False),
-        (RequestLevel.OPTIONAL, RequestLevel.BEST_EFFORT, True, False),
+        (RequestLevel.OPTIONAL, SupportLevel.NATIVE, True, False),
+        (RequestLevel.OPTIONAL, SupportLevel.BEST_EFFORT, True, False),
         (RequestLevel.OPTIONAL, None, True, True),
+        (RequestLevel.DISABLE, SupportLevel.NATIVE | SupportLevel.CAN_DISABLE, True, False),
+        (RequestLevel.DISABLE, SupportLevel.BEST_EFFORT | SupportLevel.CAN_DISABLE, True, False),
+        (RequestLevel.DISABLE, SupportLevel.NATIVE, False, True),
+        (RequestLevel.DISABLE, SupportLevel.BEST_EFFORT, False, True),
+        (RequestLevel.DISABLE, None, True, True),
     ],
 )
 def test_is_plugin_support_valid(
@@ -48,7 +54,7 @@ def test_is_plugin_support_valid(
         assert response is None
     else:
         assert response is not None
-        assert response.fulfilled_at == support_level
+        assert response.fulfilled_at in support_level
 
 
 def test_capability_plugin_request_block_roundtrips():
@@ -62,7 +68,7 @@ def test_capability_plugin_request_block_roundtrips():
 
 def test_capability_plugin_response_block_roundtrips():
     original = CapabilityPluginResponse(
-        capability_responses=[Capability.Response(fulfilled_at=RequestLevel.NATIVE)]
+        capability_responses=[Capability.Response(fulfilled_at=SupportLevel.NATIVE)]
     )
     block = original.to_block()
     roundtripped = CapabilityPluginResponse.from_block(block)
@@ -89,10 +95,10 @@ def test_requested_capabilities_extract():
     blocks = _make_input_blocks()
     blocks.append(request.to_block())
 
-    req_caps = RequestedCapabilities(supported_levels={TestCapability: RequestLevel.NATIVE})
+    req_caps = RequestedCapabilities(supported_levels={TestCapability: SupportLevel.NATIVE})
     response = req_caps.extract_from_blocks(blocks)
     assert response == CapabilityPluginResponse(
-        capability_responses=[TestCapability.Response(fulfilled_at=RequestLevel.NATIVE)]
+        capability_responses=[TestCapability.Response(fulfilled_at=SupportLevel.NATIVE)]
     )
 
     test_capability = req_caps[TestCapability]
@@ -100,7 +106,7 @@ def test_requested_capabilities_extract():
 
 
 def test_no_requested_capabilities():
-    req_caps = RequestedCapabilities(supported_levels={TestCapability: RequestLevel.NATIVE})
+    req_caps = RequestedCapabilities(supported_levels={TestCapability: SupportLevel.NATIVE})
     response = req_caps.extract_from_blocks(_make_input_blocks())
     assert response == CapabilityPluginResponse(capability_responses=[])
 
