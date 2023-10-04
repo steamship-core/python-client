@@ -129,17 +129,18 @@ class ChatOpenAI(ChatLLM, OpenAI):
                 options=options,
                 append_output_to_file=True,
             )
-        else:
+            generate_task.wait()  # wait
+            return generate_task.output.blocks
+
+        # if not in same file, then we must create a temporary file and clean up after ourselves.
+        try:
             tags = [Tag(kind=TagKind.GENERATION, name=GenerationTag.PROMPT_COMPLETION)]
-            try:
-                temp_file = File.create(client=self.client, blocks=messages, tags=tags)
-                generate_task = self.generator.generate(input_file_id=temp_file.id, options=options)
-            finally:
-                temp_file.delete()
-
-        generate_task.wait()
-
-        return generate_task.output.blocks
+            temp_file = File.create(client=self.client, blocks=messages, tags=tags)
+            generate_task = self.generator.generate(input_file_id=temp_file.id, options=options)
+            generate_task.wait()  # must wait until task is done before we can delete the file
+            return generate_task.output.blocks
+        finally:
+            temp_file.delete()
 
     def _from_same_existing_file(self, blocks: List[Block]) -> bool:
         if len(blocks) == 1:
