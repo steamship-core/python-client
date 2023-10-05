@@ -301,7 +301,7 @@ class AgentService(PackageService):
                 return None
 
     def build_default_context(self, context_id: Optional[str] = None, **kwargs) -> AgentContext:
-        """Build's the agent's default context.
+        """Build the agent's default context.
 
         The provides a single place to implement (or override) the default context that will be used by endpoints
         that transports define. This allows an Agent developer to use, eg, the TelegramTransport but with a custom
@@ -342,6 +342,7 @@ class AgentService(PackageService):
                 include_llm_messages=include_llm_messages,
                 include_tool_messages=include_tool_messages,
             ),
+            initial_system_message=self.get_default_agent().default_system_message(),
         )
 
         # Add a default LLM to the context, using the Agent's if it exists.
@@ -361,7 +362,11 @@ class AgentService(PackageService):
         if context_id is None:
             context_id = uuid.uuid4()
 
-        ctx = AgentContext.get_or_create(self.client, context_keys={"id": f"{context_id}"})
+        ctx = AgentContext.get_or_create(
+            self.client,
+            context_keys={"id": f"{context_id}"},
+            initial_system_message=self.get_default_agent().default_system_message(),
+        )
         return ctx.chat_history.file
 
     def _streaming_context_id_and_file(

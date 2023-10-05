@@ -75,7 +75,23 @@ class AgentContext:
         use_action_cache: Optional[bool] = False,
         streaming_opts: Optional[StreamingOpts] = None,
         request_id: Optional[str] = None,
+        initial_system_message: Optional[str] = None,
     ):
+        """Get the AgentContext that corresponds to the parameters supplied.
+
+        If the AgentContext does not already exist, a new one will be created and returned.
+
+        Args:
+            client(Steamship): Steamship workspace-scoped client
+            context_keys(dict): key-value pairs used to uniquely identify a context within a workspace
+            tags(list): List of Steamship Tags to attach to a ChatHistory for a new context
+            searchable(bool): Whether the ContextHistory should embed appended messages for subsequent retrieval
+            use_llm_cache(bool): Determines if an LLM Cache should be created for a new context
+            use_action_cache(bool): Determines if an Action Cache should be created for a new context
+            streaming_opts(StreamingOpts): Determines how status messages are appended to the context's ChatHistory
+            request_id(str): Provides request-scoping for the context's ChatHistory messages
+            initial_system_message(str): System message used to initialize the context's ChatHistory. If one already exists, this will be ignored.
+        """
         from steamship.agents.schema.chathistory import ChatHistory
 
         if streaming_opts is None:
@@ -88,6 +104,10 @@ class AgentContext:
         context = AgentContext(streaming_opts=streaming_opts, request_id=request_id)
         context.chat_history = history
         context.client = client
+
+        if initial_system_message and not context.chat_history.last_system_message:
+            # ensure the system message is the first in the history
+            context.chat_history.append_system_message(text=initial_system_message)
 
         if use_action_cache:
             context.action_cache = ActionCache.get_or_create(

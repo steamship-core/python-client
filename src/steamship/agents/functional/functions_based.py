@@ -1,6 +1,6 @@
 import json
 from operator import attrgetter
-from typing import List
+from typing import List, Optional
 
 from steamship import Block, MimeTypes, Tag
 from steamship.agents.functional.output_parser import FunctionsBasedOutputParser
@@ -28,18 +28,20 @@ Only use the functions you have been provided with."""
             output_parser=FunctionsBasedOutputParser(tools=tools), llm=llm, tools=tools, **kwargs
         )
 
-    def _get_or_create_system_message(self, context: AgentContext) -> Block:
-        sys_msg = context.chat_history.last_system_message
-        if sys_msg:
-            return sys_msg
+    def default_system_message(self) -> Optional[str]:
+        return self.PROMPT
 
-        return context.chat_history.append_system_message(text=self.PROMPT, mime_type=MimeTypes.TXT)
+    def _get_or_create_system_message(self, context: AgentContext) -> Block:
+        if context.chat_history.last_system_message:
+            return context.chat_history.last_system_message
+        return context.chat_history.append_system_message(
+            text=self.default_system_message(), mime_type=MimeTypes.TXT
+        )
 
     def build_chat_history_for_tool(self, context: AgentContext) -> List[Block]:
+        # system message should have already been created in context, but we double-check for safety
         sys_msg = self._get_or_create_system_message(context)
         messages: List[Block] = [sys_msg]
-
-        # get system message
 
         messages_from_memory = []
         # get prior conversations

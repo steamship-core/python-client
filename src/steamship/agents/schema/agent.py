@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 from pydantic.fields import Field
@@ -27,6 +27,14 @@ class Agent(BaseModel, ABC):
 
     message_selector: MessageSelector = Field(default=NoMessages())
     """Selector of messages from ChatHistory. Used for conversation memory retrieval."""
+
+    def default_system_message(self) -> Optional[str]:
+        """The default system message used by Agents to drive LLM instruction.
+
+        Non Chat-based Agents should always return None. Chat-based Agents should override
+        this method to provide a default prompt.
+        """
+        return None
 
     @abstractmethod
     def next_action(self, context: AgentContext) -> Action:
