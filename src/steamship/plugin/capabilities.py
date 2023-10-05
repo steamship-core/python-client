@@ -156,10 +156,6 @@ class Capability(BaseModel):
 
 
 class CapabilityImpl(Capability):
-    # TODO (PR): The Extra.forbid here is to enforce clamping of deserialization, but it may just be simpler to leave
-    #  that up to individual capabilities?  My goal here is to prevent accidental breakage of contract when someone
-    #  provides specific metadata that makes it so e.g. a plugin with an older view of the world thinks it has Best
-    #  Effort support but can't because of those extra requests.
     class Config:
         extra = Extra.forbid
 
