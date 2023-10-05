@@ -25,6 +25,7 @@ from pydantic.dataclasses import ClassVar
 
 from steamship import Block, MimeTypes, SteamshipError
 from steamship.agents.schema import Tool
+from steamship.base.client import Client
 
 CapabilityType = TypeVar("CapabilityType", bound="Capability")
 
@@ -204,6 +205,14 @@ class CapabilityPluginRequest(BaseModel):
     def to_block(self) -> Block:
         return Block(text=self.json(), mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES)
 
+    def create_block(self, client: Client, file_id: str) -> Block:
+        return Block.create(
+            text=self.json(),
+            mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES,
+            file_id=file_id,
+            client=client,
+        )
+
 
 class CapabilityPluginResponse(BaseModel):
     """Model representing the text in a STEAMSHIP_PLUGIN_CAPABILITIES block when it is used as a response."""
@@ -218,6 +227,14 @@ class CapabilityPluginResponse(BaseModel):
 
     def to_block(self) -> Block:
         return Block(text=self.json(), mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES)
+
+    def create_block(self, client: Client, file_id: str) -> Block:
+        return Block.create(
+            text=self.json(),
+            mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES,
+            file_id=file_id,
+            client=client,
+        )
 
 
 class RequestedCapabilities:
