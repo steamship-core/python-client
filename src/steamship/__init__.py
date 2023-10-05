@@ -41,7 +41,7 @@ SUPPORTED_PYTHON_VERSIONS = [(3, 10, None)]
 def is_supported_python_version() -> bool:
     import sys
 
-    major, minor, patch = sys.version_info
+    major, minor, patch, _, _ = sys.version_info
     for supported_version in SUPPORTED_PYTHON_VERSIONS:
         s_major, s_minor, s_patch = supported_version
         supported = (
