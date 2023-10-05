@@ -70,5 +70,5 @@ def test_final_tool_assistant(invocable_handler: Callable[[str, str, Optional[di
     assert food_suggestion
     assert food_suggestion[0].get("text")
 
-    # The agent responded with a FULL sentence. Something like: "I suggest you try some apples!"
+    # The agent responded with a FULL sentence. Something like: "I suggest you try Peru!"
     assert food_suggestion[0].get("text") == "Peru"

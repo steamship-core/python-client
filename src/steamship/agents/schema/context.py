@@ -1,4 +1,5 @@
 import logging
+import uuid
 from typing import Any, Callable, Dict, List, Optional
 
 from steamship import Block, Steamship, Tag
@@ -49,10 +50,16 @@ class AgentContext:
     """Caches all interations with LLMs within a Context. This provides a way to avoid duplicated
     calls to LLMs when within the same context."""
 
-    def __init__(self, streaming_opts: Optional[StreamingOpts] = None):
+    request_id: str
+    """Identifier for the current request being handled by this context."""
+
+    def __init__(
+        self, request_id: Optional[str] = None, streaming_opts: Optional[StreamingOpts] = None
+    ):
         self.metadata = {}
         self.completed_steps = []
         self.emit_funcs = []
+        self.request_id = request_id or str(uuid.uuid4())  # TODO: protect this?
         if streaming_opts is not None:
             self._streaming_opts = streaming_opts
         else:
@@ -67,16 +74,40 @@ class AgentContext:
         use_llm_cache: Optional[bool] = False,
         use_action_cache: Optional[bool] = False,
         streaming_opts: Optional[StreamingOpts] = None,
+        request_id: Optional[str] = None,
+        initial_system_message: Optional[str] = None,
     ):
+        """Get the AgentContext that corresponds to the parameters supplied.
+
+        If the AgentContext does not already exist, a new one will be created and returned.
+
+        Args:
+            client(Steamship): Steamship workspace-scoped client
+            context_keys(dict): key-value pairs used to uniquely identify a context within a workspace
+            tags(list): List of Steamship Tags to attach to a ChatHistory for a new context
+            searchable(bool): Whether the ContextHistory should embed appended messages for subsequent retrieval
+            use_llm_cache(bool): Determines if an LLM Cache should be created for a new context
+            use_action_cache(bool): Determines if an Action Cache should be created for a new context
+            streaming_opts(StreamingOpts): Determines how status messages are appended to the context's ChatHistory
+            request_id(str): Provides request-scoping for the context's ChatHistory messages
+            initial_system_message(str): System message used to initialize the context's ChatHistory. If one already exists, this will be ignored.
+        """
         from steamship.agents.schema.chathistory import ChatHistory
 
         if streaming_opts is None:
             streaming_opts = StreamingOpts()
 
+        if request_id is None:
+            request_id = str(uuid.uuid4())
+
         history = ChatHistory.get_or_create(client, context_keys, tags, searchable=searchable)
-        context = AgentContext(streaming_opts=streaming_opts)
+        context = AgentContext(streaming_opts=streaming_opts, request_id=request_id)
         context.chat_history = history
         context.client = client
+
+        if initial_system_message and not context.chat_history.last_system_message:
+            # ensure the system message is the first in the history
+            context.chat_history.append_system_message(text=initial_system_message)
 
         if use_action_cache:
             context.action_cache = ActionCache.get_or_create(
@@ -97,7 +128,9 @@ class AgentContext:
 
         if self._streaming_opts.stream_intermediate_events:
             self._chat_history_logger = ChatHistoryLoggingHandler(
-                chat_history=self.chat_history, streaming_opts=self._streaming_opts
+                chat_history=self.chat_history,
+                streaming_opts=self._streaming_opts,
+                request_id=self.request_id,
             )
             logger = logging.getLogger()
             logger.addHandler(self._chat_history_logger)
@@ -108,3 +141,9 @@ class AgentContext:
             logger = logging.getLogger()
             logger.removeHandler(self._chat_history_logger)
             self._chat_history_logger = None
+
+        # Here we append a final request complete block, which will have no text, but hold a special tag
+        # NOTE: This **MUST** happen as the absolute last thing in the AgentService run. If chat history
+        # is updated **outside** of `run_agent`, then this will signal a request completion **before** it happens.
+        if self._streaming_opts.include_agent_messages:
+            self.chat_history.append_request_complete_message(self.request_id)

@@ -1,6 +1,6 @@
 import json
 from operator import attrgetter
-from typing import List
+from typing import List, Optional
 
 from steamship import Block, MimeTypes, Tag
 from steamship.agents.functional.output_parser import FunctionsBasedOutputParser
@@ -28,13 +28,20 @@ Only use the functions you have been provided with."""
             output_parser=FunctionsBasedOutputParser(tools=tools), llm=llm, tools=tools, **kwargs
         )
 
-    def build_chat_history_for_tool(self, context: AgentContext) -> List[Block]:
-        messages: List[Block] = []
+    def default_system_message(self) -> Optional[str]:
+        return self.PROMPT
 
-        # get system message
-        system_message = Block(text=self.PROMPT)
-        system_message.set_chat_role(RoleTag.SYSTEM)
-        messages.append(system_message)
+    def _get_or_create_system_message(self, context: AgentContext) -> Block:
+        if context.chat_history.last_system_message:
+            return context.chat_history.last_system_message
+        return context.chat_history.append_system_message(
+            text=self.default_system_message(), mime_type=MimeTypes.TXT
+        )
+
+    def build_chat_history_for_tool(self, context: AgentContext) -> List[Block]:
+        # system message should have already been created in context, but we double-check for safety
+        sys_msg = self._get_or_create_system_message(context)
+        messages: List[Block] = [sys_msg]
 
         messages_from_memory = []
         # get prior conversations
@@ -44,15 +51,7 @@ Only use the functions you have been provided with."""
                 .wait()
                 .to_ranked_blocks()
             )
-
             # TODO(dougreid): we need a way to threshold message inclusion, especially for small contexts
-
-            # remove the actual prompt from the semantic search (it will be an exact match)
-            messages_from_memory = [
-                msg
-                for msg in messages_from_memory
-                if msg.id != context.chat_history.last_user_message.id
-            ]
 
         # get most recent context
         messages_from_memory.extend(context.chat_history.select_messages(self.message_selector))
@@ -60,7 +59,10 @@ Only use the functions you have been provided with."""
         messages_from_memory.sort(key=attrgetter("index_in_file"))
 
         # de-dupe the messages from memory
-        ids = [context.chat_history.last_user_message.id]
+        ids = [
+            sys_msg.id,
+            context.chat_history.last_user_message.id,
+        ]  # filter out last user message, it is appended afterwards
         for msg in messages_from_memory:
             if msg.id not in ids:
                 messages.append(msg)
@@ -121,6 +123,11 @@ Only use the functions you have been provided with."""
                 value={TagValueKey.STRING_VALUE: RoleTag.ASSISTANT},
             ),
             Tag(kind=TagKind.FUNCTION_SELECTION, name=action.tool),
+            Tag(
+                kind="request-id",
+                name=context.request_id,
+                value={TagValueKey.STRING_VALUE: context.request_id},
+            ),
         ]
         context.chat_history.file.append_block(
             text=self._to_openai_function_selection(action), tags=tags, mime_type=MimeTypes.TXT
@@ -142,6 +149,11 @@ Only use the functions you have been provided with."""
             Tag(
                 kind="name",
                 name=action.tool,
+            ),
+            Tag(
+                kind="request-id",
+                name=context.request_id,
+                value={TagValueKey.STRING_VALUE: context.request_id},
             ),
         ]
         # TODO(dougreid): I'm not convinced this is correct for tools that return multiple values.
