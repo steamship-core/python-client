@@ -1,3 +1,7 @@
+import { Callout } from \'nextra/components\';
+
+::
+
 Running on Localhost
 --------------------
 
@@ -6,6 +10,10 @@ To run your project on localhost type:
 .. code-block:: bash
 
    ship run local
+
+<Callout emoji=\"⚠️\">
+An ngrok account is required to run this command.
+</Callout>
 
 This will start a local instance with a number of ways to interact with it:
 
