@@ -232,6 +232,8 @@ class ChatHistory:
         return selector.get_messages(self.messages)
 
     def search(self, text: str, k=None) -> Task[SearchResults]:
+        if len(text.strip()) == 0:
+            return Task(output=SearchResults(), state="succeeded")
         if self.embedding_index is None:
             raise SteamshipError("This ChatHistory has no embedding index and is not searchable.")
         return self.embedding_index.search(text, k)

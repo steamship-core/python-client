@@ -84,3 +84,9 @@ class MockTelegramApi(PackageService):
             ],
         )
         return "OK"
+
+    @get("getMe", public=True)
+    def get_me(
+        self,
+    ) -> dict:  # realize str is wrong here, but seems to be what I get from the file upload to our server.
+        return {"username": "TestBot"}

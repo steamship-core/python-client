@@ -92,7 +92,7 @@ class ChatOpenAI(ChatLLM, OpenAI):
         if len(tools) > 0:
             functions = []
             for tool in tools:
-                functions.append(tool.as_openai_function())
+                functions.append(tool.as_openai_function().dict())
             options["functions"] = functions
 
         if "max_tokens" in kwargs:

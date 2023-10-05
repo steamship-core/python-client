@@ -212,7 +212,7 @@ def _run_local_server(
     return local_api_url
 
 
-def _run_web_interface(base_url: str) -> str:
+def _run_web_interface(base_url: str, workspace_handle: str, instance_handle: str) -> str:
     web_base = DEFAULT_WEB_BASE
     logging.info(f"Starting web interface. web_base={web_base} and base_url={base_url}")
 
@@ -229,7 +229,7 @@ def _run_web_interface(base_url: str) -> str:
     if not web_base.endswith("/"):
         web_base = f"{web_base}/"
 
-    web_url = f"{web_base}debug?endpoint={base_url}/prompt"
+    web_url = f"{web_base}dashboard/agents/workspaces/{workspace_handle}/packages/{instance_handle}"
     logging.info(f"Web interface url is: {web_url}")
 
     return web_url
@@ -260,7 +260,6 @@ def serve_local(  # noqa: C901
     port: int = 8443,
     no_ngrok: Optional[bool] = False,
     no_repl: Optional[bool] = False,
-    no_ui: Optional[bool] = False,
     config: Optional[str] = None,
     workspace: Optional[str] = None,
 ):
@@ -272,10 +271,16 @@ def serve_local(  # noqa: C901
     client, user, manifest = initialize_and_get_client_and_prep_project()
 
     if workspace:
-        workspace_obj = Workspace.get(client, handle=workspace)
+        # Fetch/create a workspace if one was specified.
+        workspace_obj = Workspace.create(client, handle=workspace, fetch_if_exists=True)
     else:
-        workspace_obj = Workspace.get(client)
+        # Create a new workspace if none was specified.
+        # Otherwise multiple runs co-mingle data in the `default` workspace.
+        workspace_obj = Workspace.create(client)
         workspace = workspace_obj.handle
+
+    # Now switch the workspace to the one just created.
+    client.switch_workspace(workspace)
 
     # Make sure we're running a package.
     if manifest.type != DeployableType.PACKAGE:
@@ -287,6 +292,9 @@ def serve_local(  # noqa: C901
     # Make sure we have a package name -- this allows us to register the running copy with the engine.
     deployer = PackageDeployer()
     deployable = deployer.create_or_fetch_deployable(client, user, manifest)
+
+    # Report the workspace we're running in
+    click.secho(f"🗃️ Workspace:  {workspace}")
 
     # Report the logs output file.
     click.secho(f"📝 Log file:   {dev_logging_handler.log_filename}")
@@ -348,8 +356,8 @@ def serve_local(  # noqa: C901
         exit(-1)
 
     # Start the web UI
-    if not no_ui:
-        web_url = _run_web_interface(public_api_url or local_api_url)
+    if public_api_url:
+        web_url = _run_web_interface(public_api_url, workspace, local_instance_handle)
         if web_url:
             click.secho(f"🌎 Web UI:     {web_url}")
 
@@ -386,12 +394,6 @@ def serve_local(  # noqa: C901
     help="Don't attempt to attach to ngrok.",
 )
 @click.option(
-    "--no-ui",
-    is_flag=True,
-    default=False,
-    help="Don't attempt to attach to a web UI.",
-)
-@click.option(
     "--no-repl",
     is_flag=True,
     default=False,
@@ -423,7 +425,6 @@ def run(
     port: int = 8080,
     instance_handle: Optional[str] = None,
     no_ngrok: Optional[bool] = False,
-    no_ui: Optional[bool] = False,
     no_repl: Optional[bool] = False,
     config: Optional[str] = None,
     workspace: Optional[str] = None,
@@ -434,7 +435,6 @@ def run(
             port=port,
             no_ngrok=no_ngrok,
             no_repl=no_repl,
-            no_ui=no_ui,
             config=config,
             workspace=workspace,
         )

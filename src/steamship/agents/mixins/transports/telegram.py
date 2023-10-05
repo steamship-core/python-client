@@ -8,7 +8,7 @@ from pydantic import Field
 from steamship import Block, Steamship, SteamshipError
 from steamship.agents.mixins.transports.transport import Transport
 from steamship.agents.schema import EmitFunc, Metadata
-from steamship.agents.service.agent_service import AgentService
+from steamship.agents.service.agent_service import AgentService, build_context_appending_emit_func
 from steamship.invocable import Config, InvocableResponse, post
 from steamship.utils.kv_store import KeyValueStore
 
@@ -80,12 +80,22 @@ class TelegramTransport(Transport):
                 f"Could not set webhook for bot. Webhook URL was {webhook_url}. Telegram response message: {response.text}"
             )
 
+    @post("telegram_bot_info")
+    def telegram_bot_info(self) -> dict:
+        api_root = self.get_api_root()
+        if not api_root:
+            raise SteamshipError(
+                message="Unable to fetch Telegram Bot info -- perhaps your bot token isn't set?"
+            )
+
+        return requests.get(api_root + "/getMe").json()
+
     @post("telegram_webhook_info")
     def telegram_webhook_info(self) -> dict:
         api_root = self.get_api_root()
         if not api_root:
             raise SteamshipError(
-                message="Unable to fetch Telegram API info -- perhaps your bot token isn't set?"
+                message="Unable to fetch Telegram Webhook info -- perhaps your bot token isn't set?"
             )
 
         return requests.get(api_root + "/getWebhookInfo").json()
@@ -227,21 +237,18 @@ class TelegramTransport(Transport):
         try:
             incoming_message = self.parse_inbound(message)
             if incoming_message is not None:
-                context = self.agent_service.build_default_context(chat_id)
+                with self.agent_service.build_default_context(chat_id) as context:
+                    context.chat_history.append_user_message(
+                        text=incoming_message.text, tags=incoming_message.tags
+                    )
 
-                context.chat_history.append_user_message(
-                    text=incoming_message.text, tags=incoming_message.tags
-                )
-                context.emit_funcs = [self.build_emit_func(chat_id=chat_id)]
+                    context.emit_funcs = [
+                        self.build_emit_func(chat_id=chat_id),
+                        # allow telegram access to blocks on emit (making them public)
+                        build_context_appending_emit_func(context=context, make_blocks_public=True),
+                    ]
 
-                response = self.agent_service.run_agent(
-                    self.agent_service.get_default_agent(), context
-                )
-                if response is not None:
-                    self.send(response)
-                else:
-                    # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
-                    pass
+                    self.agent_service.run_agent(self.agent_service.get_default_agent(), context)
             else:
                 # Do nothing here; this could be a message we intentionally don't want to respond to (ex. an image or file upload)
                 pass
@@ -294,9 +301,9 @@ class TelegramTransport(Transport):
         if bot_token:
             if ".steamship.run/" in api_base or ".apps.staging.steamship.com" in api_base:
                 # This is a special case for our testing pipeline -- it contains a mock Telegram server.
-                return api_base
+                return api_base[:-1]
             else:
-                return f"{api_base}{bot_token}"
+                return f"{api_base[:-1]}{bot_token}"
         else:
             return None
 

@@ -178,6 +178,9 @@ class Block(CamelModel):
     def raw(self):
         if self.content_url is not None:
             return requests.get(self.content_url).content
+        elif self.client is None or self.id is None:
+            # guard against transient block raw()s
+            return None
         else:
             return self.client.post(
                 "block/raw",
@@ -245,10 +248,11 @@ class Block(CamelModel):
         """Return a URL at which the data content of this Block can be accessed.  If public_data is True,
         this content can be accessed without an API key.
         """
-        if self.client is not None:
-            return f"{self.client.config.api_base}block/{self.id}/raw"
-        else:
+        if self.client is None or self.id is None:
+            # guard against invalid URLs
             return None
+
+        return f"{self.client.config.api_base}block/{self.id}/raw"
 
     @property
     def chat_role(self) -> Optional[RoleTag]:

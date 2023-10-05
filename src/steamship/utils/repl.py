@@ -228,7 +228,7 @@ class AgentREPL(SteamshipREPL):
 class HttpREPL(SteamshipREPL):
     """REPL that uses an HTTP endpoint. Best for the `ship serve` command."""
 
-    prompt_url: Optional[AgentService]
+    prompt_url: Optional[str]
     client = Steamship
     config = None
     context_id: Optional[str] = None
@@ -295,11 +295,11 @@ class HttpREPL(SteamshipREPL):
                         logging.warning(
                             "REPL interaction completed with empty data field in InvocableResponse."
                         )
-                if isinstance(result, list):
+                elif isinstance(result, list):
                     self.print_object_or_objects(result)
                 else:
                     logging.warning("Unsure how to display result:")
-                    logging.warning(result)
+                    logging.warning(f"{result}")
             else:
                 logging.warning("REPL interaction completed with no result to print.")
 
