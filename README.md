@@ -1,4 +1,4 @@
-<img src="docs/_static/Steamship-symbol-dark.png" alt="Steamship Logo" width="100"/>
+<img src="https://python-sdk.docs.steamship.com/_static/Steamship-symbol-light.png" alt="Steamship Logo" width="100"/>
 
 # Steamship Python SDK
 
