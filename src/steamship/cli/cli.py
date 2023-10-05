@@ -766,7 +766,7 @@ def support_info():
     default=False,
     help="Delete all local development instances without prompting",
 )
-def delete_local_dev_instances(all: Optional[bool] = False):
+def clean_local_dev_instances(all: Optional[bool] = False):
     client, _, manifest = initialize_and_get_client_and_prep_project()
 
     if manifest.type != DeployableType.PACKAGE:
@@ -786,7 +786,7 @@ def delete_local_dev_instances(all: Optional[bool] = False):
         ):
             workspace = Workspace.get(client, instance.workspace_id)
             result = all or click.confirm(
-                f"Delete instance [{instance.handle}] in workspace [{workspace.handle}] created {instance.created_at}"
+                f"Delete instance [{instance.handle}] in workspace [{workspace.handle}] created {instance.created_at} ?"
             )
             if result:
                 instance.delete()
@@ -806,4 +806,4 @@ cli.add_command(run)
 cli.add_command(create_instance, name="use")
 cli.add_command(delete)
 cli.add_command(support_info, name="support-info")
-cli.add_command(delete_local_dev_instances, name="clean-local-dev")
+cli.add_command(clean_local_dev_instances, name="clean-local-dev")
