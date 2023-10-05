@@ -40,7 +40,10 @@ from steamship.utils.repl import HttpREPL
 
 @click.group()
 def cli():
-    pass
+    if not (sys.version_info[0] == 3 and sys.version_info[1] == 10):
+        click.echo(f"⚠️⚠️ Running on unsupported Python version: {sys.version}")
+        click.echo("⚠️⚠️ Steamship runtime supports Python 3.10.X; you may see irregular behavior.")
+        click.echo("⚠️⚠️ Please develop against supported Python versions.")
 
 
 def initialize(suppress_message: bool = False):
