@@ -1,6 +1,6 @@
 import logging
 from pprint import pformat
-from typing import List
+from typing import List, Optional
 
 from steamship import Block, File, MimeTypes, PluginInstance, Steamship, SteamshipError, Tag
 from steamship.data import GenerationTag, TagKind
@@ -22,6 +22,7 @@ class SteamshipLLM:
         @staticmethod
         def gpt(
             client: Steamship,
+            plugin_version: Optional[str] = None,
             model: str = "gpt-4",
             temperature: float = 0.4,
             max_tokens: int = 256,
@@ -29,6 +30,7 @@ class SteamshipLLM:
         ):
             gpt = client.use_plugin(
                 "gpt-4",
+                version=plugin_version,
                 config={
                     "model": model,
                     "temperature": temperature,
@@ -86,7 +88,7 @@ class SteamshipLLM:
             generation_task.wait()
 
             for block in generation_task.output.blocks:
-                if block.mime_type == MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES:
+                if block.mime_type == MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE:
                     if logging.DEBUG >= logging.root.getEffectiveLevel():
                         response = CapabilityPluginResponse.from_block(block)
                         logging.debug(
