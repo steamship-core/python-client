@@ -329,7 +329,10 @@ def serve_local(  # noqa: C901
         #  2. The public_api_url should still be NGROK, not the Proxy. The local server emulates the Proxy and
         #     the Proxy blocks this kind of development traffic.
 
-        public_api_url = ngrok_api_url
+        public_api_url = (
+            f"https://{user.handle}.steamship.run/{workspace}/{registered_instance.handle}/"
+        )
+
         click.secho(f"🌎 Public API: {public_api_url}")
 
     # Start the local API Server. This has to happen after NGROK because the port & url need to be plummed.
