@@ -1,4 +1,7 @@
-<img src="docs/_static/Steamship-symbol-dark.png" alt="Steamship Logo" width="100"/>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/nextra/_static/Steamship-symbol-light.png">
+  <img alt="Steamship Logo" src="./docs/nextra/_static/Steamship-symbol-dark.png" width="100">
+</picture>
 
 # Steamship Python SDK
 
