@@ -41,7 +41,16 @@ from steamship.utils.repl import HttpREPL
 
 @click.group()
 def cli():
-    pass
+    if not steamship.is_supported_python_version():
+        click.echo("⚠️ ⚠️ ⚠️️️️️️️️️️️")
+        click.echo(f"Running on unsupported Python version: {sys.version}")
+        click.echo(
+            "Steamship runtime supports only the following versions; you may see irregular behavior otherwise:"
+        )
+        for supported_name in steamship.SUPPORTED_PYTHON_VERSION_NAMES:
+            click.echo(f"  {supported_name}")
+        click.echo("Please develop against supported Python versions.")
+        click.echo("⚠️ ⚠️ ⚠️️️️️️️️️️️")
 
 
 def initialize(suppress_message: bool = False):
