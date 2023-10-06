@@ -1,5 +1,7 @@
 from enum import Enum
 
+STEAMSHIP_PREFIX = "application/vnd.steamship-block"
+
 
 class MimeTypes(str, Enum):
     UNKNOWN = "unknown"
@@ -19,7 +21,7 @@ class MimeTypes(str, Enum):
     PPTX = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
     RTF = "application/rtf"
     BINARY = "application/octet-stream"
-    STEAMSHIP_BLOCK_JSON = "application/vnd.steamship-block.json.v1"
+    STEAMSHIP_BLOCK_JSON = f"{STEAMSHIP_PREFIX}.json.v1"
     WAV = "audio/wav"
     MP3 = "audio/mp3"
     OGG_AUDIO = "audio/ogg"
@@ -32,12 +34,8 @@ class MimeTypes(str, Enum):
 
     # This block contains information that isn't part of the payload to/from a plugin, but instead is json-formatted
     # information about if/how the plugin supports certain behaviors.
-    STEAMSHIP_PLUGIN_CAPABILITIES_REQUEST = (
-        "application/vnd.steamship-block.plugin-capabilities-request+json"
-    )
-    STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE = (
-        "application/vnd.steamship-block.plugin-capabilities-response+json"
-    )
+    STEAMSHIP_PLUGIN_CAPABILITIES_REQUEST = f"{STEAMSHIP_PREFIX}.plugin-capabilities-request+json"
+    STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE = f"{STEAMSHIP_PREFIX}.plugin-capabilities-response+json"
 
     @classmethod
     def has_value(cls, value):

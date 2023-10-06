@@ -18,7 +18,7 @@ block indicating at which level they served the requested capabilities.
 """
 import logging
 from enum import Enum, Flag, auto
-from typing import Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar
+from typing import Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar, Union
 
 from pydantic import BaseModel, Extra, Field
 from pydantic.dataclasses import ClassVar
@@ -26,6 +26,7 @@ from pydantic.dataclasses import ClassVar
 from steamship import Block, MimeTypes, SteamshipError
 from steamship.agents.schema import Tool
 from steamship.base.client import Client
+from steamship.base.mime_types import STEAMSHIP_PREFIX
 
 CapabilityType = TypeVar("CapabilityType", bound="Capability")
 
@@ -142,14 +143,11 @@ class Capability(BaseModel):
     class Response(BaseModel):
         """Response regarding a specific capability served by the plugin.
 
-        Responses indicate at minimum the level at which they served the request-level.  They may
-        also specify additional metadata.
+        Responses indicate the level at which they served the request-level.
         """
 
         class Config:
             extra = Extra.allow
-
-        CAPABILITY_NAME: ClassVar[str]
 
         name: str = Field(init_var=False, default=None)
         fulfilled_at: SupportLevel
@@ -162,14 +160,6 @@ class CapabilityImpl(Capability):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.name = self.NAME
-
-    class ResponseImpl(Capability.Response):
-        class Config:
-            extra = Extra.forbid
-
-        def __init__(self, *args, **kwargs):
-            super().__init__(*args, **kwargs)
-            self.name = self.CAPABILITY_NAME
 
 
 class UnsupportedCapabilityError(Exception):
@@ -346,3 +336,8 @@ class FunctionCallingSupport(CapabilityImpl):
     name = "steamship.function_calling_support"
 
     functions: List[Tool]
+
+    class FunctionCallResponse(BaseModel):
+        MIME_TYPE = f"{STEAMSHIP_PREFIX}.function-calling-support-response+json"
+        tool_name: str
+        args: Dict[str, Union[int, str, float]]
