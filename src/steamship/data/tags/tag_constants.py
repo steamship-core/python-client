@@ -30,10 +30,12 @@ class TagKind(str, Enum):
     CHAT = "chat"
     CHAT_HISTORY_CONTEXT = "chat-history-context"
     MESSAGE_ID = "message-id"
+    STATUS_MESSAGE = "status-message"
     AGENT_STATUS_MESSAGE = "agent-status-message"
     TOOL_STATUS_MESSAGE = "tool-status-message"
     LLM_STATUS_MESSAGE = "llm-status-message"
-    CAPABILITY_RESPONSE = "capability-response"
+    FUNCTION_ARG = "function-arg"
+    FUNCTION_SELECTION = "function-selection"
 
 
 class DocTag(str, Enum):
@@ -303,3 +305,6 @@ class ChatTag(str, Enum):
 
     # A message should be marked as kind=CHAT/name=MESSAGE
     MESSAGE = "message"
+
+    # Used to signal that an individual request was considered complete
+    REQUEST_COMPLETE = "request-complete"

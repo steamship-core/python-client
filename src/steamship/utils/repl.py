@@ -14,6 +14,8 @@ from steamship import Block, Steamship, Task, TaskState
 from steamship.agents.logging import AgentLogging
 from steamship.agents.schema import AgentContext, Tool
 from steamship.agents.service.agent_service import AgentService
+from steamship.data import TagKind, TagValueKey
+from steamship.data.tags.tag_utils import get_tag
 from steamship.data.workspace import Workspace
 from steamship.invocable.dev_logging_handler import DevelopmentLoggingHandler
 
@@ -172,7 +174,7 @@ class AgentREPL(SteamshipREPL):
         except ImportError:
 
             def colored(text: str, color: str, **kwargs):
-                print(text)
+                return text
 
         print("Starting REPL for Agent...")
         print("If you make code changes, restart this REPL. Press CTRL+C to exit at any time.\n")
@@ -202,10 +204,23 @@ class AgentREPL(SteamshipREPL):
         history = agent_ctx.chat_history
         history.refresh()
         for block in history.messages:
-            if block.is_text():
-                print(f"[{block.chat_role}] {block.text}")
+            chat_role = block.chat_role
+            status_msg = get_tag(block.tags, kind=TagKind.STATUS_MESSAGE)
+            if not chat_role and not status_msg:
+                continue
+
+            if chat_role:
+                prefix = f"[{chat_role}]"
             else:
-                print(f"[{block.chat_role}] {block.id} ({block.mime_type})")
+                if value := status_msg.value:
+                    prefix = f"[{value.get(TagValueKey.STRING_VALUE)} status]"
+                else:
+                    prefix = "[status]"
+
+            if block.is_text():
+                print(f"{prefix} {block.text}")
+            else:
+                print(f"{prefix} {block.id} ({block.mime_type})")
         print("\n------------------------------\n")
         exit(0)
 

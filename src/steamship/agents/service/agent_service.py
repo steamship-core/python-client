@@ -1,15 +1,18 @@
 import logging
 import uuid
 from collections import defaultdict
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
-from steamship import Block, SteamshipError, Task
+from steamship import Block, File, SteamshipError, Task
 from steamship.agents.llms.openai import OpenAI
 from steamship.agents.logging import AgentLogging, StreamingOpts
 from steamship.agents.schema import Action, Agent, FinishAction
 from steamship.agents.schema.context import AgentContext, EmitFunc, Metadata
 from steamship.agents.utils import with_llm
+from steamship.data import TagKind
+from steamship.data.tags.tag_constants import ChatTag
 from steamship.invocable import PackageService, post
+from steamship.invocable.invocable_response import StreamingResponse
 
 
 def build_context_appending_emit_func(
@@ -32,6 +35,14 @@ def build_context_appending_emit_func(
             )
 
     return chat_history_append_func
+
+
+def _context_key_from_file(key: str, file: File) -> Optional[str]:
+    for tag in file.tags:
+        if tag.kind == TagKind.CHAT and tag.name == ChatTag.CONTEXT_KEYS:
+            if value := tag.value:
+                return value.get(key, None)
+    return None
 
 
 class AgentService(PackageService):
@@ -116,6 +127,7 @@ class AgentService(PackageService):
             },
         )
 
+        # save action selection to history...
         return action
 
     def run_action(self, agent: Agent, action: Action, context: AgentContext):
@@ -141,7 +153,7 @@ class AgentService(PackageService):
                     },
                 )
                 action.output = output_blocks
-                context.completed_steps.append(action)
+                agent.record_action_run(action, context)
                 return
 
         tool = next((tool for tool in agent.tools if tool.name == action.tool), None)
@@ -182,7 +194,7 @@ class AgentService(PackageService):
             action.is_final = (
                 tool.is_final
             )  # Permit the tool to decide if this action should halt the reasoning loop.
-            context.completed_steps.append(action)
+            agent.record_action_run(action, context)
             if context.action_cache and tool.cacheable:
                 context.action_cache.update(key=action, value=action.output)
 
@@ -209,7 +221,9 @@ class AgentService(PackageService):
             if number_of_actions_run >= self.max_actions_per_run:
                 raise SteamshipError(
                     message=(
-                        f"Agent reached its Action budget of {self.max_actions_per_run} without arriving at a response. If you are the developer, checking the logs may reveal it was selecting unhelpful tools or receiving unhelpful responses from them."
+                        f"Agent reached its Action budget of {self.max_actions_per_run} without arriving at a "
+                        f"response. If you are the developer, checking the logs may reveal it was selecting "
+                        f"unhelpful tools or receiving unhelpful responses from them."
                     )
                 )
 
@@ -253,12 +267,13 @@ class AgentService(PackageService):
                 },
             )
 
-        context.completed_steps.append(action)
+        agent.record_action_run(action, context)
         output_text_length = 0
         if action.output is not None:
             output_text_length = sum([len(block.text or "") for block in action.output])
         logging.info(
-            f"Completed agent run. Result: {len(action.output or [])} blocks. {output_text_length} total text length. Emitting on {len(context.emit_funcs)} functions."
+            f"Completed agent run. Result: {len(action.output or [])} blocks. {output_text_length} total text length. "
+            f"Emitting on {len(context.emit_funcs)} functions."
         )
         for func in context.emit_funcs:
             logging.info(f"Emitting via function '{func.__name__}' for context: {context.id}")
@@ -286,7 +301,7 @@ class AgentService(PackageService):
                 return None
 
     def build_default_context(self, context_id: Optional[str] = None, **kwargs) -> AgentContext:
-        """Build's the agent's default context.
+        """Build the agent's default context.
 
         The provides a single place to implement (or override) the default context that will be used by endpoints
         that transports define. This allows an Agent developer to use, eg, the TelegramTransport but with a custom
@@ -300,7 +315,8 @@ class AgentService(PackageService):
         if context_id is None:
             context_id = uuid.uuid4()
             logging.warning(
-                f"No context_id was provided; generated {context_id}. This likely means no conversational history will be present."
+                f"No context_id was provided; generated {context_id}. This likely means "
+                f"no conversational history will be present."
             )
 
         use_llm_cache = self.use_llm_cache
@@ -317,6 +333,7 @@ class AgentService(PackageService):
 
         context = AgentContext.get_or_create(
             client=self.client,
+            request_id=self.client.config.request_id,
             context_keys={"id": f"{context_id}"},
             use_llm_cache=use_llm_cache,
             use_action_cache=use_action_cache,
@@ -325,6 +342,7 @@ class AgentService(PackageService):
                 include_llm_messages=include_llm_messages,
                 include_tool_messages=include_tool_messages,
             ),
+            initial_system_message=self.get_default_agent().default_system_message(),
         )
 
         # Add a default LLM to the context, using the Agent's if it exists.
@@ -337,6 +355,46 @@ class AgentService(PackageService):
 
         context = with_llm(context=context, llm=llm)
         return context
+
+    def _history_file_for_context(self, context_id: Optional[str] = None, **kwargs) -> File:
+        # AgentContexts serve to allow the AgentService to run agents
+        # with appropriate information about the desired tasking.
+        if context_id is None:
+            context_id = uuid.uuid4()
+
+        ctx = AgentContext.get_or_create(
+            self.client,
+            context_keys={"id": f"{context_id}"},
+            initial_system_message=self.get_default_agent().default_system_message(),
+        )
+        return ctx.chat_history.file
+
+    def _streaming_context_id_and_file(
+        self, context_id: Optional[str] = None, **kwargs
+    ) -> Tuple[Optional[str], File]:
+        history_file = self._history_file_for_context(context_id=context_id)
+        ctx_id = context_id
+
+        # if no context ID is provided, try to get a consistent ID from history_file
+        if not ctx_id:
+            ctx_id = _context_key_from_file(key="id", file=history_file)
+
+        # if you can't find a consistent context_id, then something has gone wrong, preventing streaming
+        if not ctx_id:
+            # TODO(dougreid): this points to a slight flaw in the context_keys vs. context_id
+            raise SteamshipError("Error setting up context: no id found for context.")
+
+        return ctx_id, history_file
+
+    @post("async_prompt")
+    def async_prompt(
+        self, prompt: Optional[str] = None, context_id: Optional[str] = None, **kwargs
+    ) -> StreamingResponse:
+        ctx_id, history_file = self._streaming_context_id_and_file(context_id=context_id, **kwargs)
+        task = self.invoke_later(
+            "/prompt", arguments={"prompt": prompt, "context_id": ctx_id, **kwargs}
+        )
+        return StreamingResponse(task=task, file=history_file)
 
     @post("prompt")
     def prompt(

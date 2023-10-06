@@ -4,9 +4,9 @@ import string
 from json import JSONDecodeError
 from typing import Dict, List, Optional
 
-from steamship import Block, MimeTypes, Steamship
+from steamship import Block, MimeTypes, Steamship, Tag
 from steamship.agents.schema import Action, AgentContext, FinishAction, OutputParser, Tool
-from steamship.data.tags.tag_constants import RoleTag
+from steamship.data.tags.tag_constants import RoleTag, TagKind
 from steamship.utils.utils import is_valid_uuid4
 
 
@@ -43,16 +43,45 @@ class FunctionsBasedOutputParser(OutputParser):
             try:
                 args = json.loads(arguments)
                 if text := args.get("text"):
-                    input_blocks.append(Block(text=text, mime_type=MimeTypes.TXT))
+                    input_blocks.append(
+                        Block(
+                            text=text,
+                            tags=[Tag(kind=TagKind.FUNCTION_ARG, name="text")],
+                            mime_type=MimeTypes.TXT,
+                        )
+                    )
                 elif uuid_arg := args.get("uuid"):
-                    input_blocks.append(Block.get(context.client, _id=uuid_arg))
+                    existing_block = Block.get(context.client, _id=uuid_arg)
+                    tag = Tag.create(
+                        existing_block.client,
+                        file_id=existing_block.file_id,
+                        block_id=existing_block.id,
+                        kind=TagKind.FUNCTION_ARG,
+                        name="uuid",
+                    )
+                    existing_block.tags.append(tag)
+                    input_blocks.append(existing_block)
             except json.decoder.JSONDecodeError:
                 if isinstance(arguments, str):
                     if is_valid_uuid4(arguments):
-                        input_blocks.append(Block.get(context.client, _id=uuid_arg))
+                        existing_block = Block.get(context.client, _id=arguments)
+                        tag = Tag.create(
+                            existing_block.client,
+                            file_id=existing_block.file_id,
+                            block_id=existing_block.id,
+                            kind=TagKind.FUNCTION_ARG,
+                            name="uuid",
+                        )
+                        existing_block.tags.append(tag)
+                        input_blocks.append(existing_block)
                     else:
-                        input_blocks.append(Block(text=arguments, mime_type=MimeTypes.TXT))
-
+                        input_blocks.append(
+                            Block(
+                                text=arguments,
+                                tags=[Tag(kind=TagKind.FUNCTION_ARG, name="text")],
+                                mime_type=MimeTypes.TXT,
+                            )
+                        )
         return Action(tool=tool.name, input=input_blocks, context=context)
 
     @staticmethod
@@ -112,4 +141,5 @@ class FunctionsBasedOutputParser(OutputParser):
         finish_blocks = FunctionsBasedOutputParser._blocks_from_text(context.client, text)
         for finish_block in finish_blocks:
             finish_block.set_chat_role(RoleTag.ASSISTANT)
+            finish_block.set_request_id(context.request_id)
         return FinishAction(output=finish_blocks, context=context)

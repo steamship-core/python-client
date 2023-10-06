@@ -291,6 +291,13 @@ class Block(CamelModel):
             tag_kind=DocTag.CHAT, tag_name=ChatTag.CHAT_ID, string_value=chat_id
         )
 
+    def set_request_id(self, request_id: Optional[str]):
+        if not request_id or len(request_id.strip()) == 0:
+            return
+        return self._one_time_set_tag(
+            tag_kind="request-id", tag_name=request_id, string_value=request_id
+        )
+
     @property
     def thread_id(self) -> Optional[str]:
         return get_tag_value_key(

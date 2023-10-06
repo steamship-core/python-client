@@ -8,6 +8,7 @@ from typing import Any, Dict, Generic, Optional, TypeVar, Union
 from pydantic import BaseModel
 from pydantic.generics import GenericModel
 
+from steamship import File
 from steamship.base import MimeTypes, SteamshipError, Task, TaskState
 from steamship.base.client import Client
 from steamship.base.error import DEFAULT_ERROR_MESSAGE
@@ -229,3 +230,32 @@ class InvocableResponse(GenericModel, Generic[T]):
             update_fields.add("output")
 
         task.post_update(fields=update_fields)
+
+
+class StreamingResponse(CamelModel):
+    """StreamingResponse holds the basic information for an asynchronous request to Steamship that returns a stream.
+
+    It consists of two parts:
+      1. A `Task` that represents the scheduled background work. This `Task` SHOULD be dependent on any other resultant
+         child `Task`s that are scheduled by a package. The returned `Task` will have a `requestId` that can be used to
+         reference the originating request (and can be used to filter streams).
+      2. A `File` object that can be used to stream back `Block`s added by a package in response to the request (when
+         completing the `Task`).
+
+    Streams in Steamship are `File`-centric. The streams consist of Server-Side Events for `Block` creation events.
+    These events represent work performed, as observed by recording new data to a common `File`. For example,
+    `AgentService` operations log all work to a `ChatHistory`-managed `File`. This `File` will contain all intermediate
+    work for a request and be used for streaming interactions with LLMs, etc.
+
+    To consume a Steamship stream, clients should use the `File::id` and the `Task::requestId` fields to request the
+    data via: https://steamship.run/api/v1/file/{file_id}/stream?tagKindFilter=request-id&tagNameFilter={req_id}&timeoutSeconds=30".
+
+    StreamingResponse differs from InvocableResponse in that it contains both `Task` and `File` simultaneously (rather
+    than a `status` OR `data` field).
+    """
+
+    task: Task
+    """Represents background work that will produce a stream of events for a given request."""
+
+    file: File
+    """Provides the stream of events, as a series of block creation events (sent as SSEs)."""

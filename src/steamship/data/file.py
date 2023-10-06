@@ -121,7 +121,7 @@ class File(CamelModel):
         blocks: List[Block] = None,
         tags: List[Tag] = None,
         public_data: bool = False,
-    ) -> Any:
+    ) -> File:
 
         req = {
             "handle": handle,
@@ -351,7 +351,7 @@ class File(CamelModel):
         is appended to this client-side File as well for convenience.
         """
         block = Block.create(
-            self.client,
+            client=self.client,
             file_id=self.id,
             text=text,
             tags=tags,
@@ -360,7 +360,7 @@ class File(CamelModel):
             mime_type=mime_type,
             public_data=public_data,
         )
-        self.blocks.append(block)
+        self.refresh()
         return block
 
     def set_public_data(self, public_data: bool):
