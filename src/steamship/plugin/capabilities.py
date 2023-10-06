@@ -277,10 +277,10 @@ class RequestedCapabilities:
         """
         capabilities_block = None
         for block in blocks:
-            if block.mime_type == MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE:
+            if block.mime_type == MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_REQUEST:
                 if capabilities_block is not None:
                     logging.error(
-                        f"Found more than one block with MIME_TYPE {MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE} in request blocks.  Using first one found."
+                        f"Found more than one block with MIME_TYPE {MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_REQUEST} in request blocks.  Using first one found."
                     )
                     break
                 capabilities_block = block
