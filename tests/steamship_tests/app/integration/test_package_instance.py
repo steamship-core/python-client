@@ -301,3 +301,12 @@ def test_package_spec_sdk_version():
     test_package = TestPackage()
     spec = test_package.__steamship_dir__()
     assert spec["sdkVersion"] is not None
+
+
+@pytest.mark.usefixtures("client")
+def test_list(client: Steamship):
+    demo_package_path = PACKAGES_PATH / "demo_package.py"
+    with deploy_package(client, demo_package_path) as (_, _, instance):
+        list_result = PackageInstance.list(client).package_instances
+        assert len(list_result) == 1
+        assert list_result[0].id == instance.id
