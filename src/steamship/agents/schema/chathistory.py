@@ -153,7 +153,10 @@ class ChatHistory:
                 block, kind=TagKind.CHAT, name=ChatTag.CHUNK
             )
             block.tags.extend(chunk_tags)
-            self.embedding_index.insert(chunk_tags)
+
+            # Only embed tags that aren't empty space.
+            non_empty_chunk_tags = [tag for tag in chunk_tags if tag.text.strip()]
+            self.embedding_index.insert(non_empty_chunk_tags)
         return block
 
     def append_user_message(
@@ -268,7 +271,10 @@ class ChatHistory:
                             # TODO(dougreid): figure out why tag.text gets lost.
                             if not tag.text:
                                 tag.text = msg.text[tag.start_idx : tag.end_idx]
-                            self.embedding_index.insert(tag)
+
+                            # Only embed it if we've managed to generate a string representation.
+                            if tag.text and tag.text.strip():
+                                self.embedding_index.insert(tag)
 
         self.refresh()
 
