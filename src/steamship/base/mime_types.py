@@ -36,8 +36,11 @@ class MimeTypes(str, Enum):
     # information about if/how the plugin supports certain behaviors.
     STEAMSHIP_PLUGIN_CAPABILITIES_REQUEST = f"{STEAMSHIP_PREFIX}.plugin-capabilities-request+json"
     STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE = f"{STEAMSHIP_PREFIX}.plugin-capabilities-response+json"
-    STEAMSHIP_PLUGIN_FUNCTION_CALL_RESPONSE = (
-        f"{STEAMSHIP_PREFIX}.function-calling-support-response+json"
+    STEAMSHIP_PLUGIN_FUNCTION_CALL_INVOCATION = (
+        f"{STEAMSHIP_PREFIX}.function-calling-support-invocation+json"
+    )
+    STEAMSHIP_PLUGIN_FUNCTION_CALL_RESULT = (
+        f"{STEAMSHIP_PREFIX}.function-calling-support-result+json"
     )
 
     @classmethod

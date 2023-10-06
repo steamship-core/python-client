@@ -18,15 +18,14 @@ block indicating at which level they served the requested capabilities.
 """
 import logging
 from enum import Enum, Flag, auto
-from typing import Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar, Union
 
 from pydantic import BaseModel, Extra, Field
 from pydantic.dataclasses import ClassVar
 
-from steamship import Block, MimeTypes, SteamshipError, Tag
+from steamship import Block, MimeTypes, SteamshipError
 from steamship.agents.schema import Tool
 from steamship.base.client import Client
-from steamship.data.tags.tag_constants import ChatTag, RoleTag, TagKind, TagValueKey
 
 CapabilityType = TypeVar("CapabilityType", bound="Capability")
 
@@ -157,8 +156,8 @@ class CapabilityImpl(Capability):
     class Config:
         extra = Extra.forbid
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
         self.name = self.NAME
 
 
@@ -330,45 +329,75 @@ class ConversationSupport(CapabilityImpl):
 class FunctionCallingSupport(CapabilityImpl):
     """This plugin supports function calling.
 
-    Function definitions come across as a list of function definitions.
+    Function definitions come across as a list of Tool objects.  If the plugin determines a function should be called,
+    it will return a FunctionCallInvocation block, and then will expect a FunctionCallResult block as part of the
+    following request.
     """
 
     name = "steamship.function_calling_support"
 
     functions: List[Tool]
+    """A list of Tools which the LLM can choose from to execute."""
 
-    class FunctionCallResponse(BaseModel):
-        MIME_TYPE = MimeTypes.STEAMSHIP_PLUGIN_FUNCTION_CALL_RESPONSE
+    class FunctionCallInvocation(BaseModel):
+        """Describes a request from a plugin to invoke a function
+
+        tool_name specifies the name of a Tool that was provided in FunctionCallingSupport, and args to it will be
+        mapped to their values in the args member.  A FunctionCallResult block will be expected as part of the next
+        request.
+        """
+
+        MIME_TYPE: ClassVar[MimeTypes] = MimeTypes.STEAMSHIP_PLUGIN_FUNCTION_CALL_INVOCATION
         tool_name: str
+        """The name of the tool the plugin is requesting to call"""
+
         args: Dict[str, Union[int, str, float]]
+        """The names of arguments that the plugin is providing for the function call, mapped to their values"""
 
         @classmethod
-        def from_block(cls, block: Block) -> "FunctionCallingSupport.FunctionCallResponse":
+        def from_block(cls, block: Block) -> "FunctionCallingSupport.FunctionCallInvocation":
             assert block.mime_type == cls.MIME_TYPE
             assert block.text
             return cls.parse_raw(block.text)
 
-        def _get_tags(self, request_id: str) -> List[Tag]:
-            return [
-                Tag(
-                    kind=TagKind.CHAT,
-                    name=ChatTag.ROLE,
-                    value={TagValueKey.STRING_VALUE: RoleTag.ASSISTANT},
-                ),
-                Tag(kind=TagKind.FUNCTION_SELECTION, name=self.tool_name),
-                Tag(kind="request-id", value={TagValueKey.STRING_VALUE: request_id}),
-            ]
+        def to_block(self) -> Block:
+            return Block(text=self.json(), mime_type=self.MIME_TYPE)
 
-        def to_block(self, request_id: str) -> Block:
-            return Block(
-                text=self.json(), mime_type=self.MIME_TYPE, tags=self._get_tags(request_id)
-            )
-
-        def create_block(self, client: Client, file_id: str, request_id: str) -> Block:
+        def create_block(self, client: Client, file_id: str) -> Block:
             return Block.create(
                 text=self.json(),
                 mime_type=self.MIME_TYPE,
                 file_id=file_id,
                 client=client,
-                tags=self._get_tags(request_id),
+            )
+
+    class FunctionCallResult(BaseModel):
+        """Describes a result of a function call.
+
+        A block with this content will be expected after the Plugin requests a call with FunctionCallInvocation.
+        """
+
+        MIME_TYPE: ClassVar[MimeTypes] = MimeTypes.STEAMSHIP_PLUGIN_FUNCTION_CALL_RESULT
+
+        tool_name: str
+        """The name of the tool for which the result of a function call is being provided"""
+
+        result: Any
+        """The result of the tool invocation.  This must be JSON serializable."""
+
+        @classmethod
+        def from_block(cls, block: Block) -> "FunctionCallingSupport.FunctionCallResult":
+            assert block.mime_type == cls.MIME_TYPE
+            assert block.text
+            return cls.parse_raw(block.text)
+
+        def to_block(self) -> Block:
+            return Block(text=self.json(), mime_type=self.MIME_TYPE)
+
+        def create_block(self, client: Client, file_id: str) -> Block:
+            return Block.create(
+                text=self.json(),
+                mime_type=self.MIME_TYPE,
+                file_id=file_id,
+                client=client,
             )
