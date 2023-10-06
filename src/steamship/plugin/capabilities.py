@@ -23,10 +23,10 @@ from typing import Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar
 from pydantic import BaseModel, Extra, Field
 from pydantic.dataclasses import ClassVar
 
-from steamship import Block, MimeTypes, SteamshipError
+from steamship import Block, MimeTypes, SteamshipError, Tag
 from steamship.agents.schema import Tool
 from steamship.base.client import Client
-from steamship.base.mime_types import STEAMSHIP_PREFIX
+from steamship.data.tags.tag_constants import ChatTag, RoleTag, TagKind, TagValueKey
 
 CapabilityType = TypeVar("CapabilityType", bound="Capability")
 
@@ -338,6 +338,37 @@ class FunctionCallingSupport(CapabilityImpl):
     functions: List[Tool]
 
     class FunctionCallResponse(BaseModel):
-        MIME_TYPE = f"{STEAMSHIP_PREFIX}.function-calling-support-response+json"
+        MIME_TYPE = MimeTypes.STEAMSHIP_PLUGIN_FUNCTION_CALL_RESPONSE
         tool_name: str
         args: Dict[str, Union[int, str, float]]
+
+        @classmethod
+        def from_block(cls, block: Block) -> "FunctionCallingSupport.FunctionCallResponse":
+            assert block.mime_type == cls.MIME_TYPE
+            assert block.text
+            return cls.parse_raw(block.text)
+
+        def _get_tags(self, request_id: str) -> List[Tag]:
+            return [
+                Tag(
+                    kind=TagKind.CHAT,
+                    name=ChatTag.ROLE,
+                    value={TagValueKey.STRING_VALUE: RoleTag.ASSISTANT},
+                ),
+                Tag(kind=TagKind.FUNCTION_SELECTION, name=self.tool_name),
+                Tag(kind="request-id", value={TagValueKey.STRING_VALUE: request_id}),
+            ]
+
+        def to_block(self, request_id: str) -> Block:
+            return Block(
+                text=self.json(), mime_type=self.MIME_TYPE, tags=self._get_tags(request_id)
+            )
+
+        def create_block(self, client: Client, file_id: str, request_id: str) -> Block:
+            return Block.create(
+                text=self.json(),
+                mime_type=self.MIME_TYPE,
+                file_id=file_id,
+                client=client,
+                tags=self._get_tags(request_id),
+            )
