@@ -40,6 +40,11 @@ def is_tool_function_message(block: Block) -> bool:
     return is_function_call
 
 
+def is_assistant_function_message(block: Block) -> bool:
+    is_function_selection = get_tag(block.tags, kind=TagKind.FUNCTION_SELECTION)
+    return is_assistant_message(block) and is_function_selection
+
+
 def is_user_history_message(block: Block) -> bool:
     return is_user_message(block) or (
         is_assistant_message(block) and not is_function_message(block)
@@ -51,7 +56,6 @@ class MessageWindowMessageSelector(MessageSelector):
 
     def get_messages(self, messages: List[Block]) -> List[Block]:
         msgs = messages[:]
-        # msgs.pop()
         have_seen_user_message = False
         if is_user_message(msgs[-1]):
             have_seen_user_message = True

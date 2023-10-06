@@ -26,8 +26,10 @@ def client() -> Steamship:
           pass
     """
     steamship = get_steamship_client()
-    workspace = Workspace.create(client=steamship)
-    new_client = get_steamship_client(workspace_id=workspace.id)
+    workspace_handle = random_name()
+    workspace = Workspace.create(client=steamship, handle=workspace_handle)
+    # NOTE: get_steamship_client takes either `workspace_handle` or `workspace_id`, but NOT `workspace` as a keyword arg
+    new_client = get_steamship_client(workspace_handle=workspace_handle)
     yield new_client
     workspace.delete()
 
@@ -68,13 +70,13 @@ def invocable_handler(request) -> Callable[[str, str, Optional[dict]], dict]:
             http_verb=verb, invocation_path=invocation_path, arguments=arguments or {}
         )
         logging_config = LoggingConfig(logging_host="none", logging_port="none")
-        request = InvocableRequest(
+        invocable_request = InvocableRequest(
             client_config=new_client.config,
             invocation=invocation,
             logging_config=logging_config,
             invocation_context=InvocationContext(invocable_handle="foo"),
         )
-        event = request.dict(by_alias=True)
+        event = invocable_request.dict(by_alias=True)
         return _handler(event, None)
 
     yield handle

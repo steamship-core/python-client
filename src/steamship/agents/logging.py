@@ -69,6 +69,9 @@ class StreamingOpts(BaseModel):
 
     Agent messages are any logging messages with: `AgentLogging.MESSAGE_AUTHOR == AgentLogging.AGENT`. These typically
     are status messages logged in either the `AgentService` or the `Agent` code.
+
+    NOTE: Agent status messages include "request complete" signal messages for streaming use cases. Disabling
+    these messages will impact streaming generator function.
     """
 
     include_llm_messages: bool = Field(default=True)

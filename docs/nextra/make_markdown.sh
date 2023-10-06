@@ -80,3 +80,9 @@ find "$DOCSDIR" -name '*.md' -exec sed -i '' 's/(\([^)]*.png\))/(\/\1)/g' {} \;
 
 # Remove the /index.md from all links
 find "$DOCSDIR" -name "*.md" -exec sed -i '' 's|/index.md||g' {} \;
+
+mdx=("$DOCSDIR/index.md" "$DOCSDIR/developing/running.md")
+# Convert all files in mdx to .mdx files
+for file in "${mdx[@]}"; do
+    mv "$file" "${file%.md}.mdx"
+done

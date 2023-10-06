@@ -89,7 +89,7 @@ def test_functions_based_agent_no_appropriate_tool_with_no_memory(client: Steams
     ctx_keys = {"id": "testing-foo"}
     ctx = AgentContext.get_or_create(client=client, context_keys=ctx_keys, searchable=False)
     ctx.chat_history.append_user_message(
-        "make a 10 second movie about a hamburger that learns to talk"
+        "record an original 30 minute song about a hamburger that learns to talk. do not find an existing one."
     )
 
     action = agent.next_action(context=ctx)
@@ -172,7 +172,8 @@ def test_proper_message_selection(client: Steamship):
         message_selector=MessageWindowMessageSelector(k=2),
     )
 
-    # simulate prompting and tool selecttion
+    # simulate prompting and tool selection
+    agent_context.chat_history.append_system_message(text=test_agent.PROMPT)
     agent_context.chat_history.append_user_message(text="Who is the current president of Taiwan?")
     agent_context.chat_history.append_agent_message(text="Ignore me.")
     agent_context.chat_history.append_llm_message(text="OpenAI ChatComplete...")
