@@ -790,11 +790,17 @@ def clean(environment: str, all: Optional[bool] = False):
                 f"Delete instance [{instance.handle}] in workspace [{workspace.handle}] created {instance.created_at} ?"
             )
             if result:
-                instance.delete()
-                click.secho(
-                    f"Deleted instance [{instance.handle}] in workspace [{workspace.handle}]",
-                    fg="red",
-                )
+                try:
+                    instance.delete()
+                    click.secho(
+                        f"Deleted instance [{instance.handle}] in workspace [{workspace.handle}]",
+                        fg="red",
+                    )
+                except Exception as e:
+                    click.secho(
+                        f"Could NOT delete instance [{instance.handle}] in workspace [{workspace.handle}].  Error: {str(e)}",
+                        fg="red",
+                    )
 
 
 cli.add_command(login)
