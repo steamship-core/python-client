@@ -32,7 +32,12 @@ class MimeTypes(str, Enum):
 
     # This block contains information that isn't part of the payload to/from a plugin, but instead is json-formatted
     # information about if/how the plugin supports certain behaviors.
-    STEAMSHIP_PLUGIN_CAPABILITIES = "application/vnd.steamship-block.plugin-capabilities+json"
+    STEAMSHIP_PLUGIN_CAPABILITIES_REQUEST = (
+        "application/vnd.steamship-block.plugin-capabilities-request+json"
+    )
+    STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE = (
+        "application/vnd.steamship-block.plugin-capabilities-response+json"
+    )
 
     @classmethod
     def has_value(cls, value):

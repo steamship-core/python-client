@@ -189,22 +189,21 @@ class UnsupportedCapabilityError(Exception):
 class CapabilityPluginRequest(BaseModel):
     """Model representing the text in a STEAMSHIP_PLUGIN_CAPABILITIES block when it is used as a request."""
 
-    # TODO (PR): Might be cleaner to have separate MIMEs for response/request.
     requested_capabilities: List[Capability]
 
     @classmethod
     def from_block(cls, block: Block) -> "CapabilityPluginRequest":
-        assert block.mime_type == MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES
+        assert block.mime_type == MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_REQUEST
         assert block.text
         return cls.parse_raw(block.text)
 
     def to_block(self) -> Block:
-        return Block(text=self.json(), mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES)
+        return Block(text=self.json(), mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_REQUEST)
 
     def create_block(self, client: Client, file_id: str) -> Block:
         return Block.create(
             text=self.json(),
-            mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES,
+            mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_REQUEST,
             file_id=file_id,
             client=client,
         )
@@ -217,17 +216,17 @@ class CapabilityPluginResponse(BaseModel):
 
     @classmethod
     def from_block(cls, block: Block) -> "CapabilityPluginResponse":
-        assert block.mime_type == MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES
+        assert block.mime_type == MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE
         assert block.text
         return cls.parse_raw(block.text)
 
     def to_block(self) -> Block:
-        return Block(text=self.json(), mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES)
+        return Block(text=self.json(), mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE)
 
     def create_block(self, client: Client, file_id: str) -> Block:
         return Block.create(
             text=self.json(),
-            mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES,
+            mime_type=MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE,
             file_id=file_id,
             client=client,
         )
@@ -289,10 +288,10 @@ class RequestedCapabilities:
         """
         capabilities_block = None
         for block in blocks:
-            if block.mime_type == MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES:
+            if block.mime_type == MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE:
                 if capabilities_block is not None:
                     logging.error(
-                        f"Found more than one block with MIME_TYPE {MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES} in request blocks.  Using first one found."
+                        f"Found more than one block with MIME_TYPE {MimeTypes.STEAMSHIP_PLUGIN_CAPABILITIES_RESPONSE} in request blocks.  Using first one found."
                     )
                     break
                 capabilities_block = block
