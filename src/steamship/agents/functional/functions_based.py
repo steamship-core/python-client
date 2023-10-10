@@ -123,11 +123,6 @@ Only use the functions you have been provided with."""
                 value={TagValueKey.STRING_VALUE: RoleTag.ASSISTANT},
             ),
             Tag(kind=TagKind.FUNCTION_SELECTION, name=action.tool),
-            Tag(
-                kind="request-id",
-                name=context.request_id,
-                value={TagValueKey.STRING_VALUE: context.request_id},
-            ),
         ]
         context.chat_history.file.append_block(
             text=self._to_openai_function_selection(action), tags=tags, mime_type=MimeTypes.TXT
@@ -149,11 +144,6 @@ Only use the functions you have been provided with."""
             Tag(
                 kind="name",
                 name=action.tool,
-            ),
-            Tag(
-                kind="request-id",
-                name=context.request_id,
-                value={TagValueKey.STRING_VALUE: context.request_id},
             ),
         ]
         # TODO(dougreid): I'm not convinced this is correct for tools that return multiple values.

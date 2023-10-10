@@ -376,7 +376,9 @@ def stream_blocks_for_file(client: Steamship, file_id: str, req_id: str):
     t = time.time_ns()
     import sseclient
 
-    sse_source = f"{client.config.api_base}file/{file_id}/stream?tagKindFilter=request-id&tagNameFilter={req_id}&timeoutSeconds=30"
+    sse_source = (
+        f"{client.config.api_base}file/{file_id}/stream?requestId={req_id}&timeoutSeconds=30"
+    )
     headers = {
         "Accept": "text/event-stream",
         "X-Workspace-Id": client.get_workspace().id,
