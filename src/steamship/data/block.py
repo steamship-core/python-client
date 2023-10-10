@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 from steamship import MimeTypes, SteamshipError
 from steamship.base.client import Client
+from steamship.base.mime_types import STEAMSHIP_PREFIX
 from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.base.response import Response
@@ -217,6 +218,9 @@ class Block(CamelModel):
             MimeTypes.WAV,
             MimeTypes.OGG_AUDIO,
         ]
+
+    def is_steamship_internal(self):
+        return self.mime_type.startswith(STEAMSHIP_PREFIX)
 
     def is_video(self):
         """Return whether this is a video Block."""

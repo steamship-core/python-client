@@ -34,6 +34,24 @@ from .data import (
 
 from .client import Steamship  # isort:skip
 
+SUPPORTED_PYTHON_VERSIONS = [(3, 10)]
+SUPPORTED_PYTHON_VERSION_NAMES = [f"{major}.{minor}" for major, minor in SUPPORTED_PYTHON_VERSIONS]
+
+
+def is_supported_python_version() -> bool:
+    import sys
+
+    major, minor, _, _, _ = sys.version_info
+    for supported_version in SUPPORTED_PYTHON_VERSIONS:
+        s_major, s_minor = supported_version
+        supported = (major == s_major) and (s_minor is None or s_minor == minor)
+        if supported:
+            break
+    else:
+        return False
+    return True
+
+
 __all__ = [
     "Steamship",
     "Configuration",
