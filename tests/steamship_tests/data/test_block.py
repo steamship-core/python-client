@@ -252,3 +252,10 @@ def test_streamed_text_block(client: Steamship):
     block.finish_stream()
     result = str(block.raw(), encoding="utf-8")
     assert result == "happy birthday"
+
+
+@pytest.mark.usefixtures("client")
+def test_block_has_request_id(client: Steamship):
+    file = File.create(client, blocks=[])
+    block = Block.create(client, file_id=file.id, mime_type=MimeTypes.TXT, text="foo")
+    assert block.request_id is not None
