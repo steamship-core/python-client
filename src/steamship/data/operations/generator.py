@@ -5,6 +5,7 @@ from typing import List, Optional
 from steamship.base.request import Request
 from steamship.base.response import Response
 from steamship.data.block import Block
+from steamship.data.tags.tag import Tag
 
 
 class GenerateRequest(Request):
@@ -66,6 +67,11 @@ class GenerateRequest(Request):
     # fetching Block.raw()
     # Default behavior if not provided is streaming=false
     streaming: Optional[bool] = None
+
+
+    # Tags which will be applied to all Blocks that are generated as part of
+    # this request.
+    tags: Optional[List[Tag]] = None
 
 
 class GenerateResponse(Response):

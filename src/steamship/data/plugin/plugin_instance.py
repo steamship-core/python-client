@@ -11,6 +11,7 @@ from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.data.block import Block
+from steamship.data.tags.tag import Tag
 from steamship.data.file import File
 from steamship.data.invocable_init_status import InvocableInitStatus
 from steamship.data.operations.generator import GenerateRequest, GenerateResponse
@@ -131,6 +132,7 @@ class PluginInstance(CamelModel):
         make_output_public: Optional[bool] = None,
         options: Optional[dict] = None,
         streaming: Optional[bool] = None,
+        tags: Optional[List[Tag]] = None,
     ) -> Task[GenerateResponse]:
         """See GenerateRequest for description of parameter options"""
         req = GenerateRequest(
@@ -148,6 +150,7 @@ class PluginInstance(CamelModel):
             make_output_public=make_output_public,
             options=options,
             streaming=streaming,
+            tags=tags,
         )
         return self.client.post("plugin/instance/generate", req, expect=GenerateResponse)
 
