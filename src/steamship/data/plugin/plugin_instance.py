@@ -11,7 +11,6 @@ from steamship.base.client import Client
 from steamship.base.model import CamelModel
 from steamship.base.request import DeleteRequest, IdentifierRequest, Request
 from steamship.data.block import Block
-from steamship.data.tags.tag import Tag
 from steamship.data.file import File
 from steamship.data.invocable_init_status import InvocableInitStatus
 from steamship.data.operations.generator import GenerateRequest, GenerateResponse
@@ -23,6 +22,7 @@ from steamship.data.plugin import (
     HostingTimeout,
     HostingType,
 )
+from steamship.data.tags.tag import Tag
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput

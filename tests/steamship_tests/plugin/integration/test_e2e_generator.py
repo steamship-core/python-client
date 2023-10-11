@@ -219,11 +219,15 @@ def test_generate_block_private_data(client: Steamship):
     assert response.text == "PRETEND THIS IS THE DATA OF AN IMAGE"
     assert response.headers["content-type"] == MimeTypes.PNG
 
+
 @pytest.mark.usefixtures("client")
 def test_generation_with_tags(client: Steamship):
     plugin_instance = PluginInstance.create(client, plugin_handle="test-generator")
     file = File.create(client, blocks=[Block(text="One block"), Block(text="two blocks")])
-    tags = [Tag(kind="test_kind_0", name="test_name_0", value={"test_value":"test_value_0"}), Tag(kind="test_kind_1", name="test_name_1", value={"test_value":"test_value_1"})]
+    tags = [
+        Tag(kind="test_kind_0", name="test_name_0", value={"test_value": "test_value_0"}),
+        Tag(kind="test_kind_1", name="test_name_1", value={"test_value": "test_value_1"}),
+    ]
     generate_task = plugin_instance.generate(
         input_file_id=file.id, append_output_to_file=True, tags=tags
     )
@@ -239,5 +243,3 @@ def test_generation_with_tags(client: Steamship):
             assert result_tag.kind == f"test_kind_{i}"
             assert result_tag.name == f"test_name_{i}"
             assert result_tag.value == {"test_value": f"test_value_{i}"}
-
-

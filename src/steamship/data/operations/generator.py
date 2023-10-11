@@ -68,7 +68,6 @@ class GenerateRequest(Request):
     # Default behavior if not provided is streaming=false
     streaming: Optional[bool] = None
 
-
     # Tags which will be applied to all Blocks that are generated as part of
     # this request.
     tags: Optional[List[Tag]] = None
