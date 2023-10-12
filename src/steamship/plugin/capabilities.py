@@ -18,14 +18,15 @@ block indicating at which level they served the requested capabilities.
 """
 import logging
 from enum import Enum, Flag, auto
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Tuple, Type, TypeVar, Union
+from typing import Dict, Iterable, Iterator, List, Mapping, Optional, Tuple, Type, TypeVar, Union
 
 from pydantic import BaseModel, Extra, Field
 from pydantic.dataclasses import ClassVar
 
-from steamship import Block, MimeTypes, SteamshipError
+from steamship import Block, MimeTypes, SteamshipError, Tag
 from steamship.agents.schema import Tool
 from steamship.base.client import Client
+from steamship.data.block import is_block_id
 
 CapabilityType = TypeVar("CapabilityType", bound="Capability")
 
@@ -363,12 +364,15 @@ class FunctionCallingSupport(CapabilityImpl):
         def to_block(self) -> Block:
             return Block(text=self.json(), mime_type=self.MIME_TYPE)
 
-        def create_block(self, client: Client, file_id: str) -> Block:
+        def create_block(
+            self, client: Client, file_id: str, tags: Optional[List[Tag]] = None
+        ) -> Block:
             return Block.create(
                 text=self.json(),
                 mime_type=self.MIME_TYPE,
                 file_id=file_id,
                 client=client,
+                tags=tags,
             )
 
     class FunctionCallResult(BaseModel):
@@ -382,8 +386,8 @@ class FunctionCallingSupport(CapabilityImpl):
         tool_name: str
         """The name of the tool for which the result of a function call is being provided"""
 
-        result: Any
-        """The result of the tool invocation.  This must be JSON serializable."""
+        result: List[str]
+        """The result of the tool invocation.  Each item in the list can be text, or a Block identifier."""
 
         @classmethod
         def from_block(cls, block: Block) -> "FunctionCallingSupport.FunctionCallResult":
@@ -394,10 +398,20 @@ class FunctionCallingSupport(CapabilityImpl):
         def to_block(self) -> Block:
             return Block(text=self.json(), mime_type=self.MIME_TYPE)
 
-        def create_block(self, client: Client, file_id: str) -> Block:
+        def create_block(
+            self, client: Client, file_id: str, tags: Optional[List[Tag]] = None
+        ) -> Block:
             return Block.create(
                 text=self.json(),
                 mime_type=self.MIME_TYPE,
                 file_id=file_id,
                 client=client,
+                tags=tags,
             )
+
+        def result_items(self, client: Client) -> Iterator[Union[str, Block]]:
+            for result_item in self.result:
+                if is_block_id(result_item):
+                    yield Block.get(client, _id=result_item)
+                else:
+                    yield result_item

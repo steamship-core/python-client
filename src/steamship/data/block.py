@@ -383,6 +383,10 @@ class Block(CamelModel):
         )
 
 
+def is_block_id(value: str) -> bool:
+    return value.startswith("Block(") and value.endswith(")")
+
+
 class BlockQueryResponse(Response):
     blocks: List[Block]
 
