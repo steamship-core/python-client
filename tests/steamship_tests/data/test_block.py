@@ -174,6 +174,9 @@ def test_append_is_present(client: Steamship):
     file.refresh()
     assert len(file.blocks) == 2
 
+    file.append_block(text="third")
+    assert len(file.blocks) == 3
+
     my_file = File.create(client, handle="my_file", content="")
     assert len(my_file.blocks) == 0
     my_file.append_block(text="first")
