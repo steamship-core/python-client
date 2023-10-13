@@ -360,7 +360,7 @@ class File(CamelModel):
             mime_type=mime_type,
             public_data=public_data,
         )
-        self.refresh()
+        self.blocks.append(block)
         return block
 
     def set_public_data(self, public_data: bool):
