@@ -25,9 +25,7 @@ def use_google_image_search(prompt: str, client: Steamship) -> str:
 
 @pytest.mark.usefixtures("client")
 def test_use_google_image_search(client: Steamship):
-    image_url = use_google_image_search(
-        "a cow standing in a field, majestic, 8k, award winning, best quality", client
-    )
+    image_url = use_google_image_search("bill clinton wikipedia", client)
     assert image_url
 
     # WARNING: This workspace -- and the data within it -- will be deleted after the test runs by the `client` fixture.
