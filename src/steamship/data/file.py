@@ -360,7 +360,11 @@ class File(CamelModel):
             mime_type=mime_type,
             public_data=public_data,
         )
-        if self.blocks is not None and len(self.blocks) > 0 and block.index_in_file == self.blocks[-1].index_in_file + 1:
+        if (
+            self.blocks is not None
+            and len(self.blocks) > 0
+            and block.index_in_file == self.blocks[-1].index_in_file + 1
+        ):
             self.blocks.append(block)
         else:
             self.refresh()
