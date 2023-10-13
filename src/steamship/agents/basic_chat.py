@@ -41,7 +41,7 @@ class BasicChatAgent(Agent):
         # Build the Chat History that we'll provide as input to the action
         messages = build_chat_history(self.PROMPT, self.message_selector, context)
 
-        # call chat() with a hard-coded absense of tools
+        # call chat() with a hard-coded absence of tools
         output_blocks = self.llm.generate(messages=messages, tools=[])
 
         for block in output_blocks:
