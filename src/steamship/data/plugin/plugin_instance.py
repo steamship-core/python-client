@@ -22,6 +22,7 @@ from steamship.data.plugin import (
     HostingTimeout,
     HostingType,
 )
+from steamship.data.tags.tag import Tag
 from steamship.plugin.inputs.export_plugin_input import ExportPluginInput
 from steamship.plugin.inputs.training_parameter_plugin_input import TrainingParameterPluginInput
 from steamship.plugin.outputs.train_plugin_output import TrainPluginOutput
@@ -131,6 +132,7 @@ class PluginInstance(CamelModel):
         make_output_public: Optional[bool] = None,
         options: Optional[dict] = None,
         streaming: Optional[bool] = None,
+        tags: Optional[List[Tag]] = None,
     ) -> Task[GenerateResponse]:
         """See GenerateRequest for description of parameter options"""
         req = GenerateRequest(
@@ -148,6 +150,7 @@ class PluginInstance(CamelModel):
             make_output_public=make_output_public,
             options=options,
             streaming=streaming,
+            tags=tags,
         )
         return self.client.post("plugin/instance/generate", req, expect=GenerateResponse)
 
