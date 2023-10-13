@@ -108,7 +108,7 @@ def test_requested_capabilities_extract():
 def test_no_requested_capabilities():
     req_caps = RequestedCapabilities(supported_levels={TestCapability: SupportLevel.NATIVE})
     response = req_caps.extract_from_blocks(_make_input_blocks())
-    assert response == CapabilityPluginResponse(capability_responses=[])
+    assert response is None
 
 
 def test_unsupported_requested_capabilities():

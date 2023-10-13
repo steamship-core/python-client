@@ -267,7 +267,7 @@ class RequestedCapabilities:
             raise UnsupportedCapabilityError(unsupported)
         return CapabilityPluginResponse(capability_responses=responses)
 
-    def extract_from_blocks(self, blocks: Iterable[Block]) -> CapabilityPluginResponse:
+    def extract_from_blocks(self, blocks: Iterable[Block]) -> Optional[CapabilityPluginResponse]:
         """Find the block in a list that defines capability requests, and initialize this data structure with it.
 
         It may be the case that there is no block indicating capability requests; Older clients may be passing blocks
@@ -286,7 +286,7 @@ class RequestedCapabilities:
                     break
                 capabilities_block = block
         if not capabilities_block:
-            return CapabilityPluginResponse(capability_responses=[])
+            return None
         return self.load_requests(CapabilityPluginRequest.parse_raw(capabilities_block.text))
 
     def get(
