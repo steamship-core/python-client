@@ -174,6 +174,9 @@ def test_append_is_present(client: Steamship):
     file.refresh()
     assert len(file.blocks) == 2
 
+    file.append_block(text="third")
+    assert len(file.blocks) == 3
+
     my_file = File.create(client, handle="my_file", content="")
     assert len(my_file.blocks) == 0
     my_file.append_block(text="first")
@@ -252,3 +255,10 @@ def test_streamed_text_block(client: Steamship):
     block.finish_stream()
     result = str(block.raw(), encoding="utf-8")
     assert result == "happy birthday"
+
+
+@pytest.mark.usefixtures("client")
+def test_block_has_request_id(client: Steamship):
+    file = File.create(client, blocks=[])
+    block = Block.create(client, file_id=file.id, mime_type=MimeTypes.TXT, text="foo")
+    assert block.request_id is not None

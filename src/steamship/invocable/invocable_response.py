@@ -248,7 +248,7 @@ class StreamingResponse(CamelModel):
     work for a request and be used for streaming interactions with LLMs, etc.
 
     To consume a Steamship stream, clients should use the `File::id` and the `Task::requestId` fields to request the
-    data via: https://steamship.run/api/v1/file/{file_id}/stream?tagKindFilter=request-id&tagNameFilter={req_id}&timeoutSeconds=30".
+    data via: https://steamship.run/api/v1/file/{file_id}/stream?requestId={req_id}&timeoutSeconds=30".
 
     StreamingResponse differs from InvocableResponse in that it contains both `Task` and `File` simultaneously (rather
     than a `status` OR `data` field).
