@@ -87,7 +87,7 @@ class SteamshipREPL(ABC):
             output = block.url
         elif block.content_url:
             output = block.content_url
-        else:
+        elif block.id:
             block.set_public_data(True)
             output = f"{self.client.config.api_base}block/{block.id}/raw"
         if output:
