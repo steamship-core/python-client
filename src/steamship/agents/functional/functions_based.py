@@ -10,10 +10,7 @@ from steamship.data.tags.tag_utils import get_tag
 
 
 class FunctionsBasedAgent(ChatAgent):
-    """Selects actions for AgentService based on OpenAI Function style LLM Prompting.
-
-    This class will be deprecated in the future, in favor of steamship.agents.functions_based.FunctionsBasedAgent.
-    """
+    """Selects actions for AgentService based on OpenAI Function style LLM Prompting."""
 
     PROMPT = """You are a helpful AI assistant.
 

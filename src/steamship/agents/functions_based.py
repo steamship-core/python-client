@@ -14,7 +14,10 @@ from steamship.plugin.capabilities import (
 
 
 class FunctionsBasedAgent(Agent):
-    """Selects actions for AgentService based on a set of Tools."""
+    """Selects actions for AgentService based on a set of Tools.
+
+    This class is part of active development and not ready for usage yet.
+    """
 
     PROMPT = """You are a helpful AI assistant.
 
@@ -94,11 +97,6 @@ Only use the functions you have been provided with."""
                 value={TagValueKey.STRING_VALUE: RoleTag.ASSISTANT},
             ),
             Tag(kind=TagKind.FUNCTION_SELECTION, name=invocation.tool_name),
-            Tag(
-                kind="request-id",
-                name=context.request_id,
-                value={TagValueKey.STRING_VALUE: context.request_id},
-            ),
         ]
         invocation.create_block(context.client, context.chat_history.file.id, tags=tags)
 
@@ -116,11 +114,6 @@ Only use the functions you have been provided with."""
             ),
             # TODO (PR): we're asserting capabilities support in next_action so the "name" tag is no longer needed for
             #  backcompat as we won't be able to run against older versions anyway.
-            Tag(
-                kind="request-id",
-                name=context.request_id,
-                value={TagValueKey.STRING_VALUE: context.request_id},
-            ),
         ]
         output = [block.as_llm_input(exclude_block_wrapper=False) for block in action.output]
         result = FunctionCallingSupport.FunctionCallResult(tool_name=action.tool, result=output)
