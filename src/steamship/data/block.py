@@ -50,6 +50,9 @@ class Block(CamelModel):
     public_data: bool = False
     stream_state: Optional[StreamState] = None
 
+    request_id: Optional[str] = None
+    """The Steamship request ID associated with the creation of this block."""
+
     url: Optional[
         str
     ] = None  # Only for creation of blocks; used to fetch content from a public URL.

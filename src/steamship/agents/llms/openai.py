@@ -122,12 +122,12 @@ class ChatOpenAI(ChatLLM, OpenAI):
             file_id = messages[0].file_id
             block_indices = [b.index_in_file for b in messages]
             block_indices.sort()
-            logging.info(f"OpenAI ChatComplete block_indices [{block_indices}]")
+            logging.debug(f"OpenAI ChatComplete block_indices [{block_indices}]")
             generate_task = self.generator.generate(
                 input_file_id=file_id,
                 input_file_block_index_list=block_indices,
                 options=options,
-                append_output_to_file=True,
+                # append_output_to_file=True,  # not needed unless streaming. these can be ephemeral.
             )
             generate_task.wait()  # wait
             return generate_task.output.blocks
