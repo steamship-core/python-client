@@ -13,7 +13,7 @@ from steamship.plugin.capabilities import (
 )
 
 
-class FunctionsBasedAgent(Agent):
+class _FunctionsBasedAgent(Agent):
     """Selects actions for AgentService based on a set of Tools.
 
     This class is part of active development and not ready for usage yet.
@@ -60,12 +60,29 @@ Only use the functions you have been provided with."""
                     raise SteamshipError(
                         f"LLM attempted to invoke tool {invocation.tool_name}, but {self.__class__.__name__} does not have a tool with that name."
                     )
-                # TODO (PR): Could overload Action for this case to piggy back Invocations on it, but ehhhhhhhhh...
-                # TODO Block parse for input.  text is the default argument that we currently pass in for Tools.  As
-                #  part of a refactor to allow for other parameters, this would need to change.
-                future_action = Action(
-                    tool=tool.name, input=[Block(text=invocation.args.get("text"))], output=None
-                )
+                # TODO Block parse for input.  text/uuid is the default argument that we currently pass in for Tools.
+                #  As part of a refactor to allow for other parameters, this would need to change.
+                input_blocks = []
+                if text := invocation.args.get("text"):
+                    input_blocks.append(
+                        Block(
+                            text=text,
+                            tags=[Tag(kind=TagKind.FUNCTION_ARG, name="text")],
+                            mime_type=MimeTypes.TXT,
+                        )
+                    )
+                if uuid_arg := invocation.args.get("uuid"):
+                    existing_block = Block.get(context.client, _id=uuid_arg)
+                    tag = Tag.create(
+                        existing_block.client,
+                        file_id=existing_block.file_id,
+                        block_id=existing_block.id,
+                        kind=TagKind.FUNCTION_ARG,
+                        name="uuid",
+                    )
+                    existing_block.tags.append(tag)
+                    input_blocks.append(existing_block)
+                future_action = Action(tool=tool.name, input=input_blocks, output=None)
                 break
         else:
             future_action = FinishAction()

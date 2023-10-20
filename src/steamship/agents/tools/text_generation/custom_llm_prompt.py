@@ -13,8 +13,10 @@ SOMEONE ON A YACHT SAYS:
 YOU REPLY:"""
 
 
-class CustomLLMPromptTool(Tool):
+class _CustomLLMPromptTool(Tool):
     """Example tool to illustrate how to respond with a different LLM than the one running your main agent.
+
+    This tool is under active development.
 
     This can be useful if you are building an agent which:
     - Wants to use tools, e.g. to generate images, which in practice requires GPT for you Agent Reasoning, but
@@ -53,4 +55,4 @@ class CustomLLMPromptTool(Tool):
 
 if __name__ == "__main__":
     with Steamship.temporary_workspace() as client:
-        ToolREPL(CustomLLMPromptTool()).run_with_client(client=client, context=AgentContext())
+        ToolREPL(_CustomLLMPromptTool()).run_with_client(client=client, context=AgentContext())
