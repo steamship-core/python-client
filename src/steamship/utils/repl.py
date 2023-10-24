@@ -81,6 +81,7 @@ class SteamshipREPL(ABC):
 
         # A block gets handled based on what it contains.
         block = cast(Block, obj)
+        output = None
         if block.is_text():
             output = block.text
         elif block.url:
