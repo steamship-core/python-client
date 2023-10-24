@@ -10,9 +10,12 @@ from steamship.plugin.capabilities import (
     CapabilityImpl,
     CapabilityPluginRequest,
     CapabilityPluginResponse,
+    ConversationSupport,
+    FunctionCallingSupport,
     RequestedCapabilities,
     RequestLevel,
     SupportLevel,
+    SystemPromptSupport,
     UnsupportedCapabilityError,
 )
 
@@ -55,6 +58,25 @@ def test_is_plugin_support_valid(
     else:
         assert response is not None
         assert response.fulfilled_at in support_level
+
+
+def test_builtin_capabilities_support():
+    original_capabilities = {
+        ConversationSupport: ConversationSupport(),
+        SystemPromptSupport: SystemPromptSupport(),
+        FunctionCallingSupport: FunctionCallingSupport(functions=[]),
+    }
+    original = CapabilityPluginRequest(requested_capabilities=list(original_capabilities.values()))
+    block = original.to_block()
+    roundtripped = CapabilityPluginRequest.from_block(block)
+    assert original == roundtripped
+    requested_capabilities = RequestedCapabilities(
+        {cap_typ: SupportLevel.NATIVE for cap_typ in original_capabilities.keys()}
+    )
+    requested_capabilities.load_requests(roundtripped)
+    for cap_typ in original_capabilities.keys():
+        requested = requested_capabilities.get(cap_typ)
+        assert requested == original_capabilities[cap_typ]
 
 
 def test_capability_plugin_request_block_roundtrips():

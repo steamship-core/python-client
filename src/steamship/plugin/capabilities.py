@@ -308,7 +308,7 @@ class SystemPromptSupport(CapabilityImpl):
     The system prompt will come across in other blocks on the request.
     """
 
-    name = "steamship.system_prompt_support"
+    NAME = "steamship.system_prompt_support"
 
     request_level = RequestLevel.BEST_EFFORT
     """
@@ -324,7 +324,7 @@ class ConversationSupport(CapabilityImpl):
     The content of the conversation will come across in other blocks on the request, using the CHAT TagKind.
     """
 
-    name = "steamship.conversation_support"
+    NAME = "steamship.conversation_support"
 
 
 class FunctionCallingSupport(CapabilityImpl):
@@ -335,7 +335,7 @@ class FunctionCallingSupport(CapabilityImpl):
     following request.
     """
 
-    name = "steamship.function_calling_support"
+    NAME = "steamship.function_calling_support"
 
     functions: List[Tool]
     """A list of Tools which the LLM can choose from to execute."""
