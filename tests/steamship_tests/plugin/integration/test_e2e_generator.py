@@ -5,7 +5,7 @@ from steamship_tests import PLUGINS_PATH, TEST_ASSETS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 from steamship_tests.utils.fixtures import get_steamship_client
 
-from steamship import Block, File, MimeTypes, PluginInstance, Steamship
+from steamship import Block, File, MimeTypes, PluginInstance, Steamship, Tag
 
 
 def test_e2e_generator():
@@ -218,3 +218,28 @@ def test_generate_block_private_data(client: Steamship):
 
     assert response.text == "PRETEND THIS IS THE DATA OF AN IMAGE"
     assert response.headers["content-type"] == MimeTypes.PNG
+
+
+@pytest.mark.usefixtures("client")
+def test_generation_with_tags(client: Steamship):
+    plugin_instance = PluginInstance.create(client, plugin_handle="test-generator")
+    file = File.create(client, blocks=[Block(text="One block"), Block(text="two blocks")])
+    tags = [
+        Tag(kind="test_kind_0", name="test_name_0", value={"test_value": "test_value_0"}),
+        Tag(kind="test_kind_1", name="test_name_1", value={"test_value": "test_value_1"}),
+    ]
+    generate_task = plugin_instance.generate(
+        input_file_id=file.id, append_output_to_file=True, tags=tags
+    )
+    blocks = generate_task.wait().blocks
+    assert blocks is not None
+    assert len(blocks) == 2
+    for block in blocks:
+        result_tags = block.tags
+        assert result_tags is not None
+        assert len(result_tags) == 2
+        for i in range(2):
+            result_tag = result_tags[i]
+            assert result_tag.kind == f"test_kind_{i}"
+            assert result_tag.name == f"test_name_{i}"
+            assert result_tag.value == {"test_value": f"test_value_{i}"}
