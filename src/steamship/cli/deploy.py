@@ -66,9 +66,12 @@ def bundle_deployable(manifest: Manifest):
     # Items in non-excluded root folders are moved to the top-level.
 
     with zipfile.ZipFile(
-        file=archive_path, mode="a", compression=zipfile.ZIP_DEFLATED, allowZip64=False
+        file=archive_path,
+        mode="a",
+        compression=zipfile.ZIP_DEFLATED,
+        allowZip64=False,
+        strict_timestamps=False,
     ) as zip_file:
-
         root = Path(".")
         for file_path in root.iterdir():
             if file_path.name not in excludes:
