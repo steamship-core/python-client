@@ -1,8 +1,11 @@
+import time
+
 import pytest
 from steamship_tests import PLUGINS_PATH
 from steamship_tests.utils.deployables import deploy_plugin
 
 from steamship import Block, Steamship
+from steamship.data.block import StreamState
 
 
 @pytest.mark.usefixtures("client")
@@ -33,5 +36,11 @@ def test_e2e_generator(client: Steamship):
         streamed_result = str(res.output.blocks[0].raw(), encoding="utf-8")
         assert streamed_result == "!yob ananaB !oY"
 
-        refreshed_block = Block.get(client, _id=res.output.blocks[0].id)
-        assert refreshed_block.text == "!yob ananaB !oY"
+        block = res.output.blocks[0]
+        while block.stream_state not in [
+            StreamState.COMPLETE,
+            StreamState.ABORTED,
+        ]:
+            time.sleep(0.2)
+            block = Block.get(client, _id=block.id)
+        assert block.text == "!yob ananaB !oY"
