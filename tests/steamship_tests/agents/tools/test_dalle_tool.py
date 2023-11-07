@@ -16,7 +16,7 @@ def test_dalle_tool(client: Steamship):
         OpenAI(client=client),
         AgentContext.get_or_create(client=client, context_keys={"id": "test"}),
     )
-    res = tool.run([Block(text="Mario jumping over a fire flower")], context)
+    res = tool.run([Block(text="a man jumping over a rock")], context)
     assert len(res) == 1
     assert res[0].public_data is True
 
@@ -34,6 +34,6 @@ def test_dalle_tool_private_block(client: Steamship):
         OpenAI(client=client),
         AgentContext.get_or_create(client=client, context_keys={"id": "test"}),
     )
-    res = tool.run([Block(text="Mario jumping over a fire flower")], context)
+    res = tool.run([Block(text="a man jumping over a rock")], context)
     assert len(res) == 1
     assert res[0].public_data is False
