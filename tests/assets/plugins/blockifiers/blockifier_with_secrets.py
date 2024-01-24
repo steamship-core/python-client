@@ -1,4 +1,6 @@
-from typing import Optional, Type
+from typing import Type
+
+from pydantic import Field
 
 from steamship import Block, File
 from steamship.invocable import Config, InvocableResponse, create_handler
@@ -20,7 +22,7 @@ TEST_DOC = f"# {TEST_H1}\n\n{TEST_S1} {TEST_S2}\n\n{TEST_S3}\n"
 
 class DummyBlockifierPlugin(Blockifier):
     class DummyBlockifierConfig(Config):
-        secret: Optional[str] = ""
+        secret: str = Field("")
 
     config: DummyBlockifierConfig
 
