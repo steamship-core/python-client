@@ -15,7 +15,11 @@ from steamship.data.plugin.plugin_version import PluginVersion
 from steamship.data.user import User
 
 
-def zip_deployable(file_path: Path, additional_requirements: Optional[List[str]] = None) -> bytes:
+def zip_deployable(
+    file_path: Path,
+    additional_requirements: Optional[List[str]] = None,
+    secrets_toml: Optional[str] = None,
+) -> bytes:
     """Prepare and zip a Steamship plugin."""
 
     package_paths = [
@@ -42,6 +46,9 @@ def zip_deployable(file_path: Path, additional_requirements: Optional[List[str]]
             requirements_string += "\n" + "\n".join(additional_requirements)
             zip_file.writestr("requirements.txt", requirements_string)
 
+        if secrets_toml is not None:
+            zip_file.writestr(".steamship/secrets.toml", secrets_toml)
+
         # Now we'll copy in the whole assets directory so that our test files can access things there..
         for root, _, files in os.walk(TEST_ASSETS_PATH):
             for file in files:
@@ -65,6 +72,7 @@ def deploy_plugin(
     safe_load_handler: bool = False,
     wait_for_init: bool = True,
     streaming: Optional[bool] = None,
+    secrets_toml: Optional[str] = None,
 ):
     plugin = Plugin.create(
         client,
@@ -75,7 +83,7 @@ def deploy_plugin(
         is_public=False,
     )
 
-    zip_bytes = zip_deployable(py_path)
+    zip_bytes = zip_deployable(py_path, secrets_toml=secrets_toml)
     hosting_handler = "steamship.invocable.entrypoint.safe_handler" if safe_load_handler else None
     plugin_version = PluginVersion.create(
         client,
