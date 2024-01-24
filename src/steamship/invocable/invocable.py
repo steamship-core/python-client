@@ -180,7 +180,7 @@ class Invocable(ABC):
         # creation. All subsequent method invocations reuse that frozen config.
         config = {
             **secret_kwargs,
-            **{k: v for k, v in (config or {}).items()},
+            **{k: v for k, v in (config or {}).items() if v != ""},
         }
 
         # Finally, we set the config object to an instance of the class returned by `self.config_cls`
