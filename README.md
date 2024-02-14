@@ -35,4 +35,4 @@ pip install steamship
 
 ## Support and Discussion
 
-Join our [Discord](https://steamship.com/discord)
+Email us!  support [at] steamship [dot] com.
