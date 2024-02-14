@@ -45,11 +45,15 @@ Only use the functions you have been provided with."""
 
         messages_from_memory = []
         # get prior conversations
-        if context.chat_history.is_searchable():
+        _last_user_message = context.chat_history.last_user_message
+        if (
+            context.chat_history.is_searchable()
+            and _last_user_message
+            and _last_user_message.text
+            and len(_last_user_message.text.strip())
+        ):
             messages_from_memory.extend(
-                context.chat_history.search(context.chat_history.last_user_message.text, k=3)
-                .wait()
-                .to_ranked_blocks()
+                context.chat_history.search(_last_user_message, k=3).wait().to_ranked_blocks()
             )
             # TODO(dougreid): we need a way to threshold message inclusion, especially for small contexts
 
@@ -61,8 +65,12 @@ Only use the functions you have been provided with."""
         # de-dupe the messages from memory
         ids = [
             sys_msg.id,
-            context.chat_history.last_user_message.id,
-        ]  # filter out last user message, it is appended afterwards
+        ]
+
+        if _last_user_message:
+            # filter out last user message, it is appended afterwards
+            ids.append(_last_user_message.id)
+
         for msg in messages_from_memory:
             if msg.id not in ids:
                 messages.append(msg)
@@ -72,7 +80,8 @@ Only use the functions you have been provided with."""
 
         # put the user prompt in the appropriate message location
         # this should happen BEFORE any agent/assistant messages related to tool selection
-        messages.append(context.chat_history.last_user_message)
+        if _last_user_message:
+            messages.append(context.chat_history.last_user_message)
 
         # get working history (completed actions)
         messages.extend(self._function_calls_since_last_user_message(context))
